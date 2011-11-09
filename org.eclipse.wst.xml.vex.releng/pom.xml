@@ -3,10 +3,17 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"
 	xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<modelVersion>4.0.0</modelVersion>
-	<groupId>org.eclipse.wst.xml.vex</groupId>
-	<artifactId>org.eclipse.wst.xml.vex_parent</artifactId>
+	<groupId>org.eclipse.vex</groupId>
+	<artifactId>org.eclipse.vex-releng</artifactId>
 	<version>1.0.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
+	
+	<parent>
+		<artifactId>org.eclipse.vex-parent</artifactId>
+		<groupId>org.eclipse.vex</groupId>
+		<version>1.0.0-SNAPSHOT</version>
+		<relativePath>../pom.xml</relativePath>
+	</parent>
 	
 	<pluginRepositories>
 		<pluginRepository>
@@ -21,19 +28,18 @@
 	</properties>
 
 	<modules>
-		<!-- Vex Core functionality -->
-		<module>../../plugins/org.eclipse.wst.xml.vex</module>
-		<module>../../plugins/org.eclipse.wst.xml.vex.core</module>
-		<module>../../plugins/org.eclipse.wst.xml.vex.ui</module>
-		<module>../../plugins/org.eclipse.wst.xml.vex.dita</module>
-		<module>../../plugins/org.eclipse.wst.xml.vex.docbook</module>
-		<module>../../plugins/org.eclipse.wst.xml.vex.xhtml</module>
-		<module>../../documentation/org.eclipse.wst.xml.vex.documentation</module>
-		<module>../../features/org.eclipse.wst.xml.vex.feature</module>
-		<module>../../features/org.eclipse.wst.xml.vex_sdk.feature</module>
+		<module>../org.eclipse.wst.xml.vex</module>
+		<module>../org.eclipse.wst.xml.vex.core</module>
+		<module>../org.eclipse.wst.xml.vex.ui</module>
+		<module>../org.eclipse.wst.xml.vex.dita</module>
+		<module>../org.eclipse.wst.xml.vex.docbook</module>
+		<module>../org.eclipse.wst.xml.vex.xhtml</module>
+		<module>../org.eclipse.wst.xml.vex.documentation</module>
+		<module>../org.eclipse.wst.xml.vex.feature</module>
+		<module>../org.eclipse.wst.xml.vex_sdk.feature</module>
 		<module>../org.eclipse.wst.xml.vex.repository</module>
-		<module>../../tests/org.eclipse.wst.xml.vex.core.tests</module>
-		<module>../../tests/org.eclipse.wst.xml.vex.ui.tests</module>
+		<module>../org.eclipse.wst.xml.vex.core.tests</module>
+		<module>../org.eclipse.wst.xml.vex.ui.tests</module>
 	</modules>
 
 	<build>
