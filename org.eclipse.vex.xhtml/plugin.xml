@@ -2,8 +2,8 @@
 <?eclipse version="3.4"?>
 <plugin>
 	<extension point="org.eclipse.core.contenttype.contentTypes">
-		<content-type id="org.eclipse.wst.xml.vex.ui.xhtml" name="%contentType.name"
-			base-type="org.eclipse.wst.xml.vex.ui.XmlDocument" file-extensions="xml, xhtml">
+		<content-type id="org.eclipse.vex.ui.xhtml" name="%contentType.name"
+			base-type="org.eclipse.vex.ui.XmlDocument" file-extensions="xml, xhtml">
 		</content-type>
 	</extension>
 
@@ -13,7 +13,7 @@
 		<doctype 
 			publicId="-//W3C//DTD XHTML 1.0 Strict//EN"
 			systemId="http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"
-			outlineProvider="org.eclipse.wst.xml.vex.xhtml.XhtmlOutlineProvider" >
+			outlineProvider="org.eclipse.vex.xhtml.XhtmlOutlineProvider" >
 			<rootElement name="html">
 			</rootElement>
 		</doctype>

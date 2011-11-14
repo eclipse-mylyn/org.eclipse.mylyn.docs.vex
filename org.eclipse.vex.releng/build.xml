@@ -102,7 +102,7 @@
          ================================= -->
 	<target name="findbugs" description="Run a find bugs analysis based on a ZIP file contents.">
 		<patternset id="vex">
-			<include name="eclipse/plugins/org.eclipse.wst.xml.vex.*.jar" />
+			<include name="eclipse/plugins/org.eclipse.vex.*.jar" />
 		</patternset>
 		<getFindBugs downloadDir="${writableBuildRoot}/downloads" destDir="${writableBuildRoot}/3rdPartyJars/findbugs" />
 		<extractJarsForAnalysis src="${sdkzipUrl}${zipPrefix}-SDK${incubation}-${buildType}${buildTimestamp}.zip" refid="vex" />

@@ -2,8 +2,8 @@
 <?eclipse version="3.4"?>
 <plugin>
 	<extension point="org.eclipse.core.contenttype.contentTypes">
-		<content-type id="org.eclipse.wst.xml.vex.ui.tests" name="%contentType.name"
-			base-type="org.eclipse.wst.xml.vex.ui.XmlDocument" file-extensions="xml">
+		<content-type id="org.eclipse.vex.ui.tests" name="%contentType.name"
+			base-type="org.eclipse.vex.ui.XmlDocument" file-extensions="xml">
 		</content-type>
 	</extension>
  <extension

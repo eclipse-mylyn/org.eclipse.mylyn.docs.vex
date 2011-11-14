@@ -14,10 +14,10 @@
     
     <property
         name="plugin-name"
-        value="org.eclipse.wst.xml.vex.tests" />
+        value="org.eclipse.vex.tests" />
     <property
         name="classname"
-        value="org.eclipse.wst.xml.vex.tests.AllTestsSuite" />
+        value="org.eclipse.vex.tests.AllTestsSuite" />
     <property
         name="testType"
         value="ui-test" />

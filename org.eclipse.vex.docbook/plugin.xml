@@ -3,8 +3,8 @@
 <plugin>
 
 	<extension point="org.eclipse.core.contenttype.contentTypes">
-		<content-type id="org.eclipse.wst.xml.vex.ui.docbook4_5" name="%contentType.name"
-			base-type="org.eclipse.wst.xml.vex.ui.XmlDocument" file-extensions="xml, docbook">
+		<content-type id="org.eclipse.vex.ui.docbook4_5" name="%contentType.name"
+			base-type="org.eclipse.vex.ui.XmlDocument" file-extensions="xml, docbook">
 		</content-type>
 	</extension>
  <extension
@@ -24,7 +24,7 @@
          name="%doctype.docbook4_5"
          point="org.eclipse.vex.ui.doctypes">
       <doctype
-            outlineProvider="org.eclipse.wst.xml.vex.docbook.DocBookOutlineProvider"
+            outlineProvider="org.eclipse.vex.docbook.DocBookOutlineProvider"
             publicId="-//OASIS//DTD DocBook XML V4.5//EN"
             systemId="http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
             

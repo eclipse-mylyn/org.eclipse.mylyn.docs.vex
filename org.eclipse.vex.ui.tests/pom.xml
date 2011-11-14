@@ -23,7 +23,7 @@
 				<configuration>
 					<useUIHarness>true</useUIHarness>
 					<testSuite>org.eclipse.vex.ui.tests</testSuite>
-					<testClass>org.eclipse.wst.xml.vex.ui.tests.VexUiTestSuite</testClass>
+					<testClass>org.eclipse.vex.ui.tests.VexUiTestSuite</testClass>
 				</configuration>
 			</plugin>
 		</plugins>
