@@ -22,7 +22,7 @@ import org.eclipse.core.runtime.CoreException;
  */
 public class PluginProjectNature implements IProjectNature {
 
-	public static final String ID = "org.eclipse.wst.xml.vex.ui.pluginNature"; //$NON-NLS-1$
+	public static final String ID = "org.eclipse.vex.ui.pluginNature"; //$NON-NLS-1$
 
 	public void configure() throws CoreException {
 		this.registerBuilder();

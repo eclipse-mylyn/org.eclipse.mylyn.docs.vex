@@ -9,7 +9,7 @@ import org.osgi.framework.BundleContext;
 public class VEXCoreTestPlugin extends AbstractUIPlugin {
 
 	// The plug-in ID
-	public static final String PLUGIN_ID = "org.eclipse.wst.xml.vex.core.tests";
+	public static final String PLUGIN_ID = "org.eclipse.vex.core.tests";
 
 	// The shared instance
 	private static VEXCoreTestPlugin plugin;

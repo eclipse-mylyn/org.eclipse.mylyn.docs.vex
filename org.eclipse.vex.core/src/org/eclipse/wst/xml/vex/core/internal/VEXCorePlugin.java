@@ -16,7 +16,7 @@ import org.osgi.framework.BundleContext;
 
 public class VEXCorePlugin extends AbstractUIPlugin {
 
-	public static final String ID = "org.eclipse.wst.xml.vex.core"; //$NON-NLS-1$
+	public static final String ID = "org.eclipse.vex.core"; //$NON-NLS-1$
 
 	private static VEXCorePlugin instance;
 

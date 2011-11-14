@@ -41,7 +41,7 @@ public class ConfigLoaderJobTest {
 		job.schedule();
 		job.join();
 		final List<ConfigSource> allConfigSources = job.getLoadedConfigSources();
-		assertContainsConfiguration(allConfigSources, "org.eclipse.wst.xml.vex.ui.tests", "test-doctype", "test-style");
+		assertContainsConfiguration(allConfigSources, "org.eclipse.vex.ui.tests", "test-doctype", "test-style");
 		assertContainsEachPluginOnlyOnce(allConfigSources);
 	}
 

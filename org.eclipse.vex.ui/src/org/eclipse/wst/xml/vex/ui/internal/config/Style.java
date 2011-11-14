@@ -24,7 +24,7 @@ import org.eclipse.wst.xml.vex.core.internal.layout.BoxFactory;
  */
 public class Style extends ConfigItem {
 
-	public static final String EXTENSION_POINT = "org.eclipse.wst.xml.vex.ui.styles"; //$NON-NLS-1$
+	public static final String EXTENSION_POINT = "org.eclipse.vex.ui.styles"; //$NON-NLS-1$
 
 	public Style(final ConfigSource config) {
 		super(config);

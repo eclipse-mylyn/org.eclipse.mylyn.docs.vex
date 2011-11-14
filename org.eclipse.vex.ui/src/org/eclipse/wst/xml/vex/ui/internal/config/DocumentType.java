@@ -18,7 +18,7 @@ import org.eclipse.wst.xml.vex.core.internal.dom.Validator;
  */
 public class DocumentType extends ConfigItem {
 
-	public static final String EXTENSION_POINT = "org.eclipse.wst.xml.vex.ui.doctypes"; //$NON-NLS-1$
+	public static final String EXTENSION_POINT = "org.eclipse.vex.ui.doctypes"; //$NON-NLS-1$
 
 	public DocumentType(final ConfigSource config) {
 		super(config);

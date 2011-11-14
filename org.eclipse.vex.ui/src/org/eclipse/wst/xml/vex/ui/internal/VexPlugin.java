@@ -27,7 +27,7 @@ import org.osgi.framework.BundleContext;
 public class VexPlugin extends AbstractUIPlugin {
 
     /** The plugin's ID */
-    public static final String ID = "org.eclipse.wst.xml.vex.ui"; //$NON-NLS-1$
+    public static final String ID = "org.eclipse.vex.ui"; //$NON-NLS-1$
 
     private static VexPlugin instance;
     
