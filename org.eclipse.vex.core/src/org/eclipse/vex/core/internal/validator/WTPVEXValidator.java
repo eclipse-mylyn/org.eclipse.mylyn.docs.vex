@@ -56,18 +56,22 @@ public class WTPVEXValidator implements Validator {
 
 	private static final URIResolver URI_RESOLVER = URIResolverPlugin.createResolver();
 
-	private CMDocument rootSchema;
+	private CMDocument dtd;
 
 	private final CMValidator validator = new CMValidator();
 
-	private final URL rootSchemaUrl;
+	private final URL dtdUrl;
 
-	public WTPVEXValidator(final URL rootSchemaUrl) {
-		this.rootSchemaUrl = rootSchemaUrl;
+	public WTPVEXValidator() {
+		this.dtdUrl = null;
+	}
+	
+	public WTPVEXValidator(final URL dtdUrl) {
+		this.dtdUrl = dtdUrl;
 	}
 
-	public WTPVEXValidator(final String rootSchemaIdentifier) {
-		this(resolveSchemaIdentifier(rootSchemaIdentifier));
+	public WTPVEXValidator(final String dtdIdentifier) {
+		this(resolveSchemaIdentifier(dtdIdentifier));
 	}
 
 	private static URL resolveSchemaIdentifier(final String schemaIdentifier) {
@@ -90,21 +94,33 @@ public class WTPVEXValidator implements Validator {
 		}
 	}
 
-	private CMDocument getSchema(final String schemaIdentifier) {
-		if (schemaIdentifier == null)
-			return getSchema();
-		final URL resolved = resolveSchemaIdentifier(schemaIdentifier);
+	private CMDocument getSchema(final String namespaceURI) {
+		if (isDTDDefined())
+			return getDTD();
+		if (namespaceURI == null)
+			/*
+			 * TODO this is a common case that should be handled somehow
+			 * - a hint should be shown: there is no DTD or Schema referenced in the document
+			 * - an inferred schema should be used, to allow to at least display the document in the editor
+			 * - this is not the right place to either check or handle this
+			 */
+			throw new AssertionError("There is no definition of the document structure available.");
+		final URL resolved = resolveSchemaIdentifier(namespaceURI);
 		final ContentModelManager modelManager = ContentModelManager.getInstance();
 		return modelManager.createCMDocument(resolved.toString(), null);
 	}
 	
-	private CMDocument getSchema() {
-		if (rootSchema == null) {
+	private boolean isDTDDefined() {
+		return getDTD() != null;
+	}
+	
+	private CMDocument getDTD() {
+		if (dtd == null && dtdUrl != null) {
 			final ContentModelManager modelManager = ContentModelManager.getInstance();
-			final String resolved = rootSchemaUrl.toString();
-			rootSchema = modelManager.createCMDocument(resolved, null);
+			final String resolved = dtdUrl.toString();
+			dtd = modelManager.createCMDocument(resolved, null);
 		}
-		return rootSchema;
+		return dtd;
 	}
 	
 	public AttributeDefinition getAttributeDefinition(final Attribute attribute) {
@@ -248,9 +264,9 @@ public class WTPVEXValidator implements Validator {
 		return list;
 	}
 	
-	private Set<CMElementDeclaration> getValidRootElements(final String schemaIdentifier) {
+	private Set<CMElementDeclaration> getValidRootElements(final String namespaceURI) {
 		final HashSet<CMElementDeclaration> result = new HashSet<CMElementDeclaration>();
-		final Iterator<?> iter = getSchema(schemaIdentifier).getElements().iterator();
+		final Iterator<?> iter = getSchema(namespaceURI).getElements().iterator();
 		while (iter.hasNext()) {
 			final CMElementDeclaration element = (CMElementDeclaration) iter.next();
 			result.add(element);

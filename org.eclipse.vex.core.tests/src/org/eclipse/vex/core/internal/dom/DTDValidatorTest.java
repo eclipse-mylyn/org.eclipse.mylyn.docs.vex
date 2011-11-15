@@ -143,15 +143,22 @@ public class DTDValidatorTest extends TestCase {
 		assertInvalidSequence("document", "preface", "index");
 	}
 
-	private void assertFullyValidSequence(final String element, final String... sequence) {
+	public void testValidateDocumentWithDTDAndNamespaces() throws Exception {
+		final Document doc = new Document(new RootElement(new QualifiedName("http://namespace/uri/is/not/registered", "section")));
+		doc.setValidator(validator);
+		doc.insertElement(1, new Element("title"));
+		doc.insertText(2, "ab");
+		doc.insertElement(5, new Element("para"));
+		
+		validator.getAttributeDefinitions(doc.getRootElement());
+	}
 
+	private void assertFullyValidSequence(final String element, final String... sequence) {
 		// fully includes partially
 		assertValidSequence(true, element, true, true, sequence);
-
 	}
 
 	private void assertPartiallyValidSequence(final String element, final String... sequence) {
-
 		// as partial sequence valid...
 		assertValidSequence(true, element, false, true, sequence);
 
@@ -160,10 +167,8 @@ public class DTDValidatorTest extends TestCase {
 	}
 
 	private void assertInvalidSequence(final String element, final String... sequence) {
-
 		// partially _and_ fully
 		assertValidSequence(false, element, true, true, sequence);
-
 	}
 
 	private void assertValidSequence(final boolean expected, final String element, final boolean validateFully, final boolean validatePartially,

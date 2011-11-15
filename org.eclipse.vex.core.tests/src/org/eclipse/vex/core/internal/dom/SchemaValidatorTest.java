@@ -175,7 +175,7 @@ public class SchemaValidatorTest {
 	
 	@Test
 	public void proposeElementsFromComplexSchema() throws Exception {
-		final Validator validator = new WTPVEXValidator(STRUCTURE_NS);
+		final Validator validator = new WTPVEXValidator();
 		final Document doc = new Document(new RootElement(CHAPTER));
 		doc.setValidator(validator);
 		doc.insertElement(1, new Element(TITLE));
