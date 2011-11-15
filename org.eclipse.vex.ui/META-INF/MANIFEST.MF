@@ -31,7 +31,7 @@ Export-Package: org.eclipse.vex.ui.internal;x-friends:="org.eclipse.vex.ui.tests
  org.eclipse.vex.ui.internal.swt;x-internal:=true,
  org.eclipse.vex.ui.internal.views;x-internal:=true,
  org.eclipse.vex.ui.internal.wizards;x-internal:=true
-ion: plugin
+Bundle-Localization: plugin
 Bundle-ActivationPolicy: lazy
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 
