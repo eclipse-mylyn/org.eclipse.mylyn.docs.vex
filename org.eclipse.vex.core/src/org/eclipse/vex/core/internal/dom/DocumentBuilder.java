@@ -140,10 +140,10 @@ public class DocumentBuilder implements ContentHandler, LexicalHandler {
 	public void startElement(final String namespaceURI, final String localName, final String qName, final Attributes attrs) throws SAXException {
 		System.out.println("element: '" + qName + "' namespaceUri: '" + namespaceURI + "' local: '" + localName + "'"); // TODO trace
 		final QualifiedName elementName;
-		if ("".equals(localName))
+		if ("".equals(namespaceURI))
 			elementName = new QualifiedName(null, qName);
 		else
-		elementName = new QualifiedName(namespaceURI, localName);
+			elementName = new QualifiedName(namespaceURI, localName);
 		Element element;
 		if (stack.isEmpty()) {
 			rootElement = new RootElement(elementName);
@@ -160,10 +160,10 @@ public class DocumentBuilder implements ContentHandler, LexicalHandler {
 		final String defaultNamespaceUri = namespaceStack.peekDefault();
 		if (defaultNamespaceUri != null)
 			element.declareDefaultNamespace(defaultNamespaceUri);
-		
+
 		for (final String prefix : namespaceStack.getPrefixes())
 			element.declareNamespace(prefix, namespaceStack.peek(prefix));
-		
+
 		final int n = attrs.getLength();
 		for (int i = 0; i < n; i++) {
 			System.out.println("attr: " + attrs.getQName(i)); // TODO trace
