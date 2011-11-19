@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<!DOCTYPE section PUBLIC "-//Eclipse Foundation//DTD Vex Test//EN" "test1.dtd">
+<section>
+	<title>Testdocument with DTD (Public Identifier)</title>
+	<para>This is a Testdocument using a DTD which is referenced by a public identifier.</para>
+</section>

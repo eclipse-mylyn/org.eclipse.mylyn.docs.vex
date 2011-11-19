@@ -41,7 +41,7 @@ public class DocumentBuilder implements ContentHandler, LexicalHandler {
 	// Holds pending characters until we see another element boundary.
 	// This is (a) so we can collapse spaces in multiple adjacent character
 	// blocks, and (b) so we can trim trailing whitespace, if necessary.
-	private final StringBuffer pendingChars = new StringBuffer();
+	private final StringBuilder pendingChars = new StringBuilder();
 
 	// If true, trim the leading whitespace from the next received block of
 	// text.
@@ -118,7 +118,6 @@ public class DocumentBuilder implements ContentHandler, LexicalHandler {
 	}
 
 	public void endPrefixMapping(final String prefix) {
-		System.out.println("end prefix: '" + prefix + "'"); // TODO trace
 	}
 
 	public void ignorableWhitespace(final char[] ch, final int start, final int length) {
@@ -138,7 +137,6 @@ public class DocumentBuilder implements ContentHandler, LexicalHandler {
 	}
 
 	public void startElement(final String namespaceURI, final String localName, final String qName, final Attributes attrs) throws SAXException {
-		System.out.println("element: '" + qName + "' namespaceUri: '" + namespaceURI + "' local: '" + localName + "'"); // TODO trace
 		final QualifiedName elementName;
 		if ("".equals(namespaceURI))
 			elementName = new QualifiedName(null, qName);
@@ -166,7 +164,6 @@ public class DocumentBuilder implements ContentHandler, LexicalHandler {
 
 		final int n = attrs.getLength();
 		for (int i = 0; i < n; i++) {
-			System.out.println("attr: " + attrs.getQName(i)); // TODO trace
 			final QualifiedName attributeName;
 			if ("".equals(attrs.getLocalName(i)))
 				attributeName = new QualifiedName(null, attrs.getQName(i));
@@ -192,7 +189,6 @@ public class DocumentBuilder implements ContentHandler, LexicalHandler {
 	}
 
 	public void startPrefixMapping(final String prefix, final String uri) {
-		System.out.println("prefix: '" + prefix + "' uri: '" + uri + "'"); // TODO trace
 		checkPrefix(prefix);
 		if (isDefaultPrefix(prefix))
 			namespaceStack.pushDefault(uri);
@@ -238,7 +234,7 @@ public class DocumentBuilder implements ContentHandler, LexicalHandler {
 	// Append any pending characters to the content
 	private void appendChars(final boolean trimTrailing) {
 
-		StringBuffer sb;
+		StringBuilder sb;
 
 		sb = cleanUpTextContent(trimTrailing);
 
@@ -248,8 +244,8 @@ public class DocumentBuilder implements ContentHandler, LexicalHandler {
 		trimLeading = false;
 	}
 
-	private StringBuffer cleanUpTextContent(final boolean trimTrailing) {
-		StringBuffer sb;
+	private StringBuilder cleanUpTextContent(final boolean trimTrailing) {
+		StringBuilder sb;
 		final StackEntry entry = stack.isEmpty() ? null : stack.getLast();
 
 		if (entry != null && entry.pre)
@@ -257,7 +253,7 @@ public class DocumentBuilder implements ContentHandler, LexicalHandler {
 		else {
 
 			// collapse the space in the pending characters
-			sb = new StringBuffer(pendingChars.length());
+			sb = new StringBuilder(pendingChars.length());
 			boolean ws = false; // true if we're in a run of whitespace
 			for (int i = 0; i < pendingChars.length(); i++) {
 				final char c = pendingChars.charAt(i);
@@ -298,7 +294,7 @@ public class DocumentBuilder implements ContentHandler, LexicalHandler {
 	 * @param sb
 	 *            StringBuffer to be normalized.
 	 */
-	private void normalizeNewlines(final StringBuffer sb) {
+	private void normalizeNewlines(final StringBuilder sb) {
 
 		// State machine states
 		final int START = 0;

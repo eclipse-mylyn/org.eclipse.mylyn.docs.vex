@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+<!DOCTYPE section SYSTEM "test1.dtd">
+<section>
+	<title>Testdocument with DTD (System Identifier)</title>
+	<para>This is a Testdocument using a DTD which is referenced by a system identifier.</para>
+</section>

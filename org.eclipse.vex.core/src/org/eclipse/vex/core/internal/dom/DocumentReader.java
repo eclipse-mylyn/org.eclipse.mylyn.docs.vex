@@ -34,6 +34,12 @@ import org.xml.sax.ext.LexicalHandler;
  */
 public class DocumentReader {
 
+	private boolean debugging;
+
+	private EntityResolver entityResolver;
+	
+	private IWhitespacePolicyFactory whitespacePolicyFactory;
+
 	/**
 	 * Returns the debugging flag.
 	 */
@@ -62,7 +68,6 @@ public class DocumentReader {
 	 *            URL from which to load the document.
 	 */
 	public Document read(final URL url) throws IOException, ParserConfigurationException, SAXException {
-
 		return read(new InputSource(url.toString()));
 	}
 
@@ -74,7 +79,6 @@ public class DocumentReader {
 	 *            String containing the document to be read.
 	 */
 	public Document read(final String s) throws IOException, ParserConfigurationException, SAXException {
-
 		final Reader reader = new CharArrayReader(s.toCharArray());
 		return this.read(new InputSource(reader));
 	}
@@ -86,15 +90,14 @@ public class DocumentReader {
 	 *            SAX InputSource from which to load the document.
 	 */
 	public Document read(final InputSource is) throws IOException, ParserConfigurationException, SAXException {
-
 		final SAXParserFactory factory = SAXParserFactory.newInstance();
-		factory.setValidating(false); // TODO: experimental--SWT implementation
+		factory.setValidating(false);
 		factory.setNamespaceAware(true);
+
 		final XMLReader xmlReader = factory.newSAXParser().getXMLReader();
 		// xmlReader.setFeature("http://xml.org/sax/features/validation",
 		// false);
-		final org.eclipse.vex.core.internal.dom.DocumentBuilder builder = new org.eclipse.vex.core.internal.dom.DocumentBuilder(
-				getWhitespacePolicyFactory());
+		final org.eclipse.vex.core.internal.dom.DocumentBuilder builder = new org.eclipse.vex.core.internal.dom.DocumentBuilder(getWhitespacePolicyFactory());
 
 		ContentHandler contentHandler = builder;
 		LexicalHandler lexicalHandler = builder;
@@ -158,11 +161,5 @@ public class DocumentReader {
 	public void setWhitespacePolicyFactory(final IWhitespacePolicyFactory whitespacePolicyFactory) {
 		this.whitespacePolicyFactory = whitespacePolicyFactory;
 	}
-
-	// ======================================================= PRIVATE
-
-	private boolean debugging;
-	private EntityResolver entityResolver;
-	private IWhitespacePolicyFactory whitespacePolicyFactory;
 
 }
