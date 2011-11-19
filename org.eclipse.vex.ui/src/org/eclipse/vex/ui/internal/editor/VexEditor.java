@@ -16,7 +16,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.net.URL;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -71,8 +70,6 @@ import org.eclipse.vex.core.internal.dom.Document;
 import org.eclipse.vex.core.internal.dom.DocumentReader;
 import org.eclipse.vex.core.internal.dom.DocumentWriter;
 import org.eclipse.vex.core.internal.dom.Element;
-import org.eclipse.vex.core.internal.dom.IWhitespacePolicy;
-import org.eclipse.vex.core.internal.dom.IWhitespacePolicyFactory;
 import org.eclipse.vex.core.internal.dom.Validator;
 import org.eclipse.vex.core.internal.validator.WTPVEXValidator;
 import org.eclipse.vex.core.internal.widget.CssWhitespacePolicy;
@@ -86,6 +83,8 @@ import org.eclipse.vex.ui.internal.handlers.RemoveTagHandler;
 import org.eclipse.vex.ui.internal.outline.DocumentOutlinePage;
 import org.eclipse.vex.ui.internal.property.ElementPropertySource;
 import org.eclipse.vex.ui.internal.swt.VexWidget;
+import org.eclipse.wst.common.uriresolver.internal.provisional.URIResolver;
+import org.eclipse.wst.common.uriresolver.internal.provisional.URIResolverPlugin;
 import org.osgi.service.prefs.BackingStoreException;
 import org.osgi.service.prefs.Preferences;
 import org.xml.sax.EntityResolver;
@@ -146,13 +145,13 @@ public class VexEditor extends EditorPart {
 
 			if (input instanceof IFileEditorInput) {
 				final ByteArrayOutputStream baos = new ByteArrayOutputStream();
-				writer.write(doc, baos);
+				writer.write(document, baos);
 				baos.close();
 				final ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
 				((IFileEditorInput) input).getFile().setContents(bais, false, false, monitor);
 			} else {
 				os = new FileOutputStream(((ILocationProvider) input).getPath(input).toFile());
-				writer.write(doc, os);
+				writer.write(document, os);
 			}
 
 			savedUndoDepth = vexWidget.getUndoDepth();
@@ -186,7 +185,7 @@ public class VexEditor extends EditorPart {
 				final ByteArrayOutputStream baos = new ByteArrayOutputStream();
 				final DocumentWriter writer = new DocumentWriter();
 				writer.setWhitespacePolicy(new CssWhitespacePolicy(style.getStyleSheet()));
-				writer.write(doc, baos);
+				writer.write(document, baos);
 				baos.close();
 
 				final ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
@@ -281,7 +280,7 @@ public class VexEditor extends EditorPart {
 		try {
 			final long start = System.currentTimeMillis();
 
-			IFile file = null;
+			final IFile file;
 
 			if (input instanceof IFileEditorInput)
 				file = ((IFileEditorInput) input).getFile();
@@ -291,15 +290,24 @@ public class VexEditor extends EditorPart {
 				showLabel(msg);
 				return;
 			}
+			
+			final URIResolver uriResolver = URIResolverPlugin.createResolver();
 
+			final VexDocumentContentModel documentContentModel = new VexDocumentContentModel(getSite().getShell());
 			final DocumentReader reader = new DocumentReader();
 			reader.setDebugging(debugging);
-			reader.setEntityResolver(entityResolver);
-			reader.setWhitespacePolicyFactory(wsFactory);
-			doctype = null; // must be null to set it to a new value via
-							// entityResolveras by following read():
-			doc = reader.read(file.getLocationURI().toURL());
-
+			reader.setDocumentContentModel(documentContentModel);
+			reader.setEntityResolver(new EntityResolver() {
+				public InputSource resolveEntity(final String publicId, final String systemId) throws SAXException, IOException {
+					final String resolved = uriResolver.resolve(file.getLocationURI().toString(), publicId, systemId);
+					System.out.println("Resolved " + publicId + " " + systemId + " -> " + resolved);
+					if (resolved != null)
+						return new InputSource(resolved);
+					return null;
+				}
+			});
+			document = reader.read(file.getLocationURI().toURL());
+			
 			if (debugging) {
 				final long end = System.currentTimeMillis();
 				final String message = "Parsed document in " //$NON-NLS-1$
@@ -307,19 +315,17 @@ public class VexEditor extends EditorPart {
 				System.out.println(message);
 			}
 
-			if (doc == null) {
+			if (document == null) {
 				showLabel(MessageFormat.format(Messages.getString("VexEditor.noContent"), file));
 				return;
 			}
-			
-			// this.doctype is set either by wsPolicyFactory or entityResolver
-			// this.style is set by wsPolicyFactory
-			// Otherwise, a PartInitException would have been thrown by now
 
-			//IValidator validator = this.doctype.getValidator(); 
+			doctype = documentContentModel.getDocumentType();
+			style = documentContentModel.getStyle();
+			
 			final Validator validator = new WTPVEXValidator(doctype.getResourceUrl());
 			if (validator != null) {
-				doc.setValidator(validator);
+				document.setValidator(validator);
 				if (debugging) {
 					final long end = System.currentTimeMillis();
 					System.out.println("Got validator in " + (end - start) + "ms"); //$NON-NLS-1$ //$NON-NLS-2$
@@ -329,11 +335,11 @@ public class VexEditor extends EditorPart {
 			showVexWidget();
 
 			vexWidget.setDebugging(debugging);
-			vexWidget.setDocument(doc, style.getStyleSheet());
+			vexWidget.setDocument(document, style.getStyleSheet());
 
-			if (updateDoctypeDecl) {
-				doc.setPublicID(doctype.getPublicId());
-				((Document) doc).setSystemID(doctype.getSystemId());
+			if (documentContentModel.shouldAssignInferredDocumentType()) {
+				document.setPublicID(doctype.getPublicId());
+				((Document) document).setSystemID(doctype.getSystemId());
 				doSave(null);
 			}
 
@@ -458,7 +464,7 @@ public class VexEditor extends EditorPart {
 		this.style = style;
 		if (vexWidget != null) {
 			vexWidget.setStyleSheet(style.getStyleSheet());
-			setPreferredStyleId(doc.getPublicID(), style.getUniqueId());
+			setPreferredStyleId(document.getPublicID(), style.getUniqueId());
 		}
 	}
 
@@ -482,7 +488,7 @@ public class VexEditor extends EditorPart {
 
 	private boolean loaded;
 	private DocumentType doctype;
-	private Document doc;
+	private Document document;
 	private Style style;
 
 	private VexWidget vexWidget;
@@ -490,11 +496,6 @@ public class VexEditor extends EditorPart {
 	private int savedUndoDepth;
 	private boolean wasDirty;
 	// private Label statusLabel;
-
-	// This is true if the document's doctype decl is missing or unrecognized
-	// AND the user selected a new document type
-	// AND the user wants to always use the doctype for this document
-	private boolean updateDoctypeDecl;
 
 	private final ListenerList<IVexEditorListener, VexEditorEvent> vexEditorListeners = new ListenerList<IVexEditorListener, VexEditorEvent>(
 			IVexEditorListener.class);
@@ -704,65 +705,6 @@ public class VexEditor extends EditorPart {
 		}
 	};
 
-	private final EntityResolver entityResolver = new EntityResolver() {
-		public InputSource resolveEntity(final String publicId, final String systemId) throws SAXException, IOException {
-
-			// System.out.println("### Resolving publicId " + publicId +
-			// ", systemId " + systemId);
-
-			if (doctype == null) {
-				//
-				// If doctype hasn't already been set, this must be the doctype
-				// decl.
-				//
-				if (publicId != null)
-					doctype = VexPlugin.getInstance().getConfigurationRegistry().getDocumentType(publicId);
-
-				if (doctype == null) {
-					final DocumentTypeSelectionDialog dlg = DocumentTypeSelectionDialog.create(getSite().getShell(), publicId);
-					dlg.open();
-					doctype = dlg.getDoctype();
-					updateDoctypeDecl = dlg.alwaysUseThisDoctype();
-
-					if (doctype == null)
-						throw new NoRegisteredDoctypeException(publicId);
-				}
-
-				final URL url = doctype.getResourceUrl();
-
-				if (url == null) {
-					final String message = MessageFormat.format(Messages.getString("VexEditor.noUrlForDoctype"), //$NON-NLS-1$
-							new Object[] { publicId });
-					throw new RuntimeException(message);
-				}
-
-				return new InputSource(url.toString());
-			} else
-				return null;
-		}
-	};
-
-	private final IWhitespacePolicyFactory wsFactory = new IWhitespacePolicyFactory() {
-		public IWhitespacePolicy getPolicy(final String publicId) {
-			if (doctype == null) {
-				final DocumentTypeSelectionDialog dlg = DocumentTypeSelectionDialog.create(getSite().getShell(), publicId);
-				dlg.open();
-				doctype = dlg.getDoctype();
-				updateDoctypeDecl = dlg.alwaysUseThisDoctype();
-
-				if (doctype == null)
-					throw new NoRegisteredDoctypeException(null);
-			}
-
-			style = VexEditor.getPreferredStyle(doctype.getPublicId());
-			if (style == null)
-				throw new NoStyleForDoctypeException();
-
-			return new CssWhitespacePolicy(style.getStyleSheet());
-		}
-
-	};
-
 	private class ResourceChangeListener implements IResourceChangeListener {
 
 		public void resourceChanged(final IResourceChangeEvent event) {
@@ -795,34 +737,6 @@ public class VexEditor extends EditorPart {
 	// by throwing one of these exceptions
 	//
 
-	/**
-	 * Indicates that no document type is registered for the public ID in the
-	 * document, or that the document does not have a PUBLIC DOCTYPE decl, in
-	 * which case publicId is null.
-	 */
-	private static class NoRegisteredDoctypeException extends RuntimeException {
-		private static final long serialVersionUID = 1L;
-
-		public NoRegisteredDoctypeException(final String publicId) {
-			this.publicId = publicId;
-		}
-
-		public String getPublicId() {
-			return publicId;
-		}
-
-		private final String publicId;
-	}
-
-	/**
-	 * Indicates that the document was matched to a registered doctype, but that
-	 * the given doctype does not have a matching style.
-	 */
-	private static class NoStyleForDoctypeException extends RuntimeException {
-
-		private static final long serialVersionUID = 1L;
-	}
-
 	private String getLocation() {
 		final List<String> path = new ArrayList<String>();
 		Element element = vexWidget.getCurrentElement();
@@ -840,7 +754,7 @@ public class VexEditor extends EditorPart {
 	}
 
 	@Override
-	public Object getAdapter(final Class adapter) {
+	public Object getAdapter(@SuppressWarnings("rawtypes") final Class adapter) {
 
 		if (adapter == IContentOutlinePage.class)
 			return new DocumentOutlinePage();
@@ -884,15 +798,15 @@ public class VexEditor extends EditorPart {
 					return new CharSequence() {
 
 						public CharSequence subSequence(final int start, final int end) {
-							return doc.getRawText(start, end);
+							return document.getRawText(start, end);
 						}
 
 						public int length() {
-							return doc.getLength();
+							return document.getLength();
 						}
 
 						public char charAt(final int index) {
-							return doc.getCharacterAt(index);
+							return document.getCharacterAt(index);
 						}
 					};
 				}

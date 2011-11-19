@@ -285,16 +285,14 @@ public class SpaceNormalizerTest extends TestCase {
 	}
 
 	private Document createDocument(final String s, final StyleSheet ss) throws ParserConfigurationException, SAXException, IOException {
-
 		final SAXParserFactory factory = SAXParserFactory.newInstance();
 		final XMLReader xmlReader = factory.newSAXParser().getXMLReader();
 		final StyleSheet mySS = ss;
-		final DocumentBuilder builder = new DocumentBuilder(new IWhitespacePolicyFactory() {
-
-			public IWhitespacePolicy getPolicy(final String publicId) {
-				return new CssWhitespacePolicy(mySS);
+		final CssWhitespacePolicy policy = new CssWhitespacePolicy(mySS);
+		final DocumentBuilder builder = new DocumentBuilder(new DocumentContentModel() {
+			public IWhitespacePolicy getWhitespacePolicy() {
+				return policy;
 			}
-
 		});
 
 		final InputSource is = new InputSource(new ByteArrayInputStream(s.getBytes()));

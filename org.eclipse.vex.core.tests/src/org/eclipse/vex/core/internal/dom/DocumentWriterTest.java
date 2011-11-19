@@ -28,12 +28,6 @@ import org.eclipse.vex.core.internal.core.DisplayDevice;
 import org.eclipse.vex.core.internal.css.MockDisplayDevice;
 import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.css.StyleSheetReader;
-import org.eclipse.vex.core.internal.dom.Document;
-import org.eclipse.vex.core.internal.dom.DocumentWriter;
-import org.eclipse.vex.core.internal.dom.Element;
-import org.eclipse.vex.core.internal.dom.IWhitespacePolicy;
-import org.eclipse.vex.core.internal.dom.IWhitespacePolicyFactory;
-import org.eclipse.vex.core.internal.dom.Node;
 import org.eclipse.vex.core.internal.widget.CssWhitespacePolicy;
 import org.eclipse.vex.core.tests.TestResources;
 import org.xml.sax.InputSource;
@@ -111,14 +105,12 @@ public class DocumentWriterTest extends TestCase {
 		final DefaultHandler defaultHandler = new DefaultHandler();
 
 		final IWhitespacePolicy policy = new CssWhitespacePolicy(ss);
-
-		final IWhitespacePolicyFactory wsFactory = new IWhitespacePolicyFactory() {
-			public IWhitespacePolicy getPolicy(final String publicId) {
+		final DocumentBuilder builder = new DocumentBuilder(new DocumentContentModel() {
+			@Override
+			public IWhitespacePolicy getWhitespacePolicy() {
 				return policy;
 			}
-		};
-
-		final org.eclipse.vex.core.internal.dom.DocumentBuilder builder = new org.eclipse.vex.core.internal.dom.DocumentBuilder(wsFactory);
+		});
 
 		xmlReader.setContentHandler(builder);
 		xmlReader.setDTDHandler(defaultHandler);

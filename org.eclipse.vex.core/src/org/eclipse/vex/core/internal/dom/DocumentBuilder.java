@@ -35,7 +35,9 @@ import org.xml.sax.ext.LexicalHandler;
  * </ul>
  */
 public class DocumentBuilder implements ContentHandler, LexicalHandler {
-	private final IWhitespacePolicyFactory policyFactory;
+
+	private DocumentContentModel documentContentModel;
+
 	private IWhitespacePolicy policy;
 
 	// Holds pending characters until we see another element boundary.
@@ -59,7 +61,7 @@ public class DocumentBuilder implements ContentHandler, LexicalHandler {
 
 	private String dtdPublicID;
 	private String dtdSystemID;
-	private Document doc;
+	private Document document;
 	private Locator locator;
 
 	/**
@@ -69,15 +71,15 @@ public class DocumentBuilder implements ContentHandler, LexicalHandler {
 	 *            Used to determine the WhitespacePolicy to use for a given
 	 *            document type.
 	 */
-	public DocumentBuilder(final IWhitespacePolicyFactory policyFactory) {
-		this.policyFactory = policyFactory;
+	public DocumentBuilder(final DocumentContentModel documentContentModel) {
+		this.documentContentModel = documentContentModel;
 	}
 
 	/**
 	 * Returns the newly built <code>Document</code> object.
 	 */
 	public Document getDocument() {
-		return doc;
+		return document;
 	}
 
 	// ============================================= ContentHandler methods
@@ -97,10 +99,10 @@ public class DocumentBuilder implements ContentHandler, LexicalHandler {
 		if (rootElement == null)
 			return;
 
-		doc = new Document(content, rootElement);
-		doc.setPublicID(dtdPublicID);
-		doc.setSystemID(dtdSystemID);
-		rootElement.setDocument(doc);
+		document = new Document(content, rootElement);
+		document.setPublicID(dtdPublicID);
+		document.setSystemID(dtdSystemID);
+		rootElement.setDocument(document);
 	}
 
 	public void endElement(final String namespaceURI, final String localName, final String qName) {
@@ -146,8 +148,6 @@ public class DocumentBuilder implements ContentHandler, LexicalHandler {
 		if (stack.isEmpty()) {
 			rootElement = new RootElement(elementName);
 			element = rootElement;
-			if (policyFactory != null)
-				policy = policyFactory.getPolicy(dtdPublicID);
 		} else {
 			element = new Element(elementName);
 
@@ -178,6 +178,11 @@ public class DocumentBuilder implements ContentHandler, LexicalHandler {
 			}
 		}
 
+		if (stack.isEmpty() && documentContentModel != null) {
+			documentContentModel.initialize(dtdPublicID, dtdSystemID, rootElement);
+			policy = documentContentModel.getWhitespacePolicy();
+		}
+		
 		appendChars(isBlock(element));
 
 		stack.add(new StackEntry(element, content.getLength(), isPre(element)));

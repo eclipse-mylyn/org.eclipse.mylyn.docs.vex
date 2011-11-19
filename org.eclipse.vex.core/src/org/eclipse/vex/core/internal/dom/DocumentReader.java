@@ -36,9 +36,9 @@ public class DocumentReader {
 
 	private boolean debugging;
 
-	private EntityResolver entityResolver;
+	private DocumentContentModel documentContentModel = new DocumentContentModel(); // use the default implementation as default
 	
-	private IWhitespacePolicyFactory whitespacePolicyFactory;
+	private EntityResolver entityResolver;
 
 	/**
 	 * Returns the debugging flag.
@@ -52,13 +52,6 @@ public class DocumentReader {
 	 */
 	public EntityResolver getEntityResolver() {
 		return entityResolver;
-	}
-
-	/**
-	 * Returns the whitespace policy factory for this reader.
-	 */
-	public IWhitespacePolicyFactory getWhitespacePolicyFactory() {
-		return whitespacePolicyFactory;
 	}
 
 	/**
@@ -95,9 +88,7 @@ public class DocumentReader {
 		factory.setNamespaceAware(true);
 
 		final XMLReader xmlReader = factory.newSAXParser().getXMLReader();
-		// xmlReader.setFeature("http://xml.org/sax/features/validation",
-		// false);
-		final org.eclipse.vex.core.internal.dom.DocumentBuilder builder = new org.eclipse.vex.core.internal.dom.DocumentBuilder(getWhitespacePolicyFactory());
+		final DocumentBuilder builder = new DocumentBuilder(getDocumentContentModel());
 
 		ContentHandler contentHandler = builder;
 		LexicalHandler lexicalHandler = builder;
@@ -149,17 +140,13 @@ public class DocumentReader {
 	public void setEntityResolver(final EntityResolver entityResolver) {
 		this.entityResolver = entityResolver;
 	}
-
-	/**
-	 * Sets the whitespace policy factory for this reader. This factory is used
-	 * to obtain a whitespace policy once the public ID of the document is
-	 * known.
-	 * 
-	 * @param whitespacePolicyFactory
-	 *            The whitespacePolicyFactory to set.
-	 */
-	public void setWhitespacePolicyFactory(final IWhitespacePolicyFactory whitespacePolicyFactory) {
-		this.whitespacePolicyFactory = whitespacePolicyFactory;
+	
+	public DocumentContentModel getDocumentContentModel() {
+		return documentContentModel;
+	}
+	
+	public void setDocumentContentModel(DocumentContentModel documentContentModel) {
+		this.documentContentModel = documentContentModel;
 	}
 
 }

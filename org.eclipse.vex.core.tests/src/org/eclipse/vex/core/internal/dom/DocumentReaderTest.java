@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.dom;
 
-import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -30,7 +29,6 @@ public class DocumentReaderTest {
 	@Test
 	public void readDocumentWithDtdPublic() throws Exception {
 		final DocumentReader reader = new DocumentReader();
-		reader.setWhitespacePolicyFactory(IWhitespacePolicyFactory.NULL);
 		final Document document = reader.read(TestResources.get("documentWithDtdPublic.xml"));
 		assertEquals("-//Eclipse Foundation//DTD Vex Test//EN", document.getPublicID());
 		assertEquals("test1.dtd", document.getSystemID());
@@ -39,7 +37,6 @@ public class DocumentReaderTest {
 	@Test
 	public void testname() throws Exception {
 		final DocumentReader reader = new DocumentReader();
-		reader.setWhitespacePolicyFactory(IWhitespacePolicyFactory.NULL);
 		final URL documentUrl = TestResources.get("documentWithDtdSystem.xml");
 		final Document document = reader.read(documentUrl);
 		assertNull(document.getPublicID());
