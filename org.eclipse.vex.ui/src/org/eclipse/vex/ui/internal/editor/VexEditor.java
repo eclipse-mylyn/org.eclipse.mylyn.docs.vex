@@ -83,13 +83,8 @@ import org.eclipse.vex.ui.internal.handlers.RemoveTagHandler;
 import org.eclipse.vex.ui.internal.outline.DocumentOutlinePage;
 import org.eclipse.vex.ui.internal.property.ElementPropertySource;
 import org.eclipse.vex.ui.internal.swt.VexWidget;
-import org.eclipse.wst.common.uriresolver.internal.provisional.URIResolver;
-import org.eclipse.wst.common.uriresolver.internal.provisional.URIResolverPlugin;
 import org.osgi.service.prefs.BackingStoreException;
 import org.osgi.service.prefs.Preferences;
-import org.xml.sax.EntityResolver;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
 
 /**
@@ -290,24 +285,13 @@ public class VexEditor extends EditorPart {
 				showLabel(msg);
 				return;
 			}
-			
-			final URIResolver uriResolver = URIResolverPlugin.createResolver();
 
 			final VexDocumentContentModel documentContentModel = new VexDocumentContentModel(getSite().getShell());
 			final DocumentReader reader = new DocumentReader();
 			reader.setDebugging(debugging);
 			reader.setDocumentContentModel(documentContentModel);
-			reader.setEntityResolver(new EntityResolver() {
-				public InputSource resolveEntity(final String publicId, final String systemId) throws SAXException, IOException {
-					final String resolved = uriResolver.resolve(file.getLocationURI().toString(), publicId, systemId);
-					System.out.println("Resolved " + publicId + " " + systemId + " -> " + resolved);
-					if (resolved != null)
-						return new InputSource(resolved);
-					return null;
-				}
-			});
 			document = reader.read(file.getLocationURI().toURL());
-			
+
 			if (debugging) {
 				final long end = System.currentTimeMillis();
 				final String message = "Parsed document in " //$NON-NLS-1$
@@ -322,7 +306,7 @@ public class VexEditor extends EditorPart {
 
 			doctype = documentContentModel.getDocumentType();
 			style = documentContentModel.getStyle();
-			
+
 			final Validator validator = new WTPVEXValidator(doctype.getResourceUrl());
 			if (validator != null) {
 				document.setValidator(validator);
@@ -339,7 +323,7 @@ public class VexEditor extends EditorPart {
 
 			if (documentContentModel.shouldAssignInferredDocumentType()) {
 				document.setPublicID(doctype.getPublicId());
-				((Document) document).setSystemID(doctype.getSystemId());
+				document.setSystemID(doctype.getSystemId());
 				doSave(null);
 			}
 

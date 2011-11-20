@@ -13,11 +13,16 @@ package org.eclipse.vex.core.internal.dom;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import org.eclipse.core.runtime.QualifiedName;
+import org.eclipse.vex.core.tests.TestResources;
+import org.eclipse.vex.core.tests.VEXCoreTestPlugin;
 import org.junit.Before;
 import org.junit.Test;
+import org.xml.sax.EntityResolver;
+import org.xml.sax.InputSource;
 
 /**
  * @author Florian Thienel
@@ -30,7 +35,7 @@ public class DocumentContentModelTest {
 	public void setUp() throws Exception {
 		model = new DocumentContentModel();
 	}
-	
+
 	@Test
 	public void initializeWithPublicId() throws Exception {
 		model.initialize("publicId", "systemId", new RootElement(new QualifiedName("schemaId", "rootElement")));
@@ -44,16 +49,43 @@ public class DocumentContentModelTest {
 		assertEquals("systemId", model.getMainDocumentTypeIdentifier());
 		assertTrue(model.isDtdAssigned());
 	}
-	
+
 	@Test
 	public void initializeWithNamespace() throws Exception {
 		model.initialize(null, null, new RootElement(new QualifiedName("schemaId", "rootElement")));
 		assertEquals("schemaId", model.getMainDocumentTypeIdentifier());
 		assertFalse(model.isDtdAssigned());
 	}
-	
+
 	@Test
 	public void createWhitespacePolicy() throws Exception {
 		assertNotNull(model.getWhitespacePolicy());
+	}
+
+	@Test
+	public void isEntityResolver() throws Exception {
+		assertTrue(model instanceof EntityResolver);
+	}
+
+	@Test
+	public void resolveEntityFromXMLCatalog() throws Exception {
+		final InputSource resolvedEntity = model.resolveEntity(TestResources.TEST_DTD, "test.dtd");
+		assertNotNull(resolvedEntity);
+		assertTrue(resolvedEntity.getSystemId().contains(VEXCoreTestPlugin.PLUGIN_ID));
+		assertEquals(TestResources.TEST_DTD, resolvedEntity.getPublicId());
+	}
+
+	@Test
+	public void resolveUnknownEntityWithSystemId() throws Exception {
+		final InputSource resolvedEntity = model.resolveEntity("UnknownPublicId", "UnknownSystemId");
+		assertNotNull(resolvedEntity);
+		assertEquals("UnknownSystemId", resolvedEntity.getSystemId());
+		assertEquals("UnknownPublicId", resolvedEntity.getPublicId());
+		assertNull(resolvedEntity.getByteStream());
+	}
+
+	@Test
+	public void resolveUnknownEntityWithoutSystemId() throws Exception {
+		assertNull(model.resolveEntity("UnknownPublicId", null));
 	}
 }

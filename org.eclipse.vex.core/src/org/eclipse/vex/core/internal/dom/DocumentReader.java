@@ -39,6 +39,19 @@ public class DocumentReader {
 	private DocumentContentModel documentContentModel = new DocumentContentModel(); // use the default implementation as default
 	
 	private EntityResolver entityResolver;
+	
+	private final EntityResolver combinedEntityResolver = new EntityResolver() {
+		public InputSource resolveEntity(String publicId, String systemId) throws SAXException, IOException {
+			final InputSource result;
+			if (entityResolver != null)
+				result = entityResolver.resolveEntity(publicId, systemId);
+			else
+				result = null;
+			if (result == null)
+				return documentContentModel.resolveEntity(publicId, systemId);
+			return result;
+		}
+	};
 
 	/**
 	 * Returns the debugging flag.
@@ -112,8 +125,7 @@ public class DocumentReader {
 
 		xmlReader.setContentHandler(contentHandler);
 		xmlReader.setProperty("http://xml.org/sax/properties/lexical-handler", lexicalHandler);
-		if (getEntityResolver() != null)
-			xmlReader.setEntityResolver(getEntityResolver());
+		xmlReader.setEntityResolver(combinedEntityResolver);
 		xmlReader.parse(is);
 		final Document result = builder.getDocument();
 		if (result != null)

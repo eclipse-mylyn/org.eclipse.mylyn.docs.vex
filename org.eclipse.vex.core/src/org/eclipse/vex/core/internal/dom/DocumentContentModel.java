@@ -10,11 +10,22 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.dom;
 
+import java.io.IOException;
+
+import org.eclipse.wst.common.uriresolver.internal.provisional.URIResolver;
+import org.eclipse.wst.common.uriresolver.internal.provisional.URIResolverPlugin;
+import org.xml.sax.EntityResolver;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+
 /**
  * @author Florian Thienel
  */
-public class DocumentContentModel {
+public class DocumentContentModel implements EntityResolver {
 
+	private static final URIResolver URI_RESOLVER = URIResolverPlugin.createResolver();
+
+	private String baseUri;
 	private String publicId;
 	private String systemId;
 	private String schemaId;
@@ -39,6 +50,17 @@ public class DocumentContentModel {
 
 	public IWhitespacePolicy getWhitespacePolicy() {
 		return IWhitespacePolicy.NULL;
+	}
+
+	public InputSource resolveEntity(String publicId, String systemId) throws SAXException, IOException {
+		final String resolved = URI_RESOLVER.resolve(baseUri, publicId, systemId);
+		System.out.println("Resolved " + publicId + " " + systemId + " -> " + resolved);
+		if (resolved == null)
+			return null;
+		
+		final InputSource result = new InputSource(resolved);
+		result.setPublicId(publicId);
+		return result;
 	}
 
 }
