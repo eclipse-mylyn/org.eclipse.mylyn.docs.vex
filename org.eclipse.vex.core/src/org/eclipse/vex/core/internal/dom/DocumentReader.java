@@ -101,7 +101,7 @@ public class DocumentReader {
 		factory.setNamespaceAware(true);
 
 		final XMLReader xmlReader = factory.newSAXParser().getXMLReader();
-		final DocumentBuilder builder = new DocumentBuilder(getDocumentContentModel());
+		final DocumentBuilder builder = new DocumentBuilder(is.getSystemId(), getDocumentContentModel());
 
 		ContentHandler contentHandler = builder;
 		LexicalHandler lexicalHandler = builder;

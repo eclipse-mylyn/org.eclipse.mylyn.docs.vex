@@ -30,7 +30,8 @@ public class DocumentContentModel implements EntityResolver {
 	private String systemId;
 	private String schemaId;
 
-	public void initialize(final String publicId, final String systemId, final RootElement rootElement) {
+	public void initialize(String baseUri, final String publicId, final String systemId, final RootElement rootElement) {
+		this.baseUri = baseUri;
 		this.publicId = publicId;
 		this.systemId = systemId;
 		schemaId = rootElement.getQualifiedName().getQualifier();

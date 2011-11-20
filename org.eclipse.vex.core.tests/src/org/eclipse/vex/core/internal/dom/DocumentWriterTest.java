@@ -105,7 +105,7 @@ public class DocumentWriterTest extends TestCase {
 		final DefaultHandler defaultHandler = new DefaultHandler();
 
 		final IWhitespacePolicy policy = new CssWhitespacePolicy(ss);
-		final DocumentBuilder builder = new DocumentBuilder(new DocumentContentModel() {
+		final DocumentBuilder builder = new DocumentBuilder(null, new DocumentContentModel() {
 			@Override
 			public IWhitespacePolicy getWhitespacePolicy() {
 				return policy;

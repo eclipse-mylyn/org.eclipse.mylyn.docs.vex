@@ -59,19 +59,14 @@ public class DocumentBuilder implements ContentHandler, LexicalHandler {
 
 	private RootElement rootElement;
 
+	private final String baseUri;
 	private String dtdPublicID;
 	private String dtdSystemID;
 	private Document document;
 	private Locator locator;
 
-	/**
-	 * Class constructor.
-	 * 
-	 * @param policyFactory
-	 *            Used to determine the WhitespacePolicy to use for a given
-	 *            document type.
-	 */
-	public DocumentBuilder(final DocumentContentModel documentContentModel) {
+	public DocumentBuilder(final String baseUri, final DocumentContentModel documentContentModel) {
+		this.baseUri = baseUri;
 		this.documentContentModel = documentContentModel;
 	}
 
@@ -179,7 +174,7 @@ public class DocumentBuilder implements ContentHandler, LexicalHandler {
 		}
 
 		if (stack.isEmpty() && documentContentModel != null) {
-			documentContentModel.initialize(dtdPublicID, dtdSystemID, rootElement);
+			documentContentModel.initialize(baseUri, dtdPublicID, dtdSystemID, rootElement);
 			policy = documentContentModel.getWhitespacePolicy();
 		}
 		

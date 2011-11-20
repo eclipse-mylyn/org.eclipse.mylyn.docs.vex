@@ -38,21 +38,21 @@ public class DocumentContentModelTest {
 
 	@Test
 	public void initializeWithPublicId() throws Exception {
-		model.initialize("publicId", "systemId", new RootElement(new QualifiedName("schemaId", "rootElement")));
+		model.initialize(null, "publicId", "systemId", new RootElement(new QualifiedName("schemaId", "rootElement")));
 		assertEquals("publicId", model.getMainDocumentTypeIdentifier());
 		assertTrue(model.isDtdAssigned());
 	}
 
 	@Test
 	public void initializeWithSystemId() throws Exception {
-		model.initialize(null, "systemId", new RootElement(new QualifiedName("schemaId", "rootElement")));
+		model.initialize(null, null, "systemId", new RootElement(new QualifiedName("schemaId", "rootElement")));
 		assertEquals("systemId", model.getMainDocumentTypeIdentifier());
 		assertTrue(model.isDtdAssigned());
 	}
 
 	@Test
 	public void initializeWithNamespace() throws Exception {
-		model.initialize(null, null, new RootElement(new QualifiedName("schemaId", "rootElement")));
+		model.initialize(null, null, null, new RootElement(new QualifiedName("schemaId", "rootElement")));
 		assertEquals("schemaId", model.getMainDocumentTypeIdentifier());
 		assertFalse(model.isDtdAssigned());
 	}
@@ -87,5 +87,14 @@ public class DocumentContentModelTest {
 	@Test
 	public void resolveUnknownEntityWithoutSystemId() throws Exception {
 		assertNull(model.resolveEntity("UnknownPublicId", null));
+	}
+	
+	@Test
+	public void useBaseUriForResolving() throws Exception {
+		model.initialize("file://base/uri/document.xml", null, null, new RootElement(new QualifiedName("schemaId", "rootElement")));
+		final InputSource resolvedEntity = model.resolveEntity("UnknownPublicId", "UnknownSystemId.dtd");
+		assertNotNull(resolvedEntity);
+		assertEquals("file://base/uri/UnknownSystemId.dtd", resolvedEntity.getSystemId());
+		assertEquals("UnknownPublicId", resolvedEntity.getPublicId());
 	}
 }
