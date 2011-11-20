@@ -41,7 +41,7 @@ public class DocumentReaderTest {
 	}
 
 	@Test
-	public void testname() throws Exception {
+	public void readDocumentWithDtdSystem() throws Exception {
 		final DocumentReader reader = new DocumentReader();
 		final URL documentUrl = TestResources.get("documentWithDtdSystem.xml");
 		final Document document = reader.read(documentUrl);
