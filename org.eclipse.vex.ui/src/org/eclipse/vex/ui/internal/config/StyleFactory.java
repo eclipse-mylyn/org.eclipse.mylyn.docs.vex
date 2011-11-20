@@ -66,7 +66,7 @@ public class StyleFactory implements IConfigItemFactory {
 		return Messages.getString("StyleFactory.pluralName"); //$NON-NLS-1$
 	}
 
-	public Object parseResource(final URL baseUrl, final String resourcePath, final IBuildProblemHandler problemHandler) throws IOException {
+	public Object parseResource(final ConfigItem item, final URL baseUrl, final String resourcePath, final IBuildProblemHandler problemHandler) throws IOException {
 		try {
 			return new StyleSheetReader().read(new URL(baseUrl, resourcePath));
 		} catch (final CSSParseException e) {

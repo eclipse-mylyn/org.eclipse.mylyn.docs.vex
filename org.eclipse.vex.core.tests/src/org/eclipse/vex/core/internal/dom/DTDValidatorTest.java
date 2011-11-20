@@ -12,7 +12,6 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.dom;
 
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -22,10 +21,6 @@ import java.util.Set;
 import junit.framework.TestCase;
 
 import org.eclipse.core.runtime.QualifiedName;
-import org.eclipse.vex.core.internal.dom.Document;
-import org.eclipse.vex.core.internal.dom.Element;
-import org.eclipse.vex.core.internal.dom.RootElement;
-import org.eclipse.vex.core.internal.dom.Validator;
 import org.eclipse.vex.core.internal.validator.AttributeDefinition;
 import org.eclipse.vex.core.internal.validator.WTPVEXValidator;
 import org.eclipse.vex.core.tests.TestResources;
@@ -37,8 +32,7 @@ public class DTDValidatorTest extends TestCase {
 	@Override
 	protected void setUp() {
 		try {
-			final URL url = TestResources.get("test1.dtd");
-			validator = new WTPVEXValidator(url);
+			validator = new WTPVEXValidator(TestResources.TEST_DTD);
 		} catch (final Exception ex) {
 			fail("Failed to load test1.dtd");
 		}

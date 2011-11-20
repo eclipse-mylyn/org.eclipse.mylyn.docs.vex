@@ -13,9 +13,7 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.validator;
 
-import java.net.MalformedURLException;
 import java.net.URL;
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
@@ -25,11 +23,10 @@ import java.util.Set;
 
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.vex.core.internal.dom.Attribute;
+import org.eclipse.vex.core.internal.dom.DocumentContentModel;
 import org.eclipse.vex.core.internal.dom.Element;
 import org.eclipse.vex.core.internal.dom.Validator;
 import org.eclipse.vex.core.internal.validator.AttributeDefinition.Type;
-import org.eclipse.wst.common.uriresolver.internal.provisional.URIResolver;
-import org.eclipse.wst.common.uriresolver.internal.provisional.URIResolverPlugin;
 import org.eclipse.wst.xml.core.internal.contentmodel.CMAnyElement;
 import org.eclipse.wst.xml.core.internal.contentmodel.CMAttributeDeclaration;
 import org.eclipse.wst.xml.core.internal.contentmodel.CMContent;
@@ -54,44 +51,22 @@ public class WTPVEXValidator implements Validator {
 		};
 	};
 
-	private static final URIResolver URI_RESOLVER = URIResolverPlugin.createResolver();
+	private final DocumentContentModel documentContentModel;
 
 	private CMDocument dtd;
 
 	private final CMValidator validator = new CMValidator();
 
-	private final URL dtdUrl;
-
 	public WTPVEXValidator() {
-		this.dtdUrl = null;
-	}
-	
-	public WTPVEXValidator(final URL dtdUrl) {
-		this.dtdUrl = dtdUrl;
+		this(new DocumentContentModel());
 	}
 
-	public WTPVEXValidator(final String dtdIdentifier) {
-		this(resolveSchemaIdentifier(dtdIdentifier));
+	public WTPVEXValidator(final String schemaIdentifier) {
+		this(new DocumentContentModel(null, schemaIdentifier, null, null));
 	}
 
-	private static URL resolveSchemaIdentifier(final String schemaIdentifier) {
-		final String schemaLocation = URI_RESOLVER.resolve(null, schemaIdentifier, null);
-		if (schemaLocation == null)
-			/*
-			 * TODO this is a common case that should be handled somehow
-			 * - a hint should be shown: the schema is not available, the schema
-			 * should be added to the catalog by the user
-			 * - an inferred schema should be used, to allow to at least display
-			 * the document in the editor
-			 * - this is not the right place to either check or handle this
-			 */
-			throw new AssertionError("Cannot resolve schema '" + schemaIdentifier + "'.");
-		try {
-			return new URL(schemaLocation);
-		} catch (MalformedURLException e) {
-			throw new AssertionError(MessageFormat.format("Resolution of schema ''{0}'' resulted in a malformed URL: ''{1}''. {2}", schemaIdentifier,
-					schemaLocation, e.getMessage()));
-		}
+	public WTPVEXValidator(final DocumentContentModel documentContentModel) {
+		this.documentContentModel = documentContentModel;
 	}
 
 	private CMDocument getSchema(final String namespaceURI) {
@@ -100,29 +75,34 @@ public class WTPVEXValidator implements Validator {
 		if (namespaceURI == null)
 			/*
 			 * TODO this is a common case that should be handled somehow
-			 * - a hint should be shown: there is no DTD or Schema referenced in the document
-			 * - an inferred schema should be used, to allow to at least display the document in the editor
+			 * - a hint should be shown: there is no DTD or Schema referenced in
+			 * the document
+			 * - an inferred schema should be used, to allow to at least display
+			 * the document in the editor
 			 * - this is not the right place to either check or handle this
 			 */
 			throw new AssertionError("There is no definition of the document structure available.");
-		final URL resolved = resolveSchemaIdentifier(namespaceURI);
+		final URL resolved = documentContentModel.resolveSchemaIdentifier(namespaceURI);
 		final ContentModelManager modelManager = ContentModelManager.getInstance();
 		return modelManager.createCMDocument(resolved.toString(), null);
 	}
-	
+
 	private boolean isDTDDefined() {
-		return getDTD() != null;
+		return documentContentModel.isDtdAssigned();
 	}
-	
+
 	private CMDocument getDTD() {
-		if (dtd == null && dtdUrl != null) {
+		if (dtd == null && documentContentModel.isDtdAssigned()) {
+			final URL dtdUrl = documentContentModel.resolveSchemaIdentifier(documentContentModel.getMainDocumentTypeIdentifier());
+			if (dtdUrl == null)
+				return null;
 			final ContentModelManager modelManager = ContentModelManager.getInstance();
 			final String resolved = dtdUrl.toString();
 			dtd = modelManager.createCMDocument(resolved, null);
 		}
 		return dtd;
 	}
-	
+
 	public AttributeDefinition getAttributeDefinition(final Attribute attribute) {
 		final String attributeName = attribute.getLocalName();
 		final CMElementDeclaration cmElement = getElementDeclaration(attribute.getParent());
@@ -145,7 +125,7 @@ public class WTPVEXValidator implements Validator {
 		return createUnknownAttributeDefinition(attributeName);
 	}
 
-	private static AttributeDefinition createUnknownAttributeDefinition(String attributeName) {
+	private static AttributeDefinition createUnknownAttributeDefinition(final String attributeName) {
 		return new AttributeDefinition(attributeName, Type.CDATA, /* default value */"", /* values */new String[0], /* required */false, /* fixed */true);
 	}
 
@@ -173,7 +153,8 @@ public class WTPVEXValidator implements Validator {
 		if (element == null)
 			return null;
 		final String localName = element.getLocalName();
-		final CMElementDeclaration declarationFromRoot = (CMElementDeclaration) getSchema(element.getQualifiedName().getQualifier()).getElements().getNamedItem(localName);
+		final CMElementDeclaration declarationFromRoot = (CMElementDeclaration) getSchema(element.getQualifiedName().getQualifier()).getElements()
+				.getNamedItem(localName);
 		if (declarationFromRoot != null)
 			return declarationFromRoot;
 		final CMElementDeclaration parentDeclaration = getElementDeclaration(element.getParent());
@@ -181,7 +162,7 @@ public class WTPVEXValidator implements Validator {
 			return null;
 		return (CMElementDeclaration) parentDeclaration.getLocalElements().getNamedItem(localName);
 	}
-	
+
 	private AttributeDefinition createAttributeDefinition(final CMAttributeDeclaration attribute) {
 		@SuppressWarnings("deprecation")
 		final String defaultValue = attribute.getDefaultValue();
@@ -204,7 +185,7 @@ public class WTPVEXValidator implements Validator {
 	public Set<QualifiedName> getValidItems(final Element element) {
 		return getValidItems(getElementDeclaration(element));
 	}
-	
+
 	private Set<QualifiedName> getValidItems(final CMElementDeclaration elementDeclaration) {
 		/*
 		 * #342320: If we do not find the element, it is acutally not valid.
@@ -258,12 +239,12 @@ public class WTPVEXValidator implements Validator {
 				list.add(node);
 			else if (node instanceof CMGroup)
 				list.addAll(getAllChildren((CMGroup) node));
-			else if (node instanceof CMAnyElement) 
-				list.addAll(getValidRootElements(((CMAnyElement)node).getNamespaceURI()));
+			else if (node instanceof CMAnyElement)
+				list.addAll(getValidRootElements(((CMAnyElement) node).getNamespaceURI()));
 		}
 		return list;
 	}
-	
+
 	private Set<CMElementDeclaration> getValidRootElements(final String namespaceURI) {
 		final HashSet<CMElementDeclaration> result = new HashSet<CMElementDeclaration>();
 		final Iterator<?> iter = getSchema(namespaceURI).getElements().iterator();
@@ -277,7 +258,7 @@ public class WTPVEXValidator implements Validator {
 
 	public Set<QualifiedName> getValidRootElements() {
 		final HashSet<QualifiedName> result = new HashSet<QualifiedName>();
-		for (CMElementDeclaration element : getValidRootElements(null))
+		for (final CMElementDeclaration element : getValidRootElements(null))
 			result.add(createQualifiedElementName(element));
 		return result;
 	}
@@ -290,7 +271,7 @@ public class WTPVEXValidator implements Validator {
 		final CMElementDeclaration elementDeclaration = (CMElementDeclaration) parent;
 		final ElementPathRecordingResult validationResult = new ElementPathRecordingResult();
 		final List<String> nodeNames = new ArrayList<String>();
-		for (QualifiedName node : nodes)
+		for (final QualifiedName node : nodes)
 			nodeNames.add(node.getLocalName()); // TODO learn how the WTP content model handles namespaces
 		validator.validate(elementDeclaration, nodeNames, ELEMENT_CONTENT_COMPARATOR, validationResult);
 

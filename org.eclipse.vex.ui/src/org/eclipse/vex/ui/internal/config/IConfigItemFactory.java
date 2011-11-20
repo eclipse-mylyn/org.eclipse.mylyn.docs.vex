@@ -69,6 +69,8 @@ public interface IConfigItemFactory {
 	 * Parse a resource for this type of configuration item. Implementations
 	 * must not fail if passed a null problem handler.
 	 * 
+	 * @param configItem
+	 * 			  the configuration item for which the resource should be parsed
 	 * @param baseUrl
 	 *            Base URL of the project or plugin containing the resource.
 	 * @param resourcePath
@@ -77,7 +79,7 @@ public interface IConfigItemFactory {
 	 *            Problem handler, or null if the caller does not require build
 	 *            problem reporting.
 	 */
-	public Object parseResource(URL baseUrl, String resourcePath,
+	public Object parseResource(ConfigItem item, URL baseUrl, String resourcePath,
 			IBuildProblemHandler problemHandler) throws IOException;
 
 }

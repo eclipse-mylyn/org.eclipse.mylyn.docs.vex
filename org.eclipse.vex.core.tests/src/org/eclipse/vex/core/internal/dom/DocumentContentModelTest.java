@@ -16,6 +16,8 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import java.net.URL;
+
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.vex.core.tests.TestResources;
 import org.eclipse.vex.core.tests.VEXCoreTestPlugin;
@@ -88,7 +90,7 @@ public class DocumentContentModelTest {
 	public void resolveUnknownEntityWithoutSystemId() throws Exception {
 		assertNull(model.resolveEntity("UnknownPublicId", null));
 	}
-	
+
 	@Test
 	public void useBaseUriForResolving() throws Exception {
 		model.initialize("file://base/uri/document.xml", null, null, new RootElement(new QualifiedName("schemaId", "rootElement")));
@@ -96,5 +98,12 @@ public class DocumentContentModelTest {
 		assertNotNull(resolvedEntity);
 		assertEquals("file://base/uri/UnknownSystemId.dtd", resolvedEntity.getSystemId());
 		assertEquals("UnknownPublicId", resolvedEntity.getPublicId());
+	}
+
+	@Test
+	public void resolveSchemaIdentifier() throws Exception {
+		final URL resolvedUrl = model.resolveSchemaIdentifier(TestResources.TEST_DTD);
+		assertNotNull(resolvedUrl);
+		assertTrue(resolvedUrl.toString().contains(VEXCoreTestPlugin.PLUGIN_ID));
 	}
 }

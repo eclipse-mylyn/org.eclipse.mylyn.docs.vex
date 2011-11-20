@@ -80,19 +80,7 @@ public class DoctypeFactory implements IConfigItemFactory {
 		return Messages.getString("DoctypeFactory.pluralName"); //$NON-NLS-1$
 	}
 
-	public Object parseResource(final URL baseUrl, final String resourcePath, final IBuildProblemHandler problemHandler) throws IOException {
-		try {
-			return new WTPVEXValidator(new URL(baseUrl, resourcePath));
-		} catch (final IOException ex) {
-			if (problemHandler != null) {
-				final BuildProblem problem = new BuildProblem();
-				problem.setSeverity(BuildProblem.SEVERITY_ERROR);
-				problem.setResourcePath(resourcePath);
-				problem.setMessage(ex.getMessage());
-				//problem.setLineNumber(ex.getLineNumber());
-				problemHandler.foundProblem(problem);
-			}
-			return null;
-		}
+	public Object parseResource(final ConfigItem item, final URL baseUrl, final String resourcePath, final IBuildProblemHandler problemHandler) throws IOException {
+		return new WTPVEXValidator(((DocumentType) item).getPublicId());
 	}
 }

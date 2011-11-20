@@ -237,7 +237,7 @@ public abstract class ConfigSource {
 			if (!parsedResources.containsKey(uri)) {
 				final IConfigItemFactory factory = getConfigItemFactory(item.getExtensionPointId());
 				try {
-					final Object parsedResource = factory.parseResource(getBaseUrl(), uri, problemHandler);
+					final Object parsedResource = factory.parseResource(item, getBaseUrl(), uri, problemHandler);
 					if (parsedResource != null)
 						parsedResources.put(uri, parsedResource);
 				} catch (final IOException ex) {

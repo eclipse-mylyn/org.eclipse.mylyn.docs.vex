@@ -307,7 +307,7 @@ public class VexEditor extends EditorPart {
 			doctype = documentContentModel.getDocumentType();
 			style = documentContentModel.getStyle();
 
-			final Validator validator = new WTPVEXValidator(doctype.getResourceUrl());
+			final Validator validator = new WTPVEXValidator(documentContentModel);
 			if (validator != null) {
 				document.setValidator(validator);
 				if (debugging) {

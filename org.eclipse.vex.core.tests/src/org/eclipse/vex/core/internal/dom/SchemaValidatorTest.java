@@ -117,7 +117,7 @@ public class SchemaValidatorTest {
 
 	@Test
 	public void createValidatorWithDTDPublicId() throws Exception {
-		final Validator validator = new WTPVEXValidator("-//Eclipse Foundation//DTD Vex Test//EN");
+		final Validator validator = new WTPVEXValidator(TEST_DTD);
 		assertEquals(10, validator.getValidRootElements().size());
 	}
 

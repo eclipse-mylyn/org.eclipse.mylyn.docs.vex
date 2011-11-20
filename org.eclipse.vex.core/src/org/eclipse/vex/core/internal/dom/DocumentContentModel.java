@@ -11,6 +11,9 @@
 package org.eclipse.vex.core.internal.dom;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.text.MessageFormat;
 
 import org.eclipse.wst.common.uriresolver.internal.provisional.URIResolver;
 import org.eclipse.wst.common.uriresolver.internal.provisional.URIResolverPlugin;
@@ -29,12 +32,22 @@ public class DocumentContentModel implements EntityResolver {
 	private String publicId;
 	private String systemId;
 	private String schemaId;
+	
+	public DocumentContentModel() {
+	}
+	
+	public DocumentContentModel(final String baseUri, final String publicId, final String systemId, final RootElement rootElement) {
+		initialize(baseUri, publicId, systemId, rootElement);
+	}
 
-	public void initialize(String baseUri, final String publicId, final String systemId, final RootElement rootElement) {
+	public void initialize(final String baseUri, final String publicId, final String systemId, final RootElement rootElement) {
 		this.baseUri = baseUri;
 		this.publicId = publicId;
 		this.systemId = systemId;
-		schemaId = rootElement.getQualifiedName().getQualifier();
+		if (rootElement != null)
+			schemaId = rootElement.getQualifiedName().getQualifier();
+		else
+			schemaId = null;
 	}
 
 	public String getMainDocumentTypeIdentifier() {
@@ -62,6 +75,26 @@ public class DocumentContentModel implements EntityResolver {
 		final InputSource result = new InputSource(resolved);
 		result.setPublicId(publicId);
 		return result;
+	}
+
+	public URL resolveSchemaIdentifier(String schemaIdentifier) {
+		final String schemaLocation = URI_RESOLVER.resolve(baseUri, schemaIdentifier, null);
+		if (schemaLocation == null)
+			/*
+			 * TODO this is a common case that should be handled somehow
+			 * - a hint should be shown: the schema is not available, the schema
+			 * should be added to the catalog by the user
+			 * - an inferred schema should be used, to allow to at least display
+			 * the document in the editor
+			 * - this is not the right place to either check or handle this
+			 */
+			throw new AssertionError("Cannot resolve schema '" + schemaIdentifier + "'.");
+		try {
+			return new URL(schemaLocation);
+		} catch (MalformedURLException e) {
+			throw new AssertionError(MessageFormat.format("Resolution of schema ''{0}'' resulted in a malformed URL: ''{1}''. {2}", schemaIdentifier,
+					schemaLocation, e.getMessage()));
+		}
 	}
 
 }
