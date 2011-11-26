@@ -16,9 +16,11 @@ package org.eclipse.vex.core.internal.validator;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.runtime.QualifiedName;
@@ -55,6 +57,8 @@ public class WTPVEXValidator implements Validator {
 
 	private CMDocument dtd;
 
+	private final Map<URL, CMDocument> contentModelCache = new HashMap<URL, CMDocument>();
+	
 	private final CMValidator validator = new CMValidator();
 
 	public WTPVEXValidator() {
@@ -83,8 +87,17 @@ public class WTPVEXValidator implements Validator {
 			 */
 			throw new AssertionError("There is no definition of the document structure available.");
 		final URL resolved = documentContentModel.resolveSchemaIdentifier(namespaceURI);
+		return getSchema(resolved);
+	}
+
+	private CMDocument getSchema(final URL schemaUrl) {
+		if (contentModelCache.containsKey(schemaUrl))
+			return contentModelCache.get(schemaUrl);
+		
 		final ContentModelManager modelManager = ContentModelManager.getInstance();
-		return modelManager.createCMDocument(resolved.toString(), null);
+		final CMDocument contentModel = modelManager.createCMDocument(schemaUrl.toString(), null);
+		contentModelCache.put(schemaUrl, contentModel);
+		return contentModel;
 	}
 
 	private boolean isDTDDefined() {
