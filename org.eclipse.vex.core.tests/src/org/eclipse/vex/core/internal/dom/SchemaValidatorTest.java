@@ -135,22 +135,16 @@ public class SchemaValidatorTest {
 	}
 
 	@Test
-	public void proposeElementsFromSimpleSchema() throws Exception {
-		final Validator validator = new WTPVEXValidator(CONTENT_NS);
+	public void validItemsFromSimpleSchema() throws Exception {
+		final Validator validator = new WTPVEXValidator();
 		final Document doc = new Document(new RootElement(P));
 		doc.setValidator(validator);
 		doc.insertElement(1, new Element(B));
-		doc.insertText(2, "ab");
-		doc.insertElement(5, new Element(I));
-		assertEquals(8, doc.getLength());
+		doc.insertElement(2, new Element(I));
 
-		assertValidItemsAt(doc, 1, B, I);
-		assertValidItemsAt(doc, 2, B, I);
-		assertValidItemsAt(doc, 3, B, I);
-		assertValidItemsAt(doc, 4, B, I);
-		assertValidItemsAt(doc, 5, B, I);
-		assertValidItemsAt(doc, 6, B, I);
-		assertValidItemsAt(doc, 7, B, I);
+		assertValidItems(validator, doc.getRootElement(), B, I); // p
+		assertValidItems(validator, doc.getElementAt(1), B, I); // b
+		assertValidItems(validator, doc.getElementAt(2), B, I); // i
 	}
 
 	@Test
@@ -162,32 +156,25 @@ public class SchemaValidatorTest {
 	}
 
 	@Test
-	public void proposeElementsFromComplexSchema() throws Exception {
+	public void validItemsFromComplexSchema() throws Exception {
+		/*
+		 * We have to check this using a document, because B and I are not
+		 * defined as standalone elements. The Validator needs their parent to
+		 * find the definition of their content model.
+		 */
 		final Validator validator = new WTPVEXValidator();
 		final Document doc = new Document(new RootElement(CHAPTER));
 		doc.setValidator(validator);
 		doc.insertElement(1, new Element(TITLE));
-		doc.insertText(2, "ab");
-		doc.insertElement(5, new Element(CHAPTER));
-		doc.insertElement(6, new Element(TITLE));
-		doc.insertText(7, "cd");
-		doc.insertElement(10, new Element(P));
-		doc.insertElement(11, new Element(B));
+		doc.insertElement(3, new Element(P));
+		doc.insertElement(4, new Element(B));
+		doc.insertElement(5, new Element(I));
 
-		assertValidItemsAt(doc, 1, TITLE, CHAPTER, P);
-		assertValidItemsAt(doc, 2);
-		assertValidItemsAt(doc, 3);
-		assertValidItemsAt(doc, 4);
-		assertValidItemsAt(doc, 5, TITLE, CHAPTER, P);
-		assertValidItemsAt(doc, 6, TITLE, CHAPTER, P);
-		assertValidItemsAt(doc, 7);
-		assertValidItemsAt(doc, 8);
-		assertValidItemsAt(doc, 9);
-		assertValidItemsAt(doc, 10, TITLE, CHAPTER, P);
-		assertValidItemsAt(doc, 11, B, I);
-		assertValidItemsAt(doc, 12, B, I);
-		assertValidItemsAt(doc, 13, B, I);
-		assertValidItemsAt(doc, 14, TITLE, CHAPTER, P);
+		assertValidItems(validator, doc.getRootElement(), CHAPTER, TITLE, P); // chapter
+		assertValidItems(validator, doc.getElementAt(2)); // title
+		assertValidItems(validator, doc.getElementAt(4), B, I); // p
+		assertValidItems(validator, doc.getElementAt(5), B, I); // b
+		assertValidItems(validator, doc.getElementAt(6), B, I); // i
 	}
 
 	private void assertIsValidSequence(final Validator validator, final QualifiedName parentElement, final QualifiedName... sequence) {
@@ -214,13 +201,13 @@ public class SchemaValidatorTest {
 		return suffix;
 	}
 
-	private static void assertValidItemsAt(final Document doc, final int offset, final QualifiedName... expectedItems) {
+	private static void assertValidItems(final Validator validator, final Element element, final QualifiedName... expectedItems) {
 		final Set<QualifiedName> expected = new HashSet<QualifiedName>(expectedItems.length);
 		for (final QualifiedName expectedItem : expectedItems)
 			expected.add(expectedItem);
 
-		final Set<QualifiedName> validItems = doc.getValidator().getValidItems(doc.getElementAt(offset));
-		assertEquals(expected, validItems);
+		final Set<QualifiedName> candidateItems = validator.getValidItems(element);
+		assertEquals(expected, candidateItems);
 	}
 
 }
