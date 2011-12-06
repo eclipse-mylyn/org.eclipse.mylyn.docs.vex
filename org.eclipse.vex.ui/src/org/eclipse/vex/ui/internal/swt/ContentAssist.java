@@ -226,7 +226,7 @@ public class ContentAssist extends PopupDialog {
             }
 		}
 
-        // ranking: "start with" over "contains" filter
+        // primary order: "start with" before "contains" filter text
         if (filterText.length() > 0) {
         	Collections.sort(actionList, new Comparator<AbstractVexAction>() {
 				public int compare(AbstractVexAction action1,
@@ -241,6 +241,7 @@ public class ContentAssist extends PopupDialog {
 			});
         }
 
+        // update UI
         viewer.setInput(actionList.toArray(new AbstractVexAction[actionList.size()]));
         viewer.getTable().setSelection(0);
     }
