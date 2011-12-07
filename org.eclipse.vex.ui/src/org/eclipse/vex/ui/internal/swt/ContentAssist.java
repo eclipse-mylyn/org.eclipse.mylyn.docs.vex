@@ -224,8 +224,8 @@ public class ContentAssist extends PopupDialog {
         	Collections.sort(actionList, new Comparator<AbstractVexAction>() {
 				public int compare(AbstractVexAction action1,
 						           AbstractVexAction action2) {
-					String actionText1 = action1.getText().toLowerCase();
-					String actionText2 = action2.getText().toLowerCase();
+					String actionText1 = action1.getElementName().qualifiedName.getLocalName().toLowerCase();
+					String actionText2 = action2.getElementName().qualifiedName.getLocalName().toLowerCase();
 					if (   !actionText1.startsWith(filterText)
 						&& !actionText2.startsWith(filterText)) return 0;
 
@@ -275,11 +275,13 @@ public class ContentAssist extends PopupDialog {
 	private static abstract class AbstractVexAction {
 
 		private final VexWidget widget;
+		private final ElementName elementName;
 		private final String text;
 		private final Icon image;
 
-		public AbstractVexAction(final VexWidget widget, final String text, final Icon image) {
+		public AbstractVexAction(final VexWidget widget, final ElementName elementName, final String text, final Icon image) {
 			this.widget = widget;
+			this.elementName = elementName;
 			this.text = text;
 			this.image = image;
 		}
@@ -288,6 +290,10 @@ public class ContentAssist extends PopupDialog {
 
 		public VexWidget getWidget() {
 			return widget;
+		}
+		
+		public ElementName getElementName() {
+			return elementName;
 		}
 
 		public String getText() {
@@ -329,7 +335,7 @@ public class ContentAssist extends PopupDialog {
 		final AbstractVexAction[] actions = new AbstractVexAction[names.length];
 		for (int i = 0; i < names.length; i++) {
 			final QualifiedName qualifiedName = names[i].qualifiedName;
-			actions[i] = new AbstractVexAction(widget, names[i].toString(), Icon.ELEMENT) {
+			actions[i] = new AbstractVexAction(widget, names[i], names[i].toString(), Icon.ELEMENT) {
 				@Override
 				public void execute(final VexWidget vexWidget) {
 					getWidget().insertElement(new Element(qualifiedName));
@@ -350,7 +356,7 @@ public class ContentAssist extends PopupDialog {
 			final String message = Messages.getString("command.convertElement.dynamicCommandName"); //$NON-NLS-1$
 			final String text = MessageFormat.format(message, sourceName, names[i]);
 			final Icon icon = Icon.CONVERT;
-			actions[i] = new AbstractVexAction(widget, text, icon) {
+			actions[i] = new AbstractVexAction(widget, names[i], text, icon) {
 				@Override
 				public void execute(final VexWidget vexWidget) {
 					getWidget().morph(new Element(qualifiedName));
