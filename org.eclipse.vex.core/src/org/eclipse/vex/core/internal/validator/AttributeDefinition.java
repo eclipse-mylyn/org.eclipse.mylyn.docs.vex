@@ -72,8 +72,8 @@ public class AttributeDefinition implements Comparable<AttributeDefinition> {
 			} else if (s.equals(ENUMERATION.toString()) || s.equals(CMDataType.ENUM)) {
 				return ENUMERATION;
 			} else {
-				throw new IllegalArgumentException("Attribute type '" + s
-						+ "' not recognized");
+				System.out.println("Found unknown attribute type '" + s + "'.");
+				return CDATA;
 			}
 		}
 
