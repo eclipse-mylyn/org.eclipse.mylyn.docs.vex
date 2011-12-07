@@ -13,7 +13,7 @@ package org.eclipse.vex.core.internal.widget;
 import static org.eclipse.vex.core.tests.TestResources.CONTENT_NS;
 import static org.eclipse.vex.core.tests.TestResources.STRUCTURE_NS;
 import static org.eclipse.vex.core.tests.TestResources.TEST_DTD;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
 
 import java.util.Arrays;
 
@@ -84,12 +84,15 @@ public class VexWidgetTest {
 	}
 
 	private static void assertCanInsertOnly(final IVexWidget widget, final String... elementNames) {
-		assertTrue(Arrays.equals(sortedCopyOf(elementNames), sortedCopyOf(widget.getValidInsertElements())));
+		final String[] expected = sortedCopyOf(elementNames);
+		final String[] actual = sortedCopyOf(widget.getValidInsertElements());
+		assertEquals(Arrays.toString(expected), Arrays.toString(actual));
 	}
 
-	private static String[] sortedCopyOf(final String[] strings) {
-		final String[] result = new String[strings.length];
-		System.arraycopy(strings, 0, result, 0, strings.length);
+	private static String[] sortedCopyOf(final Object[] objects) {
+		final String[] result = new String[objects.length];
+		for (int i = 0; i < result.length; i++)
+			result[i] = objects[i].toString();
 		Arrays.sort(result);
 		return result;
 	}

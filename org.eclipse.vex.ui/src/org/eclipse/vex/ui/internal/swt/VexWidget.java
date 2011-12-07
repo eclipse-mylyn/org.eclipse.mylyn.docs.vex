@@ -20,7 +20,6 @@ import java.util.Map;
 
 import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
-import javax.xml.parsers.ParserConfigurationException;
 
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.jface.viewers.ISelection;
@@ -55,6 +54,7 @@ import org.eclipse.vex.core.internal.core.Caret;
 import org.eclipse.vex.core.internal.core.Color;
 import org.eclipse.vex.core.internal.core.ColorResource;
 import org.eclipse.vex.core.internal.core.DisplayDevice;
+import org.eclipse.vex.core.internal.core.ElementName;
 import org.eclipse.vex.core.internal.core.Graphics;
 import org.eclipse.vex.core.internal.core.Rectangle;
 import org.eclipse.vex.core.internal.css.StyleSheet;
@@ -70,67 +70,65 @@ import org.eclipse.vex.core.internal.widget.IBoxFilter;
 import org.eclipse.vex.core.internal.widget.IVexWidget;
 import org.eclipse.vex.core.internal.widget.VexWidgetImpl;
 import org.eclipse.vex.ui.internal.handlers.IVexWidgetHandler;
-import org.xml.sax.SAXException;
 
 /**
  * An implementation of the Vex widget based on SWT.
  */
 public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider {
 
-	public VexWidget(Composite parent, int style) {
+	public VexWidget(final Composite parent, final int style) {
 		super(parent, style);
 
-		if (DisplayDevice.getCurrent() == null) {
+		if (DisplayDevice.getCurrent() == null)
 			DisplayDevice.setCurrent(new SwtDisplayDevice());
-		}
 
-		this.impl = new VexWidgetImpl(hostComponent);
-		this.setBackground(this.getDisplay().getSystemColor(SWT.COLOR_WHITE));
+		impl = new VexWidgetImpl(hostComponent);
+		setBackground(getDisplay().getSystemColor(SWT.COLOR_WHITE));
 
-		ScrollBar vbar = this.getVerticalBar();
+		final ScrollBar vbar = getVerticalBar();
 		if (vbar != null) {
 			vbar.setIncrement(20);
 			vbar.addSelectionListener(selectionListener);
 		}
 
-		this.addControlListener(this.controlListener);
-		this.addFocusListener(this.focusListener);
-		this.addKeyListener(this.keyListener);
-		this.addMouseListener(this.mouseListener);
-		this.addMouseMoveListener(this.mouseMoveListener);
-		this.addPaintListener(this.painter);
+		addControlListener(controlListener);
+		addFocusListener(focusListener);
+		addKeyListener(keyListener);
+		addMouseListener(mouseListener);
+		addMouseMoveListener(mouseMoveListener);
+		addPaintListener(painter);
 	}
 
+	@Override
 	public void dispose() {
 		super.dispose();
-		this.impl.setFocus(false); // This stops the caret timer, in case the
-									// control
+		impl.setFocus(false); // This stops the caret timer, in case the
+								// control
 		// is disposed before focus is lost.
 	}
 
 	public Object getInput() {
-		return this.impl.getDocument();
+		return impl.getDocument();
 	}
 
-	public void addSelectionChangedListener(ISelectionChangedListener listener) {
-		this.selectionListeners.add(listener);
+	public void addSelectionChangedListener(final ISelectionChangedListener listener) {
+		selectionListeners.add(listener);
 	}
 
 	public ISelection getSelection() {
-		return this.selection;
+		return selection;
 	}
 
-	public void removeSelectionChangedListener(
-			ISelectionChangedListener listener) {
-		this.selectionListeners.remove(listener);
+	public void removeSelectionChangedListener(final ISelectionChangedListener listener) {
+		selectionListeners.remove(listener);
 	}
 
-	public void setSelection(ISelection selection) {
+	public void setSelection(final ISelection selection) {
 		throw new RuntimeException("Unexpected call to setSelection");
 	}
 
 	public void beginWork() {
-		this.impl.beginWork();
+		impl.beginWork();
 	}
 
 	public boolean canPaste() {
@@ -147,344 +145,328 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 	}
 
 	public boolean canRedo() {
-		return this.impl.canRedo();
+		return impl.canRedo();
 	}
 
 	public boolean canUndo() {
-		return this.impl.canUndo();
+		return impl.canUndo();
 	}
 
 	public boolean canUnwrap() {
-		return this.impl.canUnwrap();
+		return impl.canUnwrap();
 	}
 
-	public Point computeSize(int wHint, int hHint, boolean changed) {
-		org.eclipse.swt.graphics.Rectangle r = this.getClientArea();
+	@Override
+	public Point computeSize(final int wHint, final int hHint, final boolean changed) {
+		final org.eclipse.swt.graphics.Rectangle r = getClientArea();
 		int height = r.height;
 
-		ScrollBar vbar = this.getVerticalBar();
-		if (vbar != null) {
+		final ScrollBar vbar = getVerticalBar();
+		if (vbar != null)
 			height = vbar.getMaximum();
-		}
 		return new Point(r.width, height);
 	}
 
 	public void copySelection() {
-		Clipboard clipboard = new Clipboard(this.getDisplay());
-		Object[] data = { this.getSelectedFragment(), this.getSelectedText() };
-		Transfer[] transfers = { DocumentFragmentTransfer.getInstance(),
-				TextTransfer.getInstance() };
+		final Clipboard clipboard = new Clipboard(getDisplay());
+		final Object[] data = { getSelectedFragment(), getSelectedText() };
+		final Transfer[] transfers = { DocumentFragmentTransfer.getInstance(), TextTransfer.getInstance() };
 		clipboard.setContents(data, transfers);
 	}
 
 	public void cutSelection() {
-		this.copySelection();
-		this.deleteSelection();
+		copySelection();
+		deleteSelection();
 	}
 
 	public void deleteNextChar() throws DocumentValidationException {
-		this.impl.deleteNextChar();
+		impl.deleteNextChar();
 	}
 
 	public void deletePreviousChar() throws DocumentValidationException {
-		this.impl.deletePreviousChar();
+		impl.deletePreviousChar();
 	}
 
 	public void deleteSelection() {
-		this.impl.deleteSelection();
+		impl.deleteSelection();
 	}
 
-	public void doWork(Runnable runnable) {
-		this.impl.doWork(runnable);
+	public void doWork(final Runnable runnable) {
+		impl.doWork(runnable);
 	}
 
-	public void doWork(boolean savePosition, Runnable runnable) {
-		this.impl.doWork(savePosition, runnable);
+	public void doWork(final boolean savePosition, final Runnable runnable) {
+		impl.doWork(savePosition, runnable);
 	}
 
-	public void endWork(boolean success) {
-		this.impl.endWork(success);
+	public void endWork(final boolean success) {
+		impl.endWork(success);
 	}
 
-	public Box findInnermostBox(IBoxFilter filter) {
-		return this.impl.findInnermostBox(filter);
+	public Box findInnermostBox(final IBoxFilter filter) {
+		return impl.findInnermostBox(filter);
 	}
 
 	public BoxFactory getBoxFactory() {
-		return this.impl.getBoxFactory();
+		return impl.getBoxFactory();
 	}
 
 	public int getCaretOffset() {
-		return this.impl.getCaretOffset();
+		return impl.getCaretOffset();
 	}
 
 	public Element getCurrentElement() {
-		return this.impl.getCurrentElement();
+		return impl.getCurrentElement();
 	}
 
 	public Document getDocument() {
-		return this.impl.getDocument();
+		return impl.getDocument();
 	}
 
 	public int getLayoutWidth() {
-		return this.impl.getLayoutWidth();
+		return impl.getLayoutWidth();
 	}
 
 	public int getSelectionEnd() {
-		return this.impl.getSelectionEnd();
+		return impl.getSelectionEnd();
 	}
 
 	public int getSelectionStart() {
-		return this.impl.getSelectionStart();
+		return impl.getSelectionStart();
 	}
 
 	public DocumentFragment getSelectedFragment() {
-		return this.impl.getSelectedFragment();
+		return impl.getSelectedFragment();
 	}
 
 	public String getSelectedText() {
-		return this.impl.getSelectedText();
+		return impl.getSelectedText();
 	}
 
 	public StyleSheet getStyleSheet() {
-		return this.impl.getStyleSheet();
+		return impl.getStyleSheet();
 	}
 
 	public int getUndoDepth() {
-		return this.impl.getUndoDepth();
+		return impl.getUndoDepth();
 	}
 
-	public String[] getValidInsertElements() {
-		return this.impl.getValidInsertElements();
+	public ElementName[] getValidInsertElements() {
+		return impl.getValidInsertElements();
 	}
 
-	public String[] getValidMorphElements() {
-		return this.impl.getValidMorphElements();
+	public ElementName[] getValidMorphElements() {
+		return impl.getValidMorphElements();
 	}
 
 	public boolean hasSelection() {
-		return this.impl.hasSelection();
+		return impl.hasSelection();
 	}
 
-	public void insertChar(char c) throws DocumentValidationException {
-		this.impl.insertChar(c);
+	public void insertChar(final char c) throws DocumentValidationException {
+		impl.insertChar(c);
 	}
 
-	public void insertFragment(DocumentFragment frag)
-			throws DocumentValidationException {
-		this.impl.insertFragment(frag);
+	public void insertFragment(final DocumentFragment frag) throws DocumentValidationException {
+		impl.insertFragment(frag);
 	}
 
-	public void insertElement(String elementName)
-			throws DocumentValidationException {
-		insertElement(new Element(elementName));
+	public void insertElement(final Element element) throws DocumentValidationException {
+		impl.insertElement(element);
 	}
 
-	public void insertElement(Element element)
-			throws DocumentValidationException {
-		this.impl.insertElement(element);
-	}
-	
-	public void insertText(String text) throws DocumentValidationException {
-		this.impl.insertText(text);
+	public void insertText(final String text) throws DocumentValidationException {
+		impl.insertText(text);
 	}
 
 	public boolean isDebugging() {
 		return impl.isDebugging();
 	}
 
-	public void morph(String elementName) throws DocumentValidationException {
-		morph(new Element(elementName));
+	public void morph(final Element element) throws DocumentValidationException {
+		impl.morph(element);
 	}
 
-	public void morph(Element element) throws DocumentValidationException {
-		this.impl.morph(element);
-	}
-	
-	public void moveBy(int distance) {
-		this.impl.moveBy(distance);
+	public void moveBy(final int distance) {
+		impl.moveBy(distance);
 	}
 
-	public void moveBy(int distance, boolean select) {
-		this.impl.moveBy(distance, select);
+	public void moveBy(final int distance, final boolean select) {
+		impl.moveBy(distance, select);
 	}
 
-	public void moveTo(int offset) {
-		this.impl.moveTo(offset);
+	public void moveTo(final int offset) {
+		impl.moveTo(offset);
 	}
 
-	public void moveTo(int offset, boolean select) {
-		this.impl.moveTo(offset, select);
+	public void moveTo(final int offset, final boolean select) {
+		impl.moveTo(offset, select);
 	}
 
-	public void moveToLineEnd(boolean select) {
-		this.impl.moveToLineEnd(select);
+	public void moveToLineEnd(final boolean select) {
+		impl.moveToLineEnd(select);
 	}
 
-	public void moveToLineStart(boolean select) {
-		this.impl.moveToLineStart(select);
+	public void moveToLineStart(final boolean select) {
+		impl.moveToLineStart(select);
 	}
 
-	public void moveToNextLine(boolean select) {
-		this.impl.moveToNextLine(select);
+	public void moveToNextLine(final boolean select) {
+		impl.moveToNextLine(select);
 	}
 
-	public void moveToNextPage(boolean select) {
-		this.impl.moveToNextPage(select);
+	public void moveToNextPage(final boolean select) {
+		impl.moveToNextPage(select);
 	}
 
-	public void moveToNextWord(boolean select) {
-		this.impl.moveToNextWord(select);
+	public void moveToNextWord(final boolean select) {
+		impl.moveToNextWord(select);
 	}
 
-	public void moveToPreviousLine(boolean select) {
-		this.impl.moveToPreviousLine(select);
+	public void moveToPreviousLine(final boolean select) {
+		impl.moveToPreviousLine(select);
 	}
 
-	public void moveToPreviousPage(boolean select) {
-		this.impl.moveToPreviousPage(select);
+	public void moveToPreviousPage(final boolean select) {
+		impl.moveToPreviousPage(select);
 	}
 
-	public void moveToPreviousWord(boolean select) {
-		this.impl.moveToPreviousWord(select);
+	public void moveToPreviousWord(final boolean select) {
+		impl.moveToPreviousWord(select);
 	}
 
 	/**
 	 * @see org.eclipse.vex.core.internal.widget.IVexWidget#paste()
 	 */
 	public void paste() throws DocumentValidationException {
-		Clipboard clipboard = new Clipboard(this.getDisplay());
-		DocumentFragment frag = (DocumentFragment) clipboard
-				.getContents(DocumentFragmentTransfer.getInstance());
-		if (frag != null) {
-			this.insertFragment(frag);
-		} else {
-			this.pasteText();
-		}
+		final Clipboard clipboard = new Clipboard(getDisplay());
+		final DocumentFragment frag = (DocumentFragment) clipboard.getContents(DocumentFragmentTransfer.getInstance());
+		if (frag != null)
+			insertFragment(frag);
+		else
+			pasteText();
 	}
 
 	/**
 	 * @see org.eclipse.vex.core.internal.widget.IVexWidget#pasteText()
 	 */
 	public void pasteText() throws DocumentValidationException {
-		Clipboard clipboard = new Clipboard(this.getDisplay());
-		String text = (String) clipboard
-				.getContents(TextTransfer.getInstance());
-		if (text != null) {
-			this.insertText(text);
-		}
+		final Clipboard clipboard = new Clipboard(getDisplay());
+		final String text = (String) clipboard.getContents(TextTransfer.getInstance());
+		if (text != null)
+			insertText(text);
 	}
 
 	public void redo() throws CannotRedoException {
-		this.impl.redo();
+		impl.redo();
 	}
 
-	public void removeAttribute(String attributeName) {
-		this.impl.removeAttribute(attributeName);
+	public void removeAttribute(final String attributeName) {
+		impl.removeAttribute(attributeName);
 	}
 
-	public void savePosition(Runnable runnable) {
-		this.impl.savePosition(runnable);
+	public void savePosition(final Runnable runnable) {
+		impl.savePosition(runnable);
 	}
 
 	public void selectAll() {
-		this.impl.selectAll();
+		impl.selectAll();
 	}
 
 	public void selectWord() {
-		this.impl.selectWord();
+		impl.selectWord();
 	}
 
-	public void setAttribute(String attributeName, String value) {
-		this.impl.setAttribute(attributeName, value);
+	public void setAttribute(final String attributeName, final String value) {
+		impl.setAttribute(attributeName, value);
 	}
 
-	public void setBoxFactory(BoxFactory boxFactory) {
-		this.impl.setBoxFactory(boxFactory);
+	public void setBoxFactory(final BoxFactory boxFactory) {
+		impl.setBoxFactory(boxFactory);
 	}
 
-	public void setDebugging(boolean debugging) {
+	public void setDebugging(final boolean debugging) {
 		impl.setDebugging(debugging);
 	}
 
-	public void setDocument(Document doc, StyleSheet styleSheet) {
-		this.impl.setDocument(doc, styleSheet);
+	public void setDocument(final Document doc, final StyleSheet styleSheet) {
+		impl.setDocument(doc, styleSheet);
 	}
 
-	public void setLayoutWidth(int width) {
-		this.impl.setLayoutWidth(width);
+	public void setLayoutWidth(final int width) {
+		impl.setLayoutWidth(width);
 	}
 
-	public void setStyleSheet(StyleSheet styleSheet) {
-		this.impl.setStyleSheet(styleSheet);
+	public void setStyleSheet(final StyleSheet styleSheet) {
+		impl.setStyleSheet(styleSheet);
 	}
 
-	public void setStyleSheet(URL ssUrl) throws IOException {
-		this.impl.setStyleSheet(ssUrl);
+	public void setStyleSheet(final URL ssUrl) throws IOException {
+		impl.setStyleSheet(ssUrl);
 	}
 
 	public void split() throws DocumentValidationException {
-		this.impl.split();
+		impl.split();
 	}
 
 	public void undo() throws CannotUndoException {
-		this.impl.undo();
+		impl.undo();
 	}
 
-	public int viewToModel(int x, int y) {
-		return this.impl.viewToModel(x, y);
+	public int viewToModel(final int x, final int y) {
+		return impl.viewToModel(x, y);
 	}
-	
+
 	/**
 	 * @return the location of the left bottom corner of the caret relative to
 	 *         the VexWidget
 	 */
 	public Point getLocationForContentAssist() {
-		Caret vexCaret = impl.getCaret();
-		if (vexCaret == null) return new Point(0, 0);
-		
-		Rectangle caretBounds = vexCaret.getBounds();
-		return new Point(caretBounds.getX() + originX,
-						 caretBounds.getY() + originY + caretBounds.getHeight());
+		final Caret vexCaret = impl.getCaret();
+		if (vexCaret == null)
+			return new Point(0, 0);
+
+		final Rectangle caretBounds = vexCaret.getBounds();
+		return new Point(caretBounds.getX() + originX, caretBounds.getY() + originY + caretBounds.getHeight());
 	}
 
 	private static final char CHAR_NONE = 0;
-	
-	private static Map<KeyStroke, IVexWidgetHandler> keyMap =
-		new HashMap<KeyStroke, IVexWidgetHandler>();
-	static { buildKeyMap(); }
 
-	private VexWidgetImpl impl;
+	private static Map<KeyStroke, IVexWidgetHandler> keyMap = new HashMap<KeyStroke, IVexWidgetHandler>();
+	static {
+		buildKeyMap();
+	}
+
+	private final VexWidgetImpl impl;
 
 	// Fields controlling scrolling
 	int originX = 0;
 	int originY = 0;
 
-	private List<ISelectionChangedListener> selectionListeners = new ArrayList<ISelectionChangedListener>();
+	private final List<ISelectionChangedListener> selectionListeners = new ArrayList<ISelectionChangedListener>();
 	private ISelection selection;
 
-	private Runnable caretTimerRunnable = new Runnable() {
+	private final Runnable caretTimerRunnable = new Runnable() {
 		public void run() {
 			impl.toggleCaret();
 		}
 	};
-	private Timer caretTimer = new Timer(500, this.caretTimerRunnable);
+	private final Timer caretTimer = new Timer(500, caretTimerRunnable);
 
-	private ControlListener controlListener = new ControlListener() {
-		public void controlMoved(ControlEvent e) {
+	private final ControlListener controlListener = new ControlListener() {
+		public void controlMoved(final ControlEvent e) {
 		}
 
-		public void controlResized(ControlEvent e) {
-			org.eclipse.swt.graphics.Rectangle r = getClientArea();
+		public void controlResized(final ControlEvent e) {
+			final org.eclipse.swt.graphics.Rectangle r = getClientArea();
 			// There seems to be a bug in SWT (at least on Linux/GTK+)
 			// When maximizing the editor, the width is first set to 1,
 			// then to the correct width
-			if (r.width == 1) {
+			if (r.width == 1)
 				return;
-			}
 			impl.setLayoutWidth(r.width);
 
-			ScrollBar vbar = getVerticalBar();
+			final ScrollBar vbar = getVerticalBar();
 			if (vbar != null) {
 				vbar.setThumb(r.height);
 				vbar.setPageIncrement(Math.round(r.height * 0.9f));
@@ -492,87 +474,77 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 		}
 	};
 
-	private FocusListener focusListener = new FocusListener() {
-		public void focusGained(FocusEvent e) {
+	private final FocusListener focusListener = new FocusListener() {
+		public void focusGained(final FocusEvent e) {
 			impl.setFocus(true);
 			caretTimer.start();
 		}
 
-		public void focusLost(FocusEvent e) {
+		public void focusLost(final FocusEvent e) {
 			impl.setFocus(false);
 			caretTimer.stop();
 		}
 	};
 
-	private HostComponent hostComponent = new HostComponent() {
+	private final HostComponent hostComponent = new HostComponent() {
 
 		public Graphics createDefaultGraphics() {
-			if (VexWidget.this.isDisposed()) {
+			if (VexWidget.this.isDisposed())
 				System.out.println("*** Woot! VexWidget is disposed!");
-			}
 			return new SwtGraphics(new GC(VexWidget.this));
 		}
 
 		public void fireSelectionChanged() {
 
 			if (hasSelection()) {
-				List<Node> nodes = getDocument().getNodes(getSelectionStart(),
-						getSelectionEnd());
+				final List<Node> nodes = getDocument().getNodes(getSelectionStart(), getSelectionEnd());
 				selection = new StructuredSelection(nodes);
-			} else {
+			} else
 				selection = new StructuredSelection(getCurrentElement());
-			}
 
-			SelectionChangedEvent e = new SelectionChangedEvent(VexWidget.this,
-					selection);
-			for (ISelectionChangedListener listener : selectionListeners) {
+			final SelectionChangedEvent e = new SelectionChangedEvent(VexWidget.this, selection);
+			for (final ISelectionChangedListener listener : selectionListeners)
 				listener.selectionChanged(e);
-			}
 			caretTimer.reset();
 		}
 
 		public Rectangle getViewport() {
-			return new Rectangle(getClientArea().x - originX, getClientArea().y
-					- originY, getClientArea().width, getClientArea().height);
+			return new Rectangle(getClientArea().x - originX, getClientArea().y - originY, getClientArea().width, getClientArea().height);
 		}
 
-		public void invokeLater(Runnable runnable) {
+		public void invokeLater(final Runnable runnable) {
 			VexWidget.this.getDisplay().asyncExec(runnable);
 		}
 
 		public void repaint() {
-			if (!VexWidget.this.isDisposed()) {
+			if (!VexWidget.this.isDisposed())
 				// We can sometimes get a repaint from the VexWidgetImpl's
 				// caret timer thread after the Widget is disposed.
 				VexWidget.this.redraw();
-			}
 		}
 
-		public void repaint(int x, int y, int width, int height) {
-			VexWidget.this
-					.redraw(x + originX, y + originY, width, height, true);
+		public void repaint(final int x, final int y, final int width, final int height) {
+			VexWidget.this.redraw(x + originX, y + originY, width, height, true);
 		}
 
-		public void scrollTo(int left, int top) {
-			ScrollBar vbar = getVerticalBar();
-			if (vbar != null) {
+		public void scrollTo(final int left, final int top) {
+			final ScrollBar vbar = getVerticalBar();
+			if (vbar != null)
 				vbar.setSelection(top);
-			}
 			setOrigin(-left, -top);
 		}
 
-		public void setPreferredSize(int width, int height) {
-			ScrollBar vbar = getVerticalBar();
-			if (vbar != null) {
+		public void setPreferredSize(final int width, final int height) {
+			final ScrollBar vbar = getVerticalBar();
+			if (vbar != null)
 				vbar.setMaximum(height);
-			}
 		}
 
 	};
 
 	private static abstract class Action implements IVexWidgetHandler {
 
-		public void execute(VexWidget widget) throws ExecutionException {
+		public void execute(final VexWidget widget) throws ExecutionException {
 			runEx(widget);
 		}
 
@@ -580,72 +552,70 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 
 	}
 
-	private KeyListener keyListener = new KeyAdapter() {
+	private final KeyListener keyListener = new KeyAdapter() {
 
-		public void keyPressed(KeyEvent event) {
-			KeyStroke keyStroke = new KeyStroke(event);
-			IVexWidgetHandler handler = keyMap.get(keyStroke);
-			if (handler != null) {
+		@Override
+		public void keyPressed(final KeyEvent event) {
+			final KeyStroke keyStroke = new KeyStroke(event);
+			final IVexWidgetHandler handler = keyMap.get(keyStroke);
+			if (handler != null)
 				try {
 					handler.execute(VexWidget.this);
-				} catch (Exception ex) {
+				} catch (final Exception ex) {
 					ex.printStackTrace();
 				}
-			} else if (!Character.isISOControl(event.character)) {
+			else if (!Character.isISOControl(event.character))
 				try {
 					insertChar(event.character);
-				} catch (DocumentValidationException e) {
+				} catch (final DocumentValidationException e) {
 					// TODO give feedback: at this document position
 					//                     no character could be entered
 					// e.printStackTrace();
 				}
-			}
 		}
 
 	};
 
-	private MouseListener mouseListener = new MouseListener() {
-		public void mouseDoubleClick(MouseEvent e) {
-			if (e.button == 1) {
+	private final MouseListener mouseListener = new MouseListener() {
+		public void mouseDoubleClick(final MouseEvent e) {
+			if (e.button == 1)
 				selectWord();
-			}
 		}
 
-		public void mouseDown(MouseEvent e) {
+		public void mouseDown(final MouseEvent e) {
 			if (e.button == 1) {
-				int offset = viewToModel(e.x - originX, e.y - originY);
-				boolean select = (e.stateMask == SWT.SHIFT);
+				final int offset = viewToModel(e.x - originX, e.y - originY);
+				final boolean select = e.stateMask == SWT.SHIFT;
 				moveTo(offset, select);
 			}
 		}
 
-		public void mouseUp(MouseEvent e) {
+		public void mouseUp(final MouseEvent e) {
 		}
 	};
 
-	private MouseMoveListener mouseMoveListener = new MouseMoveListener() {
-		public void mouseMove(MouseEvent e) {
+	private final MouseMoveListener mouseMoveListener = new MouseMoveListener() {
+		public void mouseMove(final MouseEvent e) {
 			if ((e.stateMask & SWT.BUTTON1) > 0) {
-				int offset = viewToModel(e.x - originX, e.y - originY);
+				final int offset = viewToModel(e.x - originX, e.y - originY);
 				moveTo(offset, true);
 			}
 		}
 	};
 
-	private PaintListener painter = new PaintListener() {
-		public void paintControl(PaintEvent e) {
+	private final PaintListener painter = new PaintListener() {
+		public void paintControl(final PaintEvent e) {
 
-			SwtGraphics g = new SwtGraphics(e.gc);
+			final SwtGraphics g = new SwtGraphics(e.gc);
 			g.setOrigin(originX, originY);
 
 			Color bgColor = impl.getBackgroundColor();
-			if (bgColor == null) {
+			if (bgColor == null)
 				bgColor = new Color(255, 255, 255);
-			}
 
-			ColorResource color = g.createColor(bgColor);
-			ColorResource oldColor = g.setColor(color);
-			Rectangle r = g.getClipBounds();
+			final ColorResource color = g.createColor(bgColor);
+			final ColorResource oldColor = g.setColor(color);
+			final Rectangle r = g.getClipBounds();
 			g.fillRect(r.getX(), r.getY(), r.getWidth(), r.getHeight());
 			g.setColor(oldColor);
 			color.dispose();
@@ -654,105 +624,116 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 		}
 	};
 
-	private SelectionListener selectionListener = new SelectionListener() {
-		public void widgetSelected(SelectionEvent e) {
-			ScrollBar vbar = getVerticalBar();
+	private final SelectionListener selectionListener = new SelectionListener() {
+		public void widgetSelected(final SelectionEvent e) {
+			final ScrollBar vbar = getVerticalBar();
 			if (vbar != null) {
-				int y = -vbar.getSelection();
+				final int y = -vbar.getSelection();
 				setOrigin(0, y);
 			}
 		}
 
-		public void widgetDefaultSelected(SelectionEvent e) {
+		public void widgetDefaultSelected(final SelectionEvent e) {
 		}
 	};
 
-	private static void addKey(char character, int keyCode, int stateMask,
-			Action action) {
+	private static void addKey(final char character, final int keyCode, final int stateMask, final Action action) {
 		keyMap.put(new KeyStroke(character, keyCode, stateMask), action);
 	}
-	
+
 	private static void buildKeyMap() {
-		
+
 		// arrows: (Shift) Up/Down, {-, Shift, Ctrl, Shift+Ctrl} + Left/Right 
 		addKey(CHAR_NONE, SWT.ARROW_DOWN, SWT.NONE, new Action() {
-			public void runEx(IVexWidget w) {
+			@Override
+			public void runEx(final IVexWidget w) {
 				w.moveToNextLine(false);
 			}
 		});
 		addKey(CHAR_NONE, SWT.ARROW_DOWN, SWT.SHIFT, new Action() {
-			public void runEx(IVexWidget w) {
+			@Override
+			public void runEx(final IVexWidget w) {
 				w.moveToNextLine(true);
 			}
 		});
 		addKey(CHAR_NONE, SWT.ARROW_UP, SWT.NONE, new Action() {
-			public void runEx(IVexWidget w) {
+			@Override
+			public void runEx(final IVexWidget w) {
 				w.moveToPreviousLine(false);
 			}
 		});
 		addKey(CHAR_NONE, SWT.ARROW_UP, SWT.SHIFT, new Action() {
-			public void runEx(IVexWidget w) {
+			@Override
+			public void runEx(final IVexWidget w) {
 				w.moveToPreviousLine(true);
 			}
 		});
 		addKey(CHAR_NONE, SWT.ARROW_LEFT, SWT.NONE, new Action() {
-			public void runEx(IVexWidget w) {
+			@Override
+			public void runEx(final IVexWidget w) {
 				w.moveBy(-1);
 			}
 		});
 		addKey(CHAR_NONE, SWT.ARROW_LEFT, SWT.SHIFT, new Action() {
-			public void runEx(IVexWidget w) {
+			@Override
+			public void runEx(final IVexWidget w) {
 				w.moveBy(-1, true);
 			}
 		});
 		addKey(CHAR_NONE, SWT.ARROW_LEFT, SWT.CONTROL, new Action() {
-			public void runEx(IVexWidget w) {
+			@Override
+			public void runEx(final IVexWidget w) {
 				w.moveToPreviousWord(false);
 			}
 		});
-		addKey(CHAR_NONE, SWT.ARROW_LEFT, SWT.SHIFT | SWT.CONTROL,
-				new Action() {
-					public void runEx(IVexWidget w) {
-						w.moveToPreviousWord(true);
-					}
-				});
+		addKey(CHAR_NONE, SWT.ARROW_LEFT, SWT.SHIFT | SWT.CONTROL, new Action() {
+			@Override
+			public void runEx(final IVexWidget w) {
+				w.moveToPreviousWord(true);
+			}
+		});
 		addKey(CHAR_NONE, SWT.ARROW_RIGHT, SWT.NONE, new Action() {
-			public void runEx(IVexWidget w) {
+			@Override
+			public void runEx(final IVexWidget w) {
 				w.moveBy(+1);
 			}
 		});
 		addKey(CHAR_NONE, SWT.ARROW_RIGHT, SWT.SHIFT, new Action() {
-			public void runEx(IVexWidget w) {
+			@Override
+			public void runEx(final IVexWidget w) {
 				w.moveBy(+1, true);
 			}
 		});
 		addKey(CHAR_NONE, SWT.ARROW_RIGHT, SWT.CONTROL, new Action() {
-			public void runEx(IVexWidget w) {
+			@Override
+			public void runEx(final IVexWidget w) {
 				w.moveToNextWord(false);
 			}
 		});
-		addKey(CHAR_NONE, SWT.ARROW_RIGHT, SWT.SHIFT | SWT.CONTROL,
-				new Action() {
-					public void runEx(IVexWidget w) {
-						w.moveToNextWord(true);
-					}
-				});
+		addKey(CHAR_NONE, SWT.ARROW_RIGHT, SWT.SHIFT | SWT.CONTROL, new Action() {
+			@Override
+			public void runEx(final IVexWidget w) {
+				w.moveToNextWord(true);
+			}
+		});
 
 		// Delete/Backspace
 		addKey(SWT.BS, SWT.BS, SWT.NONE, new Action() {
-			public void runEx(IVexWidget w) throws ExecutionException {
+			@Override
+			public void runEx(final IVexWidget w) throws ExecutionException {
 				try {
 					w.deletePreviousChar();
-				} catch (DocumentValidationException e) {
+				} catch (final DocumentValidationException e) {
 					throw new ExecutionException(e.getMessage(), e);
 				}
 			}
 		});
 		addKey(SWT.DEL, SWT.DEL, SWT.NONE, new Action() {
-			public void runEx(IVexWidget w) throws ExecutionException {
+			@Override
+			public void runEx(final IVexWidget w) throws ExecutionException {
 				try {
 					w.deleteNextChar();
-				} catch (DocumentValidationException e) {
+				} catch (final DocumentValidationException e) {
 					throw new ExecutionException(e.getMessage(), e);
 				}
 			}
@@ -760,64 +741,76 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 
 		// {-, Shift, Ctrl, Shift+Ctrl} + Home/End
 		addKey(CHAR_NONE, SWT.END, SWT.NONE, new Action() {
-			public void runEx(IVexWidget w) {
+			@Override
+			public void runEx(final IVexWidget w) {
 				w.moveToLineEnd(false);
 			}
 		});
 		addKey(CHAR_NONE, SWT.END, SWT.SHIFT, new Action() {
-			public void runEx(IVexWidget w) {
+			@Override
+			public void runEx(final IVexWidget w) {
 				w.moveToLineEnd(true);
 			}
 		});
 		addKey(CHAR_NONE, SWT.END, SWT.CONTROL, new Action() {
-			public void runEx(IVexWidget w) {
+			@Override
+			public void runEx(final IVexWidget w) {
 				w.moveTo(w.getDocument().getLength() - 1);
 			}
 		});
 		addKey(CHAR_NONE, SWT.END, SWT.SHIFT | SWT.CONTROL, new Action() {
-			public void runEx(IVexWidget w) {
+			@Override
+			public void runEx(final IVexWidget w) {
 				w.moveTo(w.getDocument().getLength() - 1, true);
 			}
 		});
 		addKey(CHAR_NONE, SWT.HOME, SWT.NONE, new Action() {
-			public void runEx(IVexWidget w) {
+			@Override
+			public void runEx(final IVexWidget w) {
 				w.moveToLineStart(false);
 			}
 		});
 		addKey(CHAR_NONE, SWT.HOME, SWT.SHIFT, new Action() {
-			public void runEx(IVexWidget w) {
+			@Override
+			public void runEx(final IVexWidget w) {
 				w.moveToLineStart(true);
 			}
 		});
 		addKey(CHAR_NONE, SWT.HOME, SWT.CONTROL, new Action() {
-			public void runEx(IVexWidget w) {
+			@Override
+			public void runEx(final IVexWidget w) {
 				w.moveTo(1);
 			}
 		});
 		addKey(CHAR_NONE, SWT.HOME, SWT.SHIFT | SWT.CONTROL, new Action() {
-			public void runEx(IVexWidget w) {
+			@Override
+			public void runEx(final IVexWidget w) {
 				w.moveTo(1, true);
 			}
 		});
 
 		// (Shift) Page Up/Down
 		addKey(CHAR_NONE, SWT.PAGE_DOWN, SWT.NONE, new Action() {
-			public void runEx(IVexWidget w) {
+			@Override
+			public void runEx(final IVexWidget w) {
 				w.moveToNextPage(false);
 			}
 		});
 		addKey(CHAR_NONE, SWT.PAGE_DOWN, SWT.SHIFT, new Action() {
-			public void runEx(IVexWidget w) {
+			@Override
+			public void runEx(final IVexWidget w) {
 				w.moveToNextPage(true);
 			}
 		});
 		addKey(CHAR_NONE, SWT.PAGE_UP, SWT.NONE, new Action() {
-			public void runEx(IVexWidget w) {
+			@Override
+			public void runEx(final IVexWidget w) {
 				w.moveToPreviousPage(false);
 			}
 		});
 		addKey(CHAR_NONE, SWT.PAGE_UP, SWT.SHIFT, new Action() {
-			public void runEx(IVexWidget w) {
+			@Override
+			public void runEx(final IVexWidget w) {
 				w.moveToPreviousPage(true);
 			}
 		});
@@ -831,10 +824,10 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 	 * @param y
 	 *            y-coordinate of the position to which to scroll
 	 */
-	private void setOrigin(int x, int y) {
-		int destX = x - originX;
-		int destY = y - originY;
-		org.eclipse.swt.graphics.Rectangle ca = getClientArea();
+	private void setOrigin(final int x, final int y) {
+		final int destX = x - originX;
+		final int destY = y - originY;
+		final org.eclipse.swt.graphics.Rectangle ca = getClientArea();
 		scroll(destX, destY, 0, 0, ca.width, ca.height, false);
 		originX = x;
 		originY = y;

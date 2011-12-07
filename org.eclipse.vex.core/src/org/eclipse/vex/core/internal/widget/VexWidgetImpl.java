@@ -23,11 +23,10 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
-import javax.xml.parsers.ParserConfigurationException;
-
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.vex.core.internal.core.Caret;
 import org.eclipse.vex.core.internal.core.Color;
+import org.eclipse.vex.core.internal.core.ElementName;
 import org.eclipse.vex.core.internal.core.Graphics;
 import org.eclipse.vex.core.internal.core.IntRange;
 import org.eclipse.vex.core.internal.core.QualifiedNameComparator;
@@ -40,11 +39,8 @@ import org.eclipse.vex.core.internal.dom.Document;
 import org.eclipse.vex.core.internal.dom.DocumentEvent;
 import org.eclipse.vex.core.internal.dom.DocumentFragment;
 import org.eclipse.vex.core.internal.dom.DocumentListener;
-import org.eclipse.vex.core.internal.dom.DocumentReader;
 import org.eclipse.vex.core.internal.dom.DocumentValidationException;
 import org.eclipse.vex.core.internal.dom.Element;
-import org.eclipse.vex.core.internal.dom.IWhitespacePolicy;
-import org.eclipse.vex.core.internal.dom.IWhitespacePolicyFactory;
 import org.eclipse.vex.core.internal.dom.Position;
 import org.eclipse.vex.core.internal.dom.Validator;
 import org.eclipse.vex.core.internal.layout.BlockBox;
@@ -57,7 +53,6 @@ import org.eclipse.vex.core.internal.undo.CannotRedoException;
 import org.eclipse.vex.core.internal.undo.CannotUndoException;
 import org.eclipse.vex.core.internal.undo.CompoundEdit;
 import org.eclipse.vex.core.internal.undo.IUndoableEdit;
-import org.xml.sax.SAXException;
 
 /**
  * A component that allows the display and edit of an XML document with an
@@ -479,6 +474,18 @@ public class VexWidgetImpl implements IVexWidget {
 		return caretOffset;
 	}
 
+	private int getStartOffset() {
+		if (hasSelection())
+			return getSelectionStart();
+		return getCaretOffset();
+	}
+	
+	private int getEndOffset() {
+		if (hasSelection())
+			return getSelectionEnd();
+		return getCaretOffset();
+	}
+	
 	public Element getCurrentElement() {
 		return currentElement;
 	}
@@ -495,56 +502,36 @@ public class VexWidgetImpl implements IVexWidget {
 		return rootBox.getHeight();
 	}
 
-	public String[] getValidInsertElements() {
+	public ElementName[] getValidInsertElements() {
 		final Document doc = getDocument();
 		if (doc == null)
-			return new String[0];
+			return new ElementName[0];
 
 		final Validator validator = doc.getValidator();
 		if (validator == null)
-			return new String[0];
+			return new ElementName[0];
 
-		int startOffset = getCaretOffset();
-		int endOffset = getCaretOffset();
-		if (hasSelection()) {
-			startOffset = getSelectionStart();
-			endOffset = getSelectionEnd();
-		}
+		final int startOffset = getStartOffset();
+		final int endOffset = getEndOffset();
 
 		final Element parent = doc.getElementAt(startOffset);
-
-		final List<QualifiedName> candidates = createCandidatesList(validator, parent, Validator.PCDATA);
-
-		// filter invalid sequences
 		final List<QualifiedName> nodesBefore = doc.getNodeNames(parent.getStartOffset() + 1, startOffset);
 		final List<QualifiedName> nodesAfter = doc.getNodeNames(endOffset, parent.getEndOffset());
-		final int sequenceLength = nodesBefore.size() + 1 + nodesAfter.size();
-		for (final Iterator<QualifiedName> iter = candidates.iterator(); iter.hasNext();) {
-			final QualifiedName candidate = iter.next();
-			final List<QualifiedName> sequence = new ArrayList<QualifiedName>(sequenceLength);
-			sequence.addAll(nodesBefore);
-			sequence.add(candidate);
-			sequence.addAll(nodesAfter);
-			if (!validator.isValidSequence(parent.getQualifiedName(), sequence, true))
-				iter.remove();
-		}
+		final List<QualifiedName> selectedNodes = doc.getNodeNames(startOffset, endOffset);
+		final List<QualifiedName> candidates = createCandidatesList(validator, parent, Validator.PCDATA);
+		
+		filterInvalidSequences(validator, parent, nodesBefore, nodesAfter, candidates);
 
-		// If there's a selection, root out those candidates that can't contain it.
-		if (hasSelection()) {
-			final List<QualifiedName> selectedNodes = doc.getNodeNames(startOffset, endOffset);
-
-			for (final Iterator<QualifiedName> iter = candidates.iterator(); iter.hasNext();) {
-				final QualifiedName candidate = iter.next();
-				if (!validator.isValidSequence(candidate, selectedNodes, true))
-					iter.remove();
-			}
-		}
+		// If there's a selection, root out those candidates that can't contain the selection.
+		if (hasSelection()) 
+			filterInvalidSelectionParents(validator, selectedNodes, candidates);
 
 		Collections.sort(candidates, new QualifiedNameComparator());
-		final String[] result = new String[candidates.size()];
+		
+		final ElementName[] result = new ElementName[candidates.size()];
 		int i = 0;
 		for (QualifiedName candidate : candidates)
-			result[i++] = candidate.getLocalName(); // TODO handle namespaces in VexWidget
+			result[i++] = new ElementName(candidate, parent.getNamespacePrefix(candidate.getQualifier()));
 		return result;
 	}
 
@@ -557,10 +544,30 @@ public class VexWidgetImpl implements IVexWidget {
 				result.add(validItem);
 		return result;
 	}
+	
+	private static void filterInvalidSequences(final Validator validator, final Element parent, final List<QualifiedName> nodesBefore, final List<QualifiedName> nodesAfter,
+			final List<QualifiedName> candidates) {
+		final int sequenceLength = nodesBefore.size() + 1 + nodesAfter.size();
+		for (final Iterator<QualifiedName> iterator = candidates.iterator(); iterator.hasNext();) {
+			final QualifiedName candidate = iterator.next();
+			final List<QualifiedName> sequence = new ArrayList<QualifiedName>(sequenceLength);
+			sequence.addAll(nodesBefore);
+			sequence.add(candidate);
+			sequence.addAll(nodesAfter);
+			if (!validator.isValidSequence(parent.getQualifiedName(), sequence, true))
+				iterator.remove();
+		}
+	}
 
-	/**
-	 * Returns the value of the antiAliased flag.
-	 */
+	private static void filterInvalidSelectionParents(final Validator validator, final List<QualifiedName> selectedNodes,
+			final List<QualifiedName> candidates) {
+		for (final Iterator<QualifiedName> iter = candidates.iterator(); iter.hasNext();) {
+			final QualifiedName candidate = iter.next();
+			if (!validator.isValidSequence(candidate, selectedNodes, true))
+				iter.remove();
+		}
+	}
+
 	public boolean isAntiAliased() {
 		return antiAliased;
 	}
@@ -569,34 +576,38 @@ public class VexWidgetImpl implements IVexWidget {
 		return debugging;
 	}
 
-	public String[] getValidMorphElements() {
+	public ElementName[] getValidMorphElements() {
 		final Document doc = getDocument();
 		if (doc == null)
-			return new String[0];
+			return new ElementName[0];
 
 		final Validator validator = doc.getValidator();
 		if (validator == null)
-			return new String[0];
+			return new ElementName[0];
 
 		final Element element = doc.getElementAt(getCaretOffset());
 		final Element parent = element.getParent();
 		if (parent == null)
 			// can't morph the root
-			return new String[0];
+			return new ElementName[0];
 
-		final List<QualifiedName> result = createCandidatesList(validator, parent, Validator.PCDATA, element.getQualifiedName());
+		final List<QualifiedName> candidates = createCandidatesList(validator, parent, Validator.PCDATA, element.getQualifiedName());
 
 		// root out those that can't contain the current content
 		final List<QualifiedName> content = doc.getNodeNames(element.getStartOffset() + 1, element.getEndOffset());
 
-		for (final Iterator<QualifiedName> iter = result.iterator(); iter.hasNext();) {
+		for (final Iterator<QualifiedName> iter = candidates.iterator(); iter.hasNext();) {
 			final QualifiedName candidate = iter.next();
 			if (!validator.isValidSequence(candidate, content, true))
 				iter.remove();
 		}
 
-		Collections.sort(result, new QualifiedNameComparator());
-		return result.toArray(new String[result.size()]);
+		Collections.sort(candidates, new QualifiedNameComparator());
+		final ElementName[] result = new ElementName[candidates.size()];
+		int i = 0;
+		for (QualifiedName candidate : candidates)
+			result[i++] = new ElementName(candidate, parent.getNamespacePrefix(candidate.getQualifier()));
+		return result;
 	}
 
 	public int getSelectionEnd() {

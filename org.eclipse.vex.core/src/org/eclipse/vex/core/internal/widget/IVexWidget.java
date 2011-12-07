@@ -13,8 +13,7 @@ package org.eclipse.vex.core.internal.widget;
 import java.io.IOException;
 import java.net.URL;
 
-import javax.xml.parsers.ParserConfigurationException;
-
+import org.eclipse.vex.core.internal.core.ElementName;
 import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.dom.Document;
 import org.eclipse.vex.core.internal.dom.DocumentFragment;
@@ -24,7 +23,6 @@ import org.eclipse.vex.core.internal.layout.Box;
 import org.eclipse.vex.core.internal.layout.BoxFactory;
 import org.eclipse.vex.core.internal.undo.CannotRedoException;
 import org.eclipse.vex.core.internal.undo.CannotUndoException;
-import org.xml.sax.SAXException;
 
 /**
  * Methods implemented by implementations of the Vex widget on all platforms.
@@ -234,13 +232,13 @@ public interface IVexWidget {
 	 * Returns an array of names of elements that are valid to insert at the
 	 * given caret offset and selection
 	 */
-	public String[] getValidInsertElements();
+	public ElementName[] getValidInsertElements();
 
 	/**
 	 * Returns an array of names of elements to which the element at the current
 	 * caret location can be morphed.
 	 */
-	public String[] getValidMorphElements();
+	public ElementName[] getValidMorphElements();
 
 	/**
 	 * Returns true if the user currently has some text selected.
@@ -267,8 +265,7 @@ public interface IVexWidget {
 	 * @param frag
 	 *            DocumentFragment to insert.
 	 */
-	public void insertFragment(DocumentFragment frag)
-			throws DocumentValidationException;
+	public void insertFragment(DocumentFragment frag) throws DocumentValidationException;
 
 	/**
 	 * Inserts the given element at the current caret position. Any selected
@@ -277,8 +274,7 @@ public interface IVexWidget {
 	 * @param element
 	 *            Element to insert.
 	 */
-	public void insertElement(Element element)
-			throws DocumentValidationException;
+	public void insertElement(Element element) throws DocumentValidationException;
 
 	/**
 	 * Inserts the given text at the current caret position. Any selected
