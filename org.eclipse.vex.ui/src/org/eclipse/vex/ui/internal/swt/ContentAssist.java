@@ -13,6 +13,8 @@
 package org.eclipse.vex.ui.internal.swt;
 
 import java.text.MessageFormat;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -209,13 +211,32 @@ public class ContentAssist extends PopupDialog {
 	}
 
 	private void repopulateList() {
-		final String filterText = textWidget.getText();
-		final List<AbstractVexAction> actionList = new LinkedList<AbstractVexAction>();
-		for (final AbstractVexAction action : actions)
-			if (action.getText().contains(filterText))
-				actionList.add(action);
-		viewer.setInput(actionList.toArray(new AbstractVexAction[actionList.size()]));
-		viewer.getTable().setSelection(0);
+        final String filterText = textWidget.getText().toLowerCase();
+        List<AbstractVexAction> actionList = new LinkedList<AbstractVexAction>();
+        for (AbstractVexAction action : actions) {
+        	if (action.getText().toLowerCase().contains(filterText)) {
+                actionList.add(action);
+            }
+		}
+
+        // primary order: "start with" before "contains" filter text
+        if (filterText.length() > 0) {
+        	Collections.sort(actionList, new Comparator<AbstractVexAction>() {
+				public int compare(AbstractVexAction action1,
+						           AbstractVexAction action2) {
+					String actionText1 = action1.getText().toLowerCase();
+					String actionText2 = action2.getText().toLowerCase();
+					if (   !actionText1.startsWith(filterText)
+						&& !actionText2.startsWith(filterText)) return 0;
+
+					return actionText1.startsWith(filterText) ? -1 : 1;
+				}
+			});
+        }
+
+        // update UI
+        viewer.setInput(actionList.toArray(new AbstractVexAction[actionList.size()]));
+        viewer.getTable().setSelection(0);
 	}
 
 	private class MyLabelProvider extends StyledCellLabelProvider {
