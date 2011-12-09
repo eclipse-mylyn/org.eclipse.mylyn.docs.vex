@@ -16,6 +16,7 @@ import junit.framework.JUnit4TestAdapter;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
+import org.eclipse.vex.core.internal.css.BatikBehaviorTest;
 import org.eclipse.vex.core.internal.css.CssTest;
 import org.eclipse.vex.core.internal.css.PropertyTest;
 import org.eclipse.vex.core.internal.css.RuleTest;
@@ -50,7 +51,8 @@ public class VEXCoreTestSuite extends TestSuite {
 		addTest(new JUnit4TestAdapter(DocumentReaderTest.class));
 		addTest(new JUnit4TestAdapter(DocumentContentModelTest.class));
 		addTest(new JUnit4TestAdapter(SchemaValidatorTest.class));
-		addTestSuite(CssTest.class);
+		addTest(new JUnit4TestAdapter(CssTest.class));
+		addTest(new JUnit4TestAdapter(BatikBehaviorTest.class));
 		addTestSuite(PropertyTest.class);
 		addTestSuite(RuleTest.class);
 		addTestSuite(BlockElementBoxTest.class);

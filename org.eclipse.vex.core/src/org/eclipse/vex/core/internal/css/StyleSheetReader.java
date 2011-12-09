@@ -34,16 +34,8 @@ import org.w3c.css.sac.SelectorList;
  */
 public class StyleSheetReader {
 
-	/**
-	 * Class constructor.
-	 */
-	public StyleSheetReader() {
-
-	}
-
 	public static Parser createParser() {
-		// return new org.apache.batik.css.parser.Parser();
-		return new org.w3c.flute.parser.Parser();
+		return new org.apache.batik.css.parser.Parser();
 	}
 
 	/**
@@ -78,8 +70,7 @@ public class StyleSheetReader {
 	 *            rules with relative URIs. May be null, in which case @import
 	 *            rules are ignored.
 	 */
-	public StyleSheet read(InputSource inputSource, URL url)
-			throws CSSException, IOException {
+	public StyleSheet read(InputSource inputSource, URL url) throws CSSException, IOException {
 		final Parser parser = createParser();
 		final List<Rule> rules = new ArrayList<Rule>();
 		final StyleSheetBuilder styleSheetBuilder = new StyleSheetBuilder(rules, url);
@@ -132,19 +123,15 @@ public class StyleSheetReader {
 		public void ignorableAtRule(String atRule) {
 		}
 
-		public void importStyle(String uri, SACMediaList media,
-				String defaultNamespaceURI) {
-
-			if (this.url == null) {
+		public void importStyle(String uri, SACMediaList media, String defaultNamespaceURI) {
+			if (this.url == null)
 				return;
-			}
 
 			try {
-				Parser parser = createParser();
-				URL importUrl = new URL(this.url, uri);
-				StyleSheetBuilder ssBuilder = new StyleSheetBuilder(rules,
-						importUrl);
-				parser.setDocumentHandler(ssBuilder);
+				final Parser parser = createParser();
+				final URL importUrl = new URL(this.url, uri);
+				final StyleSheetBuilder styleSheetBuilder = new StyleSheetBuilder(rules, importUrl);
+				parser.setDocumentHandler(styleSheetBuilder);
 				parser.parseStyleSheet(new InputSource(importUrl.toString()));
 			} catch (CSSException e) {
 			} catch (IOException e) {
@@ -231,8 +218,7 @@ public class StyleSheetReader {
 		 * must be one of CSS.BORDER_BOTTOM, CSS.BORDER_LEFT, CSS.BORDER_RIGHT,
 		 * CSS.BORDER_TOP.
 		 */
-		private void expandBorder(LexicalUnit value, String whichBorder,
-				boolean important) {
+		private void expandBorder(LexicalUnit value, String whichBorder, boolean important) {
 
 			if (AbstractProperty.isInherit(value)) {
 				this.addDecl(whichBorder + CSS.COLOR_SUFFIX, value, important);
@@ -408,8 +394,7 @@ public class StyleSheetReader {
 				i++;
 			}
 
-			if (i < n
-					&& lus[i].getLexicalUnitType() == LexicalUnit.SAC_OPERATOR_SLASH) {
+			if (i < n && lus[i].getLexicalUnitType() == LexicalUnit.SAC_OPERATOR_SLASH) {
 				i++; // gobble slash
 				if (i < n) {
 					this.addDecl(CSS.LINE_HEIGHT, lus[i], important);

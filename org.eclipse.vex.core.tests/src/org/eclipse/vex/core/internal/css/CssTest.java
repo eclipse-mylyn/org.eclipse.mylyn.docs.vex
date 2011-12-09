@@ -10,44 +10,27 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.css;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+
 import java.net.URL;
 
 import org.eclipse.vex.core.internal.core.Color;
 import org.eclipse.vex.core.internal.core.DisplayDevice;
-import org.eclipse.vex.core.internal.css.CSS;
-import org.eclipse.vex.core.internal.css.StyleSheet;
-import org.eclipse.vex.core.internal.css.StyleSheetReader;
-import org.eclipse.vex.core.internal.css.Styles;
 import org.eclipse.vex.core.internal.dom.Document;
 import org.eclipse.vex.core.internal.dom.Element;
 import org.eclipse.vex.core.internal.dom.RootElement;
+import org.junit.Before;
+import org.junit.Test;
 
-import junit.framework.TestCase;
+public class CssTest {
 
-/**
- * Test the <code>org.eclipse.wst.vex.core.internal.css</code> package.
- */
-public class CssTest extends TestCase {
-
-	protected void setUp() throws Exception {
-		super.setUp();
+	@Before
+	public void setUp() throws Exception {
 		DisplayDevice.setCurrent(new MockDisplayDevice(90, 90));
 	}
 
-	/*
-	 * public void testAll() throws Exception { Element aElement = new
-	 * Element("A"); Element bElement = new Element("B"); Element cElement = new
-	 * Element("C"); Document doc = new Document(aElement); doc.insertElement(1,
-	 * bElement); doc.insertElement(2, cElement);
-	 * 
-	 * StyleSheet ss = parseStyleSheetResource("test1.css"); Styles styles =
-	 * ss.get(aElement);
-	 * 
-	 * assertProperty(styles, "name", "A", LexicalUnit.SAC_IDENT);
-	 * 
-	 * }
-	 */
-
+	@Test
 	public void testBorderColor() throws Exception {
 		StyleSheet ss = parseStyleSheetResource("test2.css");
 		Styles styles;
@@ -82,6 +65,7 @@ public class CssTest extends TestCase {
 
 	}
 
+	@Test
 	public void testBorderStyle() throws Exception {
 		StyleSheet ss = parseStyleSheetResource("test2.css");
 		Styles styles;
@@ -112,6 +96,7 @@ public class CssTest extends TestCase {
 
 	}
 
+	@Test
 	public void testBorderWidth() throws Exception {
 		StyleSheet ss = parseStyleSheetResource("test2.css");
 		Styles styles;
@@ -142,6 +127,7 @@ public class CssTest extends TestCase {
 
 	}
 
+	@Test
 	public void testDefaults() throws Exception {
 		StyleSheet ss = parseStyleSheetResource("test2.css");
 		Styles styles = ss.getStyles(new Element("defaults"));
@@ -180,9 +166,7 @@ public class CssTest extends TestCase {
 		assertEquals(0, styles.getPaddingTop().get(10));
 	}
 
-	/**
-	 * Check the correct properties are inherited by default.
-	 */
+	@Test
 	public void testDefaultInheritance() throws Exception {
 		RootElement simple = new RootElement("simple");
 		Element defaults = new Element("defaults");
@@ -226,6 +210,7 @@ public class CssTest extends TestCase {
 		assertEquals(0, styles.getPaddingTop().get(10));
 	}
 
+	@Test
 	public void testExpandBorder() throws Exception {
 		StyleSheet ss = parseStyleSheetResource("test2.css");
 		Styles styles;
@@ -332,6 +317,7 @@ public class CssTest extends TestCase {
 
 	}
 
+	@Test
 	public void testExpandMargins() throws Exception {
 		StyleSheet ss = parseStyleSheetResource("test2.css");
 
@@ -360,6 +346,7 @@ public class CssTest extends TestCase {
 		assertEquals(40, styles.getMarginLeft().get(67));
 	}
 
+	@Test
 	public void testExtras() throws Exception {
 		StyleSheet ss = parseStyleSheetResource("test2.css");
 		Styles styles = ss.getStyles(new Element("extras"));
@@ -382,6 +369,7 @@ public class CssTest extends TestCase {
 		assertEquals(CSS.INLINE, styles.getDisplay());
 	}
 
+	@Test
 	public void testExtras2() throws Exception {
 		StyleSheet ss = parseStyleSheetResource("test2.css");
 		Styles styles = ss.getStyles(new Element("extras2"));
@@ -401,11 +389,8 @@ public class CssTest extends TestCase {
 		assertEquals(CSS.INSET, styles.getBorderTopStyle());
 	}
 
-	/**
-	 * Test the symbolic font sizes.
-	 */
+	@Test
 	public void testFontSize() throws Exception {
-
 		StyleSheet ss = parseStyleSheetResource("test2.css");
 		Styles styles;
 
@@ -444,6 +429,7 @@ public class CssTest extends TestCase {
 
 	}
 
+	@Test
 	public void testForcedInheritance() throws Exception {
 		RootElement simple = new RootElement("simple");
 		Element inherit = new Element("inherit");
@@ -487,6 +473,7 @@ public class CssTest extends TestCase {
 		assertEquals(19, styles.getPaddingTop().get(10));
 	}
 
+	@Test
 	public void testImportant() throws Exception {
 		StyleSheet ss = parseStyleSheetResource("testImportant.css");
 		Element a = new Element("a");
@@ -503,6 +490,7 @@ public class CssTest extends TestCase {
 
 	}
 
+	@Test
 	public void testMarginInheritance() throws Exception {
 		StyleSheet ss = parseStyleSheetResource("test2.css");
 		Element root = new Element("margin1");
@@ -516,6 +504,7 @@ public class CssTest extends TestCase {
 		assertEquals(0, styles.getMarginBottom().get(67));
 	}
 
+	@Test
 	public void testSimple() throws Exception {
 		StyleSheet ss = parseStyleSheetResource("test2.css");
 		Styles styles = ss.getStyles(new Element("simple"));
@@ -554,161 +543,6 @@ public class CssTest extends TestCase {
 		assertEquals(19, styles.getPaddingTop().get(10));
 
 	}
-
-	/**
-	 * Confirm our assumptions about the structure of lexical units.
-	 */
-	/*
-	 * public void testLexicalUnits() throws Exception { Element aElement = new
-	 * Element("A"); StyleSheet ss =
-	 * parseStyleSheetResource("testLexicalUnits.css"); Styles styles =
-	 * ss.get(aElement);
-	 * 
-	 * LexicalUnit lu; LexicalUnit lu2;
-	 * 
-	 * System.out.println("DEBUG: styles for element A"); dumpStyles(styles);
-	 * 
-	 * // TEST: how to access color specified in "rgb(R,G,B)" format lu =
-	 * styles.get(CSS.COLOR); assertEquals(LexicalUnit.SAC_RGBCOLOR,
-	 * lu.getLexicalUnitType()); assertEquals("color", lu.getFunctionName());
-	 * lu2 = lu.getParameters(); assertNotNull(lu2);
-	 * assertEquals(LexicalUnit.SAC_INTEGER, lu2.getLexicalUnitType());
-	 * assertEquals(255, lu2.getIntegerValue()); lu2 = lu2.getNextLexicalUnit();
-	 * assertEquals(LexicalUnit.SAC_OPERATOR_COMMA, lu2.getLexicalUnitType());
-	 * lu2 = lu2.getNextLexicalUnit(); assertEquals(LexicalUnit.SAC_INTEGER,
-	 * lu2.getLexicalUnitType()); assertEquals(255, lu2.getIntegerValue()); lu2
-	 * = lu2.getNextLexicalUnit(); assertEquals(LexicalUnit.SAC_OPERATOR_COMMA,
-	 * lu2.getLexicalUnitType()); lu2 = lu2.getNextLexicalUnit();
-	 * assertEquals(LexicalUnit.SAC_INTEGER, lu2.getLexicalUnitType());
-	 * assertEquals(255, lu2.getIntegerValue()); lu2 = lu2.getNextLexicalUnit();
-	 * assertNull(lu2);
-	 * 
-	 * // TEST: color specified in "#RGB" format is accessed the same way lu =
-	 * styles.get(CSS.BACKGROUND_COLOR); assertEquals(LexicalUnit.SAC_RGBCOLOR,
-	 * lu.getLexicalUnitType()); assertEquals("color", lu.getFunctionName());
-	 * lu2 = lu.getParameters(); assertNotNull(lu2);
-	 * assertEquals(LexicalUnit.SAC_INTEGER, lu2.getLexicalUnitType());
-	 * assertEquals(0, lu2.getIntegerValue()); lu2 = lu2.getNextLexicalUnit();
-	 * assertEquals(LexicalUnit.SAC_OPERATOR_COMMA, lu2.getLexicalUnitType());
-	 * lu2 = lu2.getNextLexicalUnit(); assertEquals(LexicalUnit.SAC_INTEGER,
-	 * lu2.getLexicalUnitType()); assertEquals(0, lu2.getIntegerValue()); lu2 =
-	 * lu2.getNextLexicalUnit(); assertEquals(LexicalUnit.SAC_OPERATOR_COMMA,
-	 * lu2.getLexicalUnitType()); lu2 = lu2.getNextLexicalUnit();
-	 * assertEquals(LexicalUnit.SAC_INTEGER, lu2.getLexicalUnitType());
-	 * assertEquals(0, lu2.getIntegerValue()); lu2 = lu2.getNextLexicalUnit();
-	 * assertNull(lu2);
-	 * 
-	 * // TEST: color specified in "rgb(R%,G%,B%)" is accessed as SAC_PERCENTAGE
-	 * lu = styles.get(CSS.BORDER_BOTTOM);
-	 * assertEquals(LexicalUnit.SAC_RGBCOLOR, lu.getLexicalUnitType());
-	 * assertEquals("color", lu.getFunctionName()); lu2 = lu.getParameters();
-	 * assertNotNull(lu2); assertEquals(LexicalUnit.SAC_PERCENTAGE,
-	 * lu2.getLexicalUnitType()); assertEquals(10f, lu2.getFloatValue(), 0.001);
-	 * lu2 = lu2.getNextLexicalUnit();
-	 * assertEquals(LexicalUnit.SAC_OPERATOR_COMMA, lu2.getLexicalUnitType());
-	 * lu2 = lu2.getNextLexicalUnit(); assertEquals(LexicalUnit.SAC_PERCENTAGE,
-	 * lu2.getLexicalUnitType()); assertEquals(20f, lu2.getFloatValue(), 0.001);
-	 * lu2 = lu2.getNextLexicalUnit();
-	 * assertEquals(LexicalUnit.SAC_OPERATOR_COMMA, lu2.getLexicalUnitType());
-	 * lu2 = lu2.getNextLexicalUnit(); assertEquals(LexicalUnit.SAC_PERCENTAGE,
-	 * lu2.getLexicalUnitType()); assertEquals(30f, lu2.getFloatValue(), 0.001);
-	 * lu2 = lu2.getNextLexicalUnit(); assertNull(lu2);
-	 * 
-	 * // TEST: color incompletely specified, e.g. "rgb(10,20)" is rejected //
-	 * by the parser lu = styles.get(CSS.BORDER_LEFT); assertNull(lu);
-	 * 
-	 * // TEST: color incorrectly specified, e.g. "10", "foo", or //
-	 * "rgb(larry,curly,moe)" is passed by the parser lu =
-	 * styles.get(CSS.BORDER_RIGHT); // "10" is not a valid lexical unit
-	 * assertNull(lu);
-	 * 
-	 * lu = styles.get(CSS.BORDER_TOP); // "rgb(larry, curly, moe)"
-	 * assertNull(lu);
-	 * 
-	 * styles = ss.get(new Element("B")); lu = styles.get(CSS.BACKGROUND_COLOR);
-	 * // "foo" assertEquals(LexicalUnit.SAC_IDENT, lu.getLexicalUnitType());
-	 * assertEquals("foo", lu.getStringValue());
-	 * 
-	 * lu = styles.get(CSS.COLOR); // "10px" assertEquals(LexicalUnit.SAC_PIXEL,
-	 * lu.getLexicalUnitType()); //assertEquals(10, lu.getIntegerValue()); //
-	 * NOTE: not an int! assertEquals(10f, lu.getFloatValue(), 0.001); }
-	 * 
-	 * 
-	 * public void testExpandMargins() throws Exception { Element aElement = new
-	 * Element("A"); Element bElement = new Element("B"); Element cElement = new
-	 * Element("C"); Element dElement = new Element("D"); Element eElement = new
-	 * Element("E"); Element fElement = new Element("F"); Element gElement = new
-	 * Element("G"); Document doc = new Document(new Element("root"));
-	 * doc.insertElement(1, aElement); doc.insertElement(3, cElement);
-	 * doc.insertElement(5, cElement); doc.insertElement(7, cElement);
-	 * 
-	 * StyleSheet ss = parseStyleSheetResource("expansion.css"); Styles styles;
-	 * 
-	 * // single margin call expands styles = ss.get(aElement);
-	 * assertProperty(styles, CSS.MARGIN_BOTTOM, 1.0f, LexicalUnit.SAC_INCH);
-	 * assertProperty(styles, CSS.MARGIN_LEFT, 1.0f, LexicalUnit.SAC_INCH);
-	 * assertProperty(styles, CSS.MARGIN_RIGHT, 1.0f, LexicalUnit.SAC_INCH);
-	 * assertProperty(styles, CSS.MARGIN_TOP, 1.0f, LexicalUnit.SAC_INCH);
-	 * 
-	 * // more-specific overrides; shorthand comes first styles =
-	 * ss.get(bElement); assertProperty(styles, CSS.MARGIN_BOTTOM, 0.5f,
-	 * LexicalUnit.SAC_INCH); assertProperty(styles, CSS.MARGIN_LEFT, 0.5f,
-	 * LexicalUnit.SAC_INCH); assertProperty(styles, CSS.MARGIN_RIGHT, 0.5f,
-	 * LexicalUnit.SAC_INCH); assertProperty(styles, CSS.MARGIN_TOP, 0.5f,
-	 * LexicalUnit.SAC_INCH);
-	 * 
-	 * // more-specific overrides; shorthand comes last styles =
-	 * ss.get(cElement); assertProperty(styles, CSS.MARGIN_BOTTOM, 0.5f,
-	 * LexicalUnit.SAC_INCH); assertProperty(styles, CSS.MARGIN_LEFT, 0.5f,
-	 * LexicalUnit.SAC_INCH); assertProperty(styles, CSS.MARGIN_RIGHT, 0.5f,
-	 * LexicalUnit.SAC_INCH); assertProperty(styles, CSS.MARGIN_TOP, 0.5f,
-	 * LexicalUnit.SAC_INCH);
-	 * 
-	 * // second shorthand overrides first styles = ss.get(dElement);
-	 * assertProperty(styles, CSS.MARGIN_BOTTOM, 0.25f, LexicalUnit.SAC_INCH);
-	 * assertProperty(styles, CSS.MARGIN_LEFT, 0.25f, LexicalUnit.SAC_INCH);
-	 * assertProperty(styles, CSS.MARGIN_RIGHT, 0.25f, LexicalUnit.SAC_INCH);
-	 * assertProperty(styles, CSS.MARGIN_TOP, 0.25f, LexicalUnit.SAC_INCH);
-	 * 
-	 * // expanding two values for margins styles = ss.get(eElement);
-	 * assertProperty(styles, CSS.MARGIN_BOTTOM, 1.0f, LexicalUnit.SAC_INCH);
-	 * assertProperty(styles, CSS.MARGIN_LEFT, 2.0f, LexicalUnit.SAC_INCH);
-	 * assertProperty(styles, CSS.MARGIN_RIGHT, 2.0f, LexicalUnit.SAC_INCH);
-	 * assertProperty(styles, CSS.MARGIN_TOP, 1.0f, LexicalUnit.SAC_INCH);
-	 * 
-	 * // expanding three values for margins styles = ss.get(fElement);
-	 * assertProperty(styles, CSS.MARGIN_BOTTOM, 3.0f, LexicalUnit.SAC_INCH);
-	 * assertProperty(styles, CSS.MARGIN_LEFT, 2.0f, LexicalUnit.SAC_INCH);
-	 * assertProperty(styles, CSS.MARGIN_RIGHT, 2.0f, LexicalUnit.SAC_INCH);
-	 * assertProperty(styles, CSS.MARGIN_TOP, 1.0f, LexicalUnit.SAC_INCH);
-	 * 
-	 * // expanding four values for margins styles = ss.get(gElement);
-	 * assertProperty(styles, CSS.MARGIN_TOP, 1.0f, LexicalUnit.SAC_INCH);
-	 * assertProperty(styles, CSS.MARGIN_RIGHT, 2.0f, LexicalUnit.SAC_INCH);
-	 * assertProperty(styles, CSS.MARGIN_BOTTOM, 3.0f, LexicalUnit.SAC_INCH);
-	 * assertProperty(styles, CSS.MARGIN_LEFT, 4.0f, LexicalUnit.SAC_INCH);
-	 * 
-	 * }
-	 * 
-	 * 
-	 * public static void assertProperty(Styles styles, String name, float
-	 * value, int lexicalUnitType) {
-	 * 
-	 * LexicalUnit lu = styles.get(name); assertEquals(lexicalUnitType,
-	 * lu.getLexicalUnitType()); assertEquals(value, lu.getFloatValue(),
-	 * 0.001f); }
-	 * 
-	 * public static void assertProperty(Styles styles, String name, String
-	 * value, int lexicalUnitType) {
-	 * 
-	 * LexicalUnit lu = styles.get(name); assertEquals(lexicalUnitType,
-	 * lu.getLexicalUnitType()); assertEquals(value, lu.getStringValue()); }
-	 * 
-	 * public static void dumpStyles(Styles styles) { java.util.Iterator iter =
-	 * styles.getPropertyNames().iterator(); while (iter.hasNext()) { String
-	 * name = (String) iter.next(); System.out.println(name + ": " +
-	 * styles.get(name)); } }
-	 */
 
 	private StyleSheet parseStyleSheetResource(String resource)
 			throws java.io.IOException {

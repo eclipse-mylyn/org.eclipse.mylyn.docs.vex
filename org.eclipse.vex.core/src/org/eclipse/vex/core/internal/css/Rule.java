@@ -20,6 +20,7 @@ import java.util.List;
 import java.util.StringTokenizer;
 
 import org.eclipse.vex.core.internal.dom.Element;
+import org.eclipse.vex.core.internal.dom.RootElement;
 import org.w3c.css.sac.AttributeCondition;
 import org.w3c.css.sac.CombinatorCondition;
 import org.w3c.css.sac.Condition;
@@ -121,13 +122,6 @@ public class Rule {
 		final int selectorType = selector.getSelectorType();
 
 		switch (selectorType) {
-
-		case Selector.SAC_ANY_NODE_SELECTOR:
-			// You'd think we land here if we have a * rule, but instead
-			// it appears we get a SAC_ELEMENT_NODE_SELECTOR with
-			// localName==null
-			return true;
-
 		case Selector.SAC_CONDITIONAL_SELECTOR:
 			// This little wart is the product of a mismatch btn the CSS
 			// spec an the Flute parser. CSS treats pseudo-elements as elements
@@ -143,6 +137,18 @@ public class Rule {
 			} else
 				return matches(cs.getSimpleSelector(), element) && matchesCondition(cs.getCondition(), element);
 
+		case Selector.SAC_ANY_NODE_SELECTOR:
+			// You'd think we land here if we have a * rule, but instead
+			// it appears we get a SAC_ELEMENT_NODE_SELECTOR with
+			// localName==null
+			return true;
+
+		case Selector.SAC_ROOT_NODE_SELECTOR:
+			return element instanceof RootElement;
+			
+		case Selector.SAC_NEGATIVE_SELECTOR:
+			break; // not yet supported
+			
 		case Selector.SAC_ELEMENT_NODE_SELECTOR:
 			final String elementName = element.getLocalName();
 			final String selectorName = ((ElementSelector) selector).getLocalName();
@@ -154,18 +160,31 @@ public class Rule {
 				return true;
 			if (selectorName.equals(elementName))
 				return true;
-			break;
+			return false;
 
+		case Selector.SAC_TEXT_NODE_SELECTOR:
+			return false; // not yet supported
+
+		case Selector.SAC_CDATA_SECTION_NODE_SELECTOR:
+			return false; // not yet supported
+			
+		case Selector.SAC_PROCESSING_INSTRUCTION_NODE_SELECTOR:
+			return false; // not yet supported
+			
+		case Selector.SAC_COMMENT_NODE_SELECTOR:
+			return false; // not yet supported 
+			
+		case Selector.SAC_PSEUDO_ELEMENT_SELECTOR:
+			final ElementSelector elementSelector = (ElementSelector) selector;
+			return elementSelector.getLocalName().equals(element.getLocalName());
+			
 		case Selector.SAC_DESCENDANT_SELECTOR:
 			final DescendantSelector ds = (DescendantSelector) selector;
 			return matches(ds.getSimpleSelector(), element) && matchesAncestor(ds.getAncestorSelector(), element.getParent());
 
 		case Selector.SAC_CHILD_SELECTOR:
 			final DescendantSelector ds2 = (DescendantSelector) selector;
-			Element parent = element.getParent();
-			if (element instanceof PseudoElement)
-				parent = parent.getParent(); // sigh - this looks inelegant, but
-												// whatcha gonna do?
+			final Element parent = element.getParent();
 			return matches(ds2.getSimpleSelector(), element) && matches(ds2.getAncestorSelector(), parent);
 
 		case Selector.SAC_DIRECT_ADJACENT_SELECTOR:
