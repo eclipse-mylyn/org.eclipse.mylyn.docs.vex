@@ -12,7 +12,6 @@
  *******************************************************************************/
 package org.eclipse.vex.ui.internal.config;
 
-import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -96,10 +95,6 @@ public class ConfigLoaderJob extends Job implements ConfigurationLoader {
 					VexPlugin.getInstance().getLog().log(e.getStatus());
 				}
 				monitor.worked(1);
-			} else {
-				final String message = MessageFormat.format(Messages.getString("ConfigLoaderJob.natureError"), //$NON-NLS-1$
-						new Object[] { project.getName() });
-				VexPlugin.getInstance().log(IStatus.ERROR, message);
 			}
 
 		return result;
