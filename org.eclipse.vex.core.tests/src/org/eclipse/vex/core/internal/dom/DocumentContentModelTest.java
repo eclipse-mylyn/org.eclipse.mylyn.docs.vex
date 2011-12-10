@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.dom;
 
+import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -105,5 +106,12 @@ public class DocumentContentModelTest {
 		final URL resolvedUrl = model.resolveSchemaIdentifier(TestResources.TEST_DTD);
 		assertNotNull(resolvedUrl);
 		assertTrue(resolvedUrl.toString().contains(VEXCoreTestPlugin.PLUGIN_ID));
+	}
+	
+	@Test
+	public void onlySystemId() throws Exception {
+		model.initialize(null, null, TestResources.get("test1.dtd").toString(), null);
+		assertTrue(model.isDtdAssigned());
+		assertNotNull(model.getDTD());
 	}
 }

@@ -65,6 +65,10 @@ public class WTPVEXValidator implements Validator {
 		this(new DocumentContentModel());
 	}
 
+	public WTPVEXValidator(URL dtdUrl) {
+		this(new DocumentContentModel(null, null, dtdUrl.toString(), null));
+	}
+	
 	public WTPVEXValidator(final String schemaIdentifier) {
 		this(new DocumentContentModel(null, schemaIdentifier, null, null));
 	}
@@ -105,14 +109,8 @@ public class WTPVEXValidator implements Validator {
 	}
 
 	private CMDocument getDTD() {
-		if (dtd == null && documentContentModel.isDtdAssigned()) {
-			final URL dtdUrl = documentContentModel.resolveSchemaIdentifier(documentContentModel.getMainDocumentTypeIdentifier());
-			if (dtdUrl == null)
-				return null;
-			final ContentModelManager modelManager = ContentModelManager.getInstance();
-			final String resolved = dtdUrl.toString();
-			dtd = modelManager.createCMDocument(resolved, null);
-		}
+		if (dtd == null && documentContentModel.isDtdAssigned()) 
+			dtd = documentContentModel.getDTD();
 		return dtd;
 	}
 

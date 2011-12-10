@@ -17,6 +17,8 @@ import java.text.MessageFormat;
 
 import org.eclipse.wst.common.uriresolver.internal.provisional.URIResolver;
 import org.eclipse.wst.common.uriresolver.internal.provisional.URIResolverPlugin;
+import org.eclipse.wst.xml.core.internal.contentmodel.CMDocument;
+import org.eclipse.wst.xml.core.internal.contentmodel.ContentModelManager;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -60,6 +62,22 @@ public class DocumentContentModel implements EntityResolver {
 
 	public boolean isDtdAssigned() {
 		return publicId != null || systemId != null;
+	}
+	
+	public CMDocument getDTD() {
+		if (publicId != null) {
+			final URL dtdUrl = resolveSchemaIdentifier(publicId);
+			if (dtdUrl != null)
+				return createCMDocument(dtdUrl.toString());
+		}
+		if (systemId != null)
+			return createCMDocument(systemId);
+		return null;
+	}
+
+	private CMDocument createCMDocument(String resolved) {
+		final ContentModelManager modelManager = ContentModelManager.getInstance();
+		return modelManager.createCMDocument(resolved, null);
 	}
 
 	public IWhitespacePolicy getWhitespacePolicy() {
