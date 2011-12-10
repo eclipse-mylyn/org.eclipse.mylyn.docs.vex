@@ -17,13 +17,25 @@ import org.eclipse.core.runtime.QualifiedName;
  */
 public class ElementName {
 
-	public final QualifiedName qualifiedName;
+	private final QualifiedName qualifiedName;
 	
-	public final String prefix;
+	private final String prefix;
 	
 	public ElementName(QualifiedName qualifiedName, String prefix) {
 		this.qualifiedName = qualifiedName;
 		this.prefix = prefix;
+	}
+	
+	public QualifiedName getQualifiedName() {
+		return qualifiedName;
+	}
+	
+	public String getQualifier() {
+		return qualifiedName.getQualifier();
+	}
+	
+	public String getLocalName() {
+		return qualifiedName.getLocalName();
 	}
 	
 	public String getPrefix() {

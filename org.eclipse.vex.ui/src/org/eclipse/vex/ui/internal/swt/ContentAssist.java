@@ -224,8 +224,8 @@ public class ContentAssist extends PopupDialog {
         	Collections.sort(actionList, new Comparator<AbstractVexAction>() {
 				public int compare(AbstractVexAction action1,
 						           AbstractVexAction action2) {
-					String actionText1 = action1.getElementName().qualifiedName.getLocalName().toLowerCase();
-					String actionText2 = action2.getElementName().qualifiedName.getLocalName().toLowerCase();
+					String actionText1 = action1.getElementName().getLocalName().toLowerCase();
+					String actionText2 = action2.getElementName().getLocalName().toLowerCase();
 					if (   !actionText1.startsWith(filterText)
 						&& !actionText2.startsWith(filterText)) return 0;
 
@@ -334,7 +334,7 @@ public class ContentAssist extends PopupDialog {
 		final ElementName[] names = widget.getValidInsertElements();
 		final AbstractVexAction[] actions = new AbstractVexAction[names.length];
 		for (int i = 0; i < names.length; i++) {
-			final QualifiedName qualifiedName = names[i].qualifiedName;
+			final QualifiedName qualifiedName = names[i].getQualifiedName();
 			actions[i] = new AbstractVexAction(widget, names[i], names[i].toString(), Icon.ELEMENT) {
 				@Override
 				public void execute(final VexWidget vexWidget) {
@@ -352,7 +352,7 @@ public class ContentAssist extends PopupDialog {
 		final Element element = widget.getDocument().getElementAt(caretOffset);
 		final String sourceName = element.getPrefixedName();
 		for (int i = 0; i < names.length; i++) {
-			final QualifiedName qualifiedName = names[i].qualifiedName;
+			final QualifiedName qualifiedName = names[i].getQualifiedName();
 			final String message = Messages.getString("command.convertElement.dynamicCommandName"); //$NON-NLS-1$
 			final String text = MessageFormat.format(message, sourceName, names[i]);
 			final Icon icon = Icon.CONVERT;
