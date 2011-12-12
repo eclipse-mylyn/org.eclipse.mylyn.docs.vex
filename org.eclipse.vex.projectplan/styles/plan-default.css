@@ -1,0 +1,223 @@
+@import url(urn:org:eclipse:vex:styles:xhtml:xhtml1-plain.css);
+
+* {
+	font-family: sans-serif;
+	font-size: 10pt;
+}
+
+plan:before {
+	display: block;
+	content: "Project Plan for " attr(name);
+	font-weight: bold;
+	font-size: 18pt;
+}
+
+release:before {
+	display: block;
+	content: "Release " attr(version);	
+}
+
+release {
+	display: block;
+}
+
+introduction:before {
+	display: block;
+	content: "Introduction";
+	font-weight: bold;
+	font-size: 14pt;
+	color: blue;
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+	border-bottom-color: gray;
+	margin-top: 5px;
+	margin-bottom: 5px;
+}
+
+introduction {
+	display: block;
+	margin-bottom: 5px;
+}
+
+release_deliverables:before {
+	display: block;
+	content: "Release Deliverables";
+	font-weight: bold;
+	font-size: 14pt;
+	color: blue;
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+	border-bottom-color: gray;
+	margin-top: 5px;
+	margin-bottom: 5px;
+}
+
+release_deliverables {
+	display: block;
+	margin-bottom: 5px;
+}
+
+release_milestones:before {
+	display: block;
+	content: "Release Milestones";
+	font-weight: bold;
+	font-size: 14pt;
+	color: blue;
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+	border-bottom-color: gray;
+	margin-top: 5px;
+	margin-bottom: 5px;
+}
+
+release_milestones {
+	display: block;
+	margin-bottom: 5px;
+}
+
+milestone:before {
+	display: inline;
+	content: attr(milestone) " (" attr(date) ") ";
+	font-weight: bold;
+}
+
+milestone {
+	display: block;
+	margin: 7px;
+}
+
+target_environments:before {
+	display: block;
+	content: "Target Environments";
+	font-weight: bold;
+	font-size: 14pt;
+	color: blue;
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+	border-bottom-color: gray;
+	margin-top: 5px;
+	margin-bottom: 5px;
+}
+
+target_environments {
+	display: block;
+	margin-bottom: 5px;
+}
+
+internationalization:before {
+	display: block;
+	content: "Internationalization";
+	font-weight: bold;
+	font-size: 14pt;
+	color: black;
+	border-bottom-width: 1px;
+	border-bottom-style: dotted;
+	border-bottom-color: gray;
+	margin-top: 5px;
+	margin-bottom: 5px;
+}
+
+internationalization {
+	display: block;
+}
+
+compatibility_with_previous_releases:before {
+	display: block;
+	content: "Compatibility with Previous Releases";
+	font-weight: bold;
+	font-size: 14pt;
+	color: blue;
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+	border-bottom-color: gray;
+	margin-top: 5px;
+	margin-bottom: 5px;
+}
+
+compatibility_with_previous_releases {
+	display: block;
+	margin-bottom: 5px;
+}
+
+themes_and_priorities:before {
+	display: block;
+	content: "Themes and Priorities";
+	font-weight: bold;
+	font-size: 14pt;
+	color: blue;
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+	border-bottom-color: gray;
+	margin-top: 5px;
+	margin-bottom: 5px;
+}
+
+themes_and_priorities {
+	display: block;
+	margin-bottom: 5px;
+}
+
+theme:before {
+	display: block;
+	content: attr(name);
+	font-weight: bold;
+	font-size: 14pt;
+	color: black;
+	border-bottom-width: 1px;
+	border-bottom-style: dotted;
+	border-bottom-color: gray;
+	margin-top: 5px;
+	margin-bottom: 5px;
+}
+
+theme {
+	display: block;
+}
+
+committed:before {
+	display: block;
+	content: "Committed " attr(bugzilla);
+}
+
+committed {
+	display: block;
+	margin: 7px;
+}
+
+proposed:before {
+	display: block;
+	content: "Proposed " attr(bugzilla);
+}
+
+proposed {
+	display: block;
+	margin: 7px;
+}
+
+deferred:before {
+	content: "Deferred " attr(bugzilla);
+}
+
+deferred {
+	display: block;
+	margin: 7px;
+}
+
+appendix:before {
+	display: block;
+	content: "Appendix";
+	font-weight: bold;
+	font-size: 14pt;
+	color: blue;
+	border-bottom-width: 1px;
+	border-bottom-style: solid;
+	border-bottom-color: gray;
+	margin-top: 5px;
+	margin-bottom: 5px;
+}
+
+appendix {
+	display: block;
+	margin-bottom: 5px;
+}
+

@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+
+
+ -->
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+	elementFormDefault="qualified" targetNamespace="http://www.eclipse.org/project/plan"
+    xmlns="http://www.eclipse.org/project/plan">
+	<xsd:element name="plan" type="ProjectPlanType">
+		<xsd:annotation>
+			<xsd:documentation>Project Plan Root Element</xsd:documentation>
+		</xsd:annotation>
+	</xsd:element>
+	<xsd:complexType name="ProjectPlanType">
+		<xsd:sequence>
+			<xsd:element name="release" type="ReleaseType">
+				<xsd:annotation>
+					<xsd:documentation></xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="introduction" type="XHTMLUserAreaType" minOccurs="1"/>
+			<xsd:element name="release_deliverables" type="XHTMLUserAreaType" minOccurs="0"/>
+			<xsd:element name="release_milestones" type="ReleaseMilestonesType" minOccurs="0"/>
+			<xsd:element name="target_environments" type="TargetEnvironmentsType" minOccurs="0"/>
+			<xsd:element name="compatibility_with_previous_releases" type="XHTMLUserAreaType" minOccurs="0"/>
+			<xsd:element name="themes_and_priorities" type="ThemesAndPrioritiesType" minOccurs="0"/>
+			<xsd:element name="appendix" type="AppendixType" minOccurs="0" maxOccurs="unbounded"/>
+		</xsd:sequence>
+        <xsd:attribute name="plan-format" type="planEnumeratedType"></xsd:attribute>
+        <xsd:attribute name="name" type="xsd:token">
+            <xsd:annotation>
+                <xsd:documentation>
+                    Project Plan Name
+                </xsd:documentation>
+            </xsd:annotation>
+        </xsd:attribute>
+	</xsd:complexType>
+    
+    <xsd:simpleType name="planEnumeratedType">
+        <xsd:restriction base="xsd:token">
+            <xsd:enumeration value="1.0"/>
+        </xsd:restriction>
+    </xsd:simpleType>
+	
+	<xsd:complexType name="ReleaseType">
+		<xsd:attribute name="projectid" type="xsd:token"/>
+		<xsd:attribute name="version" type="xsd:token"/>
+	</xsd:complexType>
+
+	<xsd:complexType name="XHTMLUserAreaType">
+        <xsd:sequence>
+            <xsd:any namespace="http://www.w3.org/1999/xhtml" processContents="skip" minOccurs="0" maxOccurs="unbounded"/>
+        </xsd:sequence>
+	</xsd:complexType>
+	
+	<xsd:complexType name="TargetEnvironmentsType">
+        <xsd:sequence>
+            <xsd:any namespace="##other" processContents="skip" minOccurs="0" maxOccurs="unbounded"/>
+            <xsd:element name="internationalization" type="XHTMLUserAreaType" minOccurs="0" maxOccurs="unbounded"/>
+        </xsd:sequence>
+	</xsd:complexType>
+	
+	<xsd:complexType name="ReleaseMilestonesType">
+		<xsd:sequence>
+			<xsd:element name="preamble" type="XHTMLUserAreaType" minOccurs="0" maxOccurs="1"/>
+			<xsd:element name="milestone" type="MilestoneUserAreaType" minOccurs="1" maxOccurs="unbounded"/>
+			<xsd:element name="postamble" type="XHTMLUserAreaType" minOccurs="0" maxOccurs="1"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	
+	<xsd:complexType name="MilestoneUserAreaType">
+		<xsd:complexContent>
+			<xsd:extension base="XHTMLUserAreaType">
+				<xsd:attribute name="date" type="xsd:token"></xsd:attribute>
+				<xsd:attribute name="milestone" type="xsd:token"/>
+			</xsd:extension>
+		</xsd:complexContent>
+	</xsd:complexType>
+	
+	<xsd:complexType name="ThemesAndPrioritiesType">
+		<xsd:sequence>
+			<xsd:element name="preamble" type="XHTMLUserAreaType" minOccurs="0" maxOccurs="1"/>
+			<xsd:element name="theme" type="ThemeType" minOccurs="1" maxOccurs="unbounded"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	
+	<xsd:complexType name="ThemeType">
+		<xsd:sequence>
+            <xsd:element name="description" type="XHTMLUserAreaType" minOccurs="0" maxOccurs="unbounded"/>
+			<xsd:element name="committed" type="BugzillaType" minOccurs="0" maxOccurs="1"/>
+			<xsd:element name="proposed" type="BugzillaType" minOccurs="0" maxOccurs="1"/>
+			<xsd:element name="deferred" type="BugzillaType" minOccurs="0" maxOccurs="1"/>
+		</xsd:sequence>
+        <xsd:attribute name="name" type="xsd:token" use="required"/>
+	</xsd:complexType>
+     
+    <xsd:complexType name="BugzillaType">
+        <xsd:complexContent>
+            <xsd:extension base="XHTMLUserAreaType">
+                <xsd:attribute name="bugzilla" type="xsd:anyURI" use="optional"/>
+            </xsd:extension>
+        </xsd:complexContent>
+    </xsd:complexType>
+    
+	
+	<xsd:complexType name="AppendixType">
+		<xsd:complexContent>
+			<xsd:extension base="XHTMLUserAreaType">
+				<xsd:attribute name="name" type="xsd:token"/>
+			</xsd:extension>
+		</xsd:complexContent>
+	</xsd:complexType>
+</xsd:schema>
