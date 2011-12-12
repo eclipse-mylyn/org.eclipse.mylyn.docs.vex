@@ -50,6 +50,14 @@
              publicId="-//OASIS//DTD DITA Map//EN"
              uri="dita11/map.dtd">
        </public>
+       <uri
+             name="urn:org:eclipse:vex:styles:dita:classed_shell.css"
+             uri="css/dita_classed_shell_vex.css">
+       </uri>
+       <uri
+             name="urn:org:eclipse:vex:styles:dita:map_shell.css"
+             uri="css/map_shell.css">
+       </uri>
     </catalogContribution>
  </extension>
 	

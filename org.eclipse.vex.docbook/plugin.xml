@@ -16,6 +16,10 @@
              uri="4.5/docbookx.dtd"
              webURL="http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
        </public>
+       <uri
+             name="urn:org:eclipse:vex:styles:docbook:docbook-plain.css"
+             uri="styles/docbook-plain.css">
+       </uri>
     </catalogContribution>
  </extension>
 

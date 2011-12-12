@@ -6,6 +6,24 @@
 			base-type="org.eclipse.vex.ui.XmlDocument" file-extensions="xml, xhtml">
 		</content-type>
 	</extension>
+ <extension
+       point="org.eclipse.wst.xml.core.catalogContributions">
+    <catalogContribution
+          id="default">
+       <uri
+             name="urn:org:eclipse:vex:styles:xhtml:xhtml1-plain.css"
+             uri="styles/xhtml1-plain.css">
+       </uri>
+       <uri
+             name="urn:org:eclipse:vex:styles:xhtml:xhtml1-sans.css"
+             uri="styles/xhtml1-sans.css">
+       </uri>
+       <uri
+             name="urn:org:eclipse:vex:styles:xhtml:xhtml1-modern.css"
+             uri="styles/xhtml1-modern.css">
+       </uri>
+    </catalogContribution>
+ </extension>
 
 	<extension point="org.eclipse.vex.ui.doctypes"
 			   id="xhtml_1_0_strict" 
