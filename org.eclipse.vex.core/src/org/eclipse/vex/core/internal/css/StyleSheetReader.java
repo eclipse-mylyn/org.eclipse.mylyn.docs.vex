@@ -20,6 +20,8 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.wst.common.uriresolver.internal.provisional.URIResolver;
+import org.eclipse.wst.common.uriresolver.internal.provisional.URIResolverPlugin;
 import org.w3c.css.sac.CSSException;
 import org.w3c.css.sac.DocumentHandler;
 import org.w3c.css.sac.InputSource;
@@ -34,6 +36,8 @@ import org.w3c.css.sac.SelectorList;
  */
 public class StyleSheetReader {
 
+	private static final URIResolver URI_RESOLVER = URIResolverPlugin.createResolver();
+	
 	public static Parser createParser() {
 		return new org.apache.batik.css.parser.Parser();
 	}
@@ -129,12 +133,14 @@ public class StyleSheetReader {
 
 			try {
 				final Parser parser = createParser();
-				final URL importUrl = new URL(this.url, uri);
+				final URL importUrl = new URL(URI_RESOLVER.resolve(this.url.toString(), null, uri));
 				final StyleSheetBuilder styleSheetBuilder = new StyleSheetBuilder(rules, importUrl);
 				parser.setDocumentHandler(styleSheetBuilder);
 				parser.parseStyleSheet(new InputSource(importUrl.toString()));
 			} catch (CSSException e) {
+				System.out.println("Cannot parse stylesheet " + uri + ": " + e.getMessage());
 			} catch (IOException e) {
+				System.out.println("Cannot read stylesheet " + uri + ": " + e.getMessage());
 			}
 
 		}
