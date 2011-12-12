@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -266,49 +267,6 @@ public class Element extends Node implements Cloneable {
 		return sb.toString();
 	}
 
-	// ========================================================= PRIVATE
-
-	private class AttributeChangeEdit implements IUndoableEdit {
-
-		private QualifiedName name;
-		private String oldValue;
-		private String newValue;
-
-		public AttributeChangeEdit(QualifiedName name, String oldValue, String newValue) {
-			this.name = name;
-			this.oldValue = oldValue;
-			this.newValue = newValue;
-		}
-
-		public boolean combine(IUndoableEdit edit) {
-			return false;
-		}
-
-		public void undo() throws CannotUndoException {
-			Document doc = (Document) getDocument();
-			try {
-				doc.setUndoEnabled(false);
-				setAttribute(name, oldValue);
-			} catch (DocumentValidationException ex) {
-				throw new CannotUndoException();
-			} finally {
-				doc.setUndoEnabled(true);
-			}
-		}
-
-		public void redo() throws CannotRedoException {
-			Document doc = (Document) getDocument();
-			try {
-				doc.setUndoEnabled(false);
-				setAttribute(name, newValue);
-			} catch (DocumentValidationException ex) {
-				throw new CannotUndoException();
-			} finally {
-				doc.setUndoEnabled(true);
-			}
-		}
-	}
-
 	public void setParent(Element parent) {
 		this.parent = parent;
 	}
@@ -353,6 +311,14 @@ public class Element extends Node implements Cloneable {
 		return result;
 	}
 	
+	public Collection<String> getNamespacePrefixes() {
+		final HashSet<String> result = new HashSet<String>();
+		result.addAll(getDeclaredNamespacePrefixes());
+		if (parent != null)
+			result.addAll(parent.getNamespacePrefixes());
+		return result;
+	}
+	
 	public void declareNamespace(final String namespacePrefix, final String namespaceURI) {
 		if (namespaceURI == null || "".equals(namespaceURI.trim()))
 			return;
@@ -376,16 +342,6 @@ public class Element extends Node implements Cloneable {
 		return "Element";
 	}
 
-	/**
-	 * Sets the content of the node
-	 * 
-	 * @param content
-	 *            Content object holding the node's content
-	 * @param startOffset
-	 *            offset at which the node's content starts
-	 * @param endOffset
-	 *            offset at which the node's content ends
-	 */
 	public void setContent(Content content, int startOffset, int endOffset) {
 		super.setContent(content, startOffset, endOffset);
 	}
@@ -401,4 +357,46 @@ public class Element extends Node implements Cloneable {
 			return getDocument().getBaseURI();
 		return null;
 	}
+	
+	private class AttributeChangeEdit implements IUndoableEdit {
+
+		private QualifiedName name;
+		private String oldValue;
+		private String newValue;
+
+		public AttributeChangeEdit(QualifiedName name, String oldValue, String newValue) {
+			this.name = name;
+			this.oldValue = oldValue;
+			this.newValue = newValue;
+		}
+
+		public boolean combine(IUndoableEdit edit) {
+			return false;
+		}
+
+		public void undo() throws CannotUndoException {
+			Document doc = (Document) getDocument();
+			try {
+				doc.setUndoEnabled(false);
+				setAttribute(name, oldValue);
+			} catch (DocumentValidationException ex) {
+				throw new CannotUndoException();
+			} finally {
+				doc.setUndoEnabled(true);
+			}
+		}
+
+		public void redo() throws CannotRedoException {
+			Document doc = (Document) getDocument();
+			try {
+				doc.setUndoEnabled(false);
+				setAttribute(name, newValue);
+			} catch (DocumentValidationException ex) {
+				throw new CannotUndoException();
+			} finally {
+				doc.setUndoEnabled(true);
+			}
+		}
+	}
+
 }

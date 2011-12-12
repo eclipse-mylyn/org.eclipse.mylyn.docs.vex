@@ -314,4 +314,33 @@ public class NamespaceTest {
 
 		assertEquals(inputContent, outputContent);
 	}
+	
+	@Test
+	public void allVisibleNamespacePrefixes() throws Exception {
+		final Element parent = new Element("parent");
+		final Element element = new Element("element");
+		final Element child = new Element("child");
+		parent.addChild(element);
+		parent.declareDefaultNamespace("http://namespace/uri/parent/default");
+		parent.declareNamespace("ns1", "http://namespace/uri/1");
+		parent.declareNamespace("ns2", "http://namespace/uri/2");
+		element.addChild(child);
+		element.declareNamespace("ns3", "http://namespace/uri/3");
+		element.declareNamespace("ns1", "http://namespace/uri/1a");
+		child.declareDefaultNamespace("http://namespace/uri/child/default");
+		
+		assertEquals(2, parent.getNamespacePrefixes().size());
+		assertTrue(parent.getNamespacePrefixes().contains("ns1"));
+		assertTrue(parent.getNamespacePrefixes().contains("ns2"));
+		
+		assertEquals(3, element.getNamespacePrefixes().size());
+		assertTrue(element.getNamespacePrefixes().contains("ns1"));
+		assertTrue(element.getNamespacePrefixes().contains("ns2"));
+		assertTrue(element.getNamespacePrefixes().contains("ns3"));
+		
+		assertEquals(3, child.getNamespacePrefixes().size());
+		assertTrue(child.getNamespacePrefixes().contains("ns1"));
+		assertTrue(child.getNamespacePrefixes().contains("ns2"));
+		assertTrue(child.getNamespacePrefixes().contains("ns3"));
+	}
 }
