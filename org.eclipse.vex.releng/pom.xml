@@ -34,6 +34,7 @@
 		<module>../org.eclipse.vex.dita</module>
 		<module>../org.eclipse.vex.docbook</module>
 		<module>../org.eclipse.vex.xhtml</module>
+		<module>../org.eclipse.vex.projectplan</module>
 		<module>../org.eclipse.vex.documentation</module>
 		<module>../org.eclipse.vex.feature</module>
 		<module>../org.eclipse.vex.sdk.feature</module>
