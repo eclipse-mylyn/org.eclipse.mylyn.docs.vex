@@ -25,6 +25,7 @@ Export-Package: org.eclipse.vex.ui.internal;x-friends:="org.eclipse.vex.ui.tests
  org.eclipse.vex.ui.internal.config;x-internal:=true,
  org.eclipse.vex.ui.internal.editor;x-friends:="org.eclipse.vex.docbook",
  org.eclipse.vex.ui.internal.handlers;x-internal:=true,
+ org.eclipse.vex.ui.internal.namespace,
  org.eclipse.vex.ui.internal.outline;x-friends:="org.eclipse.vex.docbook",
  org.eclipse.vex.ui.internal.perspective;x-internal:=true,
  org.eclipse.vex.ui.internal.property;x-internal:=true,

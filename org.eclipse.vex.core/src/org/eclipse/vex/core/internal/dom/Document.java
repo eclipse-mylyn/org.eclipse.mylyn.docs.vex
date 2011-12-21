@@ -794,6 +794,10 @@ public class Document {
 		listeners.fireEvent("attributeChanged", e);
 	}
 
+	public void fireNamespaceChanged(final DocumentEvent e) {
+		listeners.fireEvent("namespaceChanged", e);
+	}
+	
 	private void fireBeforeContentDeleted(final DocumentEvent e) {
 		listeners.fireEvent("beforeContentDeleted", e);
 	}

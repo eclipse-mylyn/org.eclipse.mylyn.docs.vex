@@ -79,6 +79,11 @@
       </command>
       <command
             categoryId="org.eclipse.vex.ui.commands.category"
+            id="org.eclipse.vex.ui.EditNamespacesCommand"
+            name="%command.editNamespaces.name">
+      </command>
+      <command
+            categoryId="org.eclipse.vex.ui.commands.category"
             id="org.eclipse.vex.ui.DuplicateSelectionCommand"
             name="%command.duplicateSelection.name">
       </command>
@@ -222,6 +227,15 @@
       <handler
             class="org.eclipse.vex.ui.internal.handlers.AddElementHandler"
             commandId="org.eclipse.vex.ui.AddElementCommand">
+         <activeWhen>
+            <reference
+                  definitionId="org.eclipse.vex.ui.activeVexEditor">
+            </reference>
+         </activeWhen>
+      </handler>
+      <handler
+            class="org.eclipse.vex.ui.internal.namespace.EditNamespacesHandler"
+            commandId="org.eclipse.vex.ui.EditNamespacesCommand">
          <activeWhen>
             <reference
                   definitionId="org.eclipse.vex.ui.activeVexEditor">
@@ -667,6 +681,9 @@
             <command
                   commandId="org.eclipse.vex.ui.ConvertElementCommand">
             </command>
+            <command
+                  commandId="org.eclipse.vex.ui.EditNamespacesCommand">
+            </command>
             <menu
                   label="%menu.Move.name">
                <command
@@ -744,6 +761,9 @@
          </command>
          <command
                commandId="org.eclipse.vex.ui.RemoveTagCommand">
+         </command>
+         <command
+               commandId="org.eclipse.vex.ui.EditNamespacesCommand">
          </command>
          <separator
                name="org.eclipse.vex.ui.popup.vexTableItems"

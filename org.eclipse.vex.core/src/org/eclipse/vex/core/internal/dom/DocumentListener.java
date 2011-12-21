@@ -24,6 +24,14 @@ public interface DocumentListener extends java.util.EventListener {
 	public void attributeChanged(DocumentEvent e);
 
 	/**
+	 * Called when a namespace delcaration is changed in one of the document's elements.
+	 * 
+	 * @param e
+	 *            the document event.
+	 */
+	public void namespaceChanged(DocumentEvent e);
+	
+	/**
 	 * Called before content is deleted from a document.
 	 * 
 	 * @param e

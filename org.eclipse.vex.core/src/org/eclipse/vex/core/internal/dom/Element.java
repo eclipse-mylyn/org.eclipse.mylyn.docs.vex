@@ -322,11 +322,29 @@ public class Element extends Node implements Cloneable {
 	public void declareNamespace(final String namespacePrefix, final String namespaceURI) {
 		if (namespaceURI == null || "".equals(namespaceURI.trim()))
 			return;
-		namespaceDeclarations.put(namespacePrefix, namespaceURI);
+		final String oldNamespaceURI = namespaceDeclarations.put(namespacePrefix, namespaceURI);
+		final Document document = getDocument();
+		if (document == null) // doc may be null, e.g. when we're cloning an element to produce a document fragment
+			return;
+
+		if (namespaceURI.equals(oldNamespaceURI)) // if we do not change anything, we do not fire anything
+			return;
+		
+		final IUndoableEdit edit = document.isUndoEnabled() ? new NamespaceChangeEdit(namespacePrefix, oldNamespaceURI, namespaceURI) : null;
+		document.fireNamespaceChanged(new DocumentEvent(document, this, getStartOffset(), 0, edit));
 	}
 	
 	public void removeNamespace(String namespacePrefix) {
-		namespaceDeclarations.remove(namespacePrefix);
+		final String oldNamespaceURI = namespaceDeclarations.remove(namespacePrefix);
+		final Document document = getDocument();
+		if (document == null) // doc may be null, e.g. when we're cloning an element to produce a document fragment
+			return;
+
+		if (oldNamespaceURI == null)
+			return; // we have actually removed nothing, so we should not tell anybody about it
+		
+		final IUndoableEdit edit = document.isUndoEnabled() ? new NamespaceChangeEdit(namespacePrefix, oldNamespaceURI, null) : null;
+		document.fireNamespaceChanged(new DocumentEvent(document, this, getStartOffset(), 0, edit));
 	}
 	
 	public void declareDefaultNamespace(final String namespaceURI) {
@@ -360,11 +378,11 @@ public class Element extends Node implements Cloneable {
 	
 	private class AttributeChangeEdit implements IUndoableEdit {
 
-		private QualifiedName name;
-		private String oldValue;
-		private String newValue;
+		private final QualifiedName name;
+		private final String oldValue;
+		private final String newValue;
 
-		public AttributeChangeEdit(QualifiedName name, String oldValue, String newValue) {
+		public AttributeChangeEdit(final QualifiedName name, final String oldValue, final String newValue) {
 			this.name = name;
 			this.oldValue = oldValue;
 			this.newValue = newValue;
@@ -375,7 +393,7 @@ public class Element extends Node implements Cloneable {
 		}
 
 		public void undo() throws CannotUndoException {
-			Document doc = (Document) getDocument();
+			final Document doc = (Document) getDocument();
 			try {
 				doc.setUndoEnabled(false);
 				setAttribute(name, oldValue);
@@ -387,10 +405,57 @@ public class Element extends Node implements Cloneable {
 		}
 
 		public void redo() throws CannotRedoException {
-			Document doc = (Document) getDocument();
+			final Document doc = (Document) getDocument();
 			try {
 				doc.setUndoEnabled(false);
 				setAttribute(name, newValue);
+			} catch (DocumentValidationException ex) {
+				throw new CannotUndoException();
+			} finally {
+				doc.setUndoEnabled(true);
+			}
+		}
+	}
+	
+	private class NamespaceChangeEdit implements IUndoableEdit {
+		
+		private final String prefix;
+		private final String oldUri;
+		private final String newUri;
+		
+		public NamespaceChangeEdit(final String prefix, final String oldUri, final String newUri) {
+			this.prefix = prefix;
+			this.oldUri = oldUri;
+			this.newUri = newUri;
+		}
+		
+		public boolean combine(IUndoableEdit edit) {
+			return false;
+		}
+
+		public void undo() throws CannotUndoException {
+			final Document doc = (Document) getDocument();
+			try {
+				doc.setUndoEnabled(false);
+				if (oldUri == null)
+					removeNamespace(prefix);
+				else
+					declareNamespace(prefix, oldUri);
+			} catch (DocumentValidationException ex) {
+				throw new CannotUndoException();
+			} finally {
+				doc.setUndoEnabled(true);
+			}
+		}
+		
+		public void redo() throws CannotRedoException {
+			final Document doc = (Document) getDocument();
+			try {
+				doc.setUndoEnabled(false);
+				if (newUri == null)
+					removeNamespace(prefix);
+				else
+					declareNamespace(prefix, newUri);
 			} catch (DocumentValidationException ex) {
 				throw new CannotUndoException();
 			} finally {

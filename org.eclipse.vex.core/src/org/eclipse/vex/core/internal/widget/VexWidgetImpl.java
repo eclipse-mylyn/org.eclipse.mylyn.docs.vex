@@ -160,6 +160,16 @@ public class VexWidgetImpl implements IVexWidget {
 			addEdit(e.getUndoableEdit(), getCaretOffset());
 		}
 
+		public void namespaceChanged(DocumentEvent e) {
+			invalidateElementBox(e.getParentElement());
+
+			if (beginWorkCount == 0)
+				VexWidgetImpl.this.relayout();
+
+			addEdit(e.getUndoableEdit(), getCaretOffset());
+			hostComponent.fireSelectionChanged();
+		}
+
 	};
 
 	/**
