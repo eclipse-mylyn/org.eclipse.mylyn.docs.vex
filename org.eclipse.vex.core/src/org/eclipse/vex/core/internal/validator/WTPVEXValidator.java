@@ -82,14 +82,9 @@ public class WTPVEXValidator implements Validator {
 			return getDTD();
 		if (namespaceURI == null)
 			/*
-			 * TODO this is a common case that should be handled somehow
-			 * - a hint should be shown: there is no DTD or Schema referenced in
-			 * the document
-			 * - an inferred schema should be used, to allow to at least display
-			 * the document in the editor
-			 * - this is not the right place to either check or handle this
+			 * This can be the case if the document does neither contain a doctype declaration nor a default namespace declaration.
 			 */
-			throw new AssertionError("There is no definition of the document structure available.");
+			return getSchema((URL) null);
 		final URL resolved = documentContentModel.resolveSchemaIdentifier(namespaceURI);
 		return getSchema(resolved);
 	}
@@ -98,8 +93,12 @@ public class WTPVEXValidator implements Validator {
 		if (contentModelCache.containsKey(schemaUrl))
 			return contentModelCache.get(schemaUrl);
 		
-		final ContentModelManager modelManager = ContentModelManager.getInstance();
-		final CMDocument contentModel = modelManager.createCMDocument(schemaUrl.toString(), null);
+		final CMDocument contentModel;
+		if (schemaUrl != null) {
+			final ContentModelManager modelManager = ContentModelManager.getInstance();
+			contentModel = modelManager.createCMDocument(schemaUrl.toString(), null);
+		} else
+			contentModel = new UnknownCMDocument(null);
 		contentModelCache.put(schemaUrl, contentModel);
 		return contentModel;
 	}
