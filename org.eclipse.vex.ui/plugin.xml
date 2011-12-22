@@ -762,9 +762,6 @@
          <command
                commandId="org.eclipse.vex.ui.RemoveTagCommand">
          </command>
-         <command
-               commandId="org.eclipse.vex.ui.EditNamespacesCommand">
-         </command>
          <separator
                name="org.eclipse.vex.ui.popup.vexTableItems"
                visible="true">
