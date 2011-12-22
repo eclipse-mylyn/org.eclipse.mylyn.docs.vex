@@ -48,9 +48,9 @@ public class EditNamespacesDialog extends TitleAreaDialog {
 	private Text defaultNamespaceText;
 	private TableViewer namespacesTable;
 
-	public EditNamespacesDialog(final Shell parentShell, final Element element) {
+	public EditNamespacesDialog(final Shell parentShell, final EditNamespacesController controller) {
 		super(parentShell);
-		this.controller = new EditNamespacesController(element);
+		this.controller = controller;
 	}
 
 	@Override
@@ -228,9 +228,4 @@ public class EditNamespacesDialog extends TitleAreaDialog {
 		controller.removeNamespaceDefinition(selectedDefinition);
 		namespacesTable.refresh();
 	}
-	
-	protected void okPressed() {
-		controller.applyToElement();
-		super.okPressed();
-	};
 }
