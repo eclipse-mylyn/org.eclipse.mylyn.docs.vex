@@ -37,7 +37,7 @@ public class VexDocumentContentModel extends DocumentContentModel {
 	}
 
 	@Override
-	public void initialize(String baseUri, final String publicId, final String systemId, final RootElement rootElement) {
+	public void initialize(final String baseUri, final String publicId, final String systemId, final RootElement rootElement) {
 		super.initialize(baseUri, publicId, systemId, rootElement);
 		final String mainDocumentTypeIdentifier = getMainDocumentTypeIdentifier();
 		documentType = getRegisteredDocumentType();

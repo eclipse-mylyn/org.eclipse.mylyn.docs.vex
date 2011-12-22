@@ -107,4 +107,6 @@ public interface Validator {
 	public boolean isValidSequence(QualifiedName element, List<QualifiedName> seq1,
 			List<QualifiedName> seq2, List<QualifiedName> seq3, boolean partial);
 
+	public Set<String> getRequiredNamespaces();
+
 }

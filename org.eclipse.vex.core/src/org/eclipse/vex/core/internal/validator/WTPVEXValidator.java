@@ -311,4 +311,78 @@ public class WTPVEXValidator implements Validator {
 			joinedSequence.addAll(seq3);
 		return isValidSequence(element, joinedSequence, partial);
 	}
+	
+	public Set<String> getRequiredNamespaces() {
+		if (documentContentModel.isDtdAssigned())
+			return Collections.emptySet();
+		return getRequiredNamespaces(documentContentModel.getMainDocumentTypeIdentifier(), new HashSet<CMNode>());
+	}
+
+	// This is recursion for real men only!
+	
+	private Set<String> getRequiredNamespaces(final String namespaceUri, final Set<CMNode> visitedNodes) {
+		final HashSet<String> result = new HashSet<String>();
+		result.add(namespaceUri);
+		final CMDocument mainSchema = getSchema(namespaceUri);
+		for (Iterator<?> iter = mainSchema.getElements().iterator(); iter.hasNext(); ) {
+			final CMElementDeclaration elementDeclaration = (CMElementDeclaration) iter.next();
+			result.addAll(getRequiredNamespaces(elementDeclaration, visitedNodes));
+		}
+		return result;
+	}
+	
+	private Set<String> getRequiredNamespaces(final CMElementDeclaration elementDeclaration, final Set<CMNode> visitedNodes) {
+		if (visitedNodes.contains(elementDeclaration))
+			return Collections.emptySet();
+		visitedNodes.add(elementDeclaration);
+		
+		final HashSet<String> result = new HashSet<String>();
+		if (elementDeclaration.getContentType() == CMElementDeclaration.ELEMENT || elementDeclaration.getContentType() == CMElementDeclaration.MIXED) {
+			final CMContent content = elementDeclaration.getContent();
+			if (content instanceof CMGroup) {
+				final CMGroup groupContent = (CMGroup) content;
+				result.addAll(getRequiredNamespaces(groupContent, visitedNodes));
+			}
+		}
+		return result;
+	}
+
+	private Set<String> getRequiredNamespaces(final CMGroup group, final Set<CMNode> visitedNodes) {
+		if (visitedNodes.contains(group))
+			return Collections.emptySet();
+		visitedNodes.add(group);
+		
+		final HashSet<String> result = new HashSet<String>();
+		final CMNodeList nodeList = group.getChildNodes();
+		for (int i = 0; i < nodeList.getLength(); i++) {
+			final CMNode node = nodeList.item(i);
+			if (node instanceof CMElementDeclaration)
+				result.addAll(getRequiredNamespaces((CMElementDeclaration) node, visitedNodes));
+			else if (node instanceof CMGroup)
+				result.addAll(getRequiredNamespaces((CMGroup) node, visitedNodes));
+			else if (node instanceof CMAnyElement) {
+				result.addAll(getRequiredNamespaces((CMAnyElement) node, visitedNodes));
+			}
+		}
+		return result;
+	}
+	
+	private Set<String> getRequiredNamespaces(final CMAnyElement anyElement, final Set<CMNode> visitedNodes) {
+		if (visitedNodes.contains(anyElement))
+			return Collections.emptySet();
+		visitedNodes.add(anyElement);
+		
+		final HashSet<String> result = new HashSet<String>();
+		final String[] namespaceUris = anyElement.getNamespaceURI().split("\\s+");
+		for (final String namespaceUri : namespaceUris) {
+			if (!shouldIgnoreNamespace(namespaceUri))
+				result.addAll(getRequiredNamespaces(namespaceUri, visitedNodes));
+		}
+		return result;
+	}
+	
+	private boolean shouldIgnoreNamespace(final String namespaceUri) {
+		return namespaceUri == null || "".equals(namespaceUri) || "##other".equals(namespaceUri) || "##any".equals(namespaceUri) || "##local".equals(namespaceUri) || "##targetNamespace".equals(namespaceUri);
+	}
+
 }

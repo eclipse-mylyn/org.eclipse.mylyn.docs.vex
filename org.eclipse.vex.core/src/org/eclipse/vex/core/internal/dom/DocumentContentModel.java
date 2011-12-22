@@ -106,7 +106,8 @@ public class DocumentContentModel implements EntityResolver {
 			 * the document in the editor
 			 * - this is not the right place to either check or handle this
 			 */
-			throw new AssertionError("Cannot resolve schema '" + schemaIdentifier + "'.");
+			// throw new AssertionError("Cannot resolve schema '" + schemaIdentifier + "'.");
+			return null;
 		try {
 			return new URL(schemaLocation);
 		} catch (MalformedURLException e) {

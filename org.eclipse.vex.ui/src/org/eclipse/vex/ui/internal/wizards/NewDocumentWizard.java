@@ -17,6 +17,7 @@ import java.text.MessageFormat;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.IEditorDescriptor;
@@ -31,102 +32,122 @@ import org.eclipse.ui.internal.registry.EditorRegistry;
 import org.eclipse.ui.internal.registry.FileEditorMapping;
 import org.eclipse.ui.wizards.newresource.BasicNewResourceWizard;
 import org.eclipse.vex.core.internal.dom.Document;
+import org.eclipse.vex.core.internal.dom.DocumentContentModel;
 import org.eclipse.vex.core.internal.dom.DocumentWriter;
 import org.eclipse.vex.core.internal.dom.RootElement;
+import org.eclipse.vex.core.internal.validator.WTPVEXValidator;
 import org.eclipse.vex.core.internal.widget.CssWhitespacePolicy;
 import org.eclipse.vex.ui.internal.VexPlugin;
+import org.eclipse.vex.ui.internal.config.DocumentType;
 import org.eclipse.vex.ui.internal.config.Style;
 import org.eclipse.vex.ui.internal.editor.DocumentFileCreationPage;
 import org.eclipse.vex.ui.internal.editor.DocumentTypeSelectionPage;
 import org.eclipse.vex.ui.internal.editor.Messages;
 import org.eclipse.vex.ui.internal.editor.VexEditor;
- 
+
 /**
  * Wizard for creating a new Vex document.
  */
 public class NewDocumentWizard extends BasicNewResourceWizard {
 
+	private DocumentTypeSelectionPage typePage;
+	private DocumentFileCreationPage filePage;
+
+	@Override
 	public void addPages() {
-		this.typePage = new DocumentTypeSelectionPage();
-		this.filePage = new DocumentFileCreationPage(
-				"filePage", this.getSelection()); //$NON-NLS-1$
+		typePage = new DocumentTypeSelectionPage();
+		filePage = new DocumentFileCreationPage("filePage", getSelection()); //$NON-NLS-1$
 		addPage(typePage);
 		addPage(filePage);
 	}
 
-	public void init(IWorkbench workbench, IStructuredSelection currentSelection) {
+	@Override
+	public void init(final IWorkbench workbench, final IStructuredSelection currentSelection) {
 
 		super.init(workbench, currentSelection);
-		this.setWindowTitle(Messages.getString("NewDocumentWizard.title")); //$NON-NLS-1$
+		setWindowTitle(Messages.getString("NewDocumentWizard.title")); //$NON-NLS-1$
 	}
 
+	@Override
 	public boolean performFinish() {
 		try {
-			RootElement root = new RootElement(this.typePage
-					.getRootElementName());
-			Document doc = new Document(root);
-			doc.setPublicID(this.typePage.getDocumentType().getPublicId());
-			doc.setSystemID(this.typePage.getDocumentType().getSystemId());
+			final Document doc = createDocument(typePage.getDocumentType(), typePage.getRootElementName());
 
-			Style style = VexEditor.getPreferredStyle(doc.getPublicID());
+			final Style style = VexEditor.getPreferredStyle(typePage.getDocumentType().getPublicId());
 			if (style == null) {
-				MessageDialog
-						.openError(
-								this.getShell(),
-								Messages
-										.getString("NewDocumentWizard.noStyles.title"), Messages.getString("NewDocumentWizard.noStyles.message")); //$NON-NLS-1$ //$NON-NLS-2$
+				MessageDialog.openError(getShell(),
+						Messages.getString("NewDocumentWizard.noStyles.title"), Messages.getString("NewDocumentWizard.noStyles.message")); //$NON-NLS-1$ //$NON-NLS-2$
 				return false;
 				// TODO: don't allow selection of types with no stylesheets
 			}
 
-			ByteArrayOutputStream baos = new ByteArrayOutputStream();
-			DocumentWriter writer = new DocumentWriter();
-			writer.setWhitespacePolicy(new CssWhitespacePolicy(style
-					.getStyleSheet()));
+			final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+			final DocumentWriter writer = new DocumentWriter();
+			writer.setWhitespacePolicy(new CssWhitespacePolicy(style.getStyleSheet()));
 			writer.write(doc, baos);
 			baos.close();
-			ByteArrayInputStream bais = new ByteArrayInputStream(baos
-					.toByteArray());
+			final ByteArrayInputStream bais = new ByteArrayInputStream(baos.toByteArray());
 
 			filePage.setInitialContents(bais);
-			IFile file = filePage.createNewFile();
+			final IFile file = filePage.createNewFile();
 			IDE.setDefaultEditor(file, VexEditor.ID);
 			this.selectAndReveal(file);
 
-			registerEditorForFilename(
-					"*." + file.getFileExtension(), VexEditor.ID); //$NON-NLS-1$
+			registerEditorForFilename("*." + file.getFileExtension(), VexEditor.ID); //$NON-NLS-1$
 
 			// Open editor on new file.
-			IWorkbenchWindow dw = getWorkbench().getActiveWorkbenchWindow();
+			final IWorkbenchWindow dw = getWorkbench().getActiveWorkbenchWindow();
 			if (dw != null) {
-				IWorkbenchPage page = dw.getActivePage();
-				if (page != null) {
+				final IWorkbenchPage page = dw.getActivePage();
+				if (page != null)
 					IDE.openEditor(page, file, true);
-				}
 			}
 
-			this.typePage.saveSettings();
+			typePage.saveSettings();
 
 			return true;
 
-		} catch (Exception ex) {
-			String message = MessageFormat.format(Messages
-					.getString("NewDocumentWizard.errorLoading.message"),
+		} catch (final Exception ex) {
+			final String message = MessageFormat.format(Messages.getString("NewDocumentWizard.errorLoading.message"),
 					new Object[] { filePage.getFileName(), ex.getMessage() });
 			VexPlugin.getInstance().log(IStatus.ERROR, message, ex);
-			MessageDialog
-					.openError(
-							this.getShell(),
-							Messages
-									.getString("NewDocumentWizard.errorLoading.title"), "Unable to create " + filePage.getFileName()); //$NON-NLS-1$ //$NON-NLS-2$
+			MessageDialog.openError(getShell(), Messages.getString("NewDocumentWizard.errorLoading.title"), "Unable to create " + filePage.getFileName()); //$NON-NLS-1$ //$NON-NLS-2$
 			return false;
 		}
 	}
 
-	// =========================================================== PRIVATE
+	private static Document createDocument(final DocumentType documentType, final String rootElementName) {
+		if (isDTD(documentType))
+			return createDocumentWithDTD(documentType, rootElementName);
+		return createDocumentWithSchema(documentType, rootElementName);
+	}
 
-	private DocumentTypeSelectionPage typePage;
-	private DocumentFileCreationPage filePage;
+	private static boolean isDTD(final DocumentType documentType) {
+		final String systemId = documentType.getSystemId();
+		return systemId != null && systemId.toLowerCase().endsWith(".dtd");
+	}
+
+	private static Document createDocumentWithDTD(final DocumentType documentType, final String rootElementName) {
+		final RootElement root = new RootElement(rootElementName);
+		final Document result = new Document(root);
+		result.setPublicID(documentType.getPublicId());
+		result.setSystemID(documentType.getSystemId());
+		return result;
+	}
+
+	private static Document createDocumentWithSchema(final DocumentType documentType, final String rootElementName) {
+		final String defaultNamespaceUri = documentType.getPublicId();
+		final RootElement root = new RootElement(new QualifiedName(defaultNamespaceUri, rootElementName));
+		root.declareDefaultNamespace(defaultNamespaceUri);
+
+		final WTPVEXValidator validator = new WTPVEXValidator(new DocumentContentModel(null, null, null, root));
+		int namespaceIndex = 1;
+		for (final String namespaceUri : validator.getRequiredNamespaces())
+			if (!defaultNamespaceUri.equals(namespaceUri))
+				root.declareNamespace("ns" + namespaceIndex++, namespaceUri);
+
+		return new Document(root);
+	}
 
 	/**
 	 * Register an editor to use for files with the given filename.
@@ -140,35 +161,29 @@ public class NewDocumentWizard extends BasicNewResourceWizard {
 	 * @param editorId
 	 *            ID of the editor to use for the given filename.
 	 */
-	private static void registerEditorForFilename(String fileName,
-			String editorId) {
+	private static void registerEditorForFilename(final String fileName, final String editorId) {
 
-		EditorDescriptor ed = getEditorDescriptor(editorId);
-		if (ed == null) {
+		final EditorDescriptor ed = getEditorDescriptor(editorId);
+		if (ed == null)
 			return;
-		}
 
-		IEditorRegistry reg = PlatformUI.getWorkbench().getEditorRegistry();
-		EditorRegistry ereg = (EditorRegistry) reg;
-		FileEditorMapping[] mappings = (FileEditorMapping[]) ereg
-				.getFileEditorMappings();
+		final IEditorRegistry reg = PlatformUI.getWorkbench().getEditorRegistry();
+		final EditorRegistry ereg = (EditorRegistry) reg;
+		final FileEditorMapping[] mappings = (FileEditorMapping[]) ereg.getFileEditorMappings();
 		FileEditorMapping mapping = null;
-		for (FileEditorMapping fem : mappings) {
+		for (final FileEditorMapping fem : mappings)
 			if (fem.getLabel().equals(fileName)) {
-				mapping = (FileEditorMapping) fem;
+				mapping = fem;
 				break;
 			}
-		}
 
 		if (mapping != null) {
 			// found mapping for fileName
 			// make sure it includes our editor
-			for (IEditorDescriptor editor : mapping.getEditors()) {
-				if (editor.getId().equals(editorId)) {
+			for (final IEditorDescriptor editor : mapping.getEditors())
+				if (editor.getId().equals(editorId))
 					// already mapped
 					return;
-				}
-			}
 
 			// editor not in the list, so add it
 			mapping.addEditor(ed);
@@ -180,16 +195,16 @@ public class NewDocumentWizard extends BasicNewResourceWizard {
 			// let's add one
 			String name = null;
 			String ext = null;
-			int iDot = fileName.lastIndexOf('.');
-			if (iDot == -1) {
+			final int iDot = fileName.lastIndexOf('.');
+			if (iDot == -1)
 				name = fileName;
-			} else {
+			else {
 				name = fileName.substring(0, iDot);
 				ext = fileName.substring(iDot + 1);
 			}
 
 			mapping = new FileEditorMapping(name, ext);
-			FileEditorMapping[] newMappings = new FileEditorMapping[mappings.length + 1];
+			final FileEditorMapping[] newMappings = new FileEditorMapping[mappings.length + 1];
 			mapping.addEditor(ed);
 
 			System.arraycopy(mappings, 0, newMappings, 0, mappings.length);
@@ -203,14 +218,11 @@ public class NewDocumentWizard extends BasicNewResourceWizard {
 	/**
 	 * Return the IEditorDescriptor for the given editor ID.
 	 */
-	private static EditorDescriptor getEditorDescriptor(String editorId) {
-		EditorRegistry reg = (EditorRegistry) PlatformUI.getWorkbench()
-				.getEditorRegistry();
-		for (IEditorDescriptor editor : reg.getSortedEditorsFromPlugins()) {
-			if (editor.getId().equals(editorId)) {
+	private static EditorDescriptor getEditorDescriptor(final String editorId) {
+		final EditorRegistry reg = (EditorRegistry) PlatformUI.getWorkbench().getEditorRegistry();
+		for (final IEditorDescriptor editor : reg.getSortedEditorsFromPlugins())
+			if (editor.getId().equals(editorId))
 				return (EditorDescriptor) editor;
-			}
-		}
 
 		return null;
 	}

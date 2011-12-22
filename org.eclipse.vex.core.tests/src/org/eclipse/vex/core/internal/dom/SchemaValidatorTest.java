@@ -177,6 +177,22 @@ public class SchemaValidatorTest {
 		assertValidItems(validator, doc.getElementAt(6), B, I); // i
 	}
 
+	@Test
+	public void getAllRequiredNamespacesForSimpleSchema() throws Exception {
+		final Validator validator = new WTPVEXValidator(new DocumentContentModel(null, null, null, new RootElement(P)));
+		final Set<String> requiredNamespaces = validator.getRequiredNamespaces();
+		assertEquals(1, requiredNamespaces.size());
+	}
+	
+	@Test
+	public void getAllRequiredNamespacesForComplexSchema() throws Exception {
+		final Validator validator = new WTPVEXValidator(new DocumentContentModel(null, null, null, new RootElement(CHAPTER)));
+		final Set<String> requiredNamespaces = validator.getRequiredNamespaces();
+		assertEquals(2, requiredNamespaces.size());
+		assertTrue(requiredNamespaces.contains(CONTENT_NS));
+		assertTrue(requiredNamespaces.contains(STRUCTURE_NS));
+	}
+	
 	private void assertIsValidSequence(final Validator validator, final QualifiedName parentElement, final QualifiedName... sequence) {
 		for (int i = 0; i < sequence.length; i++) {
 			final List<QualifiedName> prefix = createPrefix(i, sequence);

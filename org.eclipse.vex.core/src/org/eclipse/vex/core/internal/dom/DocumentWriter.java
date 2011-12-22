@@ -16,7 +16,6 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 
 import org.eclipse.vex.core.internal.validator.AttributeDefinition;
@@ -257,7 +256,7 @@ public class DocumentWriter {
 		}
 	}
 	
-	private String getNamespaceDeclarationsString(final Element element) {
+	private static String getNamespaceDeclarationsString(final Element element) {
 		final StringBuilder result = new StringBuilder();
 		final String declaredNamespaceURI = element.getDeclaredDefaultNamespaceURI();
 		if (declaredNamespaceURI != null)
@@ -272,44 +271,22 @@ public class DocumentWriter {
 		return result.toString();
 	}
 
-	private String attrToString(final Attribute attribute) {
-		final StringBuffer result = new StringBuffer();
-		result.append(" ");
-		result.append(attribute.getPrefixedName());
-		result.append("=\"");
-		result.append(escape(attribute.getValue()));
-		result.append("\"");
-		return result.toString();
-	}
-
-	private void addNode(final Node node, final TextWrapper wrapper) {
+	private static void addNode(final Node node, final TextWrapper wrapper) {
 		if (node instanceof Text)
 			wrapper.add(escape(node.getText()));
 		else {
 			final Element element = (Element) node;
 			final List<Node> content = element.getChildNodes();
-			final Collection<Attribute> attributes = element.getAttributes();
 
-			if (attributes.isEmpty()) {
-				if (content.isEmpty())
-					wrapper.add("<" + element.getPrefixedName() + "/>");
-				else
-					wrapper.add("<" + element.getPrefixedName() + ">");
-			} else {
-				final Validator validator = element.getDocument().getValidator();
-				final StringBuffer stringBuffer = new StringBuffer();
-				stringBuffer.append("<" + element.getPrefixedName());
-				stringBuffer.append(getNamespaceDeclarationsString(element));
-				for (final Attribute attribute : attributes) {
-					if (!attrHasDefaultValue(validator, attribute))
-						stringBuffer.append(attrToString(attribute));
-				}
-				if (content.isEmpty())
-					stringBuffer.append("/>");
-				else
-					stringBuffer.append(">");
-				wrapper.addNoSplit(stringBuffer.toString());
-			}
+			final StringBuilder buffer = new StringBuilder();
+			buffer.append("<").append(element.getPrefixedName());
+			buffer.append(getNamespaceDeclarationsString(element));
+			buffer.append(getAttributeString(element));
+			if (content.isEmpty())
+				buffer.append("/>");
+			else
+				buffer.append(">");
+			wrapper.addNoSplit(buffer.toString());
 
 			for (int i = 0; i < content.size(); i++)
 				addNode(content.get(i), wrapper);
@@ -319,7 +296,7 @@ public class DocumentWriter {
 		}
 	}
 
-	private String getAttributeString(final Element element) {
+	private static String getAttributeString(final Element element) {
 		final Validator validator = element.getDocument().getValidator();
 
 		final StringBuffer result = new StringBuffer();
