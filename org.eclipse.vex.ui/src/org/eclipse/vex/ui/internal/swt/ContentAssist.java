@@ -122,9 +122,13 @@ public class ContentAssist extends PopupDialog {
 	}
 
 	@Override
+	protected Color getForeground() {
+		return JFaceResources.getColorRegistry().get(JFacePreferences.CONTENT_ASSIST_FOREGROUND_COLOR);
+	}
+
+	@Override
 	protected Color getBackground() {
-		final String colorId = JFacePreferences.CONTENT_ASSIST_BACKGROUND_COLOR;
-		return JFaceResources.getColorRegistry().get(colorId);
+		return JFaceResources.getColorRegistry().get(JFacePreferences.CONTENT_ASSIST_BACKGROUND_COLOR);
 	}
 
 	@Override
@@ -211,32 +215,28 @@ public class ContentAssist extends PopupDialog {
 	}
 
 	private void repopulateList() {
-        final String filterText = textWidget.getText().toLowerCase();
-        List<AbstractVexAction> actionList = new LinkedList<AbstractVexAction>();
-        for (AbstractVexAction action : actions) {
-        	if (action.getText().toLowerCase().contains(filterText)) {
-                actionList.add(action);
-            }
-		}
+		final String filterText = textWidget.getText().toLowerCase();
+		final List<AbstractVexAction> actionList = new LinkedList<AbstractVexAction>();
+		for (final AbstractVexAction action : actions)
+			if (action.getText().toLowerCase().contains(filterText))
+				actionList.add(action);
 
-        // primary order: "start with" before "contains" filter text
-        if (filterText.length() > 0) {
-        	Collections.sort(actionList, new Comparator<AbstractVexAction>() {
-				public int compare(AbstractVexAction action1,
-						           AbstractVexAction action2) {
-					String actionText1 = action1.getElementName().getLocalName().toLowerCase();
-					String actionText2 = action2.getElementName().getLocalName().toLowerCase();
-					if (   !actionText1.startsWith(filterText)
-						&& !actionText2.startsWith(filterText)) return 0;
+		// primary order: "start with" before "contains" filter text
+		if (filterText.length() > 0)
+			Collections.sort(actionList, new Comparator<AbstractVexAction>() {
+				public int compare(final AbstractVexAction action1, final AbstractVexAction action2) {
+					final String actionText1 = action1.getElementName().getLocalName().toLowerCase();
+					final String actionText2 = action2.getElementName().getLocalName().toLowerCase();
+					if (!actionText1.startsWith(filterText) && !actionText2.startsWith(filterText))
+						return 0;
 
 					return actionText1.startsWith(filterText) ? -1 : 1;
 				}
 			});
-        }
 
-        // update UI
-        viewer.setInput(actionList.toArray(new AbstractVexAction[actionList.size()]));
-        viewer.getTable().setSelection(0);
+		// update UI
+		viewer.setInput(actionList.toArray(new AbstractVexAction[actionList.size()]));
+		viewer.getTable().setSelection(0);
 	}
 
 	private class MyLabelProvider extends StyledCellLabelProvider {
@@ -291,7 +291,7 @@ public class ContentAssist extends PopupDialog {
 		public VexWidget getWidget() {
 			return widget;
 		}
-		
+
 		public ElementName getElementName() {
 			return elementName;
 		}
