@@ -116,10 +116,11 @@ public class StylePropertyPage extends PropertyPage {
 		gd.widthHint = NAME_WIDTH;
 		nameText.setLayoutData(gd);
 
-		style = (Style) pluginProject.getItemForResource((IFile) getElement());
+		final IFile file = (IFile) getElement();
+		style = (Style) pluginProject.getItemForResource(file);
 		if (style == null) {
 			style = new Style(pluginProject);
-			style.setResourcePath(((IFile) getElement()).getLocationURI().toString());
+			style.setResourceUri(file.getLocationURI());
 			pluginProject.addItem(style);
 		}
 

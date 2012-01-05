@@ -65,7 +65,9 @@ public class DoctypePropertyPage extends PropertyPage {
 	protected Control createContents(final Composite parent) {
 		pane = new Composite(parent, SWT.NONE);
 
-		pluginProject = new PluginProject(((IFile) getElement()).getProject());
+		final IFile file = (IFile) getElement();
+		
+		pluginProject = new PluginProject(file.getProject());
 		try {
 			pluginProject.load();
 		} catch (CoreException e) {
@@ -85,7 +87,7 @@ public class DoctypePropertyPage extends PropertyPage {
 					VexPlugin.getInstance().getLog().log(e.getStatus());
 				}
 
-				doctype = (DocumentType) pluginProject.getItemForResource((IFile) getElement());
+				doctype = (DocumentType) pluginProject.getItemForResource(file);
 
 				populateRootElements();
 			}
@@ -106,10 +108,10 @@ public class DoctypePropertyPage extends PropertyPage {
 		};
 		VexPlugin.getInstance().getConfigurationRegistry().addConfigListener(configListener);
 
-		doctype = (DocumentType) pluginProject.getItemForResource((IFile) getElement());
+		doctype = (DocumentType) pluginProject.getItemForResource(file);
 		if (doctype == null) {
 			doctype = new DocumentType(pluginProject);
-			doctype.setResourcePath(((IFile) getElement()).getLocationURI().toString());
+			doctype.setResourceUri(file.getLocationURI());
 			pluginProject.addItem(doctype);
 		}
 
@@ -191,8 +193,7 @@ public class DoctypePropertyPage extends PropertyPage {
 	}
 
 	private void populateRootElements() {
-		final String resourcePath = ((IFile) getElement()).getLocationURI().toString();
-		final Validator validator = (Validator) pluginProject.getParsedResource(resourcePath);
+		final Validator validator = (Validator) pluginProject.getParsedResource(((IFile) getElement()).getLocationURI());
 		if (validator != null) {
 			final List<String> list = Arrays.asList(doctype.getRootElements());
 			final Set<String> selectedRootElements = new TreeSet<String>(list);

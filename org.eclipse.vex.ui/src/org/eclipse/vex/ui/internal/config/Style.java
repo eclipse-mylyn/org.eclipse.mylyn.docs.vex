@@ -69,7 +69,7 @@ public class Style extends ConfigItem {
 	 * Returns the style sheet from which element styles are taken.
 	 */
 	public StyleSheet getStyleSheet() {
-		return (StyleSheet) getConfig().getParsedResource(getResourcePath());
+		return (StyleSheet) getConfig().getParsedResource(getResourceUri());
 	}
 
 	@Override

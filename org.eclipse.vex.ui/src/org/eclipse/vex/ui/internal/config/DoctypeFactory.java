@@ -12,6 +12,8 @@
 package org.eclipse.vex.ui.internal.config;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 
 import org.eclipse.vex.core.internal.dom.DocumentContentModel;
@@ -57,7 +59,7 @@ public class DoctypeFactory implements IConfigItemFactory {
 		final DocumentType doctype = new DocumentType(config);
 		doctype.setPublicId(publicId);
 		doctype.setSystemId(systemId);
-		doctype.setResourcePath(config.resolve(publicId, systemId));
+		doctype.setResourceUri(newUri(config.resolve(publicId, systemId)));
 		doctype.setOutlineProvider(configElement.getAttribute(ATTR_OUTLINE_PROVIDER));
 
 		final IConfigElement[] rootElementRefs = configElement.getChildren();
@@ -67,6 +69,14 @@ public class DoctypeFactory implements IConfigItemFactory {
 		doctype.setRootElements(rootElements);
 
 		return doctype;
+	}
+	
+	private static URI newUri(final String uriString) {
+		try {
+			return new URI(uriString);
+		} catch (URISyntaxException e) {
+			return null;
+		}
 	}
 	
 	public String getExtensionPointId() {

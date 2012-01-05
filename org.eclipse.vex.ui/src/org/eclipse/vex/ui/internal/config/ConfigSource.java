@@ -12,6 +12,7 @@
 package org.eclipse.vex.ui.internal.config;
 
 import java.io.IOException;
+import java.net.URI;
 import java.net.URL;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -40,8 +41,8 @@ public abstract class ConfigSource {
 	// all config items in this configuration
 	private final List<ConfigItem> items = new ArrayList<ConfigItem>();
 
-	// map String URI => parsed resource
-	private final Map<String, Object> parsedResources = new HashMap<String, Object>();
+	// map URI => parsed resource
+	private final Map<URI, Object> parsedResources = new HashMap<URI, Object>();
 
 	protected static IConfigItemFactory getConfigItemFactory(final String extensionPointId) {
 		for (final IConfigItemFactory factory : CONFIG_ITEM_FACTORIES)
@@ -179,7 +180,7 @@ public abstract class ConfigSource {
 	 */
 	public ConfigItem getItemForResource(final IResource resource) {
 		for (final ConfigItem item : items)
-			if (item.getResourcePath().equals(resource.getLocationURI().toString()))
+			if (item.getResourceUri().equals(resource.getLocationURI()))
 				return item;
 		return null;
 	}
@@ -192,7 +193,7 @@ public abstract class ConfigSource {
 	 *            URI of the resource, relative to the base URL of this
 	 *            configuration.
 	 */
-	public Object getParsedResource(final String uri) {
+	public Object getParsedResource(final URI uri) {
 		return parsedResources.get(uri);
 	}
 
@@ -233,11 +234,11 @@ public abstract class ConfigSource {
 	public void parseResources(final IBuildProblemHandler problemHandler) {
 		parsedResources.clear();
 		for (final ConfigItem item : items) {
-			final String uri = item.getResourcePath();
+			final URI uri = item.getResourceUri();
 			if (!parsedResources.containsKey(uri)) {
 				final IConfigItemFactory factory = getConfigItemFactory(item.getExtensionPointId());
 				try {
-					final Object parsedResource = factory.parseResource(item, getBaseUrl(), uri, problemHandler);
+					final Object parsedResource = factory.parseResource(item, getBaseUrl(), uri.toString(), problemHandler);
 					if (parsedResource != null)
 						parsedResources.put(uri, parsedResource);
 				} catch (final IOException ex) {
@@ -249,7 +250,7 @@ public abstract class ConfigSource {
 	}
 	
 	public String resolve(final String publicId, final String systemId) {
-		URIResolver uriResolver = URIResolverPlugin.createResolver();
+		final URIResolver uriResolver = URIResolverPlugin.createResolver();
 		return uriResolver.resolve(getBaseUrl().toString(), publicId, systemId);
 	}
 

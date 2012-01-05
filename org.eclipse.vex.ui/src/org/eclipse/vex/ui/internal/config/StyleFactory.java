@@ -12,6 +12,8 @@
 package org.eclipse.vex.ui.internal.config;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 
 import org.eclipse.vex.core.internal.css.StyleSheetReader;
@@ -28,7 +30,7 @@ public class StyleFactory implements IConfigItemFactory {
 	public IConfigElement[] createConfigurationElements(final ConfigItem item) {
 		final Style style = (Style) item;
 		final ConfigurationElement element = new ConfigurationElement("style"); //$NON-NLS-1$
-		element.setAttribute("css", style.getResourcePath()); //$NON-NLS-1$
+		element.setAttribute("css", style.getResourceUri().toString()); //$NON-NLS-1$
 		for (final String publicId : style.getDocumentTypes()) {
 			final ConfigurationElement child = new ConfigurationElement("doctypeRef"); //$NON-NLS-1$
 			child.setAttribute("publicId", publicId); //$NON-NLS-1$
@@ -44,7 +46,7 @@ public class StyleFactory implements IConfigItemFactory {
 		final IConfigElement configElement = configElements[0];
 
 		final Style style = new Style(config);
-		style.setResourcePath(config.resolve(null, configElement.getAttribute("css"))); //$NON-NLS-1$
+		style.setResourceUri(newUri(config.resolve(null, configElement.getAttribute("css")))); //$NON-NLS-1$
 
 		final IConfigElement[] doctypeRefs = configElement.getChildren();
 
@@ -52,6 +54,14 @@ public class StyleFactory implements IConfigItemFactory {
 			style.addDocumentType(doctypeRef.getAttribute("publicId")); //$NON-NLS-1$
 
 		return style;
+	}
+	
+	private static URI newUri(final String uriString) {
+		try {
+			return new URI(uriString);
+		} catch (URISyntaxException e) {
+			return null;
+		}
 	}
 
 	public String getExtensionPointId() {

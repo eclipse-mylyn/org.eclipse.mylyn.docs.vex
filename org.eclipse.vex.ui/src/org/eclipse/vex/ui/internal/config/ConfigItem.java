@@ -11,8 +11,7 @@
  *******************************************************************************/
 package org.eclipse.vex.ui.internal.config;
 
-import java.net.MalformedURLException;
-import java.net.URL;
+import java.net.URI;
 
 /**
  * Base class of all configurtion items such as document types and styles.
@@ -88,26 +87,12 @@ public abstract class ConfigItem implements Comparable<ConfigItem> {
 	}
 
 	/**
-	 * Returns the path of the associated resource, if any, relative to the base
+	 * Returns the URI of the associated resource, if any, relative to the base
 	 * directory of the associated VexConfiguration. Returns null if no resource
 	 * is associated with this item.
 	 */
-	public String getResourcePath() {
-		return this.resourcePath;
-	}
-
-	/**
-	 * Returns the URL of the associated resource, if any. This is formed by
-	 * appending the resource path to the URL of the associated
-	 * VexConfiguration.
-	 */
-	public URL getResourceUrl() throws MalformedURLException {
-		if (this.resourcePath == null) {
-			return null;
-		} else {
-			return new URL(this.getConfig().getBaseUrl(), this
-					.getResourcePath());
-		}
+	public URI getResourceUri() {
+		return this.resourceUri;
 	}
 
 	/**
@@ -142,13 +127,13 @@ public abstract class ConfigItem implements Comparable<ConfigItem> {
 	}
 
 	/**
-	 * Sets the resource path for this item.
+	 * Sets the resource URI for this item.
 	 * 
-	 * @param resourcePath
-	 *            New resource path for this item.
+	 * @param resourceUri
+	 *            New resource URI for this item.
 	 */
-	public void setResourcePath(String resourcePath) {
-		this.resourcePath = resourcePath;
+	public void setResourceUri(final URI resourceUri) {
+		this.resourceUri = resourceUri;
 	}
 
 	/**
@@ -166,7 +151,7 @@ public abstract class ConfigItem implements Comparable<ConfigItem> {
 
 	private String id;
 	private String name;
-	private String resourcePath;
+	private URI resourceUri;
 	private ConfigSource config;
 
 }

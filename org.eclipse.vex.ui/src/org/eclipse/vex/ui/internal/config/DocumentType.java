@@ -90,7 +90,7 @@ public class DocumentType extends ConfigItem {
 	}
 
 	public Validator getValidator() {
-		return (Validator) getConfig().getParsedResource(getResourcePath());
+		return (Validator) getConfig().getParsedResource(getResourceUri());
 	}
 
 	@Override
