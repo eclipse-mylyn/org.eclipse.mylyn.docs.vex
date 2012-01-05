@@ -34,10 +34,10 @@ public class DocumentContentModel implements EntityResolver {
 	private String publicId;
 	private String systemId;
 	private String schemaId;
-	
+
 	public DocumentContentModel() {
 	}
-	
+
 	public DocumentContentModel(final String baseUri, final String publicId, final String systemId, final RootElement rootElement) {
 		initialize(baseUri, publicId, systemId, rootElement);
 	}
@@ -63,39 +63,39 @@ public class DocumentContentModel implements EntityResolver {
 	public boolean isDtdAssigned() {
 		return publicId != null || systemId != null;
 	}
-	
+
 	public CMDocument getDTD() {
-		if (publicId != null) {
-			final URL dtdUrl = resolveSchemaIdentifier(publicId);
-			if (dtdUrl != null)
-				return createCMDocument(dtdUrl.toString());
-		}
-		if (systemId != null)
-			return createCMDocument(systemId);
-		return null;
+		final URL resolvedPublicId = resolveSchemaIdentifier(publicId);
+		if (resolvedPublicId != null)
+			return createCMDocument(resolvedPublicId);
+		return createCMDocument(resolveSystemId(systemId));
 	}
 
-	private CMDocument createCMDocument(String resolved) {
+	private CMDocument createCMDocument(final URL resolvedDtdUrl) {
+		if (resolvedDtdUrl == null)
+			return null;
 		final ContentModelManager modelManager = ContentModelManager.getInstance();
-		return modelManager.createCMDocument(resolved, null);
+		return modelManager.createCMDocument(resolvedDtdUrl.toString(), null);
 	}
 
 	public IWhitespacePolicy getWhitespacePolicy() {
 		return IWhitespacePolicy.NULL;
 	}
 
-	public InputSource resolveEntity(String publicId, String systemId) throws SAXException, IOException {
+	public InputSource resolveEntity(final String publicId, final String systemId) throws SAXException, IOException {
 		final String resolved = URI_RESOLVER.resolve(baseUri, publicId, systemId);
 		System.out.println("Resolved " + publicId + " " + systemId + " -> " + resolved);
 		if (resolved == null)
 			return null;
-		
+
 		final InputSource result = new InputSource(resolved);
 		result.setPublicId(publicId);
 		return result;
 	}
 
-	public URL resolveSchemaIdentifier(String schemaIdentifier) {
+	public URL resolveSchemaIdentifier(final String schemaIdentifier) {
+		if (schemaIdentifier == null)
+			return null;
 		final String schemaLocation = URI_RESOLVER.resolve(baseUri, schemaIdentifier, null);
 		if (schemaLocation == null)
 			/*
@@ -106,14 +106,24 @@ public class DocumentContentModel implements EntityResolver {
 			 * the document in the editor
 			 * - this is not the right place to either check or handle this
 			 */
-			// throw new AssertionError("Cannot resolve schema '" + schemaIdentifier + "'.");
 			return null;
 		try {
 			return new URL(schemaLocation);
-		} catch (MalformedURLException e) {
+		} catch (final MalformedURLException e) {
 			throw new AssertionError(MessageFormat.format("Resolution of schema ''{0}'' resulted in a malformed URL: ''{1}''. {2}", schemaIdentifier,
 					schemaLocation, e.getMessage()));
 		}
 	}
 
+	public URL resolveSystemId(final String systemId) {
+		final String schemaLocation = URI_RESOLVER.resolve(baseUri, null, systemId);
+		if (schemaLocation == null)
+			return null;
+		try {
+			return new URL(schemaLocation);
+		} catch (final MalformedURLException e) {
+			throw new AssertionError(MessageFormat.format("Resolution of systemId ''{0}'' resulted in a malformed URL: ''{1}''. {2}", systemId,
+					schemaLocation, e.getMessage()));
+		}
+	}
 }

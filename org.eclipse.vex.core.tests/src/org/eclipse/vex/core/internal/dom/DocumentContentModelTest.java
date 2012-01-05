@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.dom;
 
-import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -22,6 +21,7 @@ import java.net.URL;
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.vex.core.tests.TestResources;
 import org.eclipse.vex.core.tests.VEXCoreTestPlugin;
+import org.eclipse.wst.xml.core.internal.contentmodel.CMDocument;
 import org.junit.Before;
 import org.junit.Test;
 import org.xml.sax.EntityResolver;
@@ -113,5 +113,15 @@ public class DocumentContentModelTest {
 		model.initialize(null, null, TestResources.get("test1.dtd").toString(), null);
 		assertTrue(model.isDtdAssigned());
 		assertNotNull(model.getDTD());
+	}
+	
+	@Test
+	public void onlyRelativeSystemId() throws Exception {
+		final String baseUri = TestResources.get("test.css").toString();
+		model.initialize(baseUri, null, "test1.dtd", null);
+		assertTrue(model.isDtdAssigned());
+		final CMDocument dtd = model.getDTD();
+		assertNotNull(dtd);
+		assertEquals(10, dtd.getElements().getLength());
 	}
 }

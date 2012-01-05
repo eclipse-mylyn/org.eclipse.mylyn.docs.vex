@@ -14,6 +14,7 @@ package org.eclipse.vex.ui.internal.config;
 import java.io.IOException;
 import java.net.URL;
 
+import org.eclipse.vex.core.internal.dom.DocumentContentModel;
 import org.eclipse.vex.core.internal.validator.WTPVEXValidator;
 
 /**
@@ -81,6 +82,8 @@ public class DoctypeFactory implements IConfigItemFactory {
 	}
 
 	public Object parseResource(final ConfigItem item, final URL baseUrl, final String resourcePath, final IBuildProblemHandler problemHandler) throws IOException {
-		return new WTPVEXValidator(((DocumentType) item).getPublicId());
+		final DocumentType documentType = (DocumentType) item;
+		final DocumentContentModel documentContentModel = new DocumentContentModel(baseUrl.toString(), documentType.getPublicId(), documentType.getSystemId(), null);
+		return new WTPVEXValidator(documentContentModel);
 	}
 }
