@@ -54,13 +54,13 @@ public class VexDocumentContentModel extends DocumentContentModel {
 //			throw new RuntimeException(message);
 //		}
 
-		style = VexPlugin.getInstance().getPreferences().getPreferredStyle(documentType.getPublicId());
+		style = VexPlugin.getDefault().getPreferences().getPreferredStyle(documentType.getPublicId());
 		if (style == null)
 			throw new NoStyleForDoctypeException();
 	}
 
 	private DocumentType getRegisteredDocumentType() {
-		return VexPlugin.getInstance().getConfigurationRegistry().getDocumentType(getMainDocumentTypeIdentifier());
+		return VexPlugin.getDefault().getConfigurationRegistry().getDocumentType(getMainDocumentTypeIdentifier());
 	}
 	
 	private DocumentType queryUserForDocumentType() {

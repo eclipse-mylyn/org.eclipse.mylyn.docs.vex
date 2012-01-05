@@ -71,7 +71,7 @@ public class DoctypePropertyPage extends PropertyPage {
 		try {
 			pluginProject.load();
 		} catch (CoreException e) {
-			VexPlugin.getInstance().getLog().log(e.getStatus());
+			VexPlugin.getDefault().getLog().log(e.getStatus());
 		}
 		
 		createPropertySheet();
@@ -84,7 +84,7 @@ public class DoctypePropertyPage extends PropertyPage {
 				try {
 					pluginProject.load();
 				} catch (CoreException e) {
-					VexPlugin.getInstance().getLog().log(e.getStatus());
+					VexPlugin.getDefault().getLog().log(e.getStatus());
 				}
 
 				doctype = (DocumentType) pluginProject.getItemForResource(file);
@@ -102,11 +102,11 @@ public class DoctypePropertyPage extends PropertyPage {
 				} catch (final Exception ex) {
 					final String message = MessageFormat.format(Messages.getString("DoctypePropertyPage.errorWritingConfig"), //$NON-NLS-1$
 							new Object[] { PluginProject.PLUGIN_XML });
-					VexPlugin.getInstance().log(IStatus.ERROR, message, ex);
+					VexPlugin.getDefault().log(IStatus.ERROR, message, ex);
 				}
 			}
 		};
-		VexPlugin.getInstance().getConfigurationRegistry().addConfigListener(configListener);
+		VexPlugin.getDefault().getConfigurationRegistry().addConfigListener(configListener);
 
 		doctype = (DocumentType) pluginProject.getItemForResource(file);
 		if (doctype == null) {
@@ -119,7 +119,7 @@ public class DoctypePropertyPage extends PropertyPage {
 		if (doctype.getSimpleId() == null || doctype.getSimpleId().length() == 0)
 			doctype.setSimpleId(doctype.generateSimpleId());
 
-		if (VexPlugin.getInstance().getConfigurationRegistry().isLoaded()) {
+		if (VexPlugin.getDefault().getConfigurationRegistry().isLoaded()) {
 			populateDoctype();
 			populateRootElements();
 		} else {
@@ -220,7 +220,7 @@ public class DoctypePropertyPage extends PropertyPage {
 			} catch (final Exception ex) {
 				final String message = MessageFormat.format(Messages.getString("DoctypePropertyPage.errorWritingConfig"), //$NON-NLS-1$
 						new Object[] { PluginProject.PLUGIN_XML });
-				VexPlugin.getInstance().log(IStatus.ERROR, message, ex);
+				VexPlugin.getDefault().log(IStatus.ERROR, message, ex);
 			}
 	}
 
@@ -255,7 +255,7 @@ public class DoctypePropertyPage extends PropertyPage {
 		} catch (final Exception ex) {
 			final String message = MessageFormat.format(Messages.getString("DoctypePropertyPage.errorWritingConfig"), //$NON-NLS-1$
 					new Object[] { PluginProject.PLUGIN_XML });
-			VexPlugin.getInstance().log(IStatus.ERROR, message, ex);
+			VexPlugin.getDefault().log(IStatus.ERROR, message, ex);
 		}
 	}
 
@@ -270,6 +270,6 @@ public class DoctypePropertyPage extends PropertyPage {
 	public void dispose() {
 		super.dispose();
 		if (configListener != null)
-			VexPlugin.getInstance().getConfigurationRegistry().removeConfigListener(configListener);
+			VexPlugin.getDefault().getConfigurationRegistry().removeConfigListener(configListener);
 	}
 }

@@ -104,7 +104,7 @@ public class DocumentTypeSelectionDialog extends MessageDialog {
 		this.alwaysUseButton.setText(Messages
 				.getString("DocumentTypeSelectionDialog.alwaysUse")); //$NON-NLS-1$
 
-		DocumentType[] doctypes = VexPlugin.getInstance().getConfigurationRegistry().getDocumentTypesWithStyles();
+		DocumentType[] doctypes = VexPlugin.getDefault().getConfigurationRegistry().getDocumentTypesWithStyles();
 		Arrays.sort(doctypes);
 		this.typeList.add(doctypes);
 

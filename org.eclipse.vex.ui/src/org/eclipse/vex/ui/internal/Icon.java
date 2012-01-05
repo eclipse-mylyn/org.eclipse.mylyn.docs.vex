@@ -40,7 +40,7 @@ public enum Icon {
      * @return the specified icon as {@link Image}
      */
     public static Image get(Icon icon) {
-        ImageRegistry registry = VexPlugin.getInstance().getImageRegistry();
+        ImageRegistry registry = VexPlugin.getDefault().getImageRegistry();
         Image value = registry.get(icon.iconFilePath);
         if (value == null) {
             ImageDescriptor imageDescriptor =

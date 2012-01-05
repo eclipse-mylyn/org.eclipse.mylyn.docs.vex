@@ -32,8 +32,8 @@ public class ConfigurationView extends ViewPart {
 
 		parentControl = parent;
 
-		VexPlugin.getInstance().getConfigurationRegistry().addConfigListener(configListener);
-		if (VexPlugin.getInstance().getConfigurationRegistry().isLoaded())
+		VexPlugin.getDefault().getConfigurationRegistry().addConfigListener(configListener);
+		if (VexPlugin.getDefault().getConfigurationRegistry().isLoaded())
 			createTreeViewer();
 		else {
 			loadingLabel = new Label(parent, SWT.NONE);
@@ -45,7 +45,7 @@ public class ConfigurationView extends ViewPart {
 	@Override
 	public void dispose() {
 		super.dispose();
-		VexPlugin.getInstance().getConfigurationRegistry().removeConfigListener(configListener);
+		VexPlugin.getDefault().getConfigurationRegistry().removeConfigListener(configListener);
 	}
 
 	@Override
@@ -67,23 +67,23 @@ public class ConfigurationView extends ViewPart {
 		treeViewer.setContentProvider(new MyContentProvider());
 		treeViewer.setLabelProvider(new MyLabelProvider());
 		treeViewer.setAutoExpandLevel(2);
-		treeViewer.setInput(VexPlugin.getInstance().getConfigurationRegistry());
+		treeViewer.setInput(VexPlugin.getDefault().getConfigurationRegistry());
 	}
 
 	private static class MyContentProvider implements ITreeContentProvider {
 		public Object[] getChildren(final Object parentElement) {
 			if (parentElement instanceof ConfigurationRegistry)
-				return VexPlugin.getInstance().getConfigurationRegistry().getDocumentTypes();
+				return VexPlugin.getDefault().getConfigurationRegistry().getDocumentTypes();
 			if (parentElement instanceof DocumentType)
-				return VexPlugin.getInstance().getConfigurationRegistry().getStyles(((DocumentType) parentElement).getPublicId());
+				return VexPlugin.getDefault().getConfigurationRegistry().getStyles(((DocumentType) parentElement).getPublicId());
 			return new Object[0];
 		}
 
 		public Object getParent(final Object element) {
 			if (element instanceof DocumentType)
-				return VexPlugin.getInstance().getConfigurationRegistry();
+				return VexPlugin.getDefault().getConfigurationRegistry();
 			if (element instanceof Style) 
-				return VexPlugin.getInstance().getConfigurationRegistry().getDocumentType(((Style) element).getDocumentTypes().iterator().next());
+				return VexPlugin.getDefault().getConfigurationRegistry().getDocumentType(((Style) element).getDocumentTypes().iterator().next());
 			return null;
 		}
 

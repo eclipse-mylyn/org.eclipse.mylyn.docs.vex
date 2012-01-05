@@ -82,7 +82,7 @@ public class BuildProblemDecorator extends LabelProvider implements
 	private ImageDescriptor errorIcon;
 
 	private void loadImageDescriptors() {
-		URL url = FileLocator.find(VexPlugin.getInstance().getBundle(),
+		URL url = FileLocator.find(VexPlugin.getDefault().getBundle(),
 				new Path("icons/error_co.gif"), //$NON-NLS-1$
 				null);
 		this.errorIcon = ImageDescriptor.createFromURL(url);

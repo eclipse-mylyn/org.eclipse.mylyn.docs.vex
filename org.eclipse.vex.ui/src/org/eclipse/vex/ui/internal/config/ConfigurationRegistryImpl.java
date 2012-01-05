@@ -251,7 +251,7 @@ public class ConfigurationRegistryImpl implements ConfigurationRegistry {
 		try {
 			pluginProject.load();
 		} catch (final CoreException e) {
-			VexPlugin.getInstance().getLog().log(e.getStatus());
+			VexPlugin.getDefault().getLog().log(e.getStatus());
 		}
 		fireConfigChanged(new ConfigEvent(this));
 	}

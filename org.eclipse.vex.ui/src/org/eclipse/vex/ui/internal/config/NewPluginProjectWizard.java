@@ -46,7 +46,7 @@ public class NewPluginProjectWizard extends BasicNewProjectResourceWizard {
 				// the new plug-in project is automatically added to the ConfigurationRegistry
 			} catch (CoreException e) {
 				VexPlugin
-						.getInstance()
+						.getDefault()
 						.log(
 								IStatus.ERROR,
 								Messages

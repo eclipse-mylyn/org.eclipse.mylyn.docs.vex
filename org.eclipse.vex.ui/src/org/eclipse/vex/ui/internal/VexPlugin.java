@@ -37,7 +37,7 @@ public class VexPlugin extends AbstractUIPlugin {
     /**
      * Returns the shared instance.
      */
-    public static VexPlugin getInstance() {
+    public static VexPlugin getDefault() {
         return instance;
     }
 

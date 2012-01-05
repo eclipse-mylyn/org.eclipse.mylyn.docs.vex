@@ -114,7 +114,7 @@ public class ContentAssist extends PopupDialog {
 
 	@Override
 	protected IDialogSettings getDialogSettings() {
-		final IDialogSettings root = VexPlugin.getInstance().getDialogSettings();
+		final IDialogSettings root = VexPlugin.getDefault().getDialogSettings();
 		IDialogSettings settings = root.getSection(SETTINGS_SECTION);
 		if (settings == null)
 			settings = root.addNewSection(SETTINGS_SECTION);

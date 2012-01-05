@@ -78,7 +78,7 @@ public class PluginProject extends ConfigSource {
 		} catch (final CoreException e) {
 			final String message = MessageFormat.format(Messages.getString("PluginProject.buildError"), //$NON-NLS-1$
 					new Object[] { project.getName() });
-			VexPlugin.getInstance().log(IStatus.ERROR, message, e);
+			VexPlugin.getDefault().log(IStatus.ERROR, message, e);
 		}
 	}
 
@@ -102,7 +102,7 @@ public class PluginProject extends ConfigSource {
 		try {
 			return project.isOpen() && project.hasNature(PluginProjectNature.ID);
 		} catch (final CoreException e) {
-			VexPlugin.getInstance().getLog().log(e.getStatus());
+			VexPlugin.getDefault().getLog().log(e.getStatus());
 			return false;
 		}
 	}
@@ -128,7 +128,7 @@ public class PluginProject extends ConfigSource {
 			try {
 				this.addItem(extensionPointId, id, name, configElements);
 			} catch (final IOException e) {
-				VexPlugin.getInstance().log(IStatus.ERROR, e.getMessage(), e);
+				VexPlugin.getDefault().log(IStatus.ERROR, e.getMessage(), e);
 			}
 		}
 	}
@@ -145,14 +145,14 @@ public class PluginProject extends ConfigSource {
 				problemHandler.foundProblem(problem);
 				return null;
 			} else {
-				VexPlugin.getInstance().log(IStatus.ERROR, MessageFormat.format("Cannot load {0}.", configXml.getFullPath()), e);
+				VexPlugin.getDefault().log(IStatus.ERROR, MessageFormat.format("Cannot load {0}.", configXml.getFullPath()), e);
 				return null;
 			}
 		} catch (final SAXException e) {
-			VexPlugin.getInstance().log(IStatus.ERROR, MessageFormat.format("Cannot load {0}.", configXml.getFullPath()), e);
+			VexPlugin.getDefault().log(IStatus.ERROR, MessageFormat.format("Cannot load {0}.", configXml.getFullPath()), e);
 			return null;
 		} catch (final IOException e) {
-			VexPlugin.getInstance().log(IStatus.ERROR, MessageFormat.format("Cannot load {0}.", configXml.getFullPath()), e);
+			VexPlugin.getDefault().log(IStatus.ERROR, MessageFormat.format("Cannot load {0}.", configXml.getFullPath()), e);
 			return null;
 		}
 	}

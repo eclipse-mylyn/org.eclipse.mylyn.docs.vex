@@ -73,7 +73,7 @@ public class NewDocumentWizard extends BasicNewResourceWizard {
 		try {
 			final Document doc = createDocument(typePage.getDocumentType(), typePage.getRootElementName());
 
-			final Style style = VexPlugin.getInstance().getPreferences().getPreferredStyle(typePage.getDocumentType().getPublicId());
+			final Style style = VexPlugin.getDefault().getPreferences().getPreferredStyle(typePage.getDocumentType().getPublicId());
 			if (style == null) {
 				MessageDialog.openError(getShell(),
 						Messages.getString("NewDocumentWizard.noStyles.title"), Messages.getString("NewDocumentWizard.noStyles.message")); //$NON-NLS-1$ //$NON-NLS-2$
@@ -110,7 +110,7 @@ public class NewDocumentWizard extends BasicNewResourceWizard {
 		} catch (final Exception ex) {
 			final String message = MessageFormat.format(Messages.getString("NewDocumentWizard.errorLoading.message"),
 					new Object[] { filePage.getFileName(), ex.getMessage() });
-			VexPlugin.getInstance().log(IStatus.ERROR, message, ex);
+			VexPlugin.getDefault().log(IStatus.ERROR, message, ex);
 			MessageDialog.openError(getShell(), Messages.getString("NewDocumentWizard.errorLoading.title"), "Unable to create " + filePage.getFileName()); //$NON-NLS-1$ //$NON-NLS-2$
 			return false;
 		}

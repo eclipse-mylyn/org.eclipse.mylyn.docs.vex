@@ -45,13 +45,13 @@ public class DocumentTypeSelectionPage extends WizardPage {
 		super(Messages.getString("DocumentTypeSelectionPage.pageName")); //$NON-NLS-1$
 		this.setPageComplete(false);
 
-		IDialogSettings rootSettings = VexPlugin.getInstance().getDialogSettings();
+		IDialogSettings rootSettings = VexPlugin.getDefault().getDialogSettings();
 		this.settings = rootSettings.getSection("newDocument"); //$NON-NLS-1$
 		if (this.settings == null) {
 			this.settings = rootSettings.addNewSection("newDocument"); //$NON-NLS-1$
 		}
 
-		this.doctypes = VexPlugin.getInstance().getConfigurationRegistry().getDocumentTypesWithStyles();
+		this.doctypes = VexPlugin.getDefault().getConfigurationRegistry().getDocumentTypesWithStyles();
 		Arrays.sort(this.doctypes);
 	}
 

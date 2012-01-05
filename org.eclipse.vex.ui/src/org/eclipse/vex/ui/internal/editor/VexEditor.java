@@ -122,9 +122,9 @@ public class VexEditor extends EditorPart {
 	 * Class constructor.
 	 */
 	public VexEditor() {
-		debugging = VexPlugin.getInstance().isDebugging() && "true".equalsIgnoreCase(Platform.getDebugOption(VexPlugin.ID + "/debug/layout")); //$NON-NLS-1$ //$NON-NLS-2$
-		configurationRegistry = VexPlugin.getInstance().getConfigurationRegistry();
-		preferences = VexPlugin.getInstance().getPreferences();
+		debugging = VexPlugin.getDefault().isDebugging() && "true".equalsIgnoreCase(Platform.getDebugOption(VexPlugin.ID + "/debug/layout")); //$NON-NLS-1$ //$NON-NLS-2$
+		configurationRegistry = VexPlugin.getDefault().getConfigurationRegistry();
+		preferences = VexPlugin.getDefault().getPreferences();
 	}
 
 	/**
@@ -180,7 +180,7 @@ public class VexEditor extends EditorPart {
 			final String message = MessageFormat.format(Messages.getString("VexEditor.errorSaving.message"), //$NON-NLS-1$
 					new Object[] { input.getName(), ex.getMessage() });
 			MessageDialog.openError(getEditorSite().getShell(), title, message);
-			VexPlugin.getInstance().log(IStatus.ERROR, message, ex);
+			VexPlugin.getDefault().log(IStatus.ERROR, message, ex);
 		} finally {
 			if (os != null)
 				try {
@@ -195,6 +195,7 @@ public class VexEditor extends EditorPart {
 		final DocumentWriter result = new DocumentWriter();
 		result.setWhitespacePolicy(new CssWhitespacePolicy(style.getStyleSheet()));
 		result.setIndent(preferences.getIndentationPattern());
+		result.setWrapColumn(preferences.getLineWidth());
 		return result;
 	}
 	
@@ -228,7 +229,7 @@ public class VexEditor extends EditorPart {
 				final String message = MessageFormat.format(Messages.getString("VexEditor.errorSaving.message"), //$NON-NLS-1$
 						new Object[] { path, ex.getMessage() });
 				MessageDialog.openError(getEditorSite().getShell(), title, message);
-				VexPlugin.getInstance().log(IStatus.ERROR, message, ex);
+				VexPlugin.getDefault().log(IStatus.ERROR, message, ex);
 			} finally {
 				resourceChangeListener.setSaving(false);
 			}
@@ -383,7 +384,7 @@ public class VexEditor extends EditorPart {
 
 				showLabel(msg);
 
-				VexPlugin.getInstance().log(IStatus.ERROR, msg, ex);
+				VexPlugin.getDefault().log(IStatus.ERROR, msg, ex);
 			}
 
 		} catch (final Exception ex) {
@@ -391,7 +392,7 @@ public class VexEditor extends EditorPart {
 			final String msg = MessageFormat.format(Messages.getString("VexEditor.unexpectedError"), //$NON-NLS-1$
 					new Object[] { input.getName() });
 
-			VexPlugin.getInstance().log(IStatus.ERROR, msg, ex);
+			VexPlugin.getDefault().log(IStatus.ERROR, msg, ex);
 
 			showLabel(msg);
 		}

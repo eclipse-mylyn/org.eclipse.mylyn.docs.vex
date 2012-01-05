@@ -157,7 +157,7 @@ public class SwtGraphics implements Graphics {
 				in.close();
 			}
 		} catch (final IOException e) {
-			VexPlugin.getInstance().getLog().log(new Status(IStatus.ERROR, VexPlugin.ID, MessageFormat.format("Cannot load image from url: {0}", url), e));
+			VexPlugin.getDefault().getLog().log(new Status(IStatus.ERROR, VexPlugin.ID, MessageFormat.format("Cannot load image from url: {0}", url), e));
 			return null;
 		}
 	}

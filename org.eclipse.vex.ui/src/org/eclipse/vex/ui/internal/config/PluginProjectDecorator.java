@@ -62,7 +62,7 @@ public class PluginProjectDecorator implements ILightweightLabelDecorator {
 	private ImageDescriptor vexIcon;
 
 	private void loadImageDescriptors() {
-		URL url = FileLocator.find(VexPlugin.getInstance().getBundle(),
+		URL url = FileLocator.find(VexPlugin.getDefault().getBundle(),
 				new Path("icons/vex8.gif"), //$NON-NLS-1$
 				null);
 		this.vexIcon = ImageDescriptor.createFromURL(url);

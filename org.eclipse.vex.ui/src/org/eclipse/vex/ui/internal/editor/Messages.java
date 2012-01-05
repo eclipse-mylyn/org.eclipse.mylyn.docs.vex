@@ -41,7 +41,7 @@ public class Messages {
 			return resources.getString(key);
 		} catch (MissingResourceException ex) {
 			String message = Messages.getString("Messages.cantFindResource"); //$NON-NLS-1$
-			VexPlugin.getInstance().log(IStatus.WARNING,
+			VexPlugin.getDefault().log(IStatus.WARNING,
 					MessageFormat.format(message, new Object[] { key }));
 			return key;
 		}

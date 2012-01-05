@@ -174,7 +174,7 @@ public class DocumentOutlinePage extends Page implements IContentOutlinePage {
 			} catch (Exception ex) {
 				String message = Messages
 						.getString("DocumentOutlinePage.loadingError"); //$NON-NLS-1$
-				VexPlugin.getInstance().log(
+				VexPlugin.getDefault().log(
 						IStatus.WARNING,
 						MessageFormat.format(message, new Object[] {
 								providerClassName, ns, ex }));

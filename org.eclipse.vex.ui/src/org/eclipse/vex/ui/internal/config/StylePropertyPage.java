@@ -58,7 +58,7 @@ public class StylePropertyPage extends PropertyPage {
 		try {
 			pluginProject.load();
 		} catch (final CoreException e) {
-			VexPlugin.getInstance().getLog().log(e.getStatus());
+			VexPlugin.getDefault().getLog().log(e.getStatus());
 		}
 
 		createPropertySheet();
@@ -68,7 +68,7 @@ public class StylePropertyPage extends PropertyPage {
 				try {
 					pluginProject.load();
 				} catch (CoreException e) {
-					VexPlugin.getInstance().getLog().log(e.getStatus());
+					VexPlugin.getDefault().getLog().log(e.getStatus());
 				}
 				style = (Style) pluginProject.getItemForResource((IFile) getElement());
 				populateDoctypes();
@@ -84,13 +84,13 @@ public class StylePropertyPage extends PropertyPage {
 				} catch (final Exception e) {
 					final String message = MessageFormat.format(Messages.getString("StylePropertyPage.writeError"), //$NON-NLS-1$
 							new Object[] { PluginProject.PLUGIN_XML });
-					VexPlugin.getInstance().log(IStatus.ERROR, message, e);
+					VexPlugin.getDefault().log(IStatus.ERROR, message, e);
 				}
 			}
 		};
-		VexPlugin.getInstance().getConfigurationRegistry().addConfigListener(configListener);
+		VexPlugin.getDefault().getConfigurationRegistry().addConfigListener(configListener);
 
-		if (VexPlugin.getInstance().getConfigurationRegistry().isLoaded()) {
+		if (VexPlugin.getDefault().getConfigurationRegistry().isLoaded()) {
 			populateStyle();
 			populateDoctypes();
 		} else {
@@ -160,7 +160,7 @@ public class StylePropertyPage extends PropertyPage {
 		final Set<String> selectedDoctypes = new TreeSet<String>(style.getDocumentTypes());
 		doctypesTable.removeAll();
 
-		final DocumentType[] documentTypes = VexPlugin.getInstance().getConfigurationRegistry().getDocumentTypes();
+		final DocumentType[] documentTypes = VexPlugin.getDefault().getConfigurationRegistry().getDocumentTypes();
 		Arrays.sort(documentTypes);
 		for (final DocumentType documentType : documentTypes) {
 			final TableItem item = new TableItem(doctypesTable, SWT.NONE);
@@ -187,7 +187,7 @@ public class StylePropertyPage extends PropertyPage {
 
 		style.removeAllDocumentTypes();
 
-		final DocumentType[] documentTypes = VexPlugin.getInstance().getConfigurationRegistry().getDocumentTypes();
+		final DocumentType[] documentTypes = VexPlugin.getDefault().getConfigurationRegistry().getDocumentTypes();
 		Arrays.sort(documentTypes);
 		for (final DocumentType documentType : documentTypes)
 			if (selectedDoctypes.contains(documentType.getName()))
@@ -198,7 +198,7 @@ public class StylePropertyPage extends PropertyPage {
 		} catch (final Exception e) {
 			final String message = MessageFormat.format(Messages.getString("StylePropertyPage.writeError"), //$NON-NLS-1$
 					new Object[] { PluginProject.PLUGIN_XML });
-			VexPlugin.getInstance().log(IStatus.ERROR, message, e);
+			VexPlugin.getDefault().log(IStatus.ERROR, message, e);
 		}
 	}
 
@@ -213,6 +213,6 @@ public class StylePropertyPage extends PropertyPage {
 	public void dispose() {
 		super.dispose();
 		if (configListener != null)
-			VexPlugin.getInstance().getConfigurationRegistry().removeConfigListener(configListener);
+			VexPlugin.getDefault().getConfigurationRegistry().removeConfigListener(configListener);
 	}
 }

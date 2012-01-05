@@ -37,7 +37,7 @@ public class StyleMenu extends ContributionItem {
         if (editor == null) return;
 
         final String publicId = editor.getDocumentType().getPublicId();
-        for (final Style style : VexPlugin.getInstance().getConfigurationRegistry().getStyles(publicId)) {
+        for (final Style style : VexPlugin.getDefault().getConfigurationRegistry().getStyles(publicId)) {
             final MenuItem menuItem = new MenuItem(menu, SWT.RADIO, index);
             menuItem.setText(style.getName());
             menuItem.setSelection(style == editor.getStyle());

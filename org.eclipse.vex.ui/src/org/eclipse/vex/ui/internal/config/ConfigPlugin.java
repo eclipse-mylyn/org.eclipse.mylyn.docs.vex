@@ -45,7 +45,7 @@ public class ConfigPlugin extends ConfigSource {
 				String message = MessageFormat.format(Messages
 						.getString("ConfigPlugin.loadError"), //$NON-NLS-1$
 						new Object[] { extension.getSimpleIdentifier(), bundleSymbolicName });
-				VexPlugin.getInstance().log(IStatus.ERROR, message, e);
+				VexPlugin.getDefault().log(IStatus.ERROR, message, e);
 				return;
 			}
 		}

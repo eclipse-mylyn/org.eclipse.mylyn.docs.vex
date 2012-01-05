@@ -243,7 +243,7 @@ public abstract class ConfigSource {
 						parsedResources.put(uri, parsedResource);
 				} catch (final IOException ex) {
 					final String message = MessageFormat.format(Messages.getString("ConfigSource.errorParsingUri"), new Object[] { uri });
-					VexPlugin.getInstance().log(IStatus.ERROR, message, ex);
+					VexPlugin.getDefault().log(IStatus.ERROR, message, ex);
 				}
 			}
 		}

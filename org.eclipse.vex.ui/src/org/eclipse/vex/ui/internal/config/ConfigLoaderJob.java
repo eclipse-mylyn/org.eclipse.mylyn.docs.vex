@@ -92,7 +92,7 @@ public class ConfigLoaderJob extends Job implements ConfigurationLoader {
 					pluginProject.load();
 					result.add(pluginProject);
 				} catch (CoreException e) {
-					VexPlugin.getInstance().getLog().log(e.getStatus());
+					VexPlugin.getDefault().getLog().log(e.getStatus());
 				}
 				monitor.worked(1);
 			}
