@@ -26,12 +26,13 @@ import org.osgi.framework.BundleContext;
  */
 public class VexPlugin extends AbstractUIPlugin {
 
-    /** The plugin's ID */
     public static final String ID = "org.eclipse.vex.ui"; //$NON-NLS-1$
 
     private static VexPlugin instance;
     
     private final ConfigurationRegistry configurationRegistry = new ConfigurationRegistryImpl(new ConfigLoaderJob());
+    
+    private VexPreferences preferences = null;
 
     /**
      * Returns the shared instance.
@@ -73,6 +74,12 @@ public class VexPlugin extends AbstractUIPlugin {
     public ConfigurationRegistry getConfigurationRegistry() {
     	return configurationRegistry;
     }
+    
+    public VexPreferences getPreferences() {
+    	if (preferences == null)
+    		preferences = new VexPreferences(getPreferenceStore(), getConfigurationRegistry());
+		return preferences;
+	}
 
     /**
      * Override the plugin startup to intialize the resource tracker.

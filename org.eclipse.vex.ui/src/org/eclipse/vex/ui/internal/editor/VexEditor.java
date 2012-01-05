@@ -31,7 +31,6 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.action.MenuManager;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.text.IFindReplaceTarget;
@@ -74,7 +73,9 @@ import org.eclipse.vex.core.internal.dom.Validator;
 import org.eclipse.vex.core.internal.validator.WTPVEXValidator;
 import org.eclipse.vex.core.internal.widget.CssWhitespacePolicy;
 import org.eclipse.vex.ui.internal.VexPlugin;
+import org.eclipse.vex.ui.internal.VexPreferences;
 import org.eclipse.vex.ui.internal.config.ConfigEvent;
+import org.eclipse.vex.ui.internal.config.ConfigurationRegistry;
 import org.eclipse.vex.ui.internal.config.DocumentType;
 import org.eclipse.vex.ui.internal.config.IConfigListener;
 import org.eclipse.vex.ui.internal.config.Style;
@@ -83,8 +84,6 @@ import org.eclipse.vex.ui.internal.handlers.RemoveTagHandler;
 import org.eclipse.vex.ui.internal.outline.DocumentOutlinePage;
 import org.eclipse.vex.ui.internal.property.ElementPropertySource;
 import org.eclipse.vex.ui.internal.swt.VexWidget;
-import org.osgi.service.prefs.BackingStoreException;
-import org.osgi.service.prefs.Preferences;
 import org.xml.sax.SAXParseException;
 
 /**
@@ -96,12 +95,36 @@ public class VexEditor extends EditorPart {
 	 * ID of this editor extension.
 	 */
 	public static final String ID = "org.eclipse.vex.ui.internal.editor.VexEditor"; //$NON-NLS-1$
+	
+	private final boolean debugging;
+	private final ConfigurationRegistry configurationRegistry;
+	private final VexPreferences preferences;
+
+	private Composite parentControl;
+	private Label loadingLabel;
+
+	private boolean loaded;
+	private DocumentType doctype;
+	private Document document;
+	private Style style;
+
+	private VexWidget vexWidget;
+
+	private int savedUndoDepth;
+	private boolean wasDirty;
+
+	private final ListenerList<IVexEditorListener, VexEditorEvent> vexEditorListeners = new ListenerList<IVexEditorListener, VexEditorEvent>(
+			IVexEditorListener.class);
+
+	private final SelectionProvider selectionProvider = new SelectionProvider();
 
 	/**
 	 * Class constructor.
 	 */
 	public VexEditor() {
 		debugging = VexPlugin.getInstance().isDebugging() && "true".equalsIgnoreCase(Platform.getDebugOption(VexPlugin.ID + "/debug/layout")); //$NON-NLS-1$ //$NON-NLS-2$
+		configurationRegistry = VexPlugin.getInstance().getConfigurationRegistry();
+		preferences = VexPlugin.getInstance().getPreferences();
 	}
 
 	/**
@@ -121,7 +144,7 @@ public class VexEditor extends EditorPart {
 		if (parentControl != null)
 			// createPartControl was called, so we must de-register from config
 			// events
-			VexPlugin.getInstance().getConfigurationRegistry().removeConfigListener(configListener);
+			configurationRegistry.removeConfigListener(configListener);
 
 		if (getEditorInput() instanceof IFileEditorInput)
 			ResourcesPlugin.getWorkspace().removeResourceChangeListener(resourceChangeListener);
@@ -135,8 +158,7 @@ public class VexEditor extends EditorPart {
 		OutputStream os = null;
 		try {
 			resourceChangeListener.setSaving(true);
-			final DocumentWriter writer = new DocumentWriter();
-			writer.setWhitespacePolicy(new CssWhitespacePolicy(style.getStyleSheet()));
+			final DocumentWriter writer = createDocumentWriter();
 
 			if (input instanceof IFileEditorInput) {
 				final ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -169,6 +191,13 @@ public class VexEditor extends EditorPart {
 		}
 	}
 
+	private DocumentWriter createDocumentWriter() {
+		final DocumentWriter result = new DocumentWriter();
+		result.setWhitespacePolicy(new CssWhitespacePolicy(style.getStyleSheet()));
+		result.setIndent(preferences.getIndentationPattern());
+		return result;
+	}
+	
 	@Override
 	public void doSaveAs() {
 		final SaveAsDialog dlg = new SaveAsDialog(getSite().getShell());
@@ -178,8 +207,7 @@ public class VexEditor extends EditorPart {
 			try {
 				resourceChangeListener.setSaving(true);
 				final ByteArrayOutputStream baos = new ByteArrayOutputStream();
-				final DocumentWriter writer = new DocumentWriter();
-				writer.setWhitespacePolicy(new CssWhitespacePolicy(style.getStyleSheet()));
+				final DocumentWriter writer = createDocumentWriter();
 				writer.write(document, baos);
 				baos.close();
 
@@ -214,14 +242,8 @@ public class VexEditor extends EditorPart {
 	 * @param publicId
 	 *            Public ID for which to return the style.
 	 */
-	public static Style getPreferredStyle(final String publicId) {
-		return VexPlugin.getInstance().getConfigurationRegistry().getStyle(publicId, getPreferredStyleId(publicId));
-	}
-
-	private static String getPreferredStyleId(final String publicId) {
-		final Preferences prefs = new InstanceScope().getNode(VexPlugin.ID);
-		final String preferredStyleId = prefs.get(getStylePreferenceKey(publicId), null);
-		return preferredStyleId;
+	public Style getPreferredStyle(final String publicId) {
+		return configurationRegistry.getStyle(publicId, preferences.getPreferredStyleId(publicId));
 	}
 
 	/**
@@ -400,8 +422,8 @@ public class VexEditor extends EditorPart {
 
 		parentControl = parent;
 
-		VexPlugin.getInstance().getConfigurationRegistry().addConfigListener(configListener);
-		if (VexPlugin.getInstance().getConfigurationRegistry().isLoaded())
+		configurationRegistry.addConfigListener(configListener);
+		if (configurationRegistry.isLoaded())
 			loadInput();
 		else
 			showLabel(Messages.getString("VexEditor.loading")); //$NON-NLS-1$
@@ -448,50 +470,8 @@ public class VexEditor extends EditorPart {
 		this.style = style;
 		if (vexWidget != null) {
 			vexWidget.setStyleSheet(style.getStyleSheet());
-			setPreferredStyleId(document.getPublicID(), style.getUniqueId());
+			preferences.setPreferredStyleId(document.getPublicID(), style.getUniqueId());
 		}
-	}
-
-	private static void setPreferredStyleId(final String publicId, final String styleId) {
-		final Preferences prefs = new InstanceScope().getNode(VexPlugin.ID);
-		final String key = getStylePreferenceKey(publicId);
-		prefs.put(key, styleId);
-		try {
-			prefs.flush();
-		} catch (final BackingStoreException e) {
-			VexPlugin.getInstance().log(IStatus.ERROR, Messages.getString("VexEditor.errorSavingStylePreference"), e); //$NON-NLS-1$
-		}
-	}
-
-	// ========================================================= PRIVATE
-
-	private final boolean debugging;
-
-	private Composite parentControl;
-	private Label loadingLabel;
-
-	private boolean loaded;
-	private DocumentType doctype;
-	private Document document;
-	private Style style;
-
-	private VexWidget vexWidget;
-
-	private int savedUndoDepth;
-	private boolean wasDirty;
-	// private Label statusLabel;
-
-	private final ListenerList<IVexEditorListener, VexEditorEvent> vexEditorListeners = new ListenerList<IVexEditorListener, VexEditorEvent>(
-			IVexEditorListener.class);
-
-	private final SelectionProvider selectionProvider = new SelectionProvider();
-
-	/**
-	 * Returns the preference key used to access the style ID for documents with
-	 * the same public ID as the current document.
-	 */
-	private static String getStylePreferenceKey(final String publicId) {
-		return publicId + ".style"; //$NON-NLS-1$
 	}
 
 	private void showLabel(final String message) {
@@ -642,7 +622,7 @@ public class VexEditor extends EditorPart {
 						return;
 
 					final String styleId = style.getUniqueId();
-					final Style newStyle = VexPlugin.getInstance().getConfigurationRegistry().getStyle(styleId);
+					final Style newStyle = configurationRegistry.getStyle(styleId);
 					if (newStyle == null) {
 						// Oops, style went bye-bye
 						// Let's just hold on to it in case it comes back later

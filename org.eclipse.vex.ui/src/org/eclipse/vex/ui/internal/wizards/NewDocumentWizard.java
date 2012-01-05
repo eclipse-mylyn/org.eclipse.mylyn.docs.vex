@@ -73,7 +73,7 @@ public class NewDocumentWizard extends BasicNewResourceWizard {
 		try {
 			final Document doc = createDocument(typePage.getDocumentType(), typePage.getRootElementName());
 
-			final Style style = VexEditor.getPreferredStyle(typePage.getDocumentType().getPublicId());
+			final Style style = VexPlugin.getInstance().getPreferences().getPreferredStyle(typePage.getDocumentType().getPublicId());
 			if (style == null) {
 				MessageDialog.openError(getShell(),
 						Messages.getString("NewDocumentWizard.noStyles.title"), Messages.getString("NewDocumentWizard.noStyles.message")); //$NON-NLS-1$ //$NON-NLS-2$

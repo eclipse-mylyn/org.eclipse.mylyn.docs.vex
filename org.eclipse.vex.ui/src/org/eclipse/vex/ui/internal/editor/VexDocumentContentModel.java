@@ -54,7 +54,7 @@ public class VexDocumentContentModel extends DocumentContentModel {
 //			throw new RuntimeException(message);
 //		}
 
-		style = VexEditor.getPreferredStyle(documentType.getPublicId());
+		style = VexPlugin.getInstance().getPreferences().getPreferredStyle(documentType.getPublicId());
 		if (style == null)
 			throw new NoStyleForDoctypeException();
 	}
