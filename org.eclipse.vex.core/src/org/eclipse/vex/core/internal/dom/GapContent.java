@@ -24,6 +24,8 @@ import java.util.Map;
  */
 public class GapContent implements Content {
 
+	private static final char ELEMENT_MARKER = '\0';
+	
 	private char[] content;
 	private int gapStart;
 	private int gapEnd;
@@ -98,6 +100,14 @@ public class GapContent implements Content {
 			}
 
 		}
+	}
+	
+	public void insertElementMarker(int offset) {
+		insertString(offset, Character.toString(ELEMENT_MARKER));
+	}
+	
+	public boolean isElementMarker(char c) {
+		return c == ELEMENT_MARKER;
 	}
 
 	/**

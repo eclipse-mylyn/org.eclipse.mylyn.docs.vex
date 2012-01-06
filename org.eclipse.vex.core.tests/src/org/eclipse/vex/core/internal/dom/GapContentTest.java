@@ -10,16 +10,39 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.dom;
 
-import org.eclipse.vex.core.internal.dom.GapContent;
-import org.eclipse.vex.core.internal.dom.Position;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
-import junit.framework.TestCase;
+import org.junit.Test;
 
 /**
  * Test the GapContent class
  */
-public class GapContentTest extends TestCase {
+public class GapContentTest {
 
+	@Test
+	public void insertSingleElementMarker() throws Exception {
+		final GapContent content = new GapContent(3);
+		content.insertElementMarker(0);
+		assertEquals(1, content.getLength());
+		assertTrue(content.isElementMarker(content.getString(0, content.getLength()).charAt(0)));
+	}
+	
+	@Test
+	public void insertMultipleElementMarkers() throws Exception {
+		final GapContent elementMarkerContent = new GapContent(4);
+		elementMarkerContent.insertElementMarker(0);
+		elementMarkerContent.insertElementMarker(0);
+		
+		final GapContent stringContent = new GapContent(4);
+		stringContent.insertString(0, "\0\0");
+		
+		assertEquals(stringContent.getLength(), elementMarkerContent.getLength());
+		assertEquals(stringContent.getString(0, stringContent.getLength()), elementMarkerContent.getString(0, elementMarkerContent.getLength()));
+	}
+	
+	@Test
 	public void testGapContent() throws Exception {
 		//
 		// a b (gap) c d

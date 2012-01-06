@@ -39,6 +39,15 @@ public interface Content {
 	 * @model
 	 */
 	public void insertString(int offset, String s);
+	
+	/**
+	 * Insert an element marker into the content.
+	 * 
+	 * @param offset
+	 *            Offset at which to insert the element marker.
+	 * @model
+	 */
+	public void insertElementMarker(int offset);
 
 	/**
 	 * Deletes the given range of characters.
@@ -68,4 +77,13 @@ public interface Content {
 	 * @model
 	 */
 	public int getLength();
+	
+	/**
+	 * Indicates if the given character is an element marker.
+	 * 
+	 * @param c
+	 * 			The character to check.
+	 * @model 
+	 */
+	public boolean isElementMarker(char c);
 }

@@ -51,7 +51,8 @@ public class Document {
 	 */
 	public Document(final RootElement rootElement) {
 		content = new GapContent(100);
-		content.insertString(0, "\0\0");
+		content.insertElementMarker(0);
+		content.insertElementMarker(0);
 
 		this.rootElement = rootElement;
 		rootElement.setDocument(this);
@@ -361,7 +362,7 @@ public class Document {
 		final StringBuffer sb = new StringBuffer(raw.length());
 		for (int i = 0; i < raw.length(); i++) {
 			final char c = raw.charAt(i);
-			if (c != '\0')
+			if (!content.isElementMarker(c))
 				sb.append(c);
 		}
 		return sb.toString();
@@ -414,7 +415,8 @@ public class Document {
 
 		fireBeforeContentInserted(new DocumentEvent(this, parent, offset, 2, null));
 
-		content.insertString(offset, "\0\0");
+		content.insertElementMarker(offset);
+		content.insertElementMarker(offset + 1);
 
 		element.setContent(content, offset, offset + 1);
 		element.setParent(parent);
@@ -472,9 +474,9 @@ public class Document {
 		final Element parent = getElementAt(offset);
 
 		boolean isValid = false;
-		if (getCharacterAt(offset - 1) != '\0')
+		if (!content.isElementMarker(getCharacterAt(offset - 1)))
 			isValid = true;
-		else if (getCharacterAt(offset) != '\0')
+		else if (!content.isElementMarker(getCharacterAt(offset)))
 			isValid = true;
 		else {
 			final Validator validator = getValidator();

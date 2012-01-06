@@ -80,8 +80,7 @@ public class DocumentBuilder implements ContentHandler, LexicalHandler {
 	// ============================================= ContentHandler methods
 
 	public void characters(final char[] ch, final int start, final int length) throws SAXException {
-
-		// Convert nulls to spaces, since we use nulls for element delimiters
+		// Convert control characters to spaces, since we use nulls for element delimiters
 		final char[] chars = new char[length];
 		System.arraycopy(ch, start, chars, 0, length);
 		for (int i = 0; i < chars.length; i++)
@@ -107,7 +106,7 @@ public class DocumentBuilder implements ContentHandler, LexicalHandler {
 
 		// we must insert the trailing sentinel first, else the insertion
 		// pushes the end position of the element to after the sentinel
-		content.insertString(content.getLength(), "\0");
+		content.insertElementMarker(content.getLength());
 		entry.element.setContent(content, entry.offset, content.getLength() - 1);
 
 		if (isBlock(entry.element))
@@ -181,7 +180,7 @@ public class DocumentBuilder implements ContentHandler, LexicalHandler {
 		appendChars(isBlock(element));
 
 		stack.add(new StackEntry(element, content.getLength(), isPre(element)));
-		content.insertString(content.getLength(), "\0");
+		content.insertElementMarker(content.getLength());
 
 		trimLeading = true;
 
