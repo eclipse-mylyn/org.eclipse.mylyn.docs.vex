@@ -225,18 +225,18 @@ public class DocumentBuilder implements ContentHandler, LexicalHandler {
 		final Element parent = stack.getLast().element;
 		parent.addChild(element);
 
-		appendChars(true); // comments are handled as block elements
+		appendChars(isBlock(element));
 		final int startOffset = content.getLength();
 		content.insertElementMarker(content.getLength());
 
-		trimLeading = true; // comments are handled as block elements
+		trimLeading = true;
 		appendPendingCharsFiltered(ch, start, length);
-		appendChars(true); // comments are handled as block elements
+		appendChars(true);
 
 		content.insertElementMarker(content.getLength());
 		element.setContent(content, startOffset, content.getLength() - 1);
-		
-		trimLeading = true; // comments are handled as block elements
+		if (isBlock(element))
+			trimLeading = true;
 	}
 
 	public void endCDATA() {

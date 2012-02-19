@@ -57,7 +57,7 @@ public class VEXCoreTestSuite extends TestSuite {
 		addTestSuite(RuleTest.class);
 		addTestSuite(BlockElementBoxTest.class);
 		addTest(new JUnit4TestAdapter(ImageBoxTest.class));
-		addTestSuite(DocumentWriterTest.class);
+		addTest(new JUnit4TestAdapter(DocumentWriterTest.class));
 		addTestSuite(DTDValidatorTest.class);
 		addTest(new JUnit4TestAdapter(GapContentTest.class));
 		addTestSuite(SpaceNormalizerTest.class);

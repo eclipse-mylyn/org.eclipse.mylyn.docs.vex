@@ -49,7 +49,7 @@ public class DocumentWriter {
 		wrapColumn = 72;
 	}
 
-/**
+	/**
      * Escapes special XML characters. Changes '<', '>', and '&' to
      * '&lt;', '&gt;' and '&amp;', respectively.
      *
@@ -137,7 +137,7 @@ public class DocumentWriter {
 		final PrintWriter pw = new PrintWriter(osw);
 		pw.println("<?xml version='1.0'?>");
 
-		if ((doc).getSystemID() != null) {
+		if (doc.getSystemID() != null) {
 			final StringBuffer sb = new StringBuffer();
 			sb.append("<!DOCTYPE ");
 			sb.append(doc.getRootElement().getPrefixedName());
@@ -149,7 +149,7 @@ public class DocumentWriter {
 			} else
 				sb.append(" SYSTEM");
 			sb.append(" \"");
-			sb.append((doc).getSystemID());
+			sb.append(doc.getSystemID());
 			sb.append("\">");
 			pw.println(sb.toString());
 		}
@@ -171,7 +171,19 @@ public class DocumentWriter {
 				pw.print(indent);
 				pw.println(line);
 			}
+		} else if (node instanceof CommentElement) {
 
+			final CommentElement element = (CommentElement) node;
+
+			pw.print(indent);
+			pw.println("<!-- ");
+
+			final String childIndent = indent + this.indent;
+			for (final Node child : element.getChildNodes())
+				writeNode(child, pw, childIndent);
+
+			pw.print(indent);
+			pw.println(" -->");
 		} else {
 
 			final Element element = (Element) node;
@@ -213,9 +225,8 @@ public class DocumentWriter {
 				pw.println(">");
 
 				final String childIndent = indent + this.indent;
-				final List<Node> content = element.getChildNodes();
-				for (int i = 0; i < content.size(); i++)
-					writeNode(content.get(i), pw, childIndent);
+				for (final Node child : element.getChildNodes())
+					writeNode(child, pw, childIndent);
 				pw.print(indent);
 				pw.print("</");
 				pw.print(element.getPrefixedName());
@@ -237,7 +248,15 @@ public class DocumentWriter {
 
 		if (node instanceof Text)
 			pw.print(escape(node.getText()));
-		else {
+		else if (node instanceof CommentElement) {
+			
+			final CommentElement element = (CommentElement) node;
+			
+			pw.print("<!-- ");
+			for (final Node child : element.getChildNodes())
+				writeNodeNoWrap(child, pw);
+			pw.print(" -->");
+		} else {
 
 			final Element element = (Element) node;
 
@@ -247,7 +266,7 @@ public class DocumentWriter {
 			pw.print(getAttributeString(element));
 			pw.print(">");
 
-			for (Node child : element.getChildNodes())
+			for (final Node child : element.getChildNodes())
 				writeNodeNoWrap(child, pw);
 
 			pw.print("</");
@@ -255,26 +274,31 @@ public class DocumentWriter {
 			pw.print(">");
 		}
 	}
-	
+
 	private static String getNamespaceDeclarationsString(final Element element) {
 		final StringBuilder result = new StringBuilder();
 		final String declaredNamespaceURI = element.getDeclaredDefaultNamespaceURI();
 		if (declaredNamespaceURI != null)
 			result.append(" xmlns=\"").append(declaredNamespaceURI).append("\"");
-		for (final String prefix : element.getDeclaredNamespacePrefixes()) {
-			result.append(" xmlns:")
-			.append(prefix)
-			.append("=\"")
-			.append(element.getNamespaceURI(prefix))
-			.append("\"");
-		}
+		for (final String prefix : element.getDeclaredNamespacePrefixes())
+			result.append(" xmlns:").append(prefix).append("=\"").append(element.getNamespaceURI(prefix)).append("\"");
 		return result.toString();
 	}
 
 	private static void addNode(final Node node, final TextWrapper wrapper) {
 		if (node instanceof Text)
 			wrapper.add(escape(node.getText()));
-		else {
+		else if (node instanceof CommentElement) {
+
+			final CommentElement element = (CommentElement) node;
+			
+			wrapper.addNoSplit("<!-- ");
+			
+			for (final Node child: element.getChildNodes())
+				addNode(child, wrapper);
+			
+			wrapper.add(" -->");
+		} else {
 			final Element element = (Element) node;
 			final List<Node> content = element.getChildNodes();
 
@@ -288,8 +312,8 @@ public class DocumentWriter {
 				buffer.append(">");
 			wrapper.addNoSplit(buffer.toString());
 
-			for (int i = 0; i < content.size(); i++)
-				addNode(content.get(i), wrapper);
+			for (final Node child: content)
+				addNode(child, wrapper);
 
 			if (!content.isEmpty())
 				wrapper.add("</" + element.getPrefixedName() + ">");

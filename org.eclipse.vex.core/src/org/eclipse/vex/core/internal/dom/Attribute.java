@@ -65,7 +65,7 @@ public class Attribute implements Comparable<Attribute> {
 		if (parent == null || attributeQualifier == null)
 			return getLocalName();
 		final String elementQualifier = parent.getQualifiedName().getQualifier();
-		if (elementQualifier == null || attributeQualifier.equals(elementQualifier))
+		if (attributeQualifier.equals(elementQualifier))
 			return getLocalName();
 		final String prefix = parent.getNamespacePrefix(attributeQualifier);
 		return (prefix == null ? "" : prefix + ":") + getLocalName();
