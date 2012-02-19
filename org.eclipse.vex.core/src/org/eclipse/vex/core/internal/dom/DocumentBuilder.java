@@ -11,6 +11,7 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.dom;
 
+import java.util.Arrays;
 import java.util.LinkedList;
 
 import org.eclipse.core.runtime.Assert;
@@ -80,13 +81,21 @@ public class DocumentBuilder implements ContentHandler, LexicalHandler {
 	// ============================================= ContentHandler methods
 
 	public void characters(final char[] ch, final int start, final int length) throws SAXException {
+		appendPendingCharsFiltered(ch, start, length);
+	}
+
+	private void appendPendingCharsFiltered(final char[] ch, final int start, final int length) {
 		// Convert control characters to spaces, since we use nulls for element delimiters
-		final char[] chars = new char[length];
-		System.arraycopy(ch, start, chars, 0, length);
-		for (int i = 0; i < chars.length; i++)
-			if (Character.isISOControl(chars[i]) && chars[i] != '\n' && chars[i] != '\r' && chars[i] != '\t')
-				chars[i] = ' ';
-		pendingChars.append(chars);
+		for (int i = start; i < start + length; i++) {
+			if (isControlCharacter(ch[i]))
+				pendingChars.append(' ');
+			else
+				pendingChars.append(ch[i]);
+		}
+	}
+
+	private static boolean isControlCharacter(final char ch) {
+		return Character.isISOControl(ch) && ch != '\n' && ch != '\r' && ch != '\t';
 	}
 
 	public void endDocument() {
@@ -176,7 +185,7 @@ public class DocumentBuilder implements ContentHandler, LexicalHandler {
 			documentContentModel.initialize(baseUri, dtdPublicID, dtdSystemID, rootElement);
 			policy = documentContentModel.getWhitespacePolicy();
 		}
-		
+
 		appendChars(isBlock(element));
 
 		stack.add(new StackEntry(element, content.getLength(), isPre(element)));
@@ -206,6 +215,28 @@ public class DocumentBuilder implements ContentHandler, LexicalHandler {
 	// ============================================== LexicalHandler methods
 
 	public void comment(final char[] ch, final int start, final int length) {
+		System.out.println("Comment: " + Arrays.toString(ch) + " start: " + start + " length: " + length);
+		System.out.println("Element Stack: " + stack);
+
+		if (stack.isEmpty()) // TODO support comments outside of the root element
+			return;
+
+		final CommentElement element = new CommentElement();
+		final Element parent = stack.getLast().element;
+		parent.addChild(element);
+
+		appendChars(true); // comments are handled as block elements
+		final int startOffset = content.getLength();
+		content.insertElementMarker(content.getLength());
+
+		trimLeading = true; // comments are handled as block elements
+		appendPendingCharsFiltered(ch, start, length);
+		appendChars(true); // comments are handled as block elements
+
+		content.insertElementMarker(content.getLength());
+		element.setContent(content, startOffset, content.getLength() - 1);
+		
+		trimLeading = true; // comments are handled as block elements
 	}
 
 	public void endCDATA() {

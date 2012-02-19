@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<!DOCTYPE section PUBLIC "-//Eclipse Foundation//DTD Vex Test//EN" "test1.dtd">
+<!-- A comment before the root element. -->
+<section>
+	<!-- A comment within the root element. -->
+	<title>Testdocument with DTD <!--  A comment within text. -->(Public Identifier)</title>
+	<!-- Another comment between two child elements. -->
+	<para>This is a Testdocument using a DTD which is referenced by a public identifier.</para>
+</section>
+<!-- A final comment after the root element. -->

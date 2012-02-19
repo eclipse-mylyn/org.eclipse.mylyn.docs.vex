@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.dom;
 
+import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -18,6 +19,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.List;
 
 import org.eclipse.vex.core.tests.TestResources;
 import org.eclipse.wst.xml.core.internal.contentmodel.CMDocument;
@@ -120,5 +122,23 @@ public class DocumentReaderTest {
 		reader.read(TestResources.get("documentWithDtdPublic.xml"));
 		assertEquals(2, documentContentModelPosition[0]);
 		assertEquals(1, entityResolverPosition[0]);
+	}
+	
+	@Test
+	public void readDocumentWithComments() throws Exception {
+		final DocumentReader reader = new DocumentReader();
+		final Document document = reader.read(TestResources.get("documentWithComments.xml"));
+		final Element rootElement = document.getRootElement();
+		final List<Node> rootChildNodes = rootElement.getChildNodes();
+		assertEquals(4, rootChildNodes.size());
+		
+		final CommentElement comment1 = (CommentElement) rootChildNodes.get(0);
+		assertEquals("A comment within the root element.", comment1.getText());
+		
+		final CommentElement comment2 = (CommentElement) ((Element) rootChildNodes.get(1)).getChildNodes().get(1);
+		assertEquals("A comment within text.", comment2.getText());
+
+		final CommentElement comment3 = (CommentElement) rootChildNodes.get(2);
+		assertEquals("Another comment between two child elements.", comment3.getText());
 	}
 }
