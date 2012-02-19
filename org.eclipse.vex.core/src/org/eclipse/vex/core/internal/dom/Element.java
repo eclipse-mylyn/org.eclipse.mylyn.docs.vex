@@ -290,6 +290,10 @@ public class Element extends Node implements Cloneable {
 	public String getNamespacePrefix(final String namespaceURI) {
 		if (namespaceURI == null)
 			return null;
+		if (Namespace.XML_NAMESPACE_URI.equals(namespaceURI))
+			return Namespace.XML_NAMESPACE_PREFIX;
+		if (Namespace.XMLNS_NAMESPACE_URI.equals(namespaceURI))
+			return Namespace.XMLNS_NAMESPACE_PREFIX;
 		for (Entry<String, String> entry: namespaceDeclarations.entrySet())
 			if (entry.getValue().equals(namespaceURI))
 				return entry.getKey();
