@@ -224,7 +224,7 @@ public class Element extends Node implements Cloneable {
 		final StringBuilder sb = new StringBuilder(s.length());
 		for (int i = 0; i < s.length(); i++) {
 			char c = s.charAt(i);
-			if (c != 0) {
+			if (!getContent().isElementMarker(c)) {
 				sb.append(c);
 			}
 		}
