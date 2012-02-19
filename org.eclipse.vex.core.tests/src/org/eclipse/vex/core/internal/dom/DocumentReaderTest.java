@@ -27,9 +27,6 @@ import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
-/**
- * @author Florian Thienel
- */
 public class DocumentReaderTest {
 
 	@Test
