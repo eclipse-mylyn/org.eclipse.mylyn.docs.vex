@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 Florian Thienel and others.
+ * Copyright (c) 2012 Florian Thienel and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,10 +17,12 @@ import org.eclipse.core.runtime.QualifiedName;
  */
 public class CommentElement extends Element {
 
-	public static final QualifiedName COMMENT_ELEMENT_NAME = new QualifiedName(null, "!COMMENT");
+	public static final QualifiedName ELEMENT_NAME = new QualifiedName(null, "[COMMENT]");
+	
+	public static final String CSS_RULE_NAME = "COMMENT";
 	
 	public CommentElement() {
-		super(COMMENT_ELEMENT_NAME);
+		super(ELEMENT_NAME);
 	}
 
 }

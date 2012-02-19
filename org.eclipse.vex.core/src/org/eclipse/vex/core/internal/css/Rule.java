@@ -19,6 +19,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
 
+import org.eclipse.vex.core.internal.dom.CommentElement;
 import org.eclipse.vex.core.internal.dom.Element;
 import org.eclipse.vex.core.internal.dom.RootElement;
 import org.w3c.css.sac.AttributeCondition;
@@ -132,6 +133,9 @@ public class Rule {
 				if (element instanceof PseudoElement) {
 					final AttributeCondition ac = (AttributeCondition) cs.getCondition();
 					return ac.getValue().equals(element.getLocalName()) && matches(cs.getSimpleSelector(), element.getParent());
+				} else if (element instanceof CommentElement) {
+					final AttributeCondition ac = (AttributeCondition) cs.getCondition();
+					return CommentElement.CSS_RULE_NAME.equals(ac.getValue()) && matches(cs.getSimpleSelector(), element.getParent());
 				} else
 					return false;
 			} else
