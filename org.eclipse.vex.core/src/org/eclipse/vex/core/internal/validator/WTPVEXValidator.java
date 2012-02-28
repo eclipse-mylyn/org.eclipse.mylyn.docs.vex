@@ -25,6 +25,7 @@ import java.util.Set;
 
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.vex.core.internal.dom.Attribute;
+import org.eclipse.vex.core.internal.dom.CommentElement;
 import org.eclipse.vex.core.internal.dom.DocumentContentModel;
 import org.eclipse.vex.core.internal.dom.Element;
 import org.eclipse.vex.core.internal.dom.Validator;
@@ -50,7 +51,10 @@ public class WTPVEXValidator implements Validator {
 		@Override
 		public boolean isPCData(final Object o) {
 			return "#PCDATA".equals(o);
-		};
+		}
+		public boolean isIgnorable(Object o) {
+			return CommentElement.ELEMENT_NAME.toString().equals(o);
+		}
 	};
 
 	private final DocumentContentModel documentContentModel;
