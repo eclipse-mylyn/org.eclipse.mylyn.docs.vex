@@ -167,6 +167,11 @@
             id="org.eclipse.vex.ui.SplitItemCommand"
             name="%command.splitItem.name">
       </command>
+      <command
+            categoryId="org.eclipse.vex.ui.commands.category"
+            id="org.eclipse.vex.ui.AddCommentCommand"
+            name="%command.addComment.name">
+      </command>
       
    </extension>
    <extension
@@ -219,6 +224,12 @@
             contextId="org.eclipse.vex.ui.VexEditorContext"
             sequence="M2+RETURN"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
+      </key>
+      <key
+            commandId="org.eclipse.vex.ui.AddCommentCommand"
+            contextId="org.eclipse.vex.ui.VexEditorContext"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="M1+7">
       </key>key>
 
    </extension>
@@ -236,6 +247,15 @@
       <handler
             class="org.eclipse.vex.ui.internal.namespace.EditNamespacesHandler"
             commandId="org.eclipse.vex.ui.EditNamespacesCommand">
+         <activeWhen>
+            <reference
+                  definitionId="org.eclipse.vex.ui.activeVexEditor">
+            </reference>
+         </activeWhen>
+      </handler>
+      <handler
+            class="org.eclipse.vex.ui.internal.handlers.AddCommentHandler"
+            commandId="org.eclipse.vex.ui.AddCommentCommand">
          <activeWhen>
             <reference
                   definitionId="org.eclipse.vex.ui.activeVexEditor">
@@ -657,6 +677,11 @@
                <command
                      commandId="org.eclipse.vex.ui.AddElementCommand"
                      label="%menu.Add.Element.name">
+               </command>
+               <command
+                     commandId="org.eclipse.vex.ui.AddCommentCommand"
+                     label="%menu.Add.Comment.name"
+                     style="push">
                </command>
                <command
                      commandId="org.eclipse.vex.ui.AddRowAboveCommand"
