@@ -11,7 +11,6 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.dom;
 
-import java.util.Arrays;
 import java.util.LinkedList;
 
 import org.eclipse.core.runtime.Assert;
@@ -215,9 +214,6 @@ public class DocumentBuilder implements ContentHandler, LexicalHandler {
 	// ============================================== LexicalHandler methods
 
 	public void comment(final char[] ch, final int start, final int length) {
-		System.out.println("Comment: " + Arrays.toString(ch) + " start: " + start + " length: " + length);
-		System.out.println("Element Stack: " + stack);
-
 		if (stack.isEmpty()) // TODO support comments outside of the root element
 			return;
 

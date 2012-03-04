@@ -25,4 +25,9 @@ public class CommentElement extends Element {
 		super(ELEMENT_NAME);
 	}
 
+	@Override
+	public CommentElement clone() {
+		return new CommentElement();
+	}
+	
 }

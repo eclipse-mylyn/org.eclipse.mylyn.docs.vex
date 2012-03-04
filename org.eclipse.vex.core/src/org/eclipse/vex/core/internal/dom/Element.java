@@ -55,7 +55,7 @@ public class Element extends Node implements Cloneable {
 		child.setParent(this);
 	}
 
-	public Object clone() {
+	public Element clone() {
 		try {
 			final Element element = new Element(getQualifiedName());
 			//add the attributes to the element instance to be cloned

@@ -773,14 +773,8 @@ public class Document {
 	 *            parent for the cloned Element
 	 */
 	private Element cloneElement(final Element original, final Content content, final int shift, final Element parent) {
-		final Element clone = new Element(original.getQualifiedName());
+		final Element clone = original.clone();
 		clone.setContent(content, original.getStartOffset() + shift, original.getEndOffset() + shift);
-		for (final Attribute attribute : original.getAttributes())
-			try {
-				clone.setAttribute(attribute.getQualifiedName(), attribute.getValue());
-			} catch (final DocumentValidationException ex) {
-				throw new RuntimeException("Unexpected exception: " + ex);
-			}
 		clone.setParent(parent);
 
 		final List<Element> children = original.getChildElements();

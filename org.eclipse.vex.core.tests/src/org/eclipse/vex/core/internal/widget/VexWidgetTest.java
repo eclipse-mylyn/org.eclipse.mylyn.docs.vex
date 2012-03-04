@@ -16,12 +16,17 @@ import static org.eclipse.vex.core.tests.TestResources.TEST_DTD;
 import static org.junit.Assert.assertEquals;
 
 import java.util.Arrays;
+import java.util.List;
 
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.vex.core.internal.css.StyleSheet;
+import org.eclipse.vex.core.internal.dom.CommentElement;
 import org.eclipse.vex.core.internal.dom.Document;
+import org.eclipse.vex.core.internal.dom.DocumentFragment;
 import org.eclipse.vex.core.internal.dom.Element;
+import org.eclipse.vex.core.internal.dom.Node;
 import org.eclipse.vex.core.internal.dom.RootElement;
+import org.eclipse.vex.core.internal.dom.Text;
 import org.eclipse.vex.core.internal.dom.Validator;
 import org.eclipse.vex.core.internal.validator.WTPVEXValidator;
 import org.junit.Test;
@@ -69,6 +74,38 @@ public class VexWidgetTest {
 		// FIXME: maybe the schema is still not what I mean
 	}
 
+	@Test
+	public void undoRemoveCommentTag() throws Exception {
+		final VexWidgetImpl widget = new VexWidgetImpl(new MockHostComponent());
+		widget.setDocument(createDocument(STRUCTURE_NS, "chapter"), StyleSheet.NULL);
+		widget.insertElement(new Element(new QualifiedName(CONTENT_NS, "p")));
+		widget.insertText("text before comment");
+		widget.insertElement(new CommentElement());
+		final Element commentElement = widget.getDocument().getElementAt(widget.getCaretOffset());
+		widget.insertText("comment text");
+		widget.moveBy(1);
+		widget.insertText("text after comment");
+		
+		final String expectedContentStructure = getContentStructure(widget.getDocument().getRootElement());
+
+		widget.doWork(new Runnable() {
+			public void run() {
+                widget.moveTo(commentElement.getStartOffset() + 1, false);
+                widget.moveTo(commentElement.getEndOffset(), true);
+                final DocumentFragment fragment = widget.getSelectedFragment();
+                widget.deleteSelection();
+                widget.moveBy(-1, false);
+                widget.moveBy(2, true);
+                widget.deleteSelection();
+                widget.insertFragment(fragment);
+			}
+		});
+		
+		widget.undo();
+		
+		assertEquals(expectedContentStructure, getContentStructure(widget.getDocument().getRootElement()));
+	}
+
 	private static Document createDocumentWithDTD(final String dtdIdentifier, final String rootElementName) {
 		final Validator validator = new WTPVEXValidator(dtdIdentifier);
 		final Document document = new Document(new RootElement(rootElementName));
@@ -97,4 +134,28 @@ public class VexWidgetTest {
 		return result;
 	}
 
+	private static String getContentStructure(final Element element) {
+		final StringBuilder result = new StringBuilder();
+		result.append("<").append(element.getQualifiedName()).append(" (").append(element.getStartOffset()).append("-").append(element.getEndOffset()).append(")");
+		result.append(" ").append(element.getText());
+		List<Node> children = element.getChildNodes();
+		if (!children.isEmpty()) {
+			result.append(" [");
+			for (final Node child : children) {
+				if (child instanceof Element)
+					result.append(getContentStructure((Element) child));
+				else if (child instanceof Text)
+					result.append(getContentStructure((Text) child));
+			}
+			result.append("]");
+		}
+		result.append(">");
+		return result.toString();
+	}
+
+	private static String getContentStructure(final Text text) {
+		final StringBuilder result = new StringBuilder();
+		result.append("'(").append(text.getStartOffset()).append("-").append(text.getEndOffset()).append(") ").append(text.getText()).append("'");
+		return result.toString();
+	}
 }
