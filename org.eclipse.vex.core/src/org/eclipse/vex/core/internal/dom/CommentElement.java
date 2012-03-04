@@ -17,7 +17,7 @@ import org.eclipse.core.runtime.QualifiedName;
  */
 public class CommentElement extends Element {
 
-	public static final QualifiedName ELEMENT_NAME = new QualifiedName(null, "[COMMENT]");
+	public static final QualifiedName ELEMENT_NAME = new QualifiedName(null, "<!-- COMMENT -->");
 	
 	public static final String CSS_RULE_NAME = "COMMENT";
 	
