@@ -20,7 +20,7 @@
       <editor
             name="%VexEditor.name"
             extensions="xml"
-            icon="$nl$/vex16.gif"
+            icon="$nl$/icons/vex16.gif"
             class="org.eclipse.vex.ui.internal.editor.VexEditor"
             contributorClass="org.eclipse.vex.ui.internal.editor.VexActionBarContributor"
             id="org.eclipse.vex.ui.VexEditor">
@@ -39,7 +39,7 @@
       </category>
       <wizard
             name="%NewDocumentWizard.name"
-            icon="$nl$/vex16.gif"
+            icon="$nl$/icons/vex16.gif"
             category="org.eclipse.vex.XMLAuthoringCategory"
             class="org.eclipse.vex.ui.internal.wizards.NewDocumentWizard"
             id="org.eclipse.vex.ui.NewDocumentWizard">
@@ -53,7 +53,7 @@
          point="org.eclipse.ui.perspectives">
       <perspective
             name="%DocumentPerspective.name"
-            icon="$nl$/vex16.gif"
+            icon="$nl$/icons/vex16.gif"
             class="org.eclipse.vex.ui.internal.perspective.DocumentPerspective"
             id="org.eclipse.vex.ui.DocumentPerspective">
       </perspective>
@@ -482,7 +482,7 @@
       </category>
       <view
             name="%DebugView.name"
-            icon="$nl$/vex16.gif"
+            icon="$nl$/icons/vex16.gif"
             category="org.eclipse.vex.ui.views.VexViewCategory"
             class="org.eclipse.vex.ui.internal.views.DebugView"
             id="org.eclipse.vex.ui.views.debug">
@@ -490,7 +490,7 @@
       <view
             category="org.eclipse.vex.ui.views.VexViewCategory"
             class="org.eclipse.vex.ui.internal.config.ConfigurationView"
-            icon="$nl$/vex16.gif"
+            icon="$nl$/icons/vex16.gif"
             id="org.eclipse.vex.ui.views.configuration"
             name="%ConfigurationView.name">
       </view>

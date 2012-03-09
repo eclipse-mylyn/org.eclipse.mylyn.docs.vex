@@ -1,19 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
+   <description>
+      Visual Editor for XML (Incubating)
+   </description>
    <feature url="features/org.eclipse.vex.feature_1.0.0.qualifier.jar" id="org.eclipse.vex.feature" version="1.0.0.qualifier">
       <category name="vex_core"/>
    </feature>
    <feature url="features/org.eclipse.vex.sdk.feature_1.0.0.qualifier.jar" id="org.eclipse.vex.sdk.feature" version="1.0.0.qualifier">
       <category name="vex_sdk"/>
    </feature>
-   <category-def name="vex_core" label="Vex Core">
+   <category-def name="vex_core" label="Visual Editor for XML (Incubating)">
       <description>
-         Vex Core Plugins.  Contains the core functionality as well as built in support for DocBook and DITA.
+         The Vex XML editor for document-style XML documents, including support for XHTML, DocBook and DITA.
       </description>
    </category-def>
-   <category-def name="vex_sdk" label="Vex SDK Source">
+   <category-def name="vex_sdk" label="Vex SDK (Incubating)">
       <description>
-         SDK Feature that contains source bundles that can be installed.
+         The Vex SDK contains all source bundles of the Visual Editor for XML.
       </description>
    </category-def>
 </site>
