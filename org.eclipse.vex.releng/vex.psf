@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<psf version="2.0">
+<provider id="org.eclipse.egit.core.GitProvider">
+<project reference="1.0,http://git.eclipse.org/gitroot/mylyn/org.eclipse.mylyn.docs.vex.git,master,org.eclipse.vex"/>
+<project reference="1.0,http://git.eclipse.org/gitroot/mylyn/org.eclipse.mylyn.docs.vex.git,master,org.eclipse.vex.core"/>
+<project reference="1.0,http://git.eclipse.org/gitroot/mylyn/org.eclipse.mylyn.docs.vex.git,master,org.eclipse.vex.core.tests"/>
+<project reference="1.0,http://git.eclipse.org/gitroot/mylyn/org.eclipse.mylyn.docs.vex.git,master,org.eclipse.vex.dita"/>
+<project reference="1.0,http://git.eclipse.org/gitroot/mylyn/org.eclipse.mylyn.docs.vex.git,master,org.eclipse.vex.docbook"/>
+<project reference="1.0,http://git.eclipse.org/gitroot/mylyn/org.eclipse.mylyn.docs.vex.git,master,org.eclipse.vex.documentation"/>
+<project reference="1.0,http://git.eclipse.org/gitroot/mylyn/org.eclipse.mylyn.docs.vex.git,master,org.eclipse.vex.feature"/>
+<project reference="1.0,http://git.eclipse.org/gitroot/mylyn/org.eclipse.mylyn.docs.vex.git,master,org.eclipse.vex.projectplan"/>
+<project reference="1.0,http://git.eclipse.org/gitroot/mylyn/org.eclipse.mylyn.docs.vex.git,master,org.eclipse.vex.releng"/>
+<project reference="1.0,http://git.eclipse.org/gitroot/mylyn/org.eclipse.mylyn.docs.vex.git,master,org.eclipse.vex.repository"/>
+<project reference="1.0,http://git.eclipse.org/gitroot/mylyn/org.eclipse.mylyn.docs.vex.git,master,org.eclipse.vex.sdk.feature"/>
+<project reference="1.0,http://git.eclipse.org/gitroot/mylyn/org.eclipse.mylyn.docs.vex.git,master,org.eclipse.vex.tests"/>
+<project reference="1.0,http://git.eclipse.org/gitroot/mylyn/org.eclipse.mylyn.docs.vex.git,master,org.eclipse.vex.ui"/>
+<project reference="1.0,http://git.eclipse.org/gitroot/mylyn/org.eclipse.mylyn.docs.vex.git,master,org.eclipse.vex.ui.tests"/>
+<project reference="1.0,http://git.eclipse.org/gitroot/mylyn/org.eclipse.mylyn.docs.vex.git,master,org.eclipse.vex.xhtml"/>
+</provider>
+</psf>
