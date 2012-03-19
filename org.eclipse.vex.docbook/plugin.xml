@@ -3,14 +3,14 @@
 <plugin>
 
 	<extension point="org.eclipse.core.contenttype.contentTypes">
-		<content-type id="org.eclipse.vex.ui.docbook4_5" name="%contentType.name"
+		<content-type id="org.eclipse.vex.ui.docbook" name="%contentType.name"
 			base-type="org.eclipse.vex.ui.XmlDocument" file-extensions="xml, docbook">
 		</content-type>
 	</extension>
  <extension
        point="org.eclipse.wst.xml.core.catalogContributions">
     <catalogContribution
-          id="default">
+          id="docbook4_5">
        <public
              publicId="-//OASIS//DTD DocBook XML V4.5//EN"
              uri="4.5/docbookx.dtd"
@@ -23,6 +23,42 @@
     </catalogContribution>
  </extension>
 
+ <extension
+       point="org.eclipse.wst.xml.core.catalogContributions">
+    <catalogContribution
+          id="docbook5_0">
+       <public
+             publicId="-//OASIS//DTD DocBook XML 5.0//EN"
+             uri="5.0/dtd/docbook.dtd"
+             webURL="http://www.oasis-open.org/docbook/xml/5.0/docbook.dtd">
+       </public>
+       <uri
+             name="http://www.oasis-open.org/docbook/xml/5.0/xsd/docbook.xsd"
+             uri="5.0/xsd/docbook.xsd">
+       </uri>
+       <uri
+             name="http://docbook.org/xml/5.0/xsd/docbook.xsd"
+             uri="5.0/xsd/docbook.xsd">
+       </uri>
+       <uri
+             name="http://www.oasis-open.org/docbook/xml/5.0/xsd/xlink.xsd"
+             uri="5.0/xsd/xlink.xsd">
+       </uri>
+       <uri
+             name="http://docbook.org/xml/5.0/xsd/xlink.xsd"
+             uri="5.0/xsd/xlink.xsd">
+       </uri>
+       <uri
+             name="http://www.oasis-open.org/docbook/xml/5.0/xsd/xml.xsd"
+             uri="5.0/xsd/xml.xsd">
+       </uri>
+       <uri
+             name="http://docbook.org/xml/5.0/xsd/xml.xsd"
+             uri="5.0/xsd/xml.xsd">
+       </uri>
+    </catalogContribution>
+ </extension>
+ 
    <extension
          id="docbook4_5"
          name="%doctype.docbook4_5"
@@ -66,6 +102,132 @@
    </extension>
 
    <extension
+         id="docbook5_0_DTD"
+         name="%doctype.docbook5_0_DTD"
+         point="org.eclipse.vex.ui.doctypes">
+      <doctype
+            outlineProvider="org.eclipse.vex.docbook.DocBookOutlineProvider"
+            publicId="-//OASIS//DTD DocBook XML 5.0//EN"
+            systemId="http://www.oasis-open.org/docbook/xml/5.0/docbook.dtd">
+            
+         <rootElement
+               name="article">
+         </rootElement>
+         <rootElement
+               name="appendix">
+         </rootElement>
+         <rootElement
+               name="book">
+         </rootElement>
+         <rootElement
+               name="chapter">
+         </rootElement>
+         <rootElement
+               name="sect1">
+         </rootElement>
+         <rootElement
+               name="sect2">
+         </rootElement>
+         <rootElement
+               name="sect3">
+         </rootElement>
+         <rootElement
+               name="sect4">
+         </rootElement>
+         <rootElement
+               name="sect5">
+         </rootElement>
+         <rootElement
+               name="section">
+         </rootElement>
+      </doctype>
+   </extension>
+
+   <extension
+         id="docbook5_0_XSD1"
+         name="%doctype.docbook5_0_XSD1"
+         point="org.eclipse.vex.ui.doctypes">
+      <doctype
+            outlineProvider="org.eclipse.vex.docbook.DocBookOutlineProvider"
+            publicId="http://www.oasis-open.org/docbook/xml/5.0/xsd/docbook.xsd"
+            systemId="5.0/xsd/docbook.xsd">
+            
+         <rootElement
+               name="article">
+         </rootElement>
+         <rootElement
+               name="appendix">
+         </rootElement>
+         <rootElement
+               name="book">
+         </rootElement>
+         <rootElement
+               name="chapter">
+         </rootElement>
+         <rootElement
+               name="sect1">
+         </rootElement>
+         <rootElement
+               name="sect2">
+         </rootElement>
+         <rootElement
+               name="sect3">
+         </rootElement>
+         <rootElement
+               name="sect4">
+         </rootElement>
+         <rootElement
+               name="sect5">
+         </rootElement>
+         <rootElement
+               name="section">
+         </rootElement>
+      </doctype>
+   </extension>
+
+   <extension
+         id="docbook5_0_XSD2"
+         name="%doctype.docbook5_0_XSD2"
+         point="org.eclipse.vex.ui.doctypes">
+      <doctype
+            outlineProvider="org.eclipse.vex.docbook.DocBookOutlineProvider"
+            publicId="http://docbook.org/xml/5.0/xsd/docbook.xsd"
+            systemId="5.0/xsd/docbook.xsd">
+            
+         <rootElement
+               name="article">
+         </rootElement>
+         <rootElement
+               name="appendix">
+         </rootElement>
+         <rootElement
+               name="book">
+         </rootElement>
+         <rootElement
+               name="chapter">
+         </rootElement>
+         <rootElement
+               name="sect1">
+         </rootElement>
+         <rootElement
+               name="sect2">
+         </rootElement>
+         <rootElement
+               name="sect3">
+         </rootElement>
+         <rootElement
+               name="sect4">
+         </rootElement>
+         <rootElement
+               name="sect5">
+         </rootElement>
+         <rootElement
+               name="section">
+         </rootElement>
+      </doctype>
+   </extension>
+
+   <extension
          id="docbook-plain"
          name="%style.docbook-plain"
          point="org.eclipse.vex.ui.styles">
@@ -73,6 +235,9 @@
             css="styles/docbook-plain.css">
          <doctypeRef publicId="-//OASIS//DTD Simplified DocBook XML V1.1//EN"/>
          <doctypeRef publicId="-//OASIS//DTD DocBook XML V4.5//EN"/>
+         <doctypeRef publicId="-//OASIS//DTD DocBook XML 5.0//EN"/>
+         <doctypeRef publicId="http://www.oasis-open.org/docbook/xml/5.0/xsd/docbook.xsd"/>
+         <doctypeRef publicId="http://docbook.org/xml/5.0/xsd/docbook.xsd"/>
       </style>
    </extension>
 
