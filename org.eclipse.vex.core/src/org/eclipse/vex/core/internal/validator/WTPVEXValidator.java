@@ -180,14 +180,12 @@ public class WTPVEXValidator implements Validator {
 	private AttributeDefinition createAttributeDefinition(final CMAttributeDeclaration attribute) {
 		@SuppressWarnings("deprecation")
 		final String defaultValue = attribute.getDefaultValue();
-		String[] values = null;
+		final String[] values = attribute.getAttrType().getEnumeratedValues();
 		AttributeDefinition.Type type = null;
-		if (attribute.getAttrType().equals(CMDataType.ENUM)) {
+		if (attribute.getAttrType().getDataTypeName().equals(CMDataType.ENUM)) {
 			type = AttributeDefinition.Type.ENUMERATION;
-			values = attribute.getAttrType().getEnumeratedValues();
-		} else if (attribute.getAttrType().equals(CMDataType.NOTATION)) {
+		} else if (attribute.getAttrType().getDataTypeName().equals(CMDataType.NOTATION)) {
 			type = AttributeDefinition.Type.ENUMERATION;
-			values = attribute.getAttrType().getEnumeratedValues();
 		} else
 			type = AttributeDefinition.Type.get(attribute.getAttrType().getDataTypeName());
 		final boolean required = attribute.getUsage() == CMAttributeDeclaration.REQUIRED;

@@ -47,6 +47,17 @@ public class DTDValidatorTest extends TestCase {
 
 		assertSame(adType, adType2);
 	}
+	
+	public void testEnumAttribute() throws Exception {
+		final Document doc = new Document(new RootElement("section"));
+		doc.setValidator(validator);
+		final Element sectionElement = doc.getRootElement();
+		final AttributeDefinition attributeDefinition = validator.getAttributeDefinitions(sectionElement).get(0);
+		assertEquals("enatt", attributeDefinition.getName());
+
+		final String[] enumValues = attributeDefinition.getValues();
+		assertEquals(3, enumValues.length);
+	}
 
 	// public void testEmptyDTD() throws Exception {
 	// VEXDocument doc;

@@ -12,4 +12,5 @@
 
 <!-- a dummy attribute, just to make sure attribute def serialization is OK -->
 <!ATTLIST section
-	name	CDATA	#IMPLIED>
+	name	CDATA	#IMPLIED
+	enatt (value1|value2|value3) #IMPLIED>
