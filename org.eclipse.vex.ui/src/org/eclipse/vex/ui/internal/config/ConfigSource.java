@@ -235,16 +235,15 @@ public abstract class ConfigSource {
 		parsedResources.clear();
 		for (final ConfigItem item : items) {
 			final URI uri = item.getResourceUri();
-			if (!parsedResources.containsKey(uri)) {
-				final IConfigItemFactory factory = getConfigItemFactory(item.getExtensionPointId());
-				try {
-					final Object parsedResource = factory.parseResource(item, getBaseUrl(), uri.toString(), problemHandler);
-					if (parsedResource != null)
-						parsedResources.put(uri, parsedResource);
-				} catch (final IOException ex) {
-					final String message = MessageFormat.format(Messages.getString("ConfigSource.errorParsingUri"), new Object[] { uri });
-					VexPlugin.getDefault().log(IStatus.ERROR, message, ex);
-				}
+			if (uri == null || parsedResources.containsKey(uri)) continue;
+			final IConfigItemFactory factory = getConfigItemFactory(item.getExtensionPointId());
+			try {
+				final Object parsedResource = factory.parseResource(item, getBaseUrl(), uri.toString(), problemHandler);
+				if (parsedResource != null)
+					parsedResources.put(uri, parsedResource);
+			} catch (final IOException ex) {
+				final String message = MessageFormat.format(Messages.getString("ConfigSource.errorParsingUri"), new Object[] { uri });
+				VexPlugin.getDefault().log(IStatus.ERROR, message, ex);
 			}
 		}
 	}
