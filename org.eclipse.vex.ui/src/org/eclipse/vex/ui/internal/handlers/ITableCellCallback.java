@@ -12,35 +12,43 @@ package org.eclipse.vex.ui.internal.handlers;
 
 /**
  * Callback interface to iterate over table cells (visitor pattern).
- *
+ * 
  * @see TableCellCallbackAdapter
  */
 public interface ITableCellCallback {
 
-    /**
-     * Called before the first cell in a row is visited.
-     *
-     * @param row element or IntRange representing the row
-     * @param rowIndex zero-based index of the row
-     */
-    public void startRow(Object row, int rowIndex);
+	/**
+	 * Called before the first cell in a row is visited.
+	 * 
+	 * @param row
+	 *            element or IntRange representing the row
+	 * @param rowIndex
+	 *            zero-based index of the row
+	 */
+	public void startRow(Object row, int rowIndex);
 
-    /**
-     * Called when a cell is visited.
-     *
-     * @param row element or IntRange representing the row
-     * @param cell element or IntRange representing the cell
-     * @param rowIndex zero-based index of the current row
-     * @param cellIndex zero-based index of the current cell
-     */
-    public void onCell(Object row, Object cell, int rowIndex, int cellIndex);
+	/**
+	 * Called when a cell is visited.
+	 * 
+	 * @param row
+	 *            element or IntRange representing the row
+	 * @param cell
+	 *            element or IntRange representing the cell
+	 * @param rowIndex
+	 *            zero-based index of the current row
+	 * @param cellIndex
+	 *            zero-based index of the current cell
+	 */
+	public void onCell(Object row, Object cell, int rowIndex, int cellIndex);
 
-    /**
-     * Called after the last cell in a row is visited.
-     *
-     * @param row element or IntRange representing the row
-     * @param rowIndex zero-based index of the row
-     */
-    public void endRow(Object row, int rowIndex);
+	/**
+	 * Called after the last cell in a row is visited.
+	 * 
+	 * @param row
+	 *            element or IntRange representing the row
+	 * @param rowIndex
+	 *            zero-based index of the row
+	 */
+	public void endRow(Object row, int rowIndex);
 
 }

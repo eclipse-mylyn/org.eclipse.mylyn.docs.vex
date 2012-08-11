@@ -15,6 +15,8 @@ package org.eclipse.vex.core.internal.undo;
  */
 public class CannotUndoException extends RuntimeException {
 
+	private static final long serialVersionUID = 1L;
+
 	/**
 	 * Class constructor.
 	 */
@@ -27,7 +29,7 @@ public class CannotUndoException extends RuntimeException {
 	 * @param message
 	 *            Message indicating the reason for the failure.
 	 */
-	public CannotUndoException(String message) {
+	public CannotUndoException(final String message) {
 		super(message);
 	}
 
@@ -37,7 +39,7 @@ public class CannotUndoException extends RuntimeException {
 	 * @param cause
 	 *            Root cause of the failure.
 	 */
-	public CannotUndoException(Throwable cause) {
+	public CannotUndoException(final Throwable cause) {
 		super(cause);
 	}
 
@@ -49,7 +51,7 @@ public class CannotUndoException extends RuntimeException {
 	 * @param cause
 	 *            Root cause of the failure.
 	 */
-	public CannotUndoException(String message, Throwable cause) {
+	public CannotUndoException(final String message, final Throwable cause) {
 		super(message, cause);
 	}
 

@@ -95,7 +95,7 @@ public class VexEditor extends EditorPart {
 	 * ID of this editor extension.
 	 */
 	public static final String ID = "org.eclipse.vex.ui.internal.editor.VexEditor"; //$NON-NLS-1$
-	
+
 	private final boolean debugging;
 	private final ConfigurationRegistry configurationRegistry;
 	private final VexPreferences preferences;
@@ -113,8 +113,7 @@ public class VexEditor extends EditorPart {
 	private int savedUndoDepth;
 	private boolean wasDirty;
 
-	private final ListenerList<IVexEditorListener, VexEditorEvent> vexEditorListeners = new ListenerList<IVexEditorListener, VexEditorEvent>(
-			IVexEditorListener.class);
+	private final ListenerList<IVexEditorListener, VexEditorEvent> vexEditorListeners = new ListenerList<IVexEditorListener, VexEditorEvent>(IVexEditorListener.class);
 
 	private final SelectionProvider selectionProvider = new SelectionProvider();
 
@@ -141,13 +140,15 @@ public class VexEditor extends EditorPart {
 	public void dispose() {
 		super.dispose();
 
-		if (parentControl != null)
+		if (parentControl != null) {
 			// createPartControl was called, so we must de-register from config
 			// events
 			configurationRegistry.removeConfigListener(configListener);
+		}
 
-		if (getEditorInput() instanceof IFileEditorInput)
+		if (getEditorInput() instanceof IFileEditorInput) {
 			ResourcesPlugin.getWorkspace().removeResourceChangeListener(resourceChangeListener);
+		}
 
 	}
 
@@ -182,11 +183,12 @@ public class VexEditor extends EditorPart {
 			MessageDialog.openError(getEditorSite().getShell(), title, message);
 			VexPlugin.getDefault().log(IStatus.ERROR, message, ex);
 		} finally {
-			if (os != null)
+			if (os != null) {
 				try {
 					os.close();
 				} catch (final IOException e) {
 				}
+			}
 			resourceChangeListener.setSaving(false);
 		}
 	}
@@ -198,7 +200,7 @@ public class VexEditor extends EditorPart {
 		result.setWrapColumn(preferences.getLineWidth());
 		return result;
 	}
-	
+
 	@Override
 	public void doSaveAs() {
 		final SaveAsDialog dlg = new SaveAsDialog(getSite().getShell());
@@ -282,14 +284,16 @@ public class VexEditor extends EditorPart {
 		getEditorSite().setSelectionProvider(selectionProvider);
 		getEditorSite().getSelectionProvider().addSelectionChangedListener(selectionChangedListener);
 
-		if (input instanceof IFileEditorInput)
+		if (input instanceof IFileEditorInput) {
 			ResourcesPlugin.getWorkspace().addResourceChangeListener(resourceChangeListener, IResourceChangeEvent.POST_CHANGE);
+		}
 	}
 
 	protected void loadInput() {
 
-		if (vexWidget != null)
+		if (vexWidget != null) {
 			vexEditorListeners.fireEvent("documentUnloaded", new VexEditorEvent(this)); //$NON-NLS-1$
+		}
 
 		loaded = false;
 
@@ -300,9 +304,9 @@ public class VexEditor extends EditorPart {
 
 			final IFile file;
 
-			if (input instanceof IFileEditorInput)
+			if (input instanceof IFileEditorInput) {
 				file = ((IFileEditorInput) input).getFile();
-			else {
+			} else {
 				final String msg = MessageFormat.format(Messages.getString("VexEditor.unknownInputClass"), //$NON-NLS-1$
 						new Object[] { input.getClass() });
 				showLabel(msg);
@@ -364,11 +368,12 @@ public class VexEditor extends EditorPart {
 				// declined to select another one. Should fail silently.
 				String msg;
 				final NoRegisteredDoctypeException ex2 = (NoRegisteredDoctypeException) ex.getException();
-				if (ex2.getPublicId() == null)
+				if (ex2.getPublicId() == null) {
 					msg = Messages.getString("VexEditor.noDoctype"); //$NON-NLS-1$
-				else
+				} else {
 					msg = MessageFormat.format(Messages.getString("VexEditor.unknownDoctype"), //$NON-NLS-1$
 							new Object[] { ex2.getPublicId() });
+				}
 				showLabel(msg);
 			} else if (ex.getException() instanceof NoStyleForDoctypeException) {
 				final String msg = MessageFormat.format(Messages.getString("VexEditor.noStyles"), //$NON-NLS-1$
@@ -376,8 +381,9 @@ public class VexEditor extends EditorPart {
 				showLabel(msg);
 			} else {
 				String file = ex.getSystemId();
-				if (file == null)
+				if (file == null) {
 					file = input.getName();
+				}
 
 				final String msg = MessageFormat.format(Messages.getString("VexEditor.parseError"), //$NON-NLS-1$
 						new Object[] { Integer.valueOf(ex.getLineNumber()), file, ex.getLocalizedMessage() });
@@ -400,10 +406,11 @@ public class VexEditor extends EditorPart {
 
 	@Override
 	public boolean isDirty() {
-		if (vexWidget != null)
+		if (vexWidget != null) {
 			return savedUndoDepth != vexWidget.getUndoDepth();
-		else
+		} else {
 			return false;
+		}
 	}
 
 	/**
@@ -424,10 +431,11 @@ public class VexEditor extends EditorPart {
 		parentControl = parent;
 
 		configurationRegistry.addConfigListener(configListener);
-		if (configurationRegistry.isLoaded())
+		if (configurationRegistry.isLoaded()) {
 			loadInput();
-		else
+		} else {
 			showLabel(Messages.getString("VexEditor.loading")); //$NON-NLS-1$
+		}
 	}
 
 	/**
@@ -489,8 +497,9 @@ public class VexEditor extends EditorPart {
 
 	private void showVexWidget() {
 
-		if (vexWidget != null)
+		if (vexWidget != null) {
 			return;
+		}
 
 		if (loadingLabel != null) {
 			loadingLabel.dispose();
@@ -553,25 +562,28 @@ public class VexEditor extends EditorPart {
 	private void handleResourceChanged(final IResourceDelta delta) {
 
 		if (delta.getKind() == IResourceDelta.CHANGED) {
-			if ((delta.getFlags() & IResourceDelta.CONTENT) != 0)
+			if ((delta.getFlags() & IResourceDelta.CONTENT) != 0) {
 				handleResourceContentChanged();
-		} else if (delta.getKind() == IResourceDelta.REMOVED)
+			}
+		} else if (delta.getKind() == IResourceDelta.REMOVED) {
 			if ((delta.getFlags() & IResourceDelta.MOVED_TO) != 0) {
 				final IPath toPath = delta.getMovedToPath();
 				final IFile file = ResourcesPlugin.getWorkspace().getRoot().getFile(toPath);
 				setInput(new FileEditorInput(file));
-			} else if (!isDirty())
+			} else if (!isDirty()) {
 				getEditorSite().getPage().closeEditor(this, false);
-			else
+			} else {
 				handleResourceDeleted();
+			}
+		}
 
 	}
 
 	private void handleResourceContentChanged() {
 
-		if (!isDirty())
+		if (!isDirty()) {
 			loadInput();
-		else {
+		} else {
 
 			final String message = MessageFormat.format(Messages.getString("VexEditor.docChanged.message"), //$NON-NLS-1$
 					new Object[] { getEditorInput().getName() });
@@ -583,10 +595,11 @@ public class VexEditor extends EditorPart {
 
 			final int result = dlg.open();
 
-			if (result == 0)
+			if (result == 0) {
 				loadInput();
-			else
+			} else {
 				doSave(null);
+			}
 		}
 	}
 
@@ -602,15 +615,16 @@ public class VexEditor extends EditorPart {
 
 		final int result = dlg.open();
 
-		if (result == 0)
+		if (result == 0) {
 			getEditorSite().getPage().closeEditor(this, false);
-		else { // Save
+		} else { // Save
 
 			doSaveAs();
 
 			// Check if they saved or not. If not, close the editor
-			if (!getEditorInput().exists())
+			if (!getEditorInput().exists()) {
 				getEditorSite().getPage().closeEditor(this, false);
+			}
 		}
 	}
 
@@ -619,8 +633,9 @@ public class VexEditor extends EditorPart {
 		public void configChanged(final ConfigEvent e) {
 			Display.getDefault().asyncExec(new Runnable() {
 				public void run() {
-					if (style == null)
+					if (style == null) {
 						return;
+					}
 
 					final String styleId = style.getUniqueId();
 					final Style newStyle = configurationRegistry.getStyle(styleId);
@@ -664,8 +679,7 @@ public class VexEditor extends EditorPart {
 
 			// update context service
 			final ISourceProviderService service = (ISourceProviderService) window.getService(ISourceProviderService.class);
-			final DocumentContextSourceProvider contextProvider = (DocumentContextSourceProvider) service
-					.getSourceProvider(DocumentContextSourceProvider.IS_COLUMN);
+			final DocumentContextSourceProvider contextProvider = (DocumentContextSourceProvider) service.getSourceProvider(DocumentContextSourceProvider.IS_COLUMN);
 			contextProvider.fireUpdate(vexWidget);
 		}
 	};
@@ -674,17 +688,19 @@ public class VexEditor extends EditorPart {
 
 		public void resourceChanged(final IResourceChangeEvent event) {
 
-			if (saving)
+			if (saving) {
 				return;
+			}
 
 			final IPath path = ((IFileEditorInput) getEditorInput()).getFile().getFullPath();
 			final IResourceDelta delta = event.getDelta().findMember(path);
-			if (delta != null)
+			if (delta != null) {
 				Display.getDefault().asyncExec(new Runnable() {
 					public void run() {
 						handleResourceChanged(delta);
 					}
 				});
+			}
 		}
 
 		public void setSaving(final boolean saving) {
@@ -721,9 +737,9 @@ public class VexEditor extends EditorPart {
 	@Override
 	public Object getAdapter(@SuppressWarnings("rawtypes") final Class adapter) {
 
-		if (adapter == IContentOutlinePage.class)
+		if (adapter == IContentOutlinePage.class) {
 			return new DocumentOutlinePage();
-		else if (adapter == IPropertySheetPage.class) {
+		} else if (adapter == IPropertySheetPage.class) {
 
 			final PropertySheetPage page = new PropertySheetPage();
 			page.setPropertySourceProvider(new IPropertySourceProvider() {
@@ -733,13 +749,14 @@ public class VexEditor extends EditorPart {
 						final boolean multi = sel != null && sel.size() > 1;
 						final Validator validator = vexWidget.getDocument().getValidator();
 						return new ElementPropertySource((Element) object, validator, multi);
-					} else
+					} else {
 						return null;
+					}
 				}
 			});
 			return page;
 
-		} else if (adapter == IFindReplaceTarget.class)
+		} else if (adapter == IFindReplaceTarget.class) {
 			return new AbstractRegExFindReplaceTarget() {
 
 				@Override
@@ -791,8 +808,9 @@ public class VexEditor extends EditorPart {
 				}
 
 			};
-		else
+		} else {
 			return super.getAdapter(adapter);
+		}
 	}
 
 }

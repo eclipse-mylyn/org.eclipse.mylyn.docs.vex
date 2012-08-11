@@ -28,20 +28,20 @@ public class GapContentTest {
 		assertEquals(1, content.getLength());
 		assertTrue(content.isElementMarker(content.getString(0, content.getLength()).charAt(0)));
 	}
-	
+
 	@Test
 	public void insertMultipleElementMarkers() throws Exception {
 		final GapContent elementMarkerContent = new GapContent(4);
 		elementMarkerContent.insertElementMarker(0);
 		elementMarkerContent.insertElementMarker(0);
-		
+
 		final GapContent stringContent = new GapContent(4);
 		stringContent.insertString(0, "\0\0");
-		
+
 		assertEquals(stringContent.getLength(), elementMarkerContent.getLength());
 		assertEquals(stringContent.getString(0, stringContent.getLength()), elementMarkerContent.getString(0, elementMarkerContent.getLength()));
 	}
-	
+
 	@Test
 	public void testGapContent() throws Exception {
 		//
@@ -50,7 +50,7 @@ public class GapContentTest {
 		// 0 1 2 3 4
 		//
 
-		GapContent content = new GapContent(2);
+		final GapContent content = new GapContent(2);
 		assertEquals(0, content.getLength());
 		content.insertString(0, "a");
 		assertEquals(1, content.getLength());
@@ -61,46 +61,46 @@ public class GapContentTest {
 		content.insertString(1, "b");
 		assertEquals(4, content.getLength());
 
-		Position pa = content.createPosition(0);
-		Position pb = content.createPosition(1);
-		Position pc = content.createPosition(2);
-		Position pd = content.createPosition(3);
-		Position pe = content.createPosition(4);
+		final Position pa = content.createPosition(0);
+		final Position pb = content.createPosition(1);
+		final Position pc = content.createPosition(2);
+		final Position pd = content.createPosition(3);
+		final Position pe = content.createPosition(4);
 
 		try {
 			content.getString(-1, 1);
 			fail("expected exception");
-		} catch (IllegalArgumentException ex) {
+		} catch (final IllegalArgumentException ex) {
 		}
 
 		try {
 			content.getString(4, 1);
 			fail("expected exception");
-		} catch (IllegalArgumentException ex) {
+		} catch (final IllegalArgumentException ex) {
 		}
 
 		try {
 			content.getString(0, -1);
 			fail("expected exception");
-		} catch (IllegalArgumentException ex) {
+		} catch (final IllegalArgumentException ex) {
 		}
 
 		try {
 			content.getString(0, 5);
 			fail("expected exception");
-		} catch (IllegalArgumentException ex) {
+		} catch (final IllegalArgumentException ex) {
 		}
 
 		try {
 			content.createPosition(-1);
 			fail("expected exception");
-		} catch (IllegalArgumentException ex) {
+		} catch (final IllegalArgumentException ex) {
 		}
 
 		try {
 			content.createPosition(5);
 			fail("expected exception");
-		} catch (IllegalArgumentException ex) {
+		} catch (final IllegalArgumentException ex) {
 		}
 
 		assertEquals("a", content.getString(0, 1));
@@ -133,8 +133,8 @@ public class GapContentTest {
 		assertEquals(5, pd.getOffset());
 		assertEquals(6, pe.getOffset());
 
-		Position px = content.createPosition(2);
-		Position py = content.createPosition(3);
+		final Position px = content.createPosition(2);
+		final Position py = content.createPosition(3);
 
 		content.remove(2, 2);
 

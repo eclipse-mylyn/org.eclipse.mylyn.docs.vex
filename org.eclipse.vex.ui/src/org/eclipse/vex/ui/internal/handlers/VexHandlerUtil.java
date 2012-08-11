@@ -40,553 +40,513 @@ import org.eclipse.vex.ui.internal.swt.VexWidget;
  */
 public final class VexHandlerUtil {
 
-    public static VexWidget computeWidget(ExecutionEvent event)
-            throws ExecutionException {
+	public static VexWidget computeWidget(final ExecutionEvent event) throws ExecutionException {
 
-        IEditorPart activeEditor = HandlerUtil.getActiveEditor(event);
-        assertNotNull(activeEditor);
+		final IEditorPart activeEditor = HandlerUtil.getActiveEditor(event);
+		assertNotNull(activeEditor);
 
-        VexWidget widget = null;
-        if (activeEditor instanceof VexEditor) 
-            widget = ((VexEditor) activeEditor).getVexWidget();
-        assertNotNull(widget);
-        return widget;
-    }
-
-    public static VexWidget computeWidget(IWorkbenchWindow window) {
-        VexEditor editor = computeVexEditor(window);
-        if (editor == null) return null;
-        return editor.getVexWidget();
-    }
-
-    public static VexEditor computeVexEditor(IWorkbenchWindow window) {
-        IEditorPart activeEditor = window.getActivePage().getActiveEditor();
-        if (activeEditor == null) return null;
-
-        if (activeEditor instanceof VexEditor)
-            return (VexEditor) activeEditor;
-        return null;
-    }
-
-    private static void assertNotNull(Object object) throws ExecutionException {
-        if (object == null) {
-            throw new ExecutionException("Can not compute VexWidget.");
-        }
-    }
-
-    public static class RowColumnInfo {
-        public Object row;
-        public Object cell;
-        public int rowIndex;
-        public int cellIndex;
-        public int rowCount;
-        public int columnCount;
-        public int maxColumnCount;
-    }
-
-    /**
-     * Clone the table cells from the given TableRowBox to the current offset in
-     * vexWidget.
-     *
-     * @param vexWidget
-     *            IVexWidget to modify.
-     * @param tr
-     *            TableRowBox whose cells are to be cloned.
-     * @param moveToFirstCell
-     *            TODO
-     */
-    public static void cloneTableCells(final IVexWidget vexWidget,
-            final TableRowBox tr, final boolean moveToFirstCell) {
-        vexWidget.doWork(new Runnable() {
-            public void run() {
-
-                int offset = vexWidget.getCaretOffset();
-
-                boolean firstCellIsAnonymous = false;
-                Box[] cells = tr.getChildren();
-                for (int i = 0; i < cells.length; i++) {
-                    if (cells[i].isAnonymous()) {
-                        vexWidget.insertText(" ");
-                        if (i == 0) {
-                            firstCellIsAnonymous = true;
-                        }
-                    } else {
-                        vexWidget.insertElement((Element) cells[i].getElement()
-                                .clone());
-                        vexWidget.moveBy(+1);
-                    }
-                }
-
-                if (moveToFirstCell) {
-                    vexWidget.moveTo(offset + 1);
-                    if (firstCellIsAnonymous) {
-                        vexWidget.moveBy(-1, true);
-                    }
-                }
-            }
-        });
-    }
-
-    /**
-     * Duplicate the given table row, inserting a new empty one below it. The
-     * new row contains empty children corresponding to the given row's
-     * children.
-     *
-     * @param vexWidget
-     *            IVexWidget with which we're working
-     * @param tr
-     *            TableRowBox to be duplicated.
-     */
-    public static void duplicateTableRow(final IVexWidget vexWidget,
-            final TableRowBox tr) {
-        vexWidget.doWork(new Runnable() {
-            public void run() {
-
-                vexWidget.moveTo(tr.getEndOffset());
-
-                if (!tr.isAnonymous()) {
-                    vexWidget.moveBy(+1); // Move past sentinel in current row
-                    vexWidget.insertElement((Element) tr.getElement().clone());
-                }
-
-                cloneTableCells(vexWidget, tr, true);
-            }
-        });
-    }
-
-    /**
-     * Returns true if the given element or range is at least partially
-     * selected.
-     *
-     * @param vexWidget
-     *            IVexWidget being tested.
-     * @param elementOrRange
-     *            Element or IntRange being tested.
-     */
-    public static boolean elementOrRangeIsPartiallySelected(
-            IVexWidget vexWidget, Object elementOrRange) {
-        IntRange range = getInnerRange(elementOrRange);
-        return range.getEnd() >= vexWidget.getSelectionStart()
-                && range.getStart() <= vexWidget.getSelectionEnd();
-    }
-
-    /**
-     * Returns the zero-based index of the table column containing the current
-     * offset. Returns -1 if we are not inside a table.
-     */
-    public static int getCurrentColumnIndex(IVexWidget vexWidget) {
-
-        Element row = getCurrentTableRow(vexWidget);
-
-        if (row == null) {
-            return -1;
-        }
-
-        final int offset = vexWidget.getCaretOffset();
-        final int[] column = new int[] { -1 };
-        LayoutUtils.iterateTableCells(vexWidget.getStyleSheet(), row,
-                new ElementOrRangeCallback() {
-                    private int i = 0;
-
-                    public void onElement(Element child, String displayStyle) {
-                        if (offset > child.getStartOffset()
-                                && offset <= child.getEndOffset()) {
-                            column[0] = i;
-                        }
-                        i++;
-                    }
-
-                    public void onRange(Element parent, int startOffset,
-                            int endOffset) {
-                        i++;
-                    }
-                });
-
-        return column[0];
-    }
-
-    /**
-     * Returns the innermost Element with style table-row containing the caret,
-     * or null if no such element exists.
-     *
-     * @param vexWidget
-     *            IVexWidget to use.
-     */
-    public static Element getCurrentTableRow(IVexWidget vexWidget) {
-
-        StyleSheet ss = vexWidget.getStyleSheet();
-        Element element = vexWidget.getCurrentElement();
-
-        while (element != null) {
-            if (ss.getStyles(element).getDisplay().equals(CSS.TABLE_ROW)) {
-                return element;
-            }
-            element = element.getParent();
-        }
-
-        return null;
-    }
-
-    /**
-     * Returns the start offset of the next sibling of the parent element.
-     * Returns -1 if there is no previous sibling in the parent.
-     *
-     * @param vexWidget
-     *            VexWidget to use.
-     */
-    public static int getPreviousSiblingStart(IVexWidget vexWidget) {
-        int startOffset;
-
-        if (vexWidget.hasSelection()) {
-            startOffset = vexWidget.getSelectionStart();
-        } else {
-            Box box = vexWidget.findInnermostBox(new IBoxFilter() {
-                public boolean matches(Box box) {
-                    return box instanceof BlockBox && box.getElement() != null;
-                }
-            });
-
-            if (box.getElement() == vexWidget.getDocument().getRootElement()) {
-                return -1;
-            }
-
-            startOffset = box.getElement().getStartOffset();
-        }
-
-        int previousSiblingStart = -1;
-        Element parent = vexWidget.getDocument().getElementAt(startOffset);
-        List<Node> children = parent.getChildNodes();
-        for (Node child : children) {
-        	if (startOffset == child.getStartOffset()) {
-                break;
-            }
-            previousSiblingStart = child.getStartOffset();			
+		VexWidget widget = null;
+		if (activeEditor instanceof VexEditor) {
+			widget = ((VexEditor) activeEditor).getVexWidget();
 		}
-        return previousSiblingStart;
-    }
+		assertNotNull(widget);
+		return widget;
+	}
 
-    /**
-     * Returns an array of the selected block boxes. Text nodes between boxes
-     * are not returned. If the selection does not enclose any block boxes,
-     * returns an empty array.
-     *
-     * @param vexWidget
-     *            VexWidget to use.
-     */
-    public static BlockBox[] getSelectedBlockBoxes(final IVexWidget vexWidget) {
-
-        if (!vexWidget.hasSelection()) {
-            return new BlockBox[0];
-        }
-
-        Box parent = vexWidget.findInnermostBox(new IBoxFilter() {
-            public boolean matches(Box box) {
-                System.out.println("Matching " + box);
-                return box instanceof BlockBox
-                        && box.getStartOffset() <= vexWidget
-                                .getSelectionStart()
-                        && box.getEndOffset() >= vexWidget.getSelectionEnd();
-            }
-        });
-
-        System.out.println("Matched " + parent);
-
-        List<BlockBox> blockList = new ArrayList<BlockBox>();
-
-        Box[] children = parent.getChildren();
-        System.out.println("Parent has " + children.length + " children");
-        for (Box child : children) {
-        	if (child instanceof BlockBox
-                    && child.getStartOffset() >= vexWidget.getSelectionStart()
-                    && child.getEndOffset() <= vexWidget.getSelectionEnd()) {
-                System.out.println("  adding " + child);
-                blockList.add((BlockBox) child);
-            } else {
-                System.out.println("  skipping " + child);
-            }
+	public static VexWidget computeWidget(final IWorkbenchWindow window) {
+		final VexEditor editor = computeVexEditor(window);
+		if (editor == null) {
+			return null;
 		}
-        return blockList.toArray(new BlockBox[blockList.size()]);
-    }
+		return editor.getVexWidget();
+	}
 
-    /**
-     * Returns the currently selected table rows, or the current row if ther is
-     * no selection. If no row can be found, returns an empty array.
-     *
-     * @param vexWidget
-     *            IVexWidget to use.
-     */
-    public static SelectedRows getSelectedTableRows(final IVexWidget vexWidget) {
-        final SelectedRows selected = new SelectedRows();
+	public static VexEditor computeVexEditor(final IWorkbenchWindow window) {
+		final IEditorPart activeEditor = window.getActivePage().getActiveEditor();
+		if (activeEditor == null) {
+			return null;
+		}
 
-        VexHandlerUtil.iterateTableCells(vexWidget,
-                                         new TableCellCallbackAdapter() {
-            public void startRow(Object row, int rowIndex) {
-                if (VexHandlerUtil.elementOrRangeIsPartiallySelected(vexWidget,
-                        row)) {
-                    if (selected.rows == null) {
-                        selected.rows = new ArrayList<Object>();
-                    }
-                    selected.rows.add(row);
-                } else {
-                    if (selected.rows == null) {
-                        selected.rowBefore = row;
-                    } else {
-                        if (selected.rowAfter == null) {
-                            selected.rowAfter = row;
-                        }
-                    }
-                }
-            }
-        });
+		if (activeEditor instanceof VexEditor) {
+			return (VexEditor) activeEditor;
+		}
+		return null;
+	}
 
-        return selected;
-    }
+	private static void assertNotNull(final Object object) throws ExecutionException {
+		if (object == null) {
+			throw new ExecutionException("Can not compute VexWidget.");
+		}
+	}
 
-    public static void iterateTableCells(IVexWidget vexWidget,
-            final ITableCellCallback callback) {
+	public static class RowColumnInfo {
+		public Object row;
+		public Object cell;
+		public int rowIndex;
+		public int cellIndex;
+		public int rowCount;
+		public int columnCount;
+		public int maxColumnCount;
+	}
 
-        final StyleSheet ss = vexWidget.getStyleSheet();
+	/**
+	 * Clone the table cells from the given TableRowBox to the current offset in vexWidget.
+	 * 
+	 * @param vexWidget
+	 *            IVexWidget to modify.
+	 * @param tr
+	 *            TableRowBox whose cells are to be cloned.
+	 * @param moveToFirstCell
+	 *            TODO
+	 */
+	public static void cloneTableCells(final IVexWidget vexWidget, final TableRowBox tr, final boolean moveToFirstCell) {
+		vexWidget.doWork(new Runnable() {
+			public void run() {
 
-        iterateTableRows(vexWidget, new ElementOrRangeCallback() {
+				final int offset = vexWidget.getCaretOffset();
 
-            final private int[] rowIndex = { 0 };
+				boolean firstCellIsAnonymous = false;
+				final Box[] cells = tr.getChildren();
+				for (int i = 0; i < cells.length; i++) {
+					if (cells[i].isAnonymous()) {
+						vexWidget.insertText(" ");
+						if (i == 0) {
+							firstCellIsAnonymous = true;
+						}
+					} else {
+						vexWidget.insertElement(cells[i].getElement().clone());
+						vexWidget.moveBy(+1);
+					}
+				}
 
-            public void onElement(final Element row, String displayStyle) {
+				if (moveToFirstCell) {
+					vexWidget.moveTo(offset + 1);
+					if (firstCellIsAnonymous) {
+						vexWidget.moveBy(-1, true);
+					}
+				}
+			}
+		});
+	}
 
-                callback.startRow(row, rowIndex[0]);
+	/**
+	 * Duplicate the given table row, inserting a new empty one below it. The new row contains empty children
+	 * corresponding to the given row's children.
+	 * 
+	 * @param vexWidget
+	 *            IVexWidget with which we're working
+	 * @param tr
+	 *            TableRowBox to be duplicated.
+	 */
+	public static void duplicateTableRow(final IVexWidget vexWidget, final TableRowBox tr) {
+		vexWidget.doWork(new Runnable() {
+			public void run() {
 
-                LayoutUtils.iterateTableCells(ss, row,
-                        new ElementOrRangeCallback() {
-                            private int cellIndex = 0;
+				vexWidget.moveTo(tr.getEndOffset());
 
-                            public void onElement(Element cell,
-                                    String displayStyle) {
-                                callback.onCell(row, cell, rowIndex[0],
-                                        cellIndex);
-                                cellIndex++;
-                            }
+				if (!tr.isAnonymous()) {
+					vexWidget.moveBy(+1); // Move past sentinel in current row
+					vexWidget.insertElement(tr.getElement().clone());
+				}
 
-                            public void onRange(Element parent,
-                                    int startOffset, int endOffset) {
-                                callback.onCell(row, new IntRange(startOffset,
-                                        endOffset), rowIndex[0], cellIndex);
-                                cellIndex++;
-                            }
-                        });
+				cloneTableCells(vexWidget, tr, true);
+			}
+		});
+	}
 
-                callback.endRow(row, rowIndex[0]);
+	/**
+	 * Returns true if the given element or range is at least partially selected.
+	 * 
+	 * @param vexWidget
+	 *            IVexWidget being tested.
+	 * @param elementOrRange
+	 *            Element or IntRange being tested.
+	 */
+	public static boolean elementOrRangeIsPartiallySelected(final IVexWidget vexWidget, final Object elementOrRange) {
+		final IntRange range = getInnerRange(elementOrRange);
+		return range.getEnd() >= vexWidget.getSelectionStart() && range.getStart() <= vexWidget.getSelectionEnd();
+	}
 
-                rowIndex[0]++;
-            }
+	/**
+	 * Returns the zero-based index of the table column containing the current offset. Returns -1 if we are not inside a
+	 * table.
+	 */
+	public static int getCurrentColumnIndex(final IVexWidget vexWidget) {
 
-            public void onRange(Element parent, final int startOffset,
-                    final int endOffset) {
+		final Element row = getCurrentTableRow(vexWidget);
 
-                final IntRange row = new IntRange(startOffset, endOffset);
-                callback.startRow(row, rowIndex[0]);
+		if (row == null) {
+			return -1;
+		}
 
-                LayoutUtils.iterateTableCells(ss, parent, startOffset,
-                        endOffset, new ElementOrRangeCallback() {
-                            private int cellIndex = 0;
+		final int offset = vexWidget.getCaretOffset();
+		final int[] column = new int[] { -1 };
+		LayoutUtils.iterateTableCells(vexWidget.getStyleSheet(), row, new ElementOrRangeCallback() {
+			private int i = 0;
 
-                            public void onElement(Element cell,
-                                    String displayStyle) {
-                                callback.onCell(row, cell, rowIndex[0],
-                                        cellIndex);
-                                cellIndex++;
-                            }
+			public void onElement(final Element child, final String displayStyle) {
+				if (offset > child.getStartOffset() && offset <= child.getEndOffset()) {
+					column[0] = i;
+				}
+				i++;
+			}
 
-                            public void onRange(Element parent,
-                                    int startOffset, int endOffset) {
-                                callback.onCell(row, new IntRange(startOffset,
-                                        endOffset), rowIndex[0], cellIndex);
-                                cellIndex++;
-                            }
-                        });
+			public void onRange(final Element parent, final int startOffset, final int endOffset) {
+				i++;
+			}
+		});
 
-                callback.endRow(row, rowIndex[0]);
+		return column[0];
+	}
 
-                rowIndex[0]++;
-            }
-        });
-    }
+	/**
+	 * Returns the innermost Element with style table-row containing the caret, or null if no such element exists.
+	 * 
+	 * @param vexWidget
+	 *            IVexWidget to use.
+	 */
+	public static Element getCurrentTableRow(final IVexWidget vexWidget) {
 
-    /**
-     * Returns a RowColumnInfo structure containing information about the table
-     * containing the caret. Returns null if the caret is not currently inside a
-     * table.
-     *
-     * @param vexWidget
-     *            IVexWidget to inspect.
-     */
-    public static RowColumnInfo getRowColumnInfo(IVexWidget vexWidget) {
+		final StyleSheet ss = vexWidget.getStyleSheet();
+		Element element = vexWidget.getCurrentElement();
 
-        final boolean[] found = new boolean[1];
-        final RowColumnInfo[] rcInfo = new RowColumnInfo[] { new RowColumnInfo() };
-        final int offset = vexWidget.getCaretOffset();
+		while (element != null) {
+			if (ss.getStyles(element).getDisplay().equals(CSS.TABLE_ROW)) {
+				return element;
+			}
+			element = element.getParent();
+		}
 
-        rcInfo[0].cellIndex = -1;
-        rcInfo[0].rowIndex = -1;
+		return null;
+	}
 
-        iterateTableCells(vexWidget, new ITableCellCallback() {
+	/**
+	 * Returns the start offset of the next sibling of the parent element. Returns -1 if there is no previous sibling in
+	 * the parent.
+	 * 
+	 * @param vexWidget
+	 *            VexWidget to use.
+	 */
+	public static int getPreviousSiblingStart(final IVexWidget vexWidget) {
+		int startOffset;
 
-            private int rowColumnCount;
+		if (vexWidget.hasSelection()) {
+			startOffset = vexWidget.getSelectionStart();
+		} else {
+			final Box box = vexWidget.findInnermostBox(new IBoxFilter() {
+				public boolean matches(final Box box) {
+					return box instanceof BlockBox && box.getElement() != null;
+				}
+			});
 
-            public void startRow(Object row, int rowIndex) {
-                rowColumnCount = 0;
-            }
+			if (box.getElement() == vexWidget.getDocument().getRootElement()) {
+				return -1;
+			}
 
-            public void onCell(Object row, Object cell, int rowIndex,
-                    int cellIndex) {
-                found[0] = true;
-                if (LayoutUtils.elementOrRangeContains(row, offset)) {
-                    rcInfo[0].row = row;
-                    rcInfo[0].rowIndex = rowIndex;
-                    rcInfo[0].columnCount++;
+			startOffset = box.getElement().getStartOffset();
+		}
 
-                    if (LayoutUtils.elementOrRangeContains(cell, offset)) {
-                        rcInfo[0].cell = cell;
-                        rcInfo[0].cellIndex = cellIndex;
-                    }
-                }
+		int previousSiblingStart = -1;
+		final Element parent = vexWidget.getDocument().getElementAt(startOffset);
+		final List<Node> children = parent.getChildNodes();
+		for (final Node child : children) {
+			if (startOffset == child.getStartOffset()) {
+				break;
+			}
+			previousSiblingStart = child.getStartOffset();
+		}
+		return previousSiblingStart;
+	}
 
-                rowColumnCount++;
-            }
+	/**
+	 * Returns an array of the selected block boxes. Text nodes between boxes are not returned. If the selection does
+	 * not enclose any block boxes, returns an empty array.
+	 * 
+	 * @param vexWidget
+	 *            VexWidget to use.
+	 */
+	public static BlockBox[] getSelectedBlockBoxes(final IVexWidget vexWidget) {
 
-            public void endRow(Object row, int rowIndex) {
-                rcInfo[0].rowCount++;
-                rcInfo[0].maxColumnCount = Math.max(rcInfo[0].maxColumnCount,
-                        rowColumnCount);
-            }
-        });
+		if (!vexWidget.hasSelection()) {
+			return new BlockBox[0];
+		}
 
-        if (found[0]) {
-            return rcInfo[0];
-        } else {
-            return null;
-        }
-    }
+		final Box parent = vexWidget.findInnermostBox(new IBoxFilter() {
+			public boolean matches(final Box box) {
+				System.out.println("Matching " + box);
+				return box instanceof BlockBox && box.getStartOffset() <= vexWidget.getSelectionStart() && box.getEndOffset() >= vexWidget.getSelectionEnd();
+			}
+		});
 
-    /**
-     * Iterate over all rows in the table containing the caret.
-     *
-     * @param vexWidget
-     *            IVexWidget to iterate over.
-     * @param callback
-     *            Caller-provided callback that this method calls for each row
-     *            in the current table.
-     */
-    public static void iterateTableRows(IVexWidget vexWidget,
-            ElementOrRangeCallback callback) {
+		System.out.println("Matched " + parent);
 
-        final StyleSheet ss = vexWidget.getStyleSheet();
-        final Document doc = vexWidget.getDocument();
-        final int offset = vexWidget.getCaretOffset();
+		final List<BlockBox> blockList = new ArrayList<BlockBox>();
 
-        // This may or may not be a table
-        // In any case, it's the element that contains the top-level table
-        // children
-        Element table = doc.getElementAt(offset);
+		final Box[] children = parent.getChildren();
+		System.out.println("Parent has " + children.length + " children");
+		for (final Box child : children) {
+			if (child instanceof BlockBox && child.getStartOffset() >= vexWidget.getSelectionStart() && child.getEndOffset() <= vexWidget.getSelectionEnd()) {
+				System.out.println("  adding " + child);
+				blockList.add((BlockBox) child);
+			} else {
+				System.out.println("  skipping " + child);
+			}
+		}
+		return blockList.toArray(new BlockBox[blockList.size()]);
+	}
 
-        while (table != null && !LayoutUtils.isTableChild(ss, table)) {
-            table = table.getParent();
-        }
+	/**
+	 * Returns the currently selected table rows, or the current row if ther is no selection. If no row can be found,
+	 * returns an empty array.
+	 * 
+	 * @param vexWidget
+	 *            IVexWidget to use.
+	 */
+	public static SelectedRows getSelectedTableRows(final IVexWidget vexWidget) {
+		final SelectedRows selected = new SelectedRows();
 
-        while (table != null && LayoutUtils.isTableChild(ss, table)) {
-            table = table.getParent();
-        }
+		VexHandlerUtil.iterateTableCells(vexWidget, new TableCellCallbackAdapter() {
+			@Override
+			public void startRow(final Object row, final int rowIndex) {
+				if (VexHandlerUtil.elementOrRangeIsPartiallySelected(vexWidget, row)) {
+					if (selected.rows == null) {
+						selected.rows = new ArrayList<Object>();
+					}
+					selected.rows.add(row);
+				} else {
+					if (selected.rows == null) {
+						selected.rowBefore = row;
+					} else {
+						if (selected.rowAfter == null) {
+							selected.rowAfter = row;
+						}
+					}
+				}
+			}
+		});
 
-        if (table == null || table.getParent() == null) {
-            return;
-        }
+		return selected;
+	}
 
-        final List<Element> tableChildren = new ArrayList<Element>();
-        final boolean[] found = new boolean[] { false };
-        LayoutUtils.iterateChildrenByDisplayStyle(ss,
-                LayoutUtils.TABLE_CHILD_STYLES, table,
-                new ElementOrRangeCallback() {
-                    public void onElement(Element child, String displayStyle) {
-                        if (offset >= child.getStartOffset()
-                                && offset <= child.getEndOffset()) {
-                            found[0] = true;
-                        }
-                        tableChildren.add(child);
-                    }
+	public static void iterateTableCells(final IVexWidget vexWidget, final ITableCellCallback callback) {
 
-                    public void onRange(Element parent, int startOffset,
-                            int endOffset) {
-                        if (!found[0]) {
-                            tableChildren.clear();
-                        }
-                    }
-                });
+		final StyleSheet ss = vexWidget.getStyleSheet();
 
-        if (!found[0]) {
-            return;
-        }
+		iterateTableRows(vexWidget, new ElementOrRangeCallback() {
 
-        int startOffset = tableChildren.get(0).getStartOffset();
-        int endOffset = tableChildren.get(tableChildren.size() - 1).getEndOffset() + 1;
-        LayoutUtils.iterateTableRows(ss, table, startOffset, endOffset,
-                callback);
-    }
+			final private int[] rowIndex = { 0 };
 
-    /**
-     * Returns an IntRange representing the offsets inside the given Element or
-     * IntRange. If an Element is passed, returns the offsets inside the
-     * sentinels. If an IntRange is passed it is returned directly.
-     *
-     * @param elementOrRange
-     *            Element or IntRange to be inspected.
-     */
-    public static IntRange getInnerRange(Object elementOrRange) {
-        if (elementOrRange instanceof Element) {
-            Element element = (Element) elementOrRange;
-            return new IntRange(element.getStartOffset() + 1, element
-                    .getEndOffset());
-        } else {
-            return (IntRange) elementOrRange;
-        }
-    }
+			public void onElement(final Element row, final String displayStyle) {
 
-    /**
-     * Returns an IntRange representing the offsets outside the given Element or
-     * IntRange. If an Element is passed, returns the offsets outside the
-     * sentinels. If an IntRange is passed it is returned directly.
-     *
-     * @param elementOrRange
-     *            Element or IntRange to be inspected.
-     */
-    public static IntRange getOuterRange(Object elementOrRange) {
-        if (elementOrRange instanceof Element) {
-            Element element = (Element) elementOrRange;
-            return new IntRange(element.getStartOffset(), element
-                    .getEndOffset() + 1);
-        } else {
-            return (IntRange) elementOrRange;
-        }
-    }
+				callback.startRow(row, rowIndex[0]);
 
-    public static class SelectedRows {
+				LayoutUtils.iterateTableCells(ss, row, new ElementOrRangeCallback() {
+					private int cellIndex = 0;
 
-        private SelectedRows() {
-        }
+					public void onElement(final Element cell, final String displayStyle) {
+						callback.onCell(row, cell, rowIndex[0], cellIndex);
+						cellIndex++;
+					}
 
-        public List<Object> getRows() {
-            return this.rows;
-        }
+					public void onRange(final Element parent, final int startOffset, final int endOffset) {
+						callback.onCell(row, new IntRange(startOffset, endOffset), rowIndex[0], cellIndex);
+						cellIndex++;
+					}
+				});
 
-        public Object getRowBefore() {
-            return this.rowBefore;
-        }
+				callback.endRow(row, rowIndex[0]);
 
-        public Object getRowAfter() {
-            return this.rowAfter;
-        }
+				rowIndex[0]++;
+			}
 
-        private List<Object> rows;
-        private Object rowBefore;
-        private Object rowAfter;
-    }
+			public void onRange(final Element parent, final int startOffset, final int endOffset) {
+
+				final IntRange row = new IntRange(startOffset, endOffset);
+				callback.startRow(row, rowIndex[0]);
+
+				LayoutUtils.iterateTableCells(ss, parent, startOffset, endOffset, new ElementOrRangeCallback() {
+					private int cellIndex = 0;
+
+					public void onElement(final Element cell, final String displayStyle) {
+						callback.onCell(row, cell, rowIndex[0], cellIndex);
+						cellIndex++;
+					}
+
+					public void onRange(final Element parent, final int startOffset, final int endOffset) {
+						callback.onCell(row, new IntRange(startOffset, endOffset), rowIndex[0], cellIndex);
+						cellIndex++;
+					}
+				});
+
+				callback.endRow(row, rowIndex[0]);
+
+				rowIndex[0]++;
+			}
+		});
+	}
+
+	/**
+	 * Returns a RowColumnInfo structure containing information about the table containing the caret. Returns null if
+	 * the caret is not currently inside a table.
+	 * 
+	 * @param vexWidget
+	 *            IVexWidget to inspect.
+	 */
+	public static RowColumnInfo getRowColumnInfo(final IVexWidget vexWidget) {
+
+		final boolean[] found = new boolean[1];
+		final RowColumnInfo[] rcInfo = new RowColumnInfo[] { new RowColumnInfo() };
+		final int offset = vexWidget.getCaretOffset();
+
+		rcInfo[0].cellIndex = -1;
+		rcInfo[0].rowIndex = -1;
+
+		iterateTableCells(vexWidget, new ITableCellCallback() {
+
+			private int rowColumnCount;
+
+			public void startRow(final Object row, final int rowIndex) {
+				rowColumnCount = 0;
+			}
+
+			public void onCell(final Object row, final Object cell, final int rowIndex, final int cellIndex) {
+				found[0] = true;
+				if (LayoutUtils.elementOrRangeContains(row, offset)) {
+					rcInfo[0].row = row;
+					rcInfo[0].rowIndex = rowIndex;
+					rcInfo[0].columnCount++;
+
+					if (LayoutUtils.elementOrRangeContains(cell, offset)) {
+						rcInfo[0].cell = cell;
+						rcInfo[0].cellIndex = cellIndex;
+					}
+				}
+
+				rowColumnCount++;
+			}
+
+			public void endRow(final Object row, final int rowIndex) {
+				rcInfo[0].rowCount++;
+				rcInfo[0].maxColumnCount = Math.max(rcInfo[0].maxColumnCount, rowColumnCount);
+			}
+		});
+
+		if (found[0]) {
+			return rcInfo[0];
+		} else {
+			return null;
+		}
+	}
+
+	/**
+	 * Iterate over all rows in the table containing the caret.
+	 * 
+	 * @param vexWidget
+	 *            IVexWidget to iterate over.
+	 * @param callback
+	 *            Caller-provided callback that this method calls for each row in the current table.
+	 */
+	public static void iterateTableRows(final IVexWidget vexWidget, final ElementOrRangeCallback callback) {
+
+		final StyleSheet ss = vexWidget.getStyleSheet();
+		final Document doc = vexWidget.getDocument();
+		final int offset = vexWidget.getCaretOffset();
+
+		// This may or may not be a table
+		// In any case, it's the element that contains the top-level table
+		// children
+		Element table = doc.getElementAt(offset);
+
+		while (table != null && !LayoutUtils.isTableChild(ss, table)) {
+			table = table.getParent();
+		}
+
+		while (table != null && LayoutUtils.isTableChild(ss, table)) {
+			table = table.getParent();
+		}
+
+		if (table == null || table.getParent() == null) {
+			return;
+		}
+
+		final List<Element> tableChildren = new ArrayList<Element>();
+		final boolean[] found = new boolean[] { false };
+		LayoutUtils.iterateChildrenByDisplayStyle(ss, LayoutUtils.TABLE_CHILD_STYLES, table, new ElementOrRangeCallback() {
+			public void onElement(final Element child, final String displayStyle) {
+				if (offset >= child.getStartOffset() && offset <= child.getEndOffset()) {
+					found[0] = true;
+				}
+				tableChildren.add(child);
+			}
+
+			public void onRange(final Element parent, final int startOffset, final int endOffset) {
+				if (!found[0]) {
+					tableChildren.clear();
+				}
+			}
+		});
+
+		if (!found[0]) {
+			return;
+		}
+
+		final int startOffset = tableChildren.get(0).getStartOffset();
+		final int endOffset = tableChildren.get(tableChildren.size() - 1).getEndOffset() + 1;
+		LayoutUtils.iterateTableRows(ss, table, startOffset, endOffset, callback);
+	}
+
+	/**
+	 * Returns an IntRange representing the offsets inside the given Element or IntRange. If an Element is passed,
+	 * returns the offsets inside the sentinels. If an IntRange is passed it is returned directly.
+	 * 
+	 * @param elementOrRange
+	 *            Element or IntRange to be inspected.
+	 */
+	public static IntRange getInnerRange(final Object elementOrRange) {
+		if (elementOrRange instanceof Element) {
+			final Element element = (Element) elementOrRange;
+			return new IntRange(element.getStartOffset() + 1, element.getEndOffset());
+		} else {
+			return (IntRange) elementOrRange;
+		}
+	}
+
+	/**
+	 * Returns an IntRange representing the offsets outside the given Element or IntRange. If an Element is passed,
+	 * returns the offsets outside the sentinels. If an IntRange is passed it is returned directly.
+	 * 
+	 * @param elementOrRange
+	 *            Element or IntRange to be inspected.
+	 */
+	public static IntRange getOuterRange(final Object elementOrRange) {
+		if (elementOrRange instanceof Element) {
+			final Element element = (Element) elementOrRange;
+			return new IntRange(element.getStartOffset(), element.getEndOffset() + 1);
+		} else {
+			return (IntRange) elementOrRange;
+		}
+	}
+
+	public static class SelectedRows {
+
+		private SelectedRows() {
+		}
+
+		public List<Object> getRows() {
+			return rows;
+		}
+
+		public Object getRowBefore() {
+			return rowBefore;
+		}
+
+		public Object getRowAfter() {
+			return rowAfter;
+		}
+
+		private List<Object> rows;
+		private Object rowBefore;
+		private Object rowAfter;
+	}
 
 }

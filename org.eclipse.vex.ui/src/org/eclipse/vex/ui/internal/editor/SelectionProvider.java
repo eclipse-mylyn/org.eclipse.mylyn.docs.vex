@@ -17,46 +17,43 @@ import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.vex.core.internal.core.ListenerList;
 
 /**
- * Implementation of ISelectionProvider. This class is also an
- * ISelectionChangedListener; any events received by selectionChanged are
- * relayed to registered listeners.
+ * Implementation of ISelectionProvider. This class is also an ISelectionChangedListener; any events received by
+ * selectionChanged are relayed to registered listeners.
  */
-public class SelectionProvider implements ISelectionProvider,
-		ISelectionChangedListener {
+public class SelectionProvider implements ISelectionProvider, ISelectionChangedListener {
 
 	ISelection selection;
-	private ListenerList<ISelectionChangedListener, SelectionChangedEvent> listeners =
-		new ListenerList<ISelectionChangedListener, SelectionChangedEvent>(ISelectionChangedListener.class);
+	private final ListenerList<ISelectionChangedListener, SelectionChangedEvent> listeners = new ListenerList<ISelectionChangedListener, SelectionChangedEvent>(ISelectionChangedListener.class);
 
-	public void addSelectionChangedListener(ISelectionChangedListener listener) {
-		this.listeners.add(listener);
+	public void addSelectionChangedListener(final ISelectionChangedListener listener) {
+		listeners.add(listener);
 	}
 
 	/**
 	 * Fire a SelectionChangedEvent to all registered listeners.
 	 * 
-	 * @param e Event to be passed to the listeners' selectionChanged method.
+	 * @param e
+	 *            Event to be passed to the listeners' selectionChanged method.
 	 */
-	public void fireSelectionChanged(SelectionChangedEvent e) {
-		this.selection = e.getSelection();
-		this.listeners.fireEvent("selectionChanged", e); //$NON-NLS-1$
+	public void fireSelectionChanged(final SelectionChangedEvent e) {
+		selection = e.getSelection();
+		listeners.fireEvent("selectionChanged", e); //$NON-NLS-1$
 	}
 
 	public ISelection getSelection() {
-		return this.selection;
+		return selection;
 	}
 
-	public void removeSelectionChangedListener(
-			ISelectionChangedListener listener) {
-		this.listeners.remove(listener);
+	public void removeSelectionChangedListener(final ISelectionChangedListener listener) {
+		listeners.remove(listener);
 	}
 
-	public void setSelection(ISelection selection) {
+	public void setSelection(final ISelection selection) {
 		this.selection = selection;
 	}
 
-	public void selectionChanged(SelectionChangedEvent event) {
-		this.fireSelectionChanged(event);
+	public void selectionChanged(final SelectionChangedEvent event) {
+		fireSelectionChanged(event);
 	}
 
 }

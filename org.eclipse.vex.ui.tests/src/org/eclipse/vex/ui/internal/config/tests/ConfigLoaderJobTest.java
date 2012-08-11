@@ -47,7 +47,7 @@ public class ConfigLoaderJobTest {
 
 	@Test
 	public void loadWorkspacePluginConfiguration() throws Exception {
-		IProject pluginProject = PluginProjectTest.createVexPluginProject(name.getMethodName());
+		final IProject pluginProject = PluginProjectTest.createVexPluginProject(name.getMethodName());
 		final ConfigLoaderJob job = new ConfigLoaderJob();
 		job.schedule();
 		job.join();
@@ -55,7 +55,7 @@ public class ConfigLoaderJobTest {
 		assertContainsConfiguration(allConfigSources, name.getMethodName(), pluginProject.getFile("plugintest.dtd"), pluginProject.getFile("plugintest.css"));
 		assertContainsEachPluginOnlyOnce(allConfigSources);
 	}
-	
+
 	@Test
 	public void runRunnableWhenDone() throws Exception {
 		final boolean[] runnableRun = new boolean[2];
@@ -70,7 +70,7 @@ public class ConfigLoaderJobTest {
 		job.join();
 		assertTrue(runnableRun[0]);
 		assertFalse(runnableRun[1]);
-		
+
 		runnableRun[0] = false;
 		runnableRun[1] = false;
 		job.load(new Runnable() {
@@ -86,19 +86,21 @@ public class ConfigLoaderJobTest {
 	private static void assertContainsConfiguration(final List<ConfigSource> configSources, final String uniqueIdentifier, final String... simpleIds) {
 		for (final ConfigSource configSource : configSources) {
 			if (uniqueIdentifier.equals(configSource.getUniqueIdentifer())) {
-				for (final String simpleId : simpleIds)
+				for (final String simpleId : simpleIds) {
 					assertNotNull(simpleId + " is not configured", configSource.getItem(simpleId));
+				}
 				return;
 			}
 		}
 		fail("Cannot find configuration " + uniqueIdentifier);
 	}
-	
+
 	private static void assertContainsConfiguration(final List<ConfigSource> configSources, final String uniqueIdentifier, final IResource... configuredResources) {
 		for (final ConfigSource configSource : configSources) {
 			if (uniqueIdentifier.equals(configSource.getUniqueIdentifer())) {
-				for (final IResource configuredResource : configuredResources)
+				for (final IResource configuredResource : configuredResources) {
 					assertNotNull(configuredResource + " is not configured", configSource.getItemForResource(configuredResource));
+				}
 				return;
 			}
 		}
@@ -107,8 +109,9 @@ public class ConfigLoaderJobTest {
 
 	private static void assertContainsEachPluginOnlyOnce(final List<ConfigSource> configSources) {
 		final HashSet<String> configSourceIds = new HashSet<String>();
-		for (final ConfigSource configSource : configSources)
+		for (final ConfigSource configSource : configSources) {
 			assertTrue("ConfigRegistry contains " + configSource.getUniqueIdentifer() + " twice.", configSourceIds.add(configSource.getUniqueIdentifer()));
+		}
 	}
 
 }

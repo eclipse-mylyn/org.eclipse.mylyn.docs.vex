@@ -17,8 +17,7 @@ import org.eclipse.vex.core.internal.css.Styles;
 import org.eclipse.vex.core.internal.dom.Element;
 
 /**
- * Represents an element with display:table-cell, or a generated, anonymous
- * table cell.
+ * Represents an element with display:table-cell, or a generated, anonymous table cell.
  */
 public class TableCellBox extends AbstractBlockBox {
 
@@ -32,31 +31,27 @@ public class TableCellBox extends AbstractBlockBox {
 	 * @param element
 	 *            Element with which this box is associated.
 	 */
-	public TableCellBox(LayoutContext context, BlockBox parent,
-			Element element, int width) {
+	public TableCellBox(final LayoutContext context, final BlockBox parent, final Element element, final int width) {
 		super(context, parent, element);
-		Styles styles = context.getStyleSheet().getStyles(element);
-		this.setWidth(width - styles.getBorderLeftWidth()
-				- styles.getPaddingLeft().get(parent.getWidth())
-				- styles.getPaddingRight().get(parent.getWidth())
-				- styles.getBorderRightWidth());
+		final Styles styles = context.getStyleSheet().getStyles(element);
+		setWidth(width - styles.getBorderLeftWidth() - styles.getPaddingLeft().get(parent.getWidth()) - styles.getPaddingRight().get(parent.getWidth()) - styles.getBorderRightWidth());
 	}
 
-	public TableCellBox(LayoutContext context, BlockBox parent,
-			int startOffset, int endOffset, int width) {
+	public TableCellBox(final LayoutContext context, final BlockBox parent, final int startOffset, final int endOffset, final int width) {
 		super(context, parent, startOffset, endOffset);
-		this.setWidth(width);
+		setWidth(width);
 	}
 
-	protected List<Box> createChildren(LayoutContext context) {
-		return this.createBlockBoxes(context, this.getStartOffset(), this
-				.getEndOffset(), this.getWidth(), null, null);
+	@Override
+	protected List<Box> createChildren(final LayoutContext context) {
+		return createBlockBoxes(context, getStartOffset(), getEndOffset(), getWidth(), null, null);
 	}
 
-	public void setInitialSize(LayoutContext context) {
+	@Override
+	public void setInitialSize(final LayoutContext context) {
 		// we've already set width in the ctor
 		// override to avoid setting width again
-		this.setHeight(this.getEstimatedHeight(context));
+		setHeight(getEstimatedHeight(context));
 	}
 
 	// ======================================================= PRIVATE

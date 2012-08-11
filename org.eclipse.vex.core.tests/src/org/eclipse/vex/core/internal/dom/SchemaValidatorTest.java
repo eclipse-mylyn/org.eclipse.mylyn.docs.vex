@@ -158,9 +158,8 @@ public class SchemaValidatorTest {
 	@Test
 	public void validItemsFromComplexSchema() throws Exception {
 		/*
-		 * We have to check this using a document, because B and I are not
-		 * defined as standalone elements. The Validator needs their parent to
-		 * find the definition of their content model.
+		 * We have to check this using a document, because B and I are not defined as standalone elements. The Validator
+		 * needs their parent to find the definition of their content model.
 		 */
 		final Validator validator = new WTPVEXValidator();
 		final Document doc = new Document(new RootElement(CHAPTER));
@@ -183,7 +182,7 @@ public class SchemaValidatorTest {
 		final Set<String> requiredNamespaces = validator.getRequiredNamespaces();
 		assertEquals(1, requiredNamespaces.size());
 	}
-	
+
 	@Test
 	public void getAllRequiredNamespacesForComplexSchema() throws Exception {
 		final Validator validator = new WTPVEXValidator(new DocumentContentModel(null, null, null, new RootElement(CHAPTER)));
@@ -192,7 +191,7 @@ public class SchemaValidatorTest {
 		assertTrue(requiredNamespaces.contains(CONTENT_NS));
 		assertTrue(requiredNamespaces.contains(STRUCTURE_NS));
 	}
-	
+
 	private void assertIsValidSequence(final Validator validator, final QualifiedName parentElement, final QualifiedName... sequence) {
 		for (int i = 0; i < sequence.length; i++) {
 			final List<QualifiedName> prefix = createPrefix(i, sequence);
@@ -205,22 +204,25 @@ public class SchemaValidatorTest {
 
 	private static List<QualifiedName> createPrefix(final int index, final QualifiedName... sequence) {
 		final List<QualifiedName> prefix = new ArrayList<QualifiedName>();
-		for (int i = 0; i < index; i++)
+		for (int i = 0; i < index; i++) {
 			prefix.add(sequence[i]);
+		}
 		return prefix;
 	}
 
 	private static List<QualifiedName> createSuffix(final int index, final QualifiedName... sequence) {
 		final List<QualifiedName> suffix = new ArrayList<QualifiedName>();
-		for (int i = index + 1; i < sequence.length; i++)
+		for (int i = index + 1; i < sequence.length; i++) {
 			suffix.add(sequence[i]);
+		}
 		return suffix;
 	}
 
 	private static void assertValidItems(final Validator validator, final Element element, final QualifiedName... expectedItems) {
 		final Set<QualifiedName> expected = new HashSet<QualifiedName>(expectedItems.length);
-		for (final QualifiedName expectedItem : expectedItems)
+		for (final QualifiedName expectedItem : expectedItems) {
 			expected.add(expectedItem);
+		}
 
 		final Set<QualifiedName> candidateItems = validator.getValidItems(element);
 		assertEquals(expected, candidateItems);

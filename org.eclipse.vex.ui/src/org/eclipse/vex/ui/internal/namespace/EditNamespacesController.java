@@ -35,15 +35,17 @@ public class EditNamespacesController {
 
 	private static String getDefaultNamespaceURI(final Element element) {
 		final String result = element.getDeclaredDefaultNamespaceURI();
-		if (result == null)
+		if (result == null) {
 			return "";
+		}
 		return result;
 	}
 
 	private static List<EditableNamespaceDefinition> getNamespaceDefinitions(final Element element) {
 		final ArrayList<EditableNamespaceDefinition> result = new ArrayList<EditableNamespaceDefinition>();
-		for (final String prefix : element.getDeclaredNamespacePrefixes())
+		for (final String prefix : element.getDeclaredNamespacePrefixes()) {
 			result.add(new EditableNamespaceDefinition(prefix, element.getNamespaceURI(prefix)));
+		}
 		return result;
 	}
 
@@ -65,25 +67,28 @@ public class EditNamespacesController {
 		return result;
 	}
 
-	public void removeNamespaceDefinition(EditableNamespaceDefinition namespaceDefinition) {
+	public void removeNamespaceDefinition(final EditableNamespaceDefinition namespaceDefinition) {
 		namespaceDefinitions.remove(namespaceDefinition);
 	}
-	
+
 	public void applyToElement() {
-		if (defaultNamespaceURI == null || "".equals(defaultNamespaceURI))
+		if (defaultNamespaceURI == null || "".equals(defaultNamespaceURI)) {
 			element.removeDefaultNamespace();
-		else
+		} else {
 			element.declareDefaultNamespace(defaultNamespaceURI);
+		}
 
 		final HashSet<String> declaredPrefixes = new HashSet<String>();
 		for (final EditableNamespaceDefinition definition : namespaceDefinitions) {
 			element.declareNamespace(definition.getPrefix(), definition.getUri());
 			declaredPrefixes.add(definition.getPrefix());
 		}
-		
-		for (final String prefix : element.getDeclaredNamespacePrefixes())
-			if (!declaredPrefixes.contains(prefix))
+
+		for (final String prefix : element.getDeclaredNamespacePrefixes()) {
+			if (!declaredPrefixes.contains(prefix)) {
 				element.removeNamespace(prefix);
+			}
+		}
 	}
 
 }

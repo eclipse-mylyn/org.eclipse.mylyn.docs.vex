@@ -25,7 +25,7 @@ public class DisplayProperty extends AbstractProperty {
 		super(CSS.DISPLAY);
 	}
 
-	public Object calculate(LexicalUnit lu, Styles parentStyles, Styles styles, Element element) {
+	public Object calculate(final LexicalUnit lu, final Styles parentStyles, final Styles styles, final Element element) {
 
 		if (isDisplay(lu)) {
 			return lu.getStringValue();
@@ -40,27 +40,19 @@ public class DisplayProperty extends AbstractProperty {
 	// ======================================================== PRIVATE
 
 	/**
-	 * Returns true if the value of the given LexicalUnit represents a valid
-	 * value for this property.
+	 * Returns true if the value of the given LexicalUnit represents a valid value for this property.
 	 * 
 	 * @param lu
 	 *            LexicalUnit to inspect.
 	 */
-	private static boolean isDisplay(LexicalUnit lu) {
+	private static boolean isDisplay(final LexicalUnit lu) {
 		if (lu == null) {
 			return false;
 		} else if (lu.getLexicalUnitType() == LexicalUnit.SAC_IDENT) {
-			String s = lu.getStringValue();
-			return s.equals(CSS.BLOCK) || s.equals(CSS.INLINE)
-					|| s.equals(CSS.INLINE_BLOCK) || s.equals(CSS.INLINE_TABLE)
-					|| s.equals(CSS.LIST_ITEM) || s.equals(CSS.NONE)
-					|| s.equals(CSS.RUN_IN) || s.equals(CSS.TABLE)
-					|| s.equals(CSS.TABLE_CAPTION) || s.equals(CSS.TABLE_CELL)
-					|| s.equals(CSS.TABLE_COLUMN)
-					|| s.equals(CSS.TABLE_COLUMN_GROUP)
-					|| s.equals(CSS.TABLE_FOOTER_GROUP)
-					|| s.equals(CSS.TABLE_HEADER_GROUP)
-					|| s.equals(CSS.TABLE_ROW) || s.equals(CSS.TABLE_ROW_GROUP);
+			final String s = lu.getStringValue();
+			return s.equals(CSS.BLOCK) || s.equals(CSS.INLINE) || s.equals(CSS.INLINE_BLOCK) || s.equals(CSS.INLINE_TABLE) || s.equals(CSS.LIST_ITEM) || s.equals(CSS.NONE) || s.equals(CSS.RUN_IN)
+					|| s.equals(CSS.TABLE) || s.equals(CSS.TABLE_CAPTION) || s.equals(CSS.TABLE_CELL) || s.equals(CSS.TABLE_COLUMN) || s.equals(CSS.TABLE_COLUMN_GROUP)
+					|| s.equals(CSS.TABLE_FOOTER_GROUP) || s.equals(CSS.TABLE_HEADER_GROUP) || s.equals(CSS.TABLE_ROW) || s.equals(CSS.TABLE_ROW_GROUP);
 		} else {
 			return false;
 		}

@@ -23,43 +23,43 @@ public class ConfigurationElementWrapper implements IConfigElement {
 	 * @param element
 	 *            Element to be wrapped.
 	 */
-	public ConfigurationElementWrapper(IConfigurationElement element) {
+	public ConfigurationElementWrapper(final IConfigurationElement element) {
 		this.element = element;
 	}
 
-	public String getAttribute(String name) {
-		return this.element.getAttribute(name);
+	public String getAttribute(final String name) {
+		return element.getAttribute(name);
 	}
 
 	public String[] getAttributeNames() {
-		return this.element.getAttributeNames();
+		return element.getAttributeNames();
 	}
 
 	public IConfigElement[] getChildren() {
-		return convertArray(this.element.getChildren());
+		return convertArray(element.getChildren());
 	}
 
-	public IConfigElement[] getChildren(String name) {
-		return convertArray(this.element.getChildren(name));
+	public IConfigElement[] getChildren(final String name) {
+		return convertArray(element.getChildren(name));
 	}
 
 	public String getName() {
-		return this.element.getName();
+		return element.getName();
 	}
 
 	public String getValue() {
-		return this.element.getValue();
+		return element.getValue();
 	}
 
 	/**
-	 * Wraps each element in an array of IConfigurationElement objects with a
-	 * ConfigurationElementWrapper and returns the result.
+	 * Wraps each element in an array of IConfigurationElement objects with a ConfigurationElementWrapper and returns
+	 * the result.
 	 * 
 	 * @param elements
 	 *            Array of elements to be wrapped.
 	 */
-	public static IConfigElement[] convertArray(IConfigurationElement[] elements) {
-		IConfigElement[] ret = new IConfigElement[elements.length];
+	public static IConfigElement[] convertArray(final IConfigurationElement[] elements) {
+		final IConfigElement[] ret = new IConfigElement[elements.length];
 		for (int i = 0; i < elements.length; i++) {
 			ret[i] = new ConfigurationElementWrapper(elements[i]);
 		}
@@ -68,6 +68,6 @@ public class ConfigurationElementWrapper implements IConfigElement {
 
 	// =================================================== PRIVATE
 
-	private IConfigurationElement element;
+	private final IConfigurationElement element;
 
 }

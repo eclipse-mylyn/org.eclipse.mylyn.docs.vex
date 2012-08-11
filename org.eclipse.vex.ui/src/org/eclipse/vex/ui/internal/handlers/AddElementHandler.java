@@ -19,9 +19,9 @@ import org.eclipse.vex.ui.internal.swt.VexWidget;
  */
 public class AddElementHandler extends AbstractVexWidgetHandler {
 
-    @Override
-    public void execute(VexWidget widget) throws ExecutionException {
-        ContentAssist.openAddElementsContentAssist(widget);
-    }
+	@Override
+	public void execute(final VexWidget widget) throws ExecutionException {
+		ContentAssist.openAddElementsContentAssist(widget);
+	}
 
 }

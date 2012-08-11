@@ -12,14 +12,12 @@
 package org.eclipse.vex.core.internal.core;
 
 /**
- * Toolkit-independent specifier of a font. This class does not encapsulate an
- * actual font, but simply the information needed for the toolkit to find an
- * actual font.
+ * Toolkit-independent specifier of a font. This class does not encapsulate an actual font, but simply the information
+ * needed for the toolkit to find an actual font.
  * 
  * <p>
- * An array of font family names may be specified. If more than one name is
- * specified, the toolkit should select the first name that matches an actual
- * font on the platform.
+ * An array of font family names may be specified. If more than one name is specified, the toolkit should select the
+ * first name that matches an actual font on the platform.
  * </p>
  */
 public class FontSpec {
@@ -31,9 +29,9 @@ public class FontSpec {
 	public static final int OVERLINE = 1 << 3;
 	public static final int LINE_THROUGH = 1 << 4;
 
-	private String[] names;
-	private float size;
-	private int style;
+	private final String[] names;
+	private final float size;
+	private final int style;
 
 	/**
 	 * Class constructor.
@@ -45,7 +43,7 @@ public class FontSpec {
 	 * @param size
 	 *            Size of the font, in points.
 	 */
-	public FontSpec(String[] names, int style, float size) {
+	public FontSpec(final String[] names, final int style, final float size) {
 		this.names = names;
 		this.style = style;
 		this.size = size;
@@ -66,8 +64,7 @@ public class FontSpec {
 	}
 
 	/**
-	 * Returns a bitwise-OR of the style flags. The following sample checks if
-	 * the font is bold.
+	 * Returns a bitwise-OR of the style flags. The following sample checks if the font is bold.
 	 * 
 	 * <pre>
 	 * if (font.getStyle | VexFont.BOLD) {

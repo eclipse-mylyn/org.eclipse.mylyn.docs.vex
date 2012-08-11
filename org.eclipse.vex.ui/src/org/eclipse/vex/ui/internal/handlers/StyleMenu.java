@@ -24,29 +24,31 @@ import org.eclipse.vex.ui.internal.config.Style;
 import org.eclipse.vex.ui.internal.editor.VexEditor;
 
 /**
- * Menu of all registered styles available for the current document to choose
- * from.
+ * Menu of all registered styles available for the current document to choose from.
  */
 public class StyleMenu extends ContributionItem {
 
-    @Override
-    public void fill(Menu menu, int index) {
-        IWorkbench workbench = PlatformUI.getWorkbench();
-        IWorkbenchWindow window = workbench.getActiveWorkbenchWindow();
-        final VexEditor editor = VexHandlerUtil.computeVexEditor(window);
-        if (editor == null) return;
+	@Override
+	public void fill(final Menu menu, final int index) {
+		final IWorkbench workbench = PlatformUI.getWorkbench();
+		final IWorkbenchWindow window = workbench.getActiveWorkbenchWindow();
+		final VexEditor editor = VexHandlerUtil.computeVexEditor(window);
+		if (editor == null) {
+			return;
+		}
 
-        final String publicId = editor.getDocumentType().getPublicId();
-        for (final Style style : VexPlugin.getDefault().getConfigurationRegistry().getStyles(publicId)) {
-            final MenuItem menuItem = new MenuItem(menu, SWT.RADIO, index);
-            menuItem.setText(style.getName());
-            menuItem.setSelection(style == editor.getStyle());
-            menuItem.addSelectionListener(new SelectionAdapter() {
-                public void widgetSelected(SelectionEvent e) {
-                    editor.setStyle(style);
-                }
-            });
-        }
-    }
+		final String publicId = editor.getDocumentType().getPublicId();
+		for (final Style style : VexPlugin.getDefault().getConfigurationRegistry().getStyles(publicId)) {
+			final MenuItem menuItem = new MenuItem(menu, SWT.RADIO, index);
+			menuItem.setText(style.getName());
+			menuItem.setSelection(style == editor.getStyle());
+			menuItem.addSelectionListener(new SelectionAdapter() {
+				@Override
+				public void widgetSelected(final SelectionEvent e) {
+					editor.setStyle(style);
+				}
+			});
+		}
+	}
 
 }

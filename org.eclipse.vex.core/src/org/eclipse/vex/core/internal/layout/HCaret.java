@@ -33,15 +33,16 @@ public class HCaret extends Caret {
 	 * @param length
 	 *            Horizontal length of the caret.
 	 */
-	public HCaret(int x, int y, int length) {
+	public HCaret(final int x, final int y, final int length) {
 		super(x, y);
 		this.length = length;
 	}
 
-	public void draw(Graphics g, Color color) {
-		ColorResource newColor = g.createColor(color);
-		ColorResource oldColor = g.setColor(newColor);
-		g.fillRect(this.getX(), this.getY(), this.length, LINE_WIDTH);
+	@Override
+	public void draw(final Graphics g, final Color color) {
+		final ColorResource newColor = g.createColor(color);
+		final ColorResource oldColor = g.setColor(newColor);
+		g.fillRect(getX(), getY(), length, LINE_WIDTH);
 		g.setColor(oldColor);
 		newColor.dispose();
 	}
@@ -49,11 +50,12 @@ public class HCaret extends Caret {
 	/**
 	 * @see org.eclipse.vex.core.internal.core.Caret#getBounds()
 	 */
+	@Override
 	public Rectangle getBounds() {
-		return new Rectangle(this.getX(), this.getY(), this.length, LINE_WIDTH);
+		return new Rectangle(getX(), getY(), length, LINE_WIDTH);
 	}
 
 	// ====================================================== PRIVATE
 
-	private int length;
+	private final int length;
 }

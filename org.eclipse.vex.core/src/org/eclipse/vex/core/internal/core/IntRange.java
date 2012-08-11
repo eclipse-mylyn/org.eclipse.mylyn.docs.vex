@@ -11,8 +11,8 @@
 package org.eclipse.vex.core.internal.core;
 
 /**
- * Represents a range of integers. Zero-length ranges (i.e. ranges where start
- * == end) are permitted. This class is immutable.
+ * Represents a range of integers. Zero-length ranges (i.e. ranges where start == end) are permitted. This class is
+ * immutable.
  */
 public class IntRange {
 
@@ -24,10 +24,9 @@ public class IntRange {
 	 * @param end
 	 *            End of the range. Must be >= start.
 	 */
-	public IntRange(int start, int end) {
+	public IntRange(final int start, final int end) {
 		if (start > end) {
-			throw new IllegalArgumentException("start (" + start
-					+ ") is greater than end (" + end + ")");
+			throw new IllegalArgumentException("start (" + start + ") is greater than end (" + end + ")");
 		}
 		this.start = start;
 		this.end = end;
@@ -37,28 +36,26 @@ public class IntRange {
 	 * Returns the start of the range.
 	 */
 	public int getStart() {
-		return this.start;
+		return start;
 	}
 
 	/**
 	 * Returns the end of the range.
 	 */
 	public int getEnd() {
-		return this.end;
+		return end;
 	}
 
 	/**
-	 * Returns the range that represents the intersection of this range and the
-	 * given range. If the ranges do not intersect, returns null. May return an
-	 * empty range.
+	 * Returns the range that represents the intersection of this range and the given range. If the ranges do not
+	 * intersect, returns null. May return an empty range.
 	 * 
 	 * @param range
 	 *            Range with which to perform an intersection.
 	 */
-	public IntRange intersection(IntRange range) {
-		if (this.intersects(range)) {
-			return new IntRange(Math.max(this.start, range.start), Math.min(
-					this.end, range.end));
+	public IntRange intersection(final IntRange range) {
+		if (intersects(range)) {
+			return new IntRange(Math.max(start, range.start), Math.min(end, range.end));
 		} else {
 			return null;
 		}
@@ -66,14 +63,13 @@ public class IntRange {
 	}
 
 	/**
-	 * Returns true if this range intersects the given range, even if the result
-	 * would be an empty range.
+	 * Returns true if this range intersects the given range, even if the result would be an empty range.
 	 * 
 	 * @param range
 	 *            Range with which to intersect.
 	 */
-	public boolean intersects(IntRange range) {
-		return this.start <= range.end && this.end >= range.start;
+	public boolean intersects(final IntRange range) {
+		return start <= range.end && end >= range.start;
 	}
 
 	/**
@@ -84,20 +80,19 @@ public class IntRange {
 	}
 
 	/**
-	 * Returns a range that is the union of this range and the given range. If
-	 * the ranges are disjoint, the gap between the ranges is included in the
-	 * result.
+	 * Returns a range that is the union of this range and the given range. If the ranges are disjoint, the gap between
+	 * the ranges is included in the result.
 	 * 
 	 * @param range
 	 *            Rnage with which to perform the union
 	 */
-	public IntRange union(IntRange range) {
-		return new IntRange(Math.min(this.start, range.start), Math.min(
-				this.end, range.end));
+	public IntRange union(final IntRange range) {
+		return new IntRange(Math.min(start, range.start), Math.min(end, range.end));
 	}
 
+	@Override
 	public String toString() {
-		StringBuffer sb = new StringBuffer();
+		final StringBuffer sb = new StringBuffer();
 		sb.append("IntRange(");
 		sb.append(start);
 		sb.append(",");
@@ -108,6 +103,6 @@ public class IntRange {
 
 	// ============================================================= PRIVATE
 
-	private int start;
-	private int end;
+	private final int start;
+	private final int end;
 }

@@ -44,8 +44,9 @@ public class ConfigurationRegistryTest {
 
 	@After
 	public void disposeRegistry() {
-		if (registry != null)
+		if (registry != null) {
 			registry.dispose();
+		}
 		registry = null;
 	}
 
@@ -73,7 +74,7 @@ public class ConfigurationRegistryTest {
 		registry.addConfigListener(configListener);
 		registry.loadConfigurations();
 		configListener.reset();
-		IProject project = PluginProjectTest.createVexPluginProject(name.getMethodName());
+		final IProject project = PluginProjectTest.createVexPluginProject(name.getMethodName());
 		assertFalse(configListener.loaded);
 		assertTrue(configListener.changed);
 		assertNotNull(registry.getPluginProject(project));
@@ -94,7 +95,8 @@ public class ConfigurationRegistryTest {
 		assertNotNull(registry.getPluginProject(project).getItemForResource(project.getFile("plugintest2.css")));
 	}
 
-	@Ignore("I don't understand why it fails...WTF???") @Test
+	@Ignore("I don't understand why it fails...WTF???")
+	@Test
 	public void removeDeletedPluginProjectAndFireConfigChangedEvent() throws Exception {
 		registry = new ConfigurationRegistryImpl(new MockConfigurationLoader());
 		registry.loadConfigurations();
@@ -113,7 +115,7 @@ public class ConfigurationRegistryTest {
 		assertTrue(configListener.changed);
 		assertNotNull(registry.getPluginProject(project));
 	}
-	
+
 	private static class MockConfigurationLoader implements ConfigurationLoader {
 		private final List<ConfigSource> loadedConfigSources;
 

@@ -30,7 +30,7 @@ public interface DocumentListener extends java.util.EventListener {
 	 *            the document event.
 	 */
 	public void namespaceChanged(DocumentEvent e);
-	
+
 	/**
 	 * Called before content is deleted from a document.
 	 * 

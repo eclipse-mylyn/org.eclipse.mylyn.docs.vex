@@ -17,13 +17,15 @@ import java.util.EventObject;
  */
 public class ConfigEvent extends EventObject {
 
+	private static final long serialVersionUID = 1L;
+
 	/**
 	 * Class constructor.
 	 * 
 	 * @param source
 	 *            Source of the event.
 	 */
-	public ConfigEvent(Object source) {
+	public ConfigEvent(final Object source) {
 		super(source);
 	}
 

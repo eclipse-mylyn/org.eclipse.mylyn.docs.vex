@@ -12,12 +12,10 @@ package org.eclipse.vex.core.internal.layout;
 
 import java.net.URL;
 
+import junit.framework.TestCase;
+
 import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.css.StyleSheetReader;
-import org.eclipse.vex.core.internal.layout.CssBoxFactory;
-import org.eclipse.vex.core.internal.layout.LayoutContext;
-
-import junit.framework.TestCase;
 
 public class TestParagraphBox extends TestCase {
 
@@ -26,33 +24,30 @@ public class TestParagraphBox extends TestCase {
 
 	public TestParagraphBox() throws Exception {
 
-		URL url = this.getClass().getResource("test.css");
-		StyleSheetReader reader = new StyleSheetReader();
-		StyleSheet ss = reader.read(url);
+		final URL url = this.getClass().getResource("test.css");
+		final StyleSheetReader reader = new StyleSheetReader();
+		final StyleSheet ss = reader.read(url);
 
-		this.g = new FakeGraphics();
+		g = new FakeGraphics();
 
-		this.context = new LayoutContext();
-		this.context.setBoxFactory(new CssBoxFactory());
-		this.context.setGraphics(this.g);
-		this.context.setStyleSheet(ss);
+		context = new LayoutContext();
+		context.setBoxFactory(new CssBoxFactory());
+		context.setGraphics(g);
+		context.setStyleSheet(ss);
 	}
 
 	/*
-	 * public void testWordWrap() throws Exception { RootElement root = new
-	 * RootElement("root"); Document doc = new Document(root);
+	 * public void testWordWrap() throws Exception { RootElement root = new RootElement("root"); Document doc = new
+	 * Document(root);
 	 * 
 	 * Styles styles = this.context.getStyleSheet().getStyles(root);
 	 * 
 	 * FontMetrics fm = this.g.getFontMetrics();
 	 * 
-	 * // Test Case 1: check the offsets // // UPPER CASE indicates static text
-	 * // lower case indicates document text // [ ] represent element start and
-	 * end // // BLACK WHITE GRAY // RED [orange] YELLOW (line is 1:8,
-	 * last=false) // BLACK WHITE GRAY // [blue] GREEN [pink] (line is 9:20
-	 * last=true) // BLACK WHITE GRAY // // Document looks like this (# chars
-	 * are element sentinels // 2 8 16 20 // / / / / // ##orange##blue##pink##
-	 * // \ \ // 10 14 //
+	 * // Test Case 1: check the offsets // // UPPER CASE indicates static text // lower case indicates document text //
+	 * [ ] represent element start and end // // BLACK WHITE GRAY // RED [orange] YELLOW (line is 1:8, last=false) //
+	 * BLACK WHITE GRAY // [blue] GREEN [pink] (line is 9:20 last=true) // BLACK WHITE GRAY // // Document looks like
+	 * this (# chars are element sentinels // 2 8 16 20 // / / / / // ##orange##blue##pink## // \ \ // 10 14 //
 	 * 
 	 * }
 	 */

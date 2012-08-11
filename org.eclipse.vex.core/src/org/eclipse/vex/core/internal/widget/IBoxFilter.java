@@ -13,8 +13,7 @@ package org.eclipse.vex.core.internal.widget;
 import org.eclipse.vex.core.internal.layout.Box;
 
 /**
- * Interface implemented by classes that determine whether a Box matches certain
- * criteria.
+ * Interface implemented by classes that determine whether a Box matches certain criteria.
  * 
  * @see IVexWidget#
  */

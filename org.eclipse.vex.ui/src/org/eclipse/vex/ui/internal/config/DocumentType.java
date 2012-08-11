@@ -25,13 +25,10 @@ public class DocumentType extends ConfigItem {
 	}
 
 	/**
-	 * Returns the name of the class that generates an outline for this document
-	 * type. This class must implement
-	 * org.eclipse.ui.views.contentoutline.IContentOutlinePage. Normally,
-	 * classes will extend
-	 * org.eclipse.wst.vex.ui.internal.editor.AbstractContentOutlinePage.
-	 * Returns null if this document type was not supplied by a plugin, or if
-	 * the the contentOutlinePage attribute was not set.
+	 * Returns the name of the class that generates an outline for this document type. This class must implement
+	 * org.eclipse.ui.views.contentoutline.IContentOutlinePage. Normally, classes will extend
+	 * org.eclipse.wst.vex.ui.internal.editor.AbstractContentOutlinePage. Returns null if this document type was not
+	 * supplied by a plugin, or if the the contentOutlinePage attribute was not set.
 	 */
 	public String getOutlineProvider() {
 		return outlineProvider;
@@ -57,8 +54,7 @@ public class DocumentType extends ConfigItem {
 	}
 
 	/**
-	 * Sets the name of the class that defines the content outline of the
-	 * document.
+	 * Sets the name of the class that defines the content outline of the document.
 	 * 
 	 * @param contentOutlinePage
 	 *            Name of a class implementing IContentOutlinePage.
@@ -68,8 +64,7 @@ public class DocumentType extends ConfigItem {
 	}
 
 	/**
-	 * Sets the public ID of the document type. The public ID is the unique
-	 * identifier of the document type.
+	 * Sets the public ID of the document type. The public ID is the unique identifier of the document type.
 	 * 
 	 * @param publicId
 	 *            new public ID of the document type.
@@ -79,8 +74,7 @@ public class DocumentType extends ConfigItem {
 	}
 
 	/**
-	 * Sets the system ID of the document type. This is used when creating new
-	 * documents but ignored otherwise.
+	 * Sets the system ID of the document type. This is used when creating new documents but ignored otherwise.
 	 * 
 	 * @param systemId
 	 *            new system ID for the document type.
@@ -104,8 +98,8 @@ public class DocumentType extends ConfigItem {
 	}
 
 	/**
-	 * Returns a list of valid root elements for this document type. If no root
-	 * elements have been declared, returns an empty array.
+	 * Returns a list of valid root elements for this document type. If no root elements have been declared, returns an
+	 * empty array.
 	 */
 	public String[] getRootElements() {
 		return rootElements;
@@ -115,8 +109,9 @@ public class DocumentType extends ConfigItem {
 	 * Sets the list of valid root elements for this document type.
 	 */
 	public void setRootElements(final String[] rootElements) {
-		if (rootElements == null)
+		if (rootElements == null) {
 			throw new IllegalArgumentException();
+		}
 		this.rootElements = rootElements;
 	}
 

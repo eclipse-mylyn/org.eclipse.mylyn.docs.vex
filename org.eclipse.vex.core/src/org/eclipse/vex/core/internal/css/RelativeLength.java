@@ -10,14 +10,13 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.css;
 
-
 /**
  * A length that may be expressed as an absolute or relative value.
  */
 public class RelativeLength {
 
-	private float percentage;
-	private int absolute;
+	private final float percentage;
+	private final int absolute;
 	boolean isAbsolute;
 
 	private static RelativeLength ZERO = new RelativeLength(0, 0, true);
@@ -27,7 +26,7 @@ public class RelativeLength {
 	 * 
 	 * @return the new RelativeLength value.
 	 */
-	public static RelativeLength createAbsolute(int value) {
+	public static RelativeLength createAbsolute(final int value) {
 		if (value == 0) {
 			return ZERO;
 		} else {
@@ -40,32 +39,30 @@ public class RelativeLength {
 	 * 
 	 * @return the new RelativeLength value.
 	 */
-	public static RelativeLength createRelative(float percentage) {
+	public static RelativeLength createRelative(final float percentage) {
 		return new RelativeLength(percentage, 0, false);
 	}
 
 	/**
-	 * Return the value of the length given a reference value. If this object
-	 * represents an absolute value, that value is simply returned. Otherwise,
-	 * returns the given reference length multiplied by the given percentage and
-	 * rounded to the nearest integer.
+	 * Return the value of the length given a reference value. If this object represents an absolute value, that value
+	 * is simply returned. Otherwise, returns the given reference length multiplied by the given percentage and rounded
+	 * to the nearest integer.
 	 * 
 	 * @param referenceLength
-	 *            reference length by which percentage lengths will by
-	 *            multiplied.
+	 *            reference length by which percentage lengths will by multiplied.
 	 * @return the actual value
 	 */
-	public int get(int referenceLength) {
-		if (this.isAbsolute) {
-			return this.absolute;
+	public int get(final int referenceLength) {
+		if (isAbsolute) {
+			return absolute;
 		} else {
-			return Math.round(this.percentage * referenceLength);
+			return Math.round(percentage * referenceLength);
 		}
 	}
 
 	// ==================================================== PRIVATE
 
-	private RelativeLength(float percentage, int absolute, boolean isAbsolute) {
+	private RelativeLength(final float percentage, final int absolute, final boolean isAbsolute) {
 		this.percentage = percentage;
 		this.absolute = absolute;
 		this.isAbsolute = isAbsolute;

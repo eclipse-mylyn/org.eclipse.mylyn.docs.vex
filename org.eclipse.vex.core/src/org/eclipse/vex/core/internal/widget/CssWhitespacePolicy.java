@@ -26,20 +26,19 @@ public class CssWhitespacePolicy implements IWhitespacePolicy {
 	 * @param styleSheet
 	 *            The stylesheet used for the policy.
 	 */
-	public CssWhitespacePolicy(StyleSheet styleSheet) {
+	public CssWhitespacePolicy(final StyleSheet styleSheet) {
 		this.styleSheet = styleSheet;
 	}
 
-	public boolean isBlock(Element element) {
-		return this.styleSheet.getStyles(element).isBlock();
+	public boolean isBlock(final Element element) {
+		return styleSheet.getStyles(element).isBlock();
 	}
 
-	public boolean isPre(Element element) {
-		return CSS.PRE.equals(this.styleSheet.getStyles(element)
-				.getWhiteSpace());
+	public boolean isPre(final Element element) {
+		return CSS.PRE.equals(styleSheet.getStyles(element).getWhiteSpace());
 	}
 
 	// ===================================================== PRIVATE
 
-	private StyleSheet styleSheet;
+	private final StyleSheet styleSheet;
 }

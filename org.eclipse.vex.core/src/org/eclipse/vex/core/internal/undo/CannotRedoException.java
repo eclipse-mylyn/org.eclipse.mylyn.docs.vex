@@ -15,6 +15,8 @@ package org.eclipse.vex.core.internal.undo;
  */
 public class CannotRedoException extends RuntimeException {
 
+	private static final long serialVersionUID = 1L;
+
 	/**
 	 * Class constructor.
 	 */
@@ -27,7 +29,7 @@ public class CannotRedoException extends RuntimeException {
 	 * @param message
 	 *            Message indicating the reason for the failure.
 	 */
-	public CannotRedoException(String message) {
+	public CannotRedoException(final String message) {
 		super(message);
 	}
 
@@ -37,7 +39,7 @@ public class CannotRedoException extends RuntimeException {
 	 * @param cause
 	 *            Root cause of the failure.
 	 */
-	public CannotRedoException(Throwable cause) {
+	public CannotRedoException(final Throwable cause) {
 		super(cause);
 	}
 
@@ -49,7 +51,7 @@ public class CannotRedoException extends RuntimeException {
 	 * @param cause
 	 *            Root cause of the failure.
 	 */
-	public CannotRedoException(String message, Throwable cause) {
+	public CannotRedoException(final String message, final Throwable cause) {
 		super(message, cause);
 	}
 

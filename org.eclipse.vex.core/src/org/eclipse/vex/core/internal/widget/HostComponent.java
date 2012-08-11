@@ -14,26 +14,23 @@ import org.eclipse.vex.core.internal.core.Graphics;
 import org.eclipse.vex.core.internal.core.Rectangle;
 
 /**
- * Callback interface through which VexComponentImpl accesses its host
- * component.
+ * Callback interface through which VexComponentImpl accesses its host component.
  */
 public interface HostComponent {
 
 	/**
-	 * Creates a Graphics object for the default system display. The returned
-	 * object must be disposed after use.
+	 * Creates a Graphics object for the default system display. The returned object must be disposed after use.
 	 */
 	public Graphics createDefaultGraphics();
 
 	/**
-	 * If the component is scrollable, return the height of the viewport;
-	 * otherwise, return the size of the widget.
+	 * If the component is scrollable, return the height of the viewport; otherwise, return the size of the widget.
 	 */
 	public Rectangle getViewport();
 
 	/**
-	 * Called when the selection in the widget has changed. This method should
-	 * reset the caret timer to the full interval.
+	 * Called when the selection in the widget has changed. This method should reset the caret timer to the full
+	 * interval.
 	 */
 	public void fireSelectionChanged();
 

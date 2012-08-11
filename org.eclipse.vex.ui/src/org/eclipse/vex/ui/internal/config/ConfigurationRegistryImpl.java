@@ -47,7 +47,7 @@ public class ConfigurationRegistryImpl implements ConfigurationRegistry {
 				}
 			} else if (event.getType() == IResourceChangeEvent.POST_CHANGE) {
 				final IResourceDelta[] resources = event.getDelta().getAffectedChildren();
-				for (final IResourceDelta delta : resources)
+				for (final IResourceDelta delta : resources) {
 					if (delta.getResource() instanceof IProject) {
 						final IProject project = (IProject) delta.getResource();
 						final PluginProject pluginProject = getPluginProject(project);
@@ -55,12 +55,15 @@ public class ConfigurationRegistryImpl implements ConfigurationRegistry {
 							// we know this project and it has been closed
 							removeConfigSource(pluginProject);
 							fireConfigChanged(new ConfigEvent(this));
-						} else if (PluginProject.isOpenPluginProject(project))
-							if (pluginProject == null)
+						} else if (PluginProject.isOpenPluginProject(project)) {
+							if (pluginProject == null) {
 								reloadPluginProject(addNewPluginProject(project));
-							else
+							} else {
 								reloadPluginProject(pluginProject);
+							}
+						}
 					}
+				}
 			}
 		}
 
@@ -83,8 +86,9 @@ public class ConfigurationRegistryImpl implements ConfigurationRegistry {
 					lock.acquire();
 					try {
 						configurationSources = new HashMap<String, ConfigSource>();
-						for (final ConfigSource configSource : loader.getLoadedConfigSources())
+						for (final ConfigSource configSource : loader.getLoadedConfigSources()) {
 							configurationSources.put(configSource.getUniqueIdentifer(), configSource);
+						}
 						loaded = true;
 					} finally {
 						lock.release();
@@ -102,8 +106,9 @@ public class ConfigurationRegistryImpl implements ConfigurationRegistry {
 		lock.acquire();
 		try {
 			final List<ConfigItem> result = new ArrayList<ConfigItem>();
-			for (final ConfigSource configurationSource : configurationSources.values())
+			for (final ConfigSource configurationSource : configurationSources.values()) {
 				result.addAll(configurationSource.getValidItems(extensionPointId));
+			}
 			return result;
 		} finally {
 			lock.release();
@@ -149,10 +154,12 @@ public class ConfigurationRegistryImpl implements ConfigurationRegistry {
 	}
 
 	private void waitUntilLoaded() {
-		if (loaded)
+		if (loaded) {
 			return;
-		if (!loader.isLoading())
+		}
+		if (!loader.isLoading()) {
 			throw new IllegalStateException("The configurations are not loaded yet. Call 'loadConfigurations' first.");
+		}
 		try {
 			loader.join();
 		} catch (final InterruptedException e) {
@@ -184,16 +191,18 @@ public class ConfigurationRegistryImpl implements ConfigurationRegistry {
 		final List<ConfigItem> configItems = getAllConfigItems(DocumentType.EXTENSION_POINT);
 		for (final ConfigItem configItem : configItems) {
 			final DocumentType doctype = (DocumentType) configItem;
-			if (doctype.getPublicId().equals(publicId))
+			if (doctype.getPublicId().equals(publicId)) {
 				return doctype;
+			}
 		}
 		return null;
 	}
 
 	public DocumentType[] getDocumentTypes() {
 		final List<DocumentType> result = new ArrayList<DocumentType>();
-		for (final ConfigItem configItem : getAllConfigItems(DocumentType.EXTENSION_POINT))
+		for (final ConfigItem configItem : getAllConfigItems(DocumentType.EXTENSION_POINT)) {
 			result.add((DocumentType) configItem);
+		}
 		return result.toArray(new DocumentType[result.size()]);
 	}
 
@@ -201,8 +210,9 @@ public class ConfigurationRegistryImpl implements ConfigurationRegistry {
 		final List<DocumentType> result = new ArrayList<DocumentType>();
 		for (final ConfigItem configItem : getAllConfigItems(DocumentType.EXTENSION_POINT)) {
 			final DocumentType doctype = (DocumentType) configItem;
-			if (getStyles(doctype.getPublicId()).length > 0)
+			if (getStyles(doctype.getPublicId()).length > 0) {
 				result.add(doctype);
+			}
 		}
 		return result.toArray(new DocumentType[result.size()]);
 	}
@@ -211,8 +221,9 @@ public class ConfigurationRegistryImpl implements ConfigurationRegistry {
 		final ArrayList<Style> result = new ArrayList<Style>();
 		for (final ConfigItem configItem : getAllConfigItems(Style.EXTENSION_POINT)) {
 			final Style style = (Style) configItem;
-			if (style.appliesTo(publicId))
+			if (style.appliesTo(publicId)) {
 				result.add(style);
+			}
 		}
 		return result.toArray(new Style[result.size()]);
 	}
@@ -220,30 +231,37 @@ public class ConfigurationRegistryImpl implements ConfigurationRegistry {
 	public Style getStyle(final String styleId) {
 		for (final ConfigItem configItem : getAllConfigItems(Style.EXTENSION_POINT)) {
 			final Style style = (Style) configItem;
-			if (style.getUniqueId().equals(styleId))
+			if (style.getUniqueId().equals(styleId)) {
 				return style;
+			}
 		}
 		return null;
 	}
 
 	public Style getStyle(final String publicId, final String preferredStyleId) {
 		final Style[] styles = getStyles(publicId);
-		if (styles.length == 0)
+		if (styles.length == 0) {
 			return null;
-		if (preferredStyleId != null)
-			for (final Style style : styles)
-				if (style.getUniqueId().equals(preferredStyleId))
+		}
+		if (preferredStyleId != null) {
+			for (final Style style : styles) {
+				if (style.getUniqueId().equals(preferredStyleId)) {
 					return style;
+				}
+			}
+		}
 		return styles[0];
 	}
 
 	public PluginProject getPluginProject(final IProject project) {
-		for (final ConfigSource source : getAllConfigSources())
+		for (final ConfigSource source : getAllConfigSources()) {
 			if (source instanceof PluginProject) {
 				final PluginProject pluginProject = (PluginProject) source;
-				if (project.equals(pluginProject.getProject()))
+				if (project.equals(pluginProject.getProject())) {
 					return pluginProject;
+				}
 			}
+		}
 		return null;
 	}
 

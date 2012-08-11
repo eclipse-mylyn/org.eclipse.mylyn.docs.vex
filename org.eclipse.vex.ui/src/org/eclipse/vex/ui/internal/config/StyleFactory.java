@@ -41,8 +41,9 @@ public class StyleFactory implements IConfigItemFactory {
 
 	public ConfigItem createItem(final ConfigSource config, final IConfigElement[] configElements) throws IOException {
 
-		if (configElements.length < 1)
+		if (configElements.length < 1) {
 			return null;
+		}
 		final IConfigElement configElement = configElements[0];
 
 		final Style style = new Style(config);
@@ -50,16 +51,17 @@ public class StyleFactory implements IConfigItemFactory {
 
 		final IConfigElement[] doctypeRefs = configElement.getChildren();
 
-		for (final IConfigElement doctypeRef : doctypeRefs)
+		for (final IConfigElement doctypeRef : doctypeRefs) {
 			style.addDocumentType(doctypeRef.getAttribute("publicId")); //$NON-NLS-1$
+		}
 
 		return style;
 	}
-	
+
 	private static URI newUri(final String uriString) {
 		try {
 			return new URI(uriString);
-		} catch (URISyntaxException e) {
+		} catch (final URISyntaxException e) {
 			return null;
 		}
 	}

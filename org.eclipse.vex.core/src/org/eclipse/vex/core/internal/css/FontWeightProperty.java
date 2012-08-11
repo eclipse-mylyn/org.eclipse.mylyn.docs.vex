@@ -28,12 +28,11 @@ public class FontWeightProperty extends AbstractProperty {
 		super(CSS.FONT_WEIGHT);
 	}
 
-	public Object calculate(LexicalUnit lu, Styles parentStyles, Styles styles, Element element) {
+	public Object calculate(final LexicalUnit lu, final Styles parentStyles, final Styles styles, final Element element) {
 		return Integer.valueOf(calculateInternal(lu, parentStyles, styles));
 	}
 
-	public int calculateInternal(LexicalUnit lu, Styles parentStyles,
-			Styles styles) {
+	public int calculateInternal(final LexicalUnit lu, final Styles parentStyles, final Styles styles) {
 		if (isFontWeight(lu)) {
 			return getFontWeight(lu, parentStyles);
 		} else {
@@ -53,27 +52,26 @@ public class FontWeightProperty extends AbstractProperty {
 	 * @param lu
 	 *            LexicalUnit to check.
 	 */
-	public static boolean isFontWeight(LexicalUnit lu) {
+	public static boolean isFontWeight(final LexicalUnit lu) {
 		if (lu == null) {
 			return false;
 		} else if (lu.getLexicalUnitType() == LexicalUnit.SAC_INTEGER) {
 			return true;
 		} else if (lu.getLexicalUnitType() == LexicalUnit.SAC_IDENT) {
-			String s = lu.getStringValue();
-			return s.equals(CSS.NORMAL) || s.equals(CSS.BOLD)
-					|| s.equals(CSS.BOLDER) || s.equals(CSS.LIGHTER);
+			final String s = lu.getStringValue();
+			return s.equals(CSS.NORMAL) || s.equals(CSS.BOLD) || s.equals(CSS.BOLDER) || s.equals(CSS.LIGHTER);
 		} else {
 			return false;
 		}
 	}
 
-	private static int getFontWeight(LexicalUnit lu, Styles parentStyles) {
+	private static int getFontWeight(final LexicalUnit lu, final Styles parentStyles) {
 		if (lu == null) {
 			return FONT_WEIGHT_NORMAL;
 		} else if (lu.getLexicalUnitType() == LexicalUnit.SAC_INTEGER) {
 			return lu.getIntegerValue();
 		} else if (lu.getLexicalUnitType() == LexicalUnit.SAC_IDENT) {
-			String s = lu.getStringValue();
+			final String s = lu.getStringValue();
 			if (s.equals(CSS.NORMAL)) {
 				return FONT_WEIGHT_NORMAL;
 			} else if (s.equals(CSS.BOLD)) {

@@ -28,13 +28,12 @@ import org.eclipse.wst.common.uriresolver.internal.provisional.URIResolver;
 import org.eclipse.wst.common.uriresolver.internal.provisional.URIResolverPlugin;
 
 /**
- * Base class for an installed bundle or plug-in project that contributes
- * ConfigItems.
+ * Base class for an installed bundle or plug-in project that contributes ConfigItems.
  */
 public abstract class ConfigSource {
 
 	private static final IConfigItemFactory[] CONFIG_ITEM_FACTORIES = new IConfigItemFactory[] { new DoctypeFactory(), new StyleFactory() };
-	
+
 	// Globally-unique identifier of this configuration == the plugin id.
 	private final String id;
 
@@ -45,12 +44,14 @@ public abstract class ConfigSource {
 	private final Map<URI, Object> parsedResources = new HashMap<URI, Object>();
 
 	protected static IConfigItemFactory getConfigItemFactory(final String extensionPointId) {
-		for (final IConfigItemFactory factory : CONFIG_ITEM_FACTORIES)
-			if (factory.getExtensionPointId().equals(extensionPointId))
+		for (final IConfigItemFactory factory : CONFIG_ITEM_FACTORIES) {
+			if (factory.getExtensionPointId().equals(extensionPointId)) {
 				return factory;
+			}
+		}
 		return null;
 	}
-	
+
 	public ConfigSource(final String id) {
 		this.id = id;
 	}
@@ -67,9 +68,8 @@ public abstract class ConfigSource {
 	}
 
 	/**
-	 * Creates a configuration item and adds it to this configuration. If the
-	 * given extension point does not have a factory registered, no* action is 
-	 * taken and null is returned.
+	 * Creates a configuration item and adds it to this configuration. If the given extension point does not have a
+	 * factory registered, no* action is taken and null is returned.
 	 * 
 	 * @param extensionPoint
 	 *            Extension point of the item to be added.
@@ -78,17 +78,15 @@ public abstract class ConfigSource {
 	 * @param name
 	 *            Name of the item.
 	 * @param configElements
-	 *            Array of IConfigElement objects representing the item's
-	 *            settings.
-	 * @return The newly created ConfigItem, or null if extensionPoint is not
-	 *         recognized.
+	 *            Array of IConfigElement objects representing the item's settings.
+	 * @return The newly created ConfigItem, or null if extensionPoint is not recognized.
 	 * @throws IOException
 	 */
-	protected ConfigItem addItem(final String extensionPoint, final String simpleIdentifier, final String name, final IConfigElement[] configElements)
-			throws IOException {
+	protected ConfigItem addItem(final String extensionPoint, final String simpleIdentifier, final String name, final IConfigElement[] configElements) throws IOException {
 		final IConfigItemFactory factory = getConfigItemFactory(extensionPoint);
-		if (factory == null)
+		if (factory == null) {
 			return null;
+		}
 		final ConfigItem item = factory.createItem(this, configElements);
 		item.setSimpleId(simpleIdentifier);
 		item.setName(name);
@@ -122,20 +120,18 @@ public abstract class ConfigSource {
 	}
 
 	/**
-	 * Remove the resource associated with the given URI from the resource
-	 * cache. The factory must handle any of the following scenarios.
+	 * Remove the resource associated with the given URI from the resource cache. The factory must handle any of the
+	 * following scenarios.
 	 * 
 	 * <ul>
-	 * <li>The URI represents the primary resource associated with a
-	 * configuration item.</li>
-	 * <li>The URI is a secondary resource associated with a primary resource.
-	 * In this case the primary resource is removed.</li>
-	 * <li>The URI has nothing to do with a configuration item, in which case no
-	 * action is taken.</li>
+	 * <li>The URI represents the primary resource associated with a configuration item.</li>
+	 * <li>The URI is a secondary resource associated with a primary resource. In this case the primary resource is
+	 * removed.</li>
+	 * <li>The URI has nothing to do with a configuration item, in which case no action is taken.</li>
 	 * </ul>
 	 * 
-	 * To fully implement this method, the factory must interact with the parser
-	 * and track which secondary resources are associated with which primaries.
+	 * To fully implement this method, the factory must interact with the parser and track which secondary resources are
+	 * associated with which primaries.
 	 * 
 	 * @param uri
 	 *            Relative URI of the resource to remove.
@@ -152,46 +148,46 @@ public abstract class ConfigSource {
 	}
 
 	/**
-	 * Returns the base URL of this factory. This is used to resolve relative
-	 * URLs in config items
+	 * Returns the base URL of this factory. This is used to resolve relative URLs in config items
 	 */
 	public abstract URL getBaseUrl();
 
 	/**
-	 * Returns a particular item from the configuration. Returns null if no
-	 * matching item could be found.
+	 * Returns a particular item from the configuration. Returns null if no matching item could be found.
 	 * 
 	 * @param simpleId
 	 *            Simple ID of the item to return.
 	 */
 	public ConfigItem getItem(final String simpleId) {
-		for (final ConfigItem item : items)
-			if (item.getSimpleId() != null && item.getSimpleId().equals(simpleId))
+		for (final ConfigItem item : items) {
+			if (item.getSimpleId() != null && item.getSimpleId().equals(simpleId)) {
 				return item;
+			}
+		}
 		return null;
 	}
 
 	/**
-	 * Returns the item for the resource with the given path relative to the
-	 * plugin or project. May return null if no such item exists.
+	 * Returns the item for the resource with the given path relative to the plugin or project. May return null if no
+	 * such item exists.
 	 * 
 	 * @param resource
 	 *            Path of the resource.
 	 */
 	public ConfigItem getItemForResource(final IResource resource) {
-		for (final ConfigItem item : items)
-			if (item.getResourceUri().equals(resource.getLocationURI()))
+		for (final ConfigItem item : items) {
+			if (item.getResourceUri().equals(resource.getLocationURI())) {
 				return item;
+			}
+		}
 		return null;
 	}
 
 	/**
-	 * Returns the parsed resource object for the given URI, or null of none
-	 * exists.
+	 * Returns the parsed resource object for the given URI, or null of none exists.
 	 * 
 	 * @param uri
-	 *            URI of the resource, relative to the base URL of this
-	 *            configuration.
+	 *            URI of the resource, relative to the base URL of this configuration.
 	 */
 	public Object getParsedResource(final URI uri) {
 		return parsedResources.get(uri);
@@ -212,9 +208,11 @@ public abstract class ConfigSource {
 	 */
 	public Collection<ConfigItem> getValidItems(final String extensionPointId) {
 		final List<ConfigItem> result = new ArrayList<ConfigItem>();
-		for (final ConfigItem item : items)
-			if (item.getExtensionPointId().equals(extensionPointId) && item.isValid())
+		for (final ConfigItem item : items) {
+			if (item.getExtensionPointId().equals(extensionPointId) && item.isValid()) {
 				result.add(item);
+			}
+		}
 		return result;
 	}
 
@@ -235,19 +233,22 @@ public abstract class ConfigSource {
 		parsedResources.clear();
 		for (final ConfigItem item : items) {
 			final URI uri = item.getResourceUri();
-			if (uri == null || parsedResources.containsKey(uri)) continue;
+			if (uri == null || parsedResources.containsKey(uri)) {
+				continue;
+			}
 			final IConfigItemFactory factory = getConfigItemFactory(item.getExtensionPointId());
 			try {
 				final Object parsedResource = factory.parseResource(item, getBaseUrl(), uri.toString(), problemHandler);
-				if (parsedResource != null)
+				if (parsedResource != null) {
 					parsedResources.put(uri, parsedResource);
+				}
 			} catch (final IOException ex) {
 				final String message = MessageFormat.format(Messages.getString("ConfigSource.errorParsingUri"), new Object[] { uri });
 				VexPlugin.getDefault().log(IStatus.ERROR, message, ex);
 			}
 		}
 	}
-	
+
 	public String resolve(final String publicId, final String systemId) {
 		final URIResolver uriResolver = URIResolverPlugin.createResolver();
 		return uriResolver.resolve(getBaseUrl().toString(), publicId, systemId);

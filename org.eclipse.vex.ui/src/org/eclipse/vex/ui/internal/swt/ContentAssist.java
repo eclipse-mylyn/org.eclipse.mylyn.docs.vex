@@ -60,9 +60,8 @@ import org.eclipse.vex.ui.internal.VexPlugin;
 import org.eclipse.vex.ui.internal.editor.Messages;
 
 /**
- * Content assist dialog that is popped up to show a list of actions to select
- * from. The input field at the top above the list could be used to filter the
- * content.
+ * Content assist dialog that is popped up to show a list of actions to select from. The input field at the top above
+ * the list could be used to filter the content.
  */
 public class ContentAssist extends PopupDialog {
 
@@ -77,17 +76,15 @@ public class ContentAssist extends PopupDialog {
 	private Font boldFont;
 
 	/**
-	 * Constructs a new content assist dialog which can be opened by
-	 * {@link #open()}.
+	 * Constructs a new content assist dialog which can be opened by {@link #open()}.
 	 * 
 	 * @param vexWidget
 	 *            the vex widget this content assist belongs to
 	 * @param actions
 	 *            list of actions to select from
 	 * @param autoExecute
-	 *            if {@code true} and if there is only one action then
-	 *            {@link #open()} does not show dialog but executes the
-	 *            only action
+	 *            if {@code true} and if there is only one action then {@link #open()} does not show dialog but executes
+	 *            the only action
 	 */
 	private ContentAssist(final VexWidget vexWidget, final AbstractVexAction[] actions, final boolean autoExecute) {
 		super(vexWidget.getShell(), SWT.RESIZE, true, // take focus on open
@@ -116,8 +113,9 @@ public class ContentAssist extends PopupDialog {
 	protected IDialogSettings getDialogSettings() {
 		final IDialogSettings root = VexPlugin.getDefault().getDialogSettings();
 		IDialogSettings settings = root.getSection(SETTINGS_SECTION);
-		if (settings == null)
+		if (settings == null) {
 			settings = root.addNewSection(SETTINGS_SECTION);
+		}
 		return settings;
 	}
 
@@ -149,10 +147,11 @@ public class ContentAssist extends PopupDialog {
 		textWidget.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyPressed(final KeyEvent e) {
-				if (e.keyCode == SWT.CR)
+				if (e.keyCode == SWT.CR) {
 					doAction();
-				else if (e.widget == textWidget && e.keyCode == SWT.ARROW_DOWN)
+				} else if (e.widget == textWidget && e.keyCode == SWT.ARROW_DOWN) {
 					viewer.getControl().setFocus();
+				}
 			}
 		});
 
@@ -177,8 +176,9 @@ public class ContentAssist extends PopupDialog {
 		viewer.getTable().addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseUp(final MouseEvent e) {
-				if (e.button == 1)
+				if (e.button == 1) {
 					doAction();
+				}
 			}
 		});
 
@@ -195,21 +195,22 @@ public class ContentAssist extends PopupDialog {
 
 	@Override
 	public boolean close() {
-		if (boldFont != null)
+		if (boldFont != null) {
 			boldFont.dispose();
+		}
 		return super.close();
 	}
 
 	/**
-	 * Perform the action that is currently selected in the tree view, if any,
-	 * and close the dialog.
+	 * Perform the action that is currently selected in the tree view, if any, and close the dialog.
 	 */
 	private void doAction() {
 		final ISelection selection = viewer.getSelection();
 		if (selection instanceof StructuredSelection) {
 			final Object first = ((StructuredSelection) selection).getFirstElement();
-			if (first instanceof AbstractVexAction)
+			if (first instanceof AbstractVexAction) {
 				((AbstractVexAction) first).execute(vexWidget);
+			}
 		}
 		close();
 	}
@@ -217,22 +218,26 @@ public class ContentAssist extends PopupDialog {
 	private void repopulateList() {
 		final String filterText = textWidget.getText().toLowerCase();
 		final List<AbstractVexAction> actionList = new LinkedList<AbstractVexAction>();
-		for (final AbstractVexAction action : actions)
-			if (action.getText().toLowerCase().contains(filterText))
+		for (final AbstractVexAction action : actions) {
+			if (action.getText().toLowerCase().contains(filterText)) {
 				actionList.add(action);
+			}
+		}
 
 		// primary order: "start with" before "contains" filter text
-		if (filterText.length() > 0)
+		if (filterText.length() > 0) {
 			Collections.sort(actionList, new Comparator<AbstractVexAction>() {
 				public int compare(final AbstractVexAction action1, final AbstractVexAction action2) {
 					final String actionText1 = action1.getElementName().getLocalName().toLowerCase();
 					final String actionText2 = action2.getElementName().getLocalName().toLowerCase();
-					if (!actionText1.startsWith(filterText) && !actionText2.startsWith(filterText))
+					if (!actionText1.startsWith(filterText) && !actionText2.startsWith(filterText)) {
 						return 0;
+					}
 
 					return actionText1.startsWith(filterText) ? -1 : 1;
 				}
 			});
+		}
 
 		// update UI
 		viewer.setInput(actionList.toArray(new AbstractVexAction[actionList.size()]));

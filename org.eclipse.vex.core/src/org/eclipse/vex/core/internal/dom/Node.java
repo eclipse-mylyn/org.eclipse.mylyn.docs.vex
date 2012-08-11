@@ -12,14 +12,14 @@ package org.eclipse.vex.core.internal.dom;
 
 /**
  * <code>Node</code> represents a component of an XML document. .
- *
+ * 
  */
 public abstract class Node {
 
 	private Content content;
 	private Position startPosition;
 	private Position endPosition;
-	
+
 	public Content getContent() {
 		return content;
 	}
@@ -54,13 +54,13 @@ public abstract class Node {
 	 * @param endOffset
 	 *            offset at which the node's content ends
 	 */
-	public void setContent(Content content, int startOffset, int endOffset) {
+	public void setContent(final Content content, final int startOffset, final int endOffset) {
 		this.content = content;
 		startPosition = content.createPosition(startOffset);
 		endPosition = content.createPosition(endOffset);
 	}
 
 	public abstract String getNodeType();
-	
+
 	public abstract String getBaseURI();
 }

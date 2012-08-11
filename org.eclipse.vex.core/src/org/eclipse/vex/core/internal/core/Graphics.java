@@ -14,8 +14,8 @@ package org.eclipse.vex.core.internal.core;
 import java.net.URL;
 
 /**
- * Interface through which Vex performs graphics operations. Implemented by
- * adapters to the java.awt.Graphics and org.eclipse.swt.graphics.GC classes.
+ * Interface through which Vex performs graphics operations. Implemented by adapters to the java.awt.Graphics and
+ * org.eclipse.swt.graphics.GC classes.
  */
 public interface Graphics {
 
@@ -51,8 +51,8 @@ public interface Graphics {
 
 	public void drawRect(int x, int y, int width, int height);
 
-	public void drawImage(Image image, int x, int y, int width, int height); 
-	
+	public void drawImage(Image image, int x, int y, int width, int height);
+
 	public void fillOval(int x, int y, int width, int height);
 
 	public void fillRect(int x, int y, int width, int height);
@@ -70,7 +70,7 @@ public interface Graphics {
 	public ColorResource getSystemColor(int id);
 
 	public FontMetrics getFontMetrics();
-	
+
 	public Image getImage(URL url);
 
 	public boolean isAntiAliased();

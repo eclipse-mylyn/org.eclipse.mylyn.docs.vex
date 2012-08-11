@@ -31,11 +31,11 @@ import org.eclipse.vex.ui.internal.editor.Messages;
 public class ElementPropertySource implements IPropertySource2 {
 
 	private static final String ATTR_ID = "id"; //$NON-NLS-1$
-	
+
 	private static final String ELEMENT_NAME_PROPERTY = "elementName"; //$NON-NLS-1$
 	private static final String ELEMENT_NAMESPACE_URI_PROPERTY = "elementNsUri"; //$NON-NLS-1$
 	private static final String ELEMENT_NAMESPACE_PREFIX_PROPERTY = "elementNsPrefix"; //$NON-NLS-1$
-	
+
 	private static final String ELEMENT_CATEGORY = "Element";
 	private static final String ATTRIBUTES_CATEGORY = "Attributes";
 	private static final String NAMESPACES_CATEGORY = "Namespaces";
@@ -56,29 +56,30 @@ public class ElementPropertySource implements IPropertySource2 {
 
 	public IPropertyDescriptor[] getPropertyDescriptors() {
 		final List<IPropertyDescriptor> result = new ArrayList<IPropertyDescriptor>();
-		
+
 		result.add(createExpertPropertyDescriptor(ELEMENT_NAME_PROPERTY, "Element Name", ELEMENT_CATEGORY));
-		
+
 		if (element.getQualifiedName().getQualifier() != null) {
 			result.add(createExpertPropertyDescriptor(ELEMENT_NAMESPACE_URI_PROPERTY, "Namespace URI", ELEMENT_CATEGORY));
 			result.add(createExpertPropertyDescriptor(ELEMENT_NAMESPACE_PREFIX_PROPERTY, "Namespace Prefix", ELEMENT_CATEGORY));
 		}
 
 		/*
-		 * Note that elements from DocumentFragments don't have access to
-		 * their original document, so we get it from the VexWidget.
+		 * Note that elements from DocumentFragments don't have access to their original document, so we get it from the
+		 * VexWidget.
 		 */
 		final List<AttributeDefinition> attributeDefinitions = validator.getAttributeDefinitions(element);
 		for (final AttributeDefinition attributeDefinition : attributeDefinitions) {
 			final PropertyDescriptor propertyDescriptor;
-			if (multipleElementsSelected && attributeDefinition.getName().equals(ATTR_ID))
+			if (multipleElementsSelected && attributeDefinition.getName().equals(ATTR_ID)) {
 				propertyDescriptor = new PropertyDescriptor(attributeDefinition, attributeDefinition.getName());
-			else if (attributeDefinition.isFixed())
+			} else if (attributeDefinition.isFixed()) {
 				propertyDescriptor = new PropertyDescriptor(attributeDefinition, attributeDefinition.getName());
-			else if (attributeDefinition.getType() == AttributeDefinition.Type.ENUMERATION)
+			} else if (attributeDefinition.getType() == AttributeDefinition.Type.ENUMERATION) {
 				propertyDescriptor = new ComboBoxPropertyDescriptor(attributeDefinition, attributeDefinition.getName(), getEnumValues(attributeDefinition));
-			else
+			} else {
 				propertyDescriptor = new TextPropertyDescriptor(attributeDefinition, attributeDefinition.getName());
+			}
 			propertyDescriptor.setCategory(ATTRIBUTES_CATEGORY);
 			result.add(propertyDescriptor);
 		}
@@ -97,7 +98,7 @@ public class ElementPropertySource implements IPropertySource2 {
 
 		return result.toArray(new IPropertyDescriptor[result.size()]);
 	}
-	
+
 	private IPropertyDescriptor createExpertPropertyDescriptor(final Object id, final String displayName, final String category) {
 		final PropertyDescriptor propertyDescriptor = new PropertyDescriptor(id, displayName);
 		propertyDescriptor.setCategory(category);
@@ -106,96 +107,114 @@ public class ElementPropertySource implements IPropertySource2 {
 	}
 
 	public Object getPropertyValue(final Object id) {
-		if (id == ELEMENT_NAME_PROPERTY)
+		if (id == ELEMENT_NAME_PROPERTY) {
 			return element.getLocalName();
-		if (id == ELEMENT_NAMESPACE_URI_PROPERTY)
+		}
+		if (id == ELEMENT_NAMESPACE_URI_PROPERTY) {
 			return element.getQualifiedName().getQualifier();
-		if (id == ELEMENT_NAMESPACE_PREFIX_PROPERTY)
+		}
+		if (id == ELEMENT_NAMESPACE_PREFIX_PROPERTY) {
 			return element.getNamespacePrefix(element.getQualifiedName().getQualifier());
-		
+		}
+
 		if (id instanceof AttributeDefinition) {
 			final AttributeDefinition attributeDefinition = (AttributeDefinition) id;
-			if (multipleElementsSelected && id.equals(ATTR_ID))
+			if (multipleElementsSelected && id.equals(ATTR_ID)) {
 				return Messages.getString("ElementPropertySource.multiple"); //$NON-NLS-1$
+			}
 
 			final Attribute attribute = element.getAttribute(attributeDefinition.getName());
 			final String value;
-			if (attribute != null)
+			if (attribute != null) {
 				value = attribute.getValue();
-			else
+			} else {
 				value = nullToEmpty(attributeDefinition.getDefaultValue());
+			}
 
 			if (attributeDefinition.getType() == AttributeDefinition.Type.ENUMERATION) {
 				final String[] values = getEnumValues(attributeDefinition);
-				for (int i = 0; i < values.length; i++)
-					if (values[i].equals(value))
+				for (int i = 0; i < values.length; i++) {
+					if (values[i].equals(value)) {
 						return Integer.valueOf(i);
+					}
+				}
 				return Integer.valueOf(0);
 				// TODO: If the actual value is not in the list, we should probably add it.
 			}
 			return value;
 		}
-		
-		if (id instanceof NamespaceUri) 
+
+		if (id instanceof NamespaceUri) {
 			return ((NamespaceUri) id).uri;
+		}
 
 		return "";
 	}
 
 	private static String nullToEmpty(final String string) {
-		if (string == null)
+		if (string == null) {
 			return "";
+		}
 		return string;
 	}
 
 	public boolean isPropertySet(final Object id) {
-		if (id == ELEMENT_NAME_PROPERTY)
+		if (id == ELEMENT_NAME_PROPERTY) {
 			return true;
-		if (id == ELEMENT_NAMESPACE_URI_PROPERTY)
+		}
+		if (id == ELEMENT_NAMESPACE_URI_PROPERTY) {
 			return true;
-		if (id == ELEMENT_NAMESPACE_PREFIX_PROPERTY)
+		}
+		if (id == ELEMENT_NAMESPACE_PREFIX_PROPERTY) {
 			return true;
-		
+		}
+
 		if (id instanceof AttributeDefinition) {
 			final AttributeDefinition attributeDefinition = (AttributeDefinition) id;
 			final Attribute attribute = element.getAttribute(attributeDefinition.getName());
-			if (attribute == null)
+			if (attribute == null) {
 				return false;
+			}
 			return true;
 		}
-		
-		if (id instanceof NamespaceUri)
+
+		if (id instanceof NamespaceUri) {
 			return true;
-		
+		}
+
 		return false;
 	}
 
 	public void resetPropertyValue(final Object id) {
-		if (!(id instanceof AttributeDefinition))
+		if (!(id instanceof AttributeDefinition)) {
 			return;
+		}
 		final AttributeDefinition attributeDefinition = (AttributeDefinition) id;
 		element.removeAttribute(attributeDefinition.getName());
 	}
 
 	public void setPropertyValue(final Object id, final Object value) {
-		if (!(id instanceof AttributeDefinition))
+		if (!(id instanceof AttributeDefinition)) {
 			return;
+		}
 		final AttributeDefinition attributeDefinition = (AttributeDefinition) id;
 
 		try {
 			if (attributeDefinition.getType() == AttributeDefinition.Type.ENUMERATION) {
 				final int i = ((Integer) value).intValue();
 				final String enumValue = getEnumValues(attributeDefinition)[i];
-				if (!attributeDefinition.isRequired() && enumValue.equals(""))
+				if (!attributeDefinition.isRequired() && enumValue.equals("")) {
 					element.removeAttribute(attributeDefinition.getName());
-				else
+				} else {
 					element.setAttribute(attributeDefinition.getName(), enumValue);
+				}
 			} else {
 				final String s = (String) value;
-				if (s.equals(""))
+				if (s.equals("")) {
 					element.removeAttribute(attributeDefinition.getName());
-				else
+				} else {
 					element.setAttribute(attributeDefinition.getName(), s);
+				}
 			}
 		} catch (final DocumentValidationException e) {
 		}
@@ -203,9 +222,9 @@ public class ElementPropertySource implements IPropertySource2 {
 
 	private static String[] getEnumValues(final AttributeDefinition attributeDefinition) {
 		String[] values = attributeDefinition.getValues();
-		if (attributeDefinition.isRequired())
+		if (attributeDefinition.isRequired()) {
 			return values;
-		else {
+		} else {
 			if (values == null) {
 				values = new String[1];
 				values[0] = "";
@@ -218,8 +237,9 @@ public class ElementPropertySource implements IPropertySource2 {
 	}
 
 	public boolean isPropertyResettable(final Object id) {
-		if (!(id instanceof AttributeDefinition))
+		if (!(id instanceof AttributeDefinition)) {
 			return false;
+		}
 		return true;
 	}
 

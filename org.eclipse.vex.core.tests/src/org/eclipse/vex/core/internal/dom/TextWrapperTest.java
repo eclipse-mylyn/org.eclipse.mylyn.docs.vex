@@ -11,8 +11,6 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.dom;
 
-import org.eclipse.vex.core.internal.dom.TextWrapper;
-
 import junit.framework.TestCase;
 
 /**
@@ -23,20 +21,14 @@ public class TextWrapperTest extends TestCase {
 	public void testWrap() {
 		String[] results;
 		String[] inputs;
-		TextWrapper wrapper = new TextWrapper();
+		final TextWrapper wrapper = new TextWrapper();
 
 		results = wrapper.wrap(40);
 		assertEquals(0, results.length);
 
-		inputs = new String[] {
-				"Here ",
-				"are ",
-				"some ",
-				"short ",
-				"words ",
-				"and here are some long ones. We make sure we have some short stuff and some long stuff, just to make sure it all wraps." };
+		inputs = new String[] { "Here ", "are ", "some ", "short ", "words ", "and here are some long ones. We make sure we have some short stuff and some long stuff, just to make sure it all wraps." };
 
-		for (String input : inputs) {
+		for (final String input : inputs) {
 			wrapper.add(input);
 		}
 		results = wrapper.wrap(40);
@@ -47,8 +39,8 @@ public class TextWrapperTest extends TestCase {
 		results = wrapper.wrap(40);
 		assertEquals(0, results.length);
 
-		String s1 = "yabba ";
-		String s3 = "yabba yabba yabba ";
+		final String s1 = "yabba ";
+		final String s3 = "yabba yabba yabba ";
 		wrapper.add(s1);
 		wrapper.addNoSplit(s3);
 		wrapper.addNoSplit(s3);
@@ -62,32 +54,29 @@ public class TextWrapperTest extends TestCase {
 	}
 
 	/**
-	 * Ensure the two string arrays represent the same run of text after all
-	 * elements are concatenated.
+	 * Ensure the two string arrays represent the same run of text after all elements are concatenated.
 	 */
-	private void assertPreserved(String[] inputs, String[] results) {
-		StringBuffer inputSB = new StringBuffer();
-		StringBuffer resultSB = new StringBuffer();
-		for (String input : inputs) {
+	private void assertPreserved(final String[] inputs, final String[] results) {
+		final StringBuffer inputSB = new StringBuffer();
+		final StringBuffer resultSB = new StringBuffer();
+		for (final String input : inputs) {
 			inputSB.append(input);
 		}
-		for (String result : results) {
+		for (final String result : results) {
 			resultSB.append(result);
 		}
 		assertEquals(inputSB.toString(), resultSB.toString());
 	}
 
 	/**
-	 * Ensure all lines fit within the given width, and that adding an extra
-	 * token from the next line would blow it.
+	 * Ensure all lines fit within the given width, and that adding an extra token from the next line would blow it.
 	 */
-	private void assertWidth(String[] results, int width) {
+	private void assertWidth(final String[] results, final int width) {
 		for (int i = 0; i < results.length; i++) {
 			assertTrue(results[i].length() > 0);
 			assertTrue(results[i].length() <= width);
 			if (i < results.length - 1) {
-				assertTrue(results[i].length()
-						+ getToken(results[i + 1]).length() > width);
+				assertTrue(results[i].length() + getToken(results[i + 1]).length() > width);
 			}
 		}
 	}
@@ -95,7 +84,7 @@ public class TextWrapperTest extends TestCase {
 	/**
 	 * Get a token from a string.
 	 */
-	private String getToken(String s) {
+	private String getToken(final String s) {
 		int i = 0;
 		while (i < s.length() && !Character.isWhitespace(s.charAt(i))) {
 			i++;

@@ -20,9 +20,8 @@ import org.eclipse.vex.core.internal.css.Styles;
 import org.eclipse.vex.core.internal.dom.Element;
 
 /**
- * An inline box that draws a Drawable object. The drawable is drawn relative to
- * the text baseline, therefore it should draw using mostly negative
- * y-coordinates.
+ * An inline box that draws a Drawable object. The drawable is drawn relative to the text baseline, therefore it should
+ * draw using mostly negative y-coordinates.
  */
 public class DrawableBox extends AbstractInlineBox {
 
@@ -30,9 +29,9 @@ public class DrawableBox extends AbstractInlineBox {
 	public static final byte START_MARKER = 1;
 	public static final byte END_MARKER = 2;
 
-	private Drawable drawable;
-	private Element element;
-	private byte marker;
+	private final Drawable drawable;
+	private final Element element;
+	private final byte marker;
 
 	/**
 	 * Class constructor.
@@ -42,29 +41,28 @@ public class DrawableBox extends AbstractInlineBox {
 	 * @param element2
 	 *            Element whose styles determine the color of the drawable.
 	 */
-	public DrawableBox(Drawable drawable, Element element2) {
+	public DrawableBox(final Drawable drawable, final Element element2) {
 		this(drawable, element2, NO_MARKER);
 	}
 
 	/**
-	 * Class constructor. This constructor is called when creating a DrawableBox
-	 * that represents the start or end marker of an inline element.
+	 * Class constructor. This constructor is called when creating a DrawableBox that represents the start or end marker
+	 * of an inline element.
 	 * 
 	 * @param drawable
 	 *            Drawable to draw.
 	 * @param element2
 	 *            Element whose styles determine the color of the drawable.
 	 * @param marker
-	 *            which marker should be drawn. Must be one of NO_MARKER,
-	 *            START_MARKER, or END_MARKER.
+	 *            which marker should be drawn. Must be one of NO_MARKER, START_MARKER, or END_MARKER.
 	 */
-	public DrawableBox(Drawable drawable, Element element2, byte marker) {
+	public DrawableBox(final Drawable drawable, final Element element2, final byte marker) {
 		this.drawable = drawable;
-		this.element = element2;
+		element = element2;
 		this.marker = marker;
-		Rectangle bounds = drawable.getBounds();
-		this.setWidth(bounds.getWidth());
-		this.setHeight(bounds.getHeight());
+		final Rectangle bounds = drawable.getBounds();
+		setWidth(bounds.getWidth());
+		setHeight(bounds.getHeight());
 	}
 
 	/**
@@ -77,8 +75,9 @@ public class DrawableBox extends AbstractInlineBox {
 	/**
 	 * Returns the element that controls the styling for this text element.
 	 */
+	@Override
 	public Element getElement() {
-		return this.element;
+		return element;
 	}
 
 	public boolean isEOL() {
@@ -89,49 +88,43 @@ public class DrawableBox extends AbstractInlineBox {
 	 * @see org.eclipse.vex.core.internal.layout.InlineBox#split(org.eclipse.vex.core.internal.layout.LayoutContext,
 	 *      int, boolean)
 	 */
-	public Pair split(LayoutContext context, int maxWidth, boolean force) {
+	public Pair split(final LayoutContext context, final int maxWidth, final boolean force) {
 		return new Pair(null, this);
 	}
 
 	/**
-	 * Draw the drawable. The foreground color of the context's Graphics is set
-	 * before calling the drawable's draw method.
+	 * Draw the drawable. The foreground color of the context's Graphics is set before calling the drawable's draw
+	 * method.
 	 */
-	public void paint(LayoutContext context, int x, int y) {
+	@Override
+	public void paint(final LayoutContext context, final int x, final int y) {
 
-		Graphics g = context.getGraphics();
-		Styles styles = context.getStyleSheet().getStyles(this.element);
+		final Graphics g = context.getGraphics();
+		final Styles styles = context.getStyleSheet().getStyles(element);
 
 		boolean drawSelected = false;
-		if (this.marker == START_MARKER) {
-			drawSelected = this.getElement().getStartOffset() >= context
-					.getSelectionStart()
-					&& this.getElement().getStartOffset() + 1 <= context
-							.getSelectionEnd();
-		} else if (this.marker == END_MARKER) {
-			drawSelected = this.getElement().getEndOffset() >= context
-					.getSelectionStart()
-					&& this.getElement().getEndOffset() + 1 <= context
-							.getSelectionEnd();
+		if (marker == START_MARKER) {
+			drawSelected = getElement().getStartOffset() >= context.getSelectionStart() && getElement().getStartOffset() + 1 <= context.getSelectionEnd();
+		} else if (marker == END_MARKER) {
+			drawSelected = getElement().getEndOffset() >= context.getSelectionStart() && getElement().getEndOffset() + 1 <= context.getSelectionEnd();
 		}
 
-		FontResource font = g.createFont(styles.getFont());
-		ColorResource color = g.createColor(styles.getColor());
+		final FontResource font = g.createFont(styles.getFont());
+		final ColorResource color = g.createColor(styles.getColor());
 
-		FontResource oldFont = g.setFont(font);
-		ColorResource oldColor = g.setColor(color);
+		final FontResource oldFont = g.setFont(font);
+		final ColorResource oldColor = g.setColor(color);
 
-		FontMetrics fm = g.getFontMetrics();
+		final FontMetrics fm = g.getFontMetrics();
 
 		if (drawSelected) {
-			Rectangle bounds = this.drawable.getBounds();
+			final Rectangle bounds = drawable.getBounds();
 			g.setColor(g.getSystemColor(ColorResource.SELECTION_BACKGROUND));
-			g.fillRect(x + bounds.getX(), y - fm.getAscent(),
-					bounds.getWidth(), styles.getLineHeight());
+			g.fillRect(x + bounds.getX(), y - fm.getAscent(), bounds.getWidth(), styles.getLineHeight());
 			g.setColor(g.getSystemColor(ColorResource.SELECTION_FOREGROUND));
 		}
 
-		this.drawable.draw(g, x, y);
+		drawable.draw(g, x, y);
 
 		g.setFont(oldFont);
 		g.setColor(oldColor);
@@ -142,6 +135,7 @@ public class DrawableBox extends AbstractInlineBox {
 	/**
 	 * @see java.lang.Object#toString()
 	 */
+	@Override
 	public String toString() {
 		return "[shape]";
 	}

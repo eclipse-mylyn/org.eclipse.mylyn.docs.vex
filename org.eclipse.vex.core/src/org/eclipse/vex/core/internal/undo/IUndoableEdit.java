@@ -11,18 +11,15 @@
 package org.eclipse.vex.core.internal.undo;
 
 /**
- * Represents a change to a document (an edit) that can be undone and redone.
- * Typically, the edit source (i.e. the document) will have a flag that is set
- * by the edit to indicate that the edits being performed are part of an undo or
- * redo. The document can use this to supress events to any
- * IUndoableEventListeners during undo/redo.
+ * Represents a change to a document (an edit) that can be undone and redone. Typically, the edit source (i.e. the
+ * document) will have a flag that is set by the edit to indicate that the edits being performed are part of an undo or
+ * redo. The document can use this to supress events to any IUndoableEventListeners during undo/redo.
  */
 public interface IUndoableEdit {
 
 	/**
-	 * Try to combine the given edit event with this one. The common use-case
-	 * involves a user typing sequential characters into the document: all such
-	 * insertions should be undone in one go.
+	 * Try to combine the given edit event with this one. The common use-case involves a user typing sequential
+	 * characters into the document: all such insertions should be undone in one go.
 	 * 
 	 * @param edit
 	 *            IUndoableEdit to be combined with this one.

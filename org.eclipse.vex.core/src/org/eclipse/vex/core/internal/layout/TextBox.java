@@ -20,13 +20,12 @@ import org.eclipse.vex.core.internal.css.Styles;
 import org.eclipse.vex.core.internal.dom.Element;
 
 /**
- * An inline box containing text. The <code>getText</code> and
- * <code>splitAt</code> methods are abstract and must be implemented by
- * subclasses.
+ * An inline box containing text. The <code>getText</code> and <code>splitAt</code> methods are abstract and must be
+ * implemented by subclasses.
  */
 public abstract class TextBox extends AbstractInlineBox implements InlineBox {
 
-	private Element element;
+	private final Element element;
 	private int baseline;
 
 	public static final char NEWLINE_CHAR = 0xa;
@@ -36,36 +35,34 @@ public abstract class TextBox extends AbstractInlineBox implements InlineBox {
 	 * Class constructor.
 	 * 
 	 * @param element
-	 *            Element containing the text. This is used for styling
-	 *            information.
+	 *            Element containing the text. This is used for styling information.
 	 */
-	public TextBox(Element element) {
+	public TextBox(final Element element) {
 		this.element = element;
 	}
 
-
 	/**
-	 * Causes the box to recalculate it size. Subclasses should call this from
-	 * their constructors after they are initialized.
+	 * Causes the box to recalculate it size. Subclasses should call this from their constructors after they are
+	 * initialized.
 	 * 
 	 * @param context
 	 *            LayoutContext used to calculate size.
 	 */
-	protected void calculateSize(LayoutContext context) {
-		String s = this.getText();
+	protected void calculateSize(final LayoutContext context) {
+		String s = getText();
 		if (s.endsWith(NEWLINE_STRING)) {
 			s = s.substring(0, s.length() - 1);
 		}
 
-		Graphics g = context.getGraphics();
-		Styles styles = context.getStyleSheet().getStyles(this.getElement());
-		FontResource font = g.createFont(styles.getFont());
-		FontResource oldFont = g.setFont(font);
-		FontMetrics fm = g.getFontMetrics();
-		this.setWidth(g.stringWidth(s));
-		this.setHeight(styles.getLineHeight());
-		int halfLeading = (this.getHeight() - (fm.getAscent() + fm.getDescent())) / 2;
-		this.baseline = halfLeading + fm.getAscent();
+		final Graphics g = context.getGraphics();
+		final Styles styles = context.getStyleSheet().getStyles(getElement());
+		final FontResource font = g.createFont(styles.getFont());
+		final FontResource oldFont = g.setFont(font);
+		final FontMetrics fm = g.getFontMetrics();
+		setWidth(g.stringWidth(s));
+		setHeight(styles.getLineHeight());
+		final int halfLeading = (getHeight() - (fm.getAscent() + fm.getDescent())) / 2;
+		baseline = halfLeading + fm.getAscent();
 		g.setFont(oldFont);
 		font.dispose();
 	}
@@ -74,52 +71,52 @@ public abstract class TextBox extends AbstractInlineBox implements InlineBox {
 	 * @see org.eclipse.vex.core.internal.layout.InlineBox#getBaseline()
 	 */
 	public int getBaseline() {
-		return this.baseline;
+		return baseline;
 	}
 
 	/**
-	 * @see org.eclipse.vex.core.internal.layout.Box#getCaret(org.eclipse.vex.core.internal.layout.LayoutContext,
-	 *      int)
+	 * @see org.eclipse.vex.core.internal.layout.Box#getCaret(org.eclipse.vex.core.internal.layout.LayoutContext, int)
 	 */
-	public Caret getCaret(LayoutContext context, int offset) {
-		Graphics g = context.getGraphics();
-		Styles styles = context.getStyleSheet().getStyles(this.element);
-		FontResource oldFont = g.getFont();
-		FontResource font = g.createFont(styles.getFont());
+	@Override
+	public Caret getCaret(final LayoutContext context, final int offset) {
+		final Graphics g = context.getGraphics();
+		final Styles styles = context.getStyleSheet().getStyles(element);
+		final FontResource oldFont = g.getFont();
+		final FontResource font = g.createFont(styles.getFont());
 		g.setFont(font);
-		char[] chars = this.getText().toCharArray();
-		int x = g.charsWidth(chars, 0, offset - this.getStartOffset());
+		final char[] chars = getText().toCharArray();
+		final int x = g.charsWidth(chars, 0, offset - getStartOffset());
 		g.setFont(oldFont);
 		font.dispose();
-		return new TextCaret(x, 0, this.getHeight());
+		return new TextCaret(x, 0, getHeight());
 	}
 
 	/**
 	 * Returns the element that controls the styling for this text element.
 	 */
+	@Override
 	public Element getElement() {
-		return this.element;
+		return element;
 	}
 
 	/**
-	 * Return the text that comprises this text box. The actual text can come
-	 * from the document content or from a static string.
+	 * Return the text that comprises this text box. The actual text can come from the document content or from a static
+	 * string.
 	 */
 	public abstract String getText();
 
 	/**
-	 * Returns true if the given character is one where a linebreak should
-	 * occur, e.g. a space.
+	 * Returns true if the given character is one where a linebreak should occur, e.g. a space.
 	 * 
 	 * @param c
 	 *            the character to test
 	 */
-	public static boolean isSplitChar(char c) {
+	public static boolean isSplitChar(final char c) {
 		return Character.isWhitespace(c);
 	}
 
 	public boolean isEOL() {
-		String s = this.getText();
+		final String s = getText();
 		return s.length() > 0 && s.charAt(s.length() - 1) == NEWLINE_CHAR;
 	}
 
@@ -127,8 +124,8 @@ public abstract class TextBox extends AbstractInlineBox implements InlineBox {
 	 * Paints a string as selected text.
 	 * 
 	 * @param context
-	 *            LayoutContext to be used. It is assumed that the contained
-	 *            Graphics object is set up with the proper font.
+	 *            LayoutContext to be used. It is assumed that the contained Graphics object is set up with the proper
+	 *            font.
 	 * @param s
 	 *            String to draw
 	 * @param x
@@ -136,14 +133,13 @@ public abstract class TextBox extends AbstractInlineBox implements InlineBox {
 	 * @param y
 	 *            y-coordinate at which to draw the text
 	 */
-	protected void paintSelectedText(LayoutContext context, String s, int x,
-			int y) {
-		Graphics g = context.getGraphics();
+	protected void paintSelectedText(final LayoutContext context, final String s, final int x, final int y) {
+		final Graphics g = context.getGraphics();
 
 		boolean inSelectedBlock = false;
-		Element e = this.getElement();
+		Element e = getElement();
 		while (e != null) {
-			Styles styles = context.getStyleSheet().getStyles(e);
+			final Styles styles = context.getStyleSheet().getStyles(e);
 			if (styles.isBlock()) {
 				if (context.isElementSelected(e)) {
 					inSelectedBlock = true;
@@ -157,53 +153,51 @@ public abstract class TextBox extends AbstractInlineBox implements InlineBox {
 			g.setColor(g.getSystemColor(ColorResource.SELECTION_BACKGROUND));
 			g.drawString(s, x, y);
 		} else {
-			int width = g.stringWidth(s);
+			final int width = g.stringWidth(s);
 			g.setColor(g.getSystemColor(ColorResource.SELECTION_BACKGROUND));
-			g.fillRect(x, y, width, this.getHeight());
+			g.fillRect(x, y, width, getHeight());
 			g.setColor(g.getSystemColor(ColorResource.SELECTION_FOREGROUND));
 			g.drawString(s, x, y);
 		}
 	}
 
-	protected void paintTextDecoration(LayoutContext context, Styles styles,
-			String s, int x, int y) {
-		int fontStyle = styles.getFont().getStyle();
-		Graphics g = context.getGraphics();
-		FontMetrics fm = g.getFontMetrics();
+	protected void paintTextDecoration(final LayoutContext context, final Styles styles, final String s, final int x, final int y) {
+		final int fontStyle = styles.getFont().getStyle();
+		final Graphics g = context.getGraphics();
+		final FontMetrics fm = g.getFontMetrics();
 
 		if ((fontStyle & FontSpec.UNDERLINE) != 0) {
-			int lineWidth = fm.getAscent() / 12;
-			int ypos = y + fm.getAscent() + lineWidth;
+			final int lineWidth = fm.getAscent() / 12;
+			final int ypos = y + fm.getAscent() + lineWidth;
 			paintBaseLine(g, s, x, ypos);
 		}
 		if ((fontStyle & FontSpec.OVERLINE) != 0) {
-			int lineWidth = fm.getAscent() / 12;
-			int ypos = y + lineWidth / 2;
+			final int lineWidth = fm.getAscent() / 12;
+			final int ypos = y + lineWidth / 2;
 			paintBaseLine(g, s, x, ypos);
 		}
 		if ((fontStyle & FontSpec.LINE_THROUGH) != 0) {
-			int ypos = y + fm.getHeight() / 2;
+			final int ypos = y + fm.getHeight() / 2;
 			paintBaseLine(g, s, x, ypos);
 		}
 	}
 
 	/**
-	 * Paint a line along the baseline of the text, for showing underline,
-	 * overline and strike-through formatting.
+	 * Paint a line along the baseline of the text, for showing underline, overline and strike-through formatting.
 	 * 
 	 * @param context
-	 *            LayoutContext to be used. It is assumed that the contained
-	 *            Graphics object is set up with the proper font.
+	 *            LayoutContext to be used. It is assumed that the contained Graphics object is set up with the proper
+	 *            font.
 	 * @param x
 	 *            x-coordinate at which to start drawing baseline
 	 * @param y
-	 *            x-coordinate at which to start drawing baseline (adjusted to
-	 *            produce the desired under/over/though effect)
+	 *            x-coordinate at which to start drawing baseline (adjusted to produce the desired under/over/though
+	 *            effect)
 	 */
-	protected void paintBaseLine(Graphics g, String s, int x, int y) {
-		FontMetrics fm = g.getFontMetrics();
-		int width = g.stringWidth(s);
-		int lineWidth = fm.getAscent() / 12;
+	protected void paintBaseLine(final Graphics g, final String s, final int x, final int y) {
+		final FontMetrics fm = g.getFontMetrics();
+		final int width = g.stringWidth(s);
+		final int lineWidth = fm.getAscent() / 12;
 		g.setLineStyle(Graphics.LINE_SOLID);
 		g.setLineWidth(lineWidth);
 		g.drawLine(x, y, x + width, y);
@@ -213,18 +207,18 @@ public abstract class TextBox extends AbstractInlineBox implements InlineBox {
 	 * @see org.eclipse.vex.core.internal.layout.InlineBox#split(org.eclipse.vex.core.internal.layout.LayoutContext,
 	 *      int, boolean)
 	 */
-	public Pair split(LayoutContext context, int maxWidth, boolean force) {
+	public Pair split(final LayoutContext context, final int maxWidth, final boolean force) {
 
-		char[] chars = this.getText().toCharArray();
+		final char[] chars = getText().toCharArray();
 
 		if (chars.length == 0) {
 			throw new IllegalStateException();
 		}
 
-		Graphics g = context.getGraphics();
-		Styles styles = context.getStyleSheet().getStyles(this.element);
-		FontResource font = g.createFont(styles.getFont());
-		FontResource oldFont = g.setFont(font);
+		final Graphics g = context.getGraphics();
+		final Styles styles = context.getStyleSheet().getStyles(element);
+		final FontResource font = g.createFont(styles.getFont());
+		final FontResource oldFont = g.setFont(font);
 
 		int split = 0;
 		int next = 1;
@@ -267,17 +261,15 @@ public abstract class TextBox extends AbstractInlineBox implements InlineBox {
 		g.setFont(oldFont);
 		font.dispose();
 
-		return this.splitAt(context, split);
+		return splitAt(context, split);
 	}
 
 	/**
-	 * Return a pair of boxes representing a split at the given offset. If split
-	 * is zero, then the returned left box should be null. If the split is equal
-	 * to the length of the text, then the right box should be null.
+	 * Return a pair of boxes representing a split at the given offset. If split is zero, then the returned left box
+	 * should be null. If the split is equal to the length of the text, then the right box should be null.
 	 * 
 	 * @param context
-	 *            LayoutContext used to calculate the sizes of the resulting
-	 *            boxes.
+	 *            LayoutContext used to calculate the sizes of the resulting boxes.
 	 * @param offset
 	 *            location of the split, relative to the start of the text box.
 	 * @return
@@ -287,8 +279,9 @@ public abstract class TextBox extends AbstractInlineBox implements InlineBox {
 	/**
 	 * @see java.lang.Object#toString()
 	 */
+	@Override
 	public String toString() {
-		return this.getText();
+		return getText();
 	}
 
 }

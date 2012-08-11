@@ -65,15 +65,17 @@ public class ConfigLoaderJob extends Job implements ConfigurationLoader {
 		final IExtensionRegistry extensionRegistry = Platform.getExtensionRegistry();
 		for (final String namespace : extensionRegistry.getNamespaces()) {
 			final Bundle bundle = Platform.getBundle(namespace);
-			if (bundle == null)
+			if (bundle == null) {
 				continue;
+			}
 
-			final String name = (String) bundle.getHeaders().get(Constants.BUNDLE_NAME);
+			final String name = bundle.getHeaders().get(Constants.BUNDLE_NAME);
 			monitor.subTask(Messages.getString("ConfigLoaderJob.loading") + name); //$NON-NLS-1$
 
 			final ConfigPlugin configPlugin = new ConfigPlugin(namespace);
-			if (!configPlugin.isEmpty())
+			if (!configPlugin.isEmpty()) {
 				result.add(configPlugin);
+			}
 			monitor.worked(1);
 		}
 		return result;
@@ -84,18 +86,19 @@ public class ConfigLoaderJob extends Job implements ConfigurationLoader {
 		final IProject[] projects = root.getProjects();
 		final ArrayList<ConfigSource> result = new ArrayList<ConfigSource>();
 
-		for (final IProject project : projects)
+		for (final IProject project : projects) {
 			if (PluginProject.isOpenPluginProject(project)) {
 				monitor.subTask(Messages.getString("ConfigLoaderJob.loadingProject") + project.getName()); //$NON-NLS-1$
 				final PluginProject pluginProject = new PluginProject(project);
 				try {
 					pluginProject.load();
 					result.add(pluginProject);
-				} catch (CoreException e) {
+				} catch (final CoreException e) {
 					VexPlugin.getDefault().getLog().log(e.getStatus());
 				}
 				monitor.worked(1);
 			}
+		}
 
 		return result;
 	}
@@ -111,7 +114,7 @@ public class ConfigLoaderJob extends Job implements ConfigurationLoader {
 	public void load(final Runnable whenDone) {
 		addJobChangeListener(new JobChangeAdapter() {
 			@Override
-			public void done(IJobChangeEvent event) {
+			public void done(final IJobChangeEvent event) {
 				removeJobChangeListener(this);
 				whenDone.run();
 			}

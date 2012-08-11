@@ -18,14 +18,8 @@ public class RootPreferencePage extends FieldEditorPreferencePage implements IWo
 	@Override
 	public void createFieldEditors() {
 		addField(new IntegerFieldEditor(VexPreferences.LINE_WIDTH, "Line width:", getFieldEditorParent()));
-		addField(new RadioGroupFieldEditor(
-				VexPreferences.INDENTATION_CHAR_CHOICE, 
-				"Indentation", 1, 
-				new String[][] { 
-						{"Indent using tabs", VexPreferences.INDENTATION_CHAR_TAB}, 
-						{"Indent using spaces", VexPreferences.INDENTATION_CHAR_SPACE}
-				}, 
-				getFieldEditorParent()));
+		addField(new RadioGroupFieldEditor(VexPreferences.INDENTATION_CHAR_CHOICE, "Indentation", 1, new String[][] { { "Indent using tabs", VexPreferences.INDENTATION_CHAR_TAB },
+				{ "Indent using spaces", VexPreferences.INDENTATION_CHAR_SPACE } }, getFieldEditorParent()));
 		addField(new IntegerFieldEditor(VexPreferences.INDENTATION_SIZE, "Indentation size:", getFieldEditorParent()));
 	}
 

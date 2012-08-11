@@ -22,7 +22,7 @@ import org.junit.Test;
  * @author Florian Thienel
  */
 public class BatikBehaviorTest {
-	
+
 	@Test
 	public void pseudoElements() throws Exception {
 		final StyleSheetReader reader = new StyleSheetReader();
@@ -30,8 +30,8 @@ public class BatikBehaviorTest {
 		final List<Rule> rules = styleSheet.getRules();
 		assertEquals(1, rules.size());
 		final Rule rule = rules.get(0);
-		Element element = new Element("plan");
-		PseudoElement beforeElement = new PseudoElement(element, "before");
+		final Element element = new Element("plan");
+		final PseudoElement beforeElement = new PseudoElement(element, "before");
 		assertTrue(rule.matches(beforeElement));
 	}
 

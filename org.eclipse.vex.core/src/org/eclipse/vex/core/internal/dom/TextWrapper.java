@@ -20,7 +20,7 @@ import java.util.List;
  */
 public class TextWrapper {
 
-	private List<String> parts = new ArrayList<String>();
+	private final List<String> parts = new ArrayList<String>();
 
 	private boolean lastIsWhite = true;
 
@@ -36,7 +36,7 @@ public class TextWrapper {
 	 * @param s
 	 *            Text to be added.
 	 */
-	public void add(String s) {
+	public void add(final String s) {
 		int i = 0;
 		int j = 0;
 		boolean thisIsWhite = true;
@@ -55,48 +55,45 @@ public class TextWrapper {
 			}
 
 			if (lastIsWhite || parts.isEmpty()) {
-				this.parts.add(s.substring(i, j));
+				parts.add(s.substring(i, j));
+			} else if (!parts.isEmpty()) {
+
+				parts.add(parts.remove(parts.size() - 1) + s.substring(i, j));
 			}
-			else if (!parts.isEmpty()) { 
-				
-				this.parts.add(((String) this.parts
-						.remove(this.parts.size() - 1))
-						+ s.substring(i, j));
-			} 
 			i = j;
 			lastIsWhite = thisIsWhite;
 		}
 	}
 
 	/**
-	 * Adds text to the list of things to be wrapped. The given text will be
-	 * treated as a single unit and will not be split across lines.
+	 * Adds text to the list of things to be wrapped. The given text will be treated as a single unit and will not be
+	 * split across lines.
 	 * 
 	 * @param s
 	 *            Text to be added.
 	 */
-	public void addNoSplit(String s) {
-		this.parts.add(s);
+	public void addNoSplit(final String s) {
+		parts.add(s);
 	}
 
 	/**
 	 * Clears any added text.
 	 */
 	public void clear() {
-		this.parts.clear();
+		parts.clear();
 	}
 
 	/**
-	 * Wraps the text into the given width. The text is only broken at spaces,
-	 * meaning the returned lines will not necessarily fit within width.
+	 * Wraps the text into the given width. The text is only broken at spaces, meaning the returned lines will not
+	 * necessarily fit within width.
 	 * 
 	 * @param width
 	 */
-	public String[] wrap(int width) {
-		List<String> lines = new ArrayList<String>();
-		StringBuffer line = new StringBuffer();
+	public String[] wrap(final int width) {
+		final List<String> lines = new ArrayList<String>();
+		final StringBuffer line = new StringBuffer();
 
-		for (String s : this.parts) {
+		for (final String s : parts) {
 			if (line.length() > 0 && line.length() + s.length() > width) {
 				// part won't fit on the current line
 				lines.add(line.toString());
@@ -116,7 +113,7 @@ public class TextWrapper {
 			lines.add(line.toString());
 		}
 
-		return (String[]) lines.toArray(new String[lines.size()]);
+		return lines.toArray(new String[lines.size()]);
 	}
 
 }

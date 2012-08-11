@@ -54,9 +54,7 @@ public class DocumentFragment implements Serializable {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * org.eclipse.vex.core.internal.dom.IVEXDocumentFragment#getContent
-	 * ()
+	 * @see org.eclipse.vex.core.internal.dom.IVEXDocumentFragment#getContent ()
 	 */
 	public Content getContent() {
 		return content;
@@ -65,9 +63,7 @@ public class DocumentFragment implements Serializable {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * org.eclipse.vex.core.internal.dom.IVEXDocumentFragment#getLength
-	 * ()
+	 * @see org.eclipse.vex.core.internal.dom.IVEXDocumentFragment#getLength ()
 	 */
 	public int getLength() {
 		return content.getLength();
@@ -76,9 +72,7 @@ public class DocumentFragment implements Serializable {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * org.eclipse.vex.core.internal.dom.IVEXDocumentFragment#getElements
-	 * ()
+	 * @see org.eclipse.vex.core.internal.dom.IVEXDocumentFragment#getElements ()
 	 */
 	public List<Element> getElements() {
 		return elements;
@@ -87,18 +81,18 @@ public class DocumentFragment implements Serializable {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * org.eclipse.vex.core.internal.dom.IVEXDocumentFragment#getNodeNames
-	 * ()
+	 * @see org.eclipse.vex.core.internal.dom.IVEXDocumentFragment#getNodeNames ()
 	 */
 	public List<QualifiedName> getNodeNames() {
 		final List<Node> nodes = getNodes();
 		final List<QualifiedName> names = new ArrayList<QualifiedName>(nodes.size());
-		for (Node node : nodes)
-			if (node instanceof Text)
+		for (final Node node : nodes) {
+			if (node instanceof Text) {
 				names.add(Validator.PCDATA);
-			else
+			} else {
 				names.add(((Element) node).getQualifiedName());
+			}
+		}
 
 		return names;
 	}
@@ -106,8 +100,7 @@ public class DocumentFragment implements Serializable {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * org.eclipse.vex.core.internal.dom.IVEXDocumentFragment#getNodes()
+	 * @see org.eclipse.vex.core.internal.dom.IVEXDocumentFragment#getNodes()
 	 */
 	public List<Node> getNodes() {
 		return Document.createNodeList(getContent(), 0, getContent().getLength(), getNodes(getElements()));
@@ -115,9 +108,11 @@ public class DocumentFragment implements Serializable {
 
 	private List<Node> getNodes(final List<Element> elements) {
 		final List<Node> nodes = new ArrayList<Node>();
-		for (final Node node : elements)
-			if (node.getNodeType().equals("Element"))
+		for (final Node node : elements) {
+			if (node.getNodeType().equals("Element")) {
 				nodes.add(node);
+			}
+		}
 		return nodes;
 	}
 
@@ -128,8 +123,9 @@ public class DocumentFragment implements Serializable {
 	private void writeObject(final ObjectOutputStream out) throws IOException {
 		out.writeUTF(content.getString(0, content.getLength()));
 		out.writeInt(elements.size());
-		for (int i = 0; i < elements.size(); i++)
+		for (int i = 0; i < elements.size(); i++) {
 			writeElement(elements.get(i), out);
+		}
 	}
 
 	private void writeElement(final Element element, final ObjectOutputStream out) throws IOException {
@@ -145,8 +141,9 @@ public class DocumentFragment implements Serializable {
 		}
 		final List<Element> children = element.getChildElements();
 		out.writeInt(children.size());
-		for (int i = 0; i < children.size(); i++)
+		for (int i = 0; i < children.size(); i++) {
 			writeElement(children.get(i), out);
+		}
 	}
 
 	private void readObject(final ObjectInputStream in) throws IOException, ClassNotFoundException {
@@ -155,8 +152,9 @@ public class DocumentFragment implements Serializable {
 		content.insertString(0, s);
 		final int n = in.readInt();
 		elements = new ArrayList<Element>(n);
-		for (int i = 0; i < n; i++)
+		for (int i = 0; i < n; i++) {
 			elements.add(readElement(in));
+		}
 	}
 
 	private Element readElement(final ObjectInputStream in) throws IOException, ClassNotFoundException {
@@ -191,8 +189,9 @@ public class DocumentFragment implements Serializable {
 	private static QualifiedName createQualifiedName(final Object object) {
 		final String serializedQualifiedName = object.toString();
 		final int localNameStartIndex = serializedQualifiedName.lastIndexOf(':') + 1;
-		if (localNameStartIndex == 0)
+		if (localNameStartIndex == 0) {
 			return new QualifiedName(null, serializedQualifiedName);
+		}
 		final String qualifier = serializedQualifiedName.substring(0, localNameStartIndex - 1);
 		final String localName = serializedQualifiedName.substring(localNameStartIndex);
 		return new QualifiedName(qualifier, localName);

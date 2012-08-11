@@ -18,14 +18,13 @@ import org.eclipse.vex.core.internal.core.Rectangle;
 import org.eclipse.vex.core.internal.dom.Element;
 
 /**
- * A wrapper for the top level <code>BlockElementBox</code> that applies its
- * margins.
+ * A wrapper for the top level <code>BlockElementBox</code> that applies its margins.
  */
 public class RootBox extends AbstractBox implements BlockBox {
 
-	private Element element;
-	private BlockElementBox childBox;
-	private Box[] children = new Box[1];
+	private final Element element;
+	private final BlockElementBox childBox;
+	private final Box[] children = new Box[1];
 
 	/**
 	 * Class constructor.
@@ -37,67 +36,70 @@ public class RootBox extends AbstractBox implements BlockBox {
 	 * @param width
 	 *            width of this box
 	 */
-	public RootBox(LayoutContext context, Element element, int width) {
+	public RootBox(final LayoutContext context, final Element element, final int width) {
 		this.element = element;
-		this.setWidth(width);
+		setWidth(width);
 
-		this.childBox = new BlockElementBox(context, this, this.element);
+		childBox = new BlockElementBox(context, this, this.element);
 
-		Insets insets = this.getInsets(context, this.getWidth());
-		this.childBox.setX(insets.getLeft());
-		this.childBox.setY(insets.getTop());
-		this.childBox.setInitialSize(context);
-		this.children[0] = this.childBox;
+		final Insets insets = this.getInsets(context, getWidth());
+		childBox.setX(insets.getLeft());
+		childBox.setY(insets.getTop());
+		childBox.setInitialSize(context);
+		children[0] = childBox;
 	}
 
 	/**
-	 * @see org.eclipse.vex.core.internal.layout.Box#getCaret(org.eclipse.vex.core.internal.layout.LayoutContext,
-	 *      int)
+	 * @see org.eclipse.vex.core.internal.layout.Box#getCaret(org.eclipse.vex.core.internal.layout.LayoutContext, int)
 	 */
-	public Caret getCaret(LayoutContext context, int offset) {
-		Caret caret = this.childBox.getCaret(context, offset);
-		caret.translate(this.childBox.getX(), this.childBox.getY());
+	@Override
+	public Caret getCaret(final LayoutContext context, final int offset) {
+		final Caret caret = childBox.getCaret(context, offset);
+		caret.translate(childBox.getX(), childBox.getY());
 		return caret;
 	}
 
+	@Override
 	public Box[] getChildren() {
-		return this.children;
+		return children;
 	}
 
 	/**
 	 * @see org.eclipse.vex.core.internal.layout.Box#getElement()
 	 */
+	@Override
 	public Element getElement() {
-		return this.element;
+		return element;
 	}
 
 	/**
 	 * @see org.eclipse.vex.core.internal.layout.Box#getEndOffset()
 	 */
+	@Override
 	public int getEndOffset() {
-		return this.childBox.getEndOffset();
+		return childBox.getEndOffset();
 	}
 
 	/**
 	 * @see org.eclipse.vex.core.internal.layout.BlockBox#getFirstLine()
 	 */
 	public LineBox getFirstLine() {
-		return this.childBox.getFirstLine();
+		return childBox.getFirstLine();
 	}
 
 	/**
 	 * @see org.eclipse.vex.core.internal.layout.BlockBox#getLastLine()
 	 */
 	public LineBox getLastLine() {
-		return this.childBox.getLastLine();
+		return childBox.getLastLine();
 	}
 
-	public int getLineEndOffset(int offset) {
-		return this.childBox.getLineEndOffset(offset);
+	public int getLineEndOffset(final int offset) {
+		return childBox.getLineEndOffset(offset);
 	}
 
-	public int getLineStartOffset(int offset) {
-		return this.childBox.getLineStartOffset(offset);
+	public int getLineStartOffset(final int offset) {
+		return childBox.getLineStartOffset(offset);
 	}
 
 	public int getMarginBottom() {
@@ -108,7 +110,7 @@ public class RootBox extends AbstractBox implements BlockBox {
 		return 0;
 	}
 
-	public int getNextLineOffset(LayoutContext context, int offset, int x) {
+	public int getNextLineOffset(final LayoutContext context, final int offset, final int x) {
 		return childBox.getNextLineOffset(context, offset, x - childBox.getX());
 	}
 
@@ -116,48 +118,44 @@ public class RootBox extends AbstractBox implements BlockBox {
 		throw new IllegalStateException("RootBox does not have a parent");
 	}
 
-	public int getPreviousLineOffset(LayoutContext context, int offset, int x) {
-		return childBox.getPreviousLineOffset(context, offset, x
-				- childBox.getX());
+	public int getPreviousLineOffset(final LayoutContext context, final int offset, final int x) {
+		return childBox.getPreviousLineOffset(context, offset, x - childBox.getX());
 	}
 
 	/**
 	 * @see org.eclipse.vex.core.internal.layout.Box#getStartOffset()
 	 */
+	@Override
 	public int getStartOffset() {
-		return this.childBox.getStartOffset();
+		return childBox.getStartOffset();
 	}
 
-	public void invalidate(boolean direct) {
+	public void invalidate(final boolean direct) {
 		// do nothing. layout is always propagated to our child box.
 	}
 
-	public IntRange layout(LayoutContext context, int top, int bottom) {
+	public IntRange layout(final LayoutContext context, final int top, final int bottom) {
 
-		Insets insets = this.getInsets(context, this.getWidth());
+		final Insets insets = this.getInsets(context, getWidth());
 
 		long start = 0;
 		if (VEXCorePlugin.getInstance().isDebugging()) {
 			start = System.currentTimeMillis();
 		}
 
-		IntRange repaintRange = this.childBox.layout(context, top
-				- insets.getTop(), bottom - insets.getBottom());
+		final IntRange repaintRange = childBox.layout(context, top - insets.getTop(), bottom - insets.getBottom());
 
 		if (VEXCorePlugin.getInstance().isDebugging()) {
-			long end = System.currentTimeMillis();
+			final long end = System.currentTimeMillis();
 			if (end - start > 50) {
-				System.out.println("RootBox.layout took " + (end - start)
-						+ "ms");
+				System.out.println("RootBox.layout took " + (end - start) + "ms");
 			}
 		}
 
-		this.setHeight(this.childBox.getHeight() + insets.getTop()
-				+ insets.getBottom());
+		setHeight(childBox.getHeight() + insets.getTop() + insets.getBottom());
 
 		if (repaintRange != null) {
-			return new IntRange(repaintRange.getStart() + this.childBox.getY(),
-					repaintRange.getEnd() + this.childBox.getY());
+			return new IntRange(repaintRange.getStart() + childBox.getY(), repaintRange.getEnd() + childBox.getY());
 		} else {
 			return null;
 		}
@@ -166,27 +164,26 @@ public class RootBox extends AbstractBox implements BlockBox {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * org.eclipse.vex.core.internal.layout.AbstractBox#viewToModel(
+	 * @see org.eclipse.vex.core.internal.layout.AbstractBox#viewToModel(
 	 * org.eclipse.vex.core.internal.layout.LayoutContext, int, int)
 	 */
-	public int viewToModel(LayoutContext context, int x, int y) {
-		return this.childBox.viewToModel(context, x - this.childBox.getX(), y
-				- this.childBox.getY());
+	@Override
+	public int viewToModel(final LayoutContext context, final int x, final int y) {
+		return childBox.viewToModel(context, x - childBox.getX(), y - childBox.getY());
 	}
 
-	public void paint(LayoutContext context, int x, int y) {
-		Rectangle r = context.getGraphics().getClipBounds();
-		long start = System.currentTimeMillis();
+	@Override
+	public void paint(final LayoutContext context, final int x, final int y) {
+		final Rectangle r = context.getGraphics().getClipBounds();
+		final long start = System.currentTimeMillis();
 		super.paint(context, x, y);
-		long end = System.currentTimeMillis();
+		final long end = System.currentTimeMillis();
 		if (end - start > 50) {
-			System.out.println("RootBox.paint " + r.getHeight()
-					+ " pixel rows in " + (end - start) + "ms");
+			System.out.println("RootBox.paint " + r.getHeight() + " pixel rows in " + (end - start) + "ms");
 		}
 	}
 
-	public void setInitialSize(LayoutContext context) {
+	public void setInitialSize(final LayoutContext context) {
 		throw new IllegalStateException();
 	}
 

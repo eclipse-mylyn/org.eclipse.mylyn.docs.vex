@@ -11,22 +11,21 @@
 package org.eclipse.vex.ui.internal.handlers;
 
 /**
- * This adapter class provides empty default implementations for the methods
- * of {@link ITableCellCallback}. Callback implementations can extend this class
- * and override only the methods which they are interested in.
+ * This adapter class provides empty default implementations for the methods of {@link ITableCellCallback}. Callback
+ * implementations can extend this class and override only the methods which they are interested in.
  */
 public abstract class TableCellCallbackAdapter implements ITableCellCallback {
 
-    public void endRow(Object row, int rowIndex) {
-        // NOP (adapter pattern)
-    }
+	public void endRow(final Object row, final int rowIndex) {
+		// NOP (adapter pattern)
+	}
 
-    public void onCell(Object row, Object cell, int rowIndex, int cellIndex) {
-        // NOP (adapter pattern)
-    }
+	public void onCell(final Object row, final Object cell, final int rowIndex, final int cellIndex) {
+		// NOP (adapter pattern)
+	}
 
-    public void startRow(Object row, int rowIndex) {
-        // NOP (adapter pattern)
-    }
+	public void startRow(final Object row, final int rowIndex) {
+		// NOP (adapter pattern)
+	}
 
 }

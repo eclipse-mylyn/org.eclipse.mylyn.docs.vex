@@ -20,7 +20,7 @@ import org.eclipse.vex.ui.internal.swt.VexWidget;
 public class AddCommentHandler extends AbstractVexWidgetHandler {
 
 	@Override
-	public void execute(VexWidget widget) throws ExecutionException {
+	public void execute(final VexWidget widget) throws ExecutionException {
 		widget.insertElement(new CommentElement());
 	}
 

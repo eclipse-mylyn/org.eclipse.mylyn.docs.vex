@@ -22,10 +22,10 @@ import org.eclipse.vex.core.internal.dom.Element;
  */
 public class PlaceholderBox extends AbstractInlineBox {
 
-	private Element element;
-	private int relOffset;
-	private int textTop;
-	private int baseline;
+	private final Element element;
+	private final int relOffset;
+	private final int textTop;
+	private final int baseline;
 
 	/**
 	 * Class constructor.
@@ -33,32 +33,30 @@ public class PlaceholderBox extends AbstractInlineBox {
 	 * @param context
 	 *            LayoutContext in effect.
 	 * @param element2
-	 *            Element containing this placeholder. the element is used both
-	 *            to determine the size of the box and its caret, but also as a
-	 *            base point for relOffset.
+	 *            Element containing this placeholder. the element is used both to determine the size of the box and its
+	 *            caret, but also as a base point for relOffset.
 	 * @param relOffset
-	 *            Offset of the placeholder, relative to the start of the
-	 *            element.
+	 *            Offset of the placeholder, relative to the start of the element.
 	 */
-	public PlaceholderBox(LayoutContext context, Element element2, int relOffset) {
+	public PlaceholderBox(final LayoutContext context, final Element element2, final int relOffset) {
 
-		this.element = element2;
+		element = element2;
 		this.relOffset = relOffset;
 
-		this.setWidth(0);
+		setWidth(0);
 
-		Graphics g = context.getGraphics();
-		Styles styles = context.getStyleSheet().getStyles(element2);
-		FontResource font = g.createFont(styles.getFont());
-		FontResource oldFont = g.setFont(font);
-		FontMetrics fm = g.getFontMetrics();
-		int height = fm.getAscent() + fm.getDescent();
+		final Graphics g = context.getGraphics();
+		final Styles styles = context.getStyleSheet().getStyles(element2);
+		final FontResource font = g.createFont(styles.getFont());
+		final FontResource oldFont = g.setFont(font);
+		final FontMetrics fm = g.getFontMetrics();
+		final int height = fm.getAscent() + fm.getDescent();
 
-		int lineHeight = styles.getLineHeight();
-		this.textTop = (lineHeight - height) / 2;
+		final int lineHeight = styles.getLineHeight();
+		textTop = (lineHeight - height) / 2;
 
-		this.baseline = this.textTop + fm.getAscent();
-		this.setHeight(lineHeight);
+		baseline = textTop + fm.getAscent();
+		setHeight(lineHeight);
 		g.setFont(oldFont);
 		font.dispose();
 	}
@@ -67,49 +65,53 @@ public class PlaceholderBox extends AbstractInlineBox {
 	 * @see org.eclipse.vex.core.internal.layout.InlineBox#getBaseline()
 	 */
 	public int getBaseline() {
-		return this.baseline;
+		return baseline;
 	}
 
 	/**
 	 * @see org.eclipse.vex.core.internal.layout.InlineBox#split(org.eclipse.vex.core.internal.layout.LayoutContext,
 	 *      int, boolean)
 	 */
-	public Pair split(LayoutContext context, int maxWidth, boolean force) {
+	public Pair split(final LayoutContext context, final int maxWidth, final boolean force) {
 		return new Pair(null, this);
 	}
 
 	/**
-	 * @see org.eclipse.vex.core.internal.layout.Box#getCaret(org.eclipse.vex.core.internal.layout.LayoutContext,
-	 *      int)
+	 * @see org.eclipse.vex.core.internal.layout.Box#getCaret(org.eclipse.vex.core.internal.layout.LayoutContext, int)
 	 */
-	public Caret getCaret(LayoutContext context, int offset) {
-		return new TextCaret(0, this.textTop, this.baseline - this.textTop);
+	@Override
+	public Caret getCaret(final LayoutContext context, final int offset) {
+		return new TextCaret(0, textTop, baseline - textTop);
 	}
 
 	/**
 	 * @see org.eclipse.vex.core.internal.layout.Box#getElement()
 	 */
+	@Override
 	public Element getElement() {
-		return this.element;
+		return element;
 	}
 
 	/**
 	 * @see org.eclipse.vex.core.internal.layout.Box#getEndOffset()
 	 */
+	@Override
 	public int getEndOffset() {
-		return this.element.getStartOffset() + this.relOffset;
+		return element.getStartOffset() + relOffset;
 	}
 
 	/**
 	 * @see org.eclipse.vex.core.internal.layout.Box#getStartOffset()
 	 */
+	@Override
 	public int getStartOffset() {
-		return this.element.getStartOffset() + this.relOffset;
+		return element.getStartOffset() + relOffset;
 	}
 
 	/**
 	 * @see org.eclipse.vex.core.internal.layout.Box#hasContent()
 	 */
+	@Override
 	public boolean hasContent() {
 		return true;
 	}
@@ -121,16 +123,18 @@ public class PlaceholderBox extends AbstractInlineBox {
 	/**
 	 * @see java.lang.Object#toString()
 	 */
+	@Override
 	public String toString() {
-		return "[placeholder(" + this.getStartOffset() + ")]";
+		return "[placeholder(" + getStartOffset() + ")]";
 	}
 
 	/**
 	 * @see org.eclipse.vex.core.internal.layout.Box#viewToModel(org.eclipse.vex.core.internal.layout.LayoutContext,
 	 *      int, int)
 	 */
-	public int viewToModel(LayoutContext context, int x, int y) {
-		return this.getStartOffset();
+	@Override
+	public int viewToModel(final LayoutContext context, final int x, final int y) {
+		return getStartOffset();
 	}
 
 }

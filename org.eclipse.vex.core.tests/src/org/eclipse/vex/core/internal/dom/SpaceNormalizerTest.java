@@ -59,9 +59,10 @@ public class SpaceNormalizerTest extends TestCase {
 	protected void setUp() throws Exception {
 		super.setUp();
 		DisplayDevice.setCurrent(new MockDisplayDevice(90, 90));
-		if (fTestProjectInitialized)
+		if (fTestProjectInitialized) {
 			return;
-		
+		}
+
 		getAndCreateProject();
 		final Bundle coreTestBundle = Platform.getBundle(VEXCoreTestPlugin.PLUGIN_ID);
 		@SuppressWarnings("unchecked")
@@ -77,27 +78,29 @@ public class SpaceNormalizerTest extends TestCase {
 				System.out.println(destFile.getLocation() + " --> " + resolvedUrl.toExternalForm());
 				if (isFromJarFile(resolvedUrl)) {
 					copyTestFileToProject(coreTestBundle, absolutePath, destFile);
-				} else
+				} else {
 					//if resource is not compressed, link
 					destFile.createLink(resolvedUrl.toURI(), IResource.REPLACE, new NullProgressMonitor());
+				}
 			}
 		}
 		fTestProject.refreshLocal(IResource.DEPTH_INFINITE, null);
 		fTestProjectInitialized = true;
 	}
 
-	private static boolean isFileUrl(URL url) {
+	private static boolean isFileUrl(final URL url) {
 		return !url.getFile().endsWith("/");
 	}
-	
+
 	private boolean isFromJarFile(final URL resolvedUrl) {
 		return resolvedUrl.toExternalForm().startsWith("jar:file");
 	}
-	
+
 	private void copyTestFileToProject(final Bundle coreTestBundle, final String sourcePath, final IFile destinationFile) throws IOException, CoreException {
 		final InputStream source = FileLocator.openStream(coreTestBundle, new Path(sourcePath), false);
-		if (destinationFile.exists())
+		if (destinationFile.exists()) {
 			destinationFile.delete(true, new NullProgressMonitor());
+		}
 		destinationFile.create(source, true, new NullProgressMonitor());
 	}
 
@@ -116,15 +119,17 @@ public class SpaceNormalizerTest extends TestCase {
 	}
 
 	private static void createProject(final IProject project, IPath locationPath, IProgressMonitor monitor) throws CoreException {
-		if (monitor == null)
+		if (monitor == null) {
 			monitor = new NullProgressMonitor();
+		}
 		monitor.beginTask("creating test project", 10);
 		// create the project
 		try {
 			if (!project.exists()) {
 				final IProjectDescription desc = project.getWorkspace().newProjectDescription(project.getName());
-				if (Platform.getLocation().equals(locationPath))
+				if (Platform.getLocation().equals(locationPath)) {
 					locationPath = null;
+				}
 				desc.setLocation(locationPath);
 				project.create(desc, monitor);
 				monitor = null;
@@ -134,8 +139,9 @@ public class SpaceNormalizerTest extends TestCase {
 				monitor = null;
 			}
 		} finally {
-			if (monitor != null)
+			if (monitor != null) {
 				monitor.done();
+			}
 		}
 	}
 
@@ -153,8 +159,7 @@ public class SpaceNormalizerTest extends TestCase {
 	 * <li>leading w/s trimmed</li>
 	 * <li>trailing w/s trimmed</li>
 	 * <li>internal w/s collapsed to a single space</li>
-	 * <li>internal w/s before and after an inline child element collapsed to a
-	 * single space.</li>
+	 * <li>internal w/s before and after an inline child element collapsed to a single space.</li>
 	 * <li>internal w/s before and after a block child element removed.</li>
 	 * <li>spaces between blocks eliminated.</li>
 	 * <li>no extraneous spaces before or after elements added</li>
@@ -162,9 +167,8 @@ public class SpaceNormalizerTest extends TestCase {
 	 */
 	public void testNormalize() throws Exception {
 
-		final String input = "<doc>\n\t  " + "<block>\n\t foo\n\t <inline>foo\n\t bar</inline>\n\t baz\n\t </block>\n\t "
-				+ "<block>\n\t foo\n\t <block>bar</block>\n\t baz</block>" + "<block>\n\t foo<inline> foo bar </inline>baz \n\t </block>"
-				+ "<block>\n\t foo<block>bar</block>baz \n\t</block>" + "\n\t </doc>";
+		final String input = "<doc>\n\t  " + "<block>\n\t foo\n\t <inline>foo\n\t bar</inline>\n\t baz\n\t </block>\n\t " + "<block>\n\t foo\n\t <block>bar</block>\n\t baz</block>"
+				+ "<block>\n\t foo<inline> foo bar </inline>baz \n\t </block>" + "<block>\n\t foo<block>bar</block>baz \n\t</block>" + "\n\t </doc>";
 
 		final StyleSheet ss = getStyleSheet();
 
@@ -258,14 +262,13 @@ public class SpaceNormalizerTest extends TestCase {
 	// private static final String DTD = "<!ELEMENT doc ANY>";
 
 	/**
-	 * Asserts the content of the given element matches the given list. If a
-	 * string in content is enclosed in angle brackets, it's assume to refer to
-	 * the name of an element; otherwise, it represents text content.
+	 * Asserts the content of the given element matches the given list. If a string in content is enclosed in angle
+	 * brackets, it's assume to refer to the name of an element; otherwise, it represents text content.
 	 */
 	private void assertContent(final Element element, final String... strings) {
 		final List<Node> content = element.getChildNodes();
 		assertEquals(strings.length, content.size());
-		for (int i = 0; i < strings.length; i++)
+		for (int i = 0; i < strings.length; i++) {
 			if (strings[i].startsWith("<")) {
 				final String name = strings[i].substring(1, strings[i].length() - 1);
 				assertTrue(content.get(i) instanceof Element);
@@ -275,6 +278,7 @@ public class SpaceNormalizerTest extends TestCase {
 				final String contentText = content.get(i).getText();
 				assertEquals(strings[i], contentText);
 			}
+		}
 	}
 
 	private Document createDocument(final String s, final StyleSheet ss) throws ParserConfigurationException, SAXException, IOException {
@@ -283,6 +287,7 @@ public class SpaceNormalizerTest extends TestCase {
 		final StyleSheet mySS = ss;
 		final CssWhitespacePolicy policy = new CssWhitespacePolicy(mySS);
 		final DocumentBuilder builder = new DocumentBuilder(null, new DocumentContentModel() {
+			@Override
 			public IWhitespacePolicy getWhitespacePolicy() {
 				return policy;
 			}

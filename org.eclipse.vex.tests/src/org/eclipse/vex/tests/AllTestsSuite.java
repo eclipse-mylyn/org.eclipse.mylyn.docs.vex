@@ -17,8 +17,7 @@ import org.eclipse.vex.core.tests.VEXCoreTestSuite;
 import org.eclipse.vex.ui.tests.VexUiTestSuite;
 
 /**
- * This class specifies all the bundles of this component that provide a test
- * suite to run during automated testing.
+ * This class specifies all the bundles of this component that provide a test suite to run during automated testing.
  */
 public class AllTestsSuite extends TestSuite {
 
@@ -43,7 +42,7 @@ public class AllTestsSuite extends TestSuite {
 	 * @return all Vex tests (only required by JUnit 4)
 	 */
 	public static Test suite() {
-	     return new AllTestsSuite();
+		return new AllTestsSuite();
 	}
 
 }

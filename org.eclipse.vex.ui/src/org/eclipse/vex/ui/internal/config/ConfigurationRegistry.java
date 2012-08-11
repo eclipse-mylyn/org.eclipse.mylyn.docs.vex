@@ -25,8 +25,7 @@ public interface ConfigurationRegistry {
 	void dispose();
 
 	/**
-	 * Load all configurations from installed bundles and plug-in projects in
-	 * the workspace.
+	 * Load all configurations from installed bundles and plug-in projects in the workspace.
 	 */
 	void loadConfigurations();
 
@@ -36,14 +35,13 @@ public interface ConfigurationRegistry {
 	boolean isLoaded();
 
 	/**
-	 * The document type configuration for the given public identifier, or null
-	 * if there is no configuration for the given public identifier.
+	 * The document type configuration for the given public identifier, or null if there is no configuration for the
+	 * given public identifier.
 	 * 
 	 * @param publicId
 	 *            the public identifier
-	 * @return the document type configuration for the given public identifier,
-	 *         or null if there is no configuration for the given public
-	 *         identifier.
+	 * @return the document type configuration for the given public identifier, or null if there is no configuration for
+	 *         the given public identifier.
 	 */
 	DocumentType getDocumentType(final String publicId);
 
@@ -53,8 +51,7 @@ public interface ConfigurationRegistry {
 	DocumentType[] getDocumentTypes();
 
 	/**
-	 * @return all document type configurations for which there is at least one
-	 *         registered style.
+	 * @return all document type configurations for which there is at least one registered style.
 	 */
 	DocumentType[] getDocumentTypesWithStyles();
 
@@ -72,22 +69,19 @@ public interface ConfigurationRegistry {
 	 * 
 	 * @param styleId
 	 *            the style's id
-	 * @return the style with the given id, or null if there is no style with
-	 *         this id.
+	 * @return the style with the given id, or null if there is no style with this id.
 	 */
 	Style getStyle(final String styleId);
 
 	/**
-	 * An arbitrary style for the document type with the given public
-	 * identifier. If available,
-	 * the style with the given style id is preferred.
+	 * An arbitrary style for the document type with the given public identifier. If available, the style with the given
+	 * style id is preferred.
 	 * 
 	 * @param publicId
 	 *            the document type's public identifier
 	 * @param preferredStyleId
 	 *            the preferred style's id
-	 * @return a style for the given document type, or null if no style is
-	 *         configured for the given document type
+	 * @return a style for the given document type, or null if no style is configured for the given document type
 	 */
 	Style getStyle(final String publicId, final String preferredStyleId);
 

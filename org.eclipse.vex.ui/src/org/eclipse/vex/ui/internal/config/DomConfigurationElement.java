@@ -24,20 +24,20 @@ import org.w3c.dom.Text;
  */
 public class DomConfigurationElement implements IConfigElement {
 
-	public DomConfigurationElement(Element element) {
+	public DomConfigurationElement(final Element element) {
 		this.element = element;
 	}
 
-	public String getAttribute(String name) {
-		return this.element.getAttribute(name); // TODO translate from resource
-												// bundle
+	public String getAttribute(final String name) {
+		return element.getAttribute(name); // TODO translate from resource
+											// bundle
 	}
 
 	public String[] getAttributeNames() {
-		int n = this.element.getAttributes().getLength();
-		String[] names = new String[n];
+		final int n = element.getAttributes().getLength();
+		final String[] names = new String[n];
 		for (int i = 0; i < n; i++) {
-			Node node = this.element.getAttributes().item(i);
+			final Node node = element.getAttributes().item(i);
 			names[i] = node.getLocalName();
 		}
 		return names;
@@ -47,18 +47,18 @@ public class DomConfigurationElement implements IConfigElement {
 		return this.getChildren(null);
 	}
 
-	public IConfigElement[] getChildren(String name) {
-		List<IConfigElement> children = new ArrayList<IConfigElement>();
-		NodeList list = this.element.getChildNodes();
+	public IConfigElement[] getChildren(final String name) {
+		final List<IConfigElement> children = new ArrayList<IConfigElement>();
+		final NodeList list = element.getChildNodes();
 		for (int i = 0; i < list.getLength(); i++) {
-			Node node = list.item(i);
+			final Node node = list.item(i);
 			if (node instanceof Element) {
 				if (name == null || name.equals(node.getNodeName())) {
-					children.add(new DomConfigurationElement((Element)node));
+					children.add(new DomConfigurationElement((Element) node));
 				}
 			}
 		}
-		
+
 		return children.toArray(new IConfigElement[children.size()]);
 	}
 
@@ -67,11 +67,11 @@ public class DomConfigurationElement implements IConfigElement {
 	}
 
 	public String getValue() {
-		StringBuffer sb = new StringBuffer();
+		final StringBuffer sb = new StringBuffer();
 
-		NodeList list = this.element.getChildNodes();
+		final NodeList list = element.getChildNodes();
 		for (int i = 0; i < list.getLength(); i++) {
-			Node node = list.item(i);
+			final Node node = list.item(i);
 			if (node instanceof Text) {
 				sb.append(node.getNodeValue());
 			}
@@ -81,6 +81,6 @@ public class DomConfigurationElement implements IConfigElement {
 
 	// ===================================================== PRIVATE
 
-	private Element element;
+	private final Element element;
 
 }

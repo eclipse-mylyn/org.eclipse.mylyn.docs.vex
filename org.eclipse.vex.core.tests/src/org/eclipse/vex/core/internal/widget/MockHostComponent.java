@@ -13,7 +13,6 @@ package org.eclipse.vex.core.internal.widget;
 import org.eclipse.vex.core.internal.core.Graphics;
 import org.eclipse.vex.core.internal.core.Rectangle;
 import org.eclipse.vex.core.internal.layout.FakeGraphics;
-import org.eclipse.vex.core.internal.widget.HostComponent;
 
 public class MockHostComponent implements HostComponent {
 
@@ -28,19 +27,19 @@ public class MockHostComponent implements HostComponent {
 		return new Rectangle(0, 0, 0, 0);
 	}
 
-	public void invokeLater(Runnable runnable) {
+	public void invokeLater(final Runnable runnable) {
 	}
 
 	public void repaint() {
 	}
 
-	public void repaint(int x, int y, int width, int height) {
+	public void repaint(final int x, final int y, final int width, final int height) {
 	}
 
-	public void scrollTo(int left, int top) {
+	public void scrollTo(final int left, final int top) {
 	}
 
-	public void setPreferredSize(int width, int height) {
+	public void setPreferredSize(final int width, final int height) {
 	}
 
 }

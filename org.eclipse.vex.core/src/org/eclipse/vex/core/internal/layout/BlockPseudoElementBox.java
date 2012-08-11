@@ -22,41 +22,34 @@ import org.eclipse.vex.core.internal.dom.Element;
  */
 public class BlockPseudoElementBox extends AbstractBox implements BlockBox {
 
-	private Element pseudoElement;
-	private BlockBox parent;
-	private ParagraphBox para;
+	private final Element pseudoElement;
+	private final BlockBox parent;
+	private final ParagraphBox para;
 
-	private int marginTop;
-	private int marginBottom;
+	private final int marginTop;
+	private final int marginBottom;
 
-	public BlockPseudoElementBox(LayoutContext context, Element pseudoElement,
-			BlockBox parent, int width) {
+	public BlockPseudoElementBox(final LayoutContext context, final Element pseudoElement, final BlockBox parent, final int width) {
 
 		this.pseudoElement = pseudoElement;
 		this.parent = parent;
 
-		Styles styles = context.getStyleSheet().getStyles(pseudoElement);
+		final Styles styles = context.getStyleSheet().getStyles(pseudoElement);
 
-		this.marginTop = styles.getMarginTop().get(width);
-		this.marginBottom = styles.getMarginBottom().get(width);
+		marginTop = styles.getMarginTop().get(width);
+		marginBottom = styles.getMarginBottom().get(width);
 
-		int leftInset = styles.getMarginLeft().get(width)
-				+ styles.getBorderLeftWidth()
-				+ styles.getPaddingLeft().get(width);
-		int rightInset = styles.getMarginRight().get(width)
-				+ styles.getBorderRightWidth()
-				+ styles.getPaddingRight().get(width);
+		final int leftInset = styles.getMarginLeft().get(width) + styles.getBorderLeftWidth() + styles.getPaddingLeft().get(width);
+		final int rightInset = styles.getMarginRight().get(width) + styles.getBorderRightWidth() + styles.getPaddingRight().get(width);
 
-		int childWidth = width - leftInset - rightInset;
-		List<InlineBox> inlines = LayoutUtils.createGeneratedInlines(context,
-				pseudoElement);
-		this.para = ParagraphBox.create(context, pseudoElement, inlines,
-				childWidth);
+		final int childWidth = width - leftInset - rightInset;
+		final List<InlineBox> inlines = LayoutUtils.createGeneratedInlines(context, pseudoElement);
+		para = ParagraphBox.create(context, pseudoElement, inlines, childWidth);
 
-		this.para.setX(0);
-		this.para.setY(0);
-		this.setWidth(width - leftInset - rightInset);
-		this.setHeight(this.para.getHeight());
+		para.setX(0);
+		para.setY(0);
+		setWidth(width - leftInset - rightInset);
+		setHeight(para.getHeight());
 	}
 
 	/**
@@ -64,15 +57,17 @@ public class BlockPseudoElementBox extends AbstractBox implements BlockBox {
 	 * 
 	 * @see org.eclipse.vex.core.internal.layout.Box#getChildren()
 	 */
+	@Override
 	public Box[] getChildren() {
-		return new Box[] { this.para };
+		return new Box[] { para };
 	}
 
 	/**
 	 * @see org.eclipse.vex.core.internal.layout.Box#getElement()
 	 */
+	@Override
 	public Element getElement() {
-		return this.pseudoElement;
+		return pseudoElement;
 	}
 
 	/**
@@ -92,30 +87,30 @@ public class BlockPseudoElementBox extends AbstractBox implements BlockBox {
 	/**
 	 * @see org.eclipse.vex.core.internal.layout.BlockBox#getLineEndOffset(int)
 	 */
-	public int getLineEndOffset(int offset) {
+	public int getLineEndOffset(final int offset) {
 		throw new IllegalStateException();
 	}
 
 	/**
 	 * @see org.eclipse.vex.core.internal.layout.BlockBox#getLineStartOffset(int)
 	 */
-	public int getLineStartOffset(int offset) {
+	public int getLineStartOffset(final int offset) {
 		throw new IllegalStateException();
 	}
 
 	public int getMarginBottom() {
-		return this.marginBottom;
+		return marginBottom;
 	}
 
 	public int getMarginTop() {
-		return this.marginTop;
+		return marginTop;
 	}
 
 	/**
 	 * @see org.eclipse.vex.core.internal.layout.BlockBox#getNextLineOffset(org.eclipse.vex.core.internal.layout.LayoutContext,
 	 *      int, int)
 	 */
-	public int getNextLineOffset(LayoutContext context, int offset, int x) {
+	public int getNextLineOffset(final LayoutContext context, final int offset, final int x) {
 		throw new IllegalStateException();
 	}
 
@@ -123,38 +118,37 @@ public class BlockPseudoElementBox extends AbstractBox implements BlockBox {
 	 * Returns this box's parent.
 	 */
 	public BlockBox getParent() {
-		return this.parent;
+		return parent;
 	}
 
 	/**
 	 * @see org.eclipse.vex.core.internal.layout.BlockBox#getPreviousLineOffset(org.eclipse.vex.core.internal.layout.LayoutContext,
 	 *      int, int)
 	 */
-	public int getPreviousLineOffset(LayoutContext context, int offset, int x) {
+	public int getPreviousLineOffset(final LayoutContext context, final int offset, final int x) {
 		throw new IllegalStateException();
 	}
 
-	public IntRange layout(LayoutContext context, int top, int bottom) {
+	public IntRange layout(final LayoutContext context, final int top, final int bottom) {
 		return null;
 	}
 
-	public void invalidate(boolean direct) {
-		throw new IllegalStateException(
-				"invalidate called on a non-element BlockBox");
+	public void invalidate(final boolean direct) {
+		throw new IllegalStateException("invalidate called on a non-element BlockBox");
 	}
 
 	/**
 	 * Draw boxes before painting our child.
 	 * 
-	 * @see org.eclipse.vex.core.internal.layout.Box#paint(org.eclipse.vex.core.internal.layout.LayoutContext,
-	 *      int, int)
+	 * @see org.eclipse.vex.core.internal.layout.Box#paint(org.eclipse.vex.core.internal.layout.LayoutContext, int, int)
 	 */
-	public void paint(LayoutContext context, int x, int y) {
-		this.drawBox(context, x, y, this.getParent().getWidth(), true);
+	@Override
+	public void paint(final LayoutContext context, final int x, final int y) {
+		this.drawBox(context, x, y, getParent().getWidth(), true);
 		super.paint(context, x, y);
 	}
 
-	public void setInitialSize(LayoutContext context) {
+	public void setInitialSize(final LayoutContext context) {
 		// NOP - size calculated in the ctor
 	}
 

@@ -89,9 +89,10 @@ public class PluginProject extends ConfigSource {
 	}
 
 	private void checkProject() {
-		if (!isOpenPluginProject(project))
+		if (!isOpenPluginProject(project)) {
 			throw new IllegalStateException(MessageFormat.format(Messages.getString("PluginProject.notPluginProject"), //$NON-NLS-1$
 					project.getName()));
+		}
 	}
 
 	public static boolean isOpenPluginProject(final IProject project) {
@@ -114,8 +115,9 @@ public class PluginProject extends ConfigSource {
 		removeAllItems();
 
 		final Document document = parseConfigXmlDom(problemHandler);
-		if (document == null)
+		if (document == null) {
 			return;
+		}
 
 		final NodeList extensions = document.getElementsByTagName("extension"); //$NON-NLS-1$
 		for (int i = 0; i < extensions.getLength(); i++) {
@@ -162,8 +164,9 @@ public class PluginProject extends ConfigSource {
 		final NodeList childList = extensionElement.getChildNodes();
 		for (int j = 0; j < childList.getLength(); j++) {
 			final Node child = childList.item(j);
-			if (child instanceof Element)
+			if (child instanceof Element) {
 				result.add(new DomConfigurationElement((Element) child));
+			}
 		}
 		return result.toArray(new IConfigElement[result.size()]);
 	}
@@ -204,23 +207,26 @@ public class PluginProject extends ConfigSource {
 		final InputStream inputStream = new ByteArrayInputStream(baos.toByteArray());
 
 		final IFile file = getProject().getFile(PLUGIN_XML);
-		if (file.exists())
+		if (file.exists()) {
 			file.setContents(inputStream, true, false, null);
-		else
+		} else {
 			file.create(inputStream, true, null);
+		}
 	}
 
 	private static void writeElement(final IConfigElement element, final PrintWriter out, final int level) {
 		final StringBuffer elementIndent = new StringBuffer();
-		for (int i = 0; i < level; i++)
+		for (int i = 0; i < level; i++) {
 			elementIndent.append("  "); //$NON-NLS-1$
+		}
 		final StringBuffer elementPrefix = new StringBuffer();
 		elementPrefix.append("<"); //$NON-NLS-1$
 		elementPrefix.append(element.getName());
 
 		final StringBuffer attributeIndent = new StringBuffer(elementIndent.toString());
-		for (int i = 0; i < elementPrefix.length() + 1; i++)
+		for (int i = 0; i < elementPrefix.length() + 1; i++) {
 			attributeIndent.append(" "); //$NON-NLS-1$
+		}
 
 		out.print(elementIndent.toString());
 		out.print(elementPrefix.toString());
@@ -230,8 +236,9 @@ public class PluginProject extends ConfigSource {
 			if (i > 0) {
 				out.println();
 				out.print(attributeIndent);
-			} else
+			} else {
 				out.print(" "); //$NON-NLS-1$
+			}
 
 			out.print(attributeName);
 			out.print("=\""); //$NON-NLS-1$
@@ -241,8 +248,9 @@ public class PluginProject extends ConfigSource {
 		out.println(">"); //$NON-NLS-1$
 
 		final IConfigElement[] children = element.getChildren();
-		for (final IConfigElement element2 : children)
+		for (final IConfigElement element2 : children) {
 			writeElement(element2, out, level + 1);
+		}
 
 		out.print(elementIndent);
 		out.print("</"); //$NON-NLS-1$

@@ -34,8 +34,9 @@ public class NamespaceStack {
 
 	private List<String> getStack(final String prefix) {
 		final List<String> result = stacks.get(prefix);
-		if (result != null)
+		if (result != null) {
 			return result;
+		}
 		return putNewStack(prefix);
 	}
 
@@ -46,14 +47,16 @@ public class NamespaceStack {
 	}
 
 	private String peek(final List<String> stack) {
-		if (stack.isEmpty())
+		if (stack.isEmpty()) {
 			return null;
+		}
 		return stack.get(stack.size() - 1);
 	}
 
 	private void removeTop(final List<String> stack) {
-		if (stack.isEmpty())
+		if (stack.isEmpty()) {
 			return;
+		}
 		stack.remove(stack.size() - 1);
 	}
 
@@ -79,12 +82,14 @@ public class NamespaceStack {
 	public void clear() {
 		stacks.clear();
 	}
-	
+
 	public Collection<String> getPrefixes() {
 		final ArrayList<String> result = new ArrayList<String>();
-		for (String key : stacks.keySet())
-			if (key != DEFAULT_PREFIX)
+		for (final String key : stacks.keySet()) {
+			if (key != DEFAULT_PREFIX) {
 				result.add(key);
+			}
+		}
 		return result;
 	}
 

@@ -20,20 +20,18 @@ import org.eclipse.vex.ui.internal.swt.VexWidget;
  */
 public class RemoveColumnHandler extends AbstractRemoveTableCellsHandler {
 
-    protected List<Object> collectCellsToDelete(final VexWidget widget,
-                                                final VexHandlerUtil.RowColumnInfo rcInfo) {
-        final List<Object> cellsToDelete = new ArrayList<Object>();
-        VexHandlerUtil.iterateTableCells(widget, new TableCellCallbackAdapter() {
-            public void onCell(Object row,
-                               Object cell,
-                               int rowIndex,
-                               int cellIndex) {
-                if (cellIndex == rcInfo.cellIndex) {
-                    cellsToDelete.add(cell);
-                }
-            }
-        });
-        return cellsToDelete;
-    }
+	@Override
+	protected List<Object> collectCellsToDelete(final VexWidget widget, final VexHandlerUtil.RowColumnInfo rcInfo) {
+		final List<Object> cellsToDelete = new ArrayList<Object>();
+		VexHandlerUtil.iterateTableCells(widget, new TableCellCallbackAdapter() {
+			@Override
+			public void onCell(final Object row, final Object cell, final int rowIndex, final int cellIndex) {
+				if (cellIndex == rcInfo.cellIndex) {
+					cellsToDelete.add(cell);
+				}
+			}
+		});
+		return cellsToDelete;
+	}
 
 }

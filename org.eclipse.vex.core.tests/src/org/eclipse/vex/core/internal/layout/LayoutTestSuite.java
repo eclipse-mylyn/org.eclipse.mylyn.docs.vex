@@ -39,8 +39,8 @@ import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.DefaultHandler;
 
 /**
- * Runs several suites of layout tests. Each suite is defined in an XML file.
- * The XML files to run are registered in the suite() method.
+ * Runs several suites of layout tests. Each suite is defined in an XML file. The XML files to run are registered in the
+ * suite() method.
  */
 public class LayoutTestSuite extends TestCase {
 
@@ -68,8 +68,9 @@ public class LayoutTestSuite extends TestCase {
 		xmlReader.parse(new InputSource(url.toString()));
 
 		final TestSuite suite = new TestSuite(filename);
-		for (final TestCase test : builder.testCases)
+		for (final TestCase test : builder.testCases) {
 			suite.addTest(test);
+		}
 		return suite;
 	}
 
@@ -132,29 +133,34 @@ public class LayoutTestSuite extends TestCase {
 			assertEquals(boxSpec.element, box.getElement().getPrefixedName());
 		}
 
-		if (boxSpec.text != null && box instanceof TextBox)
+		if (boxSpec.text != null && box instanceof TextBox) {
 			assertEquals(boxSpec.text, ((TextBox) box).getText());
+		}
 
-		if (!boxSpec.children.isEmpty() && box.getChildren() == null)
+		if (!boxSpec.children.isEmpty() && box.getChildren() == null) {
 			fail("Expected " + boxSpec.children.size() + " children, but " + boxSpec.className + "'s children is null");
+		}
 
 		if (boxSpec.children.size() != box.getChildren().length) {
 			System.out.println("Wrong number of child boxes");
 			System.out.println("  Expected:");
 			for (final BoxSpec childSpec : boxSpec.children) {
 				System.out.print("    " + childSpec.className);
-				if (childSpec.text != null)
+				if (childSpec.text != null) {
 					System.out.print(" '" + childSpec.text + "'");
+				}
 				System.out.println();
 			}
 			System.out.println("  Actual:");
-			for (final Box childBox : box.getChildren())
+			for (final Box childBox : box.getChildren()) {
 				System.out.println("    " + childBox.getClass() + ": " + childBox);
+			}
 			fail("Wrong number of child boxes.");
 		}
 
-		for (int i = 0; i < boxSpec.children.size(); i++)
+		for (int i = 0; i < boxSpec.children.size(); i++) {
 			assertBox(boxSpec.children.get(i), box.getChildren()[i], indent + "  ");
+		}
 
 	}
 
@@ -171,22 +177,26 @@ public class LayoutTestSuite extends TestCase {
 		public void characters(final char[] ch, final int start, final int length) throws SAXException {
 
 			final String s = new String(ch, start, length).trim();
-			if (s.length() > 0)
-				if (inDoc)
+			if (s.length() > 0) {
+				if (inDoc) {
 					testCase.doc = new String(ch, start, length);
-				else
+				} else {
 					throw new IllegalStateException();
+				}
+			}
 		}
 
 		@Override
 		public void endElement(final String uri, final String localName, final String qName) throws SAXException {
 			if (qName.equals("box")) {
-				if (boxSpecs.isEmpty())
+				if (boxSpecs.isEmpty()) {
 					boxSpec = null;
-				else
+				} else {
 					boxSpec = boxSpecs.pop();
-			} else if (qName.equals("doc"))
+				}
+			} else if (qName.equals("doc")) {
 				inDoc = false;
+			}
 		}
 
 		@Override
@@ -195,8 +205,9 @@ public class LayoutTestSuite extends TestCase {
 			if (qName.equals("testcases")) {
 				testCases = new ArrayList<TestCase>();
 				css = attributes.getValue("css");
-				if (css == null)
+				if (css == null) {
 					css = "test.css";
+				}
 				testCase = null;
 				boxSpecs = new Stack<BoxSpec>();
 			} else if (qName.equals("test")) {
@@ -204,26 +215,28 @@ public class LayoutTestSuite extends TestCase {
 				testCase.id = attributes.getValue("id");
 				testCase.css = css;
 				final String layoutWidth = attributes.getValue("layoutWidth");
-				if (layoutWidth != null)
+				if (layoutWidth != null) {
 					testCase.layoutWidth = Integer.parseInt(layoutWidth);
+				}
 				testCases.add(testCase);
-			} else if (qName.equals("doc"))
+			} else if (qName.equals("doc")) {
 				inDoc = true;
-			else if (qName.equals("result")) {
+			} else if (qName.equals("result")) {
 			} else if (qName.equals("box")) {
 				final BoxSpec parent = boxSpec;
 				boxSpec = new BoxSpec();
 				boxSpec.className = attributes.getValue("class");
 				boxSpec.element = attributes.getValue("element");
 				boxSpec.text = attributes.getValue("text");
-				if (parent == null)
+				if (parent == null) {
 					testCase.result = boxSpec;
-				else {
+				} else {
 					boxSpecs.push(parent);
 					parent.children.add(boxSpec);
 				}
-			} else
+			} else {
 				throw new SAXException("Unrecognized element: " + qName);
+			}
 		}
 	}
 

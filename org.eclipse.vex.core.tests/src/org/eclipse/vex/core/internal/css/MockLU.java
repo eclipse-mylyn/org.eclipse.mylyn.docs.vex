@@ -17,30 +17,30 @@ import org.w3c.css.sac.LexicalUnit;
  */
 public class MockLU implements LexicalUnit {
 
-	public MockLU(short type) {
-		this.lexicalUnitType = type;
+	public MockLU(final short type) {
+		lexicalUnitType = type;
 	}
 
 	public static LexicalUnit INHERIT = new MockLU(LexicalUnit.SAC_INHERIT);
 
-	public static LexicalUnit createFloat(short units, float value) {
-		MockLU lu = new MockLU(units);
+	public static LexicalUnit createFloat(final short units, final float value) {
+		final MockLU lu = new MockLU(units);
 		lu.setFloatValue(value);
 		return lu;
 	}
 
-	public static LexicalUnit createIdent(String s) {
-		MockLU lu = new MockLU(LexicalUnit.SAC_IDENT);
+	public static LexicalUnit createIdent(final String s) {
+		final MockLU lu = new MockLU(LexicalUnit.SAC_IDENT);
 		lu.setStringValue(s);
 		return lu;
 	}
 
-	public static LexicalUnit createString(String s) {
-		MockLU lu = new MockLU(LexicalUnit.SAC_STRING_VALUE);
+	public static LexicalUnit createString(final String s) {
+		final MockLU lu = new MockLU(LexicalUnit.SAC_STRING_VALUE);
 		lu.setStringValue(s);
 		return lu;
 	}
-	
+
 	public static LexicalUnit createAttr(final String attributeName) {
 		final MockLU result = new MockLU(LexicalUnit.SAC_ATTR);
 		result.setStringValue(attributeName);
@@ -48,82 +48,82 @@ public class MockLU implements LexicalUnit {
 	}
 
 	public String getDimensionUnitText() {
-		return this.dimensionUnitText;
+		return dimensionUnitText;
 	}
 
 	public float getFloatValue() {
-		return this.floatValue;
+		return floatValue;
 	}
 
 	public String getFunctionName() {
-		return this.functionName;
+		return functionName;
 	}
 
 	public int getIntegerValue() {
-		return this.integerValue;
+		return integerValue;
 	}
 
 	public short getLexicalUnitType() {
-		return this.lexicalUnitType;
+		return lexicalUnitType;
 	}
 
 	public LexicalUnit getNextLexicalUnit() {
-		return this.nextLexicalUnit;
+		return nextLexicalUnit;
 	}
 
 	public LexicalUnit getParameters() {
-		return this.parameters;
+		return parameters;
 	}
 
 	public LexicalUnit getPreviousLexicalUnit() {
-		return this.previousLexicalUnit;
+		return previousLexicalUnit;
 	}
 
 	public String getStringValue() {
-		return this.stringValue;
+		return stringValue;
 	}
 
 	public LexicalUnit getSubValues() {
-		return this.subValues;
+		return subValues;
 	}
 
-	public void setDimensionUnitText(String dimensionUnitText) {
+	public void setDimensionUnitText(final String dimensionUnitText) {
 		this.dimensionUnitText = dimensionUnitText;
 	}
 
-	public void setFloatValue(float floatValue) {
+	public void setFloatValue(final float floatValue) {
 		this.floatValue = floatValue;
 	}
 
-	public void setFunctionName(String functionName) {
+	public void setFunctionName(final String functionName) {
 		this.functionName = functionName;
 	}
 
-	public void setIntegerValue(int integerValue) {
+	public void setIntegerValue(final int integerValue) {
 		this.integerValue = integerValue;
 	}
 
-	public void setLexicalUnitType(short lexicalUnitType) {
+	public void setLexicalUnitType(final short lexicalUnitType) {
 		this.lexicalUnitType = lexicalUnitType;
 	}
 
-	public void setNextLexicalUnit(LexicalUnit nextLexicalUnit) {
+	public void setNextLexicalUnit(final LexicalUnit nextLexicalUnit) {
 		this.nextLexicalUnit = nextLexicalUnit;
 	}
 
-	public void setParameters(LexicalUnit parameters) {
+	public void setParameters(final LexicalUnit parameters) {
 		this.parameters = parameters;
 	}
 
-	public void setPreviousLexicalUnit(LexicalUnit previousLexicalUnit) {
+	public void setPreviousLexicalUnit(final LexicalUnit previousLexicalUnit) {
 		this.previousLexicalUnit = previousLexicalUnit;
 	}
 
-	public void setStringValue(String stringValue) {
+	public void setStringValue(final String stringValue) {
 		this.stringValue = stringValue;
 	}
 
-	public void setSubValues(LexicalUnit subValues) {
+	public void setSubValues(final LexicalUnit subValues) {
 		this.subValues = subValues;
 	}
 

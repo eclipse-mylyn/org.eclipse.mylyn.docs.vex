@@ -21,64 +21,63 @@ import org.eclipse.vex.core.internal.dom.Element;
 import org.eclipse.vex.ui.internal.swt.VexWidget;
 
 /**
- * Inserts a single table column before (left of) or after (right of) the
- * current one.
- *
+ * Inserts a single table column before (left of) or after (right of) the current one.
+ * 
  * @see AddColumnLeftHandler
  * @see AddColumnRightHandler
  */
 public abstract class AbstractAddColumnHandler extends AbstractHandler {
 
-    public Object execute(ExecutionEvent event) throws ExecutionException {
-        final VexWidget widget = VexHandlerUtil.computeWidget(event);
-        widget.doWork(new Runnable() {
-            public void run() {
-                try {
-                    addColumn(widget);
-                } catch (ExecutionException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-        });
-        return null;
-    }
+	public Object execute(final ExecutionEvent event) throws ExecutionException {
+		final VexWidget widget = VexHandlerUtil.computeWidget(event);
+		widget.doWork(new Runnable() {
+			public void run() {
+				try {
+					addColumn(widget);
+				} catch (final ExecutionException e) {
+					throw new RuntimeException(e);
+				}
+			}
+		});
+		return null;
+	}
 
-    private void addColumn(VexWidget widget) throws ExecutionException {
-        final int indexToDup = VexHandlerUtil.getCurrentColumnIndex(widget);
+	private void addColumn(final VexWidget widget) throws ExecutionException {
+		final int indexToDup = VexHandlerUtil.getCurrentColumnIndex(widget);
 
-        // adding possible?
-        if (indexToDup == -1) return;
+		// adding possible?
+		if (indexToDup == -1) {
+			return;
+		}
 
-        final List<Element> cellsToDup = new ArrayList<Element>();
-        VexHandlerUtil.iterateTableCells(widget, new TableCellCallbackAdapter() {
-            public void onCell(Object row, Object cell, int rowIndex,
-                    int cellIndex) {
-                if (cellIndex == indexToDup && cell instanceof Element) {
-                    cellsToDup.add((Element) cell);
-                }
-            }
-        });
+		final List<Element> cellsToDup = new ArrayList<Element>();
+		VexHandlerUtil.iterateTableCells(widget, new TableCellCallbackAdapter() {
+			@Override
+			public void onCell(final Object row, final Object cell, final int rowIndex, final int cellIndex) {
+				if (cellIndex == indexToDup && cell instanceof Element) {
+					cellsToDup.add((Element) cell);
+				}
+			}
+		});
 
-        int finalOffset = -1;
-        for (Element element : cellsToDup) {
-            if (finalOffset == -1) {
-                finalOffset = element.getStartOffset() + 1;
-            }
-            widget.moveTo(addBefore()
-                          ? element.getStartOffset()
-                          : element.getEndOffset() + 1);
-            widget.insertElement((Element) element.clone());
-        }
+		int finalOffset = -1;
+		for (final Element element : cellsToDup) {
+			if (finalOffset == -1) {
+				finalOffset = element.getStartOffset() + 1;
+			}
+			widget.moveTo(addBefore() ? element.getStartOffset() : element.getEndOffset() + 1);
+			widget.insertElement(element.clone());
+		}
 
-        if (finalOffset != -1) {
-            widget.moveTo(finalOffset);
-        }
-    }
+		if (finalOffset != -1) {
+			widget.moveTo(finalOffset);
+		}
+	}
 
-    /**
-     * @return {@code true} to add new column before (left of) current column or
-     *         {@code false} to add new column after (right of) current column
-     */
-    protected abstract boolean addBefore();
+	/**
+	 * @return {@code true} to add new column before (left of) current column or {@code false} to add new column after
+	 *         (right of) current column
+	 */
+	protected abstract boolean addBefore();
 
 }

@@ -36,15 +36,12 @@ import org.eclipse.vex.core.internal.core.Rectangle;
 import org.eclipse.vex.ui.internal.VexPlugin;
 
 /**
- * Implementation of the Vex Graphics interface, mapping it to a
- * org.eclipse.swt.graphics.GC object.
+ * Implementation of the Vex Graphics interface, mapping it to a org.eclipse.swt.graphics.GC object.
  * 
  * <p>
- * The GC given to us by SWT is that of the Canvas, which is just a viewport
- * into the document. This class therefore implements an "origin", which
- * represents the top-left corner of the document relative to the top-left
- * corner of the canvas. The x- and y-coordinates of the origin are always
- * negative.
+ * The GC given to us by SWT is that of the Canvas, which is just a viewport into the document. This class therefore
+ * implements an "origin", which represents the top-left corner of the document relative to the top-left corner of the
+ * canvas. The x- and y-coordinates of the origin are always negative.
  * </p>
  * .
  */
@@ -100,16 +97,16 @@ public class SwtGraphics implements Graphics {
 	}
 
 	/**
-	 * Fills the given oval with the <em>foreground</em> color. This overrides
-	 * the default SWT behaviour to be more like Swing.
+	 * Fills the given oval with the <em>foreground</em> color. This overrides the default SWT behaviour to be more like
+	 * Swing.
 	 */
 	public void fillOval(final int x, final int y, final int width, final int height) {
 		gc.fillOval(x + originX, y + originY, width, height);
 	}
 
 	/**
-	 * Fills the given rectangle with the <em>foreground</em> color. This
-	 * overrides the default SWT behaviour to be more like Swing.
+	 * Fills the given rectangle with the <em>foreground</em> color. This overrides the default SWT behaviour to be more
+	 * like Swing.
 	 */
 	public void fillRect(final int x, final int y, final int width, final int height) {
 		gc.fillRectangle(x + originX, y + originY, width, height);
@@ -142,11 +139,12 @@ public class SwtGraphics implements Graphics {
 
 	public Image getImage(final URL url) {
 		final ImageData[] imageData = loadImageData(url);
-		if (imageData != null && imageData.length > 0)
+		if (imageData != null && imageData.length > 0) {
 			return new SwtImage(imageData[0]);
+		}
 		return new SwtImage(Display.getDefault().getSystemImage(SWT.ICON_ERROR).getImageData());
 	}
-	
+
 	private static ImageData[] loadImageData(final URL url) {
 		final ImageLoader imageLoader = new ImageLoader();
 		try {
@@ -211,34 +209,37 @@ public class SwtGraphics implements Graphics {
 
 	public FontResource createFont(final FontSpec fontSpec) {
 		int style = SWT.NORMAL;
-		if ((fontSpec.getStyle() & FontSpec.BOLD) > 0)
+		if ((fontSpec.getStyle() & FontSpec.BOLD) > 0) {
 			style |= SWT.BOLD;
-		if ((fontSpec.getStyle() & FontSpec.ITALIC) > 0)
+		}
+		if ((fontSpec.getStyle() & FontSpec.ITALIC) > 0) {
 			style |= SWT.ITALIC;
+		}
 		final int size = Math.round(fontSpec.getSize() * 72 / 90); // TODO: fix. SWT
 																	// uses pts, AWT
 																	// uses device
 																	// units
 		final String[] names = fontSpec.getNames();
 		final FontData[] fd = new FontData[names.length];
-		for (int i = 0; i < names.length; i++)
+		for (int i = 0; i < names.length; i++) {
 			fd[i] = new FontData(names[i], size, style);
+		}
 		return new SwtFont(new org.eclipse.swt.graphics.Font(null, fd));
 	}
 
 	public ColorResource getSystemColor(final int id) {
 
-		if (id == ColorResource.SELECTION_BACKGROUND)
+		if (id == ColorResource.SELECTION_BACKGROUND) {
 			return new SwtColor(Display.getCurrent().getSystemColor(SWT.COLOR_LIST_SELECTION));
-		else if (id == ColorResource.SELECTION_FOREGROUND)
+		} else if (id == ColorResource.SELECTION_FOREGROUND) {
 			return new SwtColor(Display.getCurrent().getSystemColor(SWT.COLOR_LIST_SELECTION_TEXT));
-		else
+		} else {
 			return new SwtColor(Display.getCurrent().getSystemColor(-1));
+		}
 	}
 
 	/**
-	 * Sets the origin of this graphics object. See the class description for
-	 * more details.
+	 * Sets the origin of this graphics object. See the class description for more details.
 	 * 
 	 * @param x
 	 *            x-coordinate of the origin, relative to the viewport.

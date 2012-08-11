@@ -79,8 +79,9 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 	public VexWidget(final Composite parent, final int style) {
 		super(parent, style);
 
-		if (DisplayDevice.getCurrent() == null)
+		if (DisplayDevice.getCurrent() == null) {
 			DisplayDevice.setCurrent(new SwtDisplayDevice());
+		}
 
 		impl = new VexWidgetImpl(hostComponent);
 		setBackground(getDisplay().getSystemColor(SWT.COLOR_WHITE));
@@ -162,8 +163,9 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 		int height = r.height;
 
 		final ScrollBar vbar = getVerticalBar();
-		if (vbar != null)
+		if (vbar != null) {
 			height = vbar.getMaximum();
+		}
 		return new Point(r.width, height);
 	}
 
@@ -341,10 +343,11 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 	public void paste() throws DocumentValidationException {
 		final Clipboard clipboard = new Clipboard(getDisplay());
 		final DocumentFragment frag = (DocumentFragment) clipboard.getContents(DocumentFragmentTransfer.getInstance());
-		if (frag != null)
+		if (frag != null) {
 			insertFragment(frag);
-		else
+		} else {
 			pasteText();
+		}
 	}
 
 	/**
@@ -353,8 +356,9 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 	public void pasteText() throws DocumentValidationException {
 		final Clipboard clipboard = new Clipboard(getDisplay());
 		final String text = (String) clipboard.getContents(TextTransfer.getInstance());
-		if (text != null)
+		if (text != null) {
 			insertText(text);
+		}
 	}
 
 	public void redo() throws CannotRedoException {
@@ -418,13 +422,13 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 	}
 
 	/**
-	 * @return the location of the left bottom corner of the caret relative to
-	 *         the VexWidget
+	 * @return the location of the left bottom corner of the caret relative to the VexWidget
 	 */
 	public Point getLocationForContentAssist() {
 		final Caret vexCaret = impl.getCaret();
-		if (vexCaret == null)
+		if (vexCaret == null) {
 			return new Point(0, 0);
+		}
 
 		final Rectangle caretBounds = vexCaret.getBounds();
 		return new Point(caretBounds.getX() + originX, caretBounds.getY() + originY + caretBounds.getHeight());
@@ -462,8 +466,9 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 			// There seems to be a bug in SWT (at least on Linux/GTK+)
 			// When maximizing the editor, the width is first set to 1,
 			// then to the correct width
-			if (r.width == 1)
+			if (r.width == 1) {
 				return;
+			}
 			impl.setLayoutWidth(r.width);
 
 			final ScrollBar vbar = getVerticalBar();
@@ -489,8 +494,9 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 	private final HostComponent hostComponent = new HostComponent() {
 
 		public Graphics createDefaultGraphics() {
-			if (VexWidget.this.isDisposed())
+			if (VexWidget.this.isDisposed()) {
 				System.out.println("*** Woot! VexWidget is disposed!");
+			}
 			return new SwtGraphics(new GC(VexWidget.this));
 		}
 
@@ -499,12 +505,14 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 			if (hasSelection()) {
 				final List<Node> nodes = getDocument().getNodes(getSelectionStart(), getSelectionEnd());
 				selection = new StructuredSelection(nodes);
-			} else
+			} else {
 				selection = new StructuredSelection(getCurrentElement());
+			}
 
 			final SelectionChangedEvent e = new SelectionChangedEvent(VexWidget.this, selection);
-			for (final ISelectionChangedListener listener : selectionListeners)
+			for (final ISelectionChangedListener listener : selectionListeners) {
 				listener.selectionChanged(e);
+			}
 			caretTimer.reset();
 		}
 
@@ -517,10 +525,11 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 		}
 
 		public void repaint() {
-			if (!VexWidget.this.isDisposed())
+			if (!VexWidget.this.isDisposed()) {
 				// We can sometimes get a repaint from the VexWidgetImpl's
 				// caret timer thread after the Widget is disposed.
 				VexWidget.this.redraw();
+			}
 		}
 
 		public void repaint(final int x, final int y, final int width, final int height) {
@@ -529,15 +538,17 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 
 		public void scrollTo(final int left, final int top) {
 			final ScrollBar vbar = getVerticalBar();
-			if (vbar != null)
+			if (vbar != null) {
 				vbar.setSelection(top);
+			}
 			setOrigin(-left, -top);
 		}
 
 		public void setPreferredSize(final int width, final int height) {
 			final ScrollBar vbar = getVerticalBar();
-			if (vbar != null)
+			if (vbar != null) {
 				vbar.setMaximum(height);
+			}
 		}
 
 	};
@@ -558,13 +569,13 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 		public void keyPressed(final KeyEvent event) {
 			final KeyStroke keyStroke = new KeyStroke(event);
 			final IVexWidgetHandler handler = keyMap.get(keyStroke);
-			if (handler != null)
+			if (handler != null) {
 				try {
 					handler.execute(VexWidget.this);
 				} catch (final Exception ex) {
 					ex.printStackTrace();
 				}
-			else if (!Character.isISOControl(event.character))
+			} else if (!Character.isISOControl(event.character)) {
 				try {
 					insertChar(event.character);
 				} catch (final DocumentValidationException e) {
@@ -572,14 +583,16 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 					//                     no character could be entered
 					// e.printStackTrace();
 				}
+			}
 		}
 
 	};
 
 	private final MouseListener mouseListener = new MouseListener() {
 		public void mouseDoubleClick(final MouseEvent e) {
-			if (e.button == 1)
+			if (e.button == 1) {
 				selectWord();
+			}
 		}
 
 		public void mouseDown(final MouseEvent e) {
@@ -610,8 +623,9 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 			g.setOrigin(originX, originY);
 
 			Color bgColor = impl.getBackgroundColor();
-			if (bgColor == null)
+			if (bgColor == null) {
 				bgColor = new Color(255, 255, 255);
+			}
 
 			final ColorResource color = g.createColor(bgColor);
 			final ColorResource oldColor = g.setColor(color);

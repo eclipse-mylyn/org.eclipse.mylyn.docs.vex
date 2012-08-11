@@ -20,17 +20,17 @@ import org.w3c.css.sac.LexicalUnit;
 public class BorderSpacingProperty extends AbstractProperty {
 
 	/**
-	 * Represents the computed value of border-spacing, which is a pair of
-	 * values representing vertical and horizontal spacing.
+	 * Represents the computed value of border-spacing, which is a pair of values representing vertical and horizontal
+	 * spacing.
 	 */
 	public static class Value {
 
-		private int horizontal;
-		private int vertical;
+		private final int horizontal;
+		private final int vertical;
 
 		public static final Value ZERO = new Value(0, 0);
 
-		public Value(int horizontal, int vertical) {
+		public Value(final int horizontal, final int vertical) {
 			this.horizontal = horizontal;
 			this.vertical = vertical;
 		}
@@ -39,14 +39,14 @@ public class BorderSpacingProperty extends AbstractProperty {
 		 * Returns the horizontal spacing, in pixels.
 		 */
 		public int getHorizontal() {
-			return this.horizontal;
+			return horizontal;
 		}
 
 		/**
 		 * Returns the vertical spacing, in pixels.
 		 */
 		public int getVertical() {
-			return this.vertical;
+			return vertical;
 		}
 	}
 
@@ -57,20 +57,18 @@ public class BorderSpacingProperty extends AbstractProperty {
 		super(CSS.BORDER_SPACING);
 	}
 
-	public Object calculate(LexicalUnit lu, Styles parentStyles, Styles styles, Element element) {
+	public Object calculate(LexicalUnit lu, final Styles parentStyles, final Styles styles, final Element element) {
 
 		int horizontal = 0;
 		int vertical = 0;
 
-		DisplayDevice device = DisplayDevice.getCurrent();
+		final DisplayDevice device = DisplayDevice.getCurrent();
 
 		if (isLength(lu)) {
-			horizontal = getIntLength(lu, styles.getFontSize(), device
-					.getHorizontalPPI());
+			horizontal = getIntLength(lu, styles.getFontSize(), device.getHorizontalPPI());
 			lu = lu.getNextLexicalUnit();
 			if (isLength(lu)) {
-				vertical = getIntLength(lu, styles.getFontSize(), device
-						.getVerticalPPI());
+				vertical = getIntLength(lu, styles.getFontSize(), device.getVerticalPPI());
 			} else {
 				vertical = horizontal;
 			}

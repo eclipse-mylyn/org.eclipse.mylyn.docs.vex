@@ -25,9 +25,9 @@ import org.eclipse.vex.ui.internal.VexPlugin;
  */
 public class ConfigPlugin extends ConfigSource {
 
-	private String bundleSymbolicName;
-	
-	public ConfigPlugin(String bundleSymbolicName) {
+	private final String bundleSymbolicName;
+
+	public ConfigPlugin(final String bundleSymbolicName) {
 		super(bundleSymbolicName);
 		this.bundleSymbolicName = bundleSymbolicName;
 		load();
@@ -35,15 +35,12 @@ public class ConfigPlugin extends ConfigSource {
 
 	private void load() {
 		removeAllItems();
-		for (IExtension extension : Platform.getExtensionRegistry().getExtensions(bundleSymbolicName)) {
+		for (final IExtension extension : Platform.getExtensionRegistry().getExtensions(bundleSymbolicName)) {
 			try {
-				addItem(extension.getExtensionPointUniqueIdentifier(),
-						extension.getSimpleIdentifier(), extension.getLabel(),
-						ConfigurationElementWrapper.convertArray(extension
-								.getConfigurationElements()));
-			} catch (IOException e) {
-				String message = MessageFormat.format(Messages
-						.getString("ConfigPlugin.loadError"), //$NON-NLS-1$
+				addItem(extension.getExtensionPointUniqueIdentifier(), extension.getSimpleIdentifier(), extension.getLabel(),
+						ConfigurationElementWrapper.convertArray(extension.getConfigurationElements()));
+			} catch (final IOException e) {
+				final String message = MessageFormat.format(Messages.getString("ConfigPlugin.loadError"), //$NON-NLS-1$
 						new Object[] { extension.getSimpleIdentifier(), bundleSymbolicName });
 				VexPlugin.getDefault().log(IStatus.ERROR, message, e);
 				return;
@@ -51,7 +48,8 @@ public class ConfigPlugin extends ConfigSource {
 		}
 		parseResources(null);
 	}
-	
+
+	@Override
 	public URL getBaseUrl() {
 		return Platform.getBundle(bundleSymbolicName).getEntry("plugin.xml"); //$NON-NLS-1$
 	}

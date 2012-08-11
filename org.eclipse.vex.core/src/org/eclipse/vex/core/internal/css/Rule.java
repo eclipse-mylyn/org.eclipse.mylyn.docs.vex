@@ -33,18 +33,14 @@ import org.w3c.css.sac.Selector;
 import org.w3c.css.sac.SiblingSelector;
 
 /**
- * Represents a pairing of a selector with a list of styles. This does not
- * exactly correspond to a rule in a style sheet; there is only one selector
- * associated with an instance of this class, whereas multiple selectors may be
+ * Represents a pairing of a selector with a list of styles. This does not exactly correspond to a rule in a style
+ * sheet; there is only one selector associated with an instance of this class, whereas multiple selectors may be
  * associated with a style sheet rule.
  * 
- * Note: <code>Rule</code> implements the <code>Comparable</code> interface in
- * order to be sorted by "specificity" as defined by the CSS spec. However, this
- * ordering is <em>not</em> consistent with <code>equals</code> (rules with the
- * same specificity may not be equal). Therefore, <code>Rule</code> objects
- * should not be used with sorted collections or maps in the
- * <code>java.util</code> package, unless a suitable <code>Comparator</code> is
- * also used.
+ * Note: <code>Rule</code> implements the <code>Comparable</code> interface in order to be sorted by "specificity" as
+ * defined by the CSS spec. However, this ordering is <em>not</em> consistent with <code>equals</code> (rules with the
+ * same specificity may not be equal). Therefore, <code>Rule</code> objects should not be used with sorted collections
+ * or maps in the <code>java.util</code> package, unless a suitable <code>Comparator</code> is also used.
  */
 public class Rule {
 
@@ -86,11 +82,9 @@ public class Rule {
 	}
 
 	/**
-	 * Calculates the specificity for the selector associated with this rule.
-	 * The specificity is represented as an integer whose base-10
-	 * representation, xxxyyyzzz, can be decomposed into the number of "id"
-	 * selectors (xxx), "class" selectors (yyy), and "element" selectors (zzz).
-	 * Composite selectors result in a recursive call.
+	 * Calculates the specificity for the selector associated with this rule. The specificity is represented as an
+	 * integer whose base-10 representation, xxxyyyzzz, can be decomposed into the number of "id" selectors (xxx),
+	 * "class" selectors (yyy), and "element" selectors (zzz). Composite selectors result in a recursive call.
 	 */
 	public int getSpecificity() {
 		return specificity(getSelector());
@@ -113,12 +107,13 @@ public class Rule {
 	 */
 	private static boolean matches(final Selector selector, final Element element) {
 
-		if (element == null)
+		if (element == null) {
 			// This can happen when, e.g., with the rule "foo > *".
 			// Since the root element matches the "*", we check if
 			// its parent matches "foo", but of course its parent
 			// is null
 			return false;
+		}
 
 		final int selectorType = selector.getSelectorType();
 
@@ -136,10 +131,12 @@ public class Rule {
 				} else if (element instanceof CommentElement) {
 					final AttributeCondition ac = (AttributeCondition) cs.getCondition();
 					return CommentElement.CSS_RULE_NAME.equals(ac.getValue()) && matches(cs.getSimpleSelector(), element.getParent());
-				} else
+				} else {
 					return false;
-			} else
+				}
+			} else {
 				return matches(cs.getSimpleSelector(), element) && matchesCondition(cs.getCondition(), element);
+			}
 
 		case Selector.SAC_ANY_NODE_SELECTOR:
 			// You'd think we land here if we have a * rule, but instead
@@ -149,21 +146,23 @@ public class Rule {
 
 		case Selector.SAC_ROOT_NODE_SELECTOR:
 			return element instanceof RootElement;
-			
+
 		case Selector.SAC_NEGATIVE_SELECTOR:
 			break; // not yet supported
-			
+
 		case Selector.SAC_ELEMENT_NODE_SELECTOR:
 			final String elementName = element.getLocalName();
 			final String selectorName = ((ElementSelector) selector).getLocalName();
-			if (selectorName == null)
+			if (selectorName == null) {
 				// We land here if we have a wildcard selector (*) or
 				// a pseudocondition w/o an element name (:before)
 				// Probably other situations too (conditional w/o element
 				// name? e.g. [attr=value])
 				return true;
-			if (selectorName.equals(elementName))
+			}
+			if (selectorName.equals(elementName)) {
 				return true;
+			}
 			return false;
 
 		case Selector.SAC_TEXT_NODE_SELECTOR:
@@ -171,17 +170,17 @@ public class Rule {
 
 		case Selector.SAC_CDATA_SECTION_NODE_SELECTOR:
 			return false; // not yet supported
-			
+
 		case Selector.SAC_PROCESSING_INSTRUCTION_NODE_SELECTOR:
 			return false; // not yet supported
-			
+
 		case Selector.SAC_COMMENT_NODE_SELECTOR:
 			return false; // not yet supported 
-			
+
 		case Selector.SAC_PSEUDO_ELEMENT_SELECTOR:
 			final ElementSelector elementSelector = (ElementSelector) selector;
 			return elementSelector.getLocalName().equals(element.getLocalName());
-			
+
 		case Selector.SAC_DESCENDANT_SELECTOR:
 			final DescendantSelector ds = (DescendantSelector) selector;
 			return matches(ds.getSimpleSelector(), element) && matchesAncestor(ds.getAncestorSelector(), element.getParent());
@@ -206,8 +205,9 @@ public class Rule {
 					e = i.next();
 				}
 
-				if (e == element)
+				if (e == element) {
 					return matches(ss.getSelector(), f);
+				}
 			}
 			return false;
 
@@ -219,14 +219,14 @@ public class Rule {
 	}
 
 	/**
-	 * Returns true if some ancestor of the given element matches the given
-	 * selector.
+	 * Returns true if some ancestor of the given element matches the given selector.
 	 */
 	private static boolean matchesAncestor(final Selector selector, final Element element) {
 		Element e = element;
 		while (e != null) {
-			if (matches(selector, e))
+			if (matches(selector, e)) {
 				return true;
+			}
 			e = e.getParent();
 		}
 		return false;
@@ -245,28 +245,33 @@ public class Rule {
 		case Condition.SAC_ATTRIBUTE_CONDITION:
 			attributeCondition = (AttributeCondition) condition;
 			value = element.getAttributeValue(attributeCondition.getLocalName());
-			if (attributeCondition.getValue() != null)
+			if (attributeCondition.getValue() != null) {
 				return attributeCondition.getValue().equals(value);
-			else
+			} else {
 				return value != null;
+			}
 
 		case Condition.SAC_ONE_OF_ATTRIBUTE_CONDITION:
 		case Condition.SAC_CLASS_CONDITION:
 
 			attributeCondition = (AttributeCondition) condition;
 
-			if (condition.getConditionType() == Condition.SAC_CLASS_CONDITION)
+			if (condition.getConditionType() == Condition.SAC_CLASS_CONDITION) {
 				attributeName = "class";
-			else
+			} else {
 				attributeName = attributeCondition.getLocalName();
+			}
 
 			value = element.getAttributeValue(attributeName);
-			if (value == null)
+			if (value == null) {
 				return false;
+			}
 			final StringTokenizer st = new StringTokenizer(value);
-			while (st.hasMoreTokens())
-				if (st.nextToken().equals(attributeCondition.getValue()))
+			while (st.hasMoreTokens()) {
+				if (st.nextToken().equals(attributeCondition.getValue())) {
 					return true;
+				}
+			}
 			return false;
 
 		case Condition.SAC_AND_CONDITION:
@@ -285,11 +290,12 @@ public class Rule {
 	 */
 	private static int specificity(final Selector sel) {
 		if (sel instanceof ElementSelector) {
-			if (((ElementSelector) sel).getLocalName() == null)
+			if (((ElementSelector) sel).getLocalName() == null) {
 				// actually wildcard selector -- see comment in matches()
 				return 0;
-			else
+			} else {
 				return 1;
+			}
 		} else if (sel instanceof DescendantSelector) {
 			final DescendantSelector ds = (DescendantSelector) sel;
 			return specificity(ds.getAncestorSelector()) + specificity(ds.getSimpleSelector());
@@ -302,8 +308,9 @@ public class Rule {
 		} else if (sel instanceof ConditionalSelector) {
 			final ConditionalSelector cs = (ConditionalSelector) sel;
 			return specificity(cs.getCondition()) + specificity(cs.getSimpleSelector());
-		} else
+		} else {
 			return 0;
+		}
 	}
 
 	/**
@@ -314,11 +321,13 @@ public class Rule {
 			final CombinatorCondition cc = (CombinatorCondition) cond;
 			return specificity(cc.getFirstCondition()) + specificity(cc.getSecondCondition());
 		} else if (cond instanceof AttributeCondition) {
-			if (cond.getConditionType() == Condition.SAC_ID_CONDITION)
+			if (cond.getConditionType() == Condition.SAC_ID_CONDITION) {
 				return 1000000;
-			else
+			} else {
 				return 1000;
-		} else
+			}
+		} else {
 			return 0;
+		}
 	}
 }

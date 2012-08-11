@@ -17,9 +17,9 @@ import org.eclipse.vex.core.internal.core.FontMetrics;
  */
 public class SwtFontMetrics implements FontMetrics {
 
-	private org.eclipse.swt.graphics.FontMetrics swtFontMetrics;
+	private final org.eclipse.swt.graphics.FontMetrics swtFontMetrics;
 
-	public SwtFontMetrics(org.eclipse.swt.graphics.FontMetrics swtFontMetrics) {
+	public SwtFontMetrics(final org.eclipse.swt.graphics.FontMetrics swtFontMetrics) {
 		this.swtFontMetrics = swtFontMetrics;
 	}
 
@@ -27,28 +27,28 @@ public class SwtFontMetrics implements FontMetrics {
 	 * @see org.eclipse.vex.core.internal.core.FontMetrics#getAscent()
 	 */
 	public int getAscent() {
-		return this.swtFontMetrics.getAscent();
+		return swtFontMetrics.getAscent();
 	}
 
 	/**
 	 * @see org.eclipse.vex.core.internal.core.FontMetrics#getDescent()
 	 */
 	public int getDescent() {
-		return this.swtFontMetrics.getDescent();
+		return swtFontMetrics.getDescent();
 	}
 
 	/**
 	 * @see org.eclipse.vex.core.internal.core.FontMetrics#getHeight()
 	 */
 	public int getHeight() {
-		return this.swtFontMetrics.getHeight();
+		return swtFontMetrics.getHeight();
 	}
 
 	/**
 	 * @see org.eclipse.vex.core.internal.core.FontMetrics#getLeading()
 	 */
 	public int getLeading() {
-		return this.swtFontMetrics.getLeading();
+		return swtFontMetrics.getLeading();
 	}
 
 }

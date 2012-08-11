@@ -15,7 +15,7 @@ package org.eclipse.vex.core.internal.layout;
  */
 public abstract class AbstractInlineBox extends AbstractBox implements InlineBox {
 
-	public void alignOnBaseline(int baseline) {
+	public void alignOnBaseline(final int baseline) {
 		setY(baseline - getBaseline());
 	}
 }

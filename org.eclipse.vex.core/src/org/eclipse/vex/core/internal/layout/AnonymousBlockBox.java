@@ -18,15 +18,14 @@ import java.util.List;
  */
 public class AnonymousBlockBox extends AbstractBlockBox {
 
-	public AnonymousBlockBox(LayoutContext context, BlockBox parent,
-			int startOffset, int endOffset) {
+	public AnonymousBlockBox(final LayoutContext context, final BlockBox parent, final int startOffset, final int endOffset) {
 
 		super(context, parent, startOffset, endOffset);
 	}
 
-	protected List<Box> createChildren(LayoutContext context) {
-		return createBlockBoxes(context, this.getStartOffset(), this
-				.getEndOffset(), this.getWidth(), null, null);
+	@Override
+	protected List<Box> createChildren(final LayoutContext context) {
+		return createBlockBoxes(context, getStartOffset(), getEndOffset(), getWidth(), null, null);
 	}
 
 }

@@ -23,16 +23,16 @@ public class SpaceBox extends AbstractInlineBox {
 	 * @param height
 	 *            height of the box
 	 */
-	public SpaceBox(int width, int height) {
-		this.setWidth(width);
-		this.setHeight(height);
+	public SpaceBox(final int width, final int height) {
+		setWidth(width);
+		setHeight(height);
 	}
 
 	/**
 	 * @see org.eclipse.vex.core.internal.layout.InlineBox#getBaseline()
 	 */
 	public int getBaseline() {
-		return this.getHeight();
+		return getHeight();
 	}
 
 	public boolean isEOL() {
@@ -43,13 +43,14 @@ public class SpaceBox extends AbstractInlineBox {
 	 * @see org.eclipse.vex.core.internal.layout.InlineBox#split(org.eclipse.vex.core.internal.layout.LayoutContext,
 	 *      int, boolean)
 	 */
-	public Pair split(LayoutContext context, int maxWidth, boolean force) {
+	public Pair split(final LayoutContext context, final int maxWidth, final boolean force) {
 		return new Pair(null, this);
 	}
 
 	/**
 	 * @see java.lang.Object#toString()
 	 */
+	@Override
 	public String toString() {
 		return "[spacer]";
 	}

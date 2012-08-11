@@ -25,28 +25,28 @@ import org.osgi.service.prefs.Preferences;
  * @author Florian Thienel
  */
 public class VexPreferences {
-	
+
 	public static final String INDENTATION_CHAR_CHOICE = "indetationCharChoice";
-	
+
 	public static final String INDENTATION_CHAR_TAB = "\t";
-	
+
 	public static final String INDENTATION_CHAR_SPACE = " ";
-	
+
 	public static final String INDENTATION_SIZE = "indetationSize";
-	
+
 	public static final String LINE_WIDTH = "lineWidth";
-	
+
 	private static final String PREFERRED_STYLE_SUFFIX = ".style";
-	
+
 	private final IPreferenceStore preferenceStore;
-	
+
 	private final ConfigurationRegistry configurationRegistry;
-	
+
 	public VexPreferences(final IPreferenceStore preferenceStore, final ConfigurationRegistry configurationRegistry) {
 		this.preferenceStore = preferenceStore;
 		this.configurationRegistry = configurationRegistry;
 	}
-	
+
 	public void setPreferredStyleId(final String publicId, final String styleId) {
 		final Preferences preferences = InstanceScope.INSTANCE.getNode(VexPlugin.ID);
 		final String key = getStylePreferenceKey(publicId);
@@ -75,7 +75,7 @@ public class VexPreferences {
 	public String getIndentationPattern() {
 		final String indentationChar = preferenceStore.getString(INDENTATION_CHAR_CHOICE);
 		final int indentationSize = preferenceStore.getInt(INDENTATION_SIZE);
-		char[] pattern = new char[indentationSize];
+		final char[] pattern = new char[indentationSize];
 		Arrays.fill(pattern, indentationChar.charAt(0));
 		return new String(pattern);
 	}

@@ -31,15 +31,13 @@ public class BuildProblem {
 	 * @param severity
 	 *            Severity of the problem: SEVERITY_WARNING or SEVERITY_ERROR
 	 * @param resourcePath
-	 *            Path of the resource being built, relative to its plugin or
-	 *            project.
+	 *            Path of the resource being built, relative to its plugin or project.
 	 * @param message
 	 *            Description of the problem.
 	 * @param lineNumber
 	 *            Line number on which the problem occurred, or -1 if unknown.
 	 */
-	public BuildProblem(int severity, String resourcePath, String message,
-			int lineNumber) {
+	public BuildProblem(final int severity, final String resourcePath, final String message, final int lineNumber) {
 		this.severity = severity;
 		this.resourcePath = resourcePath;
 		this.message = message;
@@ -47,8 +45,7 @@ public class BuildProblem {
 	}
 
 	/**
-	 * Returns the line number on which the error occurred, or -1 if no line
-	 * number can be identified.
+	 * Returns the line number on which the error occurred, or -1 if no line number can be identified.
 	 */
 	public int getLineNumber() {
 		return lineNumber;
@@ -69,8 +66,7 @@ public class BuildProblem {
 	}
 
 	/**
-	 * Returns the severity of the problem, either SEVERITY_ERROR or
-	 * SEVERITY_WARNING.
+	 * Returns the severity of the problem, either SEVERITY_ERROR or SEVERITY_WARNING.
 	 */
 	public int getSeverity() {
 		return severity;
@@ -82,7 +78,7 @@ public class BuildProblem {
 	 * @param lineNumber
 	 *            Line number on which the problem occurred.
 	 */
-	public void setLineNumber(int lineNumber) {
+	public void setLineNumber(final int lineNumber) {
 		this.lineNumber = lineNumber;
 	}
 
@@ -92,7 +88,7 @@ public class BuildProblem {
 	 * @param message
 	 *            Message describing the problem.
 	 */
-	public void setMessage(String message) {
+	public void setMessage(final String message) {
 		this.message = message;
 	}
 
@@ -102,7 +98,7 @@ public class BuildProblem {
 	 * @param resourcePath
 	 *            Path of the resource, relative to the project root.
 	 */
-	public void setResourcePath(String resourcePath) {
+	public void setResourcePath(final String resourcePath) {
 		this.resourcePath = resourcePath;
 	}
 
@@ -110,10 +106,9 @@ public class BuildProblem {
 	 * Sets the severity of the problem.
 	 * 
 	 * @param severity
-	 *            Severity of the problem. Should be one of SEVERITY_ERROR or
-	 *            SEVERITY_WARNING.
+	 *            Severity of the problem. Should be one of SEVERITY_ERROR or SEVERITY_WARNING.
 	 */
-	public void setSeverity(int severity) {
+	public void setSeverity(final int severity) {
 		this.severity = severity;
 	}
 

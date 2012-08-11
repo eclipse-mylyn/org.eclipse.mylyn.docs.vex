@@ -29,17 +29,15 @@ public class LineHeightProperty extends AbstractProperty {
 	}
 
 	/**
-	 * Calculates the value of the property given a LexicalUnit. Returns a
-	 * RelativeLength that is relative to the current font size.
+	 * Calculates the value of the property given a LexicalUnit. Returns a RelativeLength that is relative to the
+	 * current font size.
 	 */
-	public Object calculate(LexicalUnit lu, Styles parentStyles, Styles styles, Element element) {
+	public Object calculate(final LexicalUnit lu, final Styles parentStyles, final Styles styles, final Element element) {
 
-		int ppi = DisplayDevice.getCurrent().getVerticalPPI();
+		final int ppi = DisplayDevice.getCurrent().getVerticalPPI();
 
 		if (isLength(lu)) {
-			return RelativeLength.createAbsolute(Math.round(getIntLength(lu,
-					styles.getFontSize(), ppi)
-					/ styles.getFontSize()));
+			return RelativeLength.createAbsolute(Math.round(getIntLength(lu, styles.getFontSize(), ppi) / styles.getFontSize()));
 		} else if (isNumber(lu)) {
 			if (getNumber(lu) <= 0) {
 				return RelativeLength.createRelative(LINE_HEIGHT_NORMAL);
@@ -57,7 +55,7 @@ public class LineHeightProperty extends AbstractProperty {
 			if (parentStyles == null) {
 				return RelativeLength.createRelative(LINE_HEIGHT_NORMAL);
 			} else {
-				return (RelativeLength) parentStyles.get(CSS.LINE_HEIGHT);
+				return parentStyles.get(CSS.LINE_HEIGHT);
 			}
 		}
 	}

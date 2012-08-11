@@ -30,30 +30,30 @@ import org.eclipse.vex.ui.internal.editor.VexEditor;
  */
 public class DebugView extends PageBookView {
 
-	protected IPage createDefaultPage(PageBook book) {
-		IPageBookViewPage page = new IPageBookViewPage() {
-			public void createControl(Composite parent) {
-				this.label = new Label(parent, SWT.NONE);
-				this.label.setText(Messages
-						.getString("DebugView.noActiveEditor")); //$NON-NLS-1$
+	@Override
+	protected IPage createDefaultPage(final PageBook book) {
+		final IPageBookViewPage page = new IPageBookViewPage() {
+			public void createControl(final Composite parent) {
+				label = new Label(parent, SWT.NONE);
+				label.setText(Messages.getString("DebugView.noActiveEditor")); //$NON-NLS-1$
 			}
 
 			public void dispose() {
 			}
 
 			public Control getControl() {
-				return this.label;
+				return label;
 			}
 
 			public IPageSite getSite() {
-				return this.site;
+				return site;
 			}
 
-			public void init(IPageSite site) throws PartInitException {
+			public void init(final IPageSite site) throws PartInitException {
 				this.site = site;
 			}
 
-			public void setActionBars(IActionBars actionBars) {
+			public void setActionBars(final IActionBars actionBars) {
 			}
 
 			public void setFocus() {
@@ -68,23 +68,27 @@ public class DebugView extends PageBookView {
 		return page;
 	}
 
-	protected PageRec doCreatePage(IWorkbenchPart part) {
-		DebugViewPage page = new DebugViewPage((VexEditor) part);
+	@Override
+	protected PageRec doCreatePage(final IWorkbenchPart part) {
+		final DebugViewPage page = new DebugViewPage((VexEditor) part);
 		initPage(page);
 		page.createControl(getPageBook());
 		return new PageRec(part, page);
 	}
 
-	protected void doDestroyPage(IWorkbenchPart part, PageRec pageRecord) {
+	@Override
+	protected void doDestroyPage(final IWorkbenchPart part, final PageRec pageRecord) {
 		pageRecord.page.dispose();
 	}
 
+	@Override
 	protected IWorkbenchPart getBootstrapPart() {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	protected boolean isImportant(IWorkbenchPart part) {
-		return (part instanceof VexEditor);
+	@Override
+	protected boolean isImportant(final IWorkbenchPart part) {
+		return part instanceof VexEditor;
 	}
 }

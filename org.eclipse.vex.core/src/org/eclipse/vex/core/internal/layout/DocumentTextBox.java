@@ -19,13 +19,12 @@ import org.eclipse.vex.core.internal.dom.Element;
 import org.eclipse.vex.core.internal.dom.Text;
 
 /**
- * A TextBox that gets its text from the document. Represents text which is
- * editable within the VexWidget.
+ * A TextBox that gets its text from the document. Represents text which is editable within the VexWidget.
  */
 public class DocumentTextBox extends TextBox {
 
-	private int startRelative;
-	private int endRelative;
+	private final int startRelative;
+	private final int endRelative;
 
 	/**
 	 * Class constructor, accepting a Text object.
@@ -36,7 +35,7 @@ public class DocumentTextBox extends TextBox {
 	 *            Element being used
 	 * @param text
 	 */
-	public DocumentTextBox(LayoutContext context, Element element, Text text) {
+	public DocumentTextBox(final LayoutContext context, final Element element, final Text text) {
 		this(context, element, text.getStartOffset(), text.getEndOffset());
 	}
 
@@ -52,20 +51,18 @@ public class DocumentTextBox extends TextBox {
 	 * @param endOffset
 	 *            end offset of the text
 	 */
-	public DocumentTextBox(LayoutContext context, Element element,
-			int startOffset, int endOffset) {
+	public DocumentTextBox(final LayoutContext context, final Element element, final int startOffset, final int endOffset) {
 		super(element);
 
 		if (startOffset >= endOffset) {
-			throw new IllegalStateException("DocumentTextBox: startOffset ("
-					+ startOffset + ") >= endOffset (" + endOffset + ")");
+			throw new IllegalStateException("DocumentTextBox: startOffset (" + startOffset + ") >= endOffset (" + endOffset + ")");
 		}
 
-		this.startRelative = startOffset - element.getStartOffset();
-		this.endRelative = endOffset - element.getStartOffset();
-		this.calculateSize(context);
+		startRelative = startOffset - element.getStartOffset();
+		endRelative = endOffset - element.getStartOffset();
+		calculateSize(context);
 
-		if (this.getText().length() < (endOffset - startOffset)) {
+		if (getText().length() < endOffset - startOffset) {
 			throw new IllegalStateException();
 		}
 	}
@@ -73,60 +70,64 @@ public class DocumentTextBox extends TextBox {
 	/**
 	 * @see org.eclipse.vex.core.internal.layout.Box#getEndOffset()
 	 */
+	@Override
 	public int getEndOffset() {
-		if (this.endRelative == -1) {
+		if (endRelative == -1) {
 			return -1;
 		} else {
-			return this.getElement().getStartOffset() + this.endRelative - 1;
+			return getElement().getStartOffset() + endRelative - 1;
 		}
 	}
 
 	/**
 	 * @see org.eclipse.vex.core.internal.layout.Box#getStartOffset()
 	 */
+	@Override
 	public int getStartOffset() {
-		if (this.startRelative == -1) {
+		if (startRelative == -1) {
 			return -1;
 		} else {
-			return this.getElement().getStartOffset() + this.startRelative;
+			return getElement().getStartOffset() + startRelative;
 		}
 	}
 
 	/**
 	 * @see org.eclipse.vex.core.internal.layout.TextBox#getText()
 	 */
+	@Override
 	public String getText() {
-		Document doc = this.getElement().getDocument();
-		return doc.getText(this.getStartOffset(), this.getEndOffset() + 1);
+		final Document doc = getElement().getDocument();
+		return doc.getText(getStartOffset(), getEndOffset() + 1);
 	}
 
 	/**
 	 * @see org.eclipse.vex.core.internal.layout.Box#hasContent()
 	 */
+	@Override
 	public boolean hasContent() {
 		return true;
 	}
 
 	/**
-	 * @see org.eclipse.vex.core.internal.layout.Box#paint(org.eclipse.vex.core.internal.layout.LayoutContext,
-	 *      int, int)
+	 * @see org.eclipse.vex.core.internal.layout.Box#paint(org.eclipse.vex.core.internal.layout.LayoutContext, int, int)
 	 */
-	public void paint(LayoutContext context, int x, int y) {
+	@Override
+	public void paint(final LayoutContext context, final int x, final int y) {
 
-		Styles styles = context.getStyleSheet().getStyles(this.getElement());
-		Graphics g = context.getGraphics();
+		final Styles styles = context.getStyleSheet().getStyles(getElement());
+		final Graphics g = context.getGraphics();
 
-		FontResource font = g.createFont(styles.getFont());
-		FontResource oldFont = g.setFont(font);
-		ColorResource foreground = g.createColor(styles.getColor());
-		ColorResource oldForeground = g.setColor(foreground);
+		final FontResource font = g.createFont(styles.getFont());
+		final FontResource oldFont = g.setFont(font);
+		final ColorResource foreground = g.createColor(styles.getColor());
+		final ColorResource oldForeground = g.setColor(foreground);
 		// ColorResource background =
 		// g.createColor(styles.getBackgroundColor());
 		// ColorResource oldBackground = g.setBackgroundColor(background);
 
-		char[] chars = this.getText().toCharArray();
+		final char[] chars = getText().toCharArray();
 
-		if (chars.length < this.getEndOffset() - this.getStartOffset()) {
+		if (chars.length < getEndOffset() - getStartOffset()) {
 			throw new IllegalStateException();
 		}
 
@@ -134,36 +135,36 @@ public class DocumentTextBox extends TextBox {
 			throw new IllegalStateException();
 		}
 
-		int start = 0;
+		final int start = 0;
 		int end = chars.length;
 		if (chars[end - 1] == NEWLINE_CHAR) {
 			end--;
 		}
-		int selStart = context.getSelectionStart() - this.getStartOffset();
+		int selStart = context.getSelectionStart() - getStartOffset();
 		selStart = Math.min(Math.max(selStart, start), end);
-		int selEnd = context.getSelectionEnd() - this.getStartOffset();
+		int selEnd = context.getSelectionEnd() - getStartOffset();
 		selEnd = Math.min(Math.max(selEnd, start), end);
 
 		// text before selection
 		if (start < selStart) {
 			g.drawChars(chars, start, selStart - start, x, y);
-			String s = new String(chars, start, selStart - start);
+			final String s = new String(chars, start, selStart - start);
 			paintTextDecoration(context, styles, s, x, y);
 		}
 
 		// text after selection
 		if (selEnd < end) {
-			int x1 = x + g.charsWidth(chars, 0, selEnd);
+			final int x1 = x + g.charsWidth(chars, 0, selEnd);
 			g.drawChars(chars, selEnd, end - selEnd, x1, y);
-			String s = new String(chars, selEnd, end - selEnd);
+			final String s = new String(chars, selEnd, end - selEnd);
 			paintTextDecoration(context, styles, s, x1, y);
 		}
 
 		// text within selection
 		if (selStart < selEnd) {
-			String s = new String(chars, selStart, selEnd - selStart);
-			int x1 = x + g.charsWidth(chars, 0, selStart);
-			this.paintSelectedText(context, s, x1, y);
+			final String s = new String(chars, selStart, selEnd - selStart);
+			final int x1 = x + g.charsWidth(chars, 0, selStart);
+			paintSelectedText(context, s, x1, y);
 			paintTextDecoration(context, styles, s, x1, y);
 		}
 
@@ -178,28 +179,27 @@ public class DocumentTextBox extends TextBox {
 	/**
 	 * @see org.eclipse.vex.core.internal.layout.TextBox#splitAt(int)
 	 */
-	public Pair splitAt(LayoutContext context, int offset) {
+	@Override
+	public Pair splitAt(final LayoutContext context, final int offset) {
 
-		if (offset < 0 || offset > (this.endRelative - this.startRelative)) {
+		if (offset < 0 || offset > endRelative - startRelative) {
 			throw new IllegalStateException();
 		}
 
-		int split = this.getStartOffset() + offset;
+		final int split = getStartOffset() + offset;
 
 		DocumentTextBox left;
 		if (offset == 0) {
 			left = null;
 		} else {
-			left = new DocumentTextBox(context, this.getElement(), this
-					.getStartOffset(), split);
+			left = new DocumentTextBox(context, getElement(), getStartOffset(), split);
 		}
 
 		InlineBox right;
-		if (split == this.getEndOffset() + 1) {
+		if (split == getEndOffset() + 1) {
 			right = null;
 		} else {
-			right = new DocumentTextBox(context, this.getElement(), split, this
-					.getEndOffset() + 1);
+			right = new DocumentTextBox(context, getElement(), split, getEndOffset() + 1);
 		}
 		return new Pair(left, right);
 	}
@@ -208,20 +208,21 @@ public class DocumentTextBox extends TextBox {
 	 * @see org.eclipse.vex.core.internal.layout.Box#viewToModel(org.eclipse.vex.core.internal.layout.LayoutContext,
 	 *      int, int)
 	 */
-	public int viewToModel(LayoutContext context, int x, int y) {
+	@Override
+	public int viewToModel(final LayoutContext context, final int x, final int y) {
 
-		Graphics g = context.getGraphics();
-		Styles styles = context.getStyleSheet().getStyles(this.getElement());
-		FontResource font = g.createFont(styles.getFont());
-		FontResource oldFont = g.setFont(font);
-		char[] chars = this.getText().toCharArray();
+		final Graphics g = context.getGraphics();
+		final Styles styles = context.getStyleSheet().getStyles(getElement());
+		final FontResource font = g.createFont(styles.getFont());
+		final FontResource oldFont = g.setFont(font);
+		final char[] chars = getText().toCharArray();
 
-		if (this.getWidth() <= 0) {
-			return this.getStartOffset();
+		if (getWidth() <= 0) {
+			return getStartOffset();
 		}
 
 		// first, get an estimate based on x / width
-		int offset = (x / this.getWidth()) * chars.length;
+		int offset = x / getWidth() * chars.length;
 		offset = Math.max(0, offset);
 		offset = Math.min(chars.length, offset);
 
@@ -229,7 +230,7 @@ public class DocumentTextBox extends TextBox {
 
 		// Search backwards
 		while (offset > 0) {
-			int newDelta = Math.abs(x - g.charsWidth(chars, 0, offset - 1));
+			final int newDelta = Math.abs(x - g.charsWidth(chars, 0, offset - 1));
 			if (newDelta > delta) {
 				break;
 			}
@@ -239,7 +240,7 @@ public class DocumentTextBox extends TextBox {
 
 		// Search forwards
 		while (offset < chars.length - 1) {
-			int newDelta = Math.abs(x - g.charsWidth(chars, 0, offset + 1));
+			final int newDelta = Math.abs(x - g.charsWidth(chars, 0, offset + 1));
 			if (newDelta > delta) {
 				break;
 			}
@@ -249,7 +250,7 @@ public class DocumentTextBox extends TextBox {
 
 		g.setFont(oldFont);
 		font.dispose();
-		return this.getStartOffset() + offset;
+		return getStartOffset() + offset;
 	}
 
 }

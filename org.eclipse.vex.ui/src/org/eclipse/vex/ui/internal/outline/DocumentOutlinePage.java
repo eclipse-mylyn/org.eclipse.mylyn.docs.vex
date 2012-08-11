@@ -43,74 +43,77 @@ import org.eclipse.vex.ui.internal.swt.VexWidget;
 import org.osgi.framework.Bundle;
 
 /**
- * Outline page for documents. Determination of the outline itself is deferred
- * to a doctype-specific implementation of IOutlineProvider.
+ * Outline page for documents. Determination of the outline itself is deferred to a doctype-specific implementation of
+ * IOutlineProvider.
  */
 public class DocumentOutlinePage extends Page implements IContentOutlinePage {
 
-	public void createControl(Composite parent) {
+	@Override
+	public void createControl(final Composite parent) {
 
-		this.composite = new Composite(parent, SWT.NONE);
-		this.composite.setLayout(new FillLayout());
+		composite = new Composite(parent, SWT.NONE);
+		composite.setLayout(new FillLayout());
 
-		if (this.vexEditor.isLoaded()) {
-			this.showTreeViewer();
+		if (vexEditor.isLoaded()) {
+			showTreeViewer();
 		} else {
-			this.showLabel(Messages.getString("DocumentOutlinePage.loading")); //$NON-NLS-1$
+			showLabel(Messages.getString("DocumentOutlinePage.loading")); //$NON-NLS-1$
 		}
 
 	}
 
+	@Override
 	public void dispose() {
-		this.vexEditor.removeVexEditorListener(this.vexEditorListener);
-		this.vexEditor.getEditorSite().getSelectionProvider()
-				.removeSelectionChangedListener(this.selectionListener);
+		vexEditor.removeVexEditorListener(vexEditorListener);
+		vexEditor.getEditorSite().getSelectionProvider().removeSelectionChangedListener(selectionListener);
 	}
 
+	@Override
 	public Control getControl() {
-		return this.composite;
+		return composite;
 	}
 
-	public void init(IPageSite pageSite) {
+	@Override
+	public void init(final IPageSite pageSite) {
 		super.init(pageSite);
-		IEditorPart editor = pageSite.getPage().getActiveEditor();
-		if (editor instanceof VexEditor)
-		    this.vexEditor = (VexEditor) editor;
-		this.vexEditor.addVexEditorListener(this.vexEditorListener);
-		this.vexEditor.getEditorSite().getSelectionProvider()
-				.addSelectionChangedListener(this.selectionListener);
+		final IEditorPart editor = pageSite.getPage().getActiveEditor();
+		if (editor instanceof VexEditor) {
+			vexEditor = (VexEditor) editor;
+		}
+		vexEditor.addVexEditorListener(vexEditorListener);
+		vexEditor.getEditorSite().getSelectionProvider().addSelectionChangedListener(selectionListener);
 	}
 
+	@Override
 	public void setFocus() {
-		if (this.treeViewer != null) {
+		if (treeViewer != null) {
 			treeViewer.getControl().setFocus();
 		}
 	}
 
-	public void addSelectionChangedListener(ISelectionChangedListener listener) {
-		this.selectionProvider.addSelectionChangedListener(listener);
+	public void addSelectionChangedListener(final ISelectionChangedListener listener) {
+		selectionProvider.addSelectionChangedListener(listener);
 	}
 
 	public ISelection getSelection() {
-		return this.selectionProvider.getSelection();
+		return selectionProvider.getSelection();
 	}
 
 	/**
-	 * Returns the TreeViewer associated with this page. May return null, if
-	 * VexPlugin has not yet loaded its configuration.
+	 * Returns the TreeViewer associated with this page. May return null, if VexPlugin has not yet loaded its
+	 * configuration.
 	 */
 	public TreeViewer getTreeViewer() {
-		return this.treeViewer;
+		return treeViewer;
 	}
 
-	public void removeSelectionChangedListener(
-			ISelectionChangedListener listener) {
-		this.selectionProvider.removeSelectionChangedListener(listener);
+	public void removeSelectionChangedListener(final ISelectionChangedListener listener) {
+		selectionProvider.removeSelectionChangedListener(listener);
 
 	}
 
-	public void setSelection(ISelection selection) {
-		this.selectionProvider.setSelection(selection);
+	public void setSelection(final ISelection selection) {
+		selectionProvider.setSelection(selection);
 	}
 
 	// ===================================================== PRIVATE
@@ -124,118 +127,106 @@ public class DocumentOutlinePage extends Page implements IContentOutlinePage {
 
 	private IOutlineProvider outlineProvider;
 
-	private SelectionProvider selectionProvider = new SelectionProvider();
+	private final SelectionProvider selectionProvider = new SelectionProvider();
 
-	private void showLabel(String message) {
+	private void showLabel(final String message) {
 
-		if (this.treeViewer != null) {
-			this.treeViewer
-					.removeSelectionChangedListener(this.selectionListener);
-			this.treeViewer.getTree().dispose();
-			this.treeViewer = null;
+		if (treeViewer != null) {
+			treeViewer.removeSelectionChangedListener(selectionListener);
+			treeViewer.getTree().dispose();
+			treeViewer = null;
 		}
 
-		if (this.label == null) {
-			this.label = new Label(this.composite, SWT.NONE);
-			this.label.setText(message);
-			this.composite.layout(true);
+		if (label == null) {
+			label = new Label(composite, SWT.NONE);
+			label.setText(message);
+			composite.layout(true);
 		}
 
-		this.label.setText(message);
+		label.setText(message);
 	}
 
 	private void showTreeViewer() {
 
-		if (this.treeViewer != null) {
+		if (treeViewer != null) {
 			return;
 		}
 
-		if (this.label != null) {
-			this.label.dispose();
-			this.label = null;
+		if (label != null) {
+			label.dispose();
+			label = null;
 		}
 
-		this.treeViewer = new TreeViewer(this.composite, SWT.NONE);
-		this.composite.layout();
+		treeViewer = new TreeViewer(composite, SWT.NONE);
+		composite.layout();
 
-		DocumentType doctype = this.vexEditor.getDocumentType();
+		final DocumentType doctype = vexEditor.getDocumentType();
 
 		if (doctype == null) {
 			return;
 		}
 
-		String ns = doctype.getConfig().getUniqueIdentifer();
-		Bundle bundle = Platform.getBundle(ns);
-		String providerClassName = doctype.getOutlineProvider();
+		final String ns = doctype.getConfig().getUniqueIdentifer();
+		final Bundle bundle = Platform.getBundle(ns);
+		final String providerClassName = doctype.getOutlineProvider();
 		if (bundle != null && providerClassName != null) {
 			try {
-				Class<?> clazz = bundle.loadClass(providerClassName);
-				this.outlineProvider = (IOutlineProvider) clazz.newInstance();
-			} catch (Exception ex) {
-				String message = Messages
-						.getString("DocumentOutlinePage.loadingError"); //$NON-NLS-1$
-				VexPlugin.getDefault().log(
-						IStatus.WARNING,
-						MessageFormat.format(message, new Object[] {
-								providerClassName, ns, ex }));
+				final Class<?> clazz = bundle.loadClass(providerClassName);
+				outlineProvider = (IOutlineProvider) clazz.newInstance();
+			} catch (final Exception ex) {
+				final String message = Messages.getString("DocumentOutlinePage.loadingError"); //$NON-NLS-1$
+				VexPlugin.getDefault().log(IStatus.WARNING, MessageFormat.format(message, new Object[] { providerClassName, ns, ex }));
 			}
 		}
 
-		if (this.outlineProvider == null) {
-			this.outlineProvider = new DefaultOutlineProvider();
+		if (outlineProvider == null) {
+			outlineProvider = new DefaultOutlineProvider();
 		}
 
-		this.outlineProvider.init(this.vexEditor);
+		outlineProvider.init(vexEditor);
 
-		this.treeViewer.setContentProvider(this.outlineProvider
-				.getContentProvider());
-		this.treeViewer.setLabelProvider(this.outlineProvider
-				.getLabelProvider());
-		this.treeViewer.setAutoExpandLevel(2);
+		treeViewer.setContentProvider(outlineProvider.getContentProvider());
+		treeViewer.setLabelProvider(outlineProvider.getLabelProvider());
+		treeViewer.setAutoExpandLevel(2);
 
-		this.treeViewer.setInput(this.vexEditor.getVexWidget().getDocument());
+		treeViewer.setInput(vexEditor.getVexWidget().getDocument());
 
-		this.treeViewer.addSelectionChangedListener(this.selectionListener);
+		treeViewer.addSelectionChangedListener(selectionListener);
 
 	}
 
 	/**
-	 * Receives selection changed events from both our TreeViewer and the
-	 * VexWidget. Generally, we use this to synchronize the selection between
-	 * the two, but we also do the following...
+	 * Receives selection changed events from both our TreeViewer and the VexWidget. Generally, we use this to
+	 * synchronize the selection between the two, but we also do the following...
 	 * 
-	 * - when a notification comes from VexWidget, we create the treeViewer if
-	 * needed (that is, if the part was created before VexPlugin was done
-	 * loading its configuration.
+	 * - when a notification comes from VexWidget, we create the treeViewer if needed (that is, if the part was created
+	 * before VexPlugin was done loading its configuration.
 	 * 
-	 * - notifications from the TreeViewer are passed on to our
-	 * SelectionChangedListeners.
+	 * - notifications from the TreeViewer are passed on to our SelectionChangedListeners.
 	 */
-	private ISelectionChangedListener selectionListener = new ISelectionChangedListener() {
-		public void selectionChanged(SelectionChangedEvent event) {
+	private final ISelectionChangedListener selectionListener = new ISelectionChangedListener() {
+		public void selectionChanged(final SelectionChangedEvent event) {
 
 			if (event.getSource() instanceof VexWidget) {
 
-				VexWidget vexWidget = (VexWidget) event.getSource();
+				final VexWidget vexWidget = (VexWidget) event.getSource();
 				if (vexWidget.isFocusControl() && getTreeViewer() != null) {
-					Element element = vexWidget.getCurrentElement();
-					Element outlineElement = outlineProvider
-							.getOutlineElement(element);
+					final Element element = vexWidget.getCurrentElement();
+					final Element outlineElement = outlineProvider.getOutlineElement(element);
 					getTreeViewer().refresh(outlineElement);
-					getTreeViewer().setSelection(
-							new StructuredSelection(outlineElement), true);
+					getTreeViewer().setSelection(new StructuredSelection(outlineElement), true);
 				}
 
 			} else {
 
 				// it's our tree control being selected
-				TreeViewer treeViewer = (TreeViewer) event.getSource();
+				final TreeViewer treeViewer = (TreeViewer) event.getSource();
 				if (treeViewer.getTree().isFocusControl()) {
-					TreeItem[] selected = treeViewer.getTree().getSelection();
+					final TreeItem[] selected = treeViewer.getTree().getSelection();
 					if (selected.length > 0) {
 
-						Element element = (Element) selected[0].getData();
-						VexWidget vexWidget = vexEditor.getVexWidget();
+						final Element element = (Element) selected[0].getData();
+						final VexWidget vexWidget = vexEditor.getVexWidget();
 
 						// Moving to the end of the element first is a cheap
 						// way to make sure we end up with the
@@ -249,13 +240,13 @@ public class DocumentOutlinePage extends Page implements IContentOutlinePage {
 		}
 	};
 
-	private IVexEditorListener vexEditorListener = new IVexEditorListener() {
+	private final IVexEditorListener vexEditorListener = new IVexEditorListener() {
 
-		public void documentLoaded(VexEditorEvent event) {
+		public void documentLoaded(final VexEditorEvent event) {
 			showTreeViewer();
 		}
 
-		public void documentUnloaded(VexEditorEvent event) {
+		public void documentUnloaded(final VexEditorEvent event) {
 			showLabel(Messages.getString("DocumentOutlinePage.reloading")); //$NON-NLS-1$
 		}
 

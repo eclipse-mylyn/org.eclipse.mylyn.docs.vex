@@ -37,7 +37,6 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
-import org.eclipse.vex.core.internal.dom.Element;
 
 /**
  * @author Florian Thienel
@@ -139,10 +138,11 @@ public class EditNamespacesDialog extends TitleAreaDialog {
 
 			@Override
 			protected void setValue(final Object element, final Object value) {
-				if (value != null)
+				if (value != null) {
 					((EditableNamespaceDefinition) element).setPrefix(value.toString());
-				else
+				} else {
 					((EditableNamespaceDefinition) element).setPrefix("");
+				}
 				namespacesTable.refresh(element);
 			}
 		});
@@ -173,10 +173,11 @@ public class EditNamespacesDialog extends TitleAreaDialog {
 
 			@Override
 			protected void setValue(final Object element, final Object value) {
-				if (value != null)
+				if (value != null) {
 					((EditableNamespaceDefinition) element).setUri(value.toString());
-				else
+				} else {
 					((EditableNamespaceDefinition) element).setUri("");
+				}
 				namespacesTable.refresh(element);
 			}
 		});
@@ -222,8 +223,9 @@ public class EditNamespacesDialog extends TitleAreaDialog {
 
 	private void removeNamespacePressed() {
 		final IStructuredSelection selection = (IStructuredSelection) namespacesTable.getSelection();
-		if (selection.isEmpty())
+		if (selection.isEmpty()) {
 			return;
+		}
 		final EditableNamespaceDefinition selectedDefinition = (EditableNamespaceDefinition) selection.getFirstElement();
 		controller.removeNamespaceDefinition(selectedDefinition);
 		namespacesTable.refresh();

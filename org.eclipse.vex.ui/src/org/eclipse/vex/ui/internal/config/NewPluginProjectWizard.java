@@ -30,12 +30,14 @@ import org.eclipse.vex.ui.internal.VexPlugin;
  */
 public class NewPluginProjectWizard extends BasicNewProjectResourceWizard {
 
-	public void init(IWorkbench workbench, IStructuredSelection currentSelection) {
+	@Override
+	public void init(final IWorkbench workbench, final IStructuredSelection currentSelection) {
 		super.init(workbench, currentSelection);
 
-		this.setWindowTitle(Messages.getString("NewPluginProjectWizard.title")); //$NON-NLS-1$
+		setWindowTitle(Messages.getString("NewPluginProjectWizard.title")); //$NON-NLS-1$
 	}
 
+	@Override
 	public boolean performFinish() {
 
 		boolean success = super.performFinish();
@@ -44,13 +46,8 @@ public class NewPluginProjectWizard extends BasicNewProjectResourceWizard {
 				createVexPluginXml();
 				registerVexPluginNature();
 				// the new plug-in project is automatically added to the ConfigurationRegistry
-			} catch (CoreException e) {
-				VexPlugin
-						.getDefault()
-						.log(
-								IStatus.ERROR,
-								Messages
-										.getString("NewPluginProjectWizard.createError"), e); //$NON-NLS-1$
+			} catch (final CoreException e) {
+				VexPlugin.getDefault().log(IStatus.ERROR, Messages.getString("NewPluginProjectWizard.createError"), e); //$NON-NLS-1$
 				success = false;
 			}
 
@@ -63,7 +60,7 @@ public class NewPluginProjectWizard extends BasicNewProjectResourceWizard {
 
 	private void createVexPluginXml() throws CoreException {
 
-		IProject project = this.getNewProject();
+		final IProject project = getNewProject();
 
 		ByteArrayOutputStream baos;
 		PrintStream out;
@@ -76,9 +73,8 @@ public class NewPluginProjectWizard extends BasicNewProjectResourceWizard {
 		out.println("</plugin>"); //$NON-NLS-1$
 		out.close();
 
-		IFile pluginXml = project.getFile(PluginProject.PLUGIN_XML);
-		pluginXml.create(new ByteArrayInputStream(baos.toByteArray()), true,
-				null);
+		final IFile pluginXml = project.getFile(PluginProject.PLUGIN_XML);
+		pluginXml.create(new ByteArrayInputStream(baos.toByteArray()), true, null);
 
 		// By default open the Default Text Editor for vex-plugin.xml.
 		// This isn't perfect, because the Vex icon is still shown, but
@@ -87,10 +83,10 @@ public class NewPluginProjectWizard extends BasicNewProjectResourceWizard {
 	}
 
 	private void registerVexPluginNature() throws CoreException {
-		IProject project = this.getNewProject();
-		IProjectDescription description = project.getDescription();
-		String[] natures = description.getNatureIds();
-		String[] newNatures = new String[natures.length + 1];
+		final IProject project = getNewProject();
+		final IProjectDescription description = project.getDescription();
+		final String[] natures = description.getNatureIds();
+		final String[] newNatures = new String[natures.length + 1];
 		System.arraycopy(natures, 0, newNatures, 0, natures.length);
 		newNatures[natures.length] = PluginProjectNature.ID;
 		description.setNatureIds(newNatures);

@@ -46,8 +46,9 @@ public class XhtmlOutlineProvider implements IOutlineProvider {
 			// TODO: compare to all structural element names
 
 			final String name = element.getLocalName();
-			if (name.equals("h1") || name.equals("h2") || name.equals("h3") || name.equals("h4") || name.equals("h5") || name.equals("h6"))
+			if (name.equals("h1") || name.equals("h2") || name.equals("h3") || name.equals("h4") || name.equals("h5") || name.equals("h6")) {
 				return element;
+			}
 
 			element = element.getParent();
 		}
@@ -70,10 +71,11 @@ public class XhtmlOutlineProvider implements IOutlineProvider {
 
 		public Object getParent(final Object element) {
 			final Element parent = ((Element) element).getParent();
-			if (parent == null)
+			if (parent == null) {
 				return element;
-			else
+			} else {
 				return getOutlineElement(parent);
+			}
 		}
 
 		public boolean hasChildren(final Object element) {
@@ -88,8 +90,8 @@ public class XhtmlOutlineProvider implements IOutlineProvider {
 	};
 
 	/**
-	 * Returns an array of the children of the given element that represent
-	 * nodes in the outline. These are structural elements such as "section".
+	 * Returns an array of the children of the given element that represent nodes in the outline. These are structural
+	 * elements such as "section".
 	 * 
 	 * @param element
 	 * @return
@@ -103,14 +105,18 @@ public class XhtmlOutlineProvider implements IOutlineProvider {
 
 				// First, find the lowest numbered h tag available
 				String lowH = "h6";
-				for (final Element child : childElements)
-					if (isHTag(child) && child.getLocalName().compareTo(lowH) < 0)
+				for (final Element child : childElements) {
+					if (isHTag(child) && child.getLocalName().compareTo(lowH) < 0) {
 						lowH = child.getLocalName();
+					}
+				}
 
 				// Now, get all body children at that level
-				for (final Element child : childElements)
-					if (child.getLocalName().equals(lowH))
+				for (final Element child : childElements) {
+					if (child.getLocalName().equals(lowH)) {
 						children.add(child);
+					}
+				}
 			}
 		} else if (isHTag(element)) {
 			// get siblings with the next lower number
@@ -119,16 +125,18 @@ public class XhtmlOutlineProvider implements IOutlineProvider {
 			final String childName = "h" + (level + 1);
 			final List<Element> childElements = element.getParent().getChildElements();
 			boolean foundSelf = false;
-			for (final Element child : childElements)
-				if (child == element)
+			for (final Element child : childElements) {
+				if (child == element) {
 					foundSelf = true;
-				else if (!foundSelf)
+				} else if (!foundSelf) {
 					continue;
-				else if (child.getLocalName().equals(childName))
+				} else if (child.getLocalName().equals(childName)) {
 					children.add(child);
-				else if (child.getLocalName().equals(element.getLocalName()))
+				} else if (child.getLocalName().equals(element.getLocalName())) {
 					// terminate at next sibling at same level
 					break;
+				}
+			}
 		}
 		return (Element[]) children.toArray(new Element[children.size()]);
 	}
@@ -143,19 +151,23 @@ public class XhtmlOutlineProvider implements IOutlineProvider {
 				final Element head = findChild(element, "head");
 				if (head != null) {
 					final Element title = findChild(head, "title");
-					if (title != null)
+					if (title != null) {
 						text = title.getText();
+					}
 				}
-			} else
+			} else {
 				text = element.getText();
+			}
 			return text;
 		}
 	};
 
 	private Element findChild(final Element parent, final String childName) {
-		for (final Element child : parent.getChildElements())
-			if (child.getLocalName().equals(childName))
+		for (final Element child : parent.getChildElements()) {
+			if (child.getLocalName().equals(childName)) {
 				return child;
+			}
+		}
 		return null;
 	}
 

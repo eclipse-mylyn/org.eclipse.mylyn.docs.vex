@@ -21,9 +21,8 @@ import org.eclipse.vex.ui.internal.editor.VexEditor;
 public interface IOutlineProvider {
 
 	/**
-	 * Initialize this outline provider. This method is guaranteed to be called
-	 * befor any other in this class. The document has been fully created by the
-	 * time this method is called, so it is acceptable to access the Vex Widget
+	 * Initialize this outline provider. This method is guaranteed to be called befor any other in this class. The
+	 * document has been fully created by the time this method is called, so it is acceptable to access the Vex Widget
 	 * and its associated stylesheet and document.
 	 * 
 	 * @param editor
@@ -32,8 +31,7 @@ public interface IOutlineProvider {
 	public void init(VexEditor editor);
 
 	/**
-	 * Returns the content provider that supplies elements representing the
-	 * document outline.
+	 * Returns the content provider that supplies elements representing the document outline.
 	 */
 	public ITreeContentProvider getContentProvider();
 
@@ -43,8 +41,8 @@ public interface IOutlineProvider {
 	public IBaseLabelProvider getLabelProvider();
 
 	/**
-	 * Returns the outline element closest to the given child. If
-	 * <code>child</code> is an outline element, it is returned directly.
+	 * Returns the outline element closest to the given child. If <code>child</code> is an outline element, it is
+	 * returned directly.
 	 * 
 	 * @param child
 	 *            Element for which to find the outline element.

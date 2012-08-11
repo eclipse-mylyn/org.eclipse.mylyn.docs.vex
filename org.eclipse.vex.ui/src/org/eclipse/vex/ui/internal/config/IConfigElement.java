@@ -11,10 +11,9 @@
 package org.eclipse.vex.ui.internal.config;
 
 /**
- * Represents the XML element for a Vex config item in plugin.xml. Vex-specific
- * replacement for the Eclipse IConfigurationElement class. We need this because
- * we are not supposed to implement IConfigurationElement, and in fact it
- * changed and broke us from Eclipse 3.0 -> 3.1.
+ * Represents the XML element for a Vex config item in plugin.xml. Vex-specific replacement for the Eclipse
+ * IConfigurationElement class. We need this because we are not supposed to implement IConfigurationElement, and in fact
+ * it changed and broke us from Eclipse 3.0 -> 3.1.
  */
 public interface IConfigElement {
 

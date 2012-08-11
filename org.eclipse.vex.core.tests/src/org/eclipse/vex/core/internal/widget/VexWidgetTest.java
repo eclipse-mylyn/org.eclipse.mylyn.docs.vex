@@ -85,24 +85,24 @@ public class VexWidgetTest {
 		widget.insertText("comment text");
 		widget.moveBy(1);
 		widget.insertText("text after comment");
-		
+
 		final String expectedContentStructure = getContentStructure(widget.getDocument().getRootElement());
 
 		widget.doWork(new Runnable() {
 			public void run() {
-                widget.moveTo(commentElement.getStartOffset() + 1, false);
-                widget.moveTo(commentElement.getEndOffset(), true);
-                final DocumentFragment fragment = widget.getSelectedFragment();
-                widget.deleteSelection();
-                widget.moveBy(-1, false);
-                widget.moveBy(2, true);
-                widget.deleteSelection();
-                widget.insertFragment(fragment);
+				widget.moveTo(commentElement.getStartOffset() + 1, false);
+				widget.moveTo(commentElement.getEndOffset(), true);
+				final DocumentFragment fragment = widget.getSelectedFragment();
+				widget.deleteSelection();
+				widget.moveBy(-1, false);
+				widget.moveBy(2, true);
+				widget.deleteSelection();
+				widget.insertFragment(fragment);
 			}
 		});
-		
+
 		widget.undo();
-		
+
 		assertEquals(expectedContentStructure, getContentStructure(widget.getDocument().getRootElement()));
 	}
 
@@ -128,8 +128,9 @@ public class VexWidgetTest {
 
 	private static String[] sortedCopyOf(final Object[] objects) {
 		final String[] result = new String[objects.length];
-		for (int i = 0; i < result.length; i++)
+		for (int i = 0; i < result.length; i++) {
 			result[i] = objects[i].toString();
+		}
 		Arrays.sort(result);
 		return result;
 	}
@@ -138,14 +139,15 @@ public class VexWidgetTest {
 		final StringBuilder result = new StringBuilder();
 		result.append("<").append(element.getQualifiedName()).append(" (").append(element.getStartOffset()).append("-").append(element.getEndOffset()).append(")");
 		result.append(" ").append(element.getText());
-		List<Node> children = element.getChildNodes();
+		final List<Node> children = element.getChildNodes();
 		if (!children.isEmpty()) {
 			result.append(" [");
 			for (final Node child : children) {
-				if (child instanceof Element)
+				if (child instanceof Element) {
 					result.append(getContentStructure((Element) child));
-				else if (child instanceof Text)
+				} else if (child instanceof Text) {
 					result.append(getContentStructure((Text) child));
+				}
 			}
 			result.append("]");
 		}

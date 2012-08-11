@@ -25,7 +25,7 @@ import org.eclipse.vex.core.internal.dom.Element;
  */
 public class ParagraphBox extends AbstractBox implements BlockBox {
 
-	private LineBox[] children;
+	private final LineBox[] children;
 	private LineBox firstContentLine;
 	private LineBox lastContentLine;
 
@@ -35,14 +35,14 @@ public class ParagraphBox extends AbstractBox implements BlockBox {
 	 * @param children
 	 *            Line boxes that comprise the paragraph.
 	 */
-	private ParagraphBox(LineBox[] children) {
+	private ParagraphBox(final LineBox[] children) {
 		this.children = children;
-		for (int i = 0; i < children.length; i++) {
-			if (children[i].hasContent()) {
-				if (this.firstContentLine == null) {
-					this.firstContentLine = children[i];
+		for (final LineBox element : children) {
+			if (element.hasContent()) {
+				if (firstContentLine == null) {
+					firstContentLine = element;
 				}
-				this.lastContentLine = children[i];
+				lastContentLine = element;
 			}
 		}
 	}
@@ -59,9 +59,8 @@ public class ParagraphBox extends AbstractBox implements BlockBox {
 	 * @param width
 	 *            width to which the paragraph is to be wrapped
 	 */
-	public static ParagraphBox create(LayoutContext context, Element element,
-			List<InlineBox> inlines, int width) {
-		InlineBox[] array = inlines.toArray(new InlineBox[inlines.size()]);
+	public static ParagraphBox create(final LayoutContext context, final Element element, final List<InlineBox> inlines, final int width) {
+		final InlineBox[] array = inlines.toArray(new InlineBox[inlines.size()]);
 		return create(context, element, array, width);
 	}
 
@@ -71,31 +70,29 @@ public class ParagraphBox extends AbstractBox implements BlockBox {
 	 * @param context
 	 *            LayoutContext used for this layout
 	 * @param element
-	 *            Element that controls the styling of this paragraph, in
-	 *            particular text alignment.
+	 *            Element that controls the styling of this paragraph, in particular text alignment.
 	 * @param inlines
 	 *            Array of InlineBox objects to be wrapped.
 	 * @param width
 	 *            width to which the paragraph is to be wrapped.
 	 */
-	public static ParagraphBox create(LayoutContext context, Element element,
-			InlineBox[] inlines, int width) {
+	public static ParagraphBox create(final LayoutContext context, final Element element, final InlineBox[] inlines, final int width) {
 
 		// lines is the list of LineBoxes we are creating
-		List<Box> lines = new ArrayList<Box>();
+		final List<Box> lines = new ArrayList<Box>();
 
 		InlineBox right = new LineBox(context, element, inlines);
 
 		while (right != null) {
-			InlineBox.Pair pair = right.split(context, width, true);
+			final InlineBox.Pair pair = right.split(context, width, true);
 			//FIXME icampist this indicates some design problem, since later on, LineBoxes are expected
 			//either we cast here to LineBox or we make an if later on.
 			lines.add(pair.getLeft());
 			right = pair.getRight();
 		}
 
-		Styles styles = context.getStyleSheet().getStyles(element);
-		String textAlign = styles.getTextAlign();
+		final Styles styles = context.getStyleSheet().getStyles(element);
+		final String textAlign = styles.getTextAlign();
 
 		// y-offset of the next line
 		int y = 0;
@@ -103,9 +100,9 @@ public class ParagraphBox extends AbstractBox implements BlockBox {
 		int actualWidth = 0;
 
 		//children for the ParagraphBox constructor that accepts only LineBoxes
-		List<LineBox> lineBoxesChildren = new ArrayList<LineBox>();
+		final List<LineBox> lineBoxesChildren = new ArrayList<LineBox>();
 
-		for (Box lineBox : lines) {
+		for (final Box lineBox : lines) {
 			int x;
 			if (textAlign.equals(CSS.RIGHT)) {
 				x = width - lineBox.getWidth();
@@ -120,14 +117,14 @@ public class ParagraphBox extends AbstractBox implements BlockBox {
 
 			y += lineBox.getHeight();
 			actualWidth = Math.max(actualWidth, lineBox.getWidth());
-			
+
 			//strange, but we need to check the case because it's not explicit anywhere
 			if (lineBox instanceof LineBox) {
 				lineBoxesChildren.add((LineBox) lineBox);
 			}
 		}
-		
-		ParagraphBox para = new ParagraphBox(lineBoxesChildren.toArray(new LineBox[lineBoxesChildren.size()]));
+
+		final ParagraphBox para = new ParagraphBox(lineBoxesChildren.toArray(new LineBox[lineBoxesChildren.size()]));
 		para.setWidth(actualWidth);
 		para.setHeight(y);
 
@@ -142,49 +139,48 @@ public class ParagraphBox extends AbstractBox implements BlockBox {
 		// factor = estHeight * width / (fontSize * fontSize * charCount)
 		//
 		/*
-		 * Box firstContentBox = null; for (int i = 0; i < inlines.length; i++)
-		 * { Box box = inlines[i]; if (box.hasContent()) { firstContentBox =
-		 * box; break; } }
+		 * Box firstContentBox = null; for (int i = 0; i < inlines.length; i++) { Box box = inlines[i]; if
+		 * (box.hasContent()) { firstContentBox = box; break; } }
 		 * 
-		 * if (firstContentBox != null) { float fontSize = styles.getFontSize();
-		 * int charCount = lastContentBox.getEndOffset() -
-		 * firstContentBox.getStartOffset(); float factor = para.getHeight()
-		 * para.getWidth() / (fontSize fontSize charCount);
-		 * System.out.println("Actual factor is " + factor); }
+		 * if (firstContentBox != null) { float fontSize = styles.getFontSize(); int charCount =
+		 * lastContentBox.getEndOffset() - firstContentBox.getStartOffset(); float factor = para.getHeight()
+		 * para.getWidth() / (fontSize fontSize charCount); System.out.println("Actual factor is " + factor); }
 		 */
 
 		return para;
 	}
 
 	/**
-	 * @see org.eclipse.vex.core.internal.layout.Box#getCaret(org.eclipse.vex.core.internal.layout.LayoutContext,
-	 *      int)
+	 * @see org.eclipse.vex.core.internal.layout.Box#getCaret(org.eclipse.vex.core.internal.layout.LayoutContext, int)
 	 */
-	public Caret getCaret(LayoutContext context, int offset) {
+	@Override
+	public Caret getCaret(final LayoutContext context, final int offset) {
 
-		LineBox line = this.getLineAt(offset);
-		Caret caret = line.getCaret(context, offset);
+		final LineBox line = getLineAt(offset);
+		final Caret caret = line.getCaret(context, offset);
 		caret.translate(line.getX(), line.getY());
 		return caret;
 
 	}
 
+	@Override
 	public Box[] getChildren() {
-		return this.children;
+		return children;
 	}
 
+	@Override
 	public int getEndOffset() {
-		return this.lastContentLine.getEndOffset();
+		return lastContentLine.getEndOffset();
 	}
 
 	/**
 	 * @see org.eclipse.vex.core.internal.layout.BlockBox#getFirstLine()
 	 */
 	public LineBox getFirstLine() {
-		if (this.children.length == 0) {
+		if (children.length == 0) {
 			return null;
 		} else {
-			return this.children[0];
+			return children[0];
 		}
 	}
 
@@ -192,10 +188,10 @@ public class ParagraphBox extends AbstractBox implements BlockBox {
 	 * @see org.eclipse.vex.core.internal.layout.BlockBox#getLastLine()
 	 */
 	public LineBox getLastLine() {
-		if (this.children.length == 0) {
+		if (children.length == 0) {
 			return null;
 		} else {
-			return this.children[this.children.length - 1];
+			return children[children.length - 1];
 		}
 	}
 
@@ -205,23 +201,22 @@ public class ParagraphBox extends AbstractBox implements BlockBox {
 	 * @param offset
 	 *            the offset to check.
 	 */
-	public LineBox getLineAt(int offset) {
-		LineBox[] children = this.children;
-		for (int i = 0; i < children.length; i++) {
-			if (children[i].hasContent()
-					&& offset <= children[i].getEndOffset()) {
-				return children[i];
+	public LineBox getLineAt(final int offset) {
+		final LineBox[] children = this.children;
+		for (final LineBox element : children) {
+			if (element.hasContent() && offset <= element.getEndOffset()) {
+				return element;
 			}
 		}
-		return this.lastContentLine;
+		return lastContentLine;
 	}
 
-	public int getLineEndOffset(int offset) {
-		return this.getLineAt(offset).getEndOffset();
+	public int getLineEndOffset(final int offset) {
+		return getLineAt(offset).getEndOffset();
 	}
 
-	public int getLineStartOffset(int offset) {
-		return this.getLineAt(offset).getStartOffset();
+	public int getLineStartOffset(final int offset) {
+		return getLineAt(offset).getStartOffset();
 	}
 
 	public int getMarginBottom() {
@@ -232,13 +227,12 @@ public class ParagraphBox extends AbstractBox implements BlockBox {
 		return 0;
 	}
 
-	public int getNextLineOffset(LayoutContext context, int offset, int x) {
+	public int getNextLineOffset(final LayoutContext context, final int offset, final int x) {
 		LineBox nextLine = null;
-		LineBox[] children = this.children;
-		for (int i = 0; i < children.length; i++) {
-			if (children[i].hasContent()
-					&& children[i].getStartOffset() > offset) {
-				nextLine = children[i];
+		final LineBox[] children = this.children;
+		for (final LineBox element : children) {
+			if (element.hasContent() && element.getStartOffset() > offset) {
+				nextLine = element;
 				break;
 			}
 		}
@@ -251,13 +245,12 @@ public class ParagraphBox extends AbstractBox implements BlockBox {
 	}
 
 	public BlockBox getParent() {
-		throw new IllegalStateException(
-				"ParagraphBox does not currently track parent");
+		throw new IllegalStateException("ParagraphBox does not currently track parent");
 	}
 
-	public int getPreviousLineOffset(LayoutContext context, int offset, int x) {
+	public int getPreviousLineOffset(final LayoutContext context, final int offset, final int x) {
 		LineBox prevLine = null;
-		LineBox[] children = this.children;
+		final LineBox[] children = this.children;
 		for (int i = children.length - 1; i >= 0; i--) {
 			if (children[i].hasContent() && children[i].getEndOffset() < offset) {
 				prevLine = children[i];
@@ -272,39 +265,40 @@ public class ParagraphBox extends AbstractBox implements BlockBox {
 		}
 	}
 
+	@Override
 	public int getStartOffset() {
-		return this.firstContentLine.getStartOffset();
+		return firstContentLine.getStartOffset();
 	}
 
+	@Override
 	public boolean hasContent() {
-		return this.firstContentLine != null;
+		return firstContentLine != null;
 	}
 
-	public IntRange layout(LayoutContext context, int top, int bottom) {
+	public IntRange layout(final LayoutContext context, final int top, final int bottom) {
 		return null;
 	}
 
-	public void invalidate(boolean direct) {
-		throw new IllegalStateException(
-				"invalidate called on a non-element BlockBox");
+	public void invalidate(final boolean direct) {
+		throw new IllegalStateException("invalidate called on a non-element BlockBox");
 	}
 
-	public void setInitialSize(LayoutContext context) {
+	public void setInitialSize(final LayoutContext context) {
 		// NOP - size calculated in factory method
 	}
 
+	@Override
 	public String toString() {
 		return "ParagraphBox";
 	}
 
-	public int viewToModel(LayoutContext context, int x, int y) {
+	@Override
+	public int viewToModel(final LayoutContext context, final int x, final int y) {
 
-		LineBox[] children = this.children;
-		for (int i = 0; i < children.length; i++) {
-			Box child = children[i];
+		final LineBox[] children = this.children;
+		for (final LineBox child : children) {
 			if (child.hasContent() && y <= child.getY() + child.getHeight()) {
-				return child.viewToModel(context, x - child.getX(), y
-						- child.getY());
+				return child.viewToModel(context, x - child.getX(), y - child.getY());
 			}
 		}
 		throw new RuntimeException("No line at (" + x + ", " + y + ")");

@@ -35,50 +35,56 @@ public class DocumentFragmentTransfer extends ByteArrayTransfer {
 		return instance;
 	}
 
+	@Override
 	protected String[] getTypeNames() {
 		return typeNames;
 	}
 
+	@Override
 	protected int[] getTypeIds() {
 		return typeIds;
 	}
 
-	public void javaToNative(Object object, TransferData transferData) {
-		if (object == null || !(object instanceof DocumentFragment))
+	@Override
+	public void javaToNative(final Object object, final TransferData transferData) {
+		if (object == null || !(object instanceof DocumentFragment)) {
 			return;
+		}
 
 		if (isSupportedType(transferData)) {
-			DocumentFragment frag = (DocumentFragment) object;
+			final DocumentFragment frag = (DocumentFragment) object;
 			try {
 				// write data to a byte array and then ask super to convert to
 				// pMedium
-				ByteArrayOutputStream out = new ByteArrayOutputStream();
-				ObjectOutputStream oos = new ObjectOutputStream(out);
+				final ByteArrayOutputStream out = new ByteArrayOutputStream();
+				final ObjectOutputStream oos = new ObjectOutputStream(out);
 				oos.writeObject(frag);
-				byte[] buffer = out.toByteArray();
+				final byte[] buffer = out.toByteArray();
 				oos.close();
 				super.javaToNative(buffer, transferData);
-			} catch (IOException e) {
+			} catch (final IOException e) {
 			}
 		}
 	}
 
-	public Object nativeToJava(TransferData transferData) {
+	@Override
+	public Object nativeToJava(final TransferData transferData) {
 
 		if (isSupportedType(transferData)) {
-			byte[] buffer = (byte[]) super.nativeToJava(transferData);
-			if (buffer == null)
+			final byte[] buffer = (byte[]) super.nativeToJava(transferData);
+			if (buffer == null) {
 				return null;
+			}
 
 			try {
-				ByteArrayInputStream in = new ByteArrayInputStream(buffer);
-				ObjectInputStream ois = new ObjectInputStream(in);
-				Object object = ois.readObject();
+				final ByteArrayInputStream in = new ByteArrayInputStream(buffer);
+				final ObjectInputStream ois = new ObjectInputStream(in);
+				final Object object = ois.readObject();
 				ois.close();
 				return object;
-			} catch (ClassNotFoundException ex) {
+			} catch (final ClassNotFoundException ex) {
 				return null;
-			} catch (IOException ex) {
+			} catch (final IOException ex) {
 				return null;
 			}
 		}
@@ -89,8 +95,7 @@ public class DocumentFragmentTransfer extends ByteArrayTransfer {
 	// =================================================== PRIVATE
 
 	private static final String[] typeNames = { DocumentFragment.MIME_TYPE };
-	private static final int[] typeIds = { ByteArrayTransfer
-			.registerType(DocumentFragment.MIME_TYPE) };
+	private static final int[] typeIds = { ByteArrayTransfer.registerType(DocumentFragment.MIME_TYPE) };
 
 	private static DocumentFragmentTransfer instance;
 

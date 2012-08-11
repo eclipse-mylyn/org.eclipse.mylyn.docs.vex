@@ -14,33 +14,33 @@ package org.eclipse.vex.ui.internal.namespace;
  * @author Florian Thienel
  */
 public class EditableNamespaceDefinition {
-	
+
 	private String prefix;
-	
+
 	private String uri;
-	
+
 	public EditableNamespaceDefinition() {
 		this("", "");
 	}
-	
+
 	public EditableNamespaceDefinition(final String prefix, final String uri) {
 		this.prefix = prefix;
 		this.uri = uri;
 	}
-	
+
 	public String getPrefix() {
 		return prefix;
 	}
-	
-	public void setPrefix(String prefix) {
+
+	public void setPrefix(final String prefix) {
 		this.prefix = prefix;
 	}
-	
+
 	public String getUri() {
 		return uri;
 	}
-	
-	public void setUri(String uri) {
+
+	public void setUri(final String uri) {
 		this.uri = uri;
 	}
 

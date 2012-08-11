@@ -11,9 +11,8 @@
 package org.eclipse.vex.core.internal.dom;
 
 /**
- * Represents a logical location in a document. As the document is modified,
- * existing <code>Position</code> objects are updated to reflect the appropriate
- * character offset in the document.
+ * Represents a logical location in a document. As the document is modified, existing <code>Position</code> objects are
+ * updated to reflect the appropriate character offset in the document.
  */
 public interface Position {
 
@@ -21,9 +20,10 @@ public interface Position {
 	 * @return the character offset corresponding to the position.
 	 */
 	int getOffset();
-	
+
 	/**
-	 * @param offset the character offset corresponding to the position
+	 * @param offset
+	 *            the character offset corresponding to the position
 	 */
 	void setOffset(int offset);
 }

@@ -11,9 +11,8 @@
 package org.eclipse.vex.core.internal.core;
 
 /**
- * Wrapper for a toolkit-defined color. Color objects are system resources. They
- * should be retrieved with the Graphics.createColor method and should be
- * disposed when no longer needed.
+ * Wrapper for a toolkit-defined color. Color objects are system resources. They should be retrieved with the
+ * Graphics.createColor method and should be disposed when no longer needed.
  */
 public interface ColorResource {
 

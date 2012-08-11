@@ -31,11 +31,11 @@ public class CompoundEdit implements IUndoableEdit {
 	 * @param edit
 	 *            Edit to be undone/redone as part of the compound group.
 	 */
-	public void addEdit(IUndoableEdit edit) {
+	public void addEdit(final IUndoableEdit edit) {
 		edits.add(edit);
 	}
 
-	public boolean combine(IUndoableEdit edit) {
+	public boolean combine(final IUndoableEdit edit) {
 		return false;
 	}
 
@@ -43,24 +43,23 @@ public class CompoundEdit implements IUndoableEdit {
 	 * Calls redo() on each contained edit, in the order that they were added.
 	 */
 	public void redo() {
-		for (int i = 0; i < this.edits.size(); i++) {
-			IUndoableEdit edit = (IUndoableEdit) this.edits.get(i);
+		for (int i = 0; i < edits.size(); i++) {
+			final IUndoableEdit edit = edits.get(i);
 			edit.redo();
 		}
 	}
 
 	/**
-	 * Calls undo() on each contained edit, in reverse order from which they
-	 * were added.
+	 * Calls undo() on each contained edit, in reverse order from which they were added.
 	 */
 	public void undo() {
-		for (int i = this.edits.size() - 1; i >= 0; i--) {
-			IUndoableEdit edit = (IUndoableEdit) this.edits.get(i);
+		for (int i = edits.size() - 1; i >= 0; i--) {
+			final IUndoableEdit edit = edits.get(i);
 			edit.undo();
 		}
 	}
 
 	// ===================================================== PRIVATE
 
-	private List<IUndoableEdit> edits = new ArrayList<IUndoableEdit>();
+	private final List<IUndoableEdit> edits = new ArrayList<IUndoableEdit>();
 }

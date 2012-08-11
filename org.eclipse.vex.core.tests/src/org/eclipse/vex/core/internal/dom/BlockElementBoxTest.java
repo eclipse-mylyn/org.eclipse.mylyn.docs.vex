@@ -14,11 +14,11 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
 
+import junit.framework.TestCase;
+
 import org.eclipse.vex.core.internal.core.Graphics;
 import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.css.StyleSheetReader;
-import org.eclipse.vex.core.internal.dom.Document;
-import org.eclipse.vex.core.internal.dom.DocumentReader;
 import org.eclipse.vex.core.internal.layout.BlockElementBox;
 import org.eclipse.vex.core.internal.layout.Box;
 import org.eclipse.vex.core.internal.layout.CssBoxFactory;
@@ -27,53 +27,46 @@ import org.eclipse.vex.core.internal.layout.LayoutContext;
 import org.eclipse.vex.core.internal.layout.RootBox;
 import org.eclipse.vex.core.tests.TestResources;
 
-import junit.framework.TestCase;
-
 public class BlockElementBoxTest extends TestCase {
 
-	private Graphics g;
-	private LayoutContext context;
+	private final Graphics g;
+	private final LayoutContext context;
 
 	public BlockElementBoxTest() throws Exception {
 
-		StyleSheetReader ssReader = new StyleSheetReader();
-		StyleSheet ss = ssReader.read(TestResources.get("test.css"));
+		final StyleSheetReader ssReader = new StyleSheetReader();
+		final StyleSheet ss = ssReader.read(TestResources.get("test.css"));
 
-		this.g = new FakeGraphics();
+		g = new FakeGraphics();
 
-		this.context = new LayoutContext();
-		this.context.setBoxFactory(new CssBoxFactory());
-		this.context.setGraphics(this.g);
-		this.context.setStyleSheet(ss);
+		context = new LayoutContext();
+		context.setBoxFactory(new CssBoxFactory());
+		context.setGraphics(g);
+		context.setStyleSheet(ss);
 
 	}
 
 	public void testPositioning() throws Exception {
 
-		String docString = "<root><small/><medium/><large/></root>";
-		DocumentReader docReader = new DocumentReader();
+		final String docString = "<root><small/><medium/><large/></root>";
+		final DocumentReader docReader = new DocumentReader();
 		docReader.setDebugging(true);
-		Document doc = docReader.read(docString);
+		final Document doc = docReader.read(docString);
 		context.setDocument(doc);
-		
-		RootBox parentBox = new RootBox(context, doc.getRootElement(), 500);
-		
-		BlockElementBox box = new BlockElementBox(context, parentBox, doc
-				.getRootElement());
 
-		List<Box> childrenList = box.createChildren(context);		
-		Box[] children = childrenList.toArray(new Box[childrenList.size()]);
+		final RootBox parentBox = new RootBox(context, doc.getRootElement(), 500);
+
+		final BlockElementBox box = new BlockElementBox(context, parentBox, doc.getRootElement());
+
+		final List<Box> childrenList = box.createChildren(context);
+		final Box[] children = childrenList.toArray(new Box[childrenList.size()]);
 		assertNotNull("No Children created.", children);
 		assertEquals(3, children.length);
 	}
 
-	public int getGap(BlockElementBox box, int n) throws SecurityException,
-			NoSuchMethodException, IllegalArgumentException,
-			IllegalAccessException, InvocationTargetException {
-		Method getGap = BlockElementBox.class.getDeclaredMethod("getGap",
-				new Class[] { Integer.TYPE });
+	public int getGap(final BlockElementBox box, final int n) throws SecurityException, NoSuchMethodException, IllegalArgumentException, IllegalAccessException, InvocationTargetException {
+		final Method getGap = BlockElementBox.class.getDeclaredMethod("getGap", new Class[] { Integer.TYPE });
 		getGap.setAccessible(true);
-		return ((Integer) getGap.invoke(box, new Object[] { Integer.valueOf(n) }))
-				.intValue();
+		return ((Integer) getGap.invoke(box, new Object[] { Integer.valueOf(n) })).intValue();
 	}
 }

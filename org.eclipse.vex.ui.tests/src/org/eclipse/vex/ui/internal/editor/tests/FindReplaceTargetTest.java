@@ -20,9 +20,17 @@ import org.eclipse.vex.ui.internal.editor.AbstractRegExFindReplaceTarget;
 @SuppressWarnings("restriction")
 public class FindReplaceTargetTest extends TestCase {
 
-	private static enum Direction { FORWARD, BACKWARD };
-	private static enum Case { SENSITVE, INSENSITVE };
-	private static enum WholeWord { ON, OFF };
+	private static enum Direction {
+		FORWARD, BACKWARD
+	};
+
+	private static enum Case {
+		SENSITVE, INSENSITVE
+	};
+
+	private static enum WholeWord {
+		ON, OFF
+	};
 
 	// options
 	private String findString;
@@ -39,27 +47,30 @@ public class FindReplaceTargetTest extends TestCase {
 
 	private class MyFindReplaceTarget extends AbstractRegExFindReplaceTarget {
 
+		@Override
 		protected int getSelectionStart() {
 			return selectionStart;
 		}
 
+		@Override
 		protected int getSelectionEnd() {
 			return selectionEnd;
 		}
 
-		protected void setSelection(int start, int end) {
+		@Override
+		protected void setSelection(final int start, final int end) {
 			selectionStart = start;
 			selectionEnd = end;
 		}
 
+		@Override
 		protected CharSequence getDocument() {
 			return content;
 		}
 
-		protected void inDocumentReplaceSelection(CharSequence text) {
-			content =   content.substring(0, selectionStart)
-		              + text
-		              + content.substring(selectionEnd);
+		@Override
+		protected void inDocumentReplaceSelection(final CharSequence text) {
+			content = content.substring(0, selectionStart) + text + content.substring(selectionEnd);
 		}
 
 	}
@@ -71,80 +82,67 @@ public class FindReplaceTargetTest extends TestCase {
 		content = null;
 	}
 
-	private void setUp(String content) {
+	private void setUp(final String content) {
 		setUp(content, -1, -1);
 	}
 
-	private void setUp(String content, int selectionStart, int selectionEnd) {
+	private void setUp(final String content, final int selectionStart, final int selectionEnd) {
 		this.content = content;
 		this.selectionStart = selectionStart;
 		this.selectionEnd = selectionEnd;
 		finder = new MyFindReplaceTarget();
 	}
 
-	private void setFindOptions(String findString,
-			                    Direction direction,
-			                    Case caseSensitve,
-			                    WholeWord wholeWord) {
+	private void setFindOptions(final String findString, final Direction direction, final Case caseSensitve, final WholeWord wholeWord) {
 		this.findString = findString;
 		this.direction = direction;
-		this.caseSensitiveness = caseSensitve;
+		caseSensitiveness = caseSensitve;
 		this.wholeWord = wholeWord;
-		this.regExSearch = false;
+		regExSearch = false;
 	}
 
-	private void setRegExOptions(String findString,
-                                 Direction direction,
-                                 Case caseSensitve) {
+	private void setRegExOptions(final String findString, final Direction direction, final Case caseSensitve) {
 		this.findString = findString;
 		this.direction = direction;
-		this.caseSensitiveness = caseSensitve;
-		this.wholeWord = WholeWord.OFF;
-		this.regExSearch = true;
+		caseSensitiveness = caseSensitve;
+		wholeWord = WholeWord.OFF;
+		regExSearch = true;
 	}
 
 	/**
-	 * @param expected content with the expected selection which is market by
-	 *                 square brackets; example: {code "xyz [selected] ..."}
+	 * @param expected
+	 *            content with the expected selection which is market by square brackets; example: {code
+	 *            "xyz [selected] ..."}
 	 */
-	private void findAndAssertEquals(String expected) {
+	private void findAndAssertEquals(final String expected) {
 		find();
 		assertEquals(expected);
 	}
 
 	/**
-	 * @param expected content with the expected selection which is market by
-	 *                 square brackets; example: {code "xyz [selected] ..."}
+	 * @param expected
+	 *            content with the expected selection which is market by square brackets; example: {code
+	 *            "xyz [selected] ..."}
 	 */
-	private void assertEquals(String expected) {
-		int start = expected.indexOf('[');
-		int end = expected.indexOf(']') - 1;
-		assertTrue("selection must marked by square brackets: [...]",
-				   start >= 0 && end >= 0 && end >= start);
+	private void assertEquals(final String expected) {
+		final int start = expected.indexOf('[');
+		final int end = expected.indexOf(']') - 1;
+		assertTrue("selection must marked by square brackets: [...]", start >= 0 && end >= 0 && end >= start);
 
 		String is = content;
 		if (selectionStart >= 0 && selectionEnd >= 0) {
-			is =   content.substring(0, selectionStart)
-			     + "["
-			     + content.substring(selectionStart, selectionEnd)
-			     + "]"
-			     + content.substring(selectionEnd);
+			is = content.substring(0, selectionStart) + "[" + content.substring(selectionStart, selectionEnd) + "]" + content.substring(selectionEnd);
 		}
 		assertEquals(expected, is);
-		CharSequence selection = expected.subSequence(start + 1, end + 1);
+		final CharSequence selection = expected.subSequence(start + 1, end + 1);
 		assertEquals(selection, finder.getSelectionText());
 		assertEquals(start, selectionStart);
 		assertEquals(end, selectionEnd);
 	}
 
 	private boolean find() {
-		int offset = direction == Direction.FORWARD ? selectionEnd : selectionStart;
-		int result = finder.findAndSelect(offset,
-				                          findString,
-				                          direction == Direction.FORWARD,
-				                          caseSensitiveness == Case.SENSITVE,
-				                          wholeWord == WholeWord.ON,
-				                          regExSearch);
+		final int offset = direction == Direction.FORWARD ? selectionEnd : selectionStart;
+		final int result = finder.findAndSelect(offset, findString, direction == Direction.FORWARD, caseSensitiveness == Case.SENSITVE, wholeWord == WholeWord.ON, regExSearch);
 		return result >= 0;
 	}
 
@@ -190,7 +188,7 @@ public class FindReplaceTargetTest extends TestCase {
 		findAndAssertEquals("abb[a]");
 		assertFalse(find());
 
-        // ... and in backward -1 means find from the end
+		// ... and in backward -1 means find from the end
 		setUp("abba", -1, -1);
 		setFindOptions("a", Direction.BACKWARD, Case.SENSITVE, WholeWord.OFF);
 		findAndAssertEquals("abb[a]");
@@ -315,7 +313,7 @@ public class FindReplaceTargetTest extends TestCase {
 		try {
 			finder.replaceSelection("x", true);
 			fail();
-		} catch (IllegalStateException e) {
+		} catch (final IllegalStateException e) {
 			// expected
 		}
 
@@ -334,13 +332,12 @@ public class FindReplaceTargetTest extends TestCase {
 		try {
 			finder.replaceSelection("x", true);
 			fail();
-		} catch (IllegalStateException e) {
+		} catch (final IllegalStateException e) {
 			// expected
 		}
 	}
 
-	public void testRegExReplaceThrowsPatternSyntaxException()
-			throws Exception {
+	public void testRegExReplaceThrowsPatternSyntaxException() throws Exception {
 		setUp("abcde", 0, 1);
 		setRegExOptions("(.)", Direction.FORWARD, Case.SENSITVE);
 
@@ -351,13 +348,11 @@ public class FindReplaceTargetTest extends TestCase {
 		replaceAndExpectPatternSyntaxException("no group 2 -> $2");
 	}
 
-	private void replaceAndExpectPatternSyntaxException(String replacement) {
+	private void replaceAndExpectPatternSyntaxException(final String replacement) {
 		try {
 			finder.replaceSelection(replacement, true);
-			fail(  "Invalid replace pattern '"
-			     + replacement
-			     + "' does not throw PatternSyntaxException.");
-		} catch (PatternSyntaxException e) {
+			fail("Invalid replace pattern '" + replacement + "' does not throw PatternSyntaxException.");
+		} catch (final PatternSyntaxException e) {
 			// expected
 		}
 	}

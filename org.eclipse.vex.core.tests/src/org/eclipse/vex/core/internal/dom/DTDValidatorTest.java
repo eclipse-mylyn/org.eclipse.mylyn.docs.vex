@@ -47,7 +47,7 @@ public class DTDValidatorTest extends TestCase {
 
 		assertSame(adType, adType2);
 	}
-	
+
 	public void testEnumAttribute() throws Exception {
 		final Document doc = new Document(new RootElement("section"));
 		doc.setValidator(validator);
@@ -112,8 +112,9 @@ public class DTDValidatorTest extends TestCase {
 
 	private static void assertValidItemsAt(final Document doc, final int offset, final String... expectedItems) {
 		final Set<QualifiedName> expected = new HashSet<QualifiedName>(expectedItems.length);
-		for (final String expectedItem : expectedItems)
+		for (final String expectedItem : expectedItems) {
 			expected.add(new QualifiedName(null, expectedItem));
+		}
 
 		final Set<QualifiedName> validItems = doc.getValidator().getValidItems(doc.getElementAt(offset));
 		assertEquals(expected, validItems);
@@ -154,7 +155,7 @@ public class DTDValidatorTest extends TestCase {
 		doc.insertElement(1, new Element("title"));
 		doc.insertText(2, "ab");
 		doc.insertElement(5, new Element("para"));
-		
+
 		validator.getAttributeDefinitions(doc.getRootElement());
 	}
 
@@ -176,32 +177,35 @@ public class DTDValidatorTest extends TestCase {
 		assertValidSequence(false, element, true, true, sequence);
 	}
 
-	private void assertValidSequence(final boolean expected, final String element, final boolean validateFully, final boolean validatePartially,
-			final String... sequence) {
+	private void assertValidSequence(final boolean expected, final String element, final boolean validateFully, final boolean validatePartially, final String... sequence) {
 		final QualifiedName elementName = new QualifiedName(null, element);
 		for (int i = 0; i < sequence.length; i++) {
 			final List<QualifiedName> prefix = createPrefix(i, sequence);
 			final List<QualifiedName> toInsert = Collections.singletonList(new QualifiedName(null, sequence[i]));
 			final List<QualifiedName> suffix = createSuffix(i, sequence);
 
-			if (validateFully)
+			if (validateFully) {
 				assertEquals(expected, validator.isValidSequence(elementName, prefix, toInsert, suffix, false));
-			if (validatePartially)
+			}
+			if (validatePartially) {
 				assertEquals(expected, validator.isValidSequence(elementName, prefix, toInsert, suffix, true));
+			}
 		}
 	}
 
 	private static List<QualifiedName> createPrefix(final int index, final String... sequence) {
 		final List<QualifiedName> prefix = new ArrayList<QualifiedName>();
-		for (int i = 0; i < index; i++)
+		for (int i = 0; i < index; i++) {
 			prefix.add(new QualifiedName(null, sequence[i]));
+		}
 		return prefix;
 	}
 
 	private static List<QualifiedName> createSuffix(final int index, final String... sequence) {
 		final List<QualifiedName> suffix = new ArrayList<QualifiedName>();
-		for (int i = index + 1; i < sequence.length; i++)
+		for (int i = index + 1; i < sequence.length; i++) {
 			suffix.add(new QualifiedName(null, sequence[i]));
+		}
 		return suffix;
 	}
 }

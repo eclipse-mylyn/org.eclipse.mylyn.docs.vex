@@ -46,7 +46,7 @@ public class DoctypePropertyPage extends PropertyPage {
 	private static final int NAME_WIDTH = 150;
 
 	private PluginProject pluginProject;
-	
+
 	private DocumentType doctype;
 
 	private Composite pane;
@@ -60,20 +60,20 @@ public class DoctypePropertyPage extends PropertyPage {
 	private Table rootElementsTable;
 
 	private IConfigListener configListener;
-	
+
 	@Override
 	protected Control createContents(final Composite parent) {
 		pane = new Composite(parent, SWT.NONE);
 
 		final IFile file = (IFile) getElement();
-		
+
 		pluginProject = new PluginProject(file.getProject());
 		try {
 			pluginProject.load();
-		} catch (CoreException e) {
+		} catch (final CoreException e) {
 			VexPlugin.getDefault().getLog().log(e.getStatus());
 		}
-		
+
 		createPropertySheet();
 
 		configListener = new IConfigListener() {
@@ -83,7 +83,7 @@ public class DoctypePropertyPage extends PropertyPage {
 				// from which we get our list of prospective root elements.
 				try {
 					pluginProject.load();
-				} catch (CoreException e) {
+				} catch (final CoreException e) {
 					VexPlugin.getDefault().getLog().log(e.getStatus());
 				}
 
@@ -116,8 +116,9 @@ public class DoctypePropertyPage extends PropertyPage {
 		}
 
 		// Generate a simple ID for this one if necessary
-		if (doctype.getSimpleId() == null || doctype.getSimpleId().length() == 0)
+		if (doctype.getSimpleId() == null || doctype.getSimpleId().length() == 0) {
 			doctype.setSimpleId(doctype.generateSimpleId());
+		}
 
 		if (VexPlugin.getDefault().getConfigurationRegistry().isLoaded()) {
 			populateDoctype();
@@ -129,7 +130,7 @@ public class DoctypePropertyPage extends PropertyPage {
 
 		return pane;
 	}
-	
+
 	private void createPropertySheet() {
 		final GridLayout layout = new GridLayout();
 		layout.numColumns = 2;
@@ -181,7 +182,7 @@ public class DoctypePropertyPage extends PropertyPage {
 
 		rootElementsTable = new Table(tablePane, SWT.CHECK);
 	}
-	
+
 	private void populateDoctype() {
 		setText(nameText, doctype.getName());
 		setText(publicIdText, doctype.getPublicId());
@@ -201,20 +202,21 @@ public class DoctypePropertyPage extends PropertyPage {
 			rootElementsTable.removeAll();
 			final List<QualifiedName> rootElements = new ArrayList<QualifiedName>(validator.getValidRootElements());
 			Collections.sort(rootElements, new Comparator<QualifiedName>() {
-				public int compare(QualifiedName name1, QualifiedName name2) {
+				public int compare(final QualifiedName name1, final QualifiedName name2) {
 					return name1.getLocalName().compareTo(name2.getLocalName());
 				}
 			});
-			for (QualifiedName rootElementName : rootElements) {
+			for (final QualifiedName rootElementName : rootElements) {
 				final TableItem item = new TableItem(rootElementsTable, SWT.NONE);
-				
+
 				setRootElementItemText(item, rootElementName);
 				item.setData(rootElementName);
 
-				if (selectedRootElements.contains(rootElementName.getLocalName()))
+				if (selectedRootElements.contains(rootElementName.getLocalName())) {
 					item.setChecked(true);
+				}
 			}
-		} else
+		} else {
 			try {
 				pluginProject.writeConfigXml();
 			} catch (final Exception ex) {
@@ -222,15 +224,17 @@ public class DoctypePropertyPage extends PropertyPage {
 						new Object[] { PluginProject.PLUGIN_XML });
 				VexPlugin.getDefault().log(IStatus.ERROR, message, ex);
 			}
+		}
 	}
 
 	private void setRootElementItemText(final TableItem item, final QualifiedName rootElementName) {
-		if (rootElementName.getQualifier() == null)
+		if (rootElementName.getQualifier() == null) {
 			item.setText(rootElementName.getLocalName());
-		else
+		} else {
 			item.setText(rootElementName.getLocalName() + " (" + rootElementName.getQualifier() + ")");
+		}
 	}
-	
+
 	@Override
 	public boolean performOk() {
 		performApply();
@@ -245,9 +249,11 @@ public class DoctypePropertyPage extends PropertyPage {
 
 		// collect root Elements from the rootElementsTable
 		final ArrayList<String> selectedRootElements = new ArrayList<String>();
-		for (final TableItem item : rootElementsTable.getItems())
-			if (item.getChecked())
+		for (final TableItem item : rootElementsTable.getItems()) {
+			if (item.getChecked()) {
 				selectedRootElements.add(((QualifiedName) item.getData()).getLocalName());
+			}
+		}
 		doctype.setRootElements(selectedRootElements.toArray(new String[selectedRootElements.size()]));
 
 		try {
@@ -269,7 +275,8 @@ public class DoctypePropertyPage extends PropertyPage {
 	@Override
 	public void dispose() {
 		super.dispose();
-		if (configListener != null)
+		if (configListener != null) {
 			VexPlugin.getDefault().getConfigurationRegistry().removeConfigListener(configListener);
+		}
 	}
 }

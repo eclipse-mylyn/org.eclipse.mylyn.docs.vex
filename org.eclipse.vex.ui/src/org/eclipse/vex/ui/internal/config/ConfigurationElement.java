@@ -19,9 +19,8 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Lightweight implementation of the IConfigurationElement interface. This class
- * is used by config item factories when re-creating the configuration elements
- * corresponding to a given config item.
+ * Lightweight implementation of the IConfigurationElement interface. This class is used by config item factories when
+ * re-creating the configuration elements corresponding to a given config item.
  */
 public class ConfigurationElement implements IConfigElement {
 
@@ -37,7 +36,7 @@ public class ConfigurationElement implements IConfigElement {
 	 * @param name
 	 *            Name of the element.
 	 */
-	public ConfigurationElement(String name) {
+	public ConfigurationElement(final String name) {
 		this.name = name;
 	}
 
@@ -47,27 +46,26 @@ public class ConfigurationElement implements IConfigElement {
 	 * @param child
 	 *            child to be added.
 	 */
-	public void addChild(IConfigElement child) {
-		this.children.add(child);
+	public void addChild(final IConfigElement child) {
+		children.add(child);
 	}
 
-	public String getAttribute(String name) {
-		return (String) this.attributes.get(name);
+	public String getAttribute(final String name) {
+		return attributes.get(name);
 	}
 
 	public String[] getAttributeNames() {
-		Set<String> keys = this.attributes.keySet();
+		final Set<String> keys = attributes.keySet();
 		return keys.toArray(new String[keys.size()]);
 	}
 
 	public IConfigElement[] getChildren() {
-		return (IConfigElement[]) this.children
-				.toArray(new IConfigElement[this.children.size()]);
+		return children.toArray(new IConfigElement[children.size()]);
 	}
 
-	public IConfigElement[] getChildren(String name) {
-		List<IConfigElement> kids = new ArrayList<IConfigElement>();
-		for (IConfigElement child : this.children) {
+	public IConfigElement[] getChildren(final String name) {
+		final List<IConfigElement> kids = new ArrayList<IConfigElement>();
+		for (final IConfigElement child : children) {
 			if (child.getName().equals(name)) {
 				kids.add(child);
 			}
@@ -76,38 +74,36 @@ public class ConfigurationElement implements IConfigElement {
 	}
 
 	public String getName() {
-		return this.name;
+		return name;
 	}
 
 	public String getValue() {
-		return this.value;
+		return value;
 	}
 
 	/**
-	 * Sets the given attribute. If value is null, the attribute is removed from
-	 * the element.
+	 * Sets the given attribute. If value is null, the attribute is removed from the element.
 	 * 
 	 * @param name
 	 *            Name of the attribute.
 	 * @param value
 	 *            Value of the attribute.
 	 */
-	public void setAttribute(String name, String value) {
+	public void setAttribute(final String name, final String value) {
 		if (value == null) {
-			this.attributes.remove(name);
+			attributes.remove(name);
 		} else {
-			this.attributes.put(name, value);
+			attributes.put(name, value);
 		}
 	}
 
 	/**
-	 * Sets the children of this element given an array of IConfigElement
-	 * objects.
+	 * Sets the children of this element given an array of IConfigElement objects.
 	 * 
 	 * @param children
 	 *            Children of this element.
 	 */
-	public void setChildren(IConfigElement[] children) {
+	public void setChildren(final IConfigElement[] children) {
 		this.children.clear();
 		this.children.addAll(Arrays.asList(children));
 	}
@@ -118,7 +114,7 @@ public class ConfigurationElement implements IConfigElement {
 	 * @param name
 	 *            Name of the element.
 	 */
-	public void setName(String name) {
+	public void setName(final String name) {
 		this.name = name;
 	}
 
@@ -128,7 +124,7 @@ public class ConfigurationElement implements IConfigElement {
 	 * @param value
 	 *            Value of the element.
 	 */
-	public void setValue(String value) {
+	public void setValue(final String value) {
 		this.value = value;
 	}
 
@@ -136,6 +132,6 @@ public class ConfigurationElement implements IConfigElement {
 
 	private String name;
 	private String value;
-	private Map<String, String> attributes = new HashMap<String, String>();
-	private List<IConfigElement> children = new ArrayList<IConfigElement>();
+	private final Map<String, String> attributes = new HashMap<String, String>();
+	private final List<IConfigElement> children = new ArrayList<IConfigElement>();
 }

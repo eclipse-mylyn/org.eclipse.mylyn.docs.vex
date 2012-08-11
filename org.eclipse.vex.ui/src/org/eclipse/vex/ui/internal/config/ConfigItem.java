@@ -24,24 +24,23 @@ public abstract class ConfigItem implements Comparable<ConfigItem> {
 	 * @param config
 	 *            VexConfiguration to which this item belongs.
 	 */
-	public ConfigItem(ConfigSource config) {
+	public ConfigItem(final ConfigSource config) {
 		this.config = config;
 	}
 
-	public int compareTo(ConfigItem o) {
-		return this.getName().compareTo(o.getName());
+	public int compareTo(final ConfigItem o) {
+		return getName().compareTo(o.getName());
 	}
 
 	/**
-	 * Generate a simple identifier for the item that is unique with its
-	 * configuration.
+	 * Generate a simple identifier for the item that is unique with its configuration.
 	 */
 	public String generateSimpleId() {
-		String base = "id"; //$NON-NLS-1$
+		final String base = "id"; //$NON-NLS-1$
 		int i = 1;
 		for (;;) {
-			String id = base + i;
-			if (this.getConfig().getItem(id) == null) {
+			final String id = base + i;
+			if (getConfig().getItem(id) == null) {
 				return id;
 			}
 			i++;
@@ -56,61 +55,54 @@ public abstract class ConfigItem implements Comparable<ConfigItem> {
 	}
 
 	/**
-	 * Returns the extension point ID of configuration item. This will be the
-	 * same for all config items of a given type.
+	 * Returns the extension point ID of configuration item. This will be the same for all config items of a given type.
 	 */
 	public abstract String getExtensionPointId();
 
 	/**
-	 * Returns the simple ID of this item. This is a short string containing no
-	 * periods.
+	 * Returns the simple ID of this item. This is a short string containing no periods.
 	 */
 	public String getSimpleId() {
-		return this.id;
+		return id;
 	}
 
 	/**
-	 * Returns the unique ID of this item. The unique ID is formed by
-	 * concatenating the ID of the associated VexConfiguration, a period, and
-	 * the simple ID of this item.
+	 * Returns the unique ID of this item. The unique ID is formed by concatenating the ID of the associated
+	 * VexConfiguration, a period, and the simple ID of this item.
 	 */
 	public String getUniqueId() {
-		return this.id == null ? null : this.getConfig().getUniqueIdentifer()
-				+ "." + this.id; //$NON-NLS-1$
+		return id == null ? null : getConfig().getUniqueIdentifer() + "." + id; //$NON-NLS-1$
 	}
 
 	/**
 	 * Returns the human-readable name for this item.
 	 */
 	public String getName() {
-		return this.name;
+		return name;
 	}
 
 	/**
-	 * Returns the URI of the associated resource, if any, relative to the base
-	 * directory of the associated VexConfiguration. Returns null if no resource
-	 * is associated with this item.
+	 * Returns the URI of the associated resource, if any, relative to the base directory of the associated
+	 * VexConfiguration. Returns null if no resource is associated with this item.
 	 */
 	public URI getResourceUri() {
-		return this.resourceUri;
+		return resourceUri;
 	}
 
 	/**
-	 * Returns true if s is null or empty. Convenience method to be used in
-	 * isValid().
+	 * Returns true if s is null or empty. Convenience method to be used in isValid().
 	 * 
 	 * @param s
 	 *            String to check.
 	 */
-	protected boolean isBlank(String s) {
+	protected boolean isBlank(final String s) {
 		return s == null || s.length() == 0;
 	}
 
 	/**
-	 * Returns true if this item has sufficient information to be used as a
-	 * configuration item. By default, the item must have a simple ID and a
-	 * name. Subclasses should override and provide additional checks as
-	 * necessary, after calling this base implementation.
+	 * Returns true if this item has sufficient information to be used as a configuration item. By default, the item
+	 * must have a simple ID and a name. Subclasses should override and provide additional checks as necessary, after
+	 * calling this base implementation.
 	 */
 	public boolean isValid() {
 		return !isBlank(id) && !isBlank(name);
@@ -122,7 +114,7 @@ public abstract class ConfigItem implements Comparable<ConfigItem> {
 	 * @param name
 	 *            New name for this item.
 	 */
-	public void setName(String name) {
+	public void setName(final String name) {
 		this.name = name;
 	}
 
@@ -137,13 +129,13 @@ public abstract class ConfigItem implements Comparable<ConfigItem> {
 	}
 
 	/**
-	 * Sets the simple ID for this item. The simple ID should only contain
-	 * letters and numbers, and must not contain a period.
+	 * Sets the simple ID for this item. The simple ID should only contain letters and numbers, and must not contain a
+	 * period.
 	 * 
 	 * @param id
 	 *            New simple ID for this item.
 	 */
-	public void setSimpleId(String id) {
+	public void setSimpleId(final String id) {
 		this.id = id;
 	}
 
@@ -152,6 +144,6 @@ public abstract class ConfigItem implements Comparable<ConfigItem> {
 	private String id;
 	private String name;
 	private URI resourceUri;
-	private ConfigSource config;
+	private final ConfigSource config;
 
 }

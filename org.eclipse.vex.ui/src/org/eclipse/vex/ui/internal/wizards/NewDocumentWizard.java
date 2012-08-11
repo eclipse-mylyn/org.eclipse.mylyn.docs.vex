@@ -75,8 +75,7 @@ public class NewDocumentWizard extends BasicNewResourceWizard {
 
 			final Style style = VexPlugin.getDefault().getPreferences().getPreferredStyle(typePage.getDocumentType().getPublicId());
 			if (style == null) {
-				MessageDialog.openError(getShell(),
-						Messages.getString("NewDocumentWizard.noStyles.title"), Messages.getString("NewDocumentWizard.noStyles.message")); //$NON-NLS-1$ //$NON-NLS-2$
+				MessageDialog.openError(getShell(), Messages.getString("NewDocumentWizard.noStyles.title"), Messages.getString("NewDocumentWizard.noStyles.message")); //$NON-NLS-1$ //$NON-NLS-2$
 				return false;
 				// TODO: don't allow selection of types with no stylesheets
 			}
@@ -99,8 +98,9 @@ public class NewDocumentWizard extends BasicNewResourceWizard {
 			final IWorkbenchWindow dw = getWorkbench().getActiveWorkbenchWindow();
 			if (dw != null) {
 				final IWorkbenchPage page = dw.getActivePage();
-				if (page != null)
+				if (page != null) {
 					IDE.openEditor(page, file, true);
+				}
 			}
 
 			typePage.saveSettings();
@@ -108,8 +108,7 @@ public class NewDocumentWizard extends BasicNewResourceWizard {
 			return true;
 
 		} catch (final Exception ex) {
-			final String message = MessageFormat.format(Messages.getString("NewDocumentWizard.errorLoading.message"),
-					new Object[] { filePage.getFileName(), ex.getMessage() });
+			final String message = MessageFormat.format(Messages.getString("NewDocumentWizard.errorLoading.message"), new Object[] { filePage.getFileName(), ex.getMessage() });
 			VexPlugin.getDefault().log(IStatus.ERROR, message, ex);
 			MessageDialog.openError(getShell(), Messages.getString("NewDocumentWizard.errorLoading.title"), "Unable to create " + filePage.getFileName()); //$NON-NLS-1$ //$NON-NLS-2$
 			return false;
@@ -117,8 +116,9 @@ public class NewDocumentWizard extends BasicNewResourceWizard {
 	}
 
 	private static Document createDocument(final DocumentType documentType, final String rootElementName) {
-		if (isDTD(documentType))
+		if (isDTD(documentType)) {
 			return createDocumentWithDTD(documentType, rootElementName);
+		}
 		return createDocumentWithSchema(documentType, rootElementName);
 	}
 
@@ -142,9 +142,11 @@ public class NewDocumentWizard extends BasicNewResourceWizard {
 
 		final WTPVEXValidator validator = new WTPVEXValidator(new DocumentContentModel(null, null, null, root));
 		int namespaceIndex = 1;
-		for (final String namespaceUri : validator.getRequiredNamespaces())
-			if (!defaultNamespaceUri.equals(namespaceUri))
+		for (final String namespaceUri : validator.getRequiredNamespaces()) {
+			if (!defaultNamespaceUri.equals(namespaceUri)) {
 				root.declareNamespace("ns" + namespaceIndex++, namespaceUri);
+			}
+		}
 
 		return new Document(root);
 	}
@@ -152,38 +154,41 @@ public class NewDocumentWizard extends BasicNewResourceWizard {
 	/**
 	 * Register an editor to use for files with the given filename.
 	 * 
-	 * NOTE: this method uses internal, undocumented Eclipse functionality. It
-	 * may therefore break in a future version of Eclipse.
+	 * NOTE: this method uses internal, undocumented Eclipse functionality. It may therefore break in a future version
+	 * of Eclipse.
 	 * 
 	 * @param fileName
-	 *            Filename to be registered. Use the form "*.ext" to register
-	 *            all files with a given extension.
+	 *            Filename to be registered. Use the form "*.ext" to register all files with a given extension.
 	 * @param editorId
 	 *            ID of the editor to use for the given filename.
 	 */
 	private static void registerEditorForFilename(final String fileName, final String editorId) {
 
 		final EditorDescriptor ed = getEditorDescriptor(editorId);
-		if (ed == null)
+		if (ed == null) {
 			return;
+		}
 
 		final IEditorRegistry reg = PlatformUI.getWorkbench().getEditorRegistry();
 		final EditorRegistry ereg = (EditorRegistry) reg;
 		final FileEditorMapping[] mappings = (FileEditorMapping[]) ereg.getFileEditorMappings();
 		FileEditorMapping mapping = null;
-		for (final FileEditorMapping fem : mappings)
+		for (final FileEditorMapping fem : mappings) {
 			if (fem.getLabel().equals(fileName)) {
 				mapping = fem;
 				break;
 			}
+		}
 
 		if (mapping != null) {
 			// found mapping for fileName
 			// make sure it includes our editor
-			for (final IEditorDescriptor editor : mapping.getEditors())
-				if (editor.getId().equals(editorId))
+			for (final IEditorDescriptor editor : mapping.getEditors()) {
+				if (editor.getId().equals(editorId)) {
 					// already mapped
 					return;
+				}
+			}
 
 			// editor not in the list, so add it
 			mapping.addEditor(ed);
@@ -196,9 +201,9 @@ public class NewDocumentWizard extends BasicNewResourceWizard {
 			String name = null;
 			String ext = null;
 			final int iDot = fileName.lastIndexOf('.');
-			if (iDot == -1)
+			if (iDot == -1) {
 				name = fileName;
-			else {
+			} else {
 				name = fileName.substring(0, iDot);
 				ext = fileName.substring(iDot + 1);
 			}
@@ -220,9 +225,11 @@ public class NewDocumentWizard extends BasicNewResourceWizard {
 	 */
 	private static EditorDescriptor getEditorDescriptor(final String editorId) {
 		final EditorRegistry reg = (EditorRegistry) PlatformUI.getWorkbench().getEditorRegistry();
-		for (final IEditorDescriptor editor : reg.getSortedEditorsFromPlugins())
-			if (editor.getId().equals(editorId))
+		for (final IEditorDescriptor editor : reg.getSortedEditorsFromPlugins()) {
+			if (editor.getId().equals(editorId)) {
 				return (EditorDescriptor) editor;
+			}
+		}
 
 		return null;
 	}

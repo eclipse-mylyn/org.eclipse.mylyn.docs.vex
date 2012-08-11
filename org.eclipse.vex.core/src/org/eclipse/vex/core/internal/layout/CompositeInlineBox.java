@@ -23,18 +23,19 @@ import org.eclipse.vex.core.internal.core.Graphics;
 import org.eclipse.vex.core.internal.css.Styles;
 
 /**
- * InlineBox consisting of several children. This is the parent class of
- * InlineElementBox and LineBox, and implements the split method.
+ * InlineBox consisting of several children. This is the parent class of InlineElementBox and LineBox, and implements
+ * the split method.
  */
 public abstract class CompositeInlineBox extends AbstractInlineBox {
 
 	/**
 	 * Returns true if any of the children have content.
 	 */
+	@Override
 	public boolean hasContent() {
-		Box[] children = this.getChildren();
-		for (int i = 0; i < children.length; i++) {
-			if (children[i].hasContent()) {
+		final Box[] children = getChildren();
+		for (final Box element : children) {
+			if (element.hasContent()) {
 				return true;
 			}
 		}
@@ -42,19 +43,18 @@ public abstract class CompositeInlineBox extends AbstractInlineBox {
 	}
 
 	public boolean isEOL() {
-		Box[] children = this.getChildren();
-		return children.length > 0
-				&& ((InlineBox) children[children.length - 1]).isEOL();
+		final Box[] children = getChildren();
+		return children.length > 0 && ((InlineBox) children[children.length - 1]).isEOL();
 	}
 
 	/**
-	 * @see org.eclipse.vex.core.internal.layout.Box#getCaret(org.eclipse.vex.core.internal.layout.LayoutContext,
-	 *      int)
+	 * @see org.eclipse.vex.core.internal.layout.Box#getCaret(org.eclipse.vex.core.internal.layout.LayoutContext, int)
 	 */
-	public Caret getCaret(LayoutContext context, int offset) {
+	@Override
+	public Caret getCaret(final LayoutContext context, final int offset) {
 
 		int x = 0;
-		Box[] children = this.getChildren();
+		final Box[] children = getChildren();
 
 		// we want the caret to be to the right of any leading static boxes...
 		int start = 0;
@@ -70,12 +70,12 @@ public abstract class CompositeInlineBox extends AbstractInlineBox {
 		}
 
 		for (int i = start; i < end; i++) {
-			Box child = children[i];
+			final Box child = children[i];
 			if (child.hasContent()) {
 				if (offset < child.getStartOffset()) {
 					break;
 				} else if (offset <= child.getEndOffset()) {
-					Caret caret = child.getCaret(context, offset);
+					final Caret caret = child.getCaret(context, offset);
 					caret.translate(child.getX(), child.getY());
 					return caret;
 				}
@@ -83,18 +83,18 @@ public abstract class CompositeInlineBox extends AbstractInlineBox {
 			x += child.getWidth();
 		}
 
-		Graphics g = context.getGraphics();
-		Styles styles = context.getStyleSheet().getStyles(this.getElement());
+		final Graphics g = context.getGraphics();
+		final Styles styles = context.getStyleSheet().getStyles(getElement());
 
-		FontResource font = g.createFont(styles.getFont());
-		FontResource oldFont = g.setFont(font);
-		FontMetrics fm = g.getFontMetrics();
-		int height = fm.getAscent() + fm.getDescent();
+		final FontResource font = g.createFont(styles.getFont());
+		final FontResource oldFont = g.setFont(font);
+		final FontMetrics fm = g.getFontMetrics();
+		final int height = fm.getAscent() + fm.getDescent();
 		g.setFont(oldFont);
 		font.dispose();
 
-		int lineHeight = styles.getLineHeight();
-		int y = (lineHeight - height) / 2;
+		final int lineHeight = styles.getLineHeight();
+		final int y = (lineHeight - height) / 2;
 		return new TextCaret(x, y, height);
 	}
 
@@ -102,25 +102,24 @@ public abstract class CompositeInlineBox extends AbstractInlineBox {
 	 * @see org.eclipse.vex.core.internal.layout.InlineBox#split(org.eclipse.vex.core.internal.layout.LayoutContext,
 	 *      int, boolean)
 	 */
-	public Pair split(LayoutContext context, int maxWidth, boolean force) {
+	public Pair split(final LayoutContext context, final int maxWidth, final boolean force) {
 
 		// list of children that have yet to be added to the left side
-		LinkedList<Box> rights = new LinkedList<Box>(Arrays.asList(this.getChildren()));
+		final LinkedList<Box> rights = new LinkedList<Box>(Arrays.asList(getChildren()));
 
 		// pending is a list of inlines we are trying to add to the left side
 		// but which cannot end at a split
-		List<InlineBox> pending = new ArrayList<InlineBox>();
+		final List<InlineBox> pending = new ArrayList<InlineBox>();
 
 		// list of inlines that make up the left side
-		List<InlineBox> lefts = new ArrayList<InlineBox>();
+		final List<InlineBox> lefts = new ArrayList<InlineBox>();
 
 		int remaining = maxWidth;
 		boolean eol = false;
 
 		while (!rights.isEmpty() && remaining >= 0) {
-			InlineBox inline = (InlineBox) rights.removeFirst();
-			InlineBox.Pair pair = inline.split(context, remaining, force
-					&& lefts.isEmpty());
+			final InlineBox inline = (InlineBox) rights.removeFirst();
+			final InlineBox.Pair pair = inline.split(context, remaining, force && lefts.isEmpty());
 
 			if (pair.getLeft() != null) {
 				lefts.addAll(pending);
@@ -141,14 +140,14 @@ public abstract class CompositeInlineBox extends AbstractInlineBox {
 
 		}
 
-		if (((force && lefts.isEmpty()) || remaining >= 0) && !eol) {
+		if ((force && lefts.isEmpty() || remaining >= 0) && !eol) {
 			lefts.addAll(pending);
 		} else {
 			rights.addAll(0, pending);
 		}
 
-		InlineBox[] leftKids = lefts.toArray(new InlineBox[lefts.size()]);
-		InlineBox[] rightKids = rights.toArray(new InlineBox[rights.size()]);
+		final InlineBox[] leftKids = lefts.toArray(new InlineBox[lefts.size()]);
+		final InlineBox[] rightKids = rights.toArray(new InlineBox[rights.size()]);
 		return this.split(context, leftKids, rightKids);
 	}
 
@@ -163,25 +162,23 @@ public abstract class CompositeInlineBox extends AbstractInlineBox {
 	 *            Child boxes to be given to the right box.
 	 * @return
 	 */
-	protected abstract Pair split(LayoutContext context, InlineBox[] lefts,
-			InlineBox[] rights);
+	protected abstract Pair split(LayoutContext context, InlineBox[] lefts, InlineBox[] rights);
 
 	/**
 	 * @see org.eclipse.vex.core.internal.layout.Box#viewToModel(org.eclipse.vex.core.internal.layout.LayoutContext,
 	 *      int, int)
 	 */
-	public int viewToModel(LayoutContext context, int x, int y) {
+	@Override
+	public int viewToModel(final LayoutContext context, final int x, final int y) {
 
-		if (!this.hasContent()) {
-			throw new RuntimeException(
-					"Oops. Calling viewToModel on a line with no content");
+		if (!hasContent()) {
+			throw new RuntimeException("Oops. Calling viewToModel on a line with no content");
 		}
 
 		Box closestContentChild = null;
 		int delta = Integer.MAX_VALUE;
-		Box[] children = this.getChildren();
-		for (int i = 0; i < children.length; i++) {
-			Box child = children[i];
+		final Box[] children = getChildren();
+		for (final Box child : children) {
 			if (child.hasContent()) {
 				int newDelta = 0;
 				if (x < child.getX()) {
@@ -196,8 +193,7 @@ public abstract class CompositeInlineBox extends AbstractInlineBox {
 			}
 		}
 
-		return closestContentChild.viewToModel(context, x
-				- closestContentChild.getX(), y - closestContentChild.getY());
+		return closestContentChild.viewToModel(context, x - closestContentChild.getX(), y - closestContentChild.getY());
 	}
 
 }

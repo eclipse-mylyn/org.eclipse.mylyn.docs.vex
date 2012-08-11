@@ -14,24 +14,26 @@ import org.eclipse.vex.core.internal.core.DisplayDevice;
 
 public class MockDisplayDevice extends DisplayDevice {
 
-	private int horizontalPPI;
-	private int verticalPPI;
+	private final int horizontalPPI;
+	private final int verticalPPI;
 
-	public MockDisplayDevice(int horizontalPPI, int verticalPPI) {
+	public MockDisplayDevice(final int horizontalPPI, final int verticalPPI) {
 		this.horizontalPPI = horizontalPPI;
 		this.verticalPPI = verticalPPI;
 	}
 
+	@Override
 	public int getHorizontalPPI() {
-		return this.horizontalPPI;
+		return horizontalPPI;
 	}
 
 	/**
      *
      */
 
+	@Override
 	public int getVerticalPPI() {
-		return this.verticalPPI;
+		return verticalPPI;
 	}
 
 }

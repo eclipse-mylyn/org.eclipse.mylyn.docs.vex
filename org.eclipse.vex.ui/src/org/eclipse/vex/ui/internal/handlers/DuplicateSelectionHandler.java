@@ -19,29 +19,31 @@ import org.eclipse.vex.ui.internal.swt.VexWidget;
  */
 public class DuplicateSelectionHandler extends AbstractVexWidgetHandler {
 
-    @Override
-    public void execute(final VexWidget widget) throws ExecutionException {
-        widget.doWork(new Runnable() {
-            public void run() {
-                if (!widget.hasSelection()) {
-                    Element element = widget.getCurrentElement();
+	@Override
+	public void execute(final VexWidget widget) throws ExecutionException {
+		widget.doWork(new Runnable() {
+			public void run() {
+				if (!widget.hasSelection()) {
+					final Element element = widget.getCurrentElement();
 
-                    // Can't duplicate the root element
-                    if (element.getParent() == null) return;
+					// Can't duplicate the root element
+					if (element.getParent() == null) {
+						return;
+					}
 
-                    widget.moveTo(element.getStartOffset());
-                    widget.moveTo(element.getEndOffset() + 1, true);
-                }
+					widget.moveTo(element.getStartOffset());
+					widget.moveTo(element.getEndOffset() + 1, true);
+				}
 
-                widget.copySelection();
-                int startOffset = widget.getSelectionEnd();
-                widget.moveTo(startOffset);
-                widget.paste();
-                int endOffset = widget.getCaretOffset();
-                widget.moveTo(startOffset);
-                widget.moveTo(endOffset, true);
-            }
-        });
-    }
+				widget.copySelection();
+				final int startOffset = widget.getSelectionEnd();
+				widget.moveTo(startOffset);
+				widget.paste();
+				final int endOffset = widget.getCaretOffset();
+				widget.moveTo(startOffset);
+				widget.moveTo(endOffset, true);
+			}
+		});
+	}
 
 }

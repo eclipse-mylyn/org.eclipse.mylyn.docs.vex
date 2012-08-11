@@ -25,7 +25,7 @@ public class TextDecorationProperty extends AbstractProperty {
 		super(CSS.TEXT_DECORATION);
 	}
 
-	public Object calculate(LexicalUnit lu, Styles parentStyles, Styles styles, Element element) {
+	public Object calculate(final LexicalUnit lu, final Styles parentStyles, final Styles styles, final Element element) {
 		if (isTextDecoration(lu)) {
 			return lu.getStringValue();
 		} else {
@@ -46,14 +46,12 @@ public class TextDecorationProperty extends AbstractProperty {
 	 * @param lu
 	 *            LexicalUnit to check.
 	 */
-	private static boolean isTextDecoration(LexicalUnit lu) {
+	private static boolean isTextDecoration(final LexicalUnit lu) {
 		if (lu == null) {
 			return false;
 		} else if (lu.getLexicalUnitType() == LexicalUnit.SAC_IDENT) {
-			String s = lu.getStringValue();
-			return s.equals(CSS.NONE) || s.equals(CSS.UNDERLINE)
-					|| s.equals(CSS.OVERLINE) || s.equals(CSS.LINE_THROUGH)
-					|| s.equals(CSS.BLINK);
+			final String s = lu.getStringValue();
+			return s.equals(CSS.NONE) || s.equals(CSS.UNDERLINE) || s.equals(CSS.OVERLINE) || s.equals(CSS.LINE_THROUGH) || s.equals(CSS.BLINK);
 		} else {
 			return false;
 		}

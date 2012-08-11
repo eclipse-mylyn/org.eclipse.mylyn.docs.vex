@@ -148,9 +148,11 @@ public class EditNamespacesControllerTest {
 	}
 
 	private static void assertContainsNamespaceDefinition(final EditableNamespaceDefinition expected, final List<EditableNamespaceDefinition> actualList) {
-		for (final EditableNamespaceDefinition definition : actualList)
-			if (expected.getPrefix().equals(definition.getPrefix()) && expected.getUri().equals(definition.getUri()))
+		for (final EditableNamespaceDefinition definition : actualList) {
+			if (expected.getPrefix().equals(definition.getPrefix()) && expected.getUri().equals(definition.getUri())) {
 				return;
+			}
+		}
 		fail("namespace definition not found: " + expected.getPrefix() + "=" + expected.getUri());
 	}
 

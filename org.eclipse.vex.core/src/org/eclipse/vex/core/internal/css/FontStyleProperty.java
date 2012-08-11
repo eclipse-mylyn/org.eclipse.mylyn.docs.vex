@@ -25,7 +25,7 @@ public class FontStyleProperty extends AbstractProperty {
 		super(CSS.FONT_STYLE);
 	}
 
-	public Object calculate(LexicalUnit lu, Styles parentStyles, Styles styles, Element element) {
+	public Object calculate(final LexicalUnit lu, final Styles parentStyles, final Styles styles, final Element element) {
 		if (isFontStyle(lu)) {
 			return lu.getStringValue();
 		} else {
@@ -45,13 +45,12 @@ public class FontStyleProperty extends AbstractProperty {
 	 * @param lu
 	 *            LexicalUnit to check.
 	 */
-	public static boolean isFontStyle(LexicalUnit lu) {
+	public static boolean isFontStyle(final LexicalUnit lu) {
 		if (lu == null) {
 			return false;
 		} else if (lu.getLexicalUnitType() == LexicalUnit.SAC_IDENT) {
-			String s = lu.getStringValue();
-			return s.equals(CSS.NORMAL) || s.equals(CSS.ITALIC)
-					|| s.equals(CSS.OBLIQUE);
+			final String s = lu.getStringValue();
+			return s.equals(CSS.NORMAL) || s.equals(CSS.ITALIC) || s.equals(CSS.OBLIQUE);
 		} else {
 			return false;
 		}

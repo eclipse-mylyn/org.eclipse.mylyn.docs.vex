@@ -229,7 +229,7 @@ public class NamespaceTest {
 		element.declareNamespace("ns1", "http://namespace/uri/1");
 		element.declareNamespace("ns2", "http://namespace/uri/2");
 
-		final Element clone = (Element) element.clone();
+		final Element clone = element.clone();
 		assertEquals("http://namespace/uri/default", clone.getDeclaredDefaultNamespaceURI());
 
 	}
@@ -249,8 +249,8 @@ public class NamespaceTest {
 
 	@Test
 	public void readNestedNamespaceDeclarations() throws Exception {
-		final Document document = readDocumentFromString("<ns1:a xmlns=\"http://namespace/default\" xmlns:ns1=\"http://namespace/uri/1\">"
-				+ "<ns2:b xmlns:ns2=\"http://namespace/uri/2\"/>" + "</ns1:a>");
+		final Document document = readDocumentFromString("<ns1:a xmlns=\"http://namespace/default\" xmlns:ns1=\"http://namespace/uri/1\">" + "<ns2:b xmlns:ns2=\"http://namespace/uri/2\"/>"
+				+ "</ns1:a>");
 		final Element rootElement = document.getRootElement();
 		final Element nestedElement = rootElement.getChildElements().get(0);
 		assertEquals("http://namespace/default", nestedElement.getDefaultNamespaceURI());
@@ -261,8 +261,8 @@ public class NamespaceTest {
 
 	@Test
 	public void evaluateElementPrefix() throws Exception {
-		final Document document = readDocumentFromString("<ns1:a xmlns=\"http://namespace/default\" xmlns:ns1=\"http://namespace/uri/1\">"
-				+ "<ns2:b xmlns:ns2=\"http://namespace/uri/2\"/>" + "<c />" + "</ns1:a>");
+		final Document document = readDocumentFromString("<ns1:a xmlns=\"http://namespace/default\" xmlns:ns1=\"http://namespace/uri/1\">" + "<ns2:b xmlns:ns2=\"http://namespace/uri/2\"/>" + "<c />"
+				+ "</ns1:a>");
 		final Element rootElement = document.getRootElement();
 		assertEquals("http://namespace/uri/1", rootElement.getQualifiedName().getQualifier());
 		assertEquals("a", rootElement.getLocalName());
@@ -282,8 +282,7 @@ public class NamespaceTest {
 	@Test
 	public void evaluateAttributePrefix() throws Exception {
 		final Document document = readDocumentFromString("<ns1:a xmlns=\"http://namespace/default\" xmlns:ns1=\"http://namespace/uri/1\" attr1=\"value1\">"
-				+ "<ns2:b xmlns:ns2=\"http://namespace/uri/2\" ns1:attr2=\"value2\" ns2:attr3=\"value3\" attr4=\"value4\" />"
-				+ "<c ns1:attr5=\"value5\" attr6=\"value6\" />" + "</ns1:a>");
+				+ "<ns2:b xmlns:ns2=\"http://namespace/uri/2\" ns1:attr2=\"value2\" ns2:attr3=\"value3\" attr4=\"value4\" />" + "<c ns1:attr5=\"value5\" attr6=\"value6\" />" + "</ns1:a>");
 		final Element rootElement = document.getRootElement();
 		assertTrue(rootElement.getAttributeNames().contains(new QualifiedName("http://namespace/uri/1", "attr1")));
 		assertFalse(rootElement.getAttributeNames().contains(new QualifiedName("http://namespace/default", "attr1")));
@@ -303,8 +302,7 @@ public class NamespaceTest {
 	@Test
 	public void readWriteCycle() throws Exception {
 		final String inputContent = "<?xml version='1.0'?> <ns1:a xmlns=\"http://namespace/default\" xmlns:ns1=\"http://namespace/uri/1\" attr1=\"value1\"> "
-				+ "<ns2:b xmlns:ns2=\"http://namespace/uri/2\" ns1:attr2=\"value2\" attr3=\"value3\"/> " + "<c attr4=\"value4\" ns1:attr5=\"value5\"/>"
-				+ "</ns1:a> ";
+				+ "<ns2:b xmlns:ns2=\"http://namespace/uri/2\" ns1:attr2=\"value2\" attr3=\"value3\"/> " + "<c attr4=\"value4\" ns1:attr5=\"value5\"/>" + "</ns1:a> ";
 		final Document document = readDocumentFromString(inputContent);
 
 		final DocumentWriter documentWriter = new DocumentWriter();
@@ -314,7 +312,7 @@ public class NamespaceTest {
 
 		assertEquals(inputContent, outputContent);
 	}
-	
+
 	@Test
 	public void allVisibleNamespacePrefixes() throws Exception {
 		final Element parent = new Element("parent");
@@ -328,16 +326,16 @@ public class NamespaceTest {
 		element.declareNamespace("ns3", "http://namespace/uri/3");
 		element.declareNamespace("ns1", "http://namespace/uri/1a");
 		child.declareDefaultNamespace("http://namespace/uri/child/default");
-		
+
 		assertEquals(2, parent.getNamespacePrefixes().size());
 		assertTrue(parent.getNamespacePrefixes().contains("ns1"));
 		assertTrue(parent.getNamespacePrefixes().contains("ns2"));
-		
+
 		assertEquals(3, element.getNamespacePrefixes().size());
 		assertTrue(element.getNamespacePrefixes().contains("ns1"));
 		assertTrue(element.getNamespacePrefixes().contains("ns2"));
 		assertTrue(element.getNamespacePrefixes().contains("ns3"));
-		
+
 		assertEquals(3, child.getNamespacePrefixes().size());
 		assertTrue(child.getNamespacePrefixes().contains("ns1"));
 		assertTrue(child.getNamespacePrefixes().contains("ns2"));

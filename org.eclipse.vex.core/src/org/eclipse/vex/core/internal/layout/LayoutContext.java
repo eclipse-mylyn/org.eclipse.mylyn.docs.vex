@@ -23,9 +23,8 @@ import org.eclipse.vex.core.internal.dom.Document;
 import org.eclipse.vex.core.internal.dom.Element;
 
 /**
- * Encapsulation of all the resources needed to create a box tree. Most
- * operations on a box tree, such as creating the tree, painting the tree, and
- * converting between spatial and model coordinates, require the context.
+ * Encapsulation of all the resources needed to create a box tree. Most operations on a box tree, such as creating the
+ * tree, painting the tree, and converting between spatial and model coordinates, require the context.
  */
 public class LayoutContext {
 
@@ -58,16 +57,15 @@ public class LayoutContext {
 	}
 
 	/**
-	 * Returns the <code>Graphics</code> object used for layout. Box paint
-	 * methods use this graphics for painting.
+	 * Returns the <code>Graphics</code> object used for layout. Box paint methods use this graphics for painting.
 	 */
 	public Graphics getGraphics() {
-		return this.graphics;
+		return graphics;
 	}
 
 	/**
-	 * Returns the time the layout was started. Actually, it's the time since
-	 * this context was created, as returned by System.currentTimeMills().
+	 * Returns the time the layout was started. Actually, it's the time since this context was created, as returned by
+	 * System.currentTimeMills().
 	 */
 	public long getStartTime() {
 		return startTime;
@@ -77,55 +75,51 @@ public class LayoutContext {
 	 * Returns the <code>StyleSheet</code> used for this layout.
 	 */
 	public StyleSheet getStyleSheet() {
-		return this.styleSheet;
+		return styleSheet;
 	}
 
 	/**
-	 * Helper method that returns true if the given element is in the selected
-	 * range.
+	 * Helper method that returns true if the given element is in the selected range.
 	 * 
 	 * @param element
-	 *            Element to test. May be null, in which case this method
-	 *            returns false.
+	 *            Element to test. May be null, in which case this method returns false.
 	 */
-	public boolean isElementSelected(Element element) {
-		return element != null
-				&& element.getStartOffset() >= this.getSelectionStart()
-				&& element.getEndOffset() + 1 <= this.getSelectionEnd();
+	public boolean isElementSelected(final Element element) {
+		return element != null && element.getStartOffset() >= getSelectionStart() && element.getEndOffset() + 1 <= getSelectionEnd();
 	}
 
 	/**
 	 * Resets the start time to currentTimeMillis.
 	 */
 	public void resetStartTime() {
-		this.startTime = System.currentTimeMillis();
+		startTime = System.currentTimeMillis();
 	}
 
 	/**
 	 * Sets the BoxFactory used to generate boxes for this layout.
 	 */
-	public void setBoxFactory(BoxFactory factory) {
+	public void setBoxFactory(final BoxFactory factory) {
 		boxFactory = factory;
 	}
 
 	/**
 	 * Sets the document being layed out.
 	 */
-	public void setDocument(Document document) {
+	public void setDocument(final Document document) {
 		this.document = document;
 	}
 
 	/**
 	 * Sets the Graphics object used for this layout.
 	 */
-	public void setGraphics(Graphics graphics) {
+	public void setGraphics(final Graphics graphics) {
 		this.graphics = graphics;
 	}
 
 	/**
 	 * Sets the stylesheet used for this layout.
 	 */
-	public void setStyleSheet(StyleSheet sheet) {
+	public void setStyleSheet(final StyleSheet sheet) {
 		styleSheet = sheet;
 	}
 
@@ -149,7 +143,7 @@ public class LayoutContext {
 	 * @param i
 	 *            the new value for selectionEnd
 	 */
-	public void setSelectionEnd(int i) {
+	public void setSelectionEnd(final int i) {
 		selectionEnd = i;
 	}
 
@@ -159,17 +153,18 @@ public class LayoutContext {
 	 * @param i
 	 *            the new value for selectionStart
 	 */
-	public void setSelectionStart(int i) {
+	public void setSelectionStart(final int i) {
 		selectionStart = i;
 	}
-	
+
 	public URL resolveUrl(final String baseUri, final String urlSpecification) {
 		try {
-			if (baseUri == null)
+			if (baseUri == null) {
 				return new URL(urlSpecification);
-			else
+			} else {
 				return new URL(new URL(baseUri), urlSpecification);
-		} catch (MalformedURLException e) {
+			}
+		} catch (final MalformedURLException e) {
 			VEXCorePlugin.getInstance().getLog().log(new Status(IStatus.ERROR, VEXCorePlugin.ID, MessageFormat.format("Cannot resolve image url: {0}", urlSpecification), e));
 			return null;
 		}

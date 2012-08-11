@@ -33,9 +33,9 @@ public class ConfigurationView extends ViewPart {
 		parentControl = parent;
 
 		VexPlugin.getDefault().getConfigurationRegistry().addConfigListener(configListener);
-		if (VexPlugin.getDefault().getConfigurationRegistry().isLoaded())
+		if (VexPlugin.getDefault().getConfigurationRegistry().isLoaded()) {
 			createTreeViewer();
-		else {
+		} else {
 			loadingLabel = new Label(parent, SWT.NONE);
 			loadingLabel.setText(Messages.getString("ConfigurationView.loading")); //$NON-NLS-1$
 		}
@@ -50,8 +50,9 @@ public class ConfigurationView extends ViewPart {
 
 	@Override
 	public void setFocus() {
-		if (treeViewer != null)
+		if (treeViewer != null) {
 			treeViewer.getTree().setFocus();
+		}
 	}
 
 	// ===================================================== PRIVATE
@@ -72,18 +73,22 @@ public class ConfigurationView extends ViewPart {
 
 	private static class MyContentProvider implements ITreeContentProvider {
 		public Object[] getChildren(final Object parentElement) {
-			if (parentElement instanceof ConfigurationRegistry)
+			if (parentElement instanceof ConfigurationRegistry) {
 				return VexPlugin.getDefault().getConfigurationRegistry().getDocumentTypes();
-			if (parentElement instanceof DocumentType)
+			}
+			if (parentElement instanceof DocumentType) {
 				return VexPlugin.getDefault().getConfigurationRegistry().getStyles(((DocumentType) parentElement).getPublicId());
+			}
 			return new Object[0];
 		}
 
 		public Object getParent(final Object element) {
-			if (element instanceof DocumentType)
+			if (element instanceof DocumentType) {
 				return VexPlugin.getDefault().getConfigurationRegistry();
-			if (element instanceof Style) 
+			}
+			if (element instanceof Style) {
 				return VexPlugin.getDefault().getConfigurationRegistry().getDocumentType(((Style) element).getDocumentTypes().iterator().next());
+			}
 			return null;
 		}
 
@@ -105,10 +110,12 @@ public class ConfigurationView extends ViewPart {
 	private static class MyLabelProvider extends LabelProvider {
 		@Override
 		public String getText(final Object element) {
-			if (element instanceof DocumentType)
+			if (element instanceof DocumentType) {
 				return ((DocumentType) element).getName();
-			if (element instanceof Style)
+			}
+			if (element instanceof Style) {
 				return ((Style) element).getName();
+			}
 			return null;
 		}
 	}

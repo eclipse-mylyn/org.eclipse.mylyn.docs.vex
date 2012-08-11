@@ -37,18 +37,20 @@ public class DocumentReader {
 	private boolean debugging;
 
 	private DocumentContentModel documentContentModel = new DocumentContentModel(); // use the default implementation as default
-	
+
 	private EntityResolver entityResolver;
-	
+
 	private final EntityResolver combinedEntityResolver = new EntityResolver() {
-		public InputSource resolveEntity(String publicId, String systemId) throws SAXException, IOException {
+		public InputSource resolveEntity(final String publicId, final String systemId) throws SAXException, IOException {
 			final InputSource result;
-			if (entityResolver != null)
+			if (entityResolver != null) {
 				result = entityResolver.resolveEntity(publicId, systemId);
-			else
+			} else {
 				result = null;
-			if (result == null)
+			}
+			if (result == null) {
 				return documentContentModel.resolveEntity(publicId, systemId);
+			}
 			return result;
 		}
 	};
@@ -78,8 +80,7 @@ public class DocumentReader {
 	}
 
 	/**
-	 * Reads a document from a string. This is mainly used for short documents
-	 * in unit tests.
+	 * Reads a document from a string. This is mainly used for short documents in unit tests.
 	 * 
 	 * @param s
 	 *            String containing the document to be read.
@@ -107,17 +108,16 @@ public class DocumentReader {
 		LexicalHandler lexicalHandler = builder;
 
 		if (isDebugging()) {
-			final Object proxy = Proxy.newProxyInstance(this.getClass().getClassLoader(), new Class[] { ContentHandler.class, LexicalHandler.class },
-					new InvocationHandler() {
-						public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
-							try {
-								return method.invoke(builder, args);
-							} catch (final InvocationTargetException ex) {
-								ex.getCause().printStackTrace();
-								throw ex.getCause();
-							}
-						}
-					});
+			final Object proxy = Proxy.newProxyInstance(this.getClass().getClassLoader(), new Class[] { ContentHandler.class, LexicalHandler.class }, new InvocationHandler() {
+				public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
+					try {
+						return method.invoke(builder, args);
+					} catch (final InvocationTargetException ex) {
+						ex.getCause().printStackTrace();
+						throw ex.getCause();
+					}
+				}
+			});
 
 			contentHandler = (ContentHandler) proxy;
 			lexicalHandler = (LexicalHandler) proxy;
@@ -128,8 +128,9 @@ public class DocumentReader {
 		xmlReader.setEntityResolver(combinedEntityResolver);
 		xmlReader.parse(is);
 		final Document result = builder.getDocument();
-		if (result != null)
+		if (result != null) {
 			result.setDocumentURI(is.getSystemId());
+		}
 		return result;
 	}
 
@@ -152,12 +153,12 @@ public class DocumentReader {
 	public void setEntityResolver(final EntityResolver entityResolver) {
 		this.entityResolver = entityResolver;
 	}
-	
+
 	public DocumentContentModel getDocumentContentModel() {
 		return documentContentModel;
 	}
-	
-	public void setDocumentContentModel(DocumentContentModel documentContentModel) {
+
+	public void setDocumentContentModel(final DocumentContentModel documentContentModel) {
 		this.documentContentModel = documentContentModel;
 	}
 

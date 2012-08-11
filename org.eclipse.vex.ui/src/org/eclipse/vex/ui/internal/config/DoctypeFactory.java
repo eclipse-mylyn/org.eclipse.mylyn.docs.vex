@@ -51,8 +51,9 @@ public class DoctypeFactory implements IConfigItemFactory {
 	}
 
 	public ConfigItem createItem(final ConfigSource config, final IConfigElement[] configElements) throws IOException {
-		if (configElements.length < 1)
+		if (configElements.length < 1) {
 			return null;
+		}
 		final IConfigElement configElement = configElements[0];
 		final String publicId = configElement.getAttribute(ATTR_PUBLIC_ID);
 		final String systemId = configElement.getAttribute(ATTR_SYSTEM_ID);
@@ -64,8 +65,9 @@ public class DoctypeFactory implements IConfigItemFactory {
 
 		final IConfigElement[] rootElementRefs = configElement.getChildren();
 		final String[] rootElements = new String[rootElementRefs.length];
-		for (int i = 0; i < rootElementRefs.length; i++)
+		for (int i = 0; i < rootElementRefs.length; i++) {
 			rootElements[i] = rootElementRefs[i].getAttribute("name"); //$NON-NLS-1$
+		}
 		doctype.setRootElements(rootElements);
 
 		return doctype;
@@ -73,12 +75,12 @@ public class DoctypeFactory implements IConfigItemFactory {
 
 	private static URI newUri(final String uriString) {
 		try {
-			
+
 			// TODO remove ".replaceAll(" ", "%20")" as soon this bug is
 			// fixed in org.eclipse.wst.xml.core
 			return new URI(uriString.replaceAll(" ", "%20"));
-			
-		} catch (URISyntaxException e) {
+
+		} catch (final URISyntaxException e) {
 			return null;
 		}
 	}

@@ -23,20 +23,19 @@ import org.xml.sax.SAXParseException;
 import org.xml.sax.ext.LexicalHandler;
 
 /**
- * A SAX handler that builds a Vex document. This builder collapses whitespace
- * as it goes, according to the following rules.
+ * A SAX handler that builds a Vex document. This builder collapses whitespace as it goes, according to the following
+ * rules.
  * 
  * <ul>
  * <li>Elements with style white-space: pre are left alone.</li>
  * <li>Runs of whitespace are replaced with a single space.</li>
  * <li>Space just inside the start and end of elements is removed.</li>
- * <li>Space just outside the start and end of block-formatted elements is
- * removed.</li>
+ * <li>Space just outside the start and end of block-formatted elements is removed.</li>
  * </ul>
  */
 public class DocumentBuilder implements ContentHandler, LexicalHandler {
 
-	private DocumentContentModel documentContentModel;
+	private final DocumentContentModel documentContentModel;
 
 	private IWhitespacePolicy policy;
 
@@ -86,10 +85,11 @@ public class DocumentBuilder implements ContentHandler, LexicalHandler {
 	private void appendPendingCharsFiltered(final char[] ch, final int start, final int length) {
 		// Convert control characters to spaces, since we use nulls for element delimiters
 		for (int i = start; i < start + length; i++) {
-			if (isControlCharacter(ch[i]))
+			if (isControlCharacter(ch[i])) {
 				pendingChars.append(' ');
-			else
+			} else {
 				pendingChars.append(ch[i]);
+			}
 		}
 	}
 
@@ -98,8 +98,9 @@ public class DocumentBuilder implements ContentHandler, LexicalHandler {
 	}
 
 	public void endDocument() {
-		if (rootElement == null)
+		if (rootElement == null) {
 			return;
+		}
 
 		document = new Document(content, rootElement);
 		document.setPublicID(dtdPublicID);
@@ -117,8 +118,9 @@ public class DocumentBuilder implements ContentHandler, LexicalHandler {
 		content.insertElementMarker(content.getLength());
 		entry.element.setContent(content, entry.offset, content.getLength() - 1);
 
-		if (isBlock(entry.element))
+		if (isBlock(entry.element)) {
 			trimLeading = true;
+		}
 	}
 
 	public void endPrefixMapping(final String prefix) {
@@ -142,10 +144,11 @@ public class DocumentBuilder implements ContentHandler, LexicalHandler {
 
 	public void startElement(final String namespaceURI, final String localName, final String qName, final Attributes attrs) throws SAXException {
 		final QualifiedName elementName;
-		if ("".equals(namespaceURI))
+		if ("".equals(namespaceURI)) {
 			elementName = new QualifiedName(null, qName);
-		else
+		} else {
 			elementName = new QualifiedName(namespaceURI, localName);
+		}
 		Element element;
 		if (stack.isEmpty()) {
 			rootElement = new RootElement(elementName);
@@ -158,21 +161,24 @@ public class DocumentBuilder implements ContentHandler, LexicalHandler {
 		}
 
 		final String defaultNamespaceUri = namespaceStack.peekDefault();
-		if (defaultNamespaceUri != null)
+		if (defaultNamespaceUri != null) {
 			element.declareDefaultNamespace(defaultNamespaceUri);
+		}
 
-		for (final String prefix : namespaceStack.getPrefixes())
+		for (final String prefix : namespaceStack.getPrefixes()) {
 			element.declareNamespace(prefix, namespaceStack.peek(prefix));
+		}
 
 		final int n = attrs.getLength();
 		for (int i = 0; i < n; i++) {
 			final QualifiedName attributeName;
-			if ("".equals(attrs.getLocalName(i)))
+			if ("".equals(attrs.getLocalName(i))) {
 				attributeName = new QualifiedName(null, attrs.getQName(i));
-			else if ("".equals(attrs.getURI(i)))
+			} else if ("".equals(attrs.getURI(i))) {
 				attributeName = new QualifiedName(elementName.getQualifier(), attrs.getLocalName(i));
-			else
+			} else {
 				attributeName = new QualifiedName(attrs.getURI(i), attrs.getLocalName(i));
+			}
 			try {
 				element.setAttribute(attributeName, attrs.getValue(i));
 			} catch (final DocumentValidationException e) {
@@ -197,10 +203,11 @@ public class DocumentBuilder implements ContentHandler, LexicalHandler {
 
 	public void startPrefixMapping(final String prefix, final String uri) {
 		checkPrefix(prefix);
-		if (isDefaultPrefix(prefix))
+		if (isDefaultPrefix(prefix)) {
 			namespaceStack.pushDefault(uri);
-		else
+		} else {
 			namespaceStack.push(prefix, uri);
+		}
 	}
 
 	private static void checkPrefix(final String prefix) {
@@ -214,8 +221,9 @@ public class DocumentBuilder implements ContentHandler, LexicalHandler {
 	// ============================================== LexicalHandler methods
 
 	public void comment(final char[] ch, final int start, final int length) {
-		if (stack.isEmpty()) // TODO support comments outside of the root element
+		if (stack.isEmpty()) {
 			return;
+		}
 
 		final CommentElement element = new CommentElement();
 		final Element parent = stack.getLast().element;
@@ -231,8 +239,9 @@ public class DocumentBuilder implements ContentHandler, LexicalHandler {
 
 		content.insertElementMarker(content.getLength());
 		element.setContent(content, startOffset, content.getLength() - 1);
-		if (isBlock(element))
+		if (isBlock(element)) {
 			trimLeading = true;
+		}
 	}
 
 	public void endCDATA() {
@@ -274,18 +283,18 @@ public class DocumentBuilder implements ContentHandler, LexicalHandler {
 		StringBuilder sb;
 		final StackEntry entry = stack.isEmpty() ? null : stack.getLast();
 
-		if (entry != null && entry.pre)
+		if (entry != null && entry.pre) {
 			sb = pendingChars;
-		else {
+		} else {
 
 			// collapse the space in the pending characters
 			sb = new StringBuilder(pendingChars.length());
 			boolean ws = false; // true if we're in a run of whitespace
 			for (int i = 0; i < pendingChars.length(); i++) {
 				final char c = pendingChars.charAt(i);
-				if (Character.isWhitespace(c))
+				if (Character.isWhitespace(c)) {
 					ws = true;
-				else {
+				} else {
 					if (ws) {
 						sb.append(' ');
 						ws = false;
@@ -293,13 +302,16 @@ public class DocumentBuilder implements ContentHandler, LexicalHandler {
 					sb.append(c);
 				}
 			}
-			if (ws)
+			if (ws) {
 				sb.append(' ');
+			}
 			// trim leading and trailing space, if necessary
-			if (trimLeading && sb.length() > 0 && sb.charAt(0) == ' ')
+			if (trimLeading && sb.length() > 0 && sb.charAt(0) == ' ') {
 				sb.deleteCharAt(0);
-			if (trimTrailing && sb.length() > 0 && sb.charAt(sb.length() - 1) == ' ')
+			}
+			if (trimTrailing && sb.length() > 0 && sb.charAt(sb.length() - 1) == ' ') {
 				sb.setLength(sb.length() - 1);
+			}
 		}
 
 		normalizeNewlines(sb);
@@ -335,8 +347,9 @@ public class DocumentBuilder implements ContentHandler, LexicalHandler {
 
 			switch (state) {
 			case START:
-				if (c == '\r')
+				if (c == '\r') {
 					state = SEEN_CR;
+				}
 				i++;
 				break;
 

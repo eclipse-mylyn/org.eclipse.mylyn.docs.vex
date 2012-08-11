@@ -28,27 +28,28 @@ public class PseudoElement extends Element {
 	 * @param name
 	 *            Name of this pseudo-element, e.g. PseudoElement.BEFORE.
 	 */
-	public PseudoElement(Element parent, String name) {
+	public PseudoElement(final Element parent, final String name) {
 		super(name);
-		this.setParent(parent);
+		setParent(parent);
 	}
 
 	/**
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
-	public boolean equals(Object o) {
+	@Override
+	public boolean equals(final Object o) {
 		if (o == null || o.getClass() != this.getClass()) {
 			return false;
 		}
-		PseudoElement other = (PseudoElement) o;
-		return this.getParent() == other.getParent()
-				&& this.getQualifiedName().equals(other.getQualifiedName());
+		final PseudoElement other = (PseudoElement) o;
+		return getParent() == other.getParent() && getQualifiedName().equals(other.getQualifiedName());
 	}
 
 	/**
 	 * @see java.lang.Object#hashCode()
 	 */
+	@Override
 	public int hashCode() {
-		return this.getParent().hashCode() + this.getQualifiedName().hashCode();
+		return getParent().hashCode() + getQualifiedName().hashCode();
 	}
 }

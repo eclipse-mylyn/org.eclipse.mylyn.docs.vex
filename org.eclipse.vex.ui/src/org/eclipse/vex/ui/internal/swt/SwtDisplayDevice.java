@@ -30,18 +30,20 @@ public class SwtDisplayDevice extends DisplayDevice {
 		// this.verticalPPI = display.getDPI().y;
 	}
 
+	@Override
 	public int getHorizontalPPI() {
-		if (!this.loaded) {
-			this.load();
+		if (!loaded) {
+			load();
 		}
-		return this.horizontalPPI;
+		return horizontalPPI;
 	}
 
+	@Override
 	public int getVerticalPPI() {
-		if (!this.loaded) {
-			this.load();
+		if (!loaded) {
+			load();
 		}
-		return this.verticalPPI;
+		return verticalPPI;
 	}
 
 	private boolean loaded = false;
@@ -49,11 +51,11 @@ public class SwtDisplayDevice extends DisplayDevice {
 	private int verticalPPI = 72;
 
 	private void load() {
-		Display display = Display.getCurrent();
+		final Display display = Display.getCurrent();
 		if (display != null) {
-			this.horizontalPPI = display.getDPI().x;
-			this.verticalPPI = display.getDPI().y;
-			this.loaded = true;
+			horizontalPPI = display.getDPI().x;
+			verticalPPI = display.getDPI().y;
+			loaded = true;
 		}
 	}
 

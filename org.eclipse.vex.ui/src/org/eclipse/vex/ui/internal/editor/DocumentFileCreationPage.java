@@ -28,21 +28,19 @@ public class DocumentFileCreationPage extends WizardNewFileCreationPage {
 	 * @param selection
 	 *            selection active when the wizard was started
 	 */
-	public DocumentFileCreationPage(String pageName,
-			IStructuredSelection selection) {
+	public DocumentFileCreationPage(final String pageName, final IStructuredSelection selection) {
 		super(pageName, selection);
-		this.setTitle(Messages.getString("DocumentFileCreationPage.title")); //$NON-NLS-1$
-		this
-				.setDescription(Messages
-						.getString("DocumentFileCreationPage.desc")); //$NON-NLS-1$
+		setTitle(Messages.getString("DocumentFileCreationPage.title")); //$NON-NLS-1$
+		setDescription(Messages.getString("DocumentFileCreationPage.desc")); //$NON-NLS-1$
 	}
 
 	/**
-	 * Returns the initial contents of the file. The initial contents are set by
-	 * the wizard via the {@link setInitialContents} method.
+	 * Returns the initial contents of the file. The initial contents are set by the wizard via the
+	 * {@link setInitialContents} method.
 	 */
+	@Override
 	protected InputStream getInitialContents() {
-		return this.initialContents;
+		return initialContents;
 	}
 
 	/**
@@ -51,7 +49,7 @@ public class DocumentFileCreationPage extends WizardNewFileCreationPage {
 	 * @param initialContents
 	 *            initial contents for the new document.
 	 */
-	public void setInitialContents(InputStream initialContents) {
+	public void setInitialContents(final InputStream initialContents) {
 		this.initialContents = initialContents;
 	}
 

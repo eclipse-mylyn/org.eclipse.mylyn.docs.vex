@@ -12,18 +12,14 @@ package org.eclipse.vex.core.internal.layout;
 
 import java.net.URL;
 
+import junit.framework.TestCase;
+
 import org.eclipse.vex.core.internal.core.DisplayDevice;
 import org.eclipse.vex.core.internal.css.MockDisplayDevice;
 import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.css.StyleSheetReader;
 import org.eclipse.vex.core.internal.css.Styles;
 import org.eclipse.vex.core.internal.dom.RootElement;
-import org.eclipse.vex.core.internal.layout.CssBoxFactory;
-import org.eclipse.vex.core.internal.layout.InlineBox;
-import org.eclipse.vex.core.internal.layout.LayoutContext;
-import org.eclipse.vex.core.internal.layout.StaticTextBox;
-
-import junit.framework.TestCase;
 
 public class TestStaticTextBox extends TestCase {
 
@@ -37,31 +33,30 @@ public class TestStaticTextBox extends TestCase {
 		// TODO Auto-generated method stub
 		super.setUp();
 		DisplayDevice.setCurrent(new MockDisplayDevice(90, 90));
-		URL url = this.getClass().getResource("test.css");
-		StyleSheetReader reader = new StyleSheetReader();
-		StyleSheet ss = reader.read(url);
+		final URL url = this.getClass().getResource("test.css");
+		final StyleSheetReader reader = new StyleSheetReader();
+		final StyleSheet ss = reader.read(url);
 
 		g = new FakeGraphics();
 
 		context = new LayoutContext();
 		context.setBoxFactory(new CssBoxFactory());
-		context.setGraphics(this.g);
+		context.setGraphics(g);
 		context.setStyleSheet(ss);
 
 		styles = context.getStyleSheet().getStyles(root);
-		
+
 	}
-	
+
 	public TestStaticTextBox() throws Exception {
 
 	}
 
 	public void testSplit() throws Exception {
 
-		int width = g.getCharWidth();
+		final int width = g.getCharWidth();
 
-		StaticTextBox box = new StaticTextBox(this.context, root,
-				"baggy orange trousers");
+		final StaticTextBox box = new StaticTextBox(context, root, "baggy orange trousers");
 		assertEquals(box.getText().length() * width, box.getWidth());
 		assertEquals(styles.getLineHeight(), box.getHeight());
 		assertSplit(box, 22, false, "baggy orange ", "trousers");
@@ -89,28 +84,25 @@ public class TestStaticTextBox extends TestCase {
 		assertSplit(box, 0, true, "b", "aggy orange trousers");
 		assertSplit(box, -1, true, "b", "aggy orange trousers");
 	}
-	
+
 	public void testSpaceSplit() throws Exception {
-		StaticTextBox box = new StaticTextBox(context, root, "red  green");
+		final StaticTextBox box = new StaticTextBox(context, root, "red  green");
 		assertSplit(box, 11, false, "red  ", "green");
 		assertSplit(box, 10, false, "red  ", "green");
 		assertSplit(box, 9, false, "red  ", "green");
 		assertSplit(box, 5, false, "red  ", "green");
-		
+
 	}
-	
 
-	private void assertSplit(StaticTextBox box, int splitPos, boolean force,
-			String left, String right) {
+	private void assertSplit(final StaticTextBox box, final int splitPos, final boolean force, final String left, final String right) {
 
-		Styles styles = this.context.getStyleSheet()
-				.getStyles(box.getElement());
-		int width = g.getCharWidth();
+		final Styles styles = context.getStyleSheet().getStyles(box.getElement());
+		final int width = g.getCharWidth();
 
-		InlineBox.Pair pair = box.split(context, splitPos * width, force);
+		final InlineBox.Pair pair = box.split(context, splitPos * width, force);
 
-		StaticTextBox leftBox = (StaticTextBox) pair.getLeft();
-		StaticTextBox rightBox = (StaticTextBox) pair.getRight();
+		final StaticTextBox leftBox = (StaticTextBox) pair.getLeft();
+		final StaticTextBox rightBox = (StaticTextBox) pair.getRight();
 
 		if (left == null) {
 			assertNull(leftBox);

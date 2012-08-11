@@ -18,34 +18,35 @@ import org.eclipse.core.runtime.QualifiedName;
 public class ElementName {
 
 	private final QualifiedName qualifiedName;
-	
+
 	private final String prefix;
-	
-	public ElementName(QualifiedName qualifiedName, String prefix) {
+
+	public ElementName(final QualifiedName qualifiedName, final String prefix) {
 		this.qualifiedName = qualifiedName;
 		this.prefix = prefix;
 	}
-	
+
 	public QualifiedName getQualifiedName() {
 		return qualifiedName;
 	}
-	
+
 	public String getQualifier() {
 		return qualifiedName.getQualifier();
 	}
-	
+
 	public String getLocalName() {
 		return qualifiedName.getLocalName();
 	}
-	
+
 	public String getPrefix() {
 		return prefix;
 	}
-	
+
 	@Override
 	public String toString() {
-		if (prefix == null)
+		if (prefix == null) {
 			return qualifiedName.getLocalName();
+		}
 		return prefix + ":" + qualifiedName.getLocalName();
 	}
 
@@ -53,31 +54,38 @@ public class ElementName {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((prefix == null) ? 0 : prefix.hashCode());
-		result = prime * result + ((qualifiedName == null) ? 0 : qualifiedName.hashCode());
+		result = prime * result + (prefix == null ? 0 : prefix.hashCode());
+		result = prime * result + (qualifiedName == null ? 0 : qualifiedName.hashCode());
 		return result;
 	}
 
 	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
+	public boolean equals(final Object obj) {
+		if (this == obj) {
 			return true;
-		if (obj == null)
+		}
+		if (obj == null) {
 			return false;
-		if (getClass() != obj.getClass())
+		}
+		if (getClass() != obj.getClass()) {
 			return false;
-		ElementName other = (ElementName) obj;
+		}
+		final ElementName other = (ElementName) obj;
 		if (prefix == null) {
-			if (other.prefix != null)
+			if (other.prefix != null) {
 				return false;
-		} else if (!prefix.equals(other.prefix))
+			}
+		} else if (!prefix.equals(other.prefix)) {
 			return false;
+		}
 		if (qualifiedName == null) {
-			if (other.qualifiedName != null)
+			if (other.qualifiedName != null) {
 				return false;
-		} else if (!qualifiedName.equals(other.qualifiedName))
+			}
+		} else if (!qualifiedName.equals(other.qualifiedName)) {
 			return false;
+		}
 		return true;
 	}
-	
+
 }

@@ -11,8 +11,8 @@
 package org.eclipse.vex.ui.internal.editor;
 
 /**
- * Indicates that the document was matched to a registered doctype, but that
- * the given doctype does not have a matching style.
+ * Indicates that the document was matched to a registered doctype, but that the given doctype does not have a matching
+ * style.
  */
 public class NoStyleForDoctypeException extends RuntimeException {
 

@@ -36,7 +36,7 @@ public class DocumentWriterTest {
 	public void testHtmlWithAttributes() throws Exception {
 		assertWriteReadCycleWorks(TestResources.get("DocumentWriterTest1.xml"));
 	}
-	
+
 	@Test
 	public void testDocumentWithDtdPublic() throws Exception {
 		assertWriteReadCycleWorks(TestResources.get("documentWithDtdPublic.xml"));
@@ -46,12 +46,12 @@ public class DocumentWriterTest {
 	public void testDocumentWithDtdSystem() throws Exception {
 		assertWriteReadCycleWorks(TestResources.get("documentWithDtdSystem.xml"));
 	}
-	
+
 	@Test
 	public void testDocumentWithSchema() throws Exception {
 		assertWriteReadCycleWorks(TestResources.get("document.xml"));
 	}
-	
+
 	@Test
 	public void testDocumentWithComments() throws Exception {
 		assertWriteReadCycleWorks(TestResources.get("documentWithComments.xml"));
@@ -93,8 +93,9 @@ public class DocumentWriterTest {
 		final List<QualifiedName> actualAttrs = actual.getAttributeNames();
 
 		assertEquals(expectedAttrs.size(), actualAttrs.size());
-		for (int i = 0; i < expectedAttrs.size(); i++)
+		for (int i = 0; i < expectedAttrs.size(); i++) {
 			assertEquals(expectedAttrs.get(i), actualAttrs.get(i));
+		}
 	}
 
 	private static void assertContentEqual(final Element expected, final Element actual) {
@@ -103,10 +104,11 @@ public class DocumentWriterTest {
 		assertEquals(expectedContent.size(), actualContent.size());
 		for (int i = 0; i < expectedContent.size(); i++) {
 			assertEquals(expectedContent.get(i).getClass(), actualContent.get(i).getClass());
-			if (expectedContent.get(i) instanceof Element)
+			if (expectedContent.get(i) instanceof Element) {
 				assertElementsEqual((Element) expectedContent.get(i), (Element) actualContent.get(i));
-			else
+			} else {
 				assertEquals(expectedContent.get(i).getText(), actualContent.get(i).getText());
+			}
 		}
 	}
 

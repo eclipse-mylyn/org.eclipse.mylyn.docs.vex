@@ -26,89 +26,95 @@ import org.osgi.framework.BundleContext;
  */
 public class VexPlugin extends AbstractUIPlugin {
 
-    public static final String ID = "org.eclipse.vex.ui"; //$NON-NLS-1$
+	public static final String ID = "org.eclipse.vex.ui"; //$NON-NLS-1$
 
-    private static VexPlugin instance;
-    
-    private final ConfigurationRegistry configurationRegistry = new ConfigurationRegistryImpl(new ConfigLoaderJob());
-    
-    private VexPreferences preferences = null;
+	private static VexPlugin instance;
 
-    /**
-     * Returns the shared instance.
-     */
-    public static VexPlugin getDefault() {
-        return instance;
-    }
+	private final ConfigurationRegistry configurationRegistry = new ConfigurationRegistryImpl(new ConfigLoaderJob());
 
-    /**
-     * Returns the workspace instance.
-     */
-    public static IWorkspace getWorkspace() {
-        return ResourcesPlugin.getWorkspace();
-    }
+	private VexPreferences preferences = null;
 
-    /**
-     * Log an error message without an exception.
-     *
-     * @param severity
-     *            One of the IStatus severity levels, e.g. IStatus.ERROR.
-     * @param message
-     *            Message describing the error.
-     */
-    public void log(int severity, String message) {
-        this.getLog().log(new Status(severity, ID, 0, message, null));
-    }
+	/**
+	 * Returns the shared instance.
+	 */
+	public static VexPlugin getDefault() {
+		return instance;
+	}
 
-    /**
-     * Log an error message.
-     *
-     * @param severity One of the IStatus severity levels, e.g. IStatus.ERROR.
-     * @param message Message describing the error.
-     * @param exception exception related to the error, or null if none.
-     */
-    public void log(int severity, String message, Throwable exception) {
+	/**
+	 * Returns the workspace instance.
+	 */
+	public static IWorkspace getWorkspace() {
+		return ResourcesPlugin.getWorkspace();
+	}
+
+	/**
+	 * Log an error message without an exception.
+	 * 
+	 * @param severity
+	 *            One of the IStatus severity levels, e.g. IStatus.ERROR.
+	 * @param message
+	 *            Message describing the error.
+	 */
+	public void log(final int severity, final String message) {
+		getLog().log(new Status(severity, ID, 0, message, null));
+	}
+
+	/**
+	 * Log an error message.
+	 * 
+	 * @param severity
+	 *            One of the IStatus severity levels, e.g. IStatus.ERROR.
+	 * @param message
+	 *            Message describing the error.
+	 * @param exception
+	 *            exception related to the error, or null if none.
+	 */
+	public void log(final int severity, final String message, final Throwable exception) {
 		getLog().log(new Status(severity, ID, 0, message, exception));
-    }
-    
-    public ConfigurationRegistry getConfigurationRegistry() {
-    	return configurationRegistry;
-    }
-    
-    public VexPreferences getPreferences() {
-    	if (preferences == null)
-    		preferences = new VexPreferences(getPreferenceStore(), getConfigurationRegistry());
+	}
+
+	public ConfigurationRegistry getConfigurationRegistry() {
+		return configurationRegistry;
+	}
+
+	public VexPreferences getPreferences() {
+		if (preferences == null) {
+			preferences = new VexPreferences(getPreferenceStore(), getConfigurationRegistry());
+		}
 		return preferences;
 	}
 
-    /**
-     * Override the plugin startup to intialize the resource tracker.
-     */
-    public void start(BundleContext bundleContext) throws Exception {
-        super.start(bundleContext);
-        if(instance != null) {
-            throw new IllegalStateException("This plug-in must be a singleton.");
-        }
-        instance = this;
+	/**
+	 * Override the plugin startup to intialize the resource tracker.
+	 */
+	@Override
+	public void start(final BundleContext bundleContext) throws Exception {
+		super.start(bundleContext);
+		if (instance != null) {
+			throw new IllegalStateException("This plug-in must be a singleton.");
+		}
+		instance = this;
 
-        // TODO Remove DisplayDevice.setCurrent from VexPlugin.start
-        // This has been added to the VexWidget ctor, but the problem is that
-        // when loading an editor, we load the document before creating the
-        // widget, and to do that we need to load the stylesheet, and *this*
-        // needs the DisplayDevice to be set properly.
-        //
-        // One solution might be to do a simplified stylesheet load that only
-        // looks at the display property, which is enough to do space
-        // normalization but doesn't need to look at the display device.
+		// TODO Remove DisplayDevice.setCurrent from VexPlugin.start
+		// This has been added to the VexWidget ctor, but the problem is that
+		// when loading an editor, we load the document before creating the
+		// widget, and to do that we need to load the stylesheet, and *this*
+		// needs the DisplayDevice to be set properly.
+		//
+		// One solution might be to do a simplified stylesheet load that only
+		// looks at the display property, which is enough to do space
+		// normalization but doesn't need to look at the display device.
 
-        DisplayDevice.setCurrent(new SwtDisplayDevice());
+		DisplayDevice.setCurrent(new SwtDisplayDevice());
 
-        configurationRegistry.loadConfigurations();
-    }
+		configurationRegistry.loadConfigurations();
+	}
 
-    public void stop(BundleContext context) throws Exception {
-    	instance = null;
-        super.stop(context);
-    }
+	@Override
+	public void stop(final BundleContext context) throws Exception {
+		instance = null;
+		super.stop(context);
+	}
 
 }

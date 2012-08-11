@@ -45,8 +45,7 @@ public class Document {
 	 * Class constructor.
 	 * 
 	 * @param rootElement
-	 *            root element of the document. The document property of this
-	 *            RootElement is set by this constructor.
+	 *            root element of the document. The document property of this RootElement is set by this constructor.
 	 * 
 	 */
 	public Document(final RootElement rootElement) {
@@ -60,8 +59,8 @@ public class Document {
 	}
 
 	/**
-	 * Class constructor. This constructor is used by the document builder and
-	 * assumes that the content and root element have bee properly set up.
+	 * Class constructor. This constructor is used by the document builder and assumes that the content and root element
+	 * have bee properly set up.
 	 * 
 	 * @param content
 	 *            Content object used to store the document's content.
@@ -77,8 +76,7 @@ public class Document {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * org.eclipse.vex.core.internal.dom.IVEXDocument#addDocumentListener
+	 * @see org.eclipse.vex.core.internal.dom.IVEXDocument#addDocumentListener
 	 * (org.eclipse.vex.core.internal.dom.DocumentListener)
 	 */
 	public void addDocumentListener(final DocumentListener listener) {
@@ -88,13 +86,13 @@ public class Document {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * org.eclipse.vex.core.internal.dom.IVEXDocument#canInsertFragment
-	 * (int, org.eclipse.vex.core.internal.dom.DocumentFragment)
+	 * @see org.eclipse.vex.core.internal.dom.IVEXDocument#canInsertFragment (int,
+	 * org.eclipse.vex.core.internal.dom.DocumentFragment)
 	 */
 	public boolean canInsertFragment(final int offset, final DocumentFragment fragment) {
-		if (validator == null)
+		if (validator == null) {
 			return true;
+		}
 
 		final Element element = getElementAt(offset);
 		final List<QualifiedName> seq1 = getNodeNames(element.getStartOffset() + 1, offset);
@@ -105,8 +103,9 @@ public class Document {
 	}
 
 	public boolean canInsertText(final int offset) {
-		if (validator == null)
+		if (validator == null) {
 			return true;
+		}
 
 		final Element element = getElementAt(offset);
 		final List<QualifiedName> seq1 = getNodeNames(element.getStartOffset() + 1, offset);
@@ -124,16 +123,18 @@ public class Document {
 
 		final Element e1 = getElementAt(startOffset);
 		final Element e2 = getElementAt(endOffset);
-		if (e1 != e2)
+		if (e1 != e2) {
 			throw new IllegalArgumentException("Deletion from " + startOffset + " to " + endOffset + " is unbalanced");
+		}
 
 		final Validator validator = getValidator();
 		if (validator != null) {
 			final List<QualifiedName> seq1 = getNodeNames(e1.getStartOffset() + 1, startOffset);
 			final List<QualifiedName> seq2 = getNodeNames(endOffset, e1.getEndOffset());
 
-			if (!validator.isValidSequence(e1.getQualifiedName(), seq1, seq2, null, true))
+			if (!validator.isValidSequence(e1.getQualifiedName(), seq1, seq2, null, true)) {
 				throw new DocumentValidationException("Unable to delete from " + startOffset + " to " + endOffset);
+			}
 		}
 
 		// Grab the fragment for the undoable edit while it's still here
@@ -142,12 +143,14 @@ public class Document {
 		fireBeforeContentDeleted(new DocumentEvent(this, e1, startOffset, endOffset - startOffset, null));
 
 		Iterator<Node> iter = e1.getChildNodes().iterator();
-		if (e1 instanceof Element)
+		if (e1 instanceof Element) {
 			iter = e1.getChildIterator();
+		}
 		while (iter.hasNext()) {
 			final Node child = iter.next();
-			if (startOffset <= child.getStartOffset() && child.getEndOffset() < endOffset)
+			if (startOffset <= child.getStartOffset() && child.getEndOffset() < endOffset) {
 				iter.remove();
+			}
 		}
 
 		content.remove(startOffset, endOffset - startOffset);
@@ -162,16 +165,17 @@ public class Document {
 		for (;;) {
 			boolean tryAgain = false;
 			final List<Element> children = element.getChildElements();
-			for (int i = 0; i < children.size(); i++)
-				if (offset1 > children.get(i).getStartOffset() && offset2 > children.get(i).getStartOffset() && offset1 <= children.get(i).getEndOffset()
-						&& offset2 <= children.get(i).getEndOffset()) {
+			for (int i = 0; i < children.size(); i++) {
+				if (offset1 > children.get(i).getStartOffset() && offset2 > children.get(i).getStartOffset() && offset1 <= children.get(i).getEndOffset() && offset2 <= children.get(i).getEndOffset()) {
 
 					element = children.get(i);
 					tryAgain = true;
 					break;
 				}
-			if (!tryAgain)
+			}
+			if (!tryAgain) {
 				break;
+			}
 		}
 		return element;
 	}
@@ -181,24 +185,26 @@ public class Document {
 	}
 
 	public Element getElementAt(final int offset) {
-		if (offset < 1 || offset >= getLength())
+		if (offset < 1 || offset >= getLength()) {
 			throw new IllegalArgumentException("Illegal offset: " + offset + ". Must be between 1 and n-1");
+		}
 		Element element = rootElement;
 		for (;;) {
 			boolean tryAgain = false;
 			final List<Element> children = element.getChildElements();
 			for (int i = 0; i < children.size(); i++) {
 				final Element child = children.get(i);
-				if (offset <= child.getStartOffset())
+				if (offset <= child.getStartOffset()) {
 					return element;
-				else if (offset <= child.getEndOffset()) {
+				} else if (offset <= child.getEndOffset()) {
 					element = child;
 					tryAgain = true;
 					break;
 				}
 			}
-			if (!tryAgain)
+			if (!tryAgain) {
 				break;
+			}
 		}
 		return element;
 	}
@@ -216,13 +222,15 @@ public class Document {
 		assertOffset(startOffset, 0, content.getLength());
 		assertOffset(endOffset, 0, content.getLength());
 
-		if (endOffset <= startOffset)
+		if (endOffset <= startOffset) {
 			throw new IllegalArgumentException("Invalid range (" + startOffset + ", " + endOffset + ")");
+		}
 
 		final Element e1 = getElementAt(startOffset);
 		final Element e2 = getElementAt(endOffset);
-		if (e1 != e2)
+		if (e1 != e2) {
 			throw new IllegalArgumentException("Fragment from " + startOffset + " to " + endOffset + " is unbalanced");
+		}
 
 		final List<Element> children = e1.getChildElements();
 
@@ -232,12 +240,13 @@ public class Document {
 		final List<Element> newChildren = new ArrayList<Element>();
 		for (int i = 0; i < children.size(); i++) {
 			final Element child = children.get(i);
-			if (child.getEndOffset() <= startOffset)
+			if (child.getEndOffset() <= startOffset) {
 				continue;
-			else if (child.getStartOffset() >= endOffset)
+			} else if (child.getStartOffset() >= endOffset) {
 				break;
-			else
+			} else {
 				newChildren.add(cloneElement(child, newContent, -startOffset, null));
+			}
 		}
 
 		return new DocumentFragment(newContent, newChildren);
@@ -254,10 +263,11 @@ public class Document {
 
 		for (int i = 0; i < nodes.size(); i++) {
 			final Node node = nodes.get(i);
-			if (node instanceof Element)
+			if (node instanceof Element) {
 				names.add(((Element) node).getQualifiedName());
-			else
+			} else {
 				names.add(Validator.PCDATA);
+			}
 		}
 
 		return names;
@@ -266,30 +276,32 @@ public class Document {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see org.eclipse.vex.core.internal.dom.IVEXDocument#getNodes(int,
-	 * int)
+	 * @see org.eclipse.vex.core.internal.dom.IVEXDocument#getNodes(int, int)
 	 */
 	public List<Node> getNodes(final int startOffset, final int endOffset) {
 		final Element element = getElementAt(startOffset);
-		if (element != getElementAt(endOffset))
-			throw new IllegalArgumentException(NLS.bind("Offsets are unbalanced: {0} is in {1}, {2} is in {3}.", new Object[] {startOffset, element.getPrefixedName(), endOffset,getElementAt(endOffset).getPrefixedName()}));
+		if (element != getElementAt(endOffset)) {
+			throw new IllegalArgumentException(NLS.bind("Offsets are unbalanced: {0} is in {1}, {2} is in {3}.",
+					new Object[] { startOffset, element.getPrefixedName(), endOffset, getElementAt(endOffset).getPrefixedName() }));
+		}
 
 		final List<Node> list = new ArrayList<Node>();
 		final List<Node> nodes = element.getChildNodes();
 		for (int i = 0; i < nodes.size(); i++) {
 			final Node node = nodes.get(i);
-			if (node.getEndOffset() <= startOffset)
+			if (node.getEndOffset() <= startOffset) {
 				continue;
-			else if (node.getStartOffset() >= endOffset)
+			} else if (node.getStartOffset() >= endOffset) {
 				break;
-			else if (node instanceof Element)
+			} else if (node instanceof Element) {
 				list.add(node);
-			else {
+			} else {
 				final Text text = (Text) node;
-				if (text.getStartOffset() < startOffset)
+				if (text.getStartOffset() < startOffset) {
 					text.setContent(text.getContent(), startOffset, text.getEndOffset());
-				else if (text.getEndOffset() > endOffset)
+				} else if (text.getEndOffset() > endOffset) {
 					text.setContent(text.getContent(), text.getStartOffset(), endOffset);
+				}
 				list.add(text);
 			}
 		}
@@ -298,9 +310,8 @@ public class Document {
 	}
 
 	/**
-	 * Creates an array of nodes for a given run of content. The returned array
-	 * includes the given child elements and <code>Text</code> objects where
-	 * text appears between elements.
+	 * Creates an array of nodes for a given run of content. The returned array includes the given child elements and
+	 * <code>Text</code> objects where text appears between elements.
 	 * 
 	 * @param content
 	 *            Content object containing the content
@@ -317,14 +328,16 @@ public class Document {
 		int offset = startOffset;
 		for (int i = 0; i < elements.size(); i++) {
 			final int start = elements.get(i).getStartOffset();
-			if (offset < start)
+			if (offset < start) {
 				nodes.add(new Text(content, offset, start));
+			}
 			nodes.add(elements.get(i));
 			offset = elements.get(i).getEndOffset() + 1;
 		}
 
-		if (offset < endOffset)
+		if (offset < endOffset) {
 			nodes.add(new Text(content, offset, endOffset));
+		}
 
 		return nodes;
 	}
@@ -341,9 +354,7 @@ public class Document {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * org.eclipse.vex.core.internal.dom.IVEXDocument#getRawText(int,
-	 * int)
+	 * @see org.eclipse.vex.core.internal.dom.IVEXDocument#getRawText(int, int)
 	 */
 	public String getRawText(final int startOffset, final int endOffset) {
 		return content.getString(startOffset, endOffset - startOffset);
@@ -362,8 +373,9 @@ public class Document {
 		final StringBuffer sb = new StringBuffer(raw.length());
 		for (int i = 0; i < raw.length(); i++) {
 			final char c = raw.charAt(i);
-			if (!content.isElementMarker(c))
+			if (!content.isElementMarker(c)) {
 				sb.append(c);
+			}
 		}
 		return sb.toString();
 	}
@@ -374,9 +386,9 @@ public class Document {
 
 	public void insertElement(final int offset, final Element element) throws DocumentValidationException {
 
-		if (offset < 1 || offset >= getLength())
-			throw new IllegalArgumentException("Error inserting element <" + element.getPrefixedName() + ">: offset is " + offset + ", but it must be between 1 and "
-					+ (getLength() - 1));
+		if (offset < 1 || offset >= getLength()) {
+			throw new IllegalArgumentException("Error inserting element <" + element.getPrefixedName() + ">: offset is " + offset + ", but it must be between 1 and " + (getLength() - 1));
+		}
 
 		final Validator validator = getValidator();
 		if (validator != null) {
@@ -385,8 +397,9 @@ public class Document {
 			final List<QualifiedName> seq2 = Collections.singletonList(element.getQualifiedName());
 			final List<QualifiedName> seq3 = getNodeNames(offset, parent.getEndOffset());
 
-			if (!validator.isValidSequence(parent.getQualifiedName(), seq1, seq2, seq3, true))
+			if (!validator.isValidSequence(parent.getQualifiedName(), seq1, seq2, seq3, true)) {
 				throw new DocumentValidationException("Cannot insert element " + element.getPrefixedName() + " at offset " + offset);
+			}
 		}
 
 		// find the parent, and the index into its children at which
@@ -429,8 +442,9 @@ public class Document {
 
 	public void insertFragment(final int offset, final DocumentFragment fragment) throws DocumentValidationException {
 
-		if (offset < 1 || offset >= getLength())
+		if (offset < 1 || offset >= getLength()) {
 			throw new IllegalArgumentException("Error inserting document fragment");
+		}
 
 		final Element parent = getElementAt(offset);
 
@@ -439,8 +453,9 @@ public class Document {
 			final List<QualifiedName> seq2 = fragment.getNodeNames();
 			final List<QualifiedName> seq3 = getNodeNames(offset, parent.getEndOffset());
 
-			if (!validator.isValidSequence(parent.getQualifiedName(), seq1, seq2, seq3, true))
+			if (!validator.isValidSequence(parent.getQualifiedName(), seq1, seq2, seq3, true)) {
 				throw new DocumentValidationException("Cannot insert document fragment");
+			}
 		}
 
 		fireBeforeContentInserted(new DocumentEvent(this, parent, offset, 2, null));
@@ -451,8 +466,9 @@ public class Document {
 
 		final List<Element> children = parent.getChildElements();
 		int index = 0;
-		while (index < children.size() && children.get(index).getEndOffset() < offset)
+		while (index < children.size() && children.get(index).getEndOffset() < offset) {
 			index++;
+		}
 
 		final List<Element> elements = fragment.getElements();
 		for (int i = 0; i < elements.size(); i++) {
@@ -468,17 +484,18 @@ public class Document {
 
 	public void insertText(final int offset, final String text) throws DocumentValidationException {
 
-		if (offset < 1 || offset >= getLength())
+		if (offset < 1 || offset >= getLength()) {
 			throw new IllegalArgumentException("Offset must be between 1 and n-1");
+		}
 
 		final Element parent = getElementAt(offset);
 
 		boolean isValid = false;
-		if (!content.isElementMarker(getCharacterAt(offset - 1)))
+		if (!content.isElementMarker(getCharacterAt(offset - 1))) {
 			isValid = true;
-		else if (!content.isElementMarker(getCharacterAt(offset)))
+		} else if (!content.isElementMarker(getCharacterAt(offset))) {
 			isValid = true;
-		else {
+		} else {
 			final Validator validator = getValidator();
 			if (validator != null) {
 				final List<QualifiedName> seq1 = getNodeNames(parent.getStartOffset() + 1, offset);
@@ -486,18 +503,22 @@ public class Document {
 				final List<QualifiedName> seq3 = getNodeNames(offset, parent.getEndOffset());
 
 				isValid = validator.isValidSequence(parent.getQualifiedName(), seq1, seq2, seq3, true);
-			} else
+			} else {
 				isValid = true;
+			}
 		}
 
-		if (!isValid)
+		if (!isValid) {
 			throw new DocumentValidationException("Cannot insert text '" + text + "' at offset " + offset);
+		}
 
 		// Convert control chars to spaces
 		final StringBuffer sb = new StringBuffer(text);
-		for (int i = 0; i < sb.length(); i++)
-			if (Character.isISOControl(sb.charAt(i)) && sb.charAt(i) != '\n')
+		for (int i = 0; i < sb.length(); i++) {
+			if (Character.isISOControl(sb.charAt(i)) && sb.charAt(i) != '\n') {
 				sb.setCharAt(i, ' ');
+			}
+		}
 
 		final String s = sb.toString();
 
@@ -513,8 +534,7 @@ public class Document {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * org.eclipse.vex.core.internal.dom.IVEXDocument#isUndoEnabled()
+	 * @see org.eclipse.vex.core.internal.dom.IVEXDocument#isUndoEnabled()
 	 */
 	public boolean isUndoEnabled() {
 		return undoEnabled;
@@ -523,8 +543,7 @@ public class Document {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * org.eclipse.vex.core.internal.dom.IVEXDocument#removeDocumentListener
+	 * @see org.eclipse.vex.core.internal.dom.IVEXDocument#removeDocumentListener
 	 * (org.eclipse.vex.core.internal.dom.DocumentListener)
 	 */
 	public void removeDocumentListener(final DocumentListener listener) {
@@ -534,9 +553,7 @@ public class Document {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * org.eclipse.vex.core.internal.dom.IVEXDocument#setPublicID(java
-	 * .lang.String)
+	 * @see org.eclipse.vex.core.internal.dom.IVEXDocument#setPublicID(java .lang.String)
 	 */
 	public void setPublicID(final String publicID) {
 		this.publicID = publicID;
@@ -545,9 +562,7 @@ public class Document {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * org.eclipse.vex.core.internal.dom.IVEXDocument#setSystemID(java
-	 * .lang.String)
+	 * @see org.eclipse.vex.core.internal.dom.IVEXDocument#setSystemID(java .lang.String)
 	 */
 	public void setSystemID(final String systemID) {
 		this.systemID = systemID;
@@ -556,9 +571,7 @@ public class Document {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * org.eclipse.vex.core.internal.dom.IVEXDocument#setUndoEnabled
-	 * (boolean)
+	 * @see org.eclipse.vex.core.internal.dom.IVEXDocument#setUndoEnabled (boolean)
 	 */
 	public void setUndoEnabled(final boolean undoEnabled) {
 		this.undoEnabled = undoEnabled;
@@ -567,9 +580,7 @@ public class Document {
 	/*
 	 * (non-Javadoc)
 	 * 
-	 * @see
-	 * org.eclipse.vex.core.internal.dom.IVEXDocument#setValidator(org
-	 * .eclipse.vex.core.internal.dom.Validator)
+	 * @see org.eclipse.vex.core.internal.dom.IVEXDocument#setValidator(org .eclipse.vex.core.internal.dom.Validator)
 	 */
 	public void setValidator(final Validator validator) {
 		this.validator = validator;
@@ -752,12 +763,12 @@ public class Document {
 	}
 
 	/**
-	 * Assert that the given offset is within the given range, throwing
-	 * IllegalArgumentException if not.
+	 * Assert that the given offset is within the given range, throwing IllegalArgumentException if not.
 	 */
 	private static void assertOffset(final int offset, final int min, final int max) {
-		if (offset < min || offset > max)
+		if (offset < min || offset > max) {
 			throw new IllegalArgumentException("Bad offset " + offset + "must be between " + min + " and " + max);
+		}
 	}
 
 	/**
@@ -793,7 +804,7 @@ public class Document {
 	public void fireNamespaceChanged(final DocumentEvent e) {
 		listeners.fireEvent("namespaceChanged", e);
 	}
-	
+
 	private void fireBeforeContentDeleted(final DocumentEvent e) {
 		listeners.fireEvent("beforeContentDeleted", e);
 	}

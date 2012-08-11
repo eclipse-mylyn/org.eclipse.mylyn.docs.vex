@@ -6,8 +6,8 @@ import org.eclipse.vex.core.internal.core.Image;
 
 public class FakeImage implements Image {
 	public final URL url;
-	private int height;
-	private int width;
+	private final int height;
+	private final int width;
 
 	public FakeImage(final URL url) {
 		this(url, 0, 0);

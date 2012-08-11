@@ -14,13 +14,13 @@ package org.eclipse.vex.core.internal.dom;
  * @author Florian Thienel
  */
 public class Namespace {
-	
+
 	public static final String XML_NAMESPACE_URI = "http://www.w3.org/XML/1998/namespace";
-	
+
 	public static final String XML_NAMESPACE_PREFIX = "xml";
-	
+
 	public static final String XMLNS_NAMESPACE_URI = "http://www.w3.org/2000/xmlns/";
-	
+
 	public static final String XMLNS_NAMESPACE_PREFIX = "xmlns";
 
 }

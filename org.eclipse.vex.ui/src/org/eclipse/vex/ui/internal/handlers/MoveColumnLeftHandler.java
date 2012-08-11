@@ -12,20 +12,20 @@ package org.eclipse.vex.ui.internal.handlers;
 
 /**
  * Moves the current table column to the left.
- *
+ * 
  * @see AbstractMoveColumnHandler
  * @see MoveColumnRightHandler
  */
 public class MoveColumnLeftHandler extends AbstractMoveColumnHandler {
 
-    @Override
-    protected boolean moveRight() {
-        return false;
-    }
+	@Override
+	protected boolean moveRight() {
+		return false;
+	}
 
-    @Override
-    protected boolean movingPossible(VexHandlerUtil.RowColumnInfo rcInfo) {
-        return rcInfo.cellIndex >= 1;
-    }
+	@Override
+	protected boolean movingPossible(final VexHandlerUtil.RowColumnInfo rcInfo) {
+		return rcInfo.cellIndex >= 1;
+	}
 
 }

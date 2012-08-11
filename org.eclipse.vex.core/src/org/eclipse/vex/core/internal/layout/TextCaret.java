@@ -23,7 +23,7 @@ public class TextCaret extends Caret {
 
 	private static final int LINE_WIDTH = 2;
 
-	private int height;
+	private final int height;
 
 	/**
 	 * Class constructor
@@ -35,20 +35,22 @@ public class TextCaret extends Caret {
 	 * @param height
 	 *            height of the caret
 	 */
-	public TextCaret(int x, int y, int height) {
+	public TextCaret(final int x, final int y, final int height) {
 		super(x, y);
 		this.height = height;
 	}
 
-	public void draw(Graphics g, Color color) {
-		ColorResource newColor = g.createColor(color);
-		ColorResource oldColor = g.setColor(newColor);
-		g.fillRect(this.getX(), this.getY(), LINE_WIDTH, height);
+	@Override
+	public void draw(final Graphics g, final Color color) {
+		final ColorResource newColor = g.createColor(color);
+		final ColorResource oldColor = g.setColor(newColor);
+		g.fillRect(getX(), getY(), LINE_WIDTH, height);
 		g.setColor(oldColor);
 		newColor.dispose();
 	}
 
+	@Override
 	public Rectangle getBounds() {
-		return new Rectangle(this.getX(), this.getY(), LINE_WIDTH, height);
+		return new Rectangle(getX(), getY(), LINE_WIDTH, height);
 	}
 }

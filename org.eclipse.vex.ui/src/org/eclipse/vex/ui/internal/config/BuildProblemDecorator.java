@@ -28,53 +28,46 @@ import org.eclipse.vex.ui.internal.VexPlugin;
 /**
  * Decorates Vex resources that build problems.
  */
-public class BuildProblemDecorator extends LabelProvider implements
-		ILightweightLabelDecorator {
+public class BuildProblemDecorator extends LabelProvider implements ILightweightLabelDecorator {
 
 	public static final String ID = "org.eclipse.vex.ui.config.buildProblemDecorator"; //$NON-NLS-1$
 
-	public void decorate(Object element, IDecoration decoration) {
+	public void decorate(final Object element, final IDecoration decoration) {
 
-		if (this.errorIcon == null) {
-			this.loadImageDescriptors();
+		if (errorIcon == null) {
+			loadImageDescriptors();
 		}
 
 		if (element instanceof IResource) {
 			try {
-				IResource resource = (IResource) element;
-				IMarker[] markers = resource.findMarkers(IMarker.PROBLEM, true,
-						0);
+				final IResource resource = (IResource) element;
+				final IMarker[] markers = resource.findMarkers(IMarker.PROBLEM, true, 0);
 				if (markers.length > 0) {
-					decoration.addOverlay(this.errorIcon,
-							IDecoration.BOTTOM_LEFT);
+					decoration.addOverlay(errorIcon, IDecoration.BOTTOM_LEFT);
 				}
-			} catch (CoreException e) {
+			} catch (final CoreException e) {
 			}
 		}
 	}
 
 	/**
-	 * Fire a change notification that the markers on the given resource has
-	 * changed.
+	 * Fire a change notification that the markers on the given resource has changed.
 	 * 
 	 * @param resources
 	 *            Array of resources whose markers have changed.
 	 */
-	public void update(IResource resource) {
-		this.fireLabelProviderChanged(new LabelProviderChangedEvent(this,
-				resource));
+	public void update(final IResource resource) {
+		fireLabelProviderChanged(new LabelProviderChangedEvent(this, resource));
 	}
 
 	/**
-	 * Fire a change notification that the markers on the given resources has
-	 * changed.
+	 * Fire a change notification that the markers on the given resources has changed.
 	 * 
 	 * @param resources
 	 *            Array of resources whose markers have changed.
 	 */
-	public void update(IResource[] resources) {
-		this.fireLabelProviderChanged(new LabelProviderChangedEvent(this,
-				resources));
+	public void update(final IResource[] resources) {
+		fireLabelProviderChanged(new LabelProviderChangedEvent(this, resources));
 	}
 
 	// ======================================================== PRIVATE
@@ -82,10 +75,9 @@ public class BuildProblemDecorator extends LabelProvider implements
 	private ImageDescriptor errorIcon;
 
 	private void loadImageDescriptors() {
-		URL url = FileLocator.find(VexPlugin.getDefault().getBundle(),
-				new Path("icons/error_co.gif"), //$NON-NLS-1$
+		final URL url = FileLocator.find(VexPlugin.getDefault().getBundle(), new Path("icons/error_co.gif"), //$NON-NLS-1$
 				null);
-		this.errorIcon = ImageDescriptor.createFromURL(url);
+		errorIcon = ImageDescriptor.createFromURL(url);
 	}
 
 }

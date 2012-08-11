@@ -32,12 +32,12 @@ public class CssTest {
 
 	@Test
 	public void testBorderColor() throws Exception {
-		StyleSheet ss = parseStyleSheetResource("test2.css");
+		final StyleSheet ss = parseStyleSheetResource("test2.css");
 		Styles styles;
-		Color red = new Color(255, 0, 0);
-		Color green = new Color(0, 128, 0);
-		Color blue = new Color(0, 0, 255);
-		Color white = new Color(255, 255, 255);
+		final Color red = new Color(255, 0, 0);
+		final Color green = new Color(0, 128, 0);
+		final Color blue = new Color(0, 0, 255);
+		final Color white = new Color(255, 255, 255);
 
 		styles = ss.getStyles(new Element("borderColor1"));
 		assertEquals(red, styles.getBorderTopColor());
@@ -67,7 +67,7 @@ public class CssTest {
 
 	@Test
 	public void testBorderStyle() throws Exception {
-		StyleSheet ss = parseStyleSheetResource("test2.css");
+		final StyleSheet ss = parseStyleSheetResource("test2.css");
 		Styles styles;
 
 		styles = ss.getStyles(new Element("borderStyle1"));
@@ -98,7 +98,7 @@ public class CssTest {
 
 	@Test
 	public void testBorderWidth() throws Exception {
-		StyleSheet ss = parseStyleSheetResource("test2.css");
+		final StyleSheet ss = parseStyleSheetResource("test2.css");
 		Styles styles;
 
 		styles = ss.getStyles(new Element("borderWidth1"));
@@ -129,8 +129,8 @@ public class CssTest {
 
 	@Test
 	public void testDefaults() throws Exception {
-		StyleSheet ss = parseStyleSheetResource("test2.css");
-		Styles styles = ss.getStyles(new Element("defaults"));
+		final StyleSheet ss = parseStyleSheetResource("test2.css");
+		final Styles styles = ss.getStyles(new Element("defaults"));
 
 		assertEquals(15.0f, styles.getFontSize(), 0.1);
 
@@ -168,13 +168,13 @@ public class CssTest {
 
 	@Test
 	public void testDefaultInheritance() throws Exception {
-		RootElement simple = new RootElement("simple");
-		Element defaults = new Element("defaults");
-		Document doc = new Document(simple);
+		final RootElement simple = new RootElement("simple");
+		final Element defaults = new Element("defaults");
+		final Document doc = new Document(simple);
 		doc.insertElement(1, defaults);
 
-		StyleSheet ss = parseStyleSheetResource("test2.css");
-		Styles styles = ss.getStyles(defaults);
+		final StyleSheet ss = parseStyleSheetResource("test2.css");
+		final Styles styles = ss.getStyles(defaults);
 
 		assertEquals(12.5f, styles.getFontSize(), 0.1);
 
@@ -212,7 +212,7 @@ public class CssTest {
 
 	@Test
 	public void testExpandBorder() throws Exception {
-		StyleSheet ss = parseStyleSheetResource("test2.css");
+		final StyleSheet ss = parseStyleSheetResource("test2.css");
 		Styles styles;
 
 		styles = ss.getStyles(new Element("expandBorder"));
@@ -319,7 +319,7 @@ public class CssTest {
 
 	@Test
 	public void testExpandMargins() throws Exception {
-		StyleSheet ss = parseStyleSheetResource("test2.css");
+		final StyleSheet ss = parseStyleSheetResource("test2.css");
 
 		Styles styles = ss.getStyles(new Element("margin1"));
 		assertEquals(10, styles.getMarginTop().get(67));
@@ -348,8 +348,8 @@ public class CssTest {
 
 	@Test
 	public void testExtras() throws Exception {
-		StyleSheet ss = parseStyleSheetResource("test2.css");
-		Styles styles = ss.getStyles(new Element("extras"));
+		final StyleSheet ss = parseStyleSheetResource("test2.css");
+		final Styles styles = ss.getStyles(new Element("extras"));
 
 		assertEquals(new Color(0, 255, 0), styles.getBackgroundColor());
 
@@ -371,8 +371,8 @@ public class CssTest {
 
 	@Test
 	public void testExtras2() throws Exception {
-		StyleSheet ss = parseStyleSheetResource("test2.css");
-		Styles styles = ss.getStyles(new Element("extras2"));
+		final StyleSheet ss = parseStyleSheetResource("test2.css");
+		final Styles styles = ss.getStyles(new Element("extras2"));
 
 		assertEquals(new Color(192, 192, 192), styles.getBackgroundColor());
 
@@ -391,7 +391,7 @@ public class CssTest {
 
 	@Test
 	public void testFontSize() throws Exception {
-		StyleSheet ss = parseStyleSheetResource("test2.css");
+		final StyleSheet ss = parseStyleSheetResource("test2.css");
 		Styles styles;
 
 		styles = ss.getStyles(new Element("medium"));
@@ -431,13 +431,13 @@ public class CssTest {
 
 	@Test
 	public void testForcedInheritance() throws Exception {
-		RootElement simple = new RootElement("simple");
-		Element inherit = new Element("inherit");
-		Document doc = new Document(simple);
+		final RootElement simple = new RootElement("simple");
+		final Element inherit = new Element("inherit");
+		final Document doc = new Document(simple);
 		doc.insertElement(1, inherit);
 
-		StyleSheet ss = parseStyleSheetResource("test2.css");
-		Styles styles = ss.getStyles(inherit);
+		final StyleSheet ss = parseStyleSheetResource("test2.css");
+		final Styles styles = ss.getStyles(inherit);
 
 		assertEquals(12.5f, styles.getFontSize(), 0.1);
 
@@ -475,14 +475,14 @@ public class CssTest {
 
 	@Test
 	public void testImportant() throws Exception {
-		StyleSheet ss = parseStyleSheetResource("testImportant.css");
-		Element a = new Element("a");
-		Styles styles = ss.getStyles(a);
+		final StyleSheet ss = parseStyleSheetResource("testImportant.css");
+		final Element a = new Element("a");
+		final Styles styles = ss.getStyles(a);
 
-		Color black = new Color(0, 0, 0);
+		final Color black = new Color(0, 0, 0);
 		// Color white = new Color(255, 255, 255);
 		// Color red = new Color(255, 0, 0);
-		Color blue = new Color(0, 0, 255);
+		final Color blue = new Color(0, 0, 255);
 
 		assertEquals(black, styles.getBackgroundColor());
 		assertEquals(black, styles.getColor());
@@ -492,11 +492,11 @@ public class CssTest {
 
 	@Test
 	public void testMarginInheritance() throws Exception {
-		StyleSheet ss = parseStyleSheetResource("test2.css");
-		Element root = new Element("margin1");
-		Element child = new Element("defaults");
+		final StyleSheet ss = parseStyleSheetResource("test2.css");
+		final Element root = new Element("margin1");
+		final Element child = new Element("defaults");
 		child.setParent(root);
-		Styles styles = ss.getStyles(child);
+		final Styles styles = ss.getStyles(child);
 
 		assertEquals(0, styles.getMarginTop().get(67));
 		assertEquals(0, styles.getMarginLeft().get(67));
@@ -506,8 +506,8 @@ public class CssTest {
 
 	@Test
 	public void testSimple() throws Exception {
-		StyleSheet ss = parseStyleSheetResource("test2.css");
-		Styles styles = ss.getStyles(new Element("simple"));
+		final StyleSheet ss = parseStyleSheetResource("test2.css");
+		final Styles styles = ss.getStyles(new Element("simple"));
 
 		assertEquals(12.5f, styles.getFontSize(), 0.1);
 
@@ -544,11 +544,10 @@ public class CssTest {
 
 	}
 
-	private StyleSheet parseStyleSheetResource(String resource)
-			throws java.io.IOException {
+	private StyleSheet parseStyleSheetResource(final String resource) throws java.io.IOException {
 
-		URL url = this.getClass().getResource(resource);
-		StyleSheetReader reader = new StyleSheetReader();
+		final URL url = this.getClass().getResource(resource);
+		final StyleSheetReader reader = new StyleSheetReader();
 		return reader.read(url);
 
 	}

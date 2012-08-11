@@ -52,7 +52,9 @@ public class WTPVEXValidator implements Validator {
 		public boolean isPCData(final Object o) {
 			return "#PCDATA".equals(o);
 		}
-		public boolean isIgnorable(Object o) {
+
+		@Override
+		public boolean isIgnorable(final Object o) {
 			return CommentElement.ELEMENT_NAME.toString().equals(o);
 		}
 	};
@@ -62,17 +64,17 @@ public class WTPVEXValidator implements Validator {
 	private CMDocument dtd;
 
 	private final Map<URL, CMDocument> contentModelCache = new HashMap<URL, CMDocument>();
-	
+
 	private final CMValidator validator = new CMValidator();
 
 	public WTPVEXValidator() {
 		this(new DocumentContentModel());
 	}
 
-	public WTPVEXValidator(URL dtdUrl) {
+	public WTPVEXValidator(final URL dtdUrl) {
 		this(new DocumentContentModel(null, null, dtdUrl.toString(), null));
 	}
-	
+
 	public WTPVEXValidator(final String schemaIdentifier) {
 		this(new DocumentContentModel(null, schemaIdentifier, null, null));
 	}
@@ -82,27 +84,32 @@ public class WTPVEXValidator implements Validator {
 	}
 
 	private CMDocument getSchema(final String namespaceURI) {
-		if (isDTDDefined())
+		if (isDTDDefined()) {
 			return getDTD();
-		if (namespaceURI == null)
+		}
+		if (namespaceURI == null) {
 			/*
-			 * This can be the case if the document does neither contain a doctype declaration nor a default namespace declaration.
+			 * This can be the case if the document does neither contain a doctype declaration nor a default namespace
+			 * declaration.
 			 */
 			return getSchema((URL) null);
+		}
 		final URL resolved = documentContentModel.resolveSchemaIdentifier(namespaceURI);
 		return getSchema(resolved);
 	}
 
 	private CMDocument getSchema(final URL schemaUrl) {
-		if (contentModelCache.containsKey(schemaUrl))
+		if (contentModelCache.containsKey(schemaUrl)) {
 			return contentModelCache.get(schemaUrl);
-		
+		}
+
 		final CMDocument contentModel;
 		if (schemaUrl != null) {
 			final ContentModelManager modelManager = ContentModelManager.getInstance();
 			contentModel = modelManager.createCMDocument(schemaUrl.toString(), null);
-		} else
+		} else {
 			contentModel = new UnknownCMDocument(null);
+		}
 		contentModelCache.put(schemaUrl, contentModel);
 		return contentModel;
 	}
@@ -112,8 +119,9 @@ public class WTPVEXValidator implements Validator {
 	}
 
 	private CMDocument getDTD() {
-		if (dtd == null && documentContentModel.isDtdAssigned()) 
+		if (dtd == null && documentContentModel.isDtdAssigned()) {
 			dtd = documentContentModel.getDTD();
+		}
 		return dtd;
 	}
 
@@ -121,20 +129,20 @@ public class WTPVEXValidator implements Validator {
 		final String attributeName = attribute.getLocalName();
 		final CMElementDeclaration cmElement = getElementDeclaration(attribute.getParent());
 		/*
-		 * #342320: If we do not find the element, it is acutally not valid.
-		 * But we are benevolent here since we do not want to loose data at this
-		 * point.
+		 * #342320: If we do not find the element, it is acutally not valid. But we are benevolent here since we do not
+		 * want to loose data at this point.
 		 */
-		if (cmElement == null)
+		if (cmElement == null) {
 			return createUnknownAttributeDefinition(attributeName);
+		}
 
 		final CMAttributeDeclaration cmAttribute = (CMAttributeDeclaration) cmElement.getAttributes().getNamedItem(attributeName);
-		if (cmAttribute != null)
+		if (cmAttribute != null) {
 			return createAttributeDefinition(cmAttribute);
+		}
 		/*
-		 * #318834 If we do not find the attribute, it is actually not valid.
-		 * But we are benevolent here since we do not want to loose data at this
-		 * point.
+		 * #318834 If we do not find the attribute, it is actually not valid. But we are benevolent here since we do not
+		 * want to loose data at this point.
 		 */
 		return createUnknownAttributeDefinition(attributeName);
 	}
@@ -146,12 +154,12 @@ public class WTPVEXValidator implements Validator {
 	public List<AttributeDefinition> getAttributeDefinitions(final Element element) {
 		final CMElementDeclaration cmElement = getElementDeclaration(element);
 		/*
-		 * #342320: If we do not find the element, it is acutally not valid.
-		 * But we are benevolent here since we do not want to loose data at this
-		 * point.
+		 * #342320: If we do not find the element, it is acutally not valid. But we are benevolent here since we do not
+		 * want to loose data at this point.
 		 */
-		if (cmElement == null)
+		if (cmElement == null) {
 			return Collections.emptyList();
+		}
 		final List<AttributeDefinition> attributeList = new ArrayList<AttributeDefinition>(cmElement.getAttributes().getLength());
 		final Iterator<?> iter = cmElement.getAttributes().iterator();
 		while (iter.hasNext()) {
@@ -164,16 +172,18 @@ public class WTPVEXValidator implements Validator {
 	}
 
 	private CMElementDeclaration getElementDeclaration(final Element element) {
-		if (element == null)
+		if (element == null) {
 			return null;
+		}
 		final String localName = element.getLocalName();
-		final CMElementDeclaration declarationFromRoot = (CMElementDeclaration) getSchema(element.getQualifiedName().getQualifier()).getElements()
-				.getNamedItem(localName);
-		if (declarationFromRoot != null)
+		final CMElementDeclaration declarationFromRoot = (CMElementDeclaration) getSchema(element.getQualifiedName().getQualifier()).getElements().getNamedItem(localName);
+		if (declarationFromRoot != null) {
 			return declarationFromRoot;
+		}
 		final CMElementDeclaration parentDeclaration = getElementDeclaration(element.getParent());
-		if (parentDeclaration == null)
+		if (parentDeclaration == null) {
 			return null;
+		}
 		return (CMElementDeclaration) parentDeclaration.getLocalElements().getNamedItem(localName);
 	}
 
@@ -186,8 +196,9 @@ public class WTPVEXValidator implements Validator {
 			type = AttributeDefinition.Type.ENUMERATION;
 		} else if (attribute.getAttrType().getDataTypeName().equals(CMDataType.NOTATION)) {
 			type = AttributeDefinition.Type.ENUMERATION;
-		} else
+		} else {
 			type = AttributeDefinition.Type.get(attribute.getAttrType().getDataTypeName());
+		}
 		final boolean required = attribute.getUsage() == CMAttributeDeclaration.REQUIRED;
 		final boolean fixed = attribute.getUsage() == CMAttributeDeclaration.FIXED;
 		final AttributeDefinition vexAttr = new AttributeDefinition(attribute.getAttrName(), type, defaultValue, values, required, fixed);
@@ -200,40 +211,41 @@ public class WTPVEXValidator implements Validator {
 
 	private Set<QualifiedName> getValidItems(final CMElementDeclaration elementDeclaration) {
 		/*
-		 * #342320: If we do not find the element, it is acutally not valid.
-		 * But we are benevolent here since we do not want to loose data at this
-		 * point.
+		 * #342320: If we do not find the element, it is acutally not valid. But we are benevolent here since we do not
+		 * want to loose data at this point.
 		 */
-		if (elementDeclaration == null)
+		if (elementDeclaration == null) {
 			return Collections.emptySet();
+		}
 		final Set<QualifiedName> result = new HashSet<QualifiedName>();
-		for (final CMNode node : getAvailableContent(elementDeclaration))
+		for (final CMNode node : getAvailableContent(elementDeclaration)) {
 			if (node instanceof CMElementDeclaration) {
 				final CMElementDeclaration childDeclaration = (CMElementDeclaration) node;
 				result.add(createQualifiedElementName(childDeclaration));
 			}
+		}
 		return result;
 	}
 
 	private static QualifiedName createQualifiedElementName(final CMElementDeclaration elementDeclaration) {
 		final CMDocument cmDocument = (CMDocument) elementDeclaration.getProperty("CMDocument");
-		if (cmDocument == null)
+		if (cmDocument == null) {
 			return new QualifiedName(null, elementDeclaration.getElementName());
+		}
 		final String namespaceUri = (String) cmDocument.getProperty("http://org.eclipse.wst/cm/properties/targetNamespaceURI");
 		return new QualifiedName(namespaceUri, elementDeclaration.getElementName());
 	}
 
 	/**
-	 * Returns a list of all CMNode 'meta data' that may be potentially added to
-	 * the element.
+	 * Returns a list of all CMNode 'meta data' that may be potentially added to the element.
 	 */
 	private List<CMNode> getAvailableContent(final CMElementDeclaration elementDeclaration) {
 		final List<CMNode> list = new ArrayList<CMNode>();
 		if (elementDeclaration.getContentType() == CMElementDeclaration.ELEMENT || elementDeclaration.getContentType() == CMElementDeclaration.MIXED) {
 			final CMContent content = elementDeclaration.getContent();
-			if (content instanceof CMElementDeclaration)
+			if (content instanceof CMElementDeclaration) {
 				list.add(content);
-			else if (content instanceof CMGroup) {
+			} else if (content instanceof CMGroup) {
 				final CMGroup groupContent = (CMGroup) content;
 				list.addAll(getAllChildren(groupContent));
 			}
@@ -247,12 +259,13 @@ public class WTPVEXValidator implements Validator {
 
 		for (int i = 0; i < nodeList.getLength(); i++) {
 			final CMNode node = nodeList.item(i);
-			if (node instanceof CMElementDeclaration)
+			if (node instanceof CMElementDeclaration) {
 				list.add(node);
-			else if (node instanceof CMGroup)
+			} else if (node instanceof CMGroup) {
 				list.addAll(getAllChildren((CMGroup) node));
-			else if (node instanceof CMAnyElement)
+			} else if (node instanceof CMAnyElement) {
 				list.addAll(getValidRootElements(((CMAnyElement) node).getNamespaceURI()));
+			}
 		}
 		return list;
 	}
@@ -270,74 +283,84 @@ public class WTPVEXValidator implements Validator {
 
 	public Set<QualifiedName> getValidRootElements() {
 		final HashSet<QualifiedName> result = new HashSet<QualifiedName>();
-		for (final CMElementDeclaration element : getValidRootElements(null))
+		for (final CMElementDeclaration element : getValidRootElements(null)) {
 			result.add(createQualifiedElementName(element));
+		}
 		return result;
 	}
 
 	public boolean isValidSequence(final QualifiedName element, final List<QualifiedName> nodes, final boolean partial) {
 		final CMNode parent = getSchema(element.getQualifier()).getElements().getNamedItem(element.getLocalName());
-		if (!(parent instanceof CMElementDeclaration))
+		if (!(parent instanceof CMElementDeclaration)) {
 			return true;
+		}
 
 		final CMElementDeclaration elementDeclaration = (CMElementDeclaration) parent;
 		final ElementPathRecordingResult validationResult = new ElementPathRecordingResult();
 		final List<String> nodeNames = new ArrayList<String>();
-		for (final QualifiedName node : nodes)
+		for (final QualifiedName node : nodes) {
 			nodeNames.add(node.getLocalName()); // TODO learn how the WTP content model handles namespaces
+		}
 		validator.validate(elementDeclaration, nodeNames, ELEMENT_CONTENT_COMPARATOR, validationResult);
 
 		final int elementCount = getElementCount(nodes);
-		if (partial && elementCount > 0)
+		if (partial && elementCount > 0) {
 			return validationResult.getPartialValidationCount() >= elementCount;
+		}
 
 		return validationResult.isValid;
 	}
 
 	private static int getElementCount(final List<QualifiedName> nodes) {
 		int count = 0;
-		for (final QualifiedName node : nodes)
-			if (ELEMENT_CONTENT_COMPARATOR.isElement(node.getLocalName()))
+		for (final QualifiedName node : nodes) {
+			if (ELEMENT_CONTENT_COMPARATOR.isElement(node.getLocalName())) {
 				count++;
+			}
+		}
 		return count;
 	}
 
-	public boolean isValidSequence(final QualifiedName element, final List<QualifiedName> seq1, final List<QualifiedName> seq2, final List<QualifiedName> seq3,
-			final boolean partial) {
+	public boolean isValidSequence(final QualifiedName element, final List<QualifiedName> seq1, final List<QualifiedName> seq2, final List<QualifiedName> seq3, final boolean partial) {
 		final List<QualifiedName> joinedSequence = new ArrayList<QualifiedName>();
-		if (seq1 != null)
+		if (seq1 != null) {
 			joinedSequence.addAll(seq1);
-		if (seq2 != null)
+		}
+		if (seq2 != null) {
 			joinedSequence.addAll(seq2);
-		if (seq3 != null)
+		}
+		if (seq3 != null) {
 			joinedSequence.addAll(seq3);
+		}
 		return isValidSequence(element, joinedSequence, partial);
 	}
-	
+
 	public Set<String> getRequiredNamespaces() {
-		if (documentContentModel.isDtdAssigned())
+		if (documentContentModel.isDtdAssigned()) {
 			return Collections.emptySet();
+		}
 		return getRequiredNamespaces(documentContentModel.getMainDocumentTypeIdentifier(), new HashSet<CMNode>());
 	}
 
 	// This is recursion for real men only!
-	
+
 	private Set<String> getRequiredNamespaces(final String namespaceUri, final Set<CMNode> visitedNodes) {
 		final HashSet<String> result = new HashSet<String>();
 		result.add(namespaceUri);
 		final CMDocument mainSchema = getSchema(namespaceUri);
-		for (Iterator<?> iter = mainSchema.getElements().iterator(); iter.hasNext(); ) {
+		for (final Iterator<?> iter = mainSchema.getElements().iterator(); iter.hasNext();) {
 			final CMElementDeclaration elementDeclaration = (CMElementDeclaration) iter.next();
 			result.addAll(getRequiredNamespaces(elementDeclaration, visitedNodes));
 		}
 		return result;
 	}
-	
+
 	private Set<String> getRequiredNamespaces(final CMElementDeclaration elementDeclaration, final Set<CMNode> visitedNodes) {
-		if (visitedNodes.contains(elementDeclaration))
+		if (visitedNodes.contains(elementDeclaration)) {
 			return Collections.emptySet();
+		}
 		visitedNodes.add(elementDeclaration);
-		
+
 		final HashSet<String> result = new HashSet<String>();
 		if (elementDeclaration.getContentType() == CMElementDeclaration.ELEMENT || elementDeclaration.getContentType() == CMElementDeclaration.MIXED) {
 			final CMContent content = elementDeclaration.getContent();
@@ -350,41 +373,45 @@ public class WTPVEXValidator implements Validator {
 	}
 
 	private Set<String> getRequiredNamespaces(final CMGroup group, final Set<CMNode> visitedNodes) {
-		if (visitedNodes.contains(group))
+		if (visitedNodes.contains(group)) {
 			return Collections.emptySet();
+		}
 		visitedNodes.add(group);
-		
+
 		final HashSet<String> result = new HashSet<String>();
 		final CMNodeList nodeList = group.getChildNodes();
 		for (int i = 0; i < nodeList.getLength(); i++) {
 			final CMNode node = nodeList.item(i);
-			if (node instanceof CMElementDeclaration)
+			if (node instanceof CMElementDeclaration) {
 				result.addAll(getRequiredNamespaces((CMElementDeclaration) node, visitedNodes));
-			else if (node instanceof CMGroup)
+			} else if (node instanceof CMGroup) {
 				result.addAll(getRequiredNamespaces((CMGroup) node, visitedNodes));
-			else if (node instanceof CMAnyElement) {
+			} else if (node instanceof CMAnyElement) {
 				result.addAll(getRequiredNamespaces((CMAnyElement) node, visitedNodes));
 			}
 		}
 		return result;
 	}
-	
+
 	private Set<String> getRequiredNamespaces(final CMAnyElement anyElement, final Set<CMNode> visitedNodes) {
-		if (visitedNodes.contains(anyElement))
+		if (visitedNodes.contains(anyElement)) {
 			return Collections.emptySet();
+		}
 		visitedNodes.add(anyElement);
-		
+
 		final HashSet<String> result = new HashSet<String>();
 		final String[] namespaceUris = anyElement.getNamespaceURI().split("\\s+");
 		for (final String namespaceUri : namespaceUris) {
-			if (!shouldIgnoreNamespace(namespaceUri))
+			if (!shouldIgnoreNamespace(namespaceUri)) {
 				result.addAll(getRequiredNamespaces(namespaceUri, visitedNodes));
+			}
 		}
 		return result;
 	}
-	
+
 	private boolean shouldIgnoreNamespace(final String namespaceUri) {
-		return namespaceUri == null || "".equals(namespaceUri) || "##other".equals(namespaceUri) || "##any".equals(namespaceUri) || "##local".equals(namespaceUri) || "##targetNamespace".equals(namespaceUri);
+		return namespaceUri == null || "".equals(namespaceUri) || "##other".equals(namespaceUri) || "##any".equals(namespaceUri) || "##local".equals(namespaceUri)
+				|| "##targetNamespace".equals(namespaceUri);
 	}
 
 }

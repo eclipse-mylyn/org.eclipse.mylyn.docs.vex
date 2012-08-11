@@ -49,47 +49,45 @@ import org.eclipse.vex.ui.internal.swt.VexWidget;
  */
 class DebugViewPage implements IPageBookViewPage {
 
-	public DebugViewPage(VexEditor vexEditor) {
+	public DebugViewPage(final VexEditor vexEditor) {
 		this.vexEditor = vexEditor;
 	}
 
-	public void createControl(Composite parent) {
+	public void createControl(final Composite parent) {
 
-		this.composite = new Composite(parent, SWT.NONE);
-		this.composite.setLayout(new FillLayout());
+		composite = new Composite(parent, SWT.NONE);
+		composite.setLayout(new FillLayout());
 
-		if (this.vexEditor.isLoaded()) {
-			this.createDebugPanel();
+		if (vexEditor.isLoaded()) {
+			createDebugPanel();
 		} else {
-			this.loadingLabel = new Label(this.composite, SWT.NONE);
-			this.loadingLabel.setText("Loading...");
+			loadingLabel = new Label(composite, SWT.NONE);
+			loadingLabel.setText("Loading...");
 		}
 
-		this.vexEditor.getEditorSite().getSelectionProvider()
-				.addSelectionChangedListener(this.selectionListener);
+		vexEditor.getEditorSite().getSelectionProvider().addSelectionChangedListener(selectionListener);
 	}
 
 	public void dispose() {
-		if (this.vexWidget != null && !this.vexWidget.isDisposed()) {
-			this.vexWidget.removeMouseMoveListener(this.mouseMoveListener);
+		if (vexWidget != null && !vexWidget.isDisposed()) {
+			vexWidget.removeMouseMoveListener(mouseMoveListener);
 		}
-		this.vexEditor.getEditorSite().getSelectionProvider()
-				.removeSelectionChangedListener(this.selectionListener);
+		vexEditor.getEditorSite().getSelectionProvider().removeSelectionChangedListener(selectionListener);
 	}
 
 	public Control getControl() {
-		return this.composite;
+		return composite;
 	}
 
 	public IPageSite getSite() {
-		return this.site;
+		return site;
 	}
 
-	public void init(IPageSite site) throws PartInitException {
+	public void init(final IPageSite site) throws PartInitException {
 		this.site = site;
 	}
 
-	public void setActionBars(IActionBars actionBars) {
+	public void setActionBars(final IActionBars actionBars) {
 	}
 
 	public void setFocus() {
@@ -115,16 +113,15 @@ class DebugViewPage implements IPageBookViewPage {
 			rootBoxField.setAccessible(true);
 			caretField = VexWidgetImpl.class.getDeclaredField("caret");
 			caretField.setAccessible(true);
-			hostComponentField = VexWidgetImpl.class
-					.getDeclaredField("hostComponent");
+			hostComponentField = VexWidgetImpl.class.getDeclaredField("hostComponent");
 			hostComponentField.setAccessible(true);
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			// TODO: handle exception
 		}
 	}
 
 	private IPageSite site;
-	private VexEditor vexEditor;
+	private final VexEditor vexEditor;
 	private VexWidget vexWidget;
 	private VexWidgetImpl impl;
 	private Composite composite;
@@ -142,31 +139,30 @@ class DebugViewPage implements IPageBookViewPage {
 
 	private void createDebugPanel() {
 
-		if (this.loadingLabel != null) {
-			this.loadingLabel.dispose();
-			this.loadingLabel = null;
+		if (loadingLabel != null) {
+			loadingLabel.dispose();
+			loadingLabel = null;
 		}
 
-		this.vexWidget = this.vexEditor.getVexWidget();
+		vexWidget = vexEditor.getVexWidget();
 		try {
-			this.impl = (VexWidgetImpl) implField.get(this.vexWidget);
-		} catch (IllegalArgumentException e) {
+			impl = (VexWidgetImpl) implField.get(vexWidget);
+		} catch (final IllegalArgumentException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} catch (IllegalAccessException e) {
+		} catch (final IllegalAccessException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 
-		GridLayout layout = new GridLayout();
+		final GridLayout layout = new GridLayout();
 		layout.numColumns = 1;
 		composite.setLayout(layout);
 		GridData gd;
 
-		ScrolledComposite sc = new ScrolledComposite(this.composite,
-				SWT.V_SCROLL);
-		this.table = new Table(sc, SWT.NONE);
-		this.table.setHeaderVisible(true);
+		final ScrolledComposite sc = new ScrolledComposite(composite, SWT.V_SCROLL);
+		table = new Table(sc, SWT.NONE);
+		table.setHeaderVisible(true);
 		sc.setContent(table);
 		sc.setExpandHorizontal(true);
 		sc.setExpandVertical(true);
@@ -176,55 +172,55 @@ class DebugViewPage implements IPageBookViewPage {
 		sc.setLayoutData(gd);
 
 		TableColumn column;
-		column = new TableColumn(this.table, SWT.LEFT);
+		column = new TableColumn(table, SWT.LEFT);
 		column.setText("Item");
-		column = new TableColumn(this.table, SWT.RIGHT);
+		column = new TableColumn(table, SWT.RIGHT);
 		column.setText("X");
-		column = new TableColumn(this.table, SWT.RIGHT);
+		column = new TableColumn(table, SWT.RIGHT);
 		column.setText("Y");
-		column = new TableColumn(this.table, SWT.RIGHT);
+		column = new TableColumn(table, SWT.RIGHT);
 		column.setText("Width");
-		column = new TableColumn(this.table, SWT.RIGHT);
+		column = new TableColumn(table, SWT.RIGHT);
 		column.setText("Height");
 
-		this.table.addControlListener(this.controlListener);
+		table.addControlListener(controlListener);
 
-		this.documentItem = new TableItem(this.table, SWT.NONE);
-		this.documentItem.setText(0, "Document");
-		this.viewportItem = new TableItem(this.table, SWT.NONE);
-		this.viewportItem.setText(0, "Viewport");
-		this.caretOffsetItem = new TableItem(this.table, SWT.NONE);
-		this.caretOffsetItem.setText(0, "Caret Offset");
-		this.caretAbsItem = new TableItem(this.table, SWT.NONE);
-		this.caretAbsItem.setText(0, "Caret Abs.");
-		this.caretRelItem = new TableItem(this.table, SWT.NONE);
-		this.caretRelItem.setText(0, "Caret Rel.");
-		this.mouseAbsItem = new TableItem(this.table, SWT.NONE);
-		this.mouseAbsItem.setText(0, "Mouse Abs.");
-		this.mouseRelItem = new TableItem(this.table, SWT.NONE);
-		this.mouseRelItem.setText(0, "Mouse Rel.");
+		documentItem = new TableItem(table, SWT.NONE);
+		documentItem.setText(0, "Document");
+		viewportItem = new TableItem(table, SWT.NONE);
+		viewportItem.setText(0, "Viewport");
+		caretOffsetItem = new TableItem(table, SWT.NONE);
+		caretOffsetItem.setText(0, "Caret Offset");
+		caretAbsItem = new TableItem(table, SWT.NONE);
+		caretAbsItem.setText(0, "Caret Abs.");
+		caretRelItem = new TableItem(table, SWT.NONE);
+		caretRelItem.setText(0, "Caret Rel.");
+		mouseAbsItem = new TableItem(table, SWT.NONE);
+		mouseAbsItem.setText(0, "Mouse Abs.");
+		mouseRelItem = new TableItem(table, SWT.NONE);
+		mouseRelItem.setText(0, "Mouse Rel.");
 
-		Button updateButton = new Button(composite, SWT.PUSH);
+		final Button updateButton = new Button(composite, SWT.PUSH);
 		updateButton.setText("Refresh");
 		updateButton.addSelectionListener(new SelectionListener() {
-			public void widgetSelected(SelectionEvent e) {
+			public void widgetSelected(final SelectionEvent e) {
 				repopulate();
 			}
 
-			public void widgetDefaultSelected(SelectionEvent e) {
+			public void widgetDefaultSelected(final SelectionEvent e) {
 			}
 		});
 
-		this.composite.layout();
+		composite.layout();
 
-		this.vexWidget.addMouseMoveListener(this.mouseMoveListener);
+		vexWidget.addMouseMoveListener(mouseMoveListener);
 
-		this.repopulate();
+		repopulate();
 
 	}
 
-	private ISelectionChangedListener selectionListener = new ISelectionChangedListener() {
-		public void selectionChanged(SelectionChangedEvent event) {
+	private final ISelectionChangedListener selectionListener = new ISelectionChangedListener() {
+		public void selectionChanged(final SelectionChangedEvent event) {
 			if (vexWidget == null) {
 				createDebugPanel();
 			}
@@ -232,13 +228,13 @@ class DebugViewPage implements IPageBookViewPage {
 		}
 	};
 
-	private ControlListener controlListener = new ControlListener() {
-		public void controlMoved(ControlEvent e) {
+	private final ControlListener controlListener = new ControlListener() {
+		public void controlMoved(final ControlEvent e) {
 		}
 
-		public void controlResized(ControlEvent e) {
-			int width = table.getSize().x;
-			int numWidth = Math.round(width * 0.125f);
+		public void controlResized(final ControlEvent e) {
+			final int width = table.getSize().x;
+			final int numWidth = Math.round(width * 0.125f);
 			table.getColumn(0).setWidth(width / 2);
 			table.getColumn(1).setWidth(numWidth);
 			table.getColumn(2).setWidth(numWidth);
@@ -246,11 +242,11 @@ class DebugViewPage implements IPageBookViewPage {
 		}
 	};
 
-	private MouseMoveListener mouseMoveListener = new MouseMoveListener() {
+	private final MouseMoveListener mouseMoveListener = new MouseMoveListener() {
 
-		public void mouseMove(MouseEvent e) {
-			Rectangle rect = new Rectangle(e.x, e.y, 0, 0);
-			Rectangle viewport = getViewport();
+		public void mouseMove(final MouseEvent e) {
+			final Rectangle rect = new Rectangle(e.x, e.y, 0, 0);
+			final Rectangle viewport = getViewport();
 			setItemFromRect(mouseAbsItem, rect);
 			setItemRel(mouseRelItem, viewport, rect);
 		}
@@ -258,49 +254,45 @@ class DebugViewPage implements IPageBookViewPage {
 	};
 
 	private Rectangle getCaretBounds() {
-		Caret caret = (Caret) this.getFieldValue(caretField, this.impl);
+		final Caret caret = (Caret) getFieldValue(caretField, impl);
 		return caret.getBounds();
 	}
 
 	private Rectangle getRootBoxBounds() {
-		Box rootBox = (Box) this.getFieldValue(rootBoxField, this.impl);
-		return new Rectangle(rootBox.getX(), rootBox.getY(),
-				rootBox.getWidth(), rootBox.getHeight());
+		final Box rootBox = (Box) getFieldValue(rootBoxField, impl);
+		return new Rectangle(rootBox.getX(), rootBox.getY(), rootBox.getWidth(), rootBox.getHeight());
 	}
 
 	private Rectangle getViewport() {
-		HostComponent hc = (HostComponent) this.getFieldValue(
-				hostComponentField, this.impl);
+		final HostComponent hc = (HostComponent) getFieldValue(hostComponentField, impl);
 		return hc.getViewport();
 	}
 
-	private Object getFieldValue(Field field, Object o) {
+	private Object getFieldValue(final Field field, final Object o) {
 		try {
 			return field.get(o);
-		} catch (Exception e) {
+		} catch (final Exception e) {
 			throw new RuntimeException(e);
 		}
 	}
 
 	private void repopulate() {
-		setItemFromRect(this.documentItem, this.getRootBoxBounds());
-		Rectangle viewport = this.getViewport();
-		this.caretOffsetItem.setText(1, Integer.toString(this.impl
-				.getCaretOffset()));
-		setItemFromRect(this.viewportItem, viewport);
-		setItemFromRect(this.caretAbsItem, this.getCaretBounds());
-		setItemRel(this.caretRelItem, viewport, this.getCaretBounds());
+		setItemFromRect(documentItem, getRootBoxBounds());
+		final Rectangle viewport = getViewport();
+		caretOffsetItem.setText(1, Integer.toString(impl.getCaretOffset()));
+		setItemFromRect(viewportItem, viewport);
+		setItemFromRect(caretAbsItem, getCaretBounds());
+		setItemRel(caretRelItem, viewport, getCaretBounds());
 	}
 
-	private static void setItemFromRect(TableItem item, Rectangle rect) {
+	private static void setItemFromRect(final TableItem item, final Rectangle rect) {
 		item.setText(X, Integer.toString(rect.getX()));
 		item.setText(Y, Integer.toString(rect.getY()));
 		item.setText(WIDTH, Integer.toString(rect.getWidth()));
 		item.setText(HEIGHT, Integer.toString(rect.getHeight()));
 	}
 
-	private static void setItemRel(TableItem item, Rectangle viewport,
-			Rectangle rect) {
+	private static void setItemRel(final TableItem item, final Rectangle viewport, final Rectangle rect) {
 		item.setText(X, Integer.toString(rect.getX() - viewport.getX()));
 		item.setText(Y, Integer.toString(rect.getY() - viewport.getY()));
 		item.setText(WIDTH, Integer.toString(rect.getWidth()));

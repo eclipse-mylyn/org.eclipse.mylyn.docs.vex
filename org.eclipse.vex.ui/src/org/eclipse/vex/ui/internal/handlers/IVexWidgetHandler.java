@@ -18,12 +18,14 @@ import org.eclipse.vex.ui.internal.swt.VexWidget;
  */
 public interface IVexWidgetHandler {
 
-    /**
-     * Executes handler at the specified {@link VexWidget}.
-     *
-     * @param event the {@link VexWidget} at which to execute handler
-     * @throws ExecutionException if an exception occurred during execution
-     */
-    void execute(VexWidget widget) throws ExecutionException;
+	/**
+	 * Executes handler at the specified {@link VexWidget}.
+	 * 
+	 * @param event
+	 *            the {@link VexWidget} at which to execute handler
+	 * @throws ExecutionException
+	 *             if an exception occurred during execution
+	 */
+	void execute(VexWidget widget) throws ExecutionException;
 
 }

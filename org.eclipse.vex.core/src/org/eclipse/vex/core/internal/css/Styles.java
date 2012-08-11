@@ -25,103 +25,100 @@ import org.eclipse.vex.core.internal.core.FontSpec;
 public class Styles {
 
 	/** Maps property name (String) => value (Object) */
-	private Map<String, Object> values = new HashMap<String, Object>();
+	private final Map<String, Object> values = new HashMap<String, Object>();
 
 	private List<String> content;
 	private FontSpec font;
 
 	/**
-	 * Returns the value of the given property, or null if the property does not
-	 * have a value.
+	 * Returns the value of the given property, or null if the property does not have a value.
 	 * 
 	 * @param propertyName
 	 * @return
 	 */
-	public Object get(String propertyName) {
-		return this.values.get(propertyName);
+	public Object get(final String propertyName) {
+		return values.get(propertyName);
 	}
 
 	/**
 	 * Returns the value of the <code>backgroundColor</code> property.
 	 */
 	public Color getBackgroundColor() {
-		return (Color) this.values.get(CSS.BACKGROUND_COLOR);
+		return (Color) values.get(CSS.BACKGROUND_COLOR);
 	}
 
 	/**
 	 * Returns the value of the <code>borderBottomColor</code> property.
 	 */
 	public Color getBorderBottomColor() {
-		return (Color) this.values.get(CSS.BORDER_BOTTOM_COLOR);
+		return (Color) values.get(CSS.BORDER_BOTTOM_COLOR);
 	}
 
 	/**
 	 * Returns the value of the <code>borderBottomStyle</code> property.
 	 */
 	public String getBorderBottomStyle() {
-		return (String) this.values.get(CSS.BORDER_BOTTOM_STYLE);
+		return (String) values.get(CSS.BORDER_BOTTOM_STYLE);
 	}
 
 	/**
 	 * Returns the value of the <code>borderLeftColor</code> property.
 	 */
 	public Color getBorderLeftColor() {
-		return (Color) this.values.get(CSS.BORDER_LEFT_COLOR);
+		return (Color) values.get(CSS.BORDER_LEFT_COLOR);
 	}
 
 	/**
 	 * Returns the value of the <code>borderLeftStyle</code> property.
 	 */
 	public String getBorderLeftStyle() {
-		return (String) this.values.get(CSS.BORDER_LEFT_STYLE);
+		return (String) values.get(CSS.BORDER_LEFT_STYLE);
 	}
 
 	/**
 	 * Returns the value of the <code>borderRightColor</code> property.
 	 */
 	public Color getBorderRightColor() {
-		return (Color) this.values.get(CSS.BORDER_RIGHT_COLOR);
+		return (Color) values.get(CSS.BORDER_RIGHT_COLOR);
 	}
 
 	/**
 	 * Returns the value of the <code>borderRightStyle</code> property.
 	 */
 	public String getBorderRightStyle() {
-		return (String) this.values.get(CSS.BORDER_RIGHT_STYLE);
+		return (String) values.get(CSS.BORDER_RIGHT_STYLE);
 	}
 
 	/**
 	 * Returns the value of the <code>borderSpacing</code> property.
 	 */
 	public BorderSpacingProperty.Value getBorderSpacing() {
-		return (BorderSpacingProperty.Value) this.values
-				.get(CSS.BORDER_SPACING);
+		return (BorderSpacingProperty.Value) values.get(CSS.BORDER_SPACING);
 	}
 
 	/**
 	 * Returns the value of the <code>borderTopColor</code> property.
 	 */
 	public Color getBorderTopColor() {
-		return (Color) this.values.get(CSS.BORDER_TOP_COLOR);
+		return (Color) values.get(CSS.BORDER_TOP_COLOR);
 	}
 
 	/**
 	 * Returns the value of the <code>borderTopStyle</code> property.
 	 */
 	public String getBorderTopStyle() {
-		return (String) this.values.get(CSS.BORDER_TOP_STYLE);
+		return (String) values.get(CSS.BORDER_TOP_STYLE);
 	}
 
 	/**
 	 * Returns the value of the <code>color</code> property.
 	 */
 	public Color getColor() {
-		return (Color) this.values.get(CSS.COLOR);
+		return (Color) values.get(CSS.COLOR);
 	}
 
 	/**
-	 * Returns a <code>List</code> of <code>ContentPart</code> objects
-	 * representing the <code>content</code> property.
+	 * Returns a <code>List</code> of <code>ContentPart</code> objects representing the <code>content</code> property.
 	 */
 	public List<String> getContent() {
 		return content;
@@ -131,7 +128,7 @@ public class Styles {
 	 * Returns the value of the <code>display</code> property.
 	 */
 	public String getDisplay() {
-		return (String) this.values.get(CSS.DISPLAY);
+		return (String) values.get(CSS.DISPLAY);
 	}
 
 	/**
@@ -140,7 +137,7 @@ public class Styles {
 	public boolean isDisplayed() {
 		return !CSS.NONE.equals(getDisplay());
 	}
-	
+
 	/**
 	 * Returns the value of the <code>font</code> property.
 	 */
@@ -152,82 +149,72 @@ public class Styles {
 	 * Returns the value of the <code>fontFamily</code> property.
 	 */
 	public String[] getFontFamilies() {
-		return (String[]) this.values.get(CSS.FONT_FAMILY);
+		return (String[]) values.get(CSS.FONT_FAMILY);
 	}
 
 	/**
 	 * Returns the value of the <code>fontSize</code> property.
 	 */
 	public float getFontSize() {
-		return ((Float) this.values.get(CSS.FONT_SIZE)).floatValue();
+		return ((Float) values.get(CSS.FONT_SIZE)).floatValue();
 	}
 
 	/**
 	 * Returns the value of the <code>fontStyle</code> property.
 	 */
 	public String getFontStyle() {
-		return (String) this.values.get(CSS.FONT_STYLE);
+		return (String) values.get(CSS.FONT_STYLE);
 	}
 
 	/**
 	 * Returns the value of the <code>fontWeight</code> property.
 	 */
 	public int getFontWeight() {
-		return ((Integer) this.values.get(CSS.FONT_WEIGHT)).intValue();
+		return ((Integer) values.get(CSS.FONT_WEIGHT)).intValue();
 	}
 
 	/**
 	 * Returns the value of the <code>lineHeight</code> property.
 	 */
 	public int getLineHeight() {
-		return ((RelativeLength) this.values.get(CSS.LINE_HEIGHT)).get(Math
-				.round(this.getFontSize()));
+		return ((RelativeLength) values.get(CSS.LINE_HEIGHT)).get(Math.round(getFontSize()));
 	}
 
 	/**
 	 * Returns the value of the <code>listStyleType</code> property.
 	 */
 	public String getListStyleType() {
-		return (String) this.values.get(CSS.LIST_STYLE_TYPE);
+		return (String) values.get(CSS.LIST_STYLE_TYPE);
 	}
 
 	/**
 	 * Returns the value of the <code>textAlign</code> property.
 	 */
 	public String getTextAlign() {
-		return (String) this.values.get(CSS.TEXT_ALIGN);
+		return (String) values.get(CSS.TEXT_ALIGN);
 	}
 
 	/**
 	 * Returns the value of the <code>textDecoration</code> property.
 	 */
 	public String getTextDecoration() {
-		return (String) this.values.get(CSS.TEXT_DECORATION);
+		return (String) values.get(CSS.TEXT_DECORATION);
 	}
 
 	/**
 	 * Returns the value of the <code>whiteSpace</code> property.
 	 */
 	public String getWhiteSpace() {
-		return (String) this.values.get(CSS.WHITE_SPACE);
+		return (String) values.get(CSS.WHITE_SPACE);
 	}
 
 	/**
-	 * Returns true if this element is block-formatted, or false if it is
-	 * inline-formatted.
+	 * Returns true if this element is block-formatted, or false if it is inline-formatted.
 	 */
 	public boolean isBlock() {
-		return this.getDisplay().equals(CSS.BLOCK)
-				|| this.getDisplay().equals(CSS.LIST_ITEM)
-				|| this.getDisplay().equals(CSS.TABLE)
-				|| this.getDisplay().equals(CSS.TABLE_CAPTION)
-				|| this.getDisplay().equals(CSS.TABLE_CELL)
-				|| this.getDisplay().equals(CSS.TABLE_COLUMN)
-				|| this.getDisplay().equals(CSS.TABLE_COLUMN_GROUP)
-				|| this.getDisplay().equals(CSS.TABLE_FOOTER_GROUP)
-				|| this.getDisplay().equals(CSS.TABLE_HEADER_GROUP)
-				|| this.getDisplay().equals(CSS.TABLE_ROW)
-				|| this.getDisplay().equals(CSS.TABLE_ROW_GROUP);
+		return getDisplay().equals(CSS.BLOCK) || getDisplay().equals(CSS.LIST_ITEM) || getDisplay().equals(CSS.TABLE) || getDisplay().equals(CSS.TABLE_CAPTION) || getDisplay().equals(CSS.TABLE_CELL)
+				|| getDisplay().equals(CSS.TABLE_COLUMN) || getDisplay().equals(CSS.TABLE_COLUMN_GROUP) || getDisplay().equals(CSS.TABLE_FOOTER_GROUP) || getDisplay().equals(CSS.TABLE_HEADER_GROUP)
+				|| getDisplay().equals(CSS.TABLE_ROW) || getDisplay().equals(CSS.TABLE_ROW_GROUP);
 	}
 
 	/**
@@ -238,18 +225,17 @@ public class Styles {
 	 * @param value
 	 *            Value of the property.
 	 */
-	public void put(String propertyName, Object value) {
-		this.values.put(propertyName, value);
+	public void put(final String propertyName, final Object value) {
+		values.put(propertyName, value);
 	}
 
 	/**
 	 * Sets the vale of the <code>content</code> property.
 	 * 
 	 * @param content
-	 *            <code>List</code> of <code>ContentPart</code> objects
-	 *            representing the content.
+	 *            <code>List</code> of <code>ContentPart</code> objects representing the content.
 	 */
-	public void setContent(List<String> content) {
+	public void setContent(final List<String> content) {
 		this.content = content;
 	}
 
@@ -259,62 +245,63 @@ public class Styles {
 	 * @param font
 	 *            new value for the <code>font</code> property.
 	 */
-	public void setFont(FontSpec font) {
+	public void setFont(final FontSpec font) {
 		this.font = font;
 	}
 
 	public RelativeLength getElementWidth() {
-		return (RelativeLength) this.values.get(CSS.WIDTH);
+		return (RelativeLength) values.get(CSS.WIDTH);
 	}
 
 	public RelativeLength getElementHeight() {
-		return (RelativeLength) this.values.get(CSS.HEIGHT);
+		return (RelativeLength) values.get(CSS.HEIGHT);
 	}
-	
+
 	public boolean hasBackgroundImage() {
-		return this.values.get(CSS.BACKGROUND_IMAGE) != null;
+		return values.get(CSS.BACKGROUND_IMAGE) != null;
 	}
-	
+
 	public String getBackgroundImage() {
-		final Object value = this.values.get(CSS.BACKGROUND_IMAGE);
-		if (value == null) 
+		final Object value = values.get(CSS.BACKGROUND_IMAGE);
+		if (value == null) {
 			return BackgroundImageProperty.DEFAULT;
+		}
 		return value.toString();
 	}
-	
+
 	/**
 	 * @return the value of border-bottom-width
 	 */
 	public int getBorderBottomWidth() {
-		return ((Integer) this.values.get(CSS.BORDER_BOTTOM_WIDTH)).intValue();
+		return ((Integer) values.get(CSS.BORDER_BOTTOM_WIDTH)).intValue();
 	}
 
 	/**
 	 * @return the value of border-left-width
 	 */
 	public int getBorderLeftWidth() {
-		return ((Integer) this.values.get(CSS.BORDER_LEFT_WIDTH)).intValue();
+		return ((Integer) values.get(CSS.BORDER_LEFT_WIDTH)).intValue();
 	}
 
 	/**
 	 * @return the value of border-right-width
 	 */
 	public int getBorderRightWidth() {
-		return ((Integer) this.values.get(CSS.BORDER_RIGHT_WIDTH)).intValue();
+		return ((Integer) values.get(CSS.BORDER_RIGHT_WIDTH)).intValue();
 	}
 
 	/**
 	 * @return the value of border-top-width
 	 */
 	public int getBorderTopWidth() {
-		return ((Integer) this.values.get(CSS.BORDER_TOP_WIDTH)).intValue();
+		return ((Integer) values.get(CSS.BORDER_TOP_WIDTH)).intValue();
 	}
 
 	/**
 	 * @return the value of margin-bottom
 	 */
 	public RelativeLength getMarginBottom() {
-		return (RelativeLength) this.values.get(CSS.MARGIN_BOTTOM);
+		return (RelativeLength) values.get(CSS.MARGIN_BOTTOM);
 		// return marginBottom;
 	}
 
@@ -322,49 +309,49 @@ public class Styles {
 	 * @return the value of margin-left
 	 */
 	public RelativeLength getMarginLeft() {
-		return (RelativeLength) this.values.get(CSS.MARGIN_LEFT);
+		return (RelativeLength) values.get(CSS.MARGIN_LEFT);
 	}
 
 	/**
 	 * @return the value of margin-right
 	 */
 	public RelativeLength getMarginRight() {
-		return (RelativeLength) this.values.get(CSS.MARGIN_RIGHT);
+		return (RelativeLength) values.get(CSS.MARGIN_RIGHT);
 	}
 
 	/**
 	 * @return the value of margin-top
 	 */
 	public RelativeLength getMarginTop() {
-		return (RelativeLength) this.values.get(CSS.MARGIN_TOP);
+		return (RelativeLength) values.get(CSS.MARGIN_TOP);
 	}
 
 	/**
 	 * @return the value of padding-bottom
 	 */
 	public RelativeLength getPaddingBottom() {
-		return (RelativeLength) this.values.get(CSS.PADDING_BOTTOM);
+		return (RelativeLength) values.get(CSS.PADDING_BOTTOM);
 	}
 
 	/**
 	 * @return the value of padding-left
 	 */
 	public RelativeLength getPaddingLeft() {
-		return (RelativeLength) this.values.get(CSS.PADDING_LEFT);
+		return (RelativeLength) values.get(CSS.PADDING_LEFT);
 	}
 
 	/**
 	 * @return the value of padding-right
 	 */
 	public RelativeLength getPaddingRight() {
-		return (RelativeLength) this.values.get(CSS.PADDING_RIGHT);
+		return (RelativeLength) values.get(CSS.PADDING_RIGHT);
 	}
 
 	/**
 	 * @return the value of padding-top
 	 */
 	public RelativeLength getPaddingTop() {
-		return (RelativeLength) this.values.get(CSS.PADDING_TOP);
+		return (RelativeLength) values.get(CSS.PADDING_TOP);
 	}
 
 }

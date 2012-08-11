@@ -22,9 +22,8 @@ import org.eclipse.vex.core.internal.css.Styles;
 import org.eclipse.vex.core.internal.dom.Element;
 
 /**
- * Container for TableRowBox objects. May correspond to an element with
- * display:table-row-group, display:table-head-group, display:table-foot-group,
- * or may be anonymous.
+ * Container for TableRowBox objects. May correspond to an element with display:table-row-group,
+ * display:table-head-group, display:table-foot-group, or may be anonymous.
  */
 public class TableRowGroupBox extends AbstractBlockBox {
 
@@ -38,8 +37,7 @@ public class TableRowGroupBox extends AbstractBlockBox {
 	 * @param element
 	 *            Element that generated this box.
 	 */
-	public TableRowGroupBox(LayoutContext context, BlockBox parent,
-			Element element) {
+	public TableRowGroupBox(final LayoutContext context, final BlockBox parent, final Element element) {
 		super(context, parent, element);
 	}
 
@@ -55,12 +53,12 @@ public class TableRowGroupBox extends AbstractBlockBox {
 	 * @param endOffset
 	 *            End of the range encompassing the table.
 	 */
-	public TableRowGroupBox(LayoutContext context, BlockBox parent,
-			int startOffset, int endOffset) {
+	public TableRowGroupBox(final LayoutContext context, final BlockBox parent, final int startOffset, final int endOffset) {
 		super(context, parent, startOffset, endOffset);
 
 	}
 
+	@Override
 	protected List<Box> createChildren(final LayoutContext context) {
 		// TODO Auto-generated method stub
 
@@ -70,58 +68,58 @@ public class TableRowGroupBox extends AbstractBlockBox {
 
 		final List<Box> children = new ArrayList<Box>();
 
-		this.iterateChildrenByDisplayStyle(context.getStyleSheet(),
-				childDisplayStyles, new ElementOrRangeCallback() {
-					public void onElement(Element child, String displayStyle) {
-						children.add(new TableRowBox(context,
-								TableRowGroupBox.this, child));
-					}
+		iterateChildrenByDisplayStyle(context.getStyleSheet(), childDisplayStyles, new ElementOrRangeCallback() {
+			public void onElement(final Element child, final String displayStyle) {
+				children.add(new TableRowBox(context, TableRowGroupBox.this, child));
+			}
 
-					public void onRange(Element parent, int startOffset,
-							int endOffset) {
-						children.add(new TableRowBox(context,
-								TableRowGroupBox.this, startOffset, endOffset));
-					}
-				});
+			public void onRange(final Element parent, final int startOffset, final int endOffset) {
+				children.add(new TableRowBox(context, TableRowGroupBox.this, startOffset, endOffset));
+			}
+		});
 
 		return children;
 	}
 
-	public Insets getInsets(LayoutContext context, int containerWidth) {
+	@Override
+	public Insets getInsets(final LayoutContext context, final int containerWidth) {
 		return Insets.ZERO_INSETS;
 	}
 
+	@Override
 	public int getMarginBottom() {
 		return 0;
 	}
 
+	@Override
 	public int getMarginTop() {
 		return 0;
 	}
 
-	public void paint(LayoutContext context, int x, int y) {
+	@Override
+	public void paint(final LayoutContext context, final int x, final int y) {
 
-		if (this.skipPaint(context, x, y)) {
+		if (skipPaint(context, x, y)) {
 			return;
 		}
 
-		this.paintChildren(context, x, y);
+		paintChildren(context, x, y);
 
-		this.paintSelectionFrame(context, x, y, true);
+		paintSelectionFrame(context, x, y, true);
 	}
 
-	protected int positionChildren(LayoutContext context) {
+	@Override
+	protected int positionChildren(final LayoutContext context) {
 
-		Styles styles = context.getStyleSheet().getStyles(
-				this.findContainingElement());
-		int spacing = styles.getBorderSpacing().getVertical();
+		final Styles styles = context.getStyleSheet().getStyles(findContainingElement());
+		final int spacing = styles.getBorderSpacing().getVertical();
 
 		int childY = spacing;
-		for (int i = 0; i < this.getChildren().length; i++) {
+		for (int i = 0; i < getChildren().length; i++) {
 
-			TableRowBox child = (TableRowBox) this.getChildren()[i];
+			final TableRowBox child = (TableRowBox) getChildren()[i];
 			// TODO must force table row margins to be zero
-			Insets insets = child.getInsets(context, this.getWidth());
+			final Insets insets = child.getInsets(context, getWidth());
 
 			childY += insets.getTop();
 
@@ -130,7 +128,7 @@ public class TableRowGroupBox extends AbstractBlockBox {
 
 			childY += child.getHeight() + insets.getBottom() + spacing;
 		}
-		this.setHeight(childY);
+		setHeight(childY);
 
 		return -1; // TODO revisit
 	}

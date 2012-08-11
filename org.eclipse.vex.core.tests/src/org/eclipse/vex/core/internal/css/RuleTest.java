@@ -16,9 +16,6 @@ import java.util.List;
 import junit.framework.TestCase;
 
 import org.eclipse.core.runtime.QualifiedName;
-import org.eclipse.vex.core.internal.css.Rule;
-import org.eclipse.vex.core.internal.css.StyleSheet;
-import org.eclipse.vex.core.internal.css.StyleSheetReader;
 import org.eclipse.vex.core.internal.dom.Document;
 import org.eclipse.vex.core.internal.dom.Element;
 import org.eclipse.vex.core.internal.dom.RootElement;

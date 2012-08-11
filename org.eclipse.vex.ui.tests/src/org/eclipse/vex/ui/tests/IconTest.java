@@ -10,14 +10,14 @@
  *******************************************************************************/
 package org.eclipse.vex.ui.tests;
 
-import org.eclipse.vex.ui.internal.Icon;
-
 import junit.framework.TestCase;
+
+import org.eclipse.vex.ui.internal.Icon;
 
 public class IconTest extends TestCase {
 
 	public void testWhetherAllIconsExist() throws Exception {
-		for (Icon icon : Icon.values()) {
+		for (final Icon icon : Icon.values()) {
 			assertNotNull(Icon.get(icon));
 		}
 	}

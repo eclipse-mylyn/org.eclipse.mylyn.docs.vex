@@ -15,8 +15,8 @@ package org.eclipse.vex.core.internal.core;
  */
 public class Point {
 
-	private int x;
-	private int y;
+	private final int x;
+	private final int y;
 
 	/**
 	 * Class constructor.
@@ -26,18 +26,19 @@ public class Point {
 	 * @param y
 	 *            Y-coordinate.
 	 */
-	public Point(int x, int y) {
+	public Point(final int x, final int y) {
 		this.x = x;
 		this.y = y;
 	}
 
+	@Override
 	public String toString() {
-		StringBuffer sb = new StringBuffer(80);
+		final StringBuffer sb = new StringBuffer(80);
 		sb.append(Point.class.getName());
 		sb.append("[x=");
-		sb.append(this.getX());
+		sb.append(getX());
 		sb.append(",y=");
-		sb.append(this.getY());
+		sb.append(getY());
 		sb.append("]");
 		return sb.toString();
 	}

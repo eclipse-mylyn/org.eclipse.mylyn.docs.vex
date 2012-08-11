@@ -12,15 +12,15 @@ package org.eclipse.vex.ui.internal.handlers;
 
 /**
  * Inserts a single table column after (right of) the current one.
- *
+ * 
  * @see AddColumnLeftHandler
  * @see AbstractAddColumnHandler
  */
-public class AddColumnRightHandler  extends AbstractAddColumnHandler {
+public class AddColumnRightHandler extends AbstractAddColumnHandler {
 
-    @Override
-    protected boolean addBefore() {
-        return false;
-    }
+	@Override
+	protected boolean addBefore() {
+		return false;
+	}
 
 }

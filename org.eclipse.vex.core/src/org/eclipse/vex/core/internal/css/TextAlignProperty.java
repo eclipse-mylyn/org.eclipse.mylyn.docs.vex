@@ -25,7 +25,7 @@ public class TextAlignProperty extends AbstractProperty {
 		super(CSS.TEXT_ALIGN);
 	}
 
-	public Object calculate(LexicalUnit lu, Styles parentStyles, Styles styles, Element element) {
+	public Object calculate(final LexicalUnit lu, final Styles parentStyles, final Styles styles, final Element element) {
 		if (TextAlignProperty.isTextAlign(lu)) {
 			return lu.getStringValue();
 		} else {
@@ -41,7 +41,7 @@ public class TextAlignProperty extends AbstractProperty {
 
 	// =================================================== PRIVATE
 
-	private static boolean isTextAlign(LexicalUnit lu) {
+	private static boolean isTextAlign(final LexicalUnit lu) {
 		if (lu == null) {
 			return false;
 		} else if (lu.getLexicalUnitType() == LexicalUnit.SAC_IDENT) {

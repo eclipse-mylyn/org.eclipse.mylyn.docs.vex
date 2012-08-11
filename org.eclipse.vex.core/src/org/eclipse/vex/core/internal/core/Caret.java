@@ -11,8 +11,7 @@
 package org.eclipse.vex.core.internal.core;
 
 /**
- * Represents the caret, a line that indicates an insertion point in the
- * document.
+ * Represents the caret, a line that indicates an insertion point in the document.
  */
 public abstract class Caret {
 
@@ -27,7 +26,7 @@ public abstract class Caret {
 	 * @param y
 	 *            y-coordinate of the top left corner of the caret
 	 */
-	public Caret(int x, int y) {
+	public Caret(final int x, final int y) {
 		this.x = x;
 		this.y = y;
 	}
@@ -51,14 +50,14 @@ public abstract class Caret {
 	 * Returns the x-coordinate of the top left corner of the caret
 	 */
 	public int getX() {
-		return this.x;
+		return x;
 	}
 
 	/**
 	 * Returns the y-coordinate of the top left corner of the caret
 	 */
 	public int getY() {
-		return this.y;
+		return y;
 	}
 
 	/**
@@ -69,7 +68,7 @@ public abstract class Caret {
 	 * @param y
 	 *            amount by which to move the caret down
 	 */
-	public void translate(int x, int y) {
+	public void translate(final int x, final int y) {
 		this.x += x;
 		this.y += y;
 	}

@@ -17,43 +17,43 @@ import org.eclipse.vex.ui.internal.swt.VexWidget;
 
 /**
  * Navigates to the next table cell (usual shortcut: {@code Tab}).
- *
+ * 
  * @see PreviousTableCellHandler
  */
 public class NextTableCellHandler extends AbstractNavigateTableCellHandler {
 
-    @Override
-    protected void navigate(VexWidget widget, TableRowBox row, int offset) {
-        Box[] cells = row.getChildren();
+	@Override
+	protected void navigate(final VexWidget widget, final TableRowBox row, final int offset) {
+		final Box[] cells = row.getChildren();
 
-        // in this row
-        for (Box cell : cells) {
-        	if (cell.getStartOffset() > offset) {
-                widget.moveTo(cell.getStartOffset());
-                widget.moveTo(cell.getEndOffset(), true);
-                return;
-            }
+		// in this row
+		for (final Box cell : cells) {
+			if (cell.getStartOffset() > offset) {
+				widget.moveTo(cell.getStartOffset());
+				widget.moveTo(cell.getEndOffset(), true);
+				return;
+			}
 		}
 
-        // in other row
-        Box[] rows = row.getParent().getChildren();
-        for (Box boxRow : rows) {
-        	if (boxRow.getStartOffset() > offset) {
-            	Box[] rowCells = boxRow.getChildren();
-                if (rowCells.length > 0) {
-                    Box cell = rowCells[0];
-                    widget.moveTo(cell.getStartOffset());
-                    widget.moveTo(cell.getEndOffset(), true);
-                } else {
-                    System.out.println("TODO - dup row into new empty row");
-                }
-                return;
-            }
+		// in other row
+		final Box[] rows = row.getParent().getChildren();
+		for (final Box boxRow : rows) {
+			if (boxRow.getStartOffset() > offset) {
+				final Box[] rowCells = boxRow.getChildren();
+				if (rowCells.length > 0) {
+					final Box cell = rowCells[0];
+					widget.moveTo(cell.getStartOffset());
+					widget.moveTo(cell.getEndOffset(), true);
+				} else {
+					System.out.println("TODO - dup row into new empty row");
+				}
+				return;
+			}
 		}
 
-        // We didn't find a "next row", so let's dup the current one
-        VexHandlerUtil.duplicateTableRow(widget, row);
+		// We didn't find a "next row", so let's dup the current one
+		VexHandlerUtil.duplicateTableRow(widget, row);
 
-    }
+	}
 
 }

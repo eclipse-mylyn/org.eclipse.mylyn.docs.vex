@@ -28,21 +28,18 @@ public class Messages {
 	}
 
 	/**
-	 * Returns the language-specific string for the given key, or the key itself
-	 * if not found.
+	 * Returns the language-specific string for the given key, or the key itself if not found.
 	 */
-	public static String getString(String key) {
+	public static String getString(final String key) {
 		if (resources == null) {
-			resources = ResourceBundle
-					.getBundle("org.eclipse.vex.ui.internal.editor.messages"); //$NON-NLS-1$
+			resources = ResourceBundle.getBundle("org.eclipse.vex.ui.internal.editor.messages"); //$NON-NLS-1$
 		}
 
 		try {
 			return resources.getString(key);
-		} catch (MissingResourceException ex) {
-			String message = Messages.getString("Messages.cantFindResource"); //$NON-NLS-1$
-			VexPlugin.getDefault().log(IStatus.WARNING,
-					MessageFormat.format(message, new Object[] { key }));
+		} catch (final MissingResourceException ex) {
+			final String message = Messages.getString("Messages.cantFindResource"); //$NON-NLS-1$
+			VexPlugin.getDefault().log(IStatus.WARNING, MessageFormat.format(message, new Object[] { key }));
 			return key;
 		}
 	}

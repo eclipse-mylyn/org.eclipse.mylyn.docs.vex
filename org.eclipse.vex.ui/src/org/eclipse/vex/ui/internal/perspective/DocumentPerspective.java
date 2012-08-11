@@ -19,7 +19,7 @@ import org.eclipse.ui.IPerspectiveFactory;
  */
 public class DocumentPerspective implements IPerspectiveFactory {
 
-	public void createInitialLayout(IPageLayout layout) {
+	public void createInitialLayout(final IPageLayout layout) {
 		defineActions(layout);
 		defineLayout(layout);
 	}
@@ -27,10 +27,9 @@ public class DocumentPerspective implements IPerspectiveFactory {
 	/**
 	 * Defines the initial actions for a page.
 	 */
-	public void defineActions(IPageLayout layout) {
+	public void defineActions(final IPageLayout layout) {
 		// Add "new wizards".
-		layout
-				.addNewWizardShortcut("org.eclipse.vex.ui.NewDocumentWizard");//$NON-NLS-1$
+		layout.addNewWizardShortcut("org.eclipse.vex.ui.NewDocumentWizard");//$NON-NLS-1$
 		layout.addNewWizardShortcut("org.eclipse.ui.wizards.new.folder");//$NON-NLS-1$
 		layout.addNewWizardShortcut("org.eclipse.ui.wizards.new.file");//$NON-NLS-1$
 
@@ -44,20 +43,17 @@ public class DocumentPerspective implements IPerspectiveFactory {
 	/**
 	 * Defines the initial layout for a page.
 	 */
-	public void defineLayout(IPageLayout layout) {
+	public void defineLayout(final IPageLayout layout) {
 
-		String editorArea = layout.getEditorArea();
+		final String editorArea = layout.getEditorArea();
 
-		IFolderLayout topLeft = layout.createFolder(
-				"topLeft", IPageLayout.LEFT, (float) 0.2, editorArea);//$NON-NLS-1$
+		final IFolderLayout topLeft = layout.createFolder("topLeft", IPageLayout.LEFT, (float) 0.2, editorArea);//$NON-NLS-1$
 		topLeft.addView(IPageLayout.ID_RES_NAV);
 
-		IFolderLayout topRight = layout.createFolder(
-				"topRight", IPageLayout.RIGHT, (float) 0.75, editorArea);//$NON-NLS-1$
+		final IFolderLayout topRight = layout.createFolder("topRight", IPageLayout.RIGHT, (float) 0.75, editorArea);//$NON-NLS-1$
 		topRight.addView(IPageLayout.ID_OUTLINE);
 
-		IFolderLayout bottomRight = layout.createFolder(
-				"bottomRight", IPageLayout.BOTTOM, (float) 0.5, "topRight");//$NON-NLS-1$ //$NON-NLS-2$
+		final IFolderLayout bottomRight = layout.createFolder("bottomRight", IPageLayout.BOTTOM, (float) 0.5, "topRight");//$NON-NLS-1$ //$NON-NLS-2$
 		bottomRight.addView(IPageLayout.ID_PROP_SHEET);
 
 	}

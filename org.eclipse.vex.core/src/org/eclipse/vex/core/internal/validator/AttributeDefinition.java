@@ -20,12 +20,12 @@ import org.eclipse.wst.xml.core.internal.contentmodel.CMDataType;
  */
 public class AttributeDefinition implements Comparable<AttributeDefinition> {
 
-	private String name;
-	private Type type;
-	private String defaultValue;
-	private String[] values;
-	private boolean required;
-	private boolean fixed;
+	private final String name;
+	private final Type type;
+	private final String defaultValue;
+	private final String[] values;
+	private final boolean required;
+	private final boolean fixed;
 
 	/**
 	 * Enumeration of attribute types.
@@ -33,7 +33,7 @@ public class AttributeDefinition implements Comparable<AttributeDefinition> {
 	 */
 	public static final class Type {
 
-		private String s;
+		private final String s;
 
 		public static final Type CDATA = new Type("CDATA");
 		public static final Type ID = new Type("ID");
@@ -46,11 +46,11 @@ public class AttributeDefinition implements Comparable<AttributeDefinition> {
 		public static final Type NOTATION = new Type("NOTATION");
 		public static final Type ENUMERATION = new Type("ENUMERATION");
 
-		private Type(String s) {
+		private Type(final String s) {
 			this.s = s;
 		}
 
-		public static Type get(String s) {
+		public static Type get(final String s) {
 			if (s.equals(CDATA.toString())) {
 				return CDATA;
 			} else if (s.equals(ID.toString())) {
@@ -79,23 +79,21 @@ public class AttributeDefinition implements Comparable<AttributeDefinition> {
 
 		@Override
 		public String toString() {
-			return this.s;
+			return s;
 		}
 
 		/**
-		 * Serialization method, to ensure that we do not introduce new
-		 * instances.
+		 * Serialization method, to ensure that we do not introduce new instances.
 		 */
 		private Object readResolve() throws ObjectStreamException {
-			return get(this.toString());
+			return get(toString());
 		}
 	}
 
 	/**
 	 * Class constructor.
 	 */
-	public AttributeDefinition(String name, Type type, String defaultValue,
-			String[] values, boolean required, boolean fixed) {
+	public AttributeDefinition(final String name, final Type type, final String defaultValue, final String[] values, final boolean required, final boolean fixed) {
 
 		this.name = name;
 		this.type = type;
@@ -106,27 +104,28 @@ public class AttributeDefinition implements Comparable<AttributeDefinition> {
 	}
 
 	/**
-	 * Implements <code>Comparable.compareTo</code> to sort alphabetically by
-	 * name.
+	 * Implements <code>Comparable.compareTo</code> to sort alphabetically by name.
 	 * 
 	 * @param other
 	 *            The attribute to which this one is to be compared.
-	 *
+	 * 
 	 */
-	public int compareTo(AttributeDefinition other) {
-		return this.name.compareTo(other.name);
+	public int compareTo(final AttributeDefinition other) {
+		return name.compareTo(other.name);
 	}
 
 	/**
 	 * Returns the attribute's type.
+	 * 
 	 * @model
 	 */
 	public Type getType() {
-		return this.type;
+		return type;
 	}
 
 	/**
 	 * Returns the default value of the attribute.
+	 * 
 	 * @model
 	 */
 	public String getDefaultValue() {
@@ -135,6 +134,7 @@ public class AttributeDefinition implements Comparable<AttributeDefinition> {
 
 	/**
 	 * Returns true if the attribute value is fixed.
+	 * 
 	 * @model
 	 */
 	public boolean isFixed() {
@@ -143,6 +143,7 @@ public class AttributeDefinition implements Comparable<AttributeDefinition> {
 
 	/**
 	 * Returns the name of the attribute.
+	 * 
 	 * @model
 	 */
 	public String getName() {
@@ -151,6 +152,7 @@ public class AttributeDefinition implements Comparable<AttributeDefinition> {
 
 	/**
 	 * Returns true if the attribute is required.
+	 * 
 	 * @model
 	 */
 	public boolean isRequired() {
@@ -158,8 +160,9 @@ public class AttributeDefinition implements Comparable<AttributeDefinition> {
 	}
 
 	/**
-	 * Returns an array of acceptable values for the attribute. If null is
-	 * returned, any value is acceptable for the attribute.
+	 * Returns an array of acceptable values for the attribute. If null is returned, any value is acceptable for the
+	 * attribute.
+	 * 
 	 * @model type="String" containment="true"
 	 */
 	public String[] getValues() {

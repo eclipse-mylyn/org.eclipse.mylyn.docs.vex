@@ -30,7 +30,7 @@ public class FontFamilyProperty extends AbstractProperty {
 		super(CSS.FONT_FAMILY);
 	}
 
-	public Object calculate(LexicalUnit lu, Styles parentStyles, Styles styles, Element element) {
+	public Object calculate(final LexicalUnit lu, final Styles parentStyles, final Styles styles, final Element element) {
 		if (isFontFamily(lu)) {
 			return getFontFamilies(lu);
 		} else {
@@ -38,26 +38,23 @@ public class FontFamilyProperty extends AbstractProperty {
 			if (parentStyles != null) {
 				return parentStyles.getFontFamilies();
 			} else {
-				String[] fonts = new String[DEFAULT_FONT_FAMILY.length];
+				final String[] fonts = new String[DEFAULT_FONT_FAMILY.length];
 				System.arraycopy(DEFAULT_FONT_FAMILY, 0, fonts, 0, DEFAULT_FONT_FAMILY.length);
 				return fonts;
 			}
 		}
 	}
-	
+
 	private static final String[] DEFAULT_FONT_FAMILY = new String[] { "sans-serif" };
 
-	private static boolean isFontFamily(LexicalUnit lu) {
-		return lu != null
-				&& (lu.getLexicalUnitType() == LexicalUnit.SAC_STRING_VALUE || lu
-						.getLexicalUnitType() == LexicalUnit.SAC_IDENT);
+	private static boolean isFontFamily(final LexicalUnit lu) {
+		return lu != null && (lu.getLexicalUnitType() == LexicalUnit.SAC_STRING_VALUE || lu.getLexicalUnitType() == LexicalUnit.SAC_IDENT);
 	}
 
 	private static String[] getFontFamilies(LexicalUnit lu) {
-		List<String> list = new ArrayList<String>();
+		final List<String> list = new ArrayList<String>();
 		while (lu != null) {
-			if (lu.getLexicalUnitType() == LexicalUnit.SAC_STRING_VALUE
-					|| lu.getLexicalUnitType() == LexicalUnit.SAC_IDENT) {
+			if (lu.getLexicalUnitType() == LexicalUnit.SAC_STRING_VALUE || lu.getLexicalUnitType() == LexicalUnit.SAC_IDENT) {
 
 				list.add(lu.getStringValue());
 			}

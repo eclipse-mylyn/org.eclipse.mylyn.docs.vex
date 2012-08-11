@@ -19,7 +19,7 @@ import org.eclipse.core.runtime.QualifiedName;
  */
 public class QualifiedNameComparator implements Comparator<QualifiedName> {
 
-	public int compare(QualifiedName name1, QualifiedName name2) {
+	public int compare(final QualifiedName name1, final QualifiedName name2) {
 		return name1.toString().compareTo(name2.toString());
 	}
 }

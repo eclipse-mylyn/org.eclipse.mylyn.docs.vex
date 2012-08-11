@@ -23,7 +23,7 @@ public class DocumentValidationException extends RuntimeException {
 	 * @param message
 	 *            Message indicating the nature of the exception.
 	 */
-	public DocumentValidationException(String message) {
+	public DocumentValidationException(final String message) {
 		super(message);
 	}
 }

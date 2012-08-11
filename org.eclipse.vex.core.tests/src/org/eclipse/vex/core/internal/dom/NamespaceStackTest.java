@@ -14,7 +14,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import org.eclipse.vex.core.internal.dom.NamespaceStack;
 import org.junit.Test;
 
 /**
@@ -73,7 +72,7 @@ public class NamespaceStackTest {
 		assertNull(stack.peek("ns1"));
 		assertNull(stack.peek("ns2"));
 	}
-	
+
 	@Test
 	public void getPrefixes() throws Exception {
 		final NamespaceStack stack = new NamespaceStack();
@@ -81,16 +80,16 @@ public class NamespaceStackTest {
 
 		stack.pushDefault("http://namespace/default");
 		assertTrue(stack.getPrefixes().isEmpty());
-		
+
 		stack.push("ns1", "http://namespace/uri/1");
 		assertEquals(1, stack.getPrefixes().size());
 		assertTrue(stack.getPrefixes().contains("ns1"));
-		
+
 		stack.push("ns2", "http://namespace/uri/2");
 		assertEquals(2, stack.getPrefixes().size());
 		assertTrue(stack.getPrefixes().contains("ns1"));
 		assertTrue(stack.getPrefixes().contains("ns2"));
-		
+
 		stack.clear();
 		assertTrue(stack.getPrefixes().isEmpty());
 	}

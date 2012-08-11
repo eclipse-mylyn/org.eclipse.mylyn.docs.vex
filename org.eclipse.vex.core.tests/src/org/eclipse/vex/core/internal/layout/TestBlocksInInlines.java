@@ -12,6 +12,8 @@ package org.eclipse.vex.core.internal.layout;
 
 import java.net.URL;
 
+import junit.framework.TestCase;
+
 import org.eclipse.vex.core.internal.core.DisplayDevice;
 import org.eclipse.vex.core.internal.css.MockDisplayDevice;
 import org.eclipse.vex.core.internal.css.StyleSheet;
@@ -19,14 +21,10 @@ import org.eclipse.vex.core.internal.css.StyleSheetReader;
 import org.eclipse.vex.core.internal.dom.Document;
 import org.eclipse.vex.core.internal.dom.Element;
 import org.eclipse.vex.core.internal.dom.RootElement;
-import org.eclipse.vex.core.internal.layout.LayoutContext;
-import org.eclipse.vex.core.internal.layout.RootBox;
-
-import junit.framework.TestCase;
 
 /**
- * Tests proper function of a block-level element within an inline element.
- * These must be layed out as a block child of the containing block element.
+ * Tests proper function of a block-level element within an inline element. These must be layed out as a block child of
+ * the containing block element.
  */
 public class TestBlocksInInlines extends TestCase {
 
@@ -38,23 +36,23 @@ public class TestBlocksInInlines extends TestCase {
 		super.setUp();
 		DisplayDevice.setCurrent(new MockDisplayDevice(90, 90));
 	}
-	
+
 	public TestBlocksInInlines() throws Exception {
-		URL url = this.getClass().getResource("test.css");
-		StyleSheetReader reader = new StyleSheetReader();
-		StyleSheet ss = reader.read(url);
+		final URL url = this.getClass().getResource("test.css");
+		final StyleSheetReader reader = new StyleSheetReader();
+		final StyleSheet ss = reader.read(url);
 
-		this.g = new FakeGraphics();
+		g = new FakeGraphics();
 
-		this.context = new LayoutContext();
-		this.context.setBoxFactory(new MockBoxFactory());
-		this.context.setGraphics(this.g);
-		this.context.setStyleSheet(ss);
+		context = new LayoutContext();
+		context.setBoxFactory(new MockBoxFactory());
+		context.setGraphics(g);
+		context.setStyleSheet(ss);
 	}
 
 	public void testBlockInInline() throws Exception {
-		RootElement root = new RootElement("root");
-		Document doc = new Document(root);
+		final RootElement root = new RootElement("root");
+		final Document doc = new Document(root);
 		context.setDocument(doc);
 
 		doc.insertText(1, "one  five");
@@ -63,8 +61,8 @@ public class TestBlocksInInlines extends TestCase {
 		doc.insertElement(10, new Element("p"));
 		doc.insertText(11, "three");
 
-		RootBox rootBox = new RootBox(this.context, root, 500);
-		rootBox.layout(this.context, 0, Integer.MAX_VALUE);
+		final RootBox rootBox = new RootBox(context, root, 500);
+		rootBox.layout(context, 0, Integer.MAX_VALUE);
 
 	}
 }

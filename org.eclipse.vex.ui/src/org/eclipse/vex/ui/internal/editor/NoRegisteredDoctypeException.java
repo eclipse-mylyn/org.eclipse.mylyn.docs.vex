@@ -11,9 +11,8 @@
 package org.eclipse.vex.ui.internal.editor;
 
 /**
- * Indicates that no document type is registered for the public ID in the
- * document, or that the document does not have a PUBLIC DOCTYPE decl, in
- * which case publicId is null.
+ * Indicates that no document type is registered for the public ID in the document, or that the document does not have a
+ * PUBLIC DOCTYPE decl, in which case publicId is null.
  */
 public class NoRegisteredDoctypeException extends RuntimeException {
 	private static final long serialVersionUID = 1L;

@@ -22,7 +22,7 @@ public class ListStyleTypeProperty extends AbstractProperty {
 		super(CSS.LIST_STYLE_TYPE);
 	}
 
-	public Object calculate(LexicalUnit lu, Styles parentStyles, Styles styles, Element element) {
+	public Object calculate(final LexicalUnit lu, final Styles parentStyles, final Styles styles, final Element element) {
 		if (isListStyleType(lu)) {
 			return lu.getStringValue();
 		} else {
@@ -35,24 +35,17 @@ public class ListStyleTypeProperty extends AbstractProperty {
 
 	}
 
-	private static boolean isListStyleType(LexicalUnit lu) {
+	private static boolean isListStyleType(final LexicalUnit lu) {
 
 		if (lu == null || lu.getLexicalUnitType() != LexicalUnit.SAC_IDENT) {
 			return false;
 		}
 
-		String s = lu.getStringValue();
-		return s.equals(CSS.ARMENIAN) || s.equals(CSS.CIRCLE)
-				|| s.equals(CSS.CJK_IDEOGRAPHIC) || s.equals(CSS.DECIMAL)
-				|| s.equals(CSS.DECIMAL_LEADING_ZERO) || s.equals(CSS.DISC)
-				|| s.equals(CSS.GEORGIAN) || s.equals(CSS.HEBREW)
-				|| s.equals(CSS.HIRAGANA) || s.equals(CSS.HIRAGANA_IROHA)
-				|| s.equals(CSS.KATAKANA) || s.equals(CSS.KATAKANA_IROHA)
-				|| s.equals(CSS.LOWER_ALPHA) || s.equals(CSS.LOWER_GREEK)
-				|| s.equals(CSS.LOWER_LATIN) || s.equals(CSS.LOWER_ROMAN)
-				|| s.equals(CSS.NONE) || s.equals(CSS.SQUARE)
-				|| s.equals(CSS.UPPER_ALPHA) || s.equals(CSS.UPPER_LATIN)
-				|| s.equals(CSS.UPPER_ROMAN);
+		final String s = lu.getStringValue();
+		return s.equals(CSS.ARMENIAN) || s.equals(CSS.CIRCLE) || s.equals(CSS.CJK_IDEOGRAPHIC) || s.equals(CSS.DECIMAL) || s.equals(CSS.DECIMAL_LEADING_ZERO) || s.equals(CSS.DISC)
+				|| s.equals(CSS.GEORGIAN) || s.equals(CSS.HEBREW) || s.equals(CSS.HIRAGANA) || s.equals(CSS.HIRAGANA_IROHA) || s.equals(CSS.KATAKANA) || s.equals(CSS.KATAKANA_IROHA)
+				|| s.equals(CSS.LOWER_ALPHA) || s.equals(CSS.LOWER_GREEK) || s.equals(CSS.LOWER_LATIN) || s.equals(CSS.LOWER_ROMAN) || s.equals(CSS.NONE) || s.equals(CSS.SQUARE)
+				|| s.equals(CSS.UPPER_ALPHA) || s.equals(CSS.UPPER_LATIN) || s.equals(CSS.UPPER_ROMAN);
 	}
 
 }

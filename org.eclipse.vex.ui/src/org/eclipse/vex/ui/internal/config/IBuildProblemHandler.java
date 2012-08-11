@@ -11,8 +11,7 @@
 package org.eclipse.vex.ui.internal.config;
 
 /**
- * Interface through which a resource parser notifies an interested party of
- * build problems.
+ * Interface through which a resource parser notifies an interested party of build problems.
  */
 public interface IBuildProblemHandler {
 

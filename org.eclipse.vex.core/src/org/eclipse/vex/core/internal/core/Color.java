@@ -11,9 +11,8 @@
 package org.eclipse.vex.core.internal.core;
 
 /**
- * Toolkit-independent representation of a color. Colors consist of three
- * integers in the range 0..255 representing red, green, and blue components.
- * Objects of this class are immutable.
+ * Toolkit-independent representation of a color. Colors consist of three integers in the range 0..255 representing red,
+ * green, and blue components. Objects of this class are immutable.
  */
 public class Color {
 
@@ -33,7 +32,7 @@ public class Color {
 	 * @param blue
 	 *            blue value, 0..255
 	 */
-	public Color(int red, int green, int blue) {
+	public Color(final int red, final int green, final int blue) {
 		this.red = red;
 		this.green = green;
 		this.blue = blue;
@@ -60,29 +59,36 @@ public class Color {
 		return red;
 	}
 
-	public boolean equals(Object obj) {
-		if (this == obj) return true;
-		if (obj == null) return false;
-		if (getClass() != obj.getClass()) return false;
-		
-		Color other = (Color) obj;
-		return    red == other.red
-		       && green == other.green
-		       && blue == other.blue;
+	@Override
+	public boolean equals(final Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+
+		final Color other = (Color) obj;
+		return red == other.red && green == other.green && blue == other.blue;
 	}
 
+	@Override
 	public int hashCode() {
-		return this.red + this.green << 16 + this.blue << 24;
+		return red + green << 16 + blue << 24;
 	}
 
+	@Override
 	public String toString() {
-		StringBuffer sb = new StringBuffer(20);
+		final StringBuffer sb = new StringBuffer(20);
 		sb.append("Color[r=");
-		sb.append(this.red);
+		sb.append(red);
 		sb.append(",g=");
-		sb.append(this.green);
+		sb.append(green);
 		sb.append(",b=");
-		sb.append(this.blue);
+		sb.append(blue);
 		sb.append("]");
 		return sb.toString();
 	}

@@ -17,9 +17,9 @@ import org.eclipse.swt.events.KeyEvent;
  */
 public class KeyStroke {
 
-	private char character;
-	private int keyCode;
-	private int stateMask;
+	private final char character;
+	private final int keyCode;
+	private final int stateMask;
 
 	/**
 	 * Class constructor.
@@ -31,7 +31,7 @@ public class KeyStroke {
 	 * @param stateMask
 	 *            the set of modifiers
 	 */
-	public KeyStroke(char character, int keyCode, int stateMask) {
+	public KeyStroke(final char character, final int keyCode, final int stateMask) {
 		this.character = character;
 		this.keyCode = keyCode;
 		this.stateMask = stateMask;
@@ -43,24 +43,24 @@ public class KeyStroke {
 	 * @param e
 	 *            a KeyEvent representing the key stroke
 	 */
-	public KeyStroke(KeyEvent e) {
-		this.character = e.character;
-		this.keyCode = e.keyCode;
-		this.stateMask = e.stateMask;
+	public KeyStroke(final KeyEvent e) {
+		character = e.character;
+		keyCode = e.keyCode;
+		stateMask = e.stateMask;
 	}
 
-	public boolean equals(Object o) {
+	@Override
+	public boolean equals(final Object o) {
 		if (o == null || !(o instanceof KeyStroke)) {
 			return false;
 		}
-		KeyStroke other = (KeyStroke) o;
-		return this.character == other.character
-				&& this.keyCode == other.keyCode
-				&& this.stateMask == other.stateMask;
+		final KeyStroke other = (KeyStroke) o;
+		return character == other.character && keyCode == other.keyCode && stateMask == other.stateMask;
 	}
 
+	@Override
 	public int hashCode() {
-		return this.character + this.keyCode + this.stateMask;
+		return character + keyCode + stateMask;
 	}
 
 }

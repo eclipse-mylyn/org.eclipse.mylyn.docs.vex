@@ -16,37 +16,37 @@ import org.eclipse.vex.ui.internal.swt.VexWidget;
 
 /**
  * Navigates to the previous table cell (usual shortcut: {@code Shift+Tab}).
- *
+ * 
  * @see NextTableCellHandler
  */
 public class PreviousTableCellHandler extends AbstractNavigateTableCellHandler {
 
-    @Override
-    protected void navigate(VexWidget widget, TableRowBox row, int offset) {
-        Box[] cells = row.getChildren();
+	@Override
+	protected void navigate(final VexWidget widget, final TableRowBox row, final int offset) {
+		Box[] cells = row.getChildren();
 
-        // in this row
-        for (int i = cells.length - 1; i >= 0; i--) {
-            if (cells[i].getEndOffset() < offset) {
-                widget.moveTo(cells[i].getStartOffset());
-                widget.moveTo(cells[i].getEndOffset(), true);
-                return;
-            }
-        }
+		// in this row
+		for (int i = cells.length - 1; i >= 0; i--) {
+			if (cells[i].getEndOffset() < offset) {
+				widget.moveTo(cells[i].getStartOffset());
+				widget.moveTo(cells[i].getEndOffset(), true);
+				return;
+			}
+		}
 
-        // in other row
-        Box[] rows = row.getParent().getChildren();
-        for (int i = rows.length - 1; i >= 0; i--) {
-            if (rows[i].getEndOffset() < offset) {
-                cells = rows[i].getChildren();
-                if (cells.length > 0) {
-                    Box cell = cells[cells.length - 1];
-                    widget.moveTo(cell.getStartOffset());
-                    widget.moveTo(cell.getEndOffset(), true);
-                }
-                return;
-            }
-        }
-    }
+		// in other row
+		final Box[] rows = row.getParent().getChildren();
+		for (int i = rows.length - 1; i >= 0; i--) {
+			if (rows[i].getEndOffset() < offset) {
+				cells = rows[i].getChildren();
+				if (cells.length > 0) {
+					final Box cell = cells[cells.length - 1];
+					widget.moveTo(cell.getStartOffset());
+					widget.moveTo(cell.getEndOffset(), true);
+				}
+				return;
+			}
+		}
+	}
 
 }

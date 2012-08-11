@@ -15,10 +15,10 @@ package org.eclipse.vex.core.internal.core;
  */
 public class Insets {
 
-	private int top;
-	private int left;
-	private int bottom;
-	private int right;
+	private final int top;
+	private final int left;
+	private final int bottom;
+	private final int right;
 
 	/** Zero insets */
 	public static final Insets ZERO_INSETS = new Insets(0, 0, 0, 0);
@@ -35,7 +35,7 @@ public class Insets {
 	 * @param right
 	 *            Right inset.
 	 */
-	public Insets(int top, int left, int bottom, int right) {
+	public Insets(final int top, final int left, final int bottom, final int right) {
 		this.top = top;
 		this.left = left;
 		this.bottom = bottom;
@@ -70,17 +70,18 @@ public class Insets {
 		return right;
 	}
 
+	@Override
 	public String toString() {
-		StringBuffer sb = new StringBuffer(80);
+		final StringBuffer sb = new StringBuffer(80);
 		sb.append(Insets.class.getName());
 		sb.append("[top=");
-		sb.append(this.getTop());
+		sb.append(getTop());
 		sb.append(",left=");
-		sb.append(this.getLeft());
+		sb.append(getLeft());
 		sb.append(",bottom=");
-		sb.append(this.getBottom());
+		sb.append(getBottom());
 		sb.append(",right=");
-		sb.append(this.getRight());
+		sb.append(getRight());
 		sb.append("]");
 		return sb.toString();
 	}

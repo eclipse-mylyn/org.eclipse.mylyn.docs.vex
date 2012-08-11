@@ -10,11 +10,8 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.dom;
 
-
-
 /**
- * Interface for classes that manage a string of characters representing the
- * content of a document.
+ * Interface for classes that manage a string of characters representing the content of a document.
  * 
  * @model
  */
@@ -39,7 +36,7 @@ public interface Content {
 	 * @model
 	 */
 	public void insertString(int offset, String s);
-	
+
 	/**
 	 * Insert an element marker into the content.
 	 * 
@@ -77,13 +74,13 @@ public interface Content {
 	 * @model
 	 */
 	public int getLength();
-	
+
 	/**
 	 * Indicates if the given character is an element marker.
 	 * 
 	 * @param c
-	 * 			The character to check.
-	 * @model 
+	 *            The character to check.
+	 * @model
 	 */
 	public boolean isElementMarker(char c);
 }

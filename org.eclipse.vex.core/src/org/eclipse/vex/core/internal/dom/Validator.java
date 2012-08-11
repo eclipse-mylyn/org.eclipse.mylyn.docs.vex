@@ -18,15 +18,15 @@ import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.vex.core.internal.validator.AttributeDefinition;
 
 /**
- * Represents an object that can validate the structure of a document.
- * Validators must be serializable.
+ * Represents an object that can validate the structure of a document. Validators must be serializable.
+ * 
  * @model
  */
 public interface Validator {
 
 	/**
-	 * QualifiedName indicating that character data is allowed at the given point in
-	 * the document.
+	 * QualifiedName indicating that character data is allowed at the given point in the document.
+	 * 
 	 * @model
 	 */
 	public static final QualifiedName PCDATA = new QualifiedName(null, "#PCDATA");
@@ -52,27 +52,25 @@ public interface Validator {
 	public List<AttributeDefinition> getAttributeDefinitions(Element element);
 
 	/**
-	 * Returns a set of QualifiedNames representing valid root elements for the given
-	 * document type.
-	 * @model 
+	 * Returns a set of QualifiedNames representing valid root elements for the given document type.
+	 * 
+	 * @model
 	 */
 	public Set<QualifiedName> getValidRootElements();
 
 	/**
-	 * Returns a set of QualifiedNames representing items that are valid at point in
-	 * the child nodes of a given element. Each string is either an element name
-	 * or Validator.PCDATA.
+	 * Returns a set of QualifiedNames representing items that are valid at point in the child nodes of a given element.
+	 * Each string is either an element name or Validator.PCDATA.
 	 * 
 	 * @param element
 	 *            the parent element.
-	 * @model 
+	 * @model
 	 */
 	public Set<QualifiedName> getValidItems(final Element element);
 
 	/**
-	 * Returns true if the given sequence is valid for the given element.
-	 * Accepts three sequences, which will be concatenated before doing the
-	 * check.
+	 * Returns true if the given sequence is valid for the given element. Accepts three sequences, which will be
+	 * concatenated before doing the check.
 	 * 
 	 * @param element
 	 *            Name of the element being tested.
@@ -82,30 +80,25 @@ public interface Validator {
 	 *            If true, an valid but incomplete sequence is acceptable.
 	 * @model
 	 */
-	public boolean isValidSequence(QualifiedName element, List<QualifiedName> nodes,
-			boolean partial);
+	public boolean isValidSequence(QualifiedName element, List<QualifiedName> nodes, boolean partial);
 
 	/**
-	 * Returns true if the given sequence is valid for the given element.
-	 * Accepts three sequences, which will be concatenated before doing the
-	 * check.
+	 * Returns true if the given sequence is valid for the given element. Accepts three sequences, which will be
+	 * concatenated before doing the check.
 	 * 
 	 * @param element
 	 *            Name of the element being tested.
 	 * @param seq1
 	 *            List of element names and Validator.PCDATA.
 	 * @param seq2
-	 *            List of element names and Validator.PCDATA. May be null or
-	 *            empty.
+	 *            List of element names and Validator.PCDATA. May be null or empty.
 	 * @param seq3
-	 *            List of element names and Validator.PCDATA. May be null or
-	 *            empty.
+	 *            List of element names and Validator.PCDATA. May be null or empty.
 	 * @param partial
 	 *            If true, an valid but incomplete sequence is acceptable.
 	 * @model
 	 */
-	public boolean isValidSequence(QualifiedName element, List<QualifiedName> seq1,
-			List<QualifiedName> seq2, List<QualifiedName> seq3, boolean partial);
+	public boolean isValidSequence(QualifiedName element, List<QualifiedName> seq1, List<QualifiedName> seq2, List<QualifiedName> seq3, boolean partial);
 
 	public Set<String> getRequiredNamespaces();
 

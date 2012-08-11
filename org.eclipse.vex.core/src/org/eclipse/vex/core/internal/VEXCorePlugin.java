@@ -21,8 +21,9 @@ public class VEXCorePlugin extends AbstractUIPlugin {
 	private static VEXCorePlugin instance;
 
 	public VEXCorePlugin() {
-		if (instance != null)
+		if (instance != null) {
 			throw new IllegalStateException("This plug-in must be a singleton."); //$NON-NLS-1$
+		}
 		instance = this;
 	}
 
@@ -30,11 +31,13 @@ public class VEXCorePlugin extends AbstractUIPlugin {
 		return instance;
 	}
 
-	public void start(BundleContext bundleContext) throws Exception {
+	@Override
+	public void start(final BundleContext bundleContext) throws Exception {
 		super.start(bundleContext);
 	}
 
-	public void stop(BundleContext context) throws Exception {
+	@Override
+	public void stop(final BundleContext context) throws Exception {
 		super.stop(context);
 	}
 }

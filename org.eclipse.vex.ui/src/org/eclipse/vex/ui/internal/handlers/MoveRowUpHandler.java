@@ -17,22 +17,22 @@ import org.eclipse.vex.ui.internal.handlers.VexHandlerUtil.SelectedRows;
 
 /**
  * Moves the current table row up above its previous sibling.
- *
+ * 
  * @see AbstractMoveRowHandler
  * @see MoveRowDownHandler
  */
 public class MoveRowUpHandler extends AbstractMoveRowHandler {
 
-    @Override
-    protected Object targetRow(SelectedRows selected) {
-        return selected.getRowBefore();
-    }
+	@Override
+	protected Object targetRow(final SelectedRows selected) {
+		return selected.getRowBefore();
+	}
 
-    @Override
-    protected int target(SelectedRows selected) {
-        List<Object> rows = selected.getRows();
-        Object lastRow = rows.get(rows.size() - 1);
-        return VexHandlerUtil.getOuterRange(lastRow).getEnd();
-    }
+	@Override
+	protected int target(final SelectedRows selected) {
+		final List<Object> rows = selected.getRows();
+		final Object lastRow = rows.get(rows.size() - 1);
+		return VexHandlerUtil.getOuterRange(lastRow).getEnd();
+	}
 
 }

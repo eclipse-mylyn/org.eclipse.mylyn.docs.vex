@@ -17,8 +17,8 @@ import org.eclipse.vex.core.internal.dom.Element;
  */
 public class LineBox extends CompositeInlineBox {
 
-	private Element element;
-	private InlineBox[] children;
+	private final Element element;
+	private final InlineBox[] children;
 	private InlineBox firstContentChild = null;
 	private InlineBox lastContentChild = null;
 	private int baseline;
@@ -31,89 +31,92 @@ public class LineBox extends CompositeInlineBox {
 	 * @param children
 	 *            InlineBoxes that make up this line.
 	 */
-	public LineBox(LayoutContext context, Element element, InlineBox[] children) {
+	public LineBox(final LayoutContext context, final Element element, final InlineBox[] children) {
 
 		this.element = element;
 		this.children = children;
 
 		int height = 0;
 		int x = 0;
-		this.baseline = 0;
-		for (int i = 0; i < children.length; i++) {
-			InlineBox child = children[i];
+		baseline = 0;
+		for (final InlineBox child : children) {
 			child.setX(x);
 			child.setY(0); // TODO: do proper vertical alignment
-			this.baseline = Math.max(this.baseline, child.getBaseline());
+			baseline = Math.max(baseline, child.getBaseline());
 			x += child.getWidth();
 			height = Math.max(height, child.getHeight());
 			if (child.hasContent()) {
-				if (this.firstContentChild == null) {
-					this.firstContentChild = child;
+				if (firstContentChild == null) {
+					firstContentChild = child;
 				}
-				this.lastContentChild = child;
+				lastContentChild = child;
 			}
 		}
 
-		this.setHeight(height);
-		this.setWidth(x);
+		setHeight(height);
+		setWidth(x);
 	}
 
 	/**
 	 * @see org.eclipse.vex.core.internal.layout.InlineBox#getBaseline()
 	 */
 	public int getBaseline() {
-		return this.baseline;
+		return baseline;
 	}
 
+	@Override
 	public Box[] getChildren() {
-		return this.children;
+		return children;
 	}
 
 	/**
 	 * @see org.eclipse.vex.core.internal.layout.Box#getElement()
 	 */
+	@Override
 	public Element getElement() {
-		return this.element;
+		return element;
 	}
 
 	/**
 	 * @see org.eclipse.vex.core.internal.layout.Box#getEndOffset()
 	 */
+	@Override
 	public int getEndOffset() {
-		return this.lastContentChild.getEndOffset();
+		return lastContentChild.getEndOffset();
 	}
 
 	/**
 	 * @see org.eclipse.vex.core.internal.layout.Box#getStartOffset()
 	 */
+	@Override
 	public int getStartOffset() {
-		return this.firstContentChild.getStartOffset();
+		return firstContentChild.getStartOffset();
 	}
 
 	/**
 	 * @see org.eclipse.vex.core.internal.layout.Box#hasContent()
 	 */
+	@Override
 	public boolean hasContent() {
-		return this.firstContentChild != null;
+		return firstContentChild != null;
 	}
 
 	/**
 	 * @see org.eclipse.vex.core.internal.layout.CompositeInlineBox#split(org.eclipse.vex.core.internal.layout.LayoutContext,
-	 *      org.eclipse.vex.core.internal.layout.InlineBox[],
-	 *      org.eclipse.vex.core.internal.layout.InlineBox[])
+	 *      org.eclipse.vex.core.internal.layout.InlineBox[], org.eclipse.vex.core.internal.layout.InlineBox[])
 	 */
-	public Pair split(LayoutContext context, InlineBox[] lefts,
-			InlineBox[] rights) {
+	@Override
+	public Pair split(final LayoutContext context, final InlineBox[] lefts, final InlineBox[] rights) {
 
 		LineBox left = null;
 		LineBox right = null;
 
 		if (lefts.length > 0) {
-			left = new LineBox(context, this.getElement(), lefts);
+			left = new LineBox(context, getElement(), lefts);
 		}
 
 		if (rights.length > 0) {
-			right = new LineBox(context, this.getElement(), rights);
+			right = new LineBox(context, getElement(), rights);
 		}
 
 		return new Pair(left, right);
@@ -122,11 +125,12 @@ public class LineBox extends CompositeInlineBox {
 	/**
 	 * @see java.lang.Object#toString()
 	 */
+	@Override
 	public String toString() {
-		Box[] children = this.getChildren();
-		StringBuffer sb = new StringBuffer();
-		for (int i = 0; i < children.length; i++) {
-			sb.append(children[i]);
+		final Box[] children = getChildren();
+		final StringBuffer sb = new StringBuffer();
+		for (final Box element2 : children) {
+			sb.append(element2);
 		}
 		return sb.toString();
 	}

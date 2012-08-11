@@ -18,14 +18,12 @@ import org.eclipse.vex.core.internal.core.IntRange;
 public interface BlockBox extends Box {
 
 	/**
-	 * Returns the first LineBox contained by this block, or null if the block
-	 * contains no lines.
+	 * Returns the first LineBox contained by this block, or null if the block contains no lines.
 	 */
 	public LineBox getFirstLine();
 
 	/**
-	 * Returns the last LineBox contained by this block, or null if the block
-	 * contains no lines.
+	 * Returns the last LineBox contained by this block, or null if the block contains no lines.
 	 */
 	public LineBox getLastLine();
 
@@ -56,9 +54,8 @@ public interface BlockBox extends Box {
 	public int getMarginTop();
 
 	/**
-	 * Returns the offset on the next line that is closest to the given x
-	 * coordinate. The given offset may be before the start of this box in which
-	 * case this method should return the offset of the first line in this box.
+	 * Returns the offset on the next line that is closest to the given x coordinate. The given offset may be before the
+	 * start of this box in which case this method should return the offset of the first line in this box.
 	 * 
 	 * @param context
 	 *            LayoutContext used for the layout
@@ -70,9 +67,8 @@ public interface BlockBox extends Box {
 	public int getNextLineOffset(LayoutContext context, int offset, int x);
 
 	/**
-	 * Returns the offset on the previous line that is closest to the given x
-	 * coordinate. The given offset may be after the end of this box in which
-	 * case this method should return the offset of the last line in this box.
+	 * Returns the offset on the previous line that is closest to the given x coordinate. The given offset may be after
+	 * the end of this box in which case this method should return the offset of the last line in this box.
 	 * 
 	 * @param context
 	 *            LayoutContext used for the layout
@@ -89,13 +85,11 @@ public interface BlockBox extends Box {
 	public BlockBox getParent();
 
 	/**
-	 * Informs this box that its layout has become invalid, and that it should
-	 * re-do it the next time layout is called.
+	 * Informs this box that its layout has become invalid, and that it should re-do it the next time layout is called.
 	 * 
 	 * @param direct
-	 *            If true, the box's content has changed and it must re-create
-	 *            it's children on the next call to layout. Otherwise, it should
-	 *            just propagate the next layout call to its children.
+	 *            If true, the box's content has changed and it must re-create it's children on the next call to layout.
+	 *            Otherwise, it should just propagate the next layout call to its children.
 	 */
 	public void invalidate(boolean direct);
 
@@ -105,25 +99,22 @@ public interface BlockBox extends Box {
 	 * <ul>
 	 * <li>Creating any child boxes.</li>
 	 * <li>Calling layout on the child boxes.</li>
-	 * <li>Positioning the child boxes (i.e. calling child.setX() and
-	 * child.setY())</li>
+	 * <li>Positioning the child boxes (i.e. calling child.setX() and child.setY())</li>
 	 * <li>Determining this box's height and width.</li>
 	 * </ul>
 	 * 
 	 * <p>
-	 * Boxes with no children should simply calculate their width and height
-	 * here
+	 * Boxes with no children should simply calculate their width and height here
 	 * </p>
 	 * 
 	 * <p>
-	 * This method is passed a vertical range to be layed out. Children falling
-	 * outside this range need not be layed out.
+	 * This method is passed a vertical range to be layed out. Children falling outside this range need not be layed
+	 * out.
 	 * </p>
 	 * 
 	 * <p>
-	 * This method returns an IntRange object representing the vertical range to
-	 * re-draw due to layout change. Null may be returned if there were no
-	 * changes that need to be re-drawn.
+	 * This method returns an IntRange object representing the vertical range to re-draw due to layout change. Null may
+	 * be returned if there were no changes that need to be re-drawn.
 	 * </p>
 	 * 
 	 * @param context

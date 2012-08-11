@@ -13,9 +13,8 @@ package org.eclipse.vex.core.internal.css;
 import org.w3c.css.sac.LexicalUnit;
 
 /**
- * Abstract base class for property classes. Implements the <code>name</code>
- * property but leaves the implementation of <code>calculate</code> to the
- * subclass.
+ * Abstract base class for property classes. Implements the <code>name</code> property but leaves the implementation of
+ * <code>calculate</code> to the subclass.
  */
 public abstract class AbstractProperty implements IProperty {
 
@@ -25,52 +24,45 @@ public abstract class AbstractProperty implements IProperty {
 	 * @param name
 	 *            Name of the property.
 	 */
-	public AbstractProperty(String name) {
+	public AbstractProperty(final String name) {
 		this.name = name;
 	}
 
 	/**
 	 * Returns true if the given lexical unit represents the token "inherit".
 	 */
-	public static boolean isInherit(LexicalUnit lu) {
+	public static boolean isInherit(final LexicalUnit lu) {
 		return lu != null && lu.getLexicalUnitType() == LexicalUnit.SAC_INHERIT;
 	}
 
 	public String getName() {
-		return this.name;
+		return name;
 	}
 
-	public static boolean isPercentage(LexicalUnit lu) {
-		return lu != null
-				&& lu.getLexicalUnitType() == LexicalUnit.SAC_PERCENTAGE;
+	public static boolean isPercentage(final LexicalUnit lu) {
+		return lu != null && lu.getLexicalUnitType() == LexicalUnit.SAC_PERCENTAGE;
 	}
 
-	public static boolean isLength(LexicalUnit lu) {
+	public static boolean isLength(final LexicalUnit lu) {
 		if (lu == null) {
 			return false;
 		}
 
-		short type = lu.getLexicalUnitType();
+		final short type = lu.getLexicalUnitType();
 
 		if (type == LexicalUnit.SAC_INTEGER && lu.getIntegerValue() == 0) {
 			return true;
 		}
 
-		return type == LexicalUnit.SAC_CENTIMETER
-				|| type == LexicalUnit.SAC_DIMENSION
-				|| type == LexicalUnit.SAC_EM || type == LexicalUnit.SAC_EX
-				|| type == LexicalUnit.SAC_INCH
-				|| type == LexicalUnit.SAC_MILLIMETER
-				|| type == LexicalUnit.SAC_PICA
-				|| type == LexicalUnit.SAC_PIXEL
-				|| type == LexicalUnit.SAC_POINT;
+		return type == LexicalUnit.SAC_CENTIMETER || type == LexicalUnit.SAC_DIMENSION || type == LexicalUnit.SAC_EM || type == LexicalUnit.SAC_EX || type == LexicalUnit.SAC_INCH
+				|| type == LexicalUnit.SAC_MILLIMETER || type == LexicalUnit.SAC_PICA || type == LexicalUnit.SAC_PIXEL || type == LexicalUnit.SAC_POINT;
 	}
 
-	public static int getIntLength(LexicalUnit lu, float fontSize, int ppi) {
+	public static int getIntLength(final LexicalUnit lu, final float fontSize, final int ppi) {
 		return Math.round(getFloatLength(lu, fontSize, ppi));
 	}
 
-	public static float getFloatLength(LexicalUnit lu, float fontSize, int ppi) {
+	public static float getFloatLength(final LexicalUnit lu, final float fontSize, final int ppi) {
 
 		float value = 0f;
 
@@ -109,24 +101,21 @@ public abstract class AbstractProperty implements IProperty {
 
 	// ============================================================== PRIVATE
 
-	public static boolean isNumber(LexicalUnit lu) {
-		return lu != null
-				&& (lu.getLexicalUnitType() == LexicalUnit.SAC_INTEGER || lu
-						.getLexicalUnitType() == LexicalUnit.SAC_REAL);
+	public static boolean isNumber(final LexicalUnit lu) {
+		return lu != null && (lu.getLexicalUnitType() == LexicalUnit.SAC_INTEGER || lu.getLexicalUnitType() == LexicalUnit.SAC_REAL);
 	}
 
-	public static float getNumber(LexicalUnit lu) {
+	public static float getNumber(final LexicalUnit lu) {
 		if (lu.getLexicalUnitType() == LexicalUnit.SAC_INTEGER) {
 			return lu.getIntegerValue();
 		} else if (lu.getLexicalUnitType() == LexicalUnit.SAC_REAL) {
 			return lu.getFloatValue();
 		} else {
-			throw new RuntimeException("LexicalUnit type "
-					+ lu.getLexicalUnitType() + " is not a numeric type.");
+			throw new RuntimeException("LexicalUnit type " + lu.getLexicalUnitType() + " is not a numeric type.");
 		}
 	}
 
-	private String name;
+	private final String name;
 
 	private static final float EX_FACTOR = 0.6f;
 

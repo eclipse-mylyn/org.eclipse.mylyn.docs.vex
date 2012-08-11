@@ -18,15 +18,14 @@ import org.eclipse.swt.widgets.Display;
 public class Timer {
 
 	/**
-	 * Class constructor. The timer must be explicitly started using the start()
-	 * method.
+	 * Class constructor. The timer must be explicitly started using the start() method.
 	 * 
 	 * @param periodMs
 	 *            Milliseconds between each invocation.
 	 * @param runnable
 	 *            Runnable to execute when the period expires.
 	 */
-	public Timer(int periodMs, Runnable runnable) {
+	public Timer(final int periodMs, final Runnable runnable) {
 		this.periodMs = periodMs;
 		this.runnable = runnable;
 	}
@@ -35,9 +34,9 @@ public class Timer {
 	 * Reset the timer so that it waits another period before firing.
 	 */
 	public void reset() {
-		if (this.started) {
-			this.stop();
-			this.start();
+		if (started) {
+			stop();
+			start();
 		}
 	}
 
@@ -45,10 +44,10 @@ public class Timer {
 	 * Start the timer.
 	 */
 	public void start() {
-		if (!this.started) {
-			this.innerRunnable = new InnerRunnable();
-			Display.getCurrent().timerExec(this.periodMs, this.innerRunnable);
-			this.started = true;
+		if (!started) {
+			innerRunnable = new InnerRunnable();
+			Display.getCurrent().timerExec(periodMs, innerRunnable);
+			started = true;
 		}
 	}
 
@@ -56,17 +55,17 @@ public class Timer {
 	 * Stop the timer.
 	 */
 	public void stop() {
-		if (this.started) {
-			this.innerRunnable.discarded = true;
-			this.innerRunnable = null;
-			this.started = false;
+		if (started) {
+			innerRunnable.discarded = true;
+			innerRunnable = null;
+			started = false;
 		}
 	}
 
 	// ==================================================== PRIVATE
 
-	private Runnable runnable;
-	private int periodMs;
+	private final Runnable runnable;
+	private final int periodMs;
 	private boolean started = false;
 	private InnerRunnable innerRunnable;
 

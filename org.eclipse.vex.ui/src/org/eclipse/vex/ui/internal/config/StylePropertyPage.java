@@ -67,7 +67,7 @@ public class StylePropertyPage extends PropertyPage {
 			public void configChanged(final ConfigEvent event) {
 				try {
 					pluginProject.load();
-				} catch (CoreException e) {
+				} catch (final CoreException e) {
 					VexPlugin.getDefault().getLog().log(e.getStatus());
 				}
 				style = (Style) pluginProject.getItemForResource((IFile) getElement());
@@ -125,8 +125,9 @@ public class StylePropertyPage extends PropertyPage {
 		}
 
 		// Generate a simple ID for this one if necessary
-		if (style.getSimpleId() == null || style.getSimpleId().length() == 0)
+		if (style.getSimpleId() == null || style.getSimpleId().length() == 0) {
 			style.setSimpleId(style.generateSimpleId());
+		}
 
 		label = new Label(pane, SWT.NONE);
 		label.setText(Messages.getString("StylePropertyPage.doctypes")); //$NON-NLS-1$
@@ -155,7 +156,7 @@ public class StylePropertyPage extends PropertyPage {
 	private static void setText(final Text textBox, final String text) {
 		textBox.setText(text == null ? "" : text); //$NON-NLS-1$
 	}
-	
+
 	private void populateDoctypes() {
 		final Set<String> selectedDoctypes = new TreeSet<String>(style.getDocumentTypes());
 		doctypesTable.removeAll();
@@ -165,8 +166,9 @@ public class StylePropertyPage extends PropertyPage {
 		for (final DocumentType documentType : documentTypes) {
 			final TableItem item = new TableItem(doctypesTable, SWT.NONE);
 			item.setText(documentType.getName());
-			if (selectedDoctypes.contains(documentType.getPublicId()))
+			if (selectedDoctypes.contains(documentType.getPublicId())) {
 				item.setChecked(true);
+			}
 		}
 	}
 
@@ -181,17 +183,21 @@ public class StylePropertyPage extends PropertyPage {
 		style.setName(nameText.getText());
 
 		final ArrayList<String> selectedDoctypes = new ArrayList<String>();
-		for (final TableItem item : doctypesTable.getItems())
-			if (item.getChecked())
+		for (final TableItem item : doctypesTable.getItems()) {
+			if (item.getChecked()) {
 				selectedDoctypes.add(item.getText());
+			}
+		}
 
 		style.removeAllDocumentTypes();
 
 		final DocumentType[] documentTypes = VexPlugin.getDefault().getConfigurationRegistry().getDocumentTypes();
 		Arrays.sort(documentTypes);
-		for (final DocumentType documentType : documentTypes)
-			if (selectedDoctypes.contains(documentType.getName()))
+		for (final DocumentType documentType : documentTypes) {
+			if (selectedDoctypes.contains(documentType.getName())) {
 				style.addDocumentType(documentType.getPublicId());
+			}
+		}
 
 		try {
 			pluginProject.writeConfigXml();
@@ -212,7 +218,8 @@ public class StylePropertyPage extends PropertyPage {
 	@Override
 	public void dispose() {
 		super.dispose();
-		if (configListener != null)
+		if (configListener != null) {
 			VexPlugin.getDefault().getConfigurationRegistry().removeConfigListener(configListener);
+		}
 	}
 }

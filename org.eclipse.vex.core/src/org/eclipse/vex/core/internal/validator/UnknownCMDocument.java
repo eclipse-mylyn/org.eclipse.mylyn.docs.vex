@@ -23,7 +23,7 @@ import org.eclipse.wst.xml.core.internal.contentmodel.CMNode;
 public class UnknownCMDocument implements CMDocument {
 
 	private static final String TARGET_NAMESPACE_PROPERTY = "http://org.eclipse.wst/cm/properties/targetNamespaceURI";
-	
+
 	private static final Iterator<?> EMPTY_ITERATOR = new Iterator<Object>() {
 		public boolean hasNext() {
 			return false;
@@ -37,25 +37,25 @@ public class UnknownCMDocument implements CMDocument {
 			throw new UnsupportedOperationException();
 		}
 	};
-	
+
 	private static final CMNamedNodeMap EMPTY_NODE_MAP = new CMNamedNodeMap() {
 		public Iterator<?> iterator() {
 			return EMPTY_ITERATOR;
 		}
-		
-		public CMNode item(int index) {
+
+		public CMNode item(final int index) {
 			return null;
 		}
-		
-		public CMNode getNamedItem(String name) {
+
+		public CMNode getNamedItem(final String name) {
 			return null;
 		}
-		
+
 		public int getLength() {
 			return 0;
 		}
 	};
-	
+
 	private final String targetNamespace;
 
 	public UnknownCMDocument(final String targetNamespace) {
@@ -71,15 +71,17 @@ public class UnknownCMDocument implements CMDocument {
 	}
 
 	public boolean supports(final String propertyName) {
-		if (TARGET_NAMESPACE_PROPERTY.equals(propertyName))
+		if (TARGET_NAMESPACE_PROPERTY.equals(propertyName)) {
 			return true;
+		}
 		return false;
 	}
 
 	public Object getProperty(final String propertyName) {
-	    if (propertyName.equals(TARGET_NAMESPACE_PROPERTY))
-	      return targetNamespace;
-	    return null;
+		if (propertyName.equals(TARGET_NAMESPACE_PROPERTY)) {
+			return targetNamespace;
+		}
+		return null;
 	}
 
 	public CMNamedNodeMap getElements() {
@@ -93,5 +95,5 @@ public class UnknownCMDocument implements CMDocument {
 	public CMNamespace getNamespace() {
 		return null;
 	}
-	
+
 }

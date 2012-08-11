@@ -28,107 +28,114 @@ import org.eclipse.vex.core.internal.undo.CannotUndoException;
 import org.eclipse.vex.core.internal.undo.IUndoableEdit;
 
 /**
- * Represents a tag in an XML document. Methods are
- * available for managing the element's attributes and children.
+ * Represents a tag in an XML document. Methods are available for managing the element's attributes and children.
  */
 public class Element extends Node implements Cloneable {
 
 	private static final QualifiedName XML_BASE_ATTRIBUTE = new QualifiedName(Namespace.XML_NAMESPACE_URI, "base");
-	
+
 	private final QualifiedName name;
-	
+
 	private Element parent = null;
-	private List<Node> childNodes = new ArrayList<Node>();
-	private Map<QualifiedName, Attribute> attributes = new HashMap<QualifiedName, Attribute>();
-	private Map<String, String> namespaceDeclarations = new HashMap<String, String>();
+	private final List<Node> childNodes = new ArrayList<Node>();
+	private final Map<QualifiedName, Attribute> attributes = new HashMap<QualifiedName, Attribute>();
+	private final Map<String, String> namespaceDeclarations = new HashMap<String, String>();
 
 	public Element(final String localName) {
 		this(new QualifiedName(null, localName));
 	}
-	
+
 	public Element(final QualifiedName qualifiedName) {
-		this.name = qualifiedName;
+		name = qualifiedName;
 	}
 
-	public void addChild(Element child) {
+	public void addChild(final Element child) {
 		childNodes.add(child);
 		child.setParent(this);
 	}
 
+	@Override
 	public Element clone() {
 		try {
 			final Element element = new Element(getQualifiedName());
 			//add the attributes to the element instance to be cloned
-			for (Map.Entry<QualifiedName, Attribute> attr : this.attributes.entrySet())
+			for (final Map.Entry<QualifiedName, Attribute> attr : attributes.entrySet()) {
 				element.setAttribute(attr.getKey(), attr.getValue().getValue());
-			for (Map.Entry<String, String> namespaceDeclaration : this.namespaceDeclarations.entrySet()) {
-				if (namespaceDeclaration.getKey() == null)
+			}
+			for (final Map.Entry<String, String> namespaceDeclaration : namespaceDeclarations.entrySet()) {
+				if (namespaceDeclaration.getKey() == null) {
 					element.declareDefaultNamespace(namespaceDeclaration.getValue());
-				else
+				} else {
 					element.declareNamespace(namespaceDeclaration.getKey(), namespaceDeclaration.getValue());
+				}
 			}
 			return element;
-		} catch (DocumentValidationException ex) {
+		} catch (final DocumentValidationException ex) {
 			ex.printStackTrace();
 			return null;
 		}
 	}
 
-	public Attribute getAttribute(String localName) {
+	public Attribute getAttribute(final String localName) {
 		return getAttribute(qualify(localName));
 	}
-	
-	public Attribute getAttribute(QualifiedName name) {
+
+	public Attribute getAttribute(final QualifiedName name) {
 		return attributes.get(name);
 	}
-	
-	public String getAttributeValue(String localName) {
+
+	public String getAttributeValue(final String localName) {
 		return getAttributeValue(qualify(localName));
 	}
 
-	public String getAttributeValue(QualifiedName name) {
+	public String getAttributeValue(final QualifiedName name) {
 		final Attribute attribute = getAttribute(name);
-		if (attribute == null || "".equals(attribute.getValue().trim()))
+		if (attribute == null || "".equals(attribute.getValue().trim())) {
 			return null;
+		}
 		return attribute.getValue();
 	}
-	
-	public void removeAttribute(String localName) throws DocumentValidationException {
+
+	public void removeAttribute(final String localName) throws DocumentValidationException {
 		removeAttribute(qualify(localName));
 	}
-	
-	public void removeAttribute(QualifiedName name) throws DocumentValidationException {
+
+	public void removeAttribute(final QualifiedName name) throws DocumentValidationException {
 		final Attribute attribute = this.getAttribute(name);
-		if (attribute == null)
+		if (attribute == null) {
 			return;
+		}
 		final String oldValue = attribute.getValue();
 		final String newValue = null;
-		if (oldValue != null)
-			this.attributes.remove(name);
+		if (oldValue != null) {
+			attributes.remove(name);
+		}
 
 		final Document document = getDocument();
-		if (document == null) // document may be null, e.g. when we're cloning an element to produce a document fragment
+		if (document == null) {
 			return;
+		}
 
 		final IUndoableEdit edit = document.isUndoEnabled() ? new AttributeChangeEdit(name, oldValue, newValue) : null;
 		document.fireAttributeChanged(new DocumentEvent(document, this, name, oldValue, newValue, edit));
 	}
 
-	public void setAttribute(String name, String value) throws DocumentValidationException {
+	public void setAttribute(final String name, final String value) throws DocumentValidationException {
 		setAttribute(qualify(name), value);
 	}
-	
-	private QualifiedName qualify(String localName) {
+
+	private QualifiedName qualify(final String localName) {
 		return new QualifiedName(name.getQualifier(), localName);
 	}
-	
-	public void setAttribute(QualifiedName name, String value) throws DocumentValidationException {
+
+	public void setAttribute(final QualifiedName name, final String value) throws DocumentValidationException {
 		final Attribute oldAttribute = attributes.get(name);
 		final String oldValue = oldAttribute != null ? oldAttribute.getValue() : null;
-		
-		if (value == null && oldValue == null)
+
+		if (value == null && oldValue == null) {
 			return;
-		
+		}
+
 		if (value == null) {
 			this.removeAttribute(name);
 		} else {
@@ -136,11 +143,12 @@ public class Element extends Node implements Cloneable {
 				return;
 			} else {
 				final Attribute newAttribute = new Attribute(this, name, value);
-				this.attributes.put(name, newAttribute);
+				attributes.put(name, newAttribute);
 
 				final Document document = getDocument();
-				if (document == null) // doc may be null, e.g. when we're cloning an element to produce a document fragment
+				if (document == null) {
 					return;
+				}
 
 				final IUndoableEdit edit = document.isUndoEnabled() ? new AttributeChangeEdit(name, oldValue, value) : null;
 				document.fireAttributeChanged(new DocumentEvent(document, this, name, oldValue, value, edit));
@@ -153,10 +161,10 @@ public class Element extends Node implements Cloneable {
 		Collections.sort(result);
 		return Collections.unmodifiableCollection(result);
 	}
-	
+
 	public List<QualifiedName> getAttributeNames() {
-		ArrayList<QualifiedName> result = new ArrayList<QualifiedName>();
-		for (Attribute attribute : attributes.values()) {
+		final ArrayList<QualifiedName> result = new ArrayList<QualifiedName>();
+		for (final Attribute attribute : attributes.values()) {
 			result.add(attribute.getQualifiedName());
 		}
 		Collections.sort(result, new QualifiedNameComparator());
@@ -168,11 +176,11 @@ public class Element extends Node implements Cloneable {
 	}
 
 	public List<Element> getChildElements() {
-		List<Node> nodes = getChildNodes();
-		Iterator<Node> iter = nodes.iterator();
-		List<Element> elements = new ArrayList<Element>();
+		final List<Node> nodes = getChildNodes();
+		final Iterator<Node> iter = nodes.iterator();
+		final List<Element> elements = new ArrayList<Element>();
 		while (iter.hasNext()) {
-			Node node = iter.next();
+			final Node node = iter.next();
 			if (node.getNodeType().equals("Element")) {
 				elements.add((Element) node);
 			}
@@ -199,31 +207,33 @@ public class Element extends Node implements Cloneable {
 	public String getLocalName() {
 		return name.getLocalName();
 	}
-	
+
 	public QualifiedName getQualifiedName() {
 		return name;
 	}
-	
+
 	public String getPrefix() {
 		return getNamespacePrefix(name.getQualifier());
 	}
-	
+
 	public String getPrefixedName() {
-		String prefix = getPrefix();
-		if (prefix == null)
+		final String prefix = getPrefix();
+		if (prefix == null) {
 			return getLocalName();
+		}
 		return prefix + ":" + getLocalName();
 	}
 
 	public Element getParent() {
-		return this.parent;
+		return parent;
 	}
 
+	@Override
 	public String getText() {
 		final String s = super.getText();
 		final StringBuilder sb = new StringBuilder(s.length());
 		for (int i = 0; i < s.length(); i++) {
-			char c = s.charAt(i);
+			final char c = s.charAt(i);
 			if (!getContent().isElementMarker(c)) {
 				sb.append(c);
 			}
@@ -232,25 +242,26 @@ public class Element extends Node implements Cloneable {
 	}
 
 	/**
-	 * Inserts the given element as a child at the given child index. Sets the
-	 * parent attribute of the given element to this element.
+	 * Inserts the given element as a child at the given child index. Sets the parent attribute of the given element to
+	 * this element.
 	 */
-	public void insertChild(int index, Element child) {
+	public void insertChild(final int index, final Element child) {
 		childNodes.add(index, child);
 		child.setParent(this);
 	}
 
 	public boolean isEmpty() {
-		return this.getStartOffset() + 1 == this.getEndOffset();
+		return getStartOffset() + 1 == getEndOffset();
 	}
 
+	@Override
 	public String toString() {
 
-		StringBuffer sb = new StringBuffer();
+		final StringBuffer sb = new StringBuffer();
 		sb.append("<");
-		sb.append(this.getPrefixedName().toString());
-		
-		for (Attribute attribute : getAttributes()) {
+		sb.append(getPrefixedName().toString());
+
+		for (final Attribute attribute : getAttributes()) {
 			sb.append(" ");
 			sb.append(attribute.getPrefixedName());
 			sb.append("=\"");
@@ -259,102 +270,117 @@ public class Element extends Node implements Cloneable {
 		}
 
 		sb.append("> (");
-		sb.append(this.getStartPosition());
+		sb.append(getStartPosition());
 		sb.append(",");
-		sb.append(this.getEndPosition());
+		sb.append(getEndPosition());
 		sb.append(")");
 
 		return sb.toString();
 	}
 
-	public void setParent(Element parent) {
+	public void setParent(final Element parent) {
 		this.parent = parent;
 	}
 
 	public String getNamespaceURI(final String namespacePrefix) {
-		if (namespaceDeclarations.containsKey(namespacePrefix))
+		if (namespaceDeclarations.containsKey(namespacePrefix)) {
 			return namespaceDeclarations.get(namespacePrefix);
-		if (parent != null)
+		}
+		if (parent != null) {
 			return parent.getNamespaceURI(namespacePrefix);
+		}
 		return null;
 	}
-	
+
 	public String getDefaultNamespaceURI() {
 		return getNamespaceURI(null);
 	}
-	
+
 	public String getDeclaredDefaultNamespaceURI() {
 		return namespaceDeclarations.get(null);
 	}
 
 	public String getNamespacePrefix(final String namespaceURI) {
-		if (namespaceURI == null)
+		if (namespaceURI == null) {
 			return null;
-		if (Namespace.XML_NAMESPACE_URI.equals(namespaceURI))
+		}
+		if (Namespace.XML_NAMESPACE_URI.equals(namespaceURI)) {
 			return Namespace.XML_NAMESPACE_PREFIX;
-		if (Namespace.XMLNS_NAMESPACE_URI.equals(namespaceURI))
+		}
+		if (Namespace.XMLNS_NAMESPACE_URI.equals(namespaceURI)) {
 			return Namespace.XMLNS_NAMESPACE_PREFIX;
-		for (Entry<String, String> entry: namespaceDeclarations.entrySet())
-			if (entry.getValue().equals(namespaceURI))
+		}
+		for (final Entry<String, String> entry : namespaceDeclarations.entrySet()) {
+			if (entry.getValue().equals(namespaceURI)) {
 				return entry.getKey();
+			}
+		}
 		if (parent != null) {
 			final String parentPrefix = parent.getNamespacePrefix(namespaceURI);
-			if (!namespaceDeclarations.containsKey(parentPrefix))
+			if (!namespaceDeclarations.containsKey(parentPrefix)) {
 				return parentPrefix;
+			}
 		}
 		return null;
 	}
-	
+
 	public Collection<String> getDeclaredNamespacePrefixes() {
 		final ArrayList<String> result = new ArrayList<String>();
 		for (final String prefix : namespaceDeclarations.keySet()) {
-			if (prefix != null)
+			if (prefix != null) {
 				result.add(prefix);
+			}
 		}
 		Collections.sort(result);
 		return result;
 	}
-	
+
 	public Collection<String> getNamespacePrefixes() {
 		final HashSet<String> result = new HashSet<String>();
 		result.addAll(getDeclaredNamespacePrefixes());
-		if (parent != null)
+		if (parent != null) {
 			result.addAll(parent.getNamespacePrefixes());
+		}
 		return result;
 	}
-	
+
 	public void declareNamespace(final String namespacePrefix, final String namespaceURI) {
-		if (namespaceURI == null || "".equals(namespaceURI.trim()))
+		if (namespaceURI == null || "".equals(namespaceURI.trim())) {
 			return;
+		}
 		final String oldNamespaceURI = namespaceDeclarations.put(namespacePrefix, namespaceURI);
 		final Document document = getDocument();
-		if (document == null) // doc may be null, e.g. when we're cloning an element to produce a document fragment
+		if (document == null) {
 			return;
+		}
 
-		if (namespaceURI.equals(oldNamespaceURI)) // if we do not change anything, we do not fire anything
+		if (namespaceURI.equals(oldNamespaceURI)) {
 			return;
-		
+		}
+
 		final IUndoableEdit edit = document.isUndoEnabled() ? new NamespaceChangeEdit(namespacePrefix, oldNamespaceURI, namespaceURI) : null;
 		document.fireNamespaceChanged(new DocumentEvent(document, this, getStartOffset(), 0, edit));
 	}
-	
-	public void removeNamespace(String namespacePrefix) {
+
+	public void removeNamespace(final String namespacePrefix) {
 		final String oldNamespaceURI = namespaceDeclarations.remove(namespacePrefix);
 		final Document document = getDocument();
-		if (document == null) // doc may be null, e.g. when we're cloning an element to produce a document fragment
+		if (document == null) {
 			return;
+		}
 
-		if (oldNamespaceURI == null)
+		if (oldNamespaceURI == null) {
 			return; // we have actually removed nothing, so we should not tell anybody about it
-		
+		}
+
 		final IUndoableEdit edit = document.isUndoEnabled() ? new NamespaceChangeEdit(namespacePrefix, oldNamespaceURI, null) : null;
 		document.fireNamespaceChanged(new DocumentEvent(document, this, getStartOffset(), 0, edit));
 	}
-	
+
 	public void declareDefaultNamespace(final String namespaceURI) {
 		declareNamespace(null, namespaceURI);
 	}
-	
+
 	public void removeDefaultNamespace() {
 		removeNamespace(null);
 	}
@@ -364,22 +390,26 @@ public class Element extends Node implements Cloneable {
 		return "Element";
 	}
 
-	public void setContent(Content content, int startOffset, int endOffset) {
+	@Override
+	public void setContent(final Content content, final int startOffset, final int endOffset) {
 		super.setContent(content, startOffset, endOffset);
 	}
 
 	@Override
 	public String getBaseURI() {
 		final Attribute baseAttribute = getAttribute(XML_BASE_ATTRIBUTE);
-		if (baseAttribute != null)
+		if (baseAttribute != null) {
 			return baseAttribute.getValue();
-		if (getParent() != null)
+		}
+		if (getParent() != null) {
 			return getParent().getBaseURI();
-		if (getDocument() != null)
+		}
+		if (getDocument() != null) {
 			return getDocument().getBaseURI();
+		}
 		return null;
 	}
-	
+
 	private class AttributeChangeEdit implements IUndoableEdit {
 
 		private final QualifiedName name;
@@ -392,16 +422,16 @@ public class Element extends Node implements Cloneable {
 			this.newValue = newValue;
 		}
 
-		public boolean combine(IUndoableEdit edit) {
+		public boolean combine(final IUndoableEdit edit) {
 			return false;
 		}
 
 		public void undo() throws CannotUndoException {
-			final Document doc = (Document) getDocument();
+			final Document doc = getDocument();
 			try {
 				doc.setUndoEnabled(false);
 				setAttribute(name, oldValue);
-			} catch (DocumentValidationException ex) {
+			} catch (final DocumentValidationException ex) {
 				throw new CannotUndoException();
 			} finally {
 				doc.setUndoEnabled(true);
@@ -409,58 +439,60 @@ public class Element extends Node implements Cloneable {
 		}
 
 		public void redo() throws CannotRedoException {
-			final Document doc = (Document) getDocument();
+			final Document doc = getDocument();
 			try {
 				doc.setUndoEnabled(false);
 				setAttribute(name, newValue);
-			} catch (DocumentValidationException ex) {
+			} catch (final DocumentValidationException ex) {
 				throw new CannotUndoException();
 			} finally {
 				doc.setUndoEnabled(true);
 			}
 		}
 	}
-	
+
 	private class NamespaceChangeEdit implements IUndoableEdit {
-		
+
 		private final String prefix;
 		private final String oldUri;
 		private final String newUri;
-		
+
 		public NamespaceChangeEdit(final String prefix, final String oldUri, final String newUri) {
 			this.prefix = prefix;
 			this.oldUri = oldUri;
 			this.newUri = newUri;
 		}
-		
-		public boolean combine(IUndoableEdit edit) {
+
+		public boolean combine(final IUndoableEdit edit) {
 			return false;
 		}
 
 		public void undo() throws CannotUndoException {
-			final Document doc = (Document) getDocument();
+			final Document doc = getDocument();
 			try {
 				doc.setUndoEnabled(false);
-				if (oldUri == null)
+				if (oldUri == null) {
 					removeNamespace(prefix);
-				else
+				} else {
 					declareNamespace(prefix, oldUri);
-			} catch (DocumentValidationException ex) {
+				}
+			} catch (final DocumentValidationException ex) {
 				throw new CannotUndoException();
 			} finally {
 				doc.setUndoEnabled(true);
 			}
 		}
-		
+
 		public void redo() throws CannotRedoException {
-			final Document doc = (Document) getDocument();
+			final Document doc = getDocument();
 			try {
 				doc.setUndoEnabled(false);
-				if (newUri == null)
+				if (newUri == null) {
 					removeNamespace(prefix);
-				else
+				} else {
 					declareNamespace(prefix, newUri);
-			} catch (DocumentValidationException ex) {
+				}
+			} catch (final DocumentValidationException ex) {
 				throw new CannotUndoException();
 			} finally {
 				doc.setUndoEnabled(true);

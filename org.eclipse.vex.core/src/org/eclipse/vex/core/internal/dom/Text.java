@@ -11,9 +11,8 @@
 package org.eclipse.vex.core.internal.dom;
 
 /**
- * <code>Text</code> represents a run of text in a document. Text objects are
- * not used in the internal document structure; they are only returned as needed
- * by the <code>Element.getContent</code> method.
+ * <code>Text</code> represents a run of text in a document. Text objects are not used in the internal document
+ * structure; they are only returned as needed by the <code>Element.getContent</code> method.
  */
 public class Text extends Node {
 
@@ -27,15 +26,15 @@ public class Text extends Node {
 	 * @param endOffset
 	 *            character offset of the end of the run
 	 */
-	public Text(Content content, int startOffset, int endOffset) {
+	public Text(final Content content, final int startOffset, final int endOffset) {
 		setContent(content, startOffset, endOffset);
 	}
-	
+
 	@Override
 	public String getNodeType() {
 		return "Text";
-	}	
-	
+	}
+
 	@Override
 	public String getBaseURI() {
 		return null;

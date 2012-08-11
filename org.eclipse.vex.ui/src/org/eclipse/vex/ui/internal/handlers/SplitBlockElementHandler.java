@@ -26,91 +26,93 @@ import org.eclipse.vex.core.internal.widget.IVexWidget;
 import org.eclipse.vex.ui.internal.swt.VexWidget;
 
 /**
- * Splits the current block element, for instance to create new block/paragraph
- * or table cell (usually by hitting the {@code Return} key).
- *
+ * Splits the current block element, for instance to create new block/paragraph or table cell (usually by hitting the
+ * {@code Return} key).
+ * 
  * @see SplitItemHandler
  */
 public class SplitBlockElementHandler extends AbstractVexWidgetHandler {
 
-    @Override
-    public void execute(VexWidget widget) throws ExecutionException {
-        Element element = widget.getCurrentElement();
-        Styles styles = widget.getStyleSheet().getStyles(element);
-        while (!styles.isBlock()) {
-            element = element.getParent();
-            if (element == null || element instanceof RootElement)
-            	return; // we reached the root element which cannot be split 
-            styles = widget.getStyleSheet().getStyles(element);
-        }
-        splitElement(widget, element);
-    }
+	@Override
+	public void execute(final VexWidget widget) throws ExecutionException {
+		Element element = widget.getCurrentElement();
+		Styles styles = widget.getStyleSheet().getStyles(element);
+		while (!styles.isBlock()) {
+			element = element.getParent();
+			if (element == null || element instanceof RootElement) {
+				return; // we reached the root element which cannot be split 
+			}
+			styles = widget.getStyleSheet().getStyles(element);
+		}
+		splitElement(widget, element);
+	}
 
-    /**
-     * Splits the given element.
-     *
-     * @param vexWidget IVexWidget containing the document.
-     * @param element Element to be split.
-     */
-    protected void splitElement(final IVexWidget vexWidget,
-                                    final Element element) {
+	/**
+	 * Splits the given element.
+	 * 
+	 * @param vexWidget
+	 *            IVexWidget containing the document.
+	 * @param element
+	 *            Element to be split.
+	 */
+	protected void splitElement(final IVexWidget vexWidget, final Element element) {
 
-        vexWidget.doWork(new Runnable() {
-            public void run() {
+		vexWidget.doWork(new Runnable() {
+			public void run() {
 
-                long start = 0;
-                if (VEXCorePlugin.getInstance().isDebugging()) {
-                    start = System.currentTimeMillis();
-                }
+				long start = 0;
+				if (VEXCorePlugin.getInstance().isDebugging()) {
+					start = System.currentTimeMillis();
+				}
 
-                Styles styles = vexWidget.getStyleSheet().getStyles(element);
+				final Styles styles = vexWidget.getStyleSheet().getStyles(element);
 
-                if (styles.getWhiteSpace().equals(CSS.PRE)) {
-                    // can't call vexWidget.insertText() or we'll get an
-                    // infinite loop
-                    Document doc = vexWidget.getDocument();
-                    int offset = vexWidget.getCaretOffset();
-                    doc.insertText(offset, "\n");
-                    vexWidget.moveTo(offset + 1);
-                } else {
+				if (styles.getWhiteSpace().equals(CSS.PRE)) {
+					// can't call vexWidget.insertText() or we'll get an
+					// infinite loop
+					final Document doc = vexWidget.getDocument();
+					final int offset = vexWidget.getCaretOffset();
+					doc.insertText(offset, "\n");
+					vexWidget.moveTo(offset + 1);
+				} else {
 
-                    // There may be a number of child elements below the given
-                    // element. We cut out the tails of each of these elements
-                    // and put them in a list of fragments to be reconstructed
-                    // when
-                    // we clone the element.
-                    List<Element> children = new ArrayList<Element>();
-                    List<DocumentFragment> frags = new ArrayList<DocumentFragment>();
-                    Element child = vexWidget.getCurrentElement();
-                    while (true) {
-                        children.add(child);
-                        vexWidget.moveTo(child.getEndOffset(), true);
-                        frags.add(vexWidget.getSelectedFragment());
-                        vexWidget.deleteSelection();
-                        vexWidget.moveTo(child.getEndOffset() + 1);
-                        if (child == element) {
-                            break;
-                        }
-                        child = child.getParent();
-                    }
+					// There may be a number of child elements below the given
+					// element. We cut out the tails of each of these elements
+					// and put them in a list of fragments to be reconstructed
+					// when
+					// we clone the element.
+					final List<Element> children = new ArrayList<Element>();
+					final List<DocumentFragment> frags = new ArrayList<DocumentFragment>();
+					Element child = vexWidget.getCurrentElement();
+					while (true) {
+						children.add(child);
+						vexWidget.moveTo(child.getEndOffset(), true);
+						frags.add(vexWidget.getSelectedFragment());
+						vexWidget.deleteSelection();
+						vexWidget.moveTo(child.getEndOffset() + 1);
+						if (child == element) {
+							break;
+						}
+						child = child.getParent();
+					}
 
-                    for (int i = children.size() - 1; i >= 0; i--) {
-                        child = children.get(i);
-                        DocumentFragment frag = frags.get(i);
-                        vexWidget.insertElement((Element) child.clone());
-                        int offset = vexWidget.getCaretOffset();
-                        if (frag != null) {
-                            vexWidget.insertFragment(frag);
-                        }
-                        vexWidget.moveTo(offset);
-                    }
-                }
+					for (int i = children.size() - 1; i >= 0; i--) {
+						child = children.get(i);
+						final DocumentFragment frag = frags.get(i);
+						vexWidget.insertElement(child.clone());
+						final int offset = vexWidget.getCaretOffset();
+						if (frag != null) {
+							vexWidget.insertFragment(frag);
+						}
+						vexWidget.moveTo(offset);
+					}
+				}
 
-                if (VEXCorePlugin.getInstance().isDebugging()) {
-                    long end = System.currentTimeMillis();
-                    System.out.println("split() took " + (end - start) + "ms");
-                }
-            }
-        });
-    }
+				if (VEXCorePlugin.getInstance().isDebugging()) {
+					final long end = System.currentTimeMillis();
+					System.out.println("split() took " + (end - start) + "ms");
+				}
+			}
+		});
+	}
 }

@@ -37,18 +37,20 @@ public class LengthProperty extends AbstractProperty {
 
 	public Object calculate(final LexicalUnit lu, final Styles parentStyles, final Styles styles, final Element element) {
 		final int ppi = getPpi();
-		if (isAttr(lu))
+		if (isAttr(lu)) {
 			return calculate(parseAttribute(lu, element), parentStyles, styles, element);
+		}
 		if (isLength(lu)) {
 			final int length = getIntLength(lu, styles.getFontSize(), ppi);
 			return RelativeLength.createAbsolute(length);
-		} else if (isPercentage(lu))
+		} else if (isPercentage(lu)) {
 			return RelativeLength.createRelative(lu.getFloatValue() / 100);
-		else if (isInherit(lu) && parentStyles != null)
+		} else if (isInherit(lu) && parentStyles != null) {
 			return parentStyles.get(getName());
-		else
+		} else {
 			// not specified, "auto", or other unknown value
 			return RelativeLength.createAbsolute(0);
+		}
 	}
 
 	private static boolean isAttr(final LexicalUnit lexicalUnit) {
@@ -58,8 +60,9 @@ public class LengthProperty extends AbstractProperty {
 	private static LexicalUnit parseAttribute(final LexicalUnit lexicalUnit, final Element element) {
 		final String attributeName = lexicalUnit.getStringValue();
 		final String attributeValue = element.getAttributeValue(attributeName);
-		if (attributeValue == null)
+		if (attributeValue == null) {
 			return null;
+		}
 		final Parser parser = StyleSheetReader.createParser();
 		try {
 			return parser.parsePropertyValue(new InputSource(new StringReader(attributeValue)));

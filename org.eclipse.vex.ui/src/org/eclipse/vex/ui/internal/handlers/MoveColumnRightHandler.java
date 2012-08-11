@@ -14,20 +14,20 @@ import org.eclipse.vex.ui.internal.handlers.VexHandlerUtil.RowColumnInfo;
 
 /**
  * Moves the current table column to the right.
- *
+ * 
  * @see AbstractMoveColumnHandler
  * @see MoveColumnLeftHandler
  */
 public class MoveColumnRightHandler extends AbstractMoveColumnHandler {
 
-    @Override
-    protected boolean moveRight() {
-        return true;
-    }
+	@Override
+	protected boolean moveRight() {
+		return true;
+	}
 
-    @Override
-    protected boolean movingPossible(RowColumnInfo rcInfo) {
-        return rcInfo.cellIndex < rcInfo.maxColumnCount - 1;
-    }
+	@Override
+	protected boolean movingPossible(final RowColumnInfo rcInfo) {
+		return rcInfo.cellIndex < rcInfo.maxColumnCount - 1;
+	}
 
 }

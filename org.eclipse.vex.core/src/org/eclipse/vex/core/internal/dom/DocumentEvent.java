@@ -17,20 +17,21 @@ import org.eclipse.vex.core.internal.undo.IUndoableEdit;
 
 /**
  * Encapsulation of the details of a document change
+ * 
  * @model
  */
 public class DocumentEvent extends EventObject {
 
 	private static final long serialVersionUID = -9028980559838712720L;
-	
-	private Document document;
-	private Element parentElement;
+
+	private final Document document;
+	private final Element parentElement;
 	private int offset;
 	private int length;
 	private QualifiedName attributeName;
 	private String oldAttributeValue;
 	private String newAttributeValue;
-	private IUndoableEdit undoableEdit;
+	private final IUndoableEdit undoableEdit;
 
 	/**
 	 * Class constructor.
@@ -46,12 +47,11 @@ public class DocumentEvent extends EventObject {
 	 * @param undoableEdit
 	 *            IUndoableEdit that can be used to undo the change.
 	 */
-	public DocumentEvent(Document document, Element e1, int offset,
-			int length, IUndoableEdit undoableEdit) {
+	public DocumentEvent(final Document document, final Element e1, final int offset, final int length, final IUndoableEdit undoableEdit) {
 
 		super(document);
 		this.document = document;
-		this.parentElement = e1;
+		parentElement = e1;
 		this.offset = offset;
 		this.length = length;
 		this.undoableEdit = undoableEdit;
@@ -73,9 +73,8 @@ public class DocumentEvent extends EventObject {
 	 * @param undoableEdit
 	 *            IUndoableEdit that can be used to undo the change.
 	 */
-	public DocumentEvent(Document document, Element parentElement,
-			QualifiedName attributeName, String oldAttributeValue,
-			String newAttributeValue, IUndoableEdit undoableEdit) {
+	public DocumentEvent(final Document document, final Element parentElement, final QualifiedName attributeName, final String oldAttributeValue, final String newAttributeValue,
+			final IUndoableEdit undoableEdit) {
 
 		super(document);
 		this.document = document;
@@ -88,31 +87,33 @@ public class DocumentEvent extends EventObject {
 
 	/**
 	 * Returns the length of the change.
+	 * 
 	 * @model
 	 */
 	public int getLength() {
-		return this.length;
+		return length;
 	}
 
 	/**
 	 * Returns the offset at which the change occurred.
+	 * 
 	 * @model
 	 */
 	public int getOffset() {
-		return this.offset;
+		return offset;
 	}
 
 	/**
 	 * Returns the element containing the change.
+	 * 
 	 * @model
 	 */
 	public Element getParentElement() {
-		return this.parentElement;
+		return parentElement;
 	}
 
 	/**
-	 * @return the value of the attribute before the change. If null, indicates
-	 *         that the attribute was removed.
+	 * @return the value of the attribute before the change. If null, indicates that the attribute was removed.
 	 * @model
 	 */
 	public String getNewAttributeValue() {
@@ -120,8 +121,8 @@ public class DocumentEvent extends EventObject {
 	}
 
 	/**
-	 * @return the value of the attribute after the change. If null, indicates
-	 *         the attribute did not exist before the change.
+	 * @return the value of the attribute after the change. If null, indicates the attribute did not exist before the
+	 *         change.
 	 * @model
 	 */
 	public String getOldAttributeValue() {
@@ -145,8 +146,9 @@ public class DocumentEvent extends EventObject {
 	}
 
 	/**
-	 * Returns the undoable edit that can be used to undo the action. May be
-	 * null, in which case the action cannot be undone.
+	 * Returns the undoable edit that can be used to undo the action. May be null, in which case the action cannot be
+	 * undone.
+	 * 
 	 * @model
 	 */
 	public IUndoableEdit getUndoableEdit() {

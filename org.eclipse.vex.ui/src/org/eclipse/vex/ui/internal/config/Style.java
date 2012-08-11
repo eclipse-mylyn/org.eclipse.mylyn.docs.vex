@@ -19,8 +19,8 @@ import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.layout.BoxFactory;
 
 /**
- * Represents the combination of a style sheet and a box factory that defines
- * the styling of an XML document during editing.
+ * Represents the combination of a style sheet and a box factory that defines the styling of an XML document during
+ * editing.
  */
 public class Style extends ConfigItem {
 
@@ -58,8 +58,7 @@ public class Style extends ConfigItem {
 	}
 
 	/**
-	 * Returns a set of public IDs of all document types supported by this
-	 * style.
+	 * Returns a set of public IDs of all document types supported by this style.
 	 */
 	public Set<String> getDocumentTypes() {
 		return Collections.unmodifiableSet(publicIds);
@@ -85,8 +84,7 @@ public class Style extends ConfigItem {
 	}
 
 	/**
-	 * Removes the public ID of a document type to which the style no longer
-	 * applies.
+	 * Removes the public ID of a document type to which the style no longer applies.
 	 * 
 	 * @param publicId
 	 *            public ID of the document type

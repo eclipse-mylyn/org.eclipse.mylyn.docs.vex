@@ -25,13 +25,13 @@ import org.eclipse.vex.ui.internal.config.Style;
 public class VexDocumentContentModel extends DocumentContentModel {
 
 	private final Shell shell;
-	
+
 	private DocumentType documentType;
 
 	private Style style;
-	
+
 	private boolean shouldAssignInferredDocumentType;
-	
+
 	public VexDocumentContentModel(final Shell shell) {
 		this.shell = shell;
 	}
@@ -41,51 +41,56 @@ public class VexDocumentContentModel extends DocumentContentModel {
 		super.initialize(baseUri, publicId, systemId, rootElement);
 		final String mainDocumentTypeIdentifier = getMainDocumentTypeIdentifier();
 		documentType = getRegisteredDocumentType();
-		if (documentType == null)
+		if (documentType == null) {
 			documentType = queryUserForDocumentType();
-		
-		if (documentType == null)
+		}
+
+		if (documentType == null) {
 			throw new NoRegisteredDoctypeException(mainDocumentTypeIdentifier);
+		}
 
 		// TODO verify documentType URL???
-//		final URL url = documentType.getResourceUrl();
-//		if (url == null) {
-//			final String message = MessageFormat.format(Messages.getString("VexEditor.noUrlForDoctype"), mainDocumentTypeIdentifier);
-//			throw new RuntimeException(message);
-//		}
+		//		final URL url = documentType.getResourceUrl();
+		//		if (url == null) {
+		//			final String message = MessageFormat.format(Messages.getString("VexEditor.noUrlForDoctype"), mainDocumentTypeIdentifier);
+		//			throw new RuntimeException(message);
+		//		}
 
 		style = VexPlugin.getDefault().getPreferences().getPreferredStyle(documentType.getPublicId());
-		if (style == null)
+		if (style == null) {
 			throw new NoStyleForDoctypeException();
+		}
 	}
 
 	private DocumentType getRegisteredDocumentType() {
 		return VexPlugin.getDefault().getConfigurationRegistry().getDocumentType(getMainDocumentTypeIdentifier());
 	}
-	
+
 	private DocumentType queryUserForDocumentType() {
 		final DocumentTypeSelectionDialog dialog = DocumentTypeSelectionDialog.create(shell, getMainDocumentTypeIdentifier());
 		dialog.open();
-		if (dialog.alwaysUseThisDoctype())
+		if (dialog.alwaysUseThisDoctype()) {
 			shouldAssignInferredDocumentType = true;
+		}
 		return dialog.getDoctype();
 	}
 
 	@Override
 	public IWhitespacePolicy getWhitespacePolicy() {
-		if (style == null)
+		if (style == null) {
 			return super.getWhitespacePolicy();
+		}
 		return new CssWhitespacePolicy(style.getStyleSheet());
 	}
-	
+
 	public DocumentType getDocumentType() {
 		return documentType;
 	}
-	
+
 	public Style getStyle() {
 		return style;
 	}
-	
+
 	public boolean shouldAssignInferredDocumentType() {
 		return shouldAssignInferredDocumentType;
 	}

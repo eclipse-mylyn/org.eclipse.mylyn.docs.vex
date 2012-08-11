@@ -29,23 +29,25 @@ import org.eclipse.vex.core.internal.core.Rectangle;
  */
 public class FakeGraphics implements Graphics {
 
-	private int charWidth = 6;
+	private final int charWidth = 6;
 
 	private URL lastDrawnImageUrl = null;
 
 	public FakeGraphics() {
 		DisplayDevice.setCurrent(new DisplayDevice() {
+			@Override
 			public int getHorizontalPPI() {
 				return 72;
 			}
 
+			@Override
 			public int getVerticalPPI() {
 				return 72;
 			}
 		});
 	}
 
-	private FontMetrics fontMetrics = new FontMetrics() {
+	private final FontMetrics fontMetrics = new FontMetrics() {
 		public int getAscent() {
 			return 10;
 		}
@@ -63,18 +65,18 @@ public class FakeGraphics implements Graphics {
 		}
 	};
 
-	public int charsWidth(char[] data, int offset, int length) {
+	public int charsWidth(final char[] data, final int offset, final int length) {
 		return length * charWidth;
 	}
 
-	public ColorResource createColor(Color rgb) {
+	public ColorResource createColor(final Color rgb) {
 		return new ColorResource() {
 			public void dispose() {
 			}
 		};
 	}
 
-	public FontResource createFont(FontSpec fontSpec) {
+	public FontResource createFont(final FontSpec fontSpec) {
 		return new FontResource() {
 			public void dispose() {
 			}
@@ -84,19 +86,19 @@ public class FakeGraphics implements Graphics {
 	public void dispose() {
 	}
 
-	public void drawChars(char[] chars, int offset, int length, int x, int y) {
+	public void drawChars(final char[] chars, final int offset, final int length, final int x, final int y) {
 	}
 
-	public void drawLine(int x1, int y1, int x2, int y2) {
+	public void drawLine(final int x1, final int y1, final int x2, final int y2) {
 	}
 
-	public void drawString(String s, int x, int y) {
+	public void drawString(final String s, final int x, final int y) {
 	}
 
-	public void drawOval(int x, int y, int width, int height) {
+	public void drawOval(final int x, final int y, final int width, final int height) {
 	}
 
-	public void drawRect(int x, int y, int width, int height) {
+	public void drawRect(final int x, final int y, final int width, final int height) {
 	}
 
 	public void drawImage(final Image image, final int x, final int y, final int width, final int height) {
@@ -108,10 +110,10 @@ public class FakeGraphics implements Graphics {
 		return lastDrawnImageUrl;
 	}
 
-	public void fillOval(int x, int y, int width, int height) {
+	public void fillOval(final int x, final int y, final int width, final int height) {
 	}
 
-	public void fillRect(int x, int y, int width, int height) {
+	public void fillRect(final int x, final int y, final int width, final int height) {
 	}
 
 	public Rectangle getClipBounds() {
@@ -138,15 +140,15 @@ public class FakeGraphics implements Graphics {
 		return 0;
 	}
 
-	public ColorResource getSystemColor(int id) {
+	public ColorResource getSystemColor(final int id) {
 		return null;
 	}
 
 	public FontMetrics getFontMetrics() {
-		return this.fontMetrics;
+		return fontMetrics;
 	}
 
-	public Image getImage(URL url) {
+	public Image getImage(final URL url) {
 		return new FakeImage(url);
 	}
 
@@ -154,35 +156,35 @@ public class FakeGraphics implements Graphics {
 		return false;
 	}
 
-	public void setAntiAliased(boolean antiAliased) {
+	public void setAntiAliased(final boolean antiAliased) {
 	}
 
-	public ColorResource setBackgroundColor(ColorResource color) {
+	public ColorResource setBackgroundColor(final ColorResource color) {
 		return null;
 	}
 
-	public ColorResource setColor(ColorResource color) {
+	public ColorResource setColor(final ColorResource color) {
 		return null;
 	}
 
-	public FontResource setFont(FontResource font) {
+	public FontResource setFont(final FontResource font) {
 		return null;
 	}
 
-	public void setLineStyle(int style) {
+	public void setLineStyle(final int style) {
 	}
 
-	public void setLineWidth(int width) {
+	public void setLineWidth(final int width) {
 	}
 
-	public int stringWidth(String s) {
+	public int stringWidth(final String s) {
 		return charWidth * s.length();
 	}
 
 	public int getCharWidth() {
-		return this.charWidth;
+		return charWidth;
 	}
 
-	public void setXORMode(boolean xorMode) {
+	public void setXORMode(final boolean xorMode) {
 	}
 }

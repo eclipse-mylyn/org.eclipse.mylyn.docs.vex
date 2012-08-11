@@ -12,21 +12,17 @@ package org.eclipse.vex.core.internal.layout;
 
 import java.net.URL;
 
+import junit.framework.TestCase;
+
 import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.css.StyleSheetReader;
 import org.eclipse.vex.core.internal.css.Styles;
 import org.eclipse.vex.core.internal.dom.Document;
 import org.eclipse.vex.core.internal.dom.RootElement;
-import org.eclipse.vex.core.internal.layout.CssBoxFactory;
-import org.eclipse.vex.core.internal.layout.DocumentTextBox;
-import org.eclipse.vex.core.internal.layout.InlineBox;
-import org.eclipse.vex.core.internal.layout.LayoutContext;
-
-import junit.framework.TestCase;
 
 /**
- * Tests the DocumentTestBox class. We focus here on proper offsets, since text
- * splitting is tested thoroughly in TestStaticTextBox.
+ * Tests the DocumentTestBox class. We focus here on proper offsets, since text splitting is tested thoroughly in
+ * TestStaticTextBox.
  */
 public class TestDocumentTextBox extends TestCase {
 
@@ -35,32 +31,32 @@ public class TestDocumentTextBox extends TestCase {
 
 	public TestDocumentTextBox() throws Exception {
 
-		URL url = this.getClass().getResource("test.css");
-		StyleSheetReader reader = new StyleSheetReader();
-		StyleSheet ss = reader.read(url);
+		final URL url = this.getClass().getResource("test.css");
+		final StyleSheetReader reader = new StyleSheetReader();
+		final StyleSheet ss = reader.read(url);
 
-		this.g = new FakeGraphics();
+		g = new FakeGraphics();
 
-		this.context = new LayoutContext();
-		this.context.setBoxFactory(new CssBoxFactory());
-		this.context.setGraphics(this.g);
-		this.context.setStyleSheet(ss);
+		context = new LayoutContext();
+		context.setBoxFactory(new CssBoxFactory());
+		context.setGraphics(g);
+		context.setStyleSheet(ss);
 	}
 
 	public void testSplit() throws Exception {
-		RootElement root = new RootElement("root");
-		Document doc = new Document(root);
+		final RootElement root = new RootElement("root");
+		final Document doc = new Document(root);
 
-		Styles styles = this.context.getStyleSheet().getStyles(root);
+		final Styles styles = context.getStyleSheet().getStyles(root);
 
-		int width = g.getCharWidth();
+		final int width = g.getCharWidth();
 
 		// 0 6 13 21
 		// / / / /
 		// baggy orange trousers
 
 		doc.insertText(1, "baggy orange trousers");
-		DocumentTextBox box = new DocumentTextBox(this.context, root, 1, 22);
+		final DocumentTextBox box = new DocumentTextBox(context, root, 1, 22);
 		assertEquals(box.getText().length() * width, box.getWidth());
 		assertEquals(styles.getLineHeight(), box.getHeight());
 		assertSplit(box, 22, false, "baggy orange ", "trousers");
@@ -91,22 +87,20 @@ public class TestDocumentTextBox extends TestCase {
 		doc.delete(1, 22);
 	}
 
-	private void assertSplit(DocumentTextBox box, int splitPos, boolean force,
-			String left, String right) {
+	private void assertSplit(final DocumentTextBox box, final int splitPos, final boolean force, final String left, final String right) {
 
-		Styles styles = this.context.getStyleSheet()
-				.getStyles(box.getElement());
+		final Styles styles = context.getStyleSheet().getStyles(box.getElement());
 
-		int width = g.getCharWidth();
+		final int width = g.getCharWidth();
 
-		InlineBox.Pair pair = box.split(context, splitPos * width, force);
+		final InlineBox.Pair pair = box.split(context, splitPos * width, force);
 
-		DocumentTextBox leftBox = (DocumentTextBox) pair.getLeft();
-		DocumentTextBox rightBox = (DocumentTextBox) pair.getRight();
+		final DocumentTextBox leftBox = (DocumentTextBox) pair.getLeft();
+		final DocumentTextBox rightBox = (DocumentTextBox) pair.getRight();
 
-		int leftOffset = 1;
-		int midOffset = leftOffset + (left == null ? 0 : left.length());
-		int rightOffset = leftOffset + box.getText().length();
+		final int leftOffset = 1;
+		final int midOffset = leftOffset + (left == null ? 0 : left.length());
+		final int rightOffset = leftOffset + box.getText().length();
 
 		if (left == null) {
 			assertNull(leftBox);

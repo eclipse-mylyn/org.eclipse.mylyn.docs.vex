@@ -15,13 +15,6 @@ import java.io.StringReader;
 import junit.framework.TestCase;
 
 import org.eclipse.vex.core.internal.core.DisplayDevice;
-import org.eclipse.vex.core.internal.css.BackgroundImageProperty;
-import org.eclipse.vex.core.internal.css.BorderStyleProperty;
-import org.eclipse.vex.core.internal.css.BorderWidthProperty;
-import org.eclipse.vex.core.internal.css.CSS;
-import org.eclipse.vex.core.internal.css.IProperty;
-import org.eclipse.vex.core.internal.css.StyleSheetReader;
-import org.eclipse.vex.core.internal.css.Styles;
 import org.eclipse.vex.core.internal.dom.Document;
 import org.eclipse.vex.core.internal.dom.DocumentReader;
 import org.eclipse.vex.core.internal.dom.Element;
@@ -103,8 +96,7 @@ public class PropertyTest extends TestCase {
 	}
 
 	/**
-	 * From CSS2.1 section 8.5.2 (border-XXX-color), section 14.1 (color), and
-	 * section 14.2.1 (background-color)
+	 * From CSS2.1 section 8.5.2 (border-XXX-color), section 14.1 (color), and section 14.2.1 (background-color)
 	 */
 	public void testColorProperty() throws Exception {
 	}

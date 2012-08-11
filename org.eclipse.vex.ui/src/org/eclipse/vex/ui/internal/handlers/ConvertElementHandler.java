@@ -23,20 +23,18 @@ import org.eclipse.vex.ui.internal.swt.VexWidget;
  */
 public class ConvertElementHandler extends AbstractVexWidgetHandler implements IElementUpdater {
 
-    /** ID of the corresponding convert element command. */
-    public static final String COMMAND_ID =
-        "org.eclipse.vex.ui.ConvertElementCommand"; //$NON-NLS-1$
+	/** ID of the corresponding convert element command. */
+	public static final String COMMAND_ID = "org.eclipse.vex.ui.ConvertElementCommand"; //$NON-NLS-1$
 
-    private static final String LABEL_ID =
-        "command.convertElement.dynamicName"; //$NON-NLS-1$
+	private static final String LABEL_ID = "command.convertElement.dynamicName"; //$NON-NLS-1$
 
-    @Override
-    public void execute(VexWidget widget) throws ExecutionException {
-        ContentAssist.openQuickFixContentAssist(widget);
-    }
+	@Override
+	public void execute(final VexWidget widget) throws ExecutionException {
+		ContentAssist.openQuickFixContentAssist(widget);
+	}
 
-    public void updateElement(UIElement element, Map parameters) {
-        updateElement(element, parameters, LABEL_ID, LABEL_ID);
-    }
+	public void updateElement(final UIElement element, final Map parameters) {
+		updateElement(element, parameters, LABEL_ID, LABEL_ID);
+	}
 
 }

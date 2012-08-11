@@ -15,9 +15,8 @@ import org.eclipse.vex.core.internal.dom.Element;
 import org.w3c.css.sac.LexicalUnit;
 
 /**
- * The CSS font-size property. Note that other lengths depend on the computed
- * value of this property, so this should be evaluated early on in the
- * stylesheet, before any other lengths.
+ * The CSS font-size property. Note that other lengths depend on the computed value of this property, so this should be
+ * evaluated early on in the stylesheet, before any other lengths.
  */
 public class FontSizeProperty extends AbstractProperty {
 
@@ -28,8 +27,8 @@ public class FontSizeProperty extends AbstractProperty {
 		super(CSS.FONT_SIZE);
 	}
 
-	public Object calculate(LexicalUnit lu, Styles parentStyles, Styles styles, Element element) {
-		return new Float(this.calculateInternal(lu, parentStyles, styles));
+	public Object calculate(final LexicalUnit lu, final Styles parentStyles, final Styles styles, final Element element) {
+		return new Float(calculateInternal(lu, parentStyles, styles));
 	}
 
 	/**
@@ -38,7 +37,7 @@ public class FontSizeProperty extends AbstractProperty {
 	 * @param lu
 	 *            LexicalUnit to check.
 	 */
-	public static boolean isFontSize(LexicalUnit lu) {
+	public static boolean isFontSize(final LexicalUnit lu) {
 		if (lu == null) {
 			return false;
 		} else if (isLength(lu)) {
@@ -46,12 +45,9 @@ public class FontSizeProperty extends AbstractProperty {
 		} else if (isPercentage(lu)) {
 			return true;
 		} else if (lu.getLexicalUnitType() == LexicalUnit.SAC_IDENT) {
-			String s = lu.getStringValue();
-			return s.equals(CSS.XX_SMALL) || s.equals(CSS.X_SMALL)
-					|| s.equals(CSS.SMALL) || s.equals(CSS.MEDIUM)
-					|| s.equals(CSS.LARGE) || s.equals(CSS.X_LARGE)
-					|| s.equals(CSS.XX_LARGE) || s.equals(CSS.SMALLER)
-					|| s.equals(CSS.LARGER);
+			final String s = lu.getStringValue();
+			return s.equals(CSS.XX_SMALL) || s.equals(CSS.X_SMALL) || s.equals(CSS.SMALL) || s.equals(CSS.MEDIUM) || s.equals(CSS.LARGE) || s.equals(CSS.X_LARGE) || s.equals(CSS.XX_LARGE)
+					|| s.equals(CSS.SMALLER) || s.equals(CSS.LARGER);
 		} else {
 			return false;
 		}
@@ -59,12 +55,10 @@ public class FontSizeProperty extends AbstractProperty {
 
 	// ======================================================== PRIVATE
 
-	private float calculateInternal(LexicalUnit lu, Styles parentStyles,
-			Styles styles) {
+	private float calculateInternal(final LexicalUnit lu, final Styles parentStyles, final Styles styles) {
 
-		DisplayDevice device = DisplayDevice.getCurrent();
-		float baseFontSize = DEFAULT_FONT_SIZE_POINTS * device.getVerticalPPI()
-				/ 72;
+		final DisplayDevice device = DisplayDevice.getCurrent();
+		float baseFontSize = DEFAULT_FONT_SIZE_POINTS * device.getVerticalPPI() / 72;
 
 		if (parentStyles != null) {
 			baseFontSize = parentStyles.getFontSize();
@@ -77,7 +71,7 @@ public class FontSizeProperty extends AbstractProperty {
 		} else if (isPercentage(lu)) {
 			return baseFontSize * lu.getFloatValue() / 100;
 		} else if (lu.getLexicalUnitType() == LexicalUnit.SAC_IDENT) {
-			String s = lu.getStringValue();
+			final String s = lu.getStringValue();
 
 			if (s.equals(CSS.XX_SMALL)) {
 				return baseFontSize * FONT_FACTOR_XX_SMALL;
@@ -123,22 +117,16 @@ public class FontSizeProperty extends AbstractProperty {
 	// Sizes of named font sizes, relative to "medium"
 	private static final float FONT_FACTOR_MEDIUM = 1.0f;
 
-	private static final float FONT_FACTOR_SMALL = FONT_FACTOR_MEDIUM
-			/ FONT_SIZE_FACTOR;
+	private static final float FONT_FACTOR_SMALL = FONT_FACTOR_MEDIUM / FONT_SIZE_FACTOR;
 
-	private static final float FONT_FACTOR_X_SMALL = FONT_FACTOR_SMALL
-			/ FONT_SIZE_FACTOR;
+	private static final float FONT_FACTOR_X_SMALL = FONT_FACTOR_SMALL / FONT_SIZE_FACTOR;
 
-	private static final float FONT_FACTOR_XX_SMALL = FONT_FACTOR_X_SMALL
-			/ FONT_SIZE_FACTOR;
+	private static final float FONT_FACTOR_XX_SMALL = FONT_FACTOR_X_SMALL / FONT_SIZE_FACTOR;
 
-	private static final float FONT_FACTOR_LARGE = FONT_FACTOR_MEDIUM
-			* FONT_SIZE_FACTOR;
+	private static final float FONT_FACTOR_LARGE = FONT_FACTOR_MEDIUM * FONT_SIZE_FACTOR;
 
-	private static final float FONT_FACTOR_X_LARGE = FONT_FACTOR_LARGE
-			* FONT_SIZE_FACTOR;
+	private static final float FONT_FACTOR_X_LARGE = FONT_FACTOR_LARGE * FONT_SIZE_FACTOR;
 
-	private static final float FONT_FACTOR_XX_LARGE = FONT_FACTOR_X_LARGE
-			* FONT_SIZE_FACTOR;
+	private static final float FONT_FACTOR_XX_LARGE = FONT_FACTOR_X_LARGE * FONT_SIZE_FACTOR;
 
 }

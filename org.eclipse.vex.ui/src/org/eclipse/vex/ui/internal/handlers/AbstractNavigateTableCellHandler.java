@@ -17,39 +17,40 @@ import org.eclipse.vex.core.internal.widget.IBoxFilter;
 import org.eclipse.vex.ui.internal.swt.VexWidget;
 
 /**
- * Navigates either to the next or previous table cell (usual shortcut: {@code
- * Tab} or {@code Shift+Tab}).
- *
+ * Navigates either to the next or previous table cell (usual shortcut: {@code Tab} or {@code Shift+Tab}).
+ * 
  * @see PreviousTableCellHandler
  */
-public abstract class AbstractNavigateTableCellHandler extends
-        AbstractVexWidgetHandler {
+public abstract class AbstractNavigateTableCellHandler extends AbstractVexWidgetHandler {
 
-    @Override
-    public void execute(VexWidget widget) throws ExecutionException {
-        IBoxFilter filter = new IBoxFilter() {
-            public boolean matches(Box box) {
-                return box instanceof TableRowBox;
-            }
-        };
-        TableRowBox row = (TableRowBox) widget.findInnermostBox(filter);
+	@Override
+	public void execute(final VexWidget widget) throws ExecutionException {
+		final IBoxFilter filter = new IBoxFilter() {
+			public boolean matches(final Box box) {
+				return box instanceof TableRowBox;
+			}
+		};
+		final TableRowBox row = (TableRowBox) widget.findInnermostBox(filter);
 
-        // not in a table row?
-        if (row == null) return;
+		// not in a table row?
+		if (row == null) {
+			return;
+		}
 
-        int offset = widget.getCaretOffset();
-        navigate(widget, row, offset);
-    }
+		final int offset = widget.getCaretOffset();
+		navigate(widget, row, offset);
+	}
 
-    /**
-     * Navigates either to the next or previous table cell.
-     *
-     * @param widget the Vex widget containing the document
-     * @param row the current row
-     * @param offset the current offset
-     */
-    protected abstract void navigate(VexWidget widget,
-                                     TableRowBox row,
-                                     int offset);
+	/**
+	 * Navigates either to the next or previous table cell.
+	 * 
+	 * @param widget
+	 *            the Vex widget containing the document
+	 * @param row
+	 *            the current row
+	 * @param offset
+	 *            the current offset
+	 */
+	protected abstract void navigate(VexWidget widget, TableRowBox row, int offset);
 
 }

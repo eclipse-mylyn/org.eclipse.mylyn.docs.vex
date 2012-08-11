@@ -29,8 +29,9 @@ public class PluginProjectTest {
 
 	public static IProject createVexPluginProject(final String name) throws CoreException {
 		final IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(name);
-		if (project.exists())
+		if (project.exists()) {
 			project.delete(true, true, null);
+		}
 		project.create(null);
 		project.open(null);
 		project.getFile("plugintest.dtd").create(new ByteArrayInputStream(new byte[0]), true, null);

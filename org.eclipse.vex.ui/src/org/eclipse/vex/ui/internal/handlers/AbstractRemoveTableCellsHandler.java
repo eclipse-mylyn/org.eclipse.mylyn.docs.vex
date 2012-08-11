@@ -18,51 +18,49 @@ import org.eclipse.vex.ui.internal.swt.VexWidget;
 
 /**
  * Deletes a given list of table cells (see
- * {@link #collectCellsToDelete(VexWidget, org.eclipse.vex.ui.internal.handlers.VexHandlerUtil.RowColumnInfo)}
- * ).
- *
+ * {@link #collectCellsToDelete(VexWidget, org.eclipse.vex.ui.internal.handlers.VexHandlerUtil.RowColumnInfo)} ).
+ * 
  * @see RemoveColumnHandler
  * @see RemoveRowHandler
  */
-public abstract class AbstractRemoveTableCellsHandler extends
-        AbstractVexWidgetHandler {
+public abstract class AbstractRemoveTableCellsHandler extends AbstractVexWidgetHandler {
 
-    @Override
-    public void execute(final VexWidget widget) throws ExecutionException {
-        widget.doWork(new Runnable() {
-            public void run() {
+	@Override
+	public void execute(final VexWidget widget) throws ExecutionException {
+		widget.doWork(new Runnable() {
+			public void run() {
 
-                final VexHandlerUtil.RowColumnInfo rcInfo =
-                    VexHandlerUtil.getRowColumnInfo(widget);
+				final VexHandlerUtil.RowColumnInfo rcInfo = VexHandlerUtil.getRowColumnInfo(widget);
 
-                if (rcInfo == null) return;
+				if (rcInfo == null) {
+					return;
+				}
 
-                deleteCells(widget, collectCellsToDelete(widget, rcInfo));
-            }
+				deleteCells(widget, collectCellsToDelete(widget, rcInfo));
+			}
 
+		});
+	}
 
-        });
-    }
+	/**
+	 * @param widget
+	 *            the Vex widget
+	 * @param rcInfo
+	 *            row/column info of the current table cell
+	 * @return list of elements to delete
+	 */
+	protected abstract List<Object> collectCellsToDelete(VexWidget widget, VexHandlerUtil.RowColumnInfo rcInfo);
 
-    /**
-     * @param widget the Vex widget
-     * @param rcInfo row/column info of the current table cell
-     * @return list of elements to delete
-     */
-    protected abstract List<Object> collectCellsToDelete(VexWidget widget,
-                                                         VexHandlerUtil.RowColumnInfo rcInfo);
-
-    private void deleteCells(final VexWidget widget,
-                             final List<Object> cellsToDelete) {
-        // Iterate the deletions in reverse, so that we don't mess up offsets
-        // that are in anonymous cells, which are not stored as Positions.
-        for (int i = cellsToDelete.size() - 1; i >= 0; i--) {
-            Object cell = cellsToDelete.get(i);
-            IntRange range = VexHandlerUtil.getOuterRange(cell);
-            widget.moveTo(range.getStart());
-            widget.moveTo(range.getEnd(), true);
-            widget.deleteSelection();
-        }
-    }
+	private void deleteCells(final VexWidget widget, final List<Object> cellsToDelete) {
+		// Iterate the deletions in reverse, so that we don't mess up offsets
+		// that are in anonymous cells, which are not stored as Positions.
+		for (int i = cellsToDelete.size() - 1; i >= 0; i--) {
+			final Object cell = cellsToDelete.get(i);
+			final IntRange range = VexHandlerUtil.getOuterRange(cell);
+			widget.moveTo(range.getStart());
+			widget.moveTo(range.getEnd(), true);
+			widget.deleteSelection();
+		}
+	}
 
 }

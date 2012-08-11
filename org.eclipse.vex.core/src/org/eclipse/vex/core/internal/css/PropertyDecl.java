@@ -23,12 +23,11 @@ public class PropertyDecl {
 	private final String property;
 	private final LexicalUnit value;
 	private final boolean important;
-	
+
 	/**
 	 * Class constructor.
 	 */
-	public PropertyDecl(Rule rule, String property, LexicalUnit value,
-			boolean important) {
+	public PropertyDecl(final Rule rule, final String property, final LexicalUnit value, final boolean important) {
 		this.rule = rule;
 		this.property = property;
 		this.value = value;
@@ -39,28 +38,28 @@ public class PropertyDecl {
 	 * Return the value of the <code>important</code> property.
 	 */
 	public boolean isImportant() {
-		return this.important;
+		return important;
 	}
 
 	/**
 	 * Return the value of the <code>property</code> property.
 	 */
 	public String getProperty() {
-		return this.property;
+		return property;
 	}
 
 	/**
 	 * Return the value of the <code>rule</code> property.
 	 */
 	public Rule getRule() {
-		return this.rule;
+		return rule;
 	}
 
 	/**
 	 * Return the value of the <code>value</code> property.
 	 */
 	public LexicalUnit getValue() {
-		return this.value;
+		return value;
 	}
-	
+
 }

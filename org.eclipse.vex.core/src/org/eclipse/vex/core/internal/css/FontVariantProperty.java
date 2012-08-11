@@ -25,7 +25,7 @@ public class FontVariantProperty extends AbstractProperty {
 		super(CSS.FONT_VARIANT);
 	}
 
-	public Object calculate(LexicalUnit lu, Styles parentStyles, Styles styles, Element element) {
+	public Object calculate(final LexicalUnit lu, final Styles parentStyles, final Styles styles, final Element element) {
 		if (isFontVariant(lu)) {
 			return lu.getStringValue();
 		} else {
@@ -45,11 +45,11 @@ public class FontVariantProperty extends AbstractProperty {
 	 * @param lu
 	 *            LexicalUnit to check.
 	 */
-	public static boolean isFontVariant(LexicalUnit lu) {
+	public static boolean isFontVariant(final LexicalUnit lu) {
 		if (lu == null) {
 			return false;
 		} else if (lu.getLexicalUnitType() == LexicalUnit.SAC_IDENT) {
-			String s = lu.getStringValue();
+			final String s = lu.getStringValue();
 			return s.equals(CSS.NORMAL) || s.equals(CSS.SMALL_CAPS);
 		} else {
 			return false;

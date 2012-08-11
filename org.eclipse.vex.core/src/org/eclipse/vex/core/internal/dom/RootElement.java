@@ -13,11 +13,9 @@ package org.eclipse.vex.core.internal.dom;
 import org.eclipse.core.runtime.QualifiedName;
 
 /**
- * The root element of a document. Keeps track of the document to which it is
- * associated. Any element can find the document to which it is associated by
- * following its parents to this root. This would be done, for example, to
- * notify document listeners that the document has changed when the element
- * changes.
+ * The root element of a document. Keeps track of the document to which it is associated. Any element can find the
+ * document to which it is associated by following its parents to this root. This would be done, for example, to notify
+ * document listeners that the document has changed when the element changes.
  */
 public class RootElement extends Element {
 
@@ -26,16 +24,17 @@ public class RootElement extends Element {
 	public RootElement(final String localName) {
 		super(localName);
 	}
-	
+
 	public RootElement(final QualifiedName qualifiedName) {
 		super(qualifiedName);
 	}
-	
+
+	@Override
 	public Document getDocument() {
 		return document;
 	}
 
-	public void setDocument(Document document) {
+	public void setDocument(final Document document) {
 		this.document = document;
 	}
 

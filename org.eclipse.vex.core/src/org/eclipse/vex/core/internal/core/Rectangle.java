@@ -15,35 +15,34 @@ package org.eclipse.vex.core.internal.core;
  */
 public class Rectangle {
 
-	private int x;
-	private int y;
-	private int width;
-	private int height;
+	private final int x;
+	private final int y;
+	private final int width;
+	private final int height;
 
-	public Rectangle(int x, int y, int width, int height) {
+	public Rectangle(final int x, final int y, final int width, final int height) {
 		this.x = x;
 		this.y = y;
 		this.width = width;
 		this.height = height;
 	}
 
-	public boolean intersects(Rectangle rect) {
-		return rect.x < this.x + this.width && rect.x + rect.width > this.x
-				&& rect.y < this.y + this.height
-				&& rect.y + rect.height > this.y;
+	public boolean intersects(final Rectangle rect) {
+		return rect.x < x + width && rect.x + rect.width > x && rect.y < y + height && rect.y + rect.height > y;
 	}
 
+	@Override
 	public String toString() {
-		StringBuffer sb = new StringBuffer(80);
+		final StringBuffer sb = new StringBuffer(80);
 		sb.append(Rectangle.class.getName());
 		sb.append("[x=");
-		sb.append(this.getX());
+		sb.append(getX());
 		sb.append(",y=");
-		sb.append(this.getY());
+		sb.append(getY());
 		sb.append(",width=");
-		sb.append(this.getWidth());
+		sb.append(getWidth());
 		sb.append(",height=");
-		sb.append(this.getHeight());
+		sb.append(getHeight());
 		sb.append("]");
 		return sb.toString();
 	}
@@ -82,11 +81,11 @@ public class Rectangle {
 	 * @param rect
 	 *            Rectangle with which to union this one.
 	 */
-	public Rectangle union(Rectangle rect) {
-		int left = Math.min(this.x, rect.x);
-		int top = Math.min(this.y, rect.y);
-		int right = Math.max(this.x + this.width, rect.x + rect.width);
-		int bottom = Math.max(this.y + this.height, rect.y + rect.height);
+	public Rectangle union(final Rectangle rect) {
+		final int left = Math.min(x, rect.x);
+		final int top = Math.min(y, rect.y);
+		final int right = Math.max(x + width, rect.x + rect.width);
+		final int bottom = Math.max(y + height, rect.y + rect.height);
 		return new Rectangle(left, top, right - left, bottom - top);
 	}
 }

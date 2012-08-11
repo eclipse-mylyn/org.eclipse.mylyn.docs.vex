@@ -107,14 +107,14 @@ public class DocumentContentModelTest {
 		assertNotNull(resolvedUrl);
 		assertTrue(resolvedUrl.toString().contains(VEXCoreTestPlugin.PLUGIN_ID));
 	}
-	
+
 	@Test
 	public void onlySystemId() throws Exception {
 		model.initialize(null, null, TestResources.get("test1.dtd").toString(), null);
 		assertTrue(model.isDtdAssigned());
 		assertNotNull(model.getDTD());
 	}
-	
+
 	@Test
 	public void onlyRelativeSystemId() throws Exception {
 		final String baseUri = TestResources.get("test.css").toString();

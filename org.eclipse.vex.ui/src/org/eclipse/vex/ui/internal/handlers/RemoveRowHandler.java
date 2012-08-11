@@ -19,9 +19,9 @@ import org.eclipse.vex.ui.internal.swt.VexWidget;
  */
 public class RemoveRowHandler extends AbstractRemoveTableCellsHandler {
 
-    protected List<Object> collectCellsToDelete(VexWidget widget,
-                                                VexHandlerUtil.RowColumnInfo rcInfo) {
-        return VexHandlerUtil.getSelectedTableRows(widget).getRows();
-    }
+	@Override
+	protected List<Object> collectCellsToDelete(final VexWidget widget, final VexHandlerUtil.RowColumnInfo rcInfo) {
+		return VexHandlerUtil.getSelectedTableRows(widget).getRows();
+	}
 
 }

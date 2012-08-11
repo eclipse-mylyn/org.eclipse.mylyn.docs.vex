@@ -13,9 +13,8 @@ package org.eclipse.vex.core.internal.dom;
 import org.eclipse.core.runtime.QualifiedName;
 
 /**
- * An immutable representation of an attribute within the start tag of an
- * element.
- * The attribute is Comparable by its qualified name.
+ * An immutable representation of an attribute within the start tag of an element. The attribute is Comparable by its
+ * qualified name.
  * 
  * @author Florian Thienel
  */
@@ -57,16 +56,18 @@ public class Attribute implements Comparable<Attribute> {
 	}
 
 	/**
-	 * @return prefix:localName, or localName if prefix is null or this
-	 *         attribute is in the same namespace as the parent element.
+	 * @return prefix:localName, or localName if prefix is null or this attribute is in the same namespace as the parent
+	 *         element.
 	 */
 	public String getPrefixedName() {
 		final String attributeQualifier = name.getQualifier();
-		if (parent == null || attributeQualifier == null)
+		if (parent == null || attributeQualifier == null) {
 			return getLocalName();
+		}
 		final String elementQualifier = parent.getQualifiedName().getQualifier();
-		if (attributeQualifier.equals(elementQualifier))
+		if (attributeQualifier.equals(elementQualifier)) {
 			return getLocalName();
+		}
 		final String prefix = parent.getNamespacePrefix(attributeQualifier);
 		return (prefix == null ? "" : prefix + ":") + getLocalName();
 	}

@@ -17,13 +17,15 @@ import java.util.EventObject;
  */
 public class VexEditorEvent extends EventObject {
 
+	private static final long serialVersionUID = 1L;
+
 	/**
 	 * Class constructor.
 	 * 
 	 * @param source
 	 *            VexEditor that originated this event.
 	 */
-	public VexEditorEvent(VexEditor source) {
+	public VexEditorEvent(final VexEditor source) {
 		super(source);
 	}
 
@@ -31,6 +33,6 @@ public class VexEditorEvent extends EventObject {
 	 * Returns the VexEditor that originated this event.
 	 */
 	public VexEditor getVexEditor() {
-		return (VexEditor) this.getSource();
+		return (VexEditor) getSource();
 	}
 }

@@ -15,5 +15,6 @@ package org.eclipse.vex.core.internal.core;
  */
 public interface Image {
 	int getHeight();
+
 	int getWidth();
 }

@@ -37,7 +37,7 @@ import org.w3c.css.sac.SelectorList;
 public class StyleSheetReader {
 
 	private static final URIResolver URI_RESOLVER = URIResolverPlugin.createResolver();
-	
+
 	public static Parser createParser() {
 		return new org.apache.batik.css.parser.Parser();
 	}
@@ -48,19 +48,18 @@ public class StyleSheetReader {
 	 * @param url
 	 *            URL from which to read the style sheet.
 	 */
-	public StyleSheet read(URL url) throws IOException {
+	public StyleSheet read(final URL url) throws IOException {
 		return this.read(new InputSource(url.toString()), url);
 	}
 
 	/**
-	 * Creates a style sheet from a string. This is mainly used for small style
-	 * sheets within unit tests.
+	 * Creates a style sheet from a string. This is mainly used for small style sheets within unit tests.
 	 * 
 	 * @param s
 	 *            String containing the style sheet.
 	 */
-	public StyleSheet read(String s) throws CSSException, IOException {
-		Reader reader = new CharArrayReader(s.toCharArray());
+	public StyleSheet read(final String s) throws CSSException, IOException {
+		final Reader reader = new CharArrayReader(s.toCharArray());
 		return this.read(new InputSource(reader), null);
 	}
 
@@ -70,11 +69,10 @@ public class StyleSheetReader {
 	 * @param inputSource
 	 *            InputSource from which to read the stylesheet.
 	 * @param url
-	 *            URL representing the input source, used to resolve @import
-	 *            rules with relative URIs. May be null, in which case @import
-	 *            rules are ignored.
+	 *            URL representing the input source, used to resolve @import rules with relative URIs. May be null, in
+	 *            which case @import rules are ignored.
 	 */
-	public StyleSheet read(InputSource inputSource, URL url) throws CSSException, IOException {
+	public StyleSheet read(final InputSource inputSource, final URL url) throws CSSException, IOException {
 		final Parser parser = createParser();
 		final List<Rule> rules = new ArrayList<Rule>();
 		final StyleSheetBuilder styleSheetBuilder = new StyleSheetBuilder(rules, url);
@@ -97,58 +95,59 @@ public class StyleSheetReader {
 		// May be null!
 		private final URL url;
 
-		public StyleSheetBuilder(List<Rule> rules, URL url) {
+		public StyleSheetBuilder(final List<Rule> rules, final URL url) {
 			this.rules = rules;
 			this.url = url;
 		}
 
 		// -------------------------------------------- DocumentHandler methods
 
-		public void comment(java.lang.String text) {
+		public void comment(final java.lang.String text) {
 		}
 
-		public void endDocument(InputSource source) {
+		public void endDocument(final InputSource source) {
 		}
 
 		public void endFontFace() {
 		}
 
-		public void endMedia(SACMediaList media) {
+		public void endMedia(final SACMediaList media) {
 		}
 
-		public void endPage(String name, String pseudo_page) {
+		public void endPage(final String name, final String pseudo_page) {
 		}
 
-		public void endSelector(SelectorList selectors) {
-			this.rules.addAll(this.currentRules);
-			this.currentRules = null;
+		public void endSelector(final SelectorList selectors) {
+			rules.addAll(currentRules);
+			currentRules = null;
 		}
 
-		public void ignorableAtRule(String atRule) {
+		public void ignorableAtRule(final String atRule) {
 		}
 
-		public void importStyle(String uri, SACMediaList media, String defaultNamespaceURI) {
-			if (this.url == null)
+		public void importStyle(final String uri, final SACMediaList media, final String defaultNamespaceURI) {
+			if (url == null) {
 				return;
+			}
 
 			try {
 				final Parser parser = createParser();
-				final URL importUrl = new URL(URI_RESOLVER.resolve(this.url.toString(), null, uri));
+				final URL importUrl = new URL(URI_RESOLVER.resolve(url.toString(), null, uri));
 				final StyleSheetBuilder styleSheetBuilder = new StyleSheetBuilder(rules, importUrl);
 				parser.setDocumentHandler(styleSheetBuilder);
 				parser.parseStyleSheet(new InputSource(importUrl.toString()));
-			} catch (CSSException e) {
+			} catch (final CSSException e) {
 				System.out.println("Cannot parse stylesheet " + uri + ": " + e.getMessage());
-			} catch (IOException e) {
+			} catch (final IOException e) {
 				System.out.println("Cannot read stylesheet " + uri + ": " + e.getMessage());
 			}
 
 		}
 
-		public void namespaceDeclaration(String prefix, String uri) {
+		public void namespaceDeclaration(final String prefix, final String uri) {
 		}
 
-		public void property(String name, LexicalUnit value, boolean important) {
+		public void property(final String name, final LexicalUnit value, final boolean important) {
 			if (name.equals(CSS.BORDER)) {
 				this.expandBorder(value, important);
 			} else if (name.equals(CSS.BORDER_BOTTOM)) {
@@ -160,39 +159,39 @@ public class StyleSheetReader {
 			} else if (name.equals(CSS.BORDER_TOP)) {
 				this.expandBorder(value, CSS.BORDER_TOP, important);
 			} else if (name.equals(CSS.BORDER_COLOR)) {
-				this.expandBorderColor(value, important);
+				expandBorderColor(value, important);
 			} else if (name.equals(CSS.BORDER_STYLE)) {
-				this.expandBorderStyle(value, important);
+				expandBorderStyle(value, important);
 			} else if (name.equals(CSS.BORDER_WIDTH)) {
-				this.expandBorderWidth(value, important);
+				expandBorderWidth(value, important);
 			} else if (name.equals(CSS.FONT)) {
-				this.expandFont(value, important);
+				expandFont(value, important);
 			} else if (name.equals(CSS.MARGIN)) {
-				this.expandMargin(value, important);
+				expandMargin(value, important);
 			} else if (name.equals(CSS.PADDING)) {
-				this.expandPadding(value, important);
+				expandPadding(value, important);
 			} else {
-				this.addDecl(name, value, important);
+				addDecl(name, value, important);
 			}
 		}
 
-		public void startDocument(InputSource source) {
+		public void startDocument(final InputSource source) {
 		}
 
 		public void startFontFace() {
 		}
 
-		public void startMedia(SACMediaList media) {
+		public void startMedia(final SACMediaList media) {
 		}
 
-		public void startPage(String name, String pseudo_page) {
+		public void startPage(final String name, final String pseudo_page) {
 		}
 
-		public void startSelector(SelectorList selectors) {
-			this.currentRules = new ArrayList<Rule>();
+		public void startSelector(final SelectorList selectors) {
+			currentRules = new ArrayList<Rule>();
 			for (int i = 0; i < selectors.getLength(); i++) {
 				final Selector selector = selectors.item(i);
-				this.currentRules.add(new Rule(selector));
+				currentRules.add(new Rule(selector));
 			}
 		}
 
@@ -203,8 +202,8 @@ public class StyleSheetReader {
 		/**
 		 * Adds a PropertyDecl to the current set of rules.
 		 */
-		private void addDecl(String name, LexicalUnit value, boolean important) {
-			for (Rule rule : this.currentRules) {
+		private void addDecl(final String name, final LexicalUnit value, final boolean important) {
+			for (final Rule rule : currentRules) {
 				rule.add(new PropertyDecl(rule, name, value, important));
 			}
 		}
@@ -212,7 +211,7 @@ public class StyleSheetReader {
 		/**
 		 * Expand the "border" shorthand property.
 		 */
-		private void expandBorder(LexicalUnit value, boolean important) {
+		private void expandBorder(final LexicalUnit value, final boolean important) {
 			this.expandBorder(value, CSS.BORDER_BOTTOM, important);
 			this.expandBorder(value, CSS.BORDER_LEFT, important);
 			this.expandBorder(value, CSS.BORDER_RIGHT, important);
@@ -220,33 +219,32 @@ public class StyleSheetReader {
 		}
 
 		/**
-		 * Expand one of the the "border-xxx" shorthand properties. whichBorder
-		 * must be one of CSS.BORDER_BOTTOM, CSS.BORDER_LEFT, CSS.BORDER_RIGHT,
-		 * CSS.BORDER_TOP.
+		 * Expand one of the the "border-xxx" shorthand properties. whichBorder must be one of CSS.BORDER_BOTTOM,
+		 * CSS.BORDER_LEFT, CSS.BORDER_RIGHT, CSS.BORDER_TOP.
 		 */
-		private void expandBorder(LexicalUnit value, String whichBorder, boolean important) {
+		private void expandBorder(final LexicalUnit value, final String whichBorder, final boolean important) {
 
 			if (AbstractProperty.isInherit(value)) {
-				this.addDecl(whichBorder + CSS.COLOR_SUFFIX, value, important);
-				this.addDecl(whichBorder + CSS.STYLE_SUFFIX, value, important);
-				this.addDecl(whichBorder + CSS.WIDTH_SUFFIX, value, important);
+				addDecl(whichBorder + CSS.COLOR_SUFFIX, value, important);
+				addDecl(whichBorder + CSS.STYLE_SUFFIX, value, important);
+				addDecl(whichBorder + CSS.WIDTH_SUFFIX, value, important);
 				return;
 			}
 
-			LexicalUnit[] lus = getLexicalUnitList(value);
+			final LexicalUnit[] lus = getLexicalUnitList(value);
 			int i = 0;
 			if (BorderWidthProperty.isBorderWidth(lus[i])) {
-				this.addDecl(whichBorder + CSS.WIDTH_SUFFIX, lus[i], important);
+				addDecl(whichBorder + CSS.WIDTH_SUFFIX, lus[i], important);
 				i++;
 			}
 
 			if (i < lus.length && BorderStyleProperty.isBorderStyle(lus[i])) {
-				this.addDecl(whichBorder + CSS.STYLE_SUFFIX, lus[i], important);
+				addDecl(whichBorder + CSS.STYLE_SUFFIX, lus[i], important);
 				i++;
 			}
 
 			if (i < lus.length && ColorProperty.isColor(lus[i])) {
-				this.addDecl(whichBorder + CSS.COLOR_SUFFIX, lus[i], important);
+				addDecl(whichBorder + CSS.COLOR_SUFFIX, lus[i], important);
 				i++;
 			}
 
@@ -255,244 +253,243 @@ public class StyleSheetReader {
 		/**
 		 * Expand the "border-color" shorthand property.
 		 */
-		private void expandBorderColor(LexicalUnit value, boolean important) {
+		private void expandBorderColor(final LexicalUnit value, final boolean important) {
 
 			if (AbstractProperty.isInherit(value)) {
-				this.addDecl(CSS.BORDER_TOP_COLOR, value, important);
-				this.addDecl(CSS.BORDER_LEFT_COLOR, value, important);
-				this.addDecl(CSS.BORDER_RIGHT_COLOR, value, important);
-				this.addDecl(CSS.BORDER_BOTTOM_COLOR, value, important);
+				addDecl(CSS.BORDER_TOP_COLOR, value, important);
+				addDecl(CSS.BORDER_LEFT_COLOR, value, important);
+				addDecl(CSS.BORDER_RIGHT_COLOR, value, important);
+				addDecl(CSS.BORDER_BOTTOM_COLOR, value, important);
 				return;
 			}
 
-			LexicalUnit[] lus = getLexicalUnitList(value);
+			final LexicalUnit[] lus = getLexicalUnitList(value);
 			if (lus.length >= 4) {
-				this.addDecl(CSS.BORDER_TOP_COLOR, lus[0], important);
-				this.addDecl(CSS.BORDER_RIGHT_COLOR, lus[1], important);
-				this.addDecl(CSS.BORDER_BOTTOM_COLOR, lus[2], important);
-				this.addDecl(CSS.BORDER_LEFT_COLOR, lus[3], important);
+				addDecl(CSS.BORDER_TOP_COLOR, lus[0], important);
+				addDecl(CSS.BORDER_RIGHT_COLOR, lus[1], important);
+				addDecl(CSS.BORDER_BOTTOM_COLOR, lus[2], important);
+				addDecl(CSS.BORDER_LEFT_COLOR, lus[3], important);
 			} else if (lus.length == 3) {
-				this.addDecl(CSS.BORDER_TOP_COLOR, lus[0], important);
-				this.addDecl(CSS.BORDER_LEFT_COLOR, lus[1], important);
-				this.addDecl(CSS.BORDER_RIGHT_COLOR, lus[1], important);
-				this.addDecl(CSS.BORDER_BOTTOM_COLOR, lus[2], important);
+				addDecl(CSS.BORDER_TOP_COLOR, lus[0], important);
+				addDecl(CSS.BORDER_LEFT_COLOR, lus[1], important);
+				addDecl(CSS.BORDER_RIGHT_COLOR, lus[1], important);
+				addDecl(CSS.BORDER_BOTTOM_COLOR, lus[2], important);
 			} else if (lus.length == 2) {
-				this.addDecl(CSS.BORDER_TOP_COLOR, lus[0], important);
-				this.addDecl(CSS.BORDER_LEFT_COLOR, lus[1], important);
-				this.addDecl(CSS.BORDER_RIGHT_COLOR, lus[1], important);
-				this.addDecl(CSS.BORDER_BOTTOM_COLOR, lus[0], important);
+				addDecl(CSS.BORDER_TOP_COLOR, lus[0], important);
+				addDecl(CSS.BORDER_LEFT_COLOR, lus[1], important);
+				addDecl(CSS.BORDER_RIGHT_COLOR, lus[1], important);
+				addDecl(CSS.BORDER_BOTTOM_COLOR, lus[0], important);
 			} else if (lus.length == 1) {
-				this.addDecl(CSS.BORDER_TOP_COLOR, lus[0], important);
-				this.addDecl(CSS.BORDER_LEFT_COLOR, lus[0], important);
-				this.addDecl(CSS.BORDER_RIGHT_COLOR, lus[0], important);
-				this.addDecl(CSS.BORDER_BOTTOM_COLOR, lus[0], important);
+				addDecl(CSS.BORDER_TOP_COLOR, lus[0], important);
+				addDecl(CSS.BORDER_LEFT_COLOR, lus[0], important);
+				addDecl(CSS.BORDER_RIGHT_COLOR, lus[0], important);
+				addDecl(CSS.BORDER_BOTTOM_COLOR, lus[0], important);
 			}
 		}
 
 		/**
 		 * Expand the "border-style" shorthand property.
 		 */
-		private void expandBorderStyle(LexicalUnit value, boolean important) {
+		private void expandBorderStyle(final LexicalUnit value, final boolean important) {
 
 			if (AbstractProperty.isInherit(value)) {
-				this.addDecl(CSS.BORDER_TOP_STYLE, value, important);
-				this.addDecl(CSS.BORDER_LEFT_STYLE, value, important);
-				this.addDecl(CSS.BORDER_RIGHT_STYLE, value, important);
-				this.addDecl(CSS.BORDER_BOTTOM_STYLE, value, important);
+				addDecl(CSS.BORDER_TOP_STYLE, value, important);
+				addDecl(CSS.BORDER_LEFT_STYLE, value, important);
+				addDecl(CSS.BORDER_RIGHT_STYLE, value, important);
+				addDecl(CSS.BORDER_BOTTOM_STYLE, value, important);
 				return;
 			}
 
-			LexicalUnit[] lus = getLexicalUnitList(value);
+			final LexicalUnit[] lus = getLexicalUnitList(value);
 			if (lus.length >= 4) {
-				this.addDecl(CSS.BORDER_TOP_STYLE, lus[0], important);
-				this.addDecl(CSS.BORDER_RIGHT_STYLE, lus[1], important);
-				this.addDecl(CSS.BORDER_BOTTOM_STYLE, lus[2], important);
-				this.addDecl(CSS.BORDER_LEFT_STYLE, lus[3], important);
+				addDecl(CSS.BORDER_TOP_STYLE, lus[0], important);
+				addDecl(CSS.BORDER_RIGHT_STYLE, lus[1], important);
+				addDecl(CSS.BORDER_BOTTOM_STYLE, lus[2], important);
+				addDecl(CSS.BORDER_LEFT_STYLE, lus[3], important);
 			} else if (lus.length == 3) {
-				this.addDecl(CSS.BORDER_TOP_STYLE, lus[0], important);
-				this.addDecl(CSS.BORDER_LEFT_STYLE, lus[1], important);
-				this.addDecl(CSS.BORDER_RIGHT_STYLE, lus[1], important);
-				this.addDecl(CSS.BORDER_BOTTOM_STYLE, lus[2], important);
+				addDecl(CSS.BORDER_TOP_STYLE, lus[0], important);
+				addDecl(CSS.BORDER_LEFT_STYLE, lus[1], important);
+				addDecl(CSS.BORDER_RIGHT_STYLE, lus[1], important);
+				addDecl(CSS.BORDER_BOTTOM_STYLE, lus[2], important);
 			} else if (lus.length == 2) {
-				this.addDecl(CSS.BORDER_TOP_STYLE, lus[0], important);
-				this.addDecl(CSS.BORDER_LEFT_STYLE, lus[1], important);
-				this.addDecl(CSS.BORDER_RIGHT_STYLE, lus[1], important);
-				this.addDecl(CSS.BORDER_BOTTOM_STYLE, lus[0], important);
+				addDecl(CSS.BORDER_TOP_STYLE, lus[0], important);
+				addDecl(CSS.BORDER_LEFT_STYLE, lus[1], important);
+				addDecl(CSS.BORDER_RIGHT_STYLE, lus[1], important);
+				addDecl(CSS.BORDER_BOTTOM_STYLE, lus[0], important);
 			} else if (lus.length == 1) {
-				this.addDecl(CSS.BORDER_TOP_STYLE, lus[0], important);
-				this.addDecl(CSS.BORDER_LEFT_STYLE, lus[0], important);
-				this.addDecl(CSS.BORDER_RIGHT_STYLE, lus[0], important);
-				this.addDecl(CSS.BORDER_BOTTOM_STYLE, lus[0], important);
+				addDecl(CSS.BORDER_TOP_STYLE, lus[0], important);
+				addDecl(CSS.BORDER_LEFT_STYLE, lus[0], important);
+				addDecl(CSS.BORDER_RIGHT_STYLE, lus[0], important);
+				addDecl(CSS.BORDER_BOTTOM_STYLE, lus[0], important);
 			}
 		}
 
 		/**
 		 * Expand the "border-width" shorthand property.
 		 */
-		private void expandBorderWidth(LexicalUnit value, boolean important) {
+		private void expandBorderWidth(final LexicalUnit value, final boolean important) {
 
 			if (AbstractProperty.isInherit(value)) {
-				this.addDecl(CSS.BORDER_TOP_WIDTH, value, important);
-				this.addDecl(CSS.BORDER_LEFT_WIDTH, value, important);
-				this.addDecl(CSS.BORDER_RIGHT_WIDTH, value, important);
-				this.addDecl(CSS.BORDER_BOTTOM_WIDTH, value, important);
+				addDecl(CSS.BORDER_TOP_WIDTH, value, important);
+				addDecl(CSS.BORDER_LEFT_WIDTH, value, important);
+				addDecl(CSS.BORDER_RIGHT_WIDTH, value, important);
+				addDecl(CSS.BORDER_BOTTOM_WIDTH, value, important);
 				return;
 			}
 
-			LexicalUnit[] lus = getLexicalUnitList(value);
+			final LexicalUnit[] lus = getLexicalUnitList(value);
 			if (lus.length >= 4) {
-				this.addDecl(CSS.BORDER_TOP_WIDTH, lus[0], important);
-				this.addDecl(CSS.BORDER_RIGHT_WIDTH, lus[1], important);
-				this.addDecl(CSS.BORDER_BOTTOM_WIDTH, lus[2], important);
-				this.addDecl(CSS.BORDER_LEFT_WIDTH, lus[3], important);
+				addDecl(CSS.BORDER_TOP_WIDTH, lus[0], important);
+				addDecl(CSS.BORDER_RIGHT_WIDTH, lus[1], important);
+				addDecl(CSS.BORDER_BOTTOM_WIDTH, lus[2], important);
+				addDecl(CSS.BORDER_LEFT_WIDTH, lus[3], important);
 			} else if (lus.length == 3) {
-				this.addDecl(CSS.BORDER_TOP_WIDTH, lus[0], important);
-				this.addDecl(CSS.BORDER_LEFT_WIDTH, lus[1], important);
-				this.addDecl(CSS.BORDER_RIGHT_WIDTH, lus[1], important);
-				this.addDecl(CSS.BORDER_BOTTOM_WIDTH, lus[2], important);
+				addDecl(CSS.BORDER_TOP_WIDTH, lus[0], important);
+				addDecl(CSS.BORDER_LEFT_WIDTH, lus[1], important);
+				addDecl(CSS.BORDER_RIGHT_WIDTH, lus[1], important);
+				addDecl(CSS.BORDER_BOTTOM_WIDTH, lus[2], important);
 			} else if (lus.length == 2) {
-				this.addDecl(CSS.BORDER_TOP_WIDTH, lus[0], important);
-				this.addDecl(CSS.BORDER_LEFT_WIDTH, lus[1], important);
-				this.addDecl(CSS.BORDER_RIGHT_WIDTH, lus[1], important);
-				this.addDecl(CSS.BORDER_BOTTOM_WIDTH, lus[0], important);
+				addDecl(CSS.BORDER_TOP_WIDTH, lus[0], important);
+				addDecl(CSS.BORDER_LEFT_WIDTH, lus[1], important);
+				addDecl(CSS.BORDER_RIGHT_WIDTH, lus[1], important);
+				addDecl(CSS.BORDER_BOTTOM_WIDTH, lus[0], important);
 			} else if (lus.length == 1) {
-				this.addDecl(CSS.BORDER_TOP_WIDTH, lus[0], important);
-				this.addDecl(CSS.BORDER_LEFT_WIDTH, lus[0], important);
-				this.addDecl(CSS.BORDER_RIGHT_WIDTH, lus[0], important);
-				this.addDecl(CSS.BORDER_BOTTOM_WIDTH, lus[0], important);
+				addDecl(CSS.BORDER_TOP_WIDTH, lus[0], important);
+				addDecl(CSS.BORDER_LEFT_WIDTH, lus[0], important);
+				addDecl(CSS.BORDER_RIGHT_WIDTH, lus[0], important);
+				addDecl(CSS.BORDER_BOTTOM_WIDTH, lus[0], important);
 			}
 		}
 
 		/**
 		 * Expand the "font" shorthand property.
 		 */
-		private void expandFont(LexicalUnit value, boolean important) {
+		private void expandFont(final LexicalUnit value, final boolean important) {
 
 			if (AbstractProperty.isInherit(value)) {
-				this.addDecl(CSS.FONT_STYLE, value, important);
-				this.addDecl(CSS.FONT_VARIANT, value, important);
-				this.addDecl(CSS.FONT_WEIGHT, value, important);
-				this.addDecl(CSS.FONT_SIZE, value, important);
-				this.addDecl(CSS.FONT_FAMILY, value, important);
+				addDecl(CSS.FONT_STYLE, value, important);
+				addDecl(CSS.FONT_VARIANT, value, important);
+				addDecl(CSS.FONT_WEIGHT, value, important);
+				addDecl(CSS.FONT_SIZE, value, important);
+				addDecl(CSS.FONT_FAMILY, value, important);
 				return;
 			}
 
-			LexicalUnit[] lus = getLexicalUnitList(value);
-			int n = lus.length;
+			final LexicalUnit[] lus = getLexicalUnitList(value);
+			final int n = lus.length;
 			int i = 0;
 			if (i < n && FontStyleProperty.isFontStyle(lus[i])) {
-				this.addDecl(CSS.FONT_STYLE, lus[i], important);
+				addDecl(CSS.FONT_STYLE, lus[i], important);
 				i++;
 			}
 
 			if (i < n && FontVariantProperty.isFontVariant(lus[i])) {
-				this.addDecl(CSS.FONT_VARIANT, lus[i], important);
+				addDecl(CSS.FONT_VARIANT, lus[i], important);
 				i++;
 			}
 
 			if (i < n && FontWeightProperty.isFontWeight(lus[i])) {
-				this.addDecl(CSS.FONT_WEIGHT, lus[i], important);
+				addDecl(CSS.FONT_WEIGHT, lus[i], important);
 				i++;
 			}
 
 			if (i < n && FontSizeProperty.isFontSize(lus[i])) {
-				this.addDecl(CSS.FONT_SIZE, lus[i], important);
+				addDecl(CSS.FONT_SIZE, lus[i], important);
 				i++;
 			}
 
 			if (i < n && lus[i].getLexicalUnitType() == LexicalUnit.SAC_OPERATOR_SLASH) {
 				i++; // gobble slash
 				if (i < n) {
-					this.addDecl(CSS.LINE_HEIGHT, lus[i], important);
+					addDecl(CSS.LINE_HEIGHT, lus[i], important);
 				}
 				i++;
 			}
 
 			if (i < n) {
-				this.addDecl(CSS.FONT_FAMILY, lus[i], important);
+				addDecl(CSS.FONT_FAMILY, lus[i], important);
 			}
 		}
 
 		/**
 		 * Expand the "margin" shorthand property.
 		 */
-		private void expandMargin(LexicalUnit value, boolean important) {
+		private void expandMargin(final LexicalUnit value, final boolean important) {
 
 			if (AbstractProperty.isInherit(value)) {
-				this.addDecl(CSS.MARGIN_TOP, value, important);
-				this.addDecl(CSS.MARGIN_RIGHT, value, important);
-				this.addDecl(CSS.MARGIN_BOTTOM, value, important);
-				this.addDecl(CSS.MARGIN_LEFT, value, important);
+				addDecl(CSS.MARGIN_TOP, value, important);
+				addDecl(CSS.MARGIN_RIGHT, value, important);
+				addDecl(CSS.MARGIN_BOTTOM, value, important);
+				addDecl(CSS.MARGIN_LEFT, value, important);
 				return;
 			}
 
-			LexicalUnit[] lus = getLexicalUnitList(value);
+			final LexicalUnit[] lus = getLexicalUnitList(value);
 			if (lus.length >= 4) {
-				this.addDecl(CSS.MARGIN_TOP, lus[0], important);
-				this.addDecl(CSS.MARGIN_RIGHT, lus[1], important);
-				this.addDecl(CSS.MARGIN_BOTTOM, lus[2], important);
-				this.addDecl(CSS.MARGIN_LEFT, lus[3], important);
+				addDecl(CSS.MARGIN_TOP, lus[0], important);
+				addDecl(CSS.MARGIN_RIGHT, lus[1], important);
+				addDecl(CSS.MARGIN_BOTTOM, lus[2], important);
+				addDecl(CSS.MARGIN_LEFT, lus[3], important);
 			} else if (lus.length == 3) {
-				this.addDecl(CSS.MARGIN_TOP, lus[0], important);
-				this.addDecl(CSS.MARGIN_LEFT, lus[1], important);
-				this.addDecl(CSS.MARGIN_RIGHT, lus[1], important);
-				this.addDecl(CSS.MARGIN_BOTTOM, lus[2], important);
+				addDecl(CSS.MARGIN_TOP, lus[0], important);
+				addDecl(CSS.MARGIN_LEFT, lus[1], important);
+				addDecl(CSS.MARGIN_RIGHT, lus[1], important);
+				addDecl(CSS.MARGIN_BOTTOM, lus[2], important);
 			} else if (lus.length == 2) {
-				this.addDecl(CSS.MARGIN_TOP, lus[0], important);
-				this.addDecl(CSS.MARGIN_LEFT, lus[1], important);
-				this.addDecl(CSS.MARGIN_RIGHT, lus[1], important);
-				this.addDecl(CSS.MARGIN_BOTTOM, lus[0], important);
+				addDecl(CSS.MARGIN_TOP, lus[0], important);
+				addDecl(CSS.MARGIN_LEFT, lus[1], important);
+				addDecl(CSS.MARGIN_RIGHT, lus[1], important);
+				addDecl(CSS.MARGIN_BOTTOM, lus[0], important);
 			} else if (lus.length == 1) {
-				this.addDecl(CSS.MARGIN_TOP, lus[0], important);
-				this.addDecl(CSS.MARGIN_LEFT, lus[0], important);
-				this.addDecl(CSS.MARGIN_RIGHT, lus[0], important);
-				this.addDecl(CSS.MARGIN_BOTTOM, lus[0], important);
+				addDecl(CSS.MARGIN_TOP, lus[0], important);
+				addDecl(CSS.MARGIN_LEFT, lus[0], important);
+				addDecl(CSS.MARGIN_RIGHT, lus[0], important);
+				addDecl(CSS.MARGIN_BOTTOM, lus[0], important);
 			}
 		}
 
 		/**
 		 * Expand the "padding" shorthand property.
 		 */
-		private void expandPadding(LexicalUnit value, boolean important) {
+		private void expandPadding(final LexicalUnit value, final boolean important) {
 
 			if (AbstractProperty.isInherit(value)) {
-				this.addDecl(CSS.PADDING_TOP, value, important);
-				this.addDecl(CSS.PADDING_LEFT, value, important);
-				this.addDecl(CSS.PADDING_RIGHT, value, important);
-				this.addDecl(CSS.PADDING_BOTTOM, value, important);
+				addDecl(CSS.PADDING_TOP, value, important);
+				addDecl(CSS.PADDING_LEFT, value, important);
+				addDecl(CSS.PADDING_RIGHT, value, important);
+				addDecl(CSS.PADDING_BOTTOM, value, important);
 				return;
 			}
 
-			LexicalUnit[] lus = getLexicalUnitList(value);
+			final LexicalUnit[] lus = getLexicalUnitList(value);
 			if (lus.length >= 4) {
-				this.addDecl(CSS.PADDING_TOP, lus[0], important);
-				this.addDecl(CSS.PADDING_RIGHT, lus[1], important);
-				this.addDecl(CSS.PADDING_BOTTOM, lus[2], important);
-				this.addDecl(CSS.PADDING_LEFT, lus[3], important);
+				addDecl(CSS.PADDING_TOP, lus[0], important);
+				addDecl(CSS.PADDING_RIGHT, lus[1], important);
+				addDecl(CSS.PADDING_BOTTOM, lus[2], important);
+				addDecl(CSS.PADDING_LEFT, lus[3], important);
 			} else if (lus.length == 3) {
-				this.addDecl(CSS.PADDING_TOP, lus[0], important);
-				this.addDecl(CSS.PADDING_LEFT, lus[1], important);
-				this.addDecl(CSS.PADDING_RIGHT, lus[1], important);
-				this.addDecl(CSS.PADDING_BOTTOM, lus[2], important);
+				addDecl(CSS.PADDING_TOP, lus[0], important);
+				addDecl(CSS.PADDING_LEFT, lus[1], important);
+				addDecl(CSS.PADDING_RIGHT, lus[1], important);
+				addDecl(CSS.PADDING_BOTTOM, lus[2], important);
 			} else if (lus.length == 2) {
-				this.addDecl(CSS.PADDING_TOP, lus[0], important);
-				this.addDecl(CSS.PADDING_LEFT, lus[1], important);
-				this.addDecl(CSS.PADDING_RIGHT, lus[1], important);
-				this.addDecl(CSS.PADDING_BOTTOM, lus[0], important);
+				addDecl(CSS.PADDING_TOP, lus[0], important);
+				addDecl(CSS.PADDING_LEFT, lus[1], important);
+				addDecl(CSS.PADDING_RIGHT, lus[1], important);
+				addDecl(CSS.PADDING_BOTTOM, lus[0], important);
 			} else if (lus.length == 1) {
-				this.addDecl(CSS.PADDING_TOP, lus[0], important);
-				this.addDecl(CSS.PADDING_LEFT, lus[0], important);
-				this.addDecl(CSS.PADDING_RIGHT, lus[0], important);
-				this.addDecl(CSS.PADDING_BOTTOM, lus[0], important);
+				addDecl(CSS.PADDING_TOP, lus[0], important);
+				addDecl(CSS.PADDING_LEFT, lus[0], important);
+				addDecl(CSS.PADDING_RIGHT, lus[0], important);
+				addDecl(CSS.PADDING_BOTTOM, lus[0], important);
 			}
 		}
 
 		/**
-		 * Returns an array of <code>LexicalUnit</code> objects, the first of
-		 * which is given.
+		 * Returns an array of <code>LexicalUnit</code> objects, the first of which is given.
 		 */
 		private static LexicalUnit[] getLexicalUnitList(LexicalUnit lu) {
-			List<LexicalUnit> lus = new ArrayList<LexicalUnit>();
+			final List<LexicalUnit> lus = new ArrayList<LexicalUnit>();
 			while (lu != null) {
 				lus.add(lu);
 				lu = lu.getNextLexicalUnit();

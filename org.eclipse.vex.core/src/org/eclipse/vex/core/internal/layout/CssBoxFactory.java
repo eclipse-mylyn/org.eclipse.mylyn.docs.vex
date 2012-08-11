@@ -16,8 +16,7 @@ import org.eclipse.vex.core.internal.dom.CommentElement;
 import org.eclipse.vex.core.internal.dom.Element;
 
 /**
- * Implementation of the BoxFactory interface that returns boxes that represent
- * CSS semantics.
+ * Implementation of the BoxFactory interface that returns boxes that represent CSS semantics.
  */
 public class CssBoxFactory implements BoxFactory {
 
@@ -25,14 +24,15 @@ public class CssBoxFactory implements BoxFactory {
 
 	public Box createBox(final LayoutContext context, final Element element, final BlockBox parent, final int containerWidth) {
 		final Styles styles = context.getStyleSheet().getStyles(element);
-		if (element instanceof CommentElement)
+		if (element instanceof CommentElement) {
 			return new CommentBlockElementBox(context, parent, element);
-		else if (styles.getDisplay().equals(CSS.TABLE))
+		} else if (styles.getDisplay().equals(CSS.TABLE)) {
 			return new TableBox(context, parent, element);
-		else if (styles.isBlock())
+		} else if (styles.isBlock()) {
 			return new BlockElementBox(context, parent, element);
-		else
+		} else {
 			throw new RuntimeException("Unexpected display property: " + styles.getDisplay());
+		}
 	}
 
 }

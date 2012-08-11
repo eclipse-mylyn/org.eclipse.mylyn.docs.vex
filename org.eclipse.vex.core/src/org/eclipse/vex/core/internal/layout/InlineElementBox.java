@@ -27,8 +27,7 @@ import org.eclipse.vex.core.internal.dom.Node;
 import org.eclipse.vex.core.internal.dom.Text;
 
 /**
- * An inline box that represents an inline element. This box is responsible for
- * creating and laying out its child boxes.
+ * An inline box that represents an inline element. This box is responsible for creating and laying out its child boxes.
  */
 public class InlineElementBox extends CompositeInlineBox {
 
@@ -49,11 +48,9 @@ public class InlineElementBox extends CompositeInlineBox {
 	 * @param element
 	 *            Element that generated this box
 	 * @param startOffset
-	 *            Start offset of the range being rendered, which may be
-	 *            arbitrarily before or inside the element.
+	 *            Start offset of the range being rendered, which may be arbitrarily before or inside the element.
 	 * @param endOffset
-	 *            End offset of the range being rendered, which may be
-	 *            arbitrarily after or inside the element.
+	 *            End offset of the range being rendered, which may be arbitrarily after or inside the element.
 	 */
 	private InlineElementBox(final LayoutContext context, final Element element, final int startOffset, final int endOffset) {
 
@@ -68,17 +65,19 @@ public class InlineElementBox extends CompositeInlineBox {
 			// space for the left margin/border/padding
 			final int space = styles.getMarginLeft().get(0) + styles.getBorderLeftWidth() + styles.getPaddingLeft().get(0);
 
-			if (space > 0)
+			if (space > 0) {
 				childList.add(new SpaceBox(space, 1));
+			}
 
-			if (element instanceof CommentElement)
+			if (element instanceof CommentElement) {
 				childList.add(new StaticTextBox(context, element, COMMENT_BEFORE_TEXT));
-			else {
+			} else {
 				// :before content
 				final Element beforeElement;
 				beforeElement = context.getStyleSheet().getBeforeElement(element);
-				if (beforeElement != null)
+				if (beforeElement != null) {
 					childList.addAll(LayoutUtils.createGeneratedInlines(context, beforeElement));
+				}
 				// left marker
 				childList.add(createLeftMarker(element, styles));
 			}
@@ -88,8 +87,9 @@ public class InlineElementBox extends CompositeInlineBox {
 		// background image
 		if (styles.hasBackgroundImage() && !styles.getDisplay().equalsIgnoreCase(CSS.NONE)) {
 			final ImageBox imageBox = ImageBox.createWithHeight(getElement(), context, styles.getLineHeight());
-			if (imageBox != null)
+			if (imageBox != null) {
 				childList.add(imageBox);
+			}
 		}
 
 		final InlineBoxes inlines = createInlineBoxes(context, element, startOffset, endOffset);
@@ -101,23 +101,25 @@ public class InlineElementBox extends CompositeInlineBox {
 
 			childList.add(new PlaceholderBox(context, element, element.getEndOffset() - element.getStartOffset()));
 
-			if (element instanceof CommentElement)
+			if (element instanceof CommentElement) {
 				childList.add(new StaticTextBox(context, element, COMMENT_AFTER_TEXT));
-			else {
+			} else {
 				// trailing marker
 				childList.add(createRightMarker(element, styles));
 
 				// :after content
 				final Element afterElement = context.getStyleSheet().getAfterElement(element);
-				if (afterElement != null)
+				if (afterElement != null) {
 					childList.addAll(LayoutUtils.createGeneratedInlines(context, afterElement));
+				}
 			}
 
 			// space for the right margin/border/padding
 			final int space = styles.getMarginRight().get(0) + styles.getBorderRightWidth() + styles.getPaddingRight().get(0);
 
-			if (space > 0)
+			if (space > 0) {
 				childList.add(new SpaceBox(space, 1));
+			}
 		}
 
 		children = childList.toArray(new InlineBox[childList.size()]);
@@ -138,12 +140,14 @@ public class InlineElementBox extends CompositeInlineBox {
 		this.element = element;
 		this.children = children;
 		layout(context);
-		for (final InlineBox child : children)
+		for (final InlineBox child : children) {
 			if (child.hasContent()) {
-				if (firstContentChild == null)
+				if (firstContentChild == null) {
 					firstContentChild = child;
+				}
 				lastContentChild = child;
 			}
+		}
 	}
 
 	/**
@@ -174,10 +178,11 @@ public class InlineElementBox extends CompositeInlineBox {
 	 */
 	@Override
 	public int getEndOffset() {
-		if (lastContentChild == null)
+		if (lastContentChild == null) {
 			return getElement().getEndOffset();
-		else
+		} else {
 			return lastContentChild.getEndOffset();
+		}
 	}
 
 	/**
@@ -185,10 +190,11 @@ public class InlineElementBox extends CompositeInlineBox {
 	 */
 	@Override
 	public int getStartOffset() {
-		if (firstContentChild == null)
+		if (firstContentChild == null) {
 			return getElement().getStartOffset();
-		else
+		} else {
 			return firstContentChild.getStartOffset();
+		}
 	}
 
 	/**
@@ -209,11 +215,13 @@ public class InlineElementBox extends CompositeInlineBox {
 		InlineElementBox left = null;
 		InlineElementBox right = null;
 
-		if (lefts.length > 0 || rights.length == 0)
+		if (lefts.length > 0 || rights.length == 0) {
 			left = new InlineElementBox(context, getElement(), lefts);
+		}
 
-		if (rights.length > 0)
+		if (rights.length > 0) {
 			right = new InlineElementBox(context, getElement(), rights);
+		}
 
 		return new Pair(left, right);
 	}
@@ -227,8 +235,9 @@ public class InlineElementBox extends CompositeInlineBox {
 			sb.append(">");
 		}
 		final Box[] children = getChildren();
-		for (final Box element2 : children)
+		for (final Box element2 : children) {
 			sb.append(element2);
+		}
 		if (getEndOffset() == getElement().getEndOffset()) {
 			sb.append("</");
 			sb.append(getElement().getPrefixedName());
@@ -253,8 +262,8 @@ public class InlineElementBox extends CompositeInlineBox {
 	}
 
 	/**
-	 * Creates a list of inline boxes given a range of offsets. This method is
-	 * used when creating both ParagraphBoxes and InlineElementBoxes.
+	 * Creates a list of inline boxes given a range of offsets. This method is used when creating both ParagraphBoxes
+	 * and InlineElementBoxes.
 	 * 
 	 * @param context
 	 *            LayoutContext to be used.
@@ -276,14 +285,15 @@ public class InlineElementBox extends CompositeInlineBox {
 			final Node node = nodes.get(i);
 			InlineBox child;
 
-			if (node.getStartOffset() >= endOffset)
+			if (node.getStartOffset() >= endOffset) {
 				break;
-			else if (node instanceof Text) {
+			} else if (node instanceof Text) {
 
 				// This check is different for Text and Element, so we have to
 				// do it here and below, too.
-				if (node.getEndOffset() <= startOffset)
+				if (node.getEndOffset() <= startOffset) {
 					continue;
+				}
 
 				final int start = Math.max(startOffset, node.getStartOffset());
 				final int end = Math.min(endOffset, node.getEndOffset());
@@ -291,19 +301,22 @@ public class InlineElementBox extends CompositeInlineBox {
 
 			} else {
 
-				if (node.getEndOffset() < startOffset)
+				if (node.getEndOffset() < startOffset) {
 					continue;
+				}
 
 				final Element childElement = (Element) node;
 				final InlineBox placeholder = new PlaceholderBox(context, element2, childElement.getStartOffset() - element2.getStartOffset());
 				result.boxes.add(placeholder);
-				if (result.firstContentBox == null)
+				if (result.firstContentBox == null) {
 					result.firstContentBox = placeholder;
+				}
 				child = new InlineElementBox(context, childElement, startOffset, endOffset);
 			}
 
-			if (result.firstContentBox == null)
+			if (result.firstContentBox == null) {
 				result.firstContentBox = child;
+			}
 
 			result.lastContentBox = child;
 

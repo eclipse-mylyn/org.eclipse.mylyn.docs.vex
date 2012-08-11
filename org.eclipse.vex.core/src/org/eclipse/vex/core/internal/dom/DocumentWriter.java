@@ -21,8 +21,7 @@ import java.util.List;
 import org.eclipse.vex.core.internal.validator.AttributeDefinition;
 
 /**
- * Writes a document to an output stream, using a stylesheet to provide
- * formatting hints.
+ * Writes a document to an output stream, using a stylesheet to provide formatting hints.
  * 
  * <ul>
  * <li>Children of an element are indented by a configurable amount.</li>
@@ -31,8 +30,7 @@ import org.eclipse.vex.core.internal.validator.AttributeDefinition;
  * </ul>
  * 
  * <p>
- * Documents are currently saved UTF-8 encoding, with no encoding specified in
- * the XML declaration.
+ * Documents are currently saved UTF-8 encoding, with no encoding specified in the XML declaration.
  * </p>
  */
 public class DocumentWriter {
@@ -49,7 +47,7 @@ public class DocumentWriter {
 		wrapColumn = 72;
 	}
 
-	/**
+/**
      * Escapes special XML characters. Changes '<', '>', and '&' to
      * '&lt;', '&gt;' and '&amp;', respectively.
      *
@@ -61,18 +59,19 @@ public class DocumentWriter {
 
 		for (int i = 0; i < s.length(); i++) {
 			final char c = s.charAt(i);
-			if (c == '<')
+			if (c == '<') {
 				sb.append("&lt;");
-			else if (c == '>')
+			} else if (c == '>') {
 				sb.append("&gt;");
-			else if (c == '&')
+			} else if (c == '&') {
 				sb.append("&amp;");
-			else if (c == '"')
+			} else if (c == '"') {
 				sb.append("&quot;");
-			else if (c == '\'')
+			} else if (c == '\'') {
 				sb.append("&apos;");
-			else
+			} else {
 				sb.append(c);
+			}
 		}
 		return sb.toString();
 	}
@@ -92,8 +91,7 @@ public class DocumentWriter {
 	}
 
 	/**
-	 * Returns the column at which text should be wrapped. By default this is
-	 * 72.
+	 * Returns the column at which text should be wrapped. By default this is 72.
 	 */
 	public int getWrapColumn() {
 		return wrapColumn;
@@ -110,9 +108,8 @@ public class DocumentWriter {
 	}
 
 	/**
-	 * Sets the whitespace policy for this writer. The whitespace policy tells
-	 * the writer which elements are block-formatted and which are
-	 * pre-formatted.
+	 * Sets the whitespace policy for this writer. The whitespace policy tells the writer which elements are
+	 * block-formatted and which are pre-formatted.
 	 * 
 	 * @param whitespacePolicy
 	 *            The whitespacePolicy to set.
@@ -146,8 +143,9 @@ public class DocumentWriter {
 				sb.append(" \"");
 				sb.append(doc.getPublicID());
 				sb.append("\"");
-			} else
+			} else {
 				sb.append(" SYSTEM");
+			}
 			sb.append(" \"");
 			sb.append(doc.getSystemID());
 			sb.append("\">");
@@ -179,8 +177,9 @@ public class DocumentWriter {
 			pw.println("<!-- ");
 
 			final String childIndent = indent + this.indent;
-			for (final Node child : element.getChildNodes())
+			for (final Node child : element.getChildNodes()) {
 				writeNode(child, pw, childIndent);
+			}
 
 			pw.print(indent);
 			pw.println(" -->");
@@ -197,11 +196,12 @@ public class DocumentWriter {
 
 			boolean hasBlockChild = false;
 			final List<Element> children = element.getChildElements();
-			for (int i = 0; i < children.size(); i++)
+			for (int i = 0; i < children.size(); i++) {
 				if (whitespacePolicy != null && whitespacePolicy.isBlock(children.get(i))) {
 					hasBlockChild = true;
 					break;
 				}
+			}
 
 			if (hasBlockChild) {
 				pw.print(indent);
@@ -216,17 +216,20 @@ public class DocumentWriter {
 				final char[] bigIndent = new char[outdent];
 				Arrays.fill(bigIndent, ' ');
 				for (int i = 0; i < lines.length; i++) {
-					if (i > 0)
+					if (i > 0) {
 						pw.print(bigIndent);
+					}
 					pw.print(lines[i]);
-					if (i < lines.length - 1)
+					if (i < lines.length - 1) {
 						pw.println();
+					}
 				}
 				pw.println(">");
 
 				final String childIndent = indent + this.indent;
-				for (final Node child : element.getChildNodes())
+				for (final Node child : element.getChildNodes()) {
 					writeNode(child, pw, childIndent);
+				}
 				pw.print(indent);
 				pw.print("</");
 				pw.print(element.getPrefixedName());
@@ -246,15 +249,16 @@ public class DocumentWriter {
 
 	private void writeNodeNoWrap(final Node node, final PrintWriter pw) {
 
-		if (node instanceof Text)
+		if (node instanceof Text) {
 			pw.print(escape(node.getText()));
-		else if (node instanceof CommentElement) {
-			
+		} else if (node instanceof CommentElement) {
+
 			final CommentElement element = (CommentElement) node;
-			
+
 			pw.print("<!-- ");
-			for (final Node child : element.getChildNodes())
+			for (final Node child : element.getChildNodes()) {
 				writeNodeNoWrap(child, pw);
+			}
 			pw.print(" -->");
 		} else {
 
@@ -266,8 +270,9 @@ public class DocumentWriter {
 			pw.print(getAttributeString(element));
 			pw.print(">");
 
-			for (final Node child : element.getChildNodes())
+			for (final Node child : element.getChildNodes()) {
 				writeNodeNoWrap(child, pw);
+			}
 
 			pw.print("</");
 			pw.print(element.getPrefixedName());
@@ -278,25 +283,28 @@ public class DocumentWriter {
 	private static String getNamespaceDeclarationsString(final Element element) {
 		final StringBuilder result = new StringBuilder();
 		final String declaredNamespaceURI = element.getDeclaredDefaultNamespaceURI();
-		if (declaredNamespaceURI != null)
+		if (declaredNamespaceURI != null) {
 			result.append(" xmlns=\"").append(declaredNamespaceURI).append("\"");
-		for (final String prefix : element.getDeclaredNamespacePrefixes())
+		}
+		for (final String prefix : element.getDeclaredNamespacePrefixes()) {
 			result.append(" xmlns:").append(prefix).append("=\"").append(element.getNamespaceURI(prefix)).append("\"");
+		}
 		return result.toString();
 	}
 
 	private static void addNode(final Node node, final TextWrapper wrapper) {
-		if (node instanceof Text)
+		if (node instanceof Text) {
 			wrapper.add(escape(node.getText()));
-		else if (node instanceof CommentElement) {
+		} else if (node instanceof CommentElement) {
 
 			final CommentElement element = (CommentElement) node;
-			
+
 			wrapper.addNoSplit("<!-- ");
-			
-			for (final Node child: element.getChildNodes())
+
+			for (final Node child : element.getChildNodes()) {
 				addNode(child, wrapper);
-			
+			}
+
 			wrapper.add(" -->");
 		} else {
 			final Element element = (Element) node;
@@ -306,17 +314,20 @@ public class DocumentWriter {
 			buffer.append("<").append(element.getPrefixedName());
 			buffer.append(getNamespaceDeclarationsString(element));
 			buffer.append(getAttributeString(element));
-			if (content.isEmpty())
+			if (content.isEmpty()) {
 				buffer.append("/>");
-			else
+			} else {
 				buffer.append(">");
+			}
 			wrapper.addNoSplit(buffer.toString());
 
-			for (final Node child: content)
+			for (final Node child : content) {
 				addNode(child, wrapper);
+			}
 
-			if (!content.isEmpty())
+			if (!content.isEmpty()) {
 				wrapper.add("</" + element.getPrefixedName() + ">");
+			}
 		}
 	}
 
@@ -324,7 +335,7 @@ public class DocumentWriter {
 		final Validator validator = element.getDocument().getValidator();
 
 		final StringBuffer result = new StringBuffer();
-		for (final Attribute attribute : element.getAttributes())
+		for (final Attribute attribute : element.getAttributes()) {
 			if (!attrHasDefaultValue(validator, attribute)) {
 				result.append(" ");
 				result.append(attribute.getPrefixedName());
@@ -332,6 +343,7 @@ public class DocumentWriter {
 				result.append(escape(attribute.getValue()));
 				result.append("\"");
 			}
+		}
 		return result.toString();
 	}
 

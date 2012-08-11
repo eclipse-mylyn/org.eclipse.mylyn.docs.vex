@@ -46,16 +46,17 @@ public class PluginProjectBuilder extends IncrementalProjectBuilder {
 		final IProject project = getProject();
 		final IMarker[] oldMarkers = project.findMarkers(IMarker.PROBLEM, true, IResource.DEPTH_INFINITE);
 		final IResource[] markedResources = new IResource[oldMarkers.length];
-		for (int i = 0; i < markedResources.length; i++)
+		for (int i = 0; i < markedResources.length; i++) {
 			markedResources[i] = oldMarkers[i].getResource();
+		}
 
 		project.deleteMarkers(IMarker.PROBLEM, true, IResource.DEPTH_INFINITE);
 		updateMarkedResourcesDecoration(markedResources);
 
 		final PluginProject pluginProject = new PluginProject(project);
-		if (getProject().getFile(PluginProject.PLUGIN_XML).exists())
+		if (getProject().getFile(PluginProject.PLUGIN_XML).exists()) {
 			pluginProject.parseConfigXml(buildProblemHandler);
-		else {
+		} else {
 			final String message = MessageFormat.format(Messages.getString("PluginProjectBuilder.missingFile"), //$NON-NLS-1$
 					new Object[] { PluginProject.PLUGIN_XML });
 			markError(getProject(), message);
@@ -69,7 +70,7 @@ public class PluginProjectBuilder extends IncrementalProjectBuilder {
 	protected void clean(final IProgressMonitor monitor) throws CoreException {
 		getProject().deleteMarkers(IMarker.PROBLEM, true, IResource.DEPTH_INFINITE);
 		// trigger reload to get a clean and consistent state
-		VexPlugin.getDefault().getConfigurationRegistry().loadConfigurations(); 
+		VexPlugin.getDefault().getConfigurationRegistry().loadConfigurations();
 	}
 
 	private static void markError(final IResource resource, final String message) throws CoreException {
@@ -78,19 +79,22 @@ public class PluginProjectBuilder extends IncrementalProjectBuilder {
 
 	private static void markError(final IResource resource, final String message, final int lineNumber) throws CoreException {
 		final IMarker marker = resource.createMarker(IMarker.PROBLEM);
-		if (!marker.exists())
+		if (!marker.exists()) {
 			return;
+		}
 		marker.setAttribute(IMarker.MESSAGE, message);
 		marker.setAttribute(IMarker.PRIORITY, IMarker.PRIORITY_HIGH);
 		marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_ERROR);
-		if (lineNumber > 0)
+		if (lineNumber > 0) {
 			marker.setAttribute(IMarker.LINE_NUMBER, lineNumber);
+		}
 		updateMarkedResourcesDecoration(resource);
 	}
 
-	private static void updateMarkedResourcesDecoration(IResource... resources) {
+	private static void updateMarkedResourcesDecoration(final IResource... resources) {
 		getBuildProblemDecorator().update(resources);
 	}
+
 	private static BuildProblemDecorator getBuildProblemDecorator() {
 		final IDecoratorManager decorationManager = PlatformUI.getWorkbench().getDecoratorManager();
 		return (BuildProblemDecorator) decorationManager.getBaseLabelProvider(BuildProblemDecorator.ID);

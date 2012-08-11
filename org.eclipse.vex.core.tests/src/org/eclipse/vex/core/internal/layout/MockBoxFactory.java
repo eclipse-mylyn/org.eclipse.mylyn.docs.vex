@@ -11,16 +11,10 @@
 package org.eclipse.vex.core.internal.layout;
 
 import org.eclipse.vex.core.internal.dom.Element;
-import org.eclipse.vex.core.internal.layout.BlockElementBox;
-import org.eclipse.vex.core.internal.layout.Box;
-import org.eclipse.vex.core.internal.layout.CssBoxFactory;
-import org.eclipse.vex.core.internal.layout.LayoutContext;
-import org.eclipse.vex.core.internal.layout.SpaceBox;
 
 /**
- * A box factory that, for an element named &lt;space&gt;, returns a SpaceBox
- * with height and width given by attributes of those names, e.g. &lt;space
- * height="100" width="200"/&gt;
+ * A box factory that, for an element named &lt;space&gt;, returns a SpaceBox with height and width given by attributes
+ * of those names, e.g. &lt;space height="100" width="200"/&gt;
  */
 public class MockBoxFactory extends CssBoxFactory {
 

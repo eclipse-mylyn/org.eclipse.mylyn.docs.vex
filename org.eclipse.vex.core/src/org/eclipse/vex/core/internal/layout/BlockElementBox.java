@@ -25,9 +25,8 @@ import org.eclipse.vex.core.internal.css.Styles;
 import org.eclipse.vex.core.internal.dom.Element;
 
 /**
- * A block box corresponding to a DOM Element. Block boxes lay their children
- * out stacked top to bottom. Block boxes correspond to the
- * <code>display: block;</code> CSS property.
+ * A block box corresponding to a DOM Element. Block boxes lay their children out stacked top to bottom. Block boxes
+ * correspond to the <code>display: block;</code> CSS property.
  */
 public class BlockElementBox extends AbstractBlockBox {
 
@@ -42,9 +41,8 @@ public class BlockElementBox extends AbstractBlockBox {
 	BlockBox beforeMarker;
 
 	/**
-	 * Class constructor. This box's children are not created here but in the
-	 * first call to layout. Instead, we estimate the box's height here based on
-	 * the given width.
+	 * Class constructor. This box's children are not created here but in the first call to layout. Instead, we estimate
+	 * the box's height here based on the given width.
 	 * 
 	 * @param context
 	 *            LayoutContext used for this layout.
@@ -53,7 +51,7 @@ public class BlockElementBox extends AbstractBlockBox {
 	 * @param element
 	 *            Element to which this box corresponds.
 	 */
-	public BlockElementBox(LayoutContext context, BlockBox parent, Element element) {
+	public BlockElementBox(final LayoutContext context, final BlockBox parent, final Element element) {
 		super(context, parent, element);
 	}
 
@@ -64,65 +62,72 @@ public class BlockElementBox extends AbstractBlockBox {
 		return boxCount;
 	}
 
+	@Override
 	public int getEndOffset() {
-		return this.getElement().getEndOffset();
+		return getElement().getEndOffset();
 	}
 
+	@Override
 	public int getStartOffset() {
-		return this.getElement().getStartOffset() + 1;
+		return getElement().getStartOffset() + 1;
 	}
 
+	@Override
 	public boolean hasContent() {
 		return true;
 	}
 
-	public void paint(LayoutContext context, int x, int y) {
+	@Override
+	public void paint(final LayoutContext context, final int x, final int y) {
 
 		super.paint(context, x, y);
 
-		if (this.beforeMarker != null) {
-			this.beforeMarker.paint(context, x + this.beforeMarker.getX(), y + this.beforeMarker.getY());
+		if (beforeMarker != null) {
+			beforeMarker.paint(context, x + beforeMarker.getX(), y + beforeMarker.getY());
 		}
 	}
 
-	protected int positionChildren(LayoutContext context) {
+	@Override
+	protected int positionChildren(final LayoutContext context) {
 
-		int repaintStart = super.positionChildren(context);
+		final int repaintStart = super.positionChildren(context);
 
-		Styles styles = context.getStyleSheet().getStyles(this.getElement());
-		if (this.beforeMarker != null) {
-			int x = -this.beforeMarker.getWidth() - Math.round(BULLET_SPACE * styles.getFontSize());
-			int y = this.getFirstLineTop(context);
-			LineBox firstLine = this.getFirstLine();
+		final Styles styles = context.getStyleSheet().getStyles(getElement());
+		if (beforeMarker != null) {
+			final int x = -beforeMarker.getWidth() - Math.round(BULLET_SPACE * styles.getFontSize());
+			int y = getFirstLineTop(context);
+			final LineBox firstLine = getFirstLine();
 			if (firstLine != null) {
-				y += firstLine.getBaseline() - this.beforeMarker.getFirstLine().getBaseline();
+				y += firstLine.getBaseline() - beforeMarker.getFirstLine().getBaseline();
 			}
 
-			this.beforeMarker.setX(x);
-			this.beforeMarker.setY(y);
+			beforeMarker.setX(x);
+			beforeMarker.setY(y);
 		}
 
 		return repaintStart;
 	}
 
+	@Override
 	public String toString() {
-		return "BlockElementBox: <" + this.getElement().getPrefixedName() + ">" + "[x=" + this.getX() + ",y=" + this.getY() + ",width=" + this.getWidth()
-				+ ",height=" + this.getHeight() + "]";
+		return "BlockElementBox: <" + getElement().getPrefixedName() + ">" + "[x=" + getX() + ",y=" + getY() + ",width=" + getWidth() + ",height=" + getHeight() + "]";
 	}
 
 	// ===================================================== PRIVATE
 
 	/**
-	 * Lays out the children as vertically stacked blocks. Runs of text and
-	 * inline elements are wrapped in DummyBlockBox's.
+	 * Lays out the children as vertically stacked blocks. Runs of text and inline elements are wrapped in
+	 * DummyBlockBox's.
 	 */
-	public List<Box> createChildren(LayoutContext context) {
+	@Override
+	public List<Box> createChildren(final LayoutContext context) {
 		long start = 0;
-		if (VEXCorePlugin.getInstance().isDebugging())
+		if (VEXCorePlugin.getInstance().isDebugging()) {
 			start = System.currentTimeMillis();
+		}
 
-		final Element element = this.getElement();
-		int width = this.getWidth();
+		final Element element = getElement();
+		final int width = getWidth();
 
 		final List<Box> childList = new ArrayList<Box>();
 
@@ -134,7 +139,7 @@ public class BlockElementBox extends AbstractBlockBox {
 
 		// :before content
 		List<InlineBox> beforeInlines = null;
-		genElement = context.getStyleSheet().getBeforeElement(this.getElement());
+		genElement = context.getStyleSheet().getBeforeElement(getElement());
 		if (genElement != null) {
 			genStyles = styleSheet.getStyles(genElement);
 			if (genStyles.getDisplay().equals(CSS.INLINE)) {
@@ -146,12 +151,13 @@ public class BlockElementBox extends AbstractBlockBox {
 		}
 
 		// background image
-		final Styles styles = context.getStyleSheet().getStyles(this.getElement());
+		final Styles styles = context.getStyleSheet().getStyles(getElement());
 		if (styles.hasBackgroundImage() && !styles.getDisplay().equalsIgnoreCase(CSS.NONE)) {
 			final InlineBox imageBox = ImageBox.create(getElement(), context, getWidth());
 			if (imageBox != null) {
-				if (beforeInlines == null)
+				if (beforeInlines == null) {
 					beforeInlines = new ArrayList<InlineBox>();
+				}
 				beforeInlines.add(imageBox);
 			}
 		}
@@ -159,7 +165,7 @@ public class BlockElementBox extends AbstractBlockBox {
 		// :after content
 		Box afterBlock = null;
 		List<InlineBox> afterInlines = null;
-		genElement = context.getStyleSheet().getAfterElement(this.getElement());
+		genElement = context.getStyleSheet().getAfterElement(getElement());
 		if (genElement != null) {
 			genStyles = context.getStyleSheet().getStyles(genElement);
 			if (genStyles.getDisplay().equals(CSS.INLINE)) {
@@ -172,20 +178,21 @@ public class BlockElementBox extends AbstractBlockBox {
 
 		final int startOffset = element.getStartOffset() + 1;
 		final int endOffset = element.getEndOffset();
-		List<Box> blockBoxes = createBlockBoxes(context, startOffset, endOffset, width, beforeInlines, afterInlines);
+		final List<Box> blockBoxes = createBlockBoxes(context, startOffset, endOffset, width, beforeInlines, afterInlines);
 		childList.addAll(blockBoxes);
 
-		if (afterBlock != null)
+		if (afterBlock != null) {
 			childList.add(afterBlock);
+		}
 
 		if (styles.getDisplay().equals(CSS.LIST_ITEM) && !styles.getListStyleType().equals(CSS.NONE)) {
-			this.createListMarker(context);
+			createListMarker(context);
 		}
 
 		if (VEXCorePlugin.getInstance().isDebugging()) {
-			long end = System.currentTimeMillis();
+			final long end = System.currentTimeMillis();
 			if (end - start > 10) {
-				System.out.println("BEB.layout for " + this.getElement().getPrefixedName() + " took " + (end - start) + "ms");
+				System.out.println("BEB.layout for " + getElement().getPrefixedName() + " took " + (end - start) + "ms");
 			}
 		}
 
@@ -193,40 +200,39 @@ public class BlockElementBox extends AbstractBlockBox {
 	}
 
 	/**
-	 * Creates a marker box for this primary box and puts it in the beforeMarker
-	 * field.
+	 * Creates a marker box for this primary box and puts it in the beforeMarker field.
 	 */
-	private void createListMarker(LayoutContext context) {
+	private void createListMarker(final LayoutContext context) {
 
-		Styles styles = context.getStyleSheet().getStyles(this.getElement());
+		final Styles styles = context.getStyleSheet().getStyles(getElement());
 
 		InlineBox markerInline;
-		String type = styles.getListStyleType();
+		final String type = styles.getListStyleType();
 		if (type.equals(CSS.NONE)) {
 			return;
 		} else if (type.equals(CSS.CIRCLE)) {
-			markerInline = createCircleBullet(this.getElement(), styles);
+			markerInline = createCircleBullet(getElement(), styles);
 		} else if (type.equals(CSS.SQUARE)) {
-			markerInline = createSquareBullet(this.getElement(), styles);
+			markerInline = createSquareBullet(getElement(), styles);
 		} else if (isEnumeratedListStyleType(type)) {
-			String item = this.getItemNumberString(type);
-			markerInline = new StaticTextBox(context, this.getElement(), item + ".");
+			final String item = getItemNumberString(type);
+			markerInline = new StaticTextBox(context, getElement(), item + ".");
 		} else {
-			markerInline = createDiscBullet(this.getElement(), styles);
+			markerInline = createDiscBullet(getElement(), styles);
 		}
 
-		this.beforeMarker = ParagraphBox.create(context, this.getElement(), new InlineBox[] { markerInline }, Integer.MAX_VALUE);
+		beforeMarker = ParagraphBox.create(context, getElement(), new InlineBox[] { markerInline }, Integer.MAX_VALUE);
 
 	}
 
 	/**
 	 * Returns a Drawable that draws a circle-style list item bullet.
 	 */
-	private static InlineBox createCircleBullet(Element element, Styles styles) {
+	private static InlineBox createCircleBullet(final Element element, final Styles styles) {
 		final int size = Math.round(0.5f * styles.getFontSize());
 		final int lift = Math.round(0.1f * styles.getFontSize());
-		Drawable drawable = new Drawable() {
-			public void draw(Graphics g, int x, int y) {
+		final Drawable drawable = new Drawable() {
+			public void draw(final Graphics g, final int x, final int y) {
 				g.setLineStyle(Graphics.LINE_SOLID);
 				g.setLineWidth(1);
 				g.drawOval(x, y - size - lift, size, size);
@@ -242,11 +248,11 @@ public class BlockElementBox extends AbstractBlockBox {
 	/**
 	 * Returns a Drawable that draws a disc-style list item bullet.
 	 */
-	private static InlineBox createDiscBullet(Element element, Styles styles) {
+	private static InlineBox createDiscBullet(final Element element, final Styles styles) {
 		final int size = Math.round(0.5f * styles.getFontSize());
 		final int lift = Math.round(0.1f * styles.getFontSize());
-		Drawable drawable = new Drawable() {
-			public void draw(Graphics g, int x, int y) {
+		final Drawable drawable = new Drawable() {
+			public void draw(final Graphics g, final int x, final int y) {
 				g.fillOval(x, y - size - lift, size, size);
 			}
 
@@ -260,11 +266,11 @@ public class BlockElementBox extends AbstractBlockBox {
 	/**
 	 * Returns a Drawable that draws a square-style list item bullet.
 	 */
-	private static InlineBox createSquareBullet(Element element, Styles styles) {
+	private static InlineBox createSquareBullet(final Element element, final Styles styles) {
 		final int size = Math.round(0.5f * styles.getFontSize());
 		final int lift = Math.round(0.1f * styles.getFontSize());
-		Drawable drawable = new Drawable() {
-			public void draw(Graphics g, int x, int y) {
+		final Drawable drawable = new Drawable() {
+			public void draw(final Graphics g, final int x, final int y) {
 				g.setLineStyle(Graphics.LINE_SOLID);
 				g.setLineWidth(1);
 				g.drawRect(x, y - size - lift, size, size);
@@ -278,13 +284,12 @@ public class BlockElementBox extends AbstractBlockBox {
 	}
 
 	/**
-	 * Returns the vertical distance from the top of this box to the top of its
-	 * first line.
+	 * Returns the vertical distance from the top of this box to the top of its first line.
 	 */
-	int getFirstLineTop(LayoutContext context) {
-		Styles styles = context.getStyleSheet().getStyles(this.getElement());
-		int top = styles.getBorderTopWidth() + styles.getPaddingTop().get(0);
-		Box[] children = this.getChildren();
+	int getFirstLineTop(final LayoutContext context) {
+		final Styles styles = context.getStyleSheet().getStyles(getElement());
+		final int top = styles.getBorderTopWidth() + styles.getPaddingTop().get(0);
+		final Box[] children = getChildren();
 		if (children != null && children.length > 0 && children[0] instanceof BlockElementBox) {
 			return top + ((BlockElementBox) children[0]).getFirstLineTop(context);
 		} else {
@@ -293,20 +298,19 @@ public class BlockElementBox extends AbstractBlockBox {
 	}
 
 	/**
-	 * Returns the item number of this box. The item number indicates the
-	 * ordinal number of the corresponding element amongst its siblings starting
-	 * with 1.
+	 * Returns the item number of this box. The item number indicates the ordinal number of the corresponding element
+	 * amongst its siblings starting with 1.
 	 */
 	private int getItemNumber() {
-		Element element = this.getElement();
-		Element parent = element.getParent();
+		final Element element = getElement();
+		final Element parent = element.getParent();
 
 		if (parent == null) {
 			return 1;
 		}
 
 		int item = 1;
-		List<Element> children = parent.getChildElements();
+		final List<Element> children = parent.getChildElements();
 		for (int i = 0; i < children.size(); i++) {
 			if (children.get(i) == element) {
 				return item;
@@ -319,8 +323,8 @@ public class BlockElementBox extends AbstractBlockBox {
 		throw new IllegalStateException();
 	}
 
-	private String getItemNumberString(String style) {
-		int item = getItemNumber();
+	private String getItemNumberString(final String style) {
+		final int item = getItemNumber();
 		if (style.equals(CSS.DECIMAL_LEADING_ZERO)) {
 			if (item < 10) {
 				return "0" + Integer.toString(item);
@@ -328,42 +332,41 @@ public class BlockElementBox extends AbstractBlockBox {
 				return Integer.toString(item);
 			}
 		} else if (style.equals(CSS.LOWER_ALPHA) || style.equals(CSS.LOWER_LATIN)) {
-			return this.getAlpha(item);
+			return getAlpha(item);
 		} else if (style.equals(CSS.LOWER_ROMAN)) {
-			return this.getRoman(item);
+			return getRoman(item);
 		} else if (style.equals(CSS.UPPER_ALPHA) || style.equals(CSS.UPPER_LATIN)) {
-			return this.getAlpha(item).toUpperCase();
+			return getAlpha(item).toUpperCase();
 		} else if (style.equals(CSS.UPPER_ROMAN)) {
-			return this.getRoman(item).toUpperCase();
+			return getRoman(item).toUpperCase();
 		} else {
 			return Integer.toString(item);
 		}
 	}
 
-	private String getAlpha(int n) {
+	private String getAlpha(final int n) {
 		final String alpha = "abcdefghijklmnopqrstuvwxyz";
 		return String.valueOf(alpha.charAt((n - 1) % 26));
 	}
 
-	private String getRoman(int n) {
+	private String getRoman(final int n) {
 		final String[] ones = { "", "i", "ii", "iii", "iv", "v", "vi", "vii", "viii", "ix" };
 		final String[] tens = { "", "x", "xx", "xxx", "xl", "l", "lx", "lxx", "lxxx", "xc" };
 		final String[] hundreds = { "", "c", "cc", "ccc", "cd", "d", "dc", "dcc", "dccc", "cm" };
-		StringBuffer sb = new StringBuffer();
+		final StringBuffer sb = new StringBuffer();
 		for (int i = 0; i < n / 1000; i++) {
 			sb.append("m");
 		}
-		sb.append(hundreds[(n / 100) % 10]);
-		sb.append(tens[(n / 10) % 10]);
+		sb.append(hundreds[n / 100 % 10]);
+		sb.append(tens[n / 10 % 10]);
 		sb.append(ones[n % 10]);
 		return sb.toString();
 	}
 
-	private static boolean isEnumeratedListStyleType(String s) {
-		return s.equals(CSS.ARMENIAN) || s.equals(CSS.CJK_IDEOGRAPHIC) || s.equals(CSS.DECIMAL) || s.equals(CSS.DECIMAL_LEADING_ZERO) || s.equals(CSS.GEORGIAN)
-				|| s.equals(CSS.HEBREW) || s.equals(CSS.HIRAGANA) || s.equals(CSS.HIRAGANA_IROHA) || s.equals(CSS.KATAKANA) || s.equals(CSS.KATAKANA_IROHA)
-				|| s.equals(CSS.LOWER_ALPHA) || s.equals(CSS.LOWER_GREEK) || s.equals(CSS.LOWER_LATIN) || s.equals(CSS.LOWER_ROMAN)
-				|| s.equals(CSS.UPPER_ALPHA) || s.equals(CSS.UPPER_LATIN) || s.equals(CSS.UPPER_ROMAN);
+	private static boolean isEnumeratedListStyleType(final String s) {
+		return s.equals(CSS.ARMENIAN) || s.equals(CSS.CJK_IDEOGRAPHIC) || s.equals(CSS.DECIMAL) || s.equals(CSS.DECIMAL_LEADING_ZERO) || s.equals(CSS.GEORGIAN) || s.equals(CSS.HEBREW)
+				|| s.equals(CSS.HIRAGANA) || s.equals(CSS.HIRAGANA_IROHA) || s.equals(CSS.KATAKANA) || s.equals(CSS.KATAKANA_IROHA) || s.equals(CSS.LOWER_ALPHA) || s.equals(CSS.LOWER_GREEK)
+				|| s.equals(CSS.LOWER_LATIN) || s.equals(CSS.LOWER_ROMAN) || s.equals(CSS.UPPER_ALPHA) || s.equals(CSS.UPPER_LATIN) || s.equals(CSS.UPPER_ROMAN);
 	}
 
 }

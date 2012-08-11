@@ -31,8 +31,9 @@ public class CommentBlockElementBox extends BlockElementBox {
 	@Override
 	public List<Box> createChildren(final LayoutContext context) {
 		long start = 0;
-		if (VEXCorePlugin.getInstance().isDebugging())
+		if (VEXCorePlugin.getInstance().isDebugging()) {
 			start = System.currentTimeMillis();
+		}
 
 		final Element element = getElement();
 		final int width = getWidth();
@@ -54,8 +55,9 @@ public class CommentBlockElementBox extends BlockElementBox {
 
 		if (VEXCorePlugin.getInstance().isDebugging()) {
 			final long end = System.currentTimeMillis();
-			if (end - start > 10)
+			if (end - start > 10) {
 				System.out.println("CommentBlockElementBox.layout for " + getElement().getPrefixedName() + " took " + (end - start) + "ms");
+			}
 		}
 
 		return childList;

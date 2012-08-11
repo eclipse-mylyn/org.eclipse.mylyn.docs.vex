@@ -27,34 +27,34 @@ import org.eclipse.vex.ui.internal.VexPlugin;
  */
 public class PluginProjectDecorator implements ILightweightLabelDecorator {
 
-	public void decorate(Object element, IDecoration decoration) {
+	public void decorate(final Object element, final IDecoration decoration) {
 
-		if (this.vexIcon == null) {
-			this.loadImageDescriptors();
+		if (vexIcon == null) {
+			loadImageDescriptors();
 		}
 
 		if (element instanceof IProject) {
 			try {
-				IProject project = (IProject) element;
+				final IProject project = (IProject) element;
 				if (project.hasNature(PluginProjectNature.ID)) {
-					decoration.addOverlay(this.vexIcon, IDecoration.TOP_RIGHT);
+					decoration.addOverlay(vexIcon, IDecoration.TOP_RIGHT);
 				}
-			} catch (CoreException e) {
+			} catch (final CoreException e) {
 			}
 		}
 	}
 
-	public void addListener(ILabelProviderListener listener) {
+	public void addListener(final ILabelProviderListener listener) {
 	}
 
 	public void dispose() {
 	}
 
-	public boolean isLabelProperty(Object element, String property) {
+	public boolean isLabelProperty(final Object element, final String property) {
 		return false;
 	}
 
-	public void removeListener(ILabelProviderListener listener) {
+	public void removeListener(final ILabelProviderListener listener) {
 	}
 
 	// ======================================================== PRIVATE
@@ -62,10 +62,9 @@ public class PluginProjectDecorator implements ILightweightLabelDecorator {
 	private ImageDescriptor vexIcon;
 
 	private void loadImageDescriptors() {
-		URL url = FileLocator.find(VexPlugin.getDefault().getBundle(),
-				new Path("icons/vex8.gif"), //$NON-NLS-1$
+		final URL url = FileLocator.find(VexPlugin.getDefault().getBundle(), new Path("icons/vex8.gif"), //$NON-NLS-1$
 				null);
-		this.vexIcon = ImageDescriptor.createFromURL(url);
+		vexIcon = ImageDescriptor.createFromURL(url);
 	}
 
 }

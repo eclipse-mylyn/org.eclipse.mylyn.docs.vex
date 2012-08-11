@@ -17,8 +17,8 @@ import org.eclipse.vex.core.internal.css.Styles;
 import org.eclipse.vex.core.internal.dom.Element;
 
 /**
- * A TextBox representing a static string. Represents text which is not editable
- * within the VexWidget, such as enumerated list markers.
+ * A TextBox representing a static string. Represents text which is not editable within the VexWidget, such as
+ * enumerated list markers.
  */
 public class StaticTextBox extends TextBox {
 
@@ -26,8 +26,8 @@ public class StaticTextBox extends TextBox {
 	public static final byte START_MARKER = 1;
 	public static final byte END_MARKER = 2;
 
-	private String text;
-	private byte marker;
+	private final String text;
+	private final byte marker;
 
 	/**
 	 * Class constructor.
@@ -39,19 +39,17 @@ public class StaticTextBox extends TextBox {
 	 * @param text
 	 *            Static text to display
 	 */
-	public StaticTextBox(LayoutContext context, Element element, String text) {
+	public StaticTextBox(final LayoutContext context, final Element element, final String text) {
 		this(context, element, text, NO_MARKER);
 		if (text.length() == 0) {
-			throw new IllegalArgumentException(
-					"StaticTextBox cannot have an empty text string.");
+			throw new IllegalArgumentException("StaticTextBox cannot have an empty text string.");
 		}
 	}
 
 	/**
-	 * Class constructor. This constructor is used when generating a static text
-	 * box representing a marker for the start or end of an inline element. If
-	 * the selection spans the related marker, the text is drawn in the
-	 * platform's text selection colours.
+	 * Class constructor. This constructor is used when generating a static text box representing a marker for the start
+	 * or end of an inline element. If the selection spans the related marker, the text is drawn in the platform's text
+	 * selection colours.
 	 * 
 	 * @param context
 	 *            LayoutContext used to calculate the box's size
@@ -60,66 +58,60 @@ public class StaticTextBox extends TextBox {
 	 * @param text
 	 *            Static text to display
 	 * @param marker
-	 *            START_MARKER or END_MARKER, depending on whether the text
-	 *            represents the start sentinel or the end sentinel of the
-	 *            element
+	 *            START_MARKER or END_MARKER, depending on whether the text represents the start sentinel or the end
+	 *            sentinel of the element
 	 */
-	public StaticTextBox(LayoutContext context, Element element, String text,
-			byte marker) {
+	public StaticTextBox(final LayoutContext context, final Element element, final String text, final byte marker) {
 		super(element);
 		this.text = text;
 		this.marker = marker;
-		this.calculateSize(context);
+		calculateSize(context);
 	}
 
 	/**
 	 * @see org.eclipse.vex.core.internal.layout.TextBox#getText()
 	 */
+	@Override
 	public String getText() {
-		return this.text;
+		return text;
 	}
 
 	/**
 	 * @see org.eclipse.vex.core.internal.layout.Box#hasContent()
 	 */
+	@Override
 	public boolean hasContent() {
 		return false;
 	}
 
 	/**
-	 * @see org.eclipse.vex.core.internal.layout.Box#paint(org.eclipse.vex.core.internal.layout.LayoutContext,
-	 *      int, int)
+	 * @see org.eclipse.vex.core.internal.layout.Box#paint(org.eclipse.vex.core.internal.layout.LayoutContext, int, int)
 	 */
-	public void paint(LayoutContext context, int x, int y) {
+	@Override
+	public void paint(final LayoutContext context, final int x, final int y) {
 
-		Styles styles = context.getStyleSheet().getStyles(this.getElement());
-		Graphics g = context.getGraphics();
+		final Styles styles = context.getStyleSheet().getStyles(getElement());
+		final Graphics g = context.getGraphics();
 
 		boolean drawSelected = false;
-		if (this.marker == START_MARKER) {
-			drawSelected = this.getElement().getStartOffset() >= context
-					.getSelectionStart()
-					&& this.getElement().getStartOffset() + 1 <= context
-							.getSelectionEnd();
-		} else if (this.marker == END_MARKER) {
-			drawSelected = this.getElement().getEndOffset() >= context
-					.getSelectionStart()
-					&& this.getElement().getEndOffset() + 1 <= context
-							.getSelectionEnd();
+		if (marker == START_MARKER) {
+			drawSelected = getElement().getStartOffset() >= context.getSelectionStart() && getElement().getStartOffset() + 1 <= context.getSelectionEnd();
+		} else if (marker == END_MARKER) {
+			drawSelected = getElement().getEndOffset() >= context.getSelectionStart() && getElement().getEndOffset() + 1 <= context.getSelectionEnd();
 		}
 
-		FontResource font = g.createFont(styles.getFont());
-		ColorResource color = g.createColor(styles.getColor());
+		final FontResource font = g.createFont(styles.getFont());
+		final ColorResource color = g.createColor(styles.getColor());
 
-		FontResource oldFont = g.setFont(font);
-		ColorResource oldColor = g.setColor(color);
+		final FontResource oldFont = g.setFont(font);
+		final ColorResource oldColor = g.setColor(color);
 
 		if (drawSelected) {
-			this.paintSelectedText(context, this.getText(), x, y);
+			paintSelectedText(context, getText(), x, y);
 		} else {
-			g.drawString(this.getText(), x, y);
+			g.drawString(getText(), x, y);
 		}
-		paintTextDecoration(context, styles, this.getText(), x, y);
+		paintTextDecoration(context, styles, getText(), x, y);
 
 		g.setFont(oldFont);
 		g.setColor(oldColor);
@@ -130,22 +122,21 @@ public class StaticTextBox extends TextBox {
 	/**
 	 * @see org.eclipse.vex.core.internal.layout.TextBox#splitAt(int)
 	 */
-	public Pair splitAt(LayoutContext context, int offset) {
+	@Override
+	public Pair splitAt(final LayoutContext context, final int offset) {
 
 		StaticTextBox left;
 		if (offset == 0) {
 			left = null;
 		} else {
-			left = new StaticTextBox(context, this.getElement(), this.getText()
-					.substring(0, offset), this.marker);
+			left = new StaticTextBox(context, getElement(), getText().substring(0, offset), marker);
 		}
 
 		StaticTextBox right;
-		if (offset == this.getText().length()) {
+		if (offset == getText().length()) {
 			right = null;
 		} else {
-			right = new StaticTextBox(context, this.getElement(), this
-					.getText().substring(offset), this.marker);
+			right = new StaticTextBox(context, getElement(), getText().substring(offset), marker);
 		}
 		return new Pair(left, right);
 	}

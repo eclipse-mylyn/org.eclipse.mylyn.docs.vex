@@ -33,15 +33,12 @@ public interface IProperty {
 	 * @param lu
 	 *            LexicalUnit to interpret.
 	 * @param parentStyles
-	 *            Styles of the parent element. These are used when the property
-	 *            inherits a value.
+	 *            Styles of the parent element. These are used when the property inherits a value.
 	 * @param styles
-	 *            Styles currently in effect. Often, the calculated value
-	 *            depends on previously calculated styles such as font size and
-	 *            color.
+	 *            Styles currently in effect. Often, the calculated value depends on previously calculated styles such
+	 *            as font size and color.
 	 * @param element
-	 *            The current element for which this property is calculated. May
-	 *            be null.
+	 *            The current element for which this property is calculated. May be null.
 	 */
 	public Object calculate(LexicalUnit lu, Styles parentStyles, Styles styles, Element element);
 

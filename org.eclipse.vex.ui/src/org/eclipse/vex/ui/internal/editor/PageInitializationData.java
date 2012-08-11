@@ -10,16 +10,17 @@ public class PageInitializationData {
 	String fPropertyName;
 	Object fData;
 
-	PageInitializationData(IConfigurationElement cfig, String propertyName, Object data) {
+	PageInitializationData(final IConfigurationElement cfig, final String propertyName, final Object data) {
 		super();
 		fElement = cfig;
 		fPropertyName = propertyName;
 		fData = data;
 	}
-	void sendInitializationData(IExecutableExtension executableExtension) {
+
+	void sendInitializationData(final IExecutableExtension executableExtension) {
 		try {
 			executableExtension.setInitializationData(fElement, fPropertyName, fData);
-		} catch (CoreException e) {
+		} catch (final CoreException e) {
 			Logger.logException(e);
 		}
 	}

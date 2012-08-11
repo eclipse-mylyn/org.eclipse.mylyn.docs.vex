@@ -45,40 +45,37 @@ public class ColorProperty extends AbstractProperty {
 	}
 
 	/**
-	 * Class constructor. The names CSS.COLOR and CSS.BACKGROUND_COLOR are
-	 * treated specially, as follows.
+	 * Class constructor. The names CSS.COLOR and CSS.BACKGROUND_COLOR are treated specially, as follows.
 	 * 
 	 * <ul>
 	 * <li>If name is CSS.COLOR, it is inherited and defaults to black.</li>
-	 * <li>If name is CSS.BACKGROUND_COLOR, it is not inherited and defaults to
-	 * transparent (null).</li>
+	 * <li>If name is CSS.BACKGROUND_COLOR, it is not inherited and defaults to transparent (null).</li>
 	 * <li>Otherwise, it is not inherited and defaults to the current color.</li>
 	 * </ul>
 	 * 
 	 * <p>
-	 * Because of the default in the third case, the ColorProperty for CSS.COLOR
-	 * must be processed before any others.
+	 * Because of the default in the third case, the ColorProperty for CSS.COLOR must be processed before any others.
 	 * </p>
 	 * 
 	 * @param name
 	 *            Name of the element.
 	 */
-	public ColorProperty(String name) {
+	public ColorProperty(final String name) {
 		super(name);
 	}
 
-	public Object calculate(LexicalUnit lu, Styles parentStyles, Styles styles, Element element) {
+	public Object calculate(final LexicalUnit lu, final Styles parentStyles, final Styles styles, final Element element) {
 
-		boolean inherit = isInherit(lu) || this.getName().equals(CSS.COLOR);
+		final boolean inherit = isInherit(lu) || getName().equals(CSS.COLOR);
 
 		if (isColor(lu)) {
 			return getColor(lu);
 		} else if (inherit && parentStyles != null) {
-			return parentStyles.get(this.getName());
+			return parentStyles.get(getName());
 		} else {
-			if (this.getName().equals(CSS.COLOR)) {
+			if (getName().equals(CSS.COLOR)) {
 				return Color.BLACK;
-			} else if (this.getName().equals(CSS.BACKGROUND_COLOR)) {
+			} else if (getName().equals(CSS.BACKGROUND_COLOR)) {
 				return null; // transparent
 			} else {
 				return styles.getColor();
@@ -92,11 +89,10 @@ public class ColorProperty extends AbstractProperty {
 	 * @param lu
 	 *            LexicalUnit to check.
 	 */
-	public static boolean isColor(LexicalUnit lu) {
+	public static boolean isColor(final LexicalUnit lu) {
 		if (lu == null) {
 			return false;
-		} else if (lu.getLexicalUnitType() == LexicalUnit.SAC_IDENT
-				&& colorNames.containsKey(lu.getStringValue())) {
+		} else if (lu.getLexicalUnitType() == LexicalUnit.SAC_IDENT && colorNames.containsKey(lu.getStringValue())) {
 			return true;
 		} else if (lu.getLexicalUnitType() == LexicalUnit.SAC_RGBCOLOR) {
 			return true;
@@ -109,21 +105,21 @@ public class ColorProperty extends AbstractProperty {
 
 	private static Color getColor(LexicalUnit lu) {
 		if (lu.getLexicalUnitType() == LexicalUnit.SAC_IDENT) {
-			String s = lu.getStringValue();
+			final String s = lu.getStringValue();
 			if (colorNames.containsKey(s)) {
-				return (Color) colorNames.get(s);
+				return colorNames.get(s);
 			} else {
 				return null;
 			}
 		} else if (lu.getLexicalUnitType() == LexicalUnit.SAC_RGBCOLOR) {
 			lu = lu.getParameters();
-			int red = getColorPart(lu);
+			final int red = getColorPart(lu);
 			lu = lu.getNextLexicalUnit(); // gobble comma
 			lu = lu.getNextLexicalUnit();
-			int green = getColorPart(lu);
+			final int green = getColorPart(lu);
 			lu = lu.getNextLexicalUnit(); // gobble comma
 			lu = lu.getNextLexicalUnit();
-			int blue = getColorPart(lu);
+			final int blue = getColorPart(lu);
 
 			if (red == -1 || green == -1 || blue == -1) {
 				return null;
@@ -137,10 +133,9 @@ public class ColorProperty extends AbstractProperty {
 	}
 
 	/**
-	 * Converts one of the color channels into an int from 0-255, or -1 if
-	 * there's an error.
+	 * Converts one of the color channels into an int from 0-255, or -1 if there's an error.
 	 */
-	private static int getColorPart(LexicalUnit lu) {
+	private static int getColorPart(final LexicalUnit lu) {
 		int value;
 		if (lu.getLexicalUnitType() == LexicalUnit.SAC_INTEGER) {
 			value = lu.getIntegerValue();

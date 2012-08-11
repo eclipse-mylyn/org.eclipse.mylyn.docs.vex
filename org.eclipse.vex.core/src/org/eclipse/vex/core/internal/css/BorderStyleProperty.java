@@ -24,7 +24,7 @@ public class BorderStyleProperty extends AbstractProperty {
 	 * @param name
 	 *            Name of the property.
 	 */
-	public BorderStyleProperty(String name) {
+	public BorderStyleProperty(final String name) {
 		super(name);
 	}
 
@@ -34,26 +34,23 @@ public class BorderStyleProperty extends AbstractProperty {
 	 * @param lu
 	 *            LexicalUnit to check.
 	 */
-	public static boolean isBorderStyle(LexicalUnit lu) {
+	public static boolean isBorderStyle(final LexicalUnit lu) {
 		if (lu == null) {
 			return false;
 		} else if (lu.getLexicalUnitType() == LexicalUnit.SAC_IDENT) {
-			String s = lu.getStringValue();
-			return s.equals(CSS.NONE) || s.equals(CSS.HIDDEN)
-					|| s.equals(CSS.DOTTED) || s.equals(CSS.DASHED)
-					|| s.equals(CSS.SOLID) || s.equals(CSS.DOUBLE)
-					|| s.equals(CSS.GROOVE) || s.equals(CSS.RIDGE)
-					|| s.equals(CSS.INSET) || s.equals(CSS.OUTSET);
+			final String s = lu.getStringValue();
+			return s.equals(CSS.NONE) || s.equals(CSS.HIDDEN) || s.equals(CSS.DOTTED) || s.equals(CSS.DASHED) || s.equals(CSS.SOLID) || s.equals(CSS.DOUBLE) || s.equals(CSS.GROOVE)
+					|| s.equals(CSS.RIDGE) || s.equals(CSS.INSET) || s.equals(CSS.OUTSET);
 		}
 
 		return false;
 	}
 
-	public Object calculate(LexicalUnit lu, Styles parentStyles, Styles styles, Element element) {
+	public Object calculate(final LexicalUnit lu, final Styles parentStyles, final Styles styles, final Element element) {
 		if (isBorderStyle(lu)) {
 			return lu.getStringValue();
 		} else if (isInherit(lu) && parentStyles != null) {
-			return parentStyles.get(this.getName());
+			return parentStyles.get(getName());
 		} else {
 			return CSS.NONE;
 		}

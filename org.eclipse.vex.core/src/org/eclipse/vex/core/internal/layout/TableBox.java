@@ -34,15 +34,15 @@ public class TableBox extends AbstractBlockBox {
 	 * @param element
 	 *            Element represented by this box.
 	 */
-	public TableBox(LayoutContext context, BlockBox parent, Element element) {
+	public TableBox(final LayoutContext context, final BlockBox parent, final Element element) {
 		super(context, parent, element);
 	}
 
-	public TableBox(LayoutContext context, BlockBox parent, int startOffset,
-			int endOffset) {
+	public TableBox(final LayoutContext context, final BlockBox parent, final int startOffset, final int endOffset) {
 		super(context, parent, startOffset, endOffset);
 	}
 
+	@Override
 	protected List<Box> createChildren(final LayoutContext context) {
 
 		// Walk children:
@@ -53,72 +53,69 @@ public class TableBox extends AbstractBlockBox {
 
 		final List<Box> children = new ArrayList<Box>();
 
-		this.iterateChildrenByDisplayStyle(context.getStyleSheet(),
-				captionOrColumnStyles, new ElementOrRangeCallback() {
-					public void onElement(Element child, String displayStyle) {
-						children.add(new BlockElementBox(context,
-								TableBox.this, child));
-					}
+		iterateChildrenByDisplayStyle(context.getStyleSheet(), captionOrColumnStyles, new ElementOrRangeCallback() {
+			public void onElement(final Element child, final String displayStyle) {
+				children.add(new BlockElementBox(context, TableBox.this, child));
+			}
 
-					public void onRange(Element parent, int startOffset,
-							int endOffset) {
-						children.add(new TableBodyBox(context, TableBox.this,
-								startOffset, endOffset));
-					}
-				});
+			public void onRange(final Element parent, final int startOffset, final int endOffset) {
+				children.add(new TableBodyBox(context, TableBox.this, startOffset, endOffset));
+			}
+		});
 
 		return children;
 	}
 
 	/**
-	 * Returns an array of widths of the table columns. These widths do not
-	 * include column spacing.
+	 * Returns an array of widths of the table columns. These widths do not include column spacing.
 	 */
 	public int[] getColumnWidths() {
-		return this.columnWidths;
+		return columnWidths;
 	}
 
 	public int getHorizonalSpacing() {
-		return this.horizonalSpacing;
+		return horizonalSpacing;
 	}
 
-	public Insets getInsets(LayoutContext context, int containerWidth) {
-		return new Insets(this.getMarginTop(), 0, this.getMarginBottom(), 0);
+	@Override
+	public Insets getInsets(final LayoutContext context, final int containerWidth) {
+		return new Insets(getMarginTop(), 0, getMarginBottom(), 0);
 	}
 
 	public int getVerticalSpacing() {
-		return this.verticalSpacing;
+		return verticalSpacing;
 	}
 
-	public IntRange layout(LayoutContext context, int top, int bottom) {
+	@Override
+	public IntRange layout(final LayoutContext context, final int top, final int bottom) {
 
 		// TODO Only compute columns widths (a) if re-laying out the whole box
 		// or (b) if the invalid child row now has more columns than us
 		// or (c) if the invalid child row has < current column count and it
 		// used to be the only one with a valid child row.
 
-		int newColCount = this.computeColumnCount(context);
-		if (this.columnWidths == null
-				|| newColCount != this.columnWidths.length) {
-			this.setLayoutState(LAYOUT_REDO);
+		final int newColCount = computeColumnCount(context);
+		if (columnWidths == null || newColCount != columnWidths.length) {
+			setLayoutState(LAYOUT_REDO);
 		}
 
-		if (this.getLayoutState() == LAYOUT_REDO) {
-			this.computeColumnWidths(context, newColCount);
+		if (getLayoutState() == LAYOUT_REDO) {
+			computeColumnWidths(context, newColCount);
 		}
 
 		return super.layout(context, top, bottom);
 	}
 
-	public void paint(LayoutContext context, int x, int y) {
+	@Override
+	public void paint(final LayoutContext context, final int x, final int y) {
 
-		if (this.skipPaint(context, x, y)) {
+		if (skipPaint(context, x, y)) {
 			return;
 		}
 
-		this.paintChildren(context, x, y);
+		paintChildren(context, x, y);
 
-		this.paintSelectionFrame(context, x, y, true);
+		paintSelectionFrame(context, x, y, true);
 	}
 
 	// ============================================================ PRIVATE
@@ -138,108 +135,91 @@ public class TableBox extends AbstractBlockBox {
 	private static class CountingCallback implements ElementOrRangeCallback {
 
 		public int getCount() {
-			return this.count;
+			return count;
 		}
 
 		public void reset() {
-			this.count = 0;
+			count = 0;
 		}
 
-		public void onElement(Element child, String displayStyle) {
-			this.count++;
+		public void onElement(final Element child, final String displayStyle) {
+			count++;
 		}
 
-		public void onRange(Element parent, int startOffset, int endOffset) {
-			this.count++;
+		public void onRange(final Element parent, final int startOffset, final int endOffset) {
+			count++;
 		}
 
 		private int count;
 	}
 
 	/**
-	 * Performs a quick count of this table's columns. If the count has changed,
-	 * we must re-layout the entire table.
+	 * Performs a quick count of this table's columns. If the count has changed, we must re-layout the entire table.
 	 */
-	private int computeColumnCount(LayoutContext context) {
+	private int computeColumnCount(final LayoutContext context) {
 
-		Element tableElement = this.findContainingElement();
+		final Element tableElement = findContainingElement();
 		final int[] columnCounts = new int[1]; // work around Java's insistence
 												// on final
 		columnCounts[0] = 0;
 		final StyleSheet styleSheet = context.getStyleSheet();
 		final CountingCallback callback = new CountingCallback();
-		LayoutUtils.iterateTableRows(styleSheet, tableElement, this
-				.getStartOffset(), this.getEndOffset(),
-				new ElementOrRangeCallback() {
-					public void onElement(Element child, String displayStyle) {
-						LayoutUtils.iterateTableCells(styleSheet, child,
-								callback);
-						columnCounts[0] = Math.max(columnCounts[0], callback
-								.getCount());
-						callback.reset();
-					}
+		LayoutUtils.iterateTableRows(styleSheet, tableElement, getStartOffset(), getEndOffset(), new ElementOrRangeCallback() {
+			public void onElement(final Element child, final String displayStyle) {
+				LayoutUtils.iterateTableCells(styleSheet, child, callback);
+				columnCounts[0] = Math.max(columnCounts[0], callback.getCount());
+				callback.reset();
+			}
 
-					public void onRange(Element parent, int startOffset,
-							int endOffset) {
-						LayoutUtils.iterateTableCells(styleSheet, parent,
-								startOffset, endOffset, callback);
-						columnCounts[0] = Math.max(columnCounts[0], callback
-								.getCount());
-						callback.reset();
-					}
+			public void onRange(final Element parent, final int startOffset, final int endOffset) {
+				LayoutUtils.iterateTableCells(styleSheet, parent, startOffset, endOffset, callback);
+				columnCounts[0] = Math.max(columnCounts[0], callback.getCount());
+				callback.reset();
+			}
 
-				});
+		});
 
 		return columnCounts[0];
 	}
 
-	private void computeColumnWidths(final LayoutContext context,
-			int columnCount) {
+	private void computeColumnWidths(final LayoutContext context, final int columnCount) {
 
-		this.columnWidths = new int[columnCount];
+		columnWidths = new int[columnCount];
 
 		if (columnCount == 0) {
 			return;
 		}
 
-		this.horizonalSpacing = 0;
-		this.verticalSpacing = 0;
-		int myWidth = this.getWidth();
+		horizonalSpacing = 0;
+		verticalSpacing = 0;
+		final int myWidth = getWidth();
 		int availableWidth = myWidth;
 
-		if (!this.isAnonymous()) {
-			Styles styles = context.getStyleSheet()
-					.getStyles(this.getElement());
-			this.horizonalSpacing = styles.getBorderSpacing().getHorizontal();
-			this.verticalSpacing = styles.getBorderSpacing().getVertical();
+		if (!isAnonymous()) {
+			final Styles styles = context.getStyleSheet().getStyles(getElement());
+			horizonalSpacing = styles.getBorderSpacing().getHorizontal();
+			verticalSpacing = styles.getBorderSpacing().getVertical();
 
 			// width available for columns
 			// Since we apply margins/borders/padding to the TableBodyBox,
 			// they're
 			// not reflected in the width of this box. Thus, we subtract them
 			// here
-			availableWidth -= +styles.getMarginLeft().get(myWidth)
-					+ styles.getBorderLeftWidth()
-					+ styles.getPaddingLeft().get(myWidth)
-					+ styles.getPaddingRight().get(myWidth)
-					+ styles.getBorderRightWidth()
-					+ styles.getMarginRight().get(myWidth);
+			availableWidth -= +styles.getMarginLeft().get(myWidth) + styles.getBorderLeftWidth() + styles.getPaddingLeft().get(myWidth) + styles.getPaddingRight().get(myWidth)
+					+ styles.getBorderRightWidth() + styles.getMarginRight().get(myWidth);
 		}
 
-		int totalColumnWidth = this.horizonalSpacing;
-		int columnWidth = (availableWidth - this.horizonalSpacing
-				* (columnCount + 1))
-				/ columnCount;
-		for (int i = 0; i < this.columnWidths.length - 1; i++) {
+		int totalColumnWidth = horizonalSpacing;
+		final int columnWidth = (availableWidth - horizonalSpacing * (columnCount + 1)) / columnCount;
+		for (int i = 0; i < columnWidths.length - 1; i++) {
 			System.err.print(" " + columnWidth);
-			this.columnWidths[i] = columnWidth;
-			totalColumnWidth += columnWidth + this.horizonalSpacing;
+			columnWidths[i] = columnWidth;
+			totalColumnWidth += columnWidth + horizonalSpacing;
 		}
 
 		// Due to rounding errors in the expression above, we calculate the
 		// width of the last column separately, to make it exact.
-		this.columnWidths[this.columnWidths.length - 1] = availableWidth
-				- totalColumnWidth - this.horizonalSpacing;
+		columnWidths[columnWidths.length - 1] = availableWidth - totalColumnWidth - horizonalSpacing;
 
 	}
 }

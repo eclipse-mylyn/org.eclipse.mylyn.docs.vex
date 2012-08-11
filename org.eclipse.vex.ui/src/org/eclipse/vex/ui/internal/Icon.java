@@ -17,47 +17,44 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 
 /**
- * This enumeration contains the icons used by this plug-in that are very
- * frequently used and so need to be globally shared within the plug-in. The
- * icons are lazy loaded and disposed when the plug-in/bundle is stopped.
+ * This enumeration contains the icons used by this plug-in that are very frequently used and so need to be globally
+ * shared within the plug-in. The icons are lazy loaded and disposed when the plug-in/bundle is stopped.
  */
 public enum Icon {
 
-    /** 16x16 icon: XML element (resource). */
-    ELEMENT("icons/element_obj.gif"), //$NON-NLS-1$
+	/** 16x16 icon: XML element (resource). */
+	ELEMENT("icons/element_obj.gif"), //$NON-NLS-1$
 
-    /** 16x16 icon: Convert (action). */
-    CONVERT("icons/convert.gif"); //$NON-NLS-1$
+	/** 16x16 icon: Convert (action). */
+	CONVERT("icons/convert.gif"); //$NON-NLS-1$
 
-    private final String iconFilePath;
+	private final String iconFilePath;
 
-    private Icon(String iconFilePath) {
-        this.iconFilePath = iconFilePath;
-    }
+	private Icon(final String iconFilePath) {
+		this.iconFilePath = iconFilePath;
+	}
 
-    /**
-     * @param icon the icon to be returned as {@link Image}
-     * @return the specified icon as {@link Image}
-     */
-    public static Image get(Icon icon) {
-        ImageRegistry registry = VexPlugin.getDefault().getImageRegistry();
-        Image value = registry.get(icon.iconFilePath);
-        if (value == null) {
-            ImageDescriptor imageDescriptor =
-                createImageDescriptor(icon.iconFilePath);
-            registry.put(icon.iconFilePath, imageDescriptor);
-            value = registry.get(icon.iconFilePath);
-        }
-        return value;
-    }
+	/**
+	 * @param icon
+	 *            the icon to be returned as {@link Image}
+	 * @return the specified icon as {@link Image}
+	 */
+	public static Image get(final Icon icon) {
+		final ImageRegistry registry = VexPlugin.getDefault().getImageRegistry();
+		Image value = registry.get(icon.iconFilePath);
+		if (value == null) {
+			final ImageDescriptor imageDescriptor = createImageDescriptor(icon.iconFilePath);
+			registry.put(icon.iconFilePath, imageDescriptor);
+			value = registry.get(icon.iconFilePath);
+		}
+		return value;
+	}
 
-    private static ImageDescriptor createImageDescriptor(String filePath) {
-        ImageDescriptor descriptor =
-            AbstractUIPlugin.imageDescriptorFromPlugin(VexPlugin.ID, filePath);
+	private static ImageDescriptor createImageDescriptor(final String filePath) {
+		final ImageDescriptor descriptor = AbstractUIPlugin.imageDescriptorFromPlugin(VexPlugin.ID, filePath);
 
-        Assert.isNotNull(descriptor,
-                         "Image file not found: " + filePath); //$NON-NLS-1$
-        return descriptor;
-    }
+		Assert.isNotNull(descriptor, "Image file not found: " + filePath); //$NON-NLS-1$
+		return descriptor;
+	}
 
 }

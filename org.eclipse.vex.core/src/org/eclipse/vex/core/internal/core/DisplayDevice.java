@@ -11,8 +11,7 @@
 package org.eclipse.vex.core.internal.core;
 
 /**
- * Represents a device that can display graphics. This class is subclassed for
- * each target system.
+ * Represents a device that can display graphics. This class is subclassed for each target system.
  */
 public abstract class DisplayDevice {
 
@@ -27,7 +26,7 @@ public abstract class DisplayDevice {
 			return 0;
 		}
 	};
-	
+
 	/**
 	 * Class constructor.
 	 */
@@ -52,13 +51,12 @@ public abstract class DisplayDevice {
 	public abstract int getVerticalPPI();
 
 	/**
-	 * Sets the current display device. This is typically called by the
-	 * platform-specific widget;
+	 * Sets the current display device. This is typically called by the platform-specific widget;
 	 * 
 	 * @param current
 	 *            The device to use as the current device.
 	 */
-	public static void setCurrent(DisplayDevice current) {
+	public static void setCurrent(final DisplayDevice current) {
 		DisplayDevice.current = current;
 	}
 

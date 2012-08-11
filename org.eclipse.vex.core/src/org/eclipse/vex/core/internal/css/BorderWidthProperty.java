@@ -15,29 +15,28 @@ import org.eclipse.vex.core.internal.dom.Element;
 import org.w3c.css.sac.LexicalUnit;
 
 /**
- * The border-XXX-width CSS property. Since the value of this property depends
- * on the corresponding border-XXX-style property, the style property must be
- * calculated first and placed in the styles, and its name given to the
- * constructor of this class.
+ * The border-XXX-width CSS property. Since the value of this property depends on the corresponding border-XXX-style
+ * property, the style property must be calculated first and placed in the styles, and its name given to the constructor
+ * of this class.
  */
 public class BorderWidthProperty extends AbstractProperty {
 
 	// Name of the corresponding border style property
-	private String borderStyleName;
+	private final String borderStyleName;
 
 	// Axis along which the border width is measured.
-	private Axis axis;
+	private final Axis axis;
 
 	// named border widths
 	private static final int BORDER_WIDTH_THIN = 1;
 	private static final int BORDER_WIDTH_MEDIUM = 3;
 	private static final int BORDER_WIDTH_THICK = 5;
 
-	private static int getBorderWidth(LexicalUnit lu, float fontSize, int ppi) {
+	private static int getBorderWidth(final LexicalUnit lu, final float fontSize, final int ppi) {
 		if (isLength(lu)) {
 			return getIntLength(lu, fontSize, ppi);
 		} else if (lu.getLexicalUnitType() == LexicalUnit.SAC_IDENT) {
-			String s = lu.getStringValue();
+			final String s = lu.getStringValue();
 			if (s.equals(CSS.THIN)) {
 				return BORDER_WIDTH_THIN;
 			} else if (s.equals(CSS.MEDIUM)) {
@@ -58,14 +57,12 @@ public class BorderWidthProperty extends AbstractProperty {
 	 * @param name
 	 *            Name of the property.
 	 * @param borderStyleName
-	 *            Name of the corresponding border style property. For example,
-	 *            if name is CSS.BORDER_TOP_WIDTH, then borderStyleName should
-	 *            be CSS.BORDER_TOP_STYLE.
+	 *            Name of the corresponding border style property. For example, if name is CSS.BORDER_TOP_WIDTH, then
+	 *            borderStyleName should be CSS.BORDER_TOP_STYLE.
 	 * @param axis
-	 *            AXIS_HORIZONTAL (for left and right borders) or AXIS_VERTICAL
-	 *            (for top and bottom borders).
+	 *            AXIS_HORIZONTAL (for left and right borders) or AXIS_VERTICAL (for top and bottom borders).
 	 */
-	public BorderWidthProperty(String name, String borderStyleName, Axis axis) {
+	public BorderWidthProperty(final String name, final String borderStyleName, final Axis axis) {
 		super(name);
 		this.borderStyleName = borderStyleName;
 		this.axis = axis;
@@ -77,39 +74,36 @@ public class BorderWidthProperty extends AbstractProperty {
 	 * @param lu
 	 *            LexicalUnit to check.
 	 */
-	public static boolean isBorderWidth(LexicalUnit lu) {
+	public static boolean isBorderWidth(final LexicalUnit lu) {
 		if (lu == null) {
 			return false;
 		} else if (isLength(lu)) {
 			return true;
 		} else if (lu.getLexicalUnitType() == LexicalUnit.SAC_IDENT) {
-			String s = lu.getStringValue();
-			return s.equals(CSS.THIN) || s.equals(CSS.MEDIUM)
-					|| s.equals(CSS.THICK);
+			final String s = lu.getStringValue();
+			return s.equals(CSS.THIN) || s.equals(CSS.MEDIUM) || s.equals(CSS.THICK);
 		} else {
 			return false;
 		}
 	}
 
-	public Object calculate(LexicalUnit lu, Styles parentStyles, Styles styles, Element element) {
+	public Object calculate(final LexicalUnit lu, final Styles parentStyles, final Styles styles, final Element element) {
 		return Integer.valueOf(calculateInternal(lu, parentStyles, styles));
 	}
 
-	private int calculateInternal(LexicalUnit lu, Styles parentStyles,
-			Styles styles) {
+	private int calculateInternal(final LexicalUnit lu, final Styles parentStyles, final Styles styles) {
 
-		DisplayDevice device = DisplayDevice.getCurrent();
-		int ppi = this.axis == Axis.HORIZONTAL ? device.getHorizontalPPI()
-				: device.getVerticalPPI();
+		final DisplayDevice device = DisplayDevice.getCurrent();
+		final int ppi = axis == Axis.HORIZONTAL ? device.getHorizontalPPI() : device.getVerticalPPI();
 
-		String borderStyle = (String) styles.get(this.borderStyleName);
+		final String borderStyle = (String) styles.get(borderStyleName);
 
 		if (borderStyle.equals(CSS.NONE) || borderStyle.equals(CSS.HIDDEN)) {
 			return 0;
 		} else if (isBorderWidth(lu)) {
 			return getBorderWidth(lu, styles.getFontSize(), ppi);
 		} else if (isInherit(lu) && parentStyles != null) {
-			return ((Integer) parentStyles.get(this.getName())).intValue();
+			return ((Integer) parentStyles.get(getName())).intValue();
 		} else {
 			// not specified, "none", or other unknown value
 			return BORDER_WIDTH_MEDIUM;

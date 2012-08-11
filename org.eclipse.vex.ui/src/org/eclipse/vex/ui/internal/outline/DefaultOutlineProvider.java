@@ -26,18 +26,18 @@ import org.eclipse.vex.core.internal.widget.CssWhitespacePolicy;
 import org.eclipse.vex.ui.internal.editor.VexEditor;
 
 /**
- * Default implementation of IOutlineProvider. Simply displays all block-level
- * elements.
+ * Default implementation of IOutlineProvider. Simply displays all block-level elements.
  */
 public class DefaultOutlineProvider implements IOutlineProvider {
 
-	public void init(VexEditor editor) {
-		StyleSheet ss = editor.getVexWidget().getStyleSheet();
-		this.whitespacePolicy = new CssWhitespacePolicy(ss);
-		this.contentProvider = new ContentProvider();
-		this.labelProvider = new LabelProvider() {
-			public String getText(Object o) {
-				Element e = (Element) o;
+	public void init(final VexEditor editor) {
+		final StyleSheet ss = editor.getVexWidget().getStyleSheet();
+		whitespacePolicy = new CssWhitespacePolicy(ss);
+		contentProvider = new ContentProvider();
+		labelProvider = new LabelProvider() {
+			@Override
+			public String getText(final Object o) {
+				final Element e = (Element) o;
 				String s = e.getText();
 				if (s.length() > 30) {
 					s = s.substring(0, 30) + "..."; //$NON-NLS-1$
@@ -49,24 +49,24 @@ public class DefaultOutlineProvider implements IOutlineProvider {
 	}
 
 	public ITreeContentProvider getContentProvider() {
-		return this.contentProvider;
+		return contentProvider;
 	}
 
 	public IBaseLabelProvider getLabelProvider() {
-		return this.labelProvider;
+		return labelProvider;
 	}
 
-	public Element getOutlineElement(Element child) {
+	public Element getOutlineElement(final Element child) {
 		Element element = child;
 		while (element != null) {
-			
+
 			// block element?
-			if (this.whitespacePolicy.isBlock(element)) {
+			if (whitespacePolicy.isBlock(element)) {
 				return element;
 			}
-			
+
 			// root?
-			Element parent = element.getParent();
+			final Element parent = element.getParent();
 			if (parent == null) {
 				return element;
 			}
@@ -83,10 +83,10 @@ public class DefaultOutlineProvider implements IOutlineProvider {
 
 	private class ContentProvider implements ITreeContentProvider {
 
-		public Object[] getChildren(Object parentElement) {
-			List<Element> blockChildren = new ArrayList<Element>();
-			List<Element> children = ((Element) parentElement).getChildElements();
-			for (Element child : children) {
+		public Object[] getChildren(final Object parentElement) {
+			final List<Element> blockChildren = new ArrayList<Element>();
+			final List<Element> children = ((Element) parentElement).getChildElements();
+			for (final Element child : children) {
 				if (whitespacePolicy.isBlock(child)) {
 					blockChildren.add(child);
 				}
@@ -94,15 +94,15 @@ public class DefaultOutlineProvider implements IOutlineProvider {
 			return blockChildren.toArray();
 		}
 
-		public Object getParent(Object element) {
+		public Object getParent(final Object element) {
 			return ((Element) element).getParent();
 		}
 
-		public boolean hasChildren(Object o) {
-			return this.hasBlockChild((Element) o);
+		public boolean hasChildren(final Object o) {
+			return hasBlockChild((Element) o);
 		}
 
-		public Object[] getElements(Object inputElement) {
+		public Object[] getElements(final Object inputElement) {
 			return new Object[] { ((Document) inputElement).getRootElement() };
 			// return this.getChildren(inputElement);
 		}
@@ -110,15 +110,15 @@ public class DefaultOutlineProvider implements IOutlineProvider {
 		public void dispose() {
 		}
 
-		public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
+		public void inputChanged(final Viewer viewer, final Object oldInput, final Object newInput) {
 			// TODO Auto-generated method stub
 
 		}
 
 		// ====================================================== PRIVATE
 
-		private boolean hasBlockChild(Element element) {
-			for (Element child : element.getChildElements()) {
+		private boolean hasBlockChild(final Element element) {
+			for (final Element child : element.getChildElements()) {
 				if (whitespacePolicy.isBlock(child)) {
 					return true;
 				}

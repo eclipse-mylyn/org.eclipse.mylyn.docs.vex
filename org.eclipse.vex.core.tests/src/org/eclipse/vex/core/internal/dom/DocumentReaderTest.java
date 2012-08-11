@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.dom;
 
-import static org.junit.Assert.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -64,8 +63,9 @@ public class DocumentReaderTest {
 		reader.setDocumentContentModel(new DocumentContentModel() {
 			@Override
 			public InputSource resolveEntity(final String publicId, final String systemId) throws SAXException, IOException {
-				if (TestResources.TEST_DTD.equals(publicId))
+				if (TestResources.TEST_DTD.equals(publicId)) {
 					called[0] = true;
+				}
 				return super.resolveEntity(publicId, systemId);
 			}
 		});
@@ -81,15 +81,17 @@ public class DocumentReaderTest {
 		reader.setDocumentContentModel(new DocumentContentModel() {
 			@Override
 			public InputSource resolveEntity(final String publicId, final String systemId) throws SAXException, IOException {
-				if (TestResources.TEST_DTD.equals(publicId))
+				if (TestResources.TEST_DTD.equals(publicId)) {
 					documentContentModelCalled[0] = true;
+				}
 				return super.resolveEntity(publicId, systemId);
 			}
 		});
 		reader.setEntityResolver(new EntityResolver() {
 			public InputSource resolveEntity(final String publicId, final String systemId) throws SAXException, IOException {
-				if (TestResources.TEST_DTD.equals(publicId))
+				if (TestResources.TEST_DTD.equals(publicId)) {
 					entityResolverCalled[0] = true;
+				}
 				return new InputSource(TestResources.get("test1.dtd").toString());
 			}
 		});
@@ -107,15 +109,17 @@ public class DocumentReaderTest {
 		reader.setDocumentContentModel(new DocumentContentModel() {
 			@Override
 			public InputSource resolveEntity(final String publicId, final String systemId) throws SAXException, IOException {
-				if (TestResources.TEST_DTD.equals(publicId))
+				if (TestResources.TEST_DTD.equals(publicId)) {
 					documentContentModelPosition[0] = ++callPosition[0];
+				}
 				return super.resolveEntity(publicId, systemId);
 			}
 		});
 		reader.setEntityResolver(new EntityResolver() {
 			public InputSource resolveEntity(final String publicId, final String systemId) throws SAXException, IOException {
-				if (TestResources.TEST_DTD.equals(publicId))
+				if (TestResources.TEST_DTD.equals(publicId)) {
 					entityResolverPosition[0] = ++callPosition[0];
+				}
 				return null;
 			}
 		});
@@ -123,7 +127,7 @@ public class DocumentReaderTest {
 		assertEquals(2, documentContentModelPosition[0]);
 		assertEquals(1, entityResolverPosition[0]);
 	}
-	
+
 	@Test
 	public void readDocumentWithComments() throws Exception {
 		final DocumentReader reader = new DocumentReader();
@@ -131,10 +135,10 @@ public class DocumentReaderTest {
 		final Element rootElement = document.getRootElement();
 		final List<Node> rootChildNodes = rootElement.getChildNodes();
 		assertEquals(4, rootChildNodes.size());
-		
+
 		final CommentElement comment1 = (CommentElement) rootChildNodes.get(0);
 		assertEquals("A comment within the root element.", comment1.getText());
-		
+
 		final CommentElement comment2 = (CommentElement) ((Element) rootChildNodes.get(1)).getChildNodes().get(1);
 		assertEquals("A comment within text.", comment2.getText());
 

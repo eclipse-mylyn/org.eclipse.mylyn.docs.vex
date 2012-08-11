@@ -20,53 +20,42 @@ import org.eclipse.vex.core.internal.dom.Element;
 import org.eclipse.vex.ui.internal.swt.VexWidget;
 
 /**
- * Removes the current tag: deletes the element but adds its content to the
- * parent element.
+ * Removes the current tag: deletes the element but adds its content to the parent element.
  */
-public class RemoveTagHandler extends AbstractVexWidgetHandler implements
-        IElementUpdater {
+public class RemoveTagHandler extends AbstractVexWidgetHandler implements IElementUpdater {
 
-    /** ID of the corresponding remove element command. */
-    public static final String COMMAND_ID =
-        "org.eclipse.vex.ui.RemoveTagCommand"; //$NON-NLS-1$
+	/** ID of the corresponding remove element command. */
+	public static final String COMMAND_ID = "org.eclipse.vex.ui.RemoveTagCommand"; //$NON-NLS-1$
 
-    /**
-     * The message ID of the command label which is in window scope displayed
-     * in the 'Remove' menu only.
-     */
-    private static final String WINDOW_SCOPE_DYNAMIC_LABEL_ID =
-        "command.removeTag.inRemoveMenu.dynamicName"; //$NON-NLS-1$
+	/**
+	 * The message ID of the command label which is in window scope displayed in the 'Remove' menu only.
+	 */
+	private static final String WINDOW_SCOPE_DYNAMIC_LABEL_ID = "command.removeTag.inRemoveMenu.dynamicName"; //$NON-NLS-1$
 
-    /**
-     * The message ID of the command label which is in partsite scope displayed
-     * in the context menu.
-     */
-    private static final String PARTSITE_SCOPE_DYNAMIC_LABEL_ID =
-        "command.removeTag.dynamicName"; //$NON-NLS-1$
+	/**
+	 * The message ID of the command label which is in partsite scope displayed in the context menu.
+	 */
+	private static final String PARTSITE_SCOPE_DYNAMIC_LABEL_ID = "command.removeTag.dynamicName"; //$NON-NLS-1$
 
-    @Override
-    public void execute(final VexWidget widget) throws ExecutionException {
-        widget.doWork(new Runnable() {
-            public void run() {
-                Element element = widget.getDocument().getElementAt(
-                        widget.getCaretOffset());
-                widget.moveTo(element.getStartOffset() + 1, false);
-                widget.moveTo(element.getEndOffset(), true);
-                DocumentFragment frag = widget.getSelectedFragment();
-                widget.deleteSelection();
-                widget.moveBy(-1, false);
-                widget.moveBy(2, true);
-                widget.deleteSelection();
-                widget.insertFragment(frag);
-            }
-        });
-    }
+	@Override
+	public void execute(final VexWidget widget) throws ExecutionException {
+		widget.doWork(new Runnable() {
+			public void run() {
+				final Element element = widget.getDocument().getElementAt(widget.getCaretOffset());
+				widget.moveTo(element.getStartOffset() + 1, false);
+				widget.moveTo(element.getEndOffset(), true);
+				final DocumentFragment frag = widget.getSelectedFragment();
+				widget.deleteSelection();
+				widget.moveBy(-1, false);
+				widget.moveBy(2, true);
+				widget.deleteSelection();
+				widget.insertFragment(frag);
+			}
+		});
+	}
 
-    public void updateElement(UIElement element, Map parameters) {
-        updateElement(element,
-                      parameters,
-                      WINDOW_SCOPE_DYNAMIC_LABEL_ID,
-                      PARTSITE_SCOPE_DYNAMIC_LABEL_ID);
-    }
+	public void updateElement(final UIElement element, final Map parameters) {
+		updateElement(element, parameters, WINDOW_SCOPE_DYNAMIC_LABEL_ID, PARTSITE_SCOPE_DYNAMIC_LABEL_ID);
+	}
 
 }

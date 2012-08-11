@@ -25,7 +25,7 @@ public class PluginProjectNature implements IProjectNature {
 	public static final String ID = "org.eclipse.vex.ui.pluginNature"; //$NON-NLS-1$
 
 	public void configure() throws CoreException {
-		this.registerBuilder();
+		registerBuilder();
 	}
 
 	public void deconfigure() throws CoreException {
@@ -34,10 +34,10 @@ public class PluginProjectNature implements IProjectNature {
 	}
 
 	public IProject getProject() {
-		return this.project;
+		return project;
 	}
 
-	public void setProject(IProject project) {
+	public void setProject(final IProject project) {
 		this.project = project;
 	}
 
@@ -46,21 +46,21 @@ public class PluginProjectNature implements IProjectNature {
 	private IProject project;
 
 	private void registerBuilder() throws CoreException {
-		IProjectDescription desc = project.getDescription();
-		ICommand[] commands = desc.getBuildSpec();
+		final IProjectDescription desc = project.getDescription();
+		final ICommand[] commands = desc.getBuildSpec();
 		boolean found = false;
 
-		for (int i = 0; i < commands.length; ++i) {
-			if (commands[i].getBuilderName().equals(PluginProjectBuilder.ID)) {
+		for (final ICommand command : commands) {
+			if (command.getBuilderName().equals(PluginProjectBuilder.ID)) {
 				found = true;
 				break;
 			}
 		}
 		if (!found) {
 			// add builder to project
-			ICommand command = desc.newCommand();
+			final ICommand command = desc.newCommand();
 			command.setBuilderName(PluginProjectBuilder.ID);
-			ICommand[] newCommands = new ICommand[commands.length + 1];
+			final ICommand[] newCommands = new ICommand[commands.length + 1];
 
 			// Add it before other builders.
 			System.arraycopy(commands, 0, newCommands, 1, commands.length);

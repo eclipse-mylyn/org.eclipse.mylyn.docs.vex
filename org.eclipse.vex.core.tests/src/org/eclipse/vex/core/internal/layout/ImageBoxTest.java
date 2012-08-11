@@ -6,12 +6,10 @@ import static org.junit.Assert.assertSame;
 import java.net.URL;
 
 import org.eclipse.vex.core.internal.core.Image;
-import org.eclipse.vex.core.internal.layout.ImageBox;
-import org.eclipse.vex.core.internal.layout.LayoutContext;
 import org.junit.Test;
 
 public class ImageBoxTest {
-	
+
 	@Test
 	public void createImageBox() throws Exception {
 		final FakeImage image = new FakeImage(new URL("file://image.jpg"), 123, 456);
@@ -19,7 +17,7 @@ public class ImageBoxTest {
 		assertEquals(image.getWidth(), imageBox.getWidth());
 		assertEquals(image.getHeight(), imageBox.getHeight());
 	}
-	
+
 	@Test
 	public void paintImageBox() throws Exception {
 		final FakeImage image = new FakeImage(new URL("file://image.jpg"), 123, 456);
@@ -30,13 +28,14 @@ public class ImageBoxTest {
 		imageBox.paint(context, 0, 0);
 		assertSame(image.url, graphics.getLastDrawnImageUrl());
 	}
-	
+
 	@Test
 	public void scaleImage() throws Exception {
 		final FakeImage image = new FakeImage(new URL("file://image.jpg"), 123, 456);
 		final int[] drawnImageSize = new int[2];
 		final FakeGraphics graphics = new FakeGraphics() {
-			public void drawImage(Image image, int x, int y, int width, int height) {
+			@Override
+			public void drawImage(final Image image, final int x, final int y, final int width, final int height) {
 				super.drawImage(image, x, y, width, height);
 				drawnImageSize[0] = width;
 				drawnImageSize[1] = height;

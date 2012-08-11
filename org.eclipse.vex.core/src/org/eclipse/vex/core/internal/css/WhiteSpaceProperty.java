@@ -29,7 +29,7 @@ public class WhiteSpaceProperty extends AbstractProperty {
      *
      */
 
-	public Object calculate(LexicalUnit lu, Styles parentStyles, Styles styles, Element element) {
+	public Object calculate(final LexicalUnit lu, final Styles parentStyles, final Styles styles, final Element element) {
 		if (isWhiteSpace(lu)) {
 			return lu.getStringValue();
 		} else {
@@ -49,13 +49,12 @@ public class WhiteSpaceProperty extends AbstractProperty {
 	 * @param lu
 	 *            LexicalUnit to check.
 	 */
-	public static boolean isWhiteSpace(LexicalUnit lu) {
+	public static boolean isWhiteSpace(final LexicalUnit lu) {
 		if (lu == null) {
 			return false;
 		} else if (lu.getLexicalUnitType() == LexicalUnit.SAC_IDENT) {
-			String s = lu.getStringValue();
-			return s.equals(CSS.NORMAL) || s.equals(CSS.PRE)
-					|| s.equals(CSS.NOWRAP);
+			final String s = lu.getStringValue();
+			return s.equals(CSS.NORMAL) || s.equals(CSS.PRE) || s.equals(CSS.NOWRAP);
 		} else {
 			return false;
 		}
