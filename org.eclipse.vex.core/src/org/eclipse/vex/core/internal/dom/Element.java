@@ -32,6 +32,12 @@ import org.eclipse.vex.core.internal.undo.IUndoableEdit;
  */
 public class Element extends Node implements Cloneable {
 
+	/**
+	 * The xml:base attribute re-defines the base URI for a part of an XML document, according to the XML Base
+	 * Recommendation.
+	 * 
+	 * @see http://www.w3.org/TR/xmlbase/
+	 */
 	private static final QualifiedName XML_BASE_ATTRIBUTE = new QualifiedName(Namespace.XML_NAMESPACE_URI, "base");
 
 	private final QualifiedName name;
@@ -226,19 +232,6 @@ public class Element extends Node implements Cloneable {
 
 	public Element getParent() {
 		return parent;
-	}
-
-	@Override
-	public String getText() {
-		final String s = super.getText();
-		final StringBuilder sb = new StringBuilder(s.length());
-		for (int i = 0; i < s.length(); i++) {
-			final char c = s.charAt(i);
-			if (!getContent().isElementMarker(c)) {
-				sb.append(c);
-			}
-		}
-		return sb.toString();
 	}
 
 	/**

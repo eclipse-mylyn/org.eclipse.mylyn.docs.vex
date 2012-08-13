@@ -323,7 +323,7 @@ public class VexWidgetImpl implements IVexWidget {
 				// so just delete the whole element an move on
 				this.moveTo(offset + 2, true);
 				deleteSelection();
-			} else if (doc.getCharacterAt(offset) != 0) {
+			} else if (!doc.isElementAt(offset)) {
 				this.moveTo(offset, false);
 				this.moveTo(offset + 1, true);
 				deleteSelection();
@@ -359,7 +359,7 @@ public class VexWidgetImpl implements IVexWidget {
 				deleteSelection();
 			} else {
 				offset--;
-				if (doc.getCharacterAt(offset) != 0) {
+				if (doc.isElementAt(offset)) {
 					this.moveTo(offset, false);
 					this.moveTo(offset + 1, true);
 					deleteSelection();

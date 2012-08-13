@@ -67,8 +67,7 @@ public class GapContent implements Content {
 	 * @param s
 	 *            String to insert.
 	 */
-	public void insertString(final int offset, final String s) {
-
+	public void insertText(final int offset, final String s) {
 		assertOffset(offset, 0, getLength());
 
 		if (s.length() > gapEnd - gapStart) {
@@ -101,10 +100,27 @@ public class GapContent implements Content {
 	}
 
 	public void insertElementMarker(final int offset) {
-		insertString(offset, Character.toString(ELEMENT_MARKER));
+		assertOffset(offset, 0, getLength());
+
+		insertText(offset, Character.toString(ELEMENT_MARKER));
 	}
 
-	public boolean isElementMarker(final char c) {
+	public boolean isElementMarker(final int offset) {
+		if (offset < 0 || offset >= getLength()) {
+			return false;
+		}
+
+		return isElementMarker(content[getIndex(offset)]);
+	}
+
+	private int getIndex(final int offset) {
+		if (offset < gapStart) {
+			return offset;
+		}
+		return offset + gapEnd - gapStart;
+	}
+
+	private boolean isElementMarker(final char c) {
 		return c == ELEMENT_MARKER;
 	}
 
@@ -133,28 +149,78 @@ public class GapContent implements Content {
 		}
 	}
 
-	/**
-	 * Gets a substring of the content.
-	 * 
-	 * @param offset
-	 *            Offset at which the string begins.
-	 * @param length
-	 *            Number of characters to return.
-	 */
 	public String getString(final int offset, final int length) {
 
 		assertOffset(offset, 0, getLength() - length);
 		assertPositive(length);
 
-		if (offset + length <= gapStart) {
+		if (offset + length < gapStart) {
 			return new String(content, offset, length);
 		} else if (offset >= gapStart) {
 			return new String(content, offset - gapStart + gapEnd, length);
 		} else {
-			final StringBuffer sb = new StringBuffer(length);
+			final StringBuilder sb = new StringBuilder(length);
 			sb.append(content, offset, gapStart - offset);
 			sb.append(content, gapEnd, offset + length - gapStart);
 			return sb.toString();
+		}
+	}
+
+	public String getText() {
+		return getText(0, getLength());
+	}
+
+	public String getText(final int offset, final int length) {
+		assertOffset(offset, 0, getLength() - length);
+		assertPositive(length);
+
+		final StringBuilder result = new StringBuilder(length);
+		if (offset + length < gapStart) {
+			appendPlainText(result, offset, length);
+		} else if (offset >= gapStart) {
+			appendPlainText(result, offset - gapStart + gapEnd, length);
+		} else {
+			appendPlainText(result, offset, gapStart - offset);
+			appendPlainText(result, gapEnd, offset + length - gapStart);
+		}
+		return result.toString();
+	}
+
+	private void appendPlainText(final StringBuilder stringBuilder, final int offset, final int length) {
+		for (int i = offset; i < offset + length; i++) {
+			final char c = content[i];
+			if (!isElementMarker(c)) {
+				stringBuilder.append(c);
+			}
+		}
+	}
+
+	public void insertContent(final int offset, final Content content) {
+		assertOffset(offset, 0, getLength());
+
+		copyContent(content, this, 0, offset, content.getLength());
+	}
+
+	public Content getContent(final int offset, final int length) {
+		assertOffset(offset, 0, getLength() - length);
+		assertPositive(length);
+
+		final GapContent result = new GapContent(length);
+		copyContent(this, result, offset, 0, length);
+		return result;
+	}
+
+	public Content getContent() {
+		return getContent(0, getLength());
+	}
+
+	private static void copyContent(final Content source, final Content destination, final int sourceOffset, final int destinationOffset, final int length) {
+		for (int i = 0; i < length; i++) {
+			if (source.isElementMarker(sourceOffset + i)) {
+				destination.insertElementMarker(destinationOffset + i);
+			} else {
+				destination.insertText(destinationOffset + i, source.getText(sourceOffset + i, 1));
+			}
 		}
 	}
 
@@ -201,7 +267,7 @@ public class GapContent implements Content {
 	 */
 	private static void assertOffset(final int offset, final int min, final int max) {
 		if (offset < min || offset > max) {
-			throw new IllegalArgumentException("Bad offset " + offset + "must be between " + min + " and " + max);
+			throw new IllegalArgumentException("Bad offset " + offset + " must be between " + min + " and " + max);
 		}
 	}
 

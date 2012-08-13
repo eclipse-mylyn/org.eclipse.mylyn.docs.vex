@@ -181,7 +181,16 @@ public class Document {
 	}
 
 	public char getCharacterAt(final int offset) {
-		return content.getString(offset, 1).charAt(0);
+		final String text = content.getText(offset, 1);
+		if (text.length() == 0) {
+			/*
+			 * XXX This is used in VexWidgetImpl.deleteNextChar/deletePreviousChar to find out if there is an element
+			 * marker at the given offset. VexWidgetImpl has no access to Content, so there should be a method in
+			 * Document to find out if there is an element at a given offset.
+			 */
+			return '\0';
+		}
+		return text.charAt(0);
 	}
 
 	public Element getElementAt(final int offset) {
@@ -209,6 +218,10 @@ public class Document {
 		return element;
 	}
 
+	public boolean isElementAt(final int offset) {
+		return content.isElementMarker(offset);
+	}
+
 	public String getEncoding() {
 		return encoding;
 	}
@@ -234,9 +247,7 @@ public class Document {
 
 		final List<Element> children = e1.getChildElements();
 
-		final Content newContent = new GapContent(endOffset - startOffset);
-		final String s = content.getString(startOffset, endOffset - startOffset);
-		newContent.insertString(0, s);
+		final Content newContent = content.getContent(startOffset, endOffset - startOffset);
 		final List<Element> newChildren = new ArrayList<Element>();
 		for (int i = 0; i < children.size(); i++) {
 			final Element child = children.get(i);
@@ -357,7 +368,7 @@ public class Document {
 	 * @see org.eclipse.vex.core.internal.dom.IVEXDocument#getRawText(int, int)
 	 */
 	public String getRawText(final int startOffset, final int endOffset) {
-		return content.getString(startOffset, endOffset - startOffset);
+		return content.getText(startOffset, endOffset - startOffset);
 	}
 
 	public Element getRootElement() {
@@ -369,15 +380,7 @@ public class Document {
 	}
 
 	public String getText(final int startOffset, final int endOffset) {
-		final String raw = content.getString(startOffset, endOffset - startOffset);
-		final StringBuffer sb = new StringBuffer(raw.length());
-		for (int i = 0; i < raw.length(); i++) {
-			final char c = raw.charAt(i);
-			if (!content.isElementMarker(c)) {
-				sb.append(c);
-			}
-		}
-		return sb.toString();
+		return content.getText(startOffset, endOffset - startOffset);
 	}
 
 	public Validator getValidator() {
@@ -460,9 +463,7 @@ public class Document {
 
 		fireBeforeContentInserted(new DocumentEvent(this, parent, offset, 2, null));
 
-		final Content c = fragment.getContent();
-		final String s = c.getString(0, c.getLength());
-		content.insertString(offset, s);
+		content.insertContent(offset, fragment.getContent());
 
 		final List<Element> children = parent.getChildElements();
 		int index = 0;
@@ -491,9 +492,9 @@ public class Document {
 		final Element parent = getElementAt(offset);
 
 		boolean isValid = false;
-		if (!content.isElementMarker(getCharacterAt(offset - 1))) {
+		if (!content.isElementMarker(offset - 1)) {
 			isValid = true;
-		} else if (!content.isElementMarker(getCharacterAt(offset))) {
+		} else if (!content.isElementMarker(offset)) {
 			isValid = true;
 		} else {
 			final Validator validator = getValidator();
@@ -524,7 +525,7 @@ public class Document {
 
 		fireBeforeContentInserted(new DocumentEvent(this, parent, offset, 2, null));
 
-		content.insertString(offset, s);
+		content.insertText(offset, s);
 
 		final IUndoableEdit edit = undoEnabled ? new InsertTextEdit(offset, s) : null;
 

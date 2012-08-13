@@ -11,8 +11,7 @@
 package org.eclipse.vex.core.internal.dom;
 
 /**
- * <code>Node</code> represents a component of an XML document. .
- * 
+ * This is the root class of the DOM.
  */
 public abstract class Node {
 
@@ -41,7 +40,7 @@ public abstract class Node {
 	}
 
 	public String getText() {
-		return content.getString(getStartOffset(), getEndOffset() - getStartOffset());
+		return content.getText(getStartOffset(), getEndOffset() - getStartOffset());
 	}
 
 	/**

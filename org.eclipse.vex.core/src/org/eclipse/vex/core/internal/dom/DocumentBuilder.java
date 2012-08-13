@@ -273,7 +273,7 @@ public class DocumentBuilder implements ContentHandler, LexicalHandler {
 
 		sb = cleanUpTextContent(trimTrailing);
 
-		content.insertString(content.getLength(), sb.toString());
+		content.insertText(content.getLength(), sb.toString());
 
 		pendingChars.setLength(0);
 		trimLeading = false;
