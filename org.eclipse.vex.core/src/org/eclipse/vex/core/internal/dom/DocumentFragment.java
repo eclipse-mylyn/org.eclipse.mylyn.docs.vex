@@ -121,15 +121,25 @@ public class DocumentFragment implements Serializable {
 	 */
 
 	private void writeObject(final ObjectOutputStream out) throws IOException {
-		out.writeUTF(content.getString(0, content.getLength()));
-		out.writeInt(elements.size());
+		writeContent(content, out);
 		for (int i = 0; i < elements.size(); i++) {
 			writeElement(elements.get(i), out);
 		}
 	}
 
-	private void writeElement(final Element element, final ObjectOutputStream out) throws IOException {
+	private static void writeContent(final Content content, final ObjectOutputStream out) throws IOException {
+		final int contentLength = content.getLength();
+		out.write(contentLength);
+		for (int i = 0; i < contentLength; i++) {
+			if (content.isElementMarker(i)) {
+				out.writeUTF("\0");
+			} else {
+				out.writeUTF(content.getText(i, 1));
+			}
+		}
+	}
 
+	private static void writeElement(final Element element, final ObjectOutputStream out) throws IOException {
 		out.writeObject(element.getQualifiedName());
 		out.writeInt(element.getStartOffset());
 		out.writeInt(element.getEndOffset());
@@ -147,17 +157,29 @@ public class DocumentFragment implements Serializable {
 	}
 
 	private void readObject(final ObjectInputStream in) throws IOException, ClassNotFoundException {
-		final String s = in.readUTF();
-		content = new GapContent(s.length());
-		content.insertString(0, s);
+		content = readContent(in);
 		final int n = in.readInt();
 		elements = new ArrayList<Element>(n);
 		for (int i = 0; i < n; i++) {
-			elements.add(readElement(in));
+			elements.add(readElement(in, content));
 		}
 	}
 
-	private Element readElement(final ObjectInputStream in) throws IOException, ClassNotFoundException {
+	private static Content readContent(final ObjectInputStream in) throws IOException {
+		final int contentLength = in.readInt();
+		final Content result = new GapContent(contentLength);
+		for (int i = 0; i < contentLength; i++) {
+			final String input = in.readUTF();
+			if ("\0".equals(input)) {
+				result.insertElementMarker(i);
+			} else {
+				result.insertText(i, input);
+			}
+		}
+		return result;
+	}
+
+	private static Element readElement(final ObjectInputStream in, final Content content) throws IOException, ClassNotFoundException {
 		final QualifiedName elementName = createQualifiedName(in.readObject());
 		final int startOffset = in.readInt();
 		final int endOffset = in.readInt();
@@ -178,7 +200,7 @@ public class DocumentFragment implements Serializable {
 
 		final int childCount = in.readInt();
 		for (int i = 0; i < childCount; i++) {
-			final Element child = readElement(in);
+			final Element child = readElement(in, content);
 			child.setParent(element);
 			element.insertChild(i, child);
 		}

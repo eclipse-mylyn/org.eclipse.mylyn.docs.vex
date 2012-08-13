@@ -11,7 +11,6 @@
 package org.eclipse.vex.core.internal.dom;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import org.junit.Test;
@@ -19,24 +18,21 @@ import org.junit.Test;
 /**
  * Test the GapContent class
  */
-public class GapContentTest {
+public class GapContentTest extends ContentTest {
 
-	@Test
-	public void insertSingleElementMarker() throws Exception {
-		final GapContent content = new GapContent(3);
-		content.insertElementMarker(0);
-		assertEquals(1, content.getLength());
-		assertTrue(content.isElementMarker(content.getString(0, content.getLength()).charAt(0)));
+	@Override
+	protected Content createContent() {
+		return new GapContent(100);
 	}
 
 	@Test
-	public void insertMultipleElementMarkers() throws Exception {
+	public void useChar0AsElementMarker() throws Exception {
 		final GapContent elementMarkerContent = new GapContent(4);
 		elementMarkerContent.insertElementMarker(0);
 		elementMarkerContent.insertElementMarker(0);
 
 		final GapContent stringContent = new GapContent(4);
-		stringContent.insertString(0, "\0\0");
+		stringContent.insertText(0, "\0\0");
 
 		assertEquals(stringContent.getLength(), elementMarkerContent.getLength());
 		assertEquals(stringContent.getString(0, stringContent.getLength()), elementMarkerContent.getString(0, elementMarkerContent.getLength()));
@@ -52,13 +48,13 @@ public class GapContentTest {
 
 		final GapContent content = new GapContent(2);
 		assertEquals(0, content.getLength());
-		content.insertString(0, "a");
+		content.insertText(0, "a");
 		assertEquals(1, content.getLength());
-		content.insertString(1, "d");
+		content.insertText(1, "d");
 		assertEquals(2, content.getLength());
-		content.insertString(1, "c");
+		content.insertText(1, "c");
 		assertEquals(3, content.getLength());
-		content.insertString(1, "b");
+		content.insertText(1, "b");
 		assertEquals(4, content.getLength());
 
 		final Position pa = content.createPosition(0);
@@ -122,9 +118,9 @@ public class GapContentTest {
 		// | | | | | | |
 		// 0 1 2 3 4 5 6
 		// 
-		content.insertString(2, "y");
+		content.insertText(2, "y");
 		assertEquals(5, content.getLength());
-		content.insertString(2, "x");
+		content.insertText(2, "x");
 		assertEquals(6, content.getLength());
 
 		assertEquals(0, pa.getOffset());
@@ -163,4 +159,5 @@ public class GapContentTest {
 		assertEquals("abcd", content.getString(0, 4));
 
 	}
+
 }
