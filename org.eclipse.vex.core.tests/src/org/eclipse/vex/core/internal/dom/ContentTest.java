@@ -116,4 +116,54 @@ public abstract class ContentTest {
 		content.insertText(6, "Cut Out");
 		assertEquals("Hello Cut Out World", content.getText());
 	}
+
+	@Test
+	public void shouldIncreasePositionsOnInsertText() throws Exception {
+		content.insertText(0, "Hello World");
+		final Position helloPosition = content.createPosition(0);
+		final Position worldPosition = content.createPosition(6);
+		assertEquals("Hello", content.getText(helloPosition.getOffset(), 5));
+		assertEquals("World", content.getText(worldPosition.getOffset(), 5));
+
+		content.insertText(6, "New ");
+		assertEquals(0, helloPosition.getOffset());
+		assertEquals(10, worldPosition.getOffset());
+		assertEquals("Hello", content.getText(helloPosition.getOffset(), 5));
+		assertEquals("World", content.getText(worldPosition.getOffset(), 5));
+	}
+
+	@Test
+	public void shouldIncreasePositionsOnInsertElementMarker() throws Exception {
+		content.insertText(0, "Hello World");
+		final Position worldStartPosition = content.createPosition(6);
+		final Position worldEndPosition = content.createPosition(10);
+		assertEquals("d", content.getText(worldEndPosition.getOffset(), 1));
+		assertEquals("World", content.getText(worldStartPosition.getOffset(), worldEndPosition.getOffset() - worldStartPosition.getOffset() + 1));
+
+		content.insertElementMarker(11);
+		content.insertElementMarker(6);
+		assertEquals(7, worldStartPosition.getOffset());
+		assertEquals(11, worldEndPosition.getOffset());
+		assertEquals("d", content.getText(worldEndPosition.getOffset(), 1));
+		assertEquals("World", content.getText(worldStartPosition.getOffset(), worldEndPosition.getOffset() - worldStartPosition.getOffset() + 1));
+		assertTrue(content.isElementMarker(worldStartPosition.getOffset() - 1));
+		assertTrue(content.isElementMarker(worldEndPosition.getOffset() + 1));
+	}
+
+	@Test
+	public void shouldDecreasePositionOnRemove() throws Exception {
+		content.insertText(0, "Hello New World");
+		content.insertElementMarker(8);
+		content.insertElementMarker(6);
+		final Position worldStartPosition = content.createPosition(12);
+		final Position worldEndPosition = content.createPosition(16);
+		assertEquals("d", content.getText(worldEndPosition.getOffset(), 1));
+		assertEquals("World", content.getText(worldStartPosition.getOffset(), worldEndPosition.getOffset() - worldStartPosition.getOffset() + 1));
+
+		content.remove(6, 6);
+		assertEquals("d", content.getText(worldEndPosition.getOffset(), 1));
+		assertEquals("World", content.getText(worldStartPosition.getOffset(), worldEndPosition.getOffset() - worldStartPosition.getOffset() + 1));
+		assertEquals(6, worldStartPosition.getOffset());
+		assertEquals(10, worldEndPosition.getOffset());
+	}
 }
