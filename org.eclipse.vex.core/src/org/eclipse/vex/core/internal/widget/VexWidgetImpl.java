@@ -276,7 +276,7 @@ public class VexWidgetImpl implements IVexWidget {
 		}
 
 		final Element element = doc.getElementAt(getCaretOffset());
-		final Element parent = element.getParent();
+		final Element parent = element.getParentElement();
 		if (parent == null) {
 			// can't unwrap the root
 			return false;
@@ -616,7 +616,7 @@ public class VexWidgetImpl implements IVexWidget {
 		}
 
 		final Element element = doc.getElementAt(getCaretOffset());
-		final Element parent = element.getParent();
+		final Element parent = element.getParentElement();
 		if (parent == null) {
 			// can't morph the root
 			return new ElementName[0];
@@ -864,7 +864,7 @@ public class VexWidgetImpl implements IVexWidget {
 						caretColor = new Color(red, green, blue);
 						break;
 					}
-					element = element.getParent();
+					element = element.getParentElement();
 				}
 			}
 
@@ -1160,7 +1160,7 @@ public class VexWidgetImpl implements IVexWidget {
 		Element element = doc.getElementAt(getCaretOffset());
 		Styles styles = getStyleSheet().getStyles(element);
 		while (!styles.isBlock()) {
-			element = element.getParent();
+			element = element.getParentElement();
 			styles = getStyleSheet().getStyles(element);
 		}
 

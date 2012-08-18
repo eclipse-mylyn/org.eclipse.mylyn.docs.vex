@@ -303,7 +303,7 @@ public class BlockElementBox extends AbstractBlockBox {
 	 */
 	private int getItemNumber() {
 		final Element element = getElement();
-		final Element parent = element.getParent();
+		final Element parent = element.getParentElement();
 
 		if (parent == null) {
 			return 1;

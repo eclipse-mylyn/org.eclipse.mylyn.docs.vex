@@ -180,7 +180,7 @@ public class WTPVEXValidator implements Validator {
 		if (declarationFromRoot != null) {
 			return declarationFromRoot;
 		}
-		final CMElementDeclaration parentDeclaration = getElementDeclaration(element.getParent());
+		final CMElementDeclaration parentDeclaration = getElementDeclaration(element.getParentElement());
 		if (parentDeclaration == null) {
 			return null;
 		}

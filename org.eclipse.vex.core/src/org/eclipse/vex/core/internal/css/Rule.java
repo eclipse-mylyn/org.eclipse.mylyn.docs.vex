@@ -127,10 +127,10 @@ public class Rule {
 			if (cs.getCondition().getConditionType() == Condition.SAC_PSEUDO_CLASS_CONDITION) {
 				if (element instanceof PseudoElement) {
 					final AttributeCondition ac = (AttributeCondition) cs.getCondition();
-					return ac.getValue().equals(element.getLocalName()) && matches(cs.getSimpleSelector(), element.getParent());
+					return ac.getValue().equals(element.getLocalName()) && matches(cs.getSimpleSelector(), element.getParentElement());
 				} else if (element instanceof CommentElement) {
 					final AttributeCondition ac = (AttributeCondition) cs.getCondition();
-					return CommentElement.CSS_RULE_NAME.equals(ac.getValue()) && matches(cs.getSimpleSelector(), element.getParent());
+					return CommentElement.CSS_RULE_NAME.equals(ac.getValue()) && matches(cs.getSimpleSelector(), element.getParentElement());
 				} else {
 					return false;
 				}
@@ -183,11 +183,11 @@ public class Rule {
 
 		case Selector.SAC_DESCENDANT_SELECTOR:
 			final DescendantSelector ds = (DescendantSelector) selector;
-			return matches(ds.getSimpleSelector(), element) && matchesAncestor(ds.getAncestorSelector(), element.getParent());
+			return matches(ds.getSimpleSelector(), element) && matchesAncestor(ds.getAncestorSelector(), element.getParentElement());
 
 		case Selector.SAC_CHILD_SELECTOR:
 			final DescendantSelector ds2 = (DescendantSelector) selector;
-			final Element parent = element.getParent();
+			final Element parent = element.getParentElement();
 			return matches(ds2.getSimpleSelector(), element) && matches(ds2.getAncestorSelector(), parent);
 
 		case Selector.SAC_DIRECT_ADJACENT_SELECTOR:
@@ -197,7 +197,7 @@ public class Rule {
 			if (element != null && element.getParent() != null && matches(ss.getSiblingSelector(), element)) {
 
 				// find next sibling
-				final Iterator<Element> i = element.getParent().getChildElements().iterator();
+				final Iterator<Element> i = element.getParentElement().getChildElements().iterator();
 				Element e = null;
 				Element f = null;
 				while (i.hasNext() && e != element) {
@@ -227,7 +227,7 @@ public class Rule {
 			if (matches(selector, e)) {
 				return true;
 			}
-			e = e.getParent();
+			e = e.getParentElement();
 		}
 		return false;
 	}

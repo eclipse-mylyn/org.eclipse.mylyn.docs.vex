@@ -132,7 +132,7 @@ public class DocumentFragment implements Serializable {
 		out.write(contentLength);
 		for (int i = 0; i < contentLength; i++) {
 			if (content.isElementMarker(i)) {
-				out.writeUTF("\0");
+				out.writeUTF("\0"); // This internal representation of element markers has nothing to do with the internal representation in GapContent.
 			} else {
 				out.writeUTF(content.getText(i, 1));
 			}
@@ -170,7 +170,7 @@ public class DocumentFragment implements Serializable {
 		final Content result = new GapContent(contentLength);
 		for (int i = 0; i < contentLength; i++) {
 			final String input = in.readUTF();
-			if ("\0".equals(input)) {
+			if ("\0".equals(input)) { // This internal representation of element markers has nothing to do with the internal representation in GapContent.
 				result.insertElementMarker(i);
 			} else {
 				result.insertText(i, input);

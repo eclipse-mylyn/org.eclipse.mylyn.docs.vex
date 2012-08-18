@@ -15,32 +15,21 @@ package org.eclipse.vex.core.internal.dom;
  */
 public abstract class Node {
 
+	private Parent parent;
 	private Content content;
 	private Position startPosition;
 	private Position endPosition;
 
+	public Parent getParent() {
+		return parent;
+	}
+
+	public void setParent(final Parent parent) {
+		this.parent = parent;
+	}
+
 	public Content getContent() {
 		return content;
-	}
-
-	public int getEndOffset() {
-		return endPosition.getOffset();
-	}
-
-	public Position getEndPosition() {
-		return endPosition;
-	}
-
-	public int getStartOffset() {
-		return startPosition.getOffset();
-	}
-
-	public Position getStartPosition() {
-		return startPosition;
-	}
-
-	public String getText() {
-		return content.getText(getStartOffset(), getEndOffset() - getStartOffset());
 	}
 
 	/**
@@ -57,6 +46,18 @@ public abstract class Node {
 		this.content = content;
 		startPosition = content.createPosition(startOffset);
 		endPosition = content.createPosition(endOffset);
+	}
+
+	public int getEndOffset() {
+		return endPosition.getOffset();
+	}
+
+	public int getStartOffset() {
+		return startPosition.getOffset();
+	}
+
+	public String getText() {
+		return content.getText(getStartOffset(), getEndOffset() - getStartOffset());
 	}
 
 	public abstract String getNodeType();

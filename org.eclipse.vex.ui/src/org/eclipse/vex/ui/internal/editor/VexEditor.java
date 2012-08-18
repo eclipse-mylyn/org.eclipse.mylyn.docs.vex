@@ -723,7 +723,7 @@ public class VexEditor extends EditorPart {
 		Element element = vexWidget.getCurrentElement();
 		while (element != null) {
 			path.add(element.getPrefixedName());
-			element = element.getParent();
+			element = element.getParentElement();
 		}
 		Collections.reverse(path);
 		final StringBuilder sb = new StringBuilder(path.size() * 15);
