@@ -38,7 +38,7 @@ public class SplitBlockElementHandler extends AbstractVexWidgetHandler {
 		Element element = widget.getCurrentElement();
 		Styles styles = widget.getStyleSheet().getStyles(element);
 		while (!styles.isBlock()) {
-			element = element.getParent();
+			element = element.getParentElement();
 			if (element == null || element instanceof RootElement) {
 				return; // we reached the root element which cannot be split 
 			}
@@ -93,7 +93,7 @@ public class SplitBlockElementHandler extends AbstractVexWidgetHandler {
 						if (child == element) {
 							break;
 						}
-						child = child.getParent();
+						child = child.getParentElement();
 					}
 
 					for (int i = children.size() - 1; i >= 0; i--) {

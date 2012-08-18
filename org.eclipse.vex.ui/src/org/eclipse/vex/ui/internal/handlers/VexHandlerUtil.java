@@ -214,7 +214,7 @@ public final class VexHandlerUtil {
 			if (ss.getStyles(element).getDisplay().equals(CSS.TABLE_ROW)) {
 				return element;
 			}
-			element = element.getParent();
+			element = element.getParentElement();
 		}
 
 		return null;
@@ -458,14 +458,14 @@ public final class VexHandlerUtil {
 		Element table = doc.getElementAt(offset);
 
 		while (table != null && !LayoutUtils.isTableChild(ss, table)) {
-			table = table.getParent();
+			table = table.getParentElement();
 		}
 
 		while (table != null && LayoutUtils.isTableChild(ss, table)) {
-			table = table.getParent();
+			table = table.getParentElement();
 		}
 
-		if (table == null || table.getParent() == null) {
+		if (table == null || table.getParentElement() == null) {
 			return;
 		}
 

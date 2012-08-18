@@ -146,7 +146,7 @@ public abstract class TextBox extends AbstractInlineBox implements InlineBox {
 				}
 				break;
 			}
-			e = e.getParent();
+			e = e.getParentElement();
 		}
 
 		if (inSelectedBlock) {

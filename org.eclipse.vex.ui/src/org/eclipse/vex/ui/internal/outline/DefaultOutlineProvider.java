@@ -66,7 +66,7 @@ public class DefaultOutlineProvider implements IOutlineProvider {
 			}
 
 			// root?
-			final Element parent = element.getParent();
+			final Element parent = element.getParentElement();
 			if (parent == null) {
 				return element;
 			}

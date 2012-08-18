@@ -183,7 +183,7 @@ public class StyleSheet {
 		final Styles styles = new Styles();
 		Styles parentStyles = null;
 		if (element.getParent() != null) {
-			parentStyles = getStyles(element.getParent());
+			parentStyles = getStyles(element.getParentElement());
 		}
 
 		final Map<String, LexicalUnit> decls = getApplicableDeclarations(element);
@@ -207,7 +207,7 @@ public class StyleSheet {
 					break;
 				case LexicalUnit.SAC_ATTR:
 					// content: attr(attributeName)
-					final String attributeValue = element.getParent().getAttributeValue(lexicalUnit.getStringValue());
+					final String attributeValue = element.getParentElement().getAttributeValue(lexicalUnit.getStringValue());
 					if (attributeValue != null) {
 						content.add(attributeValue);
 					}

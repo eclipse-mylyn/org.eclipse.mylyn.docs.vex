@@ -488,7 +488,7 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 	protected void paintSelectionFrame(final LayoutContext context, final int x, final int y, final boolean selected) {
 
 		final Element element = getElement();
-		final Element parent = element == null ? null : element.getParent();
+		final Element parent = element == null ? null : element.getParentElement();
 
 		final boolean paintFrame = context.isElementSelected(element) && !context.isElementSelected(parent);
 
