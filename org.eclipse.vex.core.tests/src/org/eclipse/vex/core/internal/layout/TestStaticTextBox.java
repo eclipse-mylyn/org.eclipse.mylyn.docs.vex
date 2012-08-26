@@ -19,13 +19,13 @@ import org.eclipse.vex.core.internal.css.MockDisplayDevice;
 import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.css.StyleSheetReader;
 import org.eclipse.vex.core.internal.css.Styles;
-import org.eclipse.vex.core.internal.dom.RootElement;
+import org.eclipse.vex.core.internal.dom.Element;
 
 public class TestStaticTextBox extends TestCase {
 
 	FakeGraphics g;
 	LayoutContext context;
-	RootElement root = new RootElement("root");
+	Element root = new Element("root");
 	Styles styles;
 
 	@Override

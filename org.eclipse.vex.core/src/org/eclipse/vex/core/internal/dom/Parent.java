@@ -25,8 +25,8 @@ public abstract class Parent extends Node {
 	}
 
 	public List<Node> getChildNodes() {
-		//		return Document.createNodeList(getContent(), getStartOffset() + 1, getEndOffset(), childNodes);
-		return Collections.unmodifiableList(children);
+		return Collections.unmodifiableList(Document.createNodeList(getContent(), getStartOffset() + 1, getEndOffset(), children));
+		// return Collections.unmodifiableList(children);
 	}
 
 	public Iterator<Node> getChildIterator() {

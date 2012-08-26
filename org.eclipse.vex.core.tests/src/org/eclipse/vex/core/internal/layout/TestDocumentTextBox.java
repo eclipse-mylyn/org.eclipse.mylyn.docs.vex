@@ -18,7 +18,7 @@ import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.css.StyleSheetReader;
 import org.eclipse.vex.core.internal.css.Styles;
 import org.eclipse.vex.core.internal.dom.Document;
-import org.eclipse.vex.core.internal.dom.RootElement;
+import org.eclipse.vex.core.internal.dom.Element;
 
 /**
  * Tests the DocumentTestBox class. We focus here on proper offsets, since text splitting is tested thoroughly in
@@ -44,7 +44,7 @@ public class TestDocumentTextBox extends TestCase {
 	}
 
 	public void testSplit() throws Exception {
-		final RootElement root = new RootElement("root");
+		final Element root = new Element("root");
 		final Document doc = new Document(root);
 
 		final Styles styles = context.getStyleSheet().getStyles(root);

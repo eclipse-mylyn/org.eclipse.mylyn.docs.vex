@@ -56,7 +56,7 @@ public class DocumentBuilder implements ContentHandler, LexicalHandler {
 
 	private final NamespaceStack namespaceStack = new NamespaceStack();
 
-	private RootElement rootElement;
+	private Element rootElement;
 
 	private final String baseUri;
 	private String dtdPublicID;
@@ -105,7 +105,6 @@ public class DocumentBuilder implements ContentHandler, LexicalHandler {
 		document = new Document(content, rootElement);
 		document.setPublicID(dtdPublicID);
 		document.setSystemID(dtdSystemID);
-		rootElement.setDocument(document);
 	}
 
 	public void endElement(final String namespaceURI, final String localName, final String qName) {
@@ -151,7 +150,7 @@ public class DocumentBuilder implements ContentHandler, LexicalHandler {
 		}
 		Element element;
 		if (stack.isEmpty()) {
-			rootElement = new RootElement(elementName);
+			rootElement = new Element(elementName);
 			element = rootElement;
 		} else {
 			element = new Element(elementName);

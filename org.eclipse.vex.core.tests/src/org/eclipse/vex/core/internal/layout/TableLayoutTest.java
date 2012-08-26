@@ -22,7 +22,6 @@ import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.css.StyleSheetReader;
 import org.eclipse.vex.core.internal.dom.Document;
 import org.eclipse.vex.core.internal.dom.Element;
-import org.eclipse.vex.core.internal.dom.RootElement;
 
 public class TableLayoutTest extends TestCase {
 
@@ -74,7 +73,7 @@ public class TableLayoutTest extends TestCase {
 	}
 
 	private void resetDocument() {
-		document = new Document(new RootElement("root"));
+		document = new Document(new Element("root"));
 		context.setDocument(document);
 		caretPosition = 1;
 		rootBox = new RootBox(context, document.getRootElement(), 500);

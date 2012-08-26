@@ -182,7 +182,7 @@ public class StyleSheet {
 
 		final Styles styles = new Styles();
 		Styles parentStyles = null;
-		if (element.getParent() != null) {
+		if (element != null && element.getParentElement() != null) {
 			parentStyles = getStyles(element.getParentElement());
 		}
 

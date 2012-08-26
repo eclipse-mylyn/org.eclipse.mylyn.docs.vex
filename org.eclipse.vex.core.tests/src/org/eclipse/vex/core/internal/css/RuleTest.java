@@ -18,7 +18,6 @@ import junit.framework.TestCase;
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.vex.core.internal.dom.Document;
 import org.eclipse.vex.core.internal.dom.Element;
-import org.eclipse.vex.core.internal.dom.RootElement;
 
 /**
  * Test rule matching.
@@ -31,7 +30,7 @@ public class RuleTest extends TestCase {
 		final StyleSheet ss = reader.read(url);
 		final List<Rule> rules = ss.getRules();
 
-		final RootElement a = new RootElement("a");
+		final Element a = new Element("a");
 		final Element b = new Element("b");
 		final Element c = new Element("c");
 		final Element d = new Element("d");
@@ -273,7 +272,7 @@ public class RuleTest extends TestCase {
 		final StyleSheet ss = reader.read(url);
 		final List<Rule> rules = ss.getRules();
 
-		final RootElement a = new RootElement("a");
+		final Element a = new Element("a");
 		final Element ns = new Element(new QualifiedName("http://namespace/uri", "b"));
 
 		ns.setAttribute("color", "blue");
