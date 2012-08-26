@@ -43,7 +43,7 @@ public class DocBookOutlineProvider implements IOutlineProvider {
 
 	public Element getOutlineElement(final Element child) {
 		Element element = child;
-		while (element.getParent() != null && !isTitledElement(element)) {
+		while (element.getParentElement() != null && !isTitledElement(element)) {
 			element = element.getParentElement();
 		}
 
