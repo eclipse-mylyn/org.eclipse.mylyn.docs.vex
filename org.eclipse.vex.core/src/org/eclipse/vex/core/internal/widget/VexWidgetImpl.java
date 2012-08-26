@@ -359,7 +359,7 @@ public class VexWidgetImpl implements IVexWidget {
 				deleteSelection();
 			} else {
 				offset--;
-				if (doc.isElementAt(offset)) {
+				if (!doc.isElementAt(offset)) {
 					this.moveTo(offset, false);
 					this.moveTo(offset + 1, true);
 					deleteSelection();
