@@ -19,6 +19,11 @@ public class ParentTest {
 	@Before
 	public void setUp() throws Exception {
 		parent = new TestParent();
+
+		final GapContent content = new GapContent(10);
+		content.insertElementMarker(0);
+		content.insertElementMarker(1);
+		parent.setContent(content, 0, 1);
 	}
 
 	@Test
@@ -128,6 +133,14 @@ public class ParentTest {
 	}
 
 	private static class TestChild extends Node {
+		@Override
+		public void setParent(final Parent parent) {
+			super.setParent(parent);
+			if (parent != null) {
+				setContent(parent.getContent(), 0, 0);
+			}
+		}
+
 		@Override
 		public String getNodeType() {
 			return "Child";

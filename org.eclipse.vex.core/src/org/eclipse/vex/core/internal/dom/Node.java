@@ -60,6 +60,24 @@ public abstract class Node {
 		return content.getText(getStartOffset(), getEndOffset() - getStartOffset());
 	}
 
+	public Document getDocument() {
+		return getDocument(this);
+	}
+
+	private static Document getDocument(final Node node) {
+		if (node instanceof Document) {
+			return (Document) node;
+		}
+		final Parent parent = node.getParent();
+		if (parent == null) {
+			return null;
+		}
+		if (parent instanceof Document) {
+			return (Document) parent;
+		}
+		return getDocument(parent);
+	}
+
 	public abstract String getNodeType();
 
 	public abstract String getBaseURI();

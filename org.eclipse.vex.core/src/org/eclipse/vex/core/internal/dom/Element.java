@@ -183,19 +183,6 @@ public class Element extends Parent implements Cloneable {
 		return elements;
 	}
 
-	@Override
-	public Document getDocument() {
-		Node root = this;
-		while (root.getParent() != null) {
-			root = root.getParent();
-		}
-		if (root instanceof RootElement) {
-			return ((Element) root).getDocument();
-		} else {
-			return null;
-		}
-	}
-
 	public String getLocalName() {
 		return name.getLocalName();
 	}

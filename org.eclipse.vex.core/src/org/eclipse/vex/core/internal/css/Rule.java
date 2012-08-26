@@ -20,8 +20,8 @@ import java.util.List;
 import java.util.StringTokenizer;
 
 import org.eclipse.vex.core.internal.dom.CommentElement;
+import org.eclipse.vex.core.internal.dom.Document;
 import org.eclipse.vex.core.internal.dom.Element;
-import org.eclipse.vex.core.internal.dom.RootElement;
 import org.w3c.css.sac.AttributeCondition;
 import org.w3c.css.sac.CombinatorCondition;
 import org.w3c.css.sac.Condition;
@@ -145,7 +145,7 @@ public class Rule {
 			return true;
 
 		case Selector.SAC_ROOT_NODE_SELECTOR:
-			return element instanceof RootElement;
+			return element.getParent() instanceof Document;
 
 		case Selector.SAC_NEGATIVE_SELECTOR:
 			break; // not yet supported

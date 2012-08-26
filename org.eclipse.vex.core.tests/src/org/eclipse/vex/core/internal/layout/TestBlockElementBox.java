@@ -18,7 +18,6 @@ import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.css.StyleSheetReader;
 import org.eclipse.vex.core.internal.dom.Document;
 import org.eclipse.vex.core.internal.dom.Element;
-import org.eclipse.vex.core.internal.dom.RootElement;
 
 public class TestBlockElementBox extends TestCase {
 
@@ -39,7 +38,7 @@ public class TestBlockElementBox extends TestCase {
 	}
 
 	public void testBeforeAfter() throws Exception {
-		final RootElement root = new RootElement("root");
+		final Element root = new Element("root");
 		final Document doc = new Document(root);
 		doc.insertElement(1, new Element("beforeBlock"));
 		context.setDocument(doc);

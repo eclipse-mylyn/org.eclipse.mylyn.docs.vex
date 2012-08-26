@@ -20,7 +20,6 @@ import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.css.StyleSheetReader;
 import org.eclipse.vex.core.internal.dom.Document;
 import org.eclipse.vex.core.internal.dom.Element;
-import org.eclipse.vex.core.internal.dom.RootElement;
 
 /**
  * Tests proper function of a block-level element within an inline element. These must be layed out as a block child of
@@ -51,7 +50,7 @@ public class TestBlocksInInlines extends TestCase {
 	}
 
 	public void testBlockInInline() throws Exception {
-		final RootElement root = new RootElement("root");
+		final Element root = new Element("root");
 		final Document doc = new Document(root);
 		context.setDocument(doc);
 

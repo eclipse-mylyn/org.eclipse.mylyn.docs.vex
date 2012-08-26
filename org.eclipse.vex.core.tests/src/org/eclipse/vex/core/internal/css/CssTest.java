@@ -19,7 +19,6 @@ import org.eclipse.vex.core.internal.core.Color;
 import org.eclipse.vex.core.internal.core.DisplayDevice;
 import org.eclipse.vex.core.internal.dom.Document;
 import org.eclipse.vex.core.internal.dom.Element;
-import org.eclipse.vex.core.internal.dom.RootElement;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -168,7 +167,7 @@ public class CssTest {
 
 	@Test
 	public void testDefaultInheritance() throws Exception {
-		final RootElement simple = new RootElement("simple");
+		final Element simple = new Element("simple");
 		final Element defaults = new Element("defaults");
 		final Document doc = new Document(simple);
 		doc.insertElement(1, defaults);
@@ -431,7 +430,7 @@ public class CssTest {
 
 	@Test
 	public void testForcedInheritance() throws Exception {
-		final RootElement simple = new RootElement("simple");
+		final Element simple = new Element("simple");
 		final Element inherit = new Element("inherit");
 		final Document doc = new Document(simple);
 		doc.insertElement(1, inherit);

@@ -39,7 +39,7 @@ public class DTDValidatorTest extends TestCase {
 	}
 
 	public void testAttributeDefinition() throws Exception {
-		final Document doc = new Document(new RootElement("section"));
+		final Document doc = new Document(new Element("section"));
 		doc.setValidator(validator);
 		final Element sectionElement = doc.getRootElement();
 		final AttributeDefinition.Type adType = validator.getAttributeDefinitions(sectionElement).get(0).getType();
@@ -49,7 +49,7 @@ public class DTDValidatorTest extends TestCase {
 	}
 
 	public void testEnumAttribute() throws Exception {
-		final Document doc = new Document(new RootElement("section"));
+		final Document doc = new Document(new Element("section"));
 		doc.setValidator(validator);
 		final Element sectionElement = doc.getRootElement();
 		final AttributeDefinition attributeDefinition = validator.getAttributeDefinitions(sectionElement).get(0);
@@ -89,7 +89,7 @@ public class DTDValidatorTest extends TestCase {
 	public void testSectionElement() {
 		// <section> <title> a b </title> <para> </para> </section>
 		// 1 2 3 4 5 6 7
-		final Document doc = new Document(new RootElement("section"));
+		final Document doc = new Document(new Element("section"));
 		doc.setValidator(validator);
 		doc.insertElement(1, new Element("title"));
 		doc.insertText(2, "ab");
@@ -105,7 +105,7 @@ public class DTDValidatorTest extends TestCase {
 	}
 
 	public void testOneKindOfChild() {
-		final Document doc = new Document(new RootElement("one-kind-of-child"));
+		final Document doc = new Document(new Element("one-kind-of-child"));
 		doc.setValidator(validator);
 		assertValidItemsAt(doc, 1, "section");
 	}
@@ -150,7 +150,7 @@ public class DTDValidatorTest extends TestCase {
 	}
 
 	public void testValidateDocumentWithDTDAndNamespaces() throws Exception {
-		final Document doc = new Document(new RootElement(new QualifiedName("http://namespace/uri/is/not/registered", "section")));
+		final Document doc = new Document(new Element(new QualifiedName("http://namespace/uri/is/not/registered", "section")));
 		doc.setValidator(validator);
 		doc.insertElement(1, new Element("title"));
 		doc.insertText(2, "ab");

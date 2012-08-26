@@ -27,10 +27,10 @@ import org.eclipse.vex.core.internal.undo.IUndoableEdit;
  * Represents an XML document.
  * 
  */
-public class Document {
+public class Document extends Parent {
 
 	private final Content content;
-	private final RootElement rootElement;
+	private final Element rootElement;
 	private final ListenerList<DocumentListener, DocumentEvent> listeners = new ListenerList<DocumentListener, DocumentEvent>(DocumentListener.class);
 	private boolean undoEnabled = true;
 
@@ -48,13 +48,13 @@ public class Document {
 	 *            root element of the document. The document property of this RootElement is set by this constructor.
 	 * 
 	 */
-	public Document(final RootElement rootElement) {
+	public Document(final Element rootElement) {
 		content = new GapContent(100);
 		content.insertElementMarker(0);
 		content.insertElementMarker(0);
 
 		this.rootElement = rootElement;
-		rootElement.setDocument(this);
+		addChild(rootElement);
 		rootElement.setContent(content, 0, 1);
 	}
 
@@ -68,9 +68,10 @@ public class Document {
 	 *            RootElement of the document.
 	 * 
 	 */
-	public Document(final Content content, final RootElement rootElement) {
+	public Document(final Content content, final Element rootElement) {
 		this.content = content;
 		this.rootElement = rootElement;
+		addChild(rootElement);
 	}
 
 	/*
@@ -121,18 +122,18 @@ public class Document {
 
 	public void delete(final int startOffset, final int endOffset) throws DocumentValidationException {
 
-		final Element e1 = getElementAt(startOffset);
-		final Element e2 = getElementAt(endOffset);
-		if (e1 != e2) {
+		final Element surroundingElement = getElementAt(startOffset);
+		final Element elementAtEndOffset = getElementAt(endOffset);
+		if (surroundingElement != elementAtEndOffset) {
 			throw new IllegalArgumentException("Deletion from " + startOffset + " to " + endOffset + " is unbalanced");
 		}
 
 		final Validator validator = getValidator();
 		if (validator != null) {
-			final List<QualifiedName> seq1 = getNodeNames(e1.getStartOffset() + 1, startOffset);
-			final List<QualifiedName> seq2 = getNodeNames(endOffset, e1.getEndOffset());
+			final List<QualifiedName> seq1 = getNodeNames(surroundingElement.getStartOffset() + 1, startOffset);
+			final List<QualifiedName> seq2 = getNodeNames(endOffset, surroundingElement.getEndOffset());
 
-			if (!validator.isValidSequence(e1.getQualifiedName(), seq1, seq2, null, true)) {
+			if (!validator.isValidSequence(surroundingElement.getQualifiedName(), seq1, seq2, null, true)) {
 				throw new DocumentValidationException("Unable to delete from " + startOffset + " to " + endOffset);
 			}
 		}
@@ -140,16 +141,13 @@ public class Document {
 		// Grab the fragment for the undoable edit while it's still here
 		final DocumentFragment frag = getFragment(startOffset, endOffset);
 
-		fireBeforeContentDeleted(new DocumentEvent(this, e1, startOffset, endOffset - startOffset, null));
+		fireBeforeContentDeleted(new DocumentEvent(this, surroundingElement, startOffset, endOffset - startOffset, null));
 
-		Iterator<Node> iter = e1.getChildNodes().iterator();
-		if (e1 instanceof Element) {
-			iter = e1.getChildIterator();
-		}
+		final Iterator<Node> iter = surroundingElement.getChildIterator();
 		while (iter.hasNext()) {
 			final Node child = iter.next();
 			if (startOffset <= child.getStartOffset() && child.getEndOffset() < endOffset) {
-				iter.remove();
+				surroundingElement.removeChild(child);
 			}
 		}
 
@@ -157,7 +155,7 @@ public class Document {
 
 		final IUndoableEdit edit = undoEnabled ? new DeleteEdit(startOffset, endOffset, frag) : null;
 
-		fireContentDeleted(new DocumentEvent(this, e1, startOffset, endOffset - startOffset, edit));
+		fireContentDeleted(new DocumentEvent(this, surroundingElement, startOffset, endOffset - startOffset, edit));
 	}
 
 	public Element findCommonElement(final int offset1, final int offset2) {
@@ -830,7 +828,14 @@ public class Document {
 		return documentURI;
 	}
 
+	@Override
 	public String getBaseURI() {
 		return getDocumentURI();
+	}
+
+	@Override
+	public String getNodeType() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

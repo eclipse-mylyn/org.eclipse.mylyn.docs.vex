@@ -21,7 +21,6 @@ import org.eclipse.vex.core.internal.css.Styles;
 import org.eclipse.vex.core.internal.dom.Document;
 import org.eclipse.vex.core.internal.dom.DocumentFragment;
 import org.eclipse.vex.core.internal.dom.Element;
-import org.eclipse.vex.core.internal.dom.RootElement;
 import org.eclipse.vex.core.internal.widget.IVexWidget;
 import org.eclipse.vex.ui.internal.swt.VexWidget;
 
@@ -39,7 +38,7 @@ public class SplitBlockElementHandler extends AbstractVexWidgetHandler {
 		Styles styles = widget.getStyleSheet().getStyles(element);
 		while (!styles.isBlock()) {
 			element = element.getParentElement();
-			if (element == null || element instanceof RootElement) {
+			if (element == null || element.getParent() instanceof Document) {
 				return; // we reached the root element which cannot be split 
 			}
 			styles = widget.getStyleSheet().getStyles(element);

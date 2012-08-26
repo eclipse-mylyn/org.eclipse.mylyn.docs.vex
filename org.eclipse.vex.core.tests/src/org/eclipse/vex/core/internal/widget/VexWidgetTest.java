@@ -25,7 +25,6 @@ import org.eclipse.vex.core.internal.dom.Document;
 import org.eclipse.vex.core.internal.dom.DocumentFragment;
 import org.eclipse.vex.core.internal.dom.Element;
 import org.eclipse.vex.core.internal.dom.Node;
-import org.eclipse.vex.core.internal.dom.RootElement;
 import org.eclipse.vex.core.internal.dom.Text;
 import org.eclipse.vex.core.internal.dom.Validator;
 import org.eclipse.vex.core.internal.validator.WTPVEXValidator;
@@ -108,14 +107,14 @@ public class VexWidgetTest {
 
 	private static Document createDocumentWithDTD(final String dtdIdentifier, final String rootElementName) {
 		final Validator validator = new WTPVEXValidator(dtdIdentifier);
-		final Document document = new Document(new RootElement(rootElementName));
+		final Document document = new Document(new Element(rootElementName));
 		document.setValidator(validator);
 		return document;
 	}
 
 	private static Document createDocument(final String rootSchemaIdentifier, final String rootElementName) {
 		final Validator validator = new WTPVEXValidator();
-		final Document document = new Document(new RootElement(new QualifiedName(rootSchemaIdentifier, rootElementName)));
+		final Document document = new Document(new Element(new QualifiedName(rootSchemaIdentifier, rootElementName)));
 		document.setValidator(validator);
 		return document;
 	}
