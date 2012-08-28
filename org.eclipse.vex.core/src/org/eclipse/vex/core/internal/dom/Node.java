@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2008 John Krasnay and others.
+ * Copyright (c) 2004, 2012 John Krasnay and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,7 +11,8 @@
 package org.eclipse.vex.core.internal.dom;
 
 /**
- * This is the root class of the DOM.
+ * This class represents one node within the XML structure which is associated to a region of the textual content. It is
+ * the base class for all representatives of the XML structure in the document object model (DOM).
  */
 public abstract class Node {
 
@@ -33,7 +34,7 @@ public abstract class Node {
 	}
 
 	/**
-	 * Sets the content of this node
+	 * Associates this node to a region within the given content.
 	 * 
 	 * @param content
 	 *            Content object holding the node's content
