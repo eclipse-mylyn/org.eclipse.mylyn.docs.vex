@@ -12,6 +12,7 @@ package org.eclipse.vex.core.internal.dom;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 
 import org.junit.Before;
@@ -51,6 +52,21 @@ public abstract class NodeTest {
 		assertEquals(0, node.getStartOffset());
 		assertEquals(6, node.getEndOffset());
 		assertSame(content, node.getContent());
+	}
+
+	@Test
+	public void canBeDissociatedFromContent() throws Exception {
+		final GapContent content = new GapContent(3);
+		content.insertElementMarker(0);
+		content.insertElementMarker(0);
+
+		node.associate(content, 0, 1);
+		node.dissocate();
+
+		content.insertText(1, "Hello");
+		assertEquals(Position.NULL.getOffset(), node.getStartOffset());
+		assertEquals(Position.NULL.getOffset(), node.getEndOffset());
+		assertNull(node.getContent());
 	}
 
 }
