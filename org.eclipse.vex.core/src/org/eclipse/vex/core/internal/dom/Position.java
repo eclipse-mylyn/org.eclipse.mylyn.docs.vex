@@ -20,10 +20,6 @@ public interface Position {
 		public int getOffset() {
 			return -1;
 		}
-
-		public void setOffset(final int offset) {
-			throw new UnsupportedOperationException("The NULL Position is immutable.");
-		}
 	};
 
 	/**
@@ -31,9 +27,4 @@ public interface Position {
 	 */
 	int getOffset();
 
-	/**
-	 * @param offset
-	 *            the character offset corresponding to the position
-	 */
-	void setOffset(int offset);
 }

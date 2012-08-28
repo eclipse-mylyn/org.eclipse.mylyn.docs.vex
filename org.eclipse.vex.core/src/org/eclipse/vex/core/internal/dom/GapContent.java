@@ -11,8 +11,8 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.dom;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Implementation of the <code>Content</code> interface that manages changes efficiently. Implements a buffer that keeps
@@ -27,7 +27,7 @@ public class GapContent implements Content {
 	private char[] content;
 	private int gapStart;
 	private int gapEnd;
-	private final Map<Position, Position> positions = new HashMap<Position, Position>();
+	private final Set<GapContentPosition> positions = new HashSet<GapContentPosition>();
 
 	/**
 	 * Class constructor.
@@ -53,10 +53,10 @@ public class GapContent implements Content {
 
 		assertOffset(offset, 0, getLength());
 
-		final Position pos = new GapContentPosition(offset);
-		positions.put(pos, pos);
+		final GapContentPosition position = new GapContentPosition(offset);
+		positions.add(position);
 
-		return pos;
+		return position;
 	}
 
 	public void removePosition(final Position position) {
@@ -94,9 +94,9 @@ public class GapContent implements Content {
 		if (!atEnd) {
 
 			// Update positions
-			for (final Position pos : positions.keySet()) {
-				if (pos.getOffset() >= offset) {
-					pos.setOffset(pos.getOffset() + s.length());
+			for (final GapContentPosition position : positions) {
+				if (position.getOffset() >= offset) {
+					position.setOffset(position.getOffset() + s.length());
 				}
 			}
 
@@ -144,11 +144,11 @@ public class GapContent implements Content {
 		moveGap(offset + length);
 		gapStart -= length;
 
-		for (final Position pos : positions.keySet()) {
-			if (pos.getOffset() >= offset + length) {
-				pos.setOffset(pos.getOffset() - length);
-			} else if (pos.getOffset() >= offset) {
-				pos.setOffset(offset);
+		for (final GapContentPosition position : positions) {
+			if (position.getOffset() >= offset + length) {
+				position.setOffset(position.getOffset() - length);
+			} else if (position.getOffset() >= offset) {
+				position.setOffset(offset);
 			}
 		}
 	}
