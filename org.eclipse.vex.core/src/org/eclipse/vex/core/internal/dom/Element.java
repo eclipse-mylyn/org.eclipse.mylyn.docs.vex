@@ -354,8 +354,8 @@ public class Element extends Parent implements Cloneable {
 	}
 
 	@Override
-	public void setContent(final Content content, final int startOffset, final int endOffset) {
-		super.setContent(content, startOffset, endOffset);
+	public void associate(final Content content, final int startOffset, final int endOffset) {
+		super.associate(content, startOffset, endOffset);
 	}
 
 	@Override

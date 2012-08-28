@@ -55,7 +55,7 @@ public class Document extends Parent {
 
 		this.rootElement = rootElement;
 		addChild(rootElement);
-		rootElement.setContent(content, 0, 1);
+		rootElement.associate(content, 0, 1);
 	}
 
 	/**
@@ -307,9 +307,9 @@ public class Document extends Parent {
 			} else {
 				final Text text = (Text) node;
 				if (text.getStartOffset() < startOffset) {
-					text.setContent(text.getContent(), startOffset, text.getEndOffset());
+					text.associate(text.getContent(), startOffset, text.getEndOffset());
 				} else if (text.getEndOffset() > endOffset) {
-					text.setContent(text.getContent(), text.getStartOffset(), endOffset);
+					text.associate(text.getContent(), text.getStartOffset(), endOffset);
 				}
 				list.add(text);
 			}
@@ -432,7 +432,7 @@ public class Document extends Parent {
 		content.insertElementMarker(offset);
 		content.insertElementMarker(offset + 1);
 
-		element.setContent(content, offset, offset + 1);
+		element.associate(content, offset, offset + 1);
 		element.setParent(parent);
 		parent.insertChild(childIndex, element);
 
@@ -784,7 +784,7 @@ public class Document extends Parent {
 	 */
 	private Element cloneElement(final Element original, final Content content, final int shift, final Element parent) {
 		final Element clone = original.clone();
-		clone.setContent(content, original.getStartOffset() + shift, original.getEndOffset() + shift);
+		clone.associate(content, original.getStartOffset() + shift, original.getEndOffset() + shift);
 		clone.setParent(parent);
 
 		final List<Element> children = original.getChildElements();

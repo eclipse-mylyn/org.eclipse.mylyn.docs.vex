@@ -27,7 +27,7 @@ public class Text extends Node {
 	 *            character offset of the end of the run
 	 */
 	public Text(final Content content, final int startOffset, final int endOffset) {
-		setContent(content, startOffset, endOffset);
+		associate(content, startOffset, endOffset);
 	}
 
 	@Override

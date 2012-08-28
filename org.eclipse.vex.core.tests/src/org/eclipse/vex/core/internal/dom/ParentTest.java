@@ -23,7 +23,7 @@ public class ParentTest {
 		final GapContent content = new GapContent(10);
 		content.insertElementMarker(0);
 		content.insertElementMarker(1);
-		parent.setContent(content, 0, 1);
+		parent.associate(content, 0, 1);
 	}
 
 	@Test
@@ -132,7 +132,7 @@ public class ParentTest {
 		public void setParent(final Parent parent) {
 			super.setParent(parent);
 			if (parent != null) {
-				setContent(parent.getContent(), 0, 0);
+				associate(parent.getContent(), 0, 0);
 			}
 		}
 
