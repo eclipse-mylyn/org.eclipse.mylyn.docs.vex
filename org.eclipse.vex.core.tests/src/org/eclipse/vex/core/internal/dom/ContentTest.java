@@ -166,4 +166,16 @@ public abstract class ContentTest {
 		assertEquals(6, worldStartPosition.getOffset());
 		assertEquals(10, worldEndPosition.getOffset());
 	}
+
+	@Test
+	public void canRemovePosition() throws Exception {
+		content.insertElementMarker(0);
+		content.insertElementMarker(0);
+		final Position position = content.createPosition(1);
+		assertEquals(1, position.getOffset());
+
+		content.removePosition(position);
+		content.insertText(1, "Hello");
+		assertEquals(1, position.getOffset());
+	}
 }

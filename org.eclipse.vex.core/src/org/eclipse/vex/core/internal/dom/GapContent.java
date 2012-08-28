@@ -59,6 +59,10 @@ public class GapContent implements Content {
 		return pos;
 	}
 
+	public void removePosition(final Position position) {
+		positions.remove(position);
+	}
+
 	/**
 	 * Insert a string into the content.
 	 * 

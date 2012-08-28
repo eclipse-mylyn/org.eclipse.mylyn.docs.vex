@@ -27,6 +27,15 @@ public interface Content {
 	public Position createPosition(int offset);
 
 	/**
+	 * Removes the given Position from the list of positions. A removed position is not updated anymore when this
+	 * content is modified.
+	 * 
+	 * @param position
+	 *            the position to remove
+	 */
+	public void removePosition(Position position);
+
+	/**
 	 * Insert a string into the content.
 	 * 
 	 * @param offset
