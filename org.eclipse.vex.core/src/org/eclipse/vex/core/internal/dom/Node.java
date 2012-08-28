@@ -45,6 +45,17 @@ public abstract class Node {
 		endPosition = content.createPosition(endOffset);
 	}
 
+	/**
+	 * Dissociates this node from its associated content region.
+	 */
+	public void dissocate() {
+		content.removePosition(startPosition);
+		content.removePosition(endPosition);
+		startPosition = Position.NULL;
+		endPosition = Position.NULL;
+		content = null;
+	}
+
 	public Content getContent() {
 		return content;
 	}
