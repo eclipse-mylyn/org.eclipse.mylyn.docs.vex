@@ -97,23 +97,8 @@ public class DocumentFragment implements Serializable {
 		return names;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.vex.core.internal.dom.IVEXDocumentFragment#getNodes()
-	 */
 	public List<Node> getNodes() {
-		return Document.createNodeList(getContent(), 0, getContent().getLength(), getNodes(getElements()));
-	}
-
-	private List<Node> getNodes(final List<Element> elements) {
-		final List<Node> nodes = new ArrayList<Node>();
-		for (final Node node : elements) {
-			if (node.getNodeType().equals("Element")) {
-				nodes.add(node);
-			}
-		}
-		return nodes;
+		return Document.createNodeList(getContent(), 0, getContent().getLength(), getElements());
 	}
 
 	/*

@@ -31,11 +31,6 @@ public class Text extends Node {
 	}
 
 	@Override
-	public String getNodeType() {
-		return "Text";
-	}
-
-	@Override
 	public String getBaseURI() {
 		return null;
 	}
