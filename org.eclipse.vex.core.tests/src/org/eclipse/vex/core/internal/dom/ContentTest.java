@@ -11,6 +11,7 @@
 package org.eclipse.vex.core.internal.dom;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Before;
@@ -177,5 +178,15 @@ public abstract class ContentTest {
 		content.removePosition(position);
 		content.insertText(1, "Hello");
 		assertEquals(1, position.getOffset());
+	}
+
+	@Test
+	public void invalidatesPositionsOnRemoval() throws Exception {
+		content.insertElementMarker(0);
+		content.insertElementMarker(0);
+		final Position position = content.createPosition(1);
+		assertTrue(position.isValid());
+		content.removePosition(position);
+		assertFalse(position.isValid());
 	}
 }

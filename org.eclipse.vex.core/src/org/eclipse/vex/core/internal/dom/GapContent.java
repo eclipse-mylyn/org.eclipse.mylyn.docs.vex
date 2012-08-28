@@ -60,7 +60,13 @@ public class GapContent implements Content {
 	}
 
 	public void removePosition(final Position position) {
-		positions.remove(position);
+		if (positions.remove(position)) {
+			/*
+			 * This cast is save: if the position can be removed, this instance must have created it, hence it is a
+			 * GapContentPosition.
+			 */
+			((GapContentPosition) position).invalidate();
+		}
 	}
 
 	/**
@@ -248,6 +254,8 @@ public class GapContent implements Content {
 
 		private int offset;
 
+		private boolean valid = true;
+
 		public GapContentPosition(final int offset) {
 			this.offset = offset;
 		}
@@ -258,6 +266,14 @@ public class GapContent implements Content {
 
 		public void setOffset(final int offset) {
 			this.offset = offset;
+		}
+
+		public boolean isValid() {
+			return valid;
+		};
+
+		public void invalidate() {
+			valid = false;
 		}
 
 		@Override
