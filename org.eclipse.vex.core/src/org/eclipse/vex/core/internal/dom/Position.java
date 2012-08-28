@@ -16,6 +16,16 @@ package org.eclipse.vex.core.internal.dom;
  */
 public interface Position {
 
+	static Position NULL = new Position() {
+		public int getOffset() {
+			return -1;
+		}
+
+		public void setOffset(final int offset) {
+			throw new UnsupportedOperationException("The NULL Position is immutable.");
+		}
+	};
+
 	/**
 	 * @return the character offset corresponding to the position.
 	 */

@@ -169,7 +169,7 @@ public class DocumentFragment implements Serializable {
 		final int startOffset = in.readInt();
 		final int endOffset = in.readInt();
 		final Element element = new Element(elementName);
-		element.setContent(content, startOffset, endOffset);
+		element.associate(content, startOffset, endOffset);
 
 		final int attrCount = in.readInt();
 		for (int i = 0; i < attrCount; i++) {

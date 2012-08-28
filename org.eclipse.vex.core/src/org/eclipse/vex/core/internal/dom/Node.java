@@ -18,8 +18,8 @@ public abstract class Node {
 
 	private Parent parent;
 	private Content content;
-	private Position startPosition;
-	private Position endPosition;
+	private Position startPosition = Position.NULL;
+	private Position endPosition = Position.NULL;
 
 	public Parent getParent() {
 		return parent;
@@ -27,10 +27,6 @@ public abstract class Node {
 
 	public void setParent(final Parent parent) {
 		this.parent = parent;
-	}
-
-	public Content getContent() {
-		return content;
 	}
 
 	/**
@@ -43,10 +39,14 @@ public abstract class Node {
 	 * @param endOffset
 	 *            offset at which the node's content ends
 	 */
-	public void setContent(final Content content, final int startOffset, final int endOffset) {
+	public void associate(final Content content, final int startOffset, final int endOffset) {
 		this.content = content;
 		startPosition = content.createPosition(startOffset);
 		endPosition = content.createPosition(endOffset);
+	}
+
+	public Content getContent() {
+		return content;
 	}
 
 	public int getEndOffset() {
