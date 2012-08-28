@@ -175,8 +175,9 @@ public class Element extends Parent implements Cloneable {
 		final Iterator<Node> iter = nodes.iterator();
 		final List<Element> elements = new ArrayList<Element>();
 		while (iter.hasNext()) {
+			// TODO use INodeVisitor once available
 			final Node node = iter.next();
-			if (node.getNodeType().equals("Element")) {
+			if (node instanceof Element) {
 				elements.add((Element) node);
 			}
 		}
@@ -350,11 +351,6 @@ public class Element extends Parent implements Cloneable {
 
 	public void removeDefaultNamespace() {
 		removeNamespace(null);
-	}
-
-	@Override
-	public String getNodeType() {
-		return "Element";
 	}
 
 	@Override

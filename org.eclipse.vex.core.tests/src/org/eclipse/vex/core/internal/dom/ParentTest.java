@@ -122,11 +122,6 @@ public class ParentTest {
 
 	private static class TestParent extends Parent {
 		@Override
-		public String getNodeType() {
-			return "Parent";
-		}
-
-		@Override
 		public String getBaseURI() {
 			return null;
 		}
@@ -139,11 +134,6 @@ public class ParentTest {
 			if (parent != null) {
 				setContent(parent.getContent(), 0, 0);
 			}
-		}
-
-		@Override
-		public String getNodeType() {
-			return "Child";
 		}
 
 		@Override

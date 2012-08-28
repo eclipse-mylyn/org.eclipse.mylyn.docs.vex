@@ -331,7 +331,7 @@ public class Document extends Parent {
 	 * @param elements
 	 *            child elements that are within the run
 	 */
-	static List<Node> createNodeList(final Content content, final int startOffset, final int endOffset, final List<Node> elements) {
+	static List<Node> createNodeList(final Content content, final int startOffset, final int endOffset, final List<? extends Node> elements) {
 
 		final List<Node> nodes = new ArrayList<Node>();
 		int offset = startOffset;
@@ -833,9 +833,4 @@ public class Document extends Parent {
 		return getDocumentURI();
 	}
 
-	@Override
-	public String getNodeType() {
-		// TODO Auto-generated method stub
-		return null;
-	}
 }

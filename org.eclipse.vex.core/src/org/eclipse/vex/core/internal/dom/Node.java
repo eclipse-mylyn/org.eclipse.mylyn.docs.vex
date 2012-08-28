@@ -78,7 +78,5 @@ public abstract class Node {
 		return getDocument(parent);
 	}
 
-	public abstract String getNodeType();
-
 	public abstract String getBaseURI();
 }
