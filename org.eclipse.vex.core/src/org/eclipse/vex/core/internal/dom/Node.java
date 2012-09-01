@@ -11,8 +11,8 @@
 package org.eclipse.vex.core.internal.dom;
 
 /**
- * This class represents one node within the XML structure which is associated to a region of the textual content. It is
- * the base class for all representatives of the XML structure in the document object model (DOM).
+ * This class represents one node within the XML structure, which is also associated to a region of the textual content.
+ * It is the base class for all representatives of the XML structure in the document object model (DOM).
  */
 public abstract class Node {
 
@@ -21,10 +21,19 @@ public abstract class Node {
 	private Position startPosition = Position.NULL;
 	private Position endPosition = Position.NULL;
 
+	/**
+	 * @see Parent
+	 * @return the parent of this node, maybe null if this node has no parent
+	 */
 	public Parent getParent() {
 		return parent;
 	}
 
+	/**
+	 * @see Parent
+	 * @param parent
+	 *            the parent of this node, maybe null if this node should not have a parent
+	 */
 	public void setParent(final Parent parent) {
 		this.parent = parent;
 	}
@@ -56,18 +65,36 @@ public abstract class Node {
 		content = null;
 	}
 
+	/**
+	 * @return the content to which this node is associated or null if this node is not associated to any content yet
+	 */
 	public Content getContent() {
 		return content;
 	}
 
-	public int getEndOffset() {
-		return endPosition.getOffset();
-	}
-
+	/**
+	 * The start offset of this node, which eventually also includes the position of an element marker.
+	 * 
+	 * @return the start offset of this node within the textual content
+	 */
 	public int getStartOffset() {
 		return startPosition.getOffset();
 	}
 
+	/**
+	 * The end offset of this node, which eventually also includes the position of an element marker.
+	 * 
+	 * @return the end offset of this node within the textual content
+	 */
+	public int getEndOffset() {
+		return endPosition.getOffset();
+	}
+
+	/**
+	 * The textual content, which does not inlude any element markers.
+	 * 
+	 * @return the textual content of this node
+	 */
 	public String getText() {
 		return content.getText(getStartOffset(), getEndOffset() - getStartOffset());
 	}
