@@ -16,7 +16,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -177,14 +176,14 @@ public class Element extends Parent implements Cloneable {
 
 	public List<Element> getChildElements() {
 		final List<Node> nodes = getChildNodes();
-		final Iterator<Node> iter = nodes.iterator();
 		final List<Element> elements = new ArrayList<Element>();
-		while (iter.hasNext()) {
-			// TODO use INodeVisitor once available
-			final Node node = iter.next();
-			if (node instanceof Element) {
-				elements.add((Element) node);
-			}
+		for (final Node node : nodes) {
+			node.accept(new BaseNodeVisitor() {
+				@Override
+				public void visit(final Element element) {
+					elements.add(element);
+				}
+			});
 		}
 		return elements;
 	}

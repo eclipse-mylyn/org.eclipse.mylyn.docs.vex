@@ -271,17 +271,21 @@ public class Document extends Parent {
 	}
 
 	public List<QualifiedName> getNodeNames(final int startOffset, final int endOffset) {
-
 		final List<Node> nodes = getNodes(startOffset, endOffset);
 		final List<QualifiedName> names = new ArrayList<QualifiedName>(nodes.size());
 
-		for (int i = 0; i < nodes.size(); i++) {
-			final Node node = nodes.get(i);
-			if (node instanceof Element) {
-				names.add(((Element) node).getQualifiedName());
-			} else {
-				names.add(Validator.PCDATA);
-			}
+		for (final Node node : nodes) {
+			node.accept(new BaseNodeVisitor() {
+				@Override
+				public void visit(final Text text) {
+					names.add(Validator.PCDATA);
+				}
+
+				@Override
+				public void visit(final Element element) {
+					names.add(element.getQualifiedName());
+				}
+			});
 		}
 
 		return names;
