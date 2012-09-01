@@ -11,23 +11,18 @@
 package org.eclipse.vex.core.internal.dom;
 
 /**
+ * An incarantion of the <a href="http://en.wikipedia.org/wiki/Visitor_pattern">Visitor pattern</a> which handles the
+ * nodes of the structural part of the DOM.
+ * 
  * @author Florian Thienel
+ * 
  */
-public class BasicNodeTest extends NodeTest {
+public interface INodeVisitor {
 
-	@Override
-	protected Node createNode() {
-		return new Node() {
-			@Override
-			public String getBaseURI() {
-				return null;
-			}
+	void visit(Element element);
 
-			@Override
-			public void accept(final INodeVisitor visitor) {
-				throw new UnsupportedOperationException();
-			}
-		};
-	}
+	void visit(Document document);
+
+	void visit(Text text);
 
 }

@@ -125,6 +125,11 @@ public class ParentTest {
 		public String getBaseURI() {
 			return null;
 		}
+
+		@Override
+		public void accept(final INodeVisitor visitor) {
+			throw new UnsupportedOperationException();
+		}
 	}
 
 	private static class TestChild extends Node {
@@ -141,5 +146,9 @@ public class ParentTest {
 			return null;
 		}
 
+		@Override
+		public void accept(final INodeVisitor visitor) {
+			throw new UnsupportedOperationException();
+		}
 	}
 }

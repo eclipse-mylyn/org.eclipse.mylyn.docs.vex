@@ -31,6 +31,11 @@ public class Text extends Node {
 	}
 
 	@Override
+	public void accept(final INodeVisitor visitor) {
+		visitor.visit(this);
+	}
+
+	@Override
 	public String getBaseURI() {
 		return null;
 	}

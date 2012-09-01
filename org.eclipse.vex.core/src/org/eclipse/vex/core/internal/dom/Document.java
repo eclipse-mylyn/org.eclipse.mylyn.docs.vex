@@ -74,6 +74,11 @@ public class Document extends Parent {
 		addChild(rootElement);
 	}
 
+	@Override
+	public void accept(final INodeVisitor visitor) {
+		visitor.visit(this);
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
