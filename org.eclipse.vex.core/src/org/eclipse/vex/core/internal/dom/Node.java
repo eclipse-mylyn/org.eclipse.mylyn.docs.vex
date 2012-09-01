@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.dom;
 
+import org.eclipse.core.runtime.Assert;
+
 /**
  * This class represents one node within the XML structure, which is also associated to a region of the textual content.
  * It is the base class for all representatives of the XML structure in the document object model (DOM).
@@ -49,6 +51,10 @@ public abstract class Node {
 	 *            offset at which the node's content ends
 	 */
 	public void associate(final Content content, final int startOffset, final int endOffset) {
+		if (this.content != null) {
+			dissociate();
+		}
+
 		this.content = content;
 		startPosition = content.createPosition(startOffset);
 		endPosition = content.createPosition(endOffset);
@@ -57,7 +63,9 @@ public abstract class Node {
 	/**
 	 * Dissociates this node from its associated content region.
 	 */
-	public void dissocate() {
+	public void dissociate() {
+		Assert.isNotNull(content, "Node must be associated to a Content region before it can be dissociated.");
+
 		content.removePosition(startPosition);
 		content.removePosition(endPosition);
 		startPosition = Position.NULL;
@@ -78,6 +86,7 @@ public abstract class Node {
 	 * @return the start offset of this node within the textual content
 	 */
 	public int getStartOffset() {
+		Assert.isNotNull(content, "Node must be associated to a Content region to have an start offset.");
 		return startPosition.getOffset();
 	}
 
@@ -87,6 +96,7 @@ public abstract class Node {
 	 * @return the end offset of this node within the textual content
 	 */
 	public int getEndOffset() {
+		Assert.isNotNull(content, "Node must be associated to a Content region to have an end offset.");
 		return endPosition.getOffset();
 	}
 
@@ -96,6 +106,7 @@ public abstract class Node {
 	 * @return the textual content of this node
 	 */
 	public String getText() {
+		Assert.isNotNull(content, "Node must be associated to a Content region to have textual content.");
 		return content.getText(getStartOffset(), getEndOffset() - getStartOffset());
 	}
 
