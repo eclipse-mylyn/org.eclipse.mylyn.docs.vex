@@ -20,7 +20,6 @@ public class BasicNodeTest extends NodeTest {
 		return new Node() {
 			@Override
 			public String getBaseURI() {
-				// TODO Auto-generated method stub
 				return null;
 			}
 		};
