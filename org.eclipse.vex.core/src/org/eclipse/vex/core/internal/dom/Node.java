@@ -129,4 +129,13 @@ public abstract class Node {
 	}
 
 	public abstract String getBaseURI();
+
+	/**
+	 * Accept the given visitor.
+	 * 
+	 * @see INodeVisitor
+	 * @param visitor
+	 *            the visitor
+	 */
+	public abstract void accept(final INodeVisitor visitor);
 }

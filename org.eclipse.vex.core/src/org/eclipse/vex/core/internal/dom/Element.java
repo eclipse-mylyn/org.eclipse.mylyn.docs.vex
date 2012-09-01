@@ -54,6 +54,11 @@ public class Element extends Parent implements Cloneable {
 	}
 
 	@Override
+	public void accept(final INodeVisitor visitor) {
+		visitor.visit(this);
+	}
+
+	@Override
 	public Element clone() {
 		try {
 			final Element element = new Element(getQualifiedName());
