@@ -15,6 +15,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 
+import org.eclipse.core.runtime.AssertionFailedException;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -61,12 +62,27 @@ public abstract class NodeTest {
 		content.insertElementMarker(0);
 
 		node.associate(content, 0, 1);
-		node.dissocate();
+		node.dissociate();
 
 		content.insertText(1, "Hello");
-		assertEquals(Position.NULL.getOffset(), node.getStartOffset());
-		assertEquals(Position.NULL.getOffset(), node.getEndOffset());
 		assertNull(node.getContent());
 	}
 
+	@Test
+	public void hasTextualContent() throws Exception {
+		final GapContent content = new GapContent(3);
+		content.insertElementMarker(0);
+		content.insertElementMarker(0);
+
+		node.associate(content, 0, 1);
+		assertEquals("", node.getText());
+
+		content.insertText(1, "Hello");
+		assertEquals("Hello", node.getText());
+	}
+
+	@Test(expected = AssertionFailedException.class)
+	public void cannotHaveTextualContentIfNotAssociatedToContent() throws Exception {
+		node.getText();
+	}
 }
