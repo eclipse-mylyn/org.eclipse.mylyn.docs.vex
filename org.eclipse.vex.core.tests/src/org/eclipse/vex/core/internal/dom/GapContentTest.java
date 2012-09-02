@@ -34,8 +34,8 @@ public class GapContentTest extends ContentTest {
 		final GapContent stringContent = new GapContent(4);
 		stringContent.insertText(0, "\0\0");
 
-		assertEquals(stringContent.getLength(), elementMarkerContent.getLength());
-		assertEquals(stringContent.getString(0, stringContent.getLength()), elementMarkerContent.getString(0, elementMarkerContent.getLength()));
+		assertEquals(stringContent.length(), elementMarkerContent.length());
+		assertEquals(stringContent.getString(0, stringContent.length()), elementMarkerContent.getString(0, elementMarkerContent.length()));
 	}
 
 	@Test
@@ -47,15 +47,15 @@ public class GapContentTest extends ContentTest {
 		//
 
 		final GapContent content = new GapContent(2);
-		assertEquals(0, content.getLength());
+		assertEquals(0, content.length());
 		content.insertText(0, "a");
-		assertEquals(1, content.getLength());
+		assertEquals(1, content.length());
 		content.insertText(1, "d");
-		assertEquals(2, content.getLength());
+		assertEquals(2, content.length());
 		content.insertText(1, "c");
-		assertEquals(3, content.getLength());
+		assertEquals(3, content.length());
 		content.insertText(1, "b");
-		assertEquals(4, content.getLength());
+		assertEquals(4, content.length());
 
 		final Position pa = content.createPosition(0);
 		final Position pb = content.createPosition(1);
@@ -119,9 +119,9 @@ public class GapContentTest extends ContentTest {
 		// 0 1 2 3 4 5 6
 		// 
 		content.insertText(2, "y");
-		assertEquals(5, content.getLength());
+		assertEquals(5, content.length());
 		content.insertText(2, "x");
-		assertEquals(6, content.getLength());
+		assertEquals(6, content.length());
 
 		assertEquals(0, pa.getOffset());
 		assertEquals(1, pb.getOffset());
@@ -134,7 +134,7 @@ public class GapContentTest extends ContentTest {
 
 		content.remove(2, 2);
 
-		assertEquals(4, content.getLength());
+		assertEquals(4, content.length());
 
 		assertEquals(0, pa.getOffset());
 		assertEquals(1, pb.getOffset());

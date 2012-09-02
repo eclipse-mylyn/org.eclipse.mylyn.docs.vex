@@ -32,15 +32,15 @@ public abstract class ContentTest {
 	public void insertText() throws Exception {
 		final String text = "Hello World";
 
-		assertEquals(0, content.getLength());
+		assertEquals(0, content.length());
 		content.insertText(0, text);
-		assertEquals(text.length(), content.getLength());
+		assertEquals(text.length(), content.length());
 	}
 
 	@Test
 	public void insertElementMarker() throws Exception {
 		content.insertElementMarker(0);
-		assertEquals(1, content.getLength());
+		assertEquals(1, content.length());
 		assertTrue(content.isElementMarker(0));
 	}
 
@@ -49,7 +49,7 @@ public abstract class ContentTest {
 		final String text = "Hello World";
 		content.insertText(0, text);
 		content.insertElementMarker(5);
-		assertEquals("Each element marker should count 1 in the length calculation.", text.length() + 1, content.getLength());
+		assertEquals("Each element marker should count 1 in the length calculation.", text.length() + 1, content.length());
 	}
 
 	@Test
@@ -95,7 +95,7 @@ public abstract class ContentTest {
 		other.insertElementMarker(4);
 
 		content.insertContent(6, other);
-		assertEquals(16, content.getLength());
+		assertEquals(16, content.length());
 		assertEquals("Hello NewWorld", content.getText());
 		assertTrue(content.isElementMarker(6));
 		assertTrue(content.isElementMarker(10));
@@ -202,5 +202,16 @@ public abstract class ContentTest {
 		assertFalse(content.getText().charAt(0) == content.getRawText().charAt(0));
 		assertEquals(content.getText(1, 5), content.getRawText(1, 5));
 		assertEquals(content.getText().substring(0, 5), content.getRawText(1, 5));
+	}
+
+	@Test
+	public void shouldReturnCharacterAtOffset() throws Exception {
+		content.insertElementMarker(0);
+		content.insertElementMarker(0);
+		content.insertText(1, "Hello World");
+
+		for (int i = 0; i < content.length(); i++) {
+			assertEquals(content.getRawText().charAt(i), content.charAt(i));
+		}
 	}
 }

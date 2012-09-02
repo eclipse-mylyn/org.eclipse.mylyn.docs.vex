@@ -69,7 +69,7 @@ public class Document extends Parent {
 	 * 
 	 */
 	public Document(final Content content, final Element rootElement) {
-		associate(content, 0, content.getLength() - 1);
+		associate(content, 0, content.length() - 1);
 		this.rootElement = rootElement;
 		addChild(rootElement);
 	}
@@ -235,8 +235,8 @@ public class Document extends Parent {
 
 	public DocumentFragment getFragment(final int startOffset, final int endOffset) {
 
-		assertOffset(startOffset, 0, getContent().getLength());
-		assertOffset(endOffset, 0, getContent().getLength());
+		assertOffset(startOffset, 0, getContent().length());
+		assertOffset(endOffset, 0, getContent().length());
 
 		if (endOffset <= startOffset) {
 			throw new IllegalArgumentException("Invalid range (" + startOffset + ", " + endOffset + ")");
@@ -267,7 +267,7 @@ public class Document extends Parent {
 	}
 
 	public int getLength() {
-		return getContent().getLength();
+		return getContent().length();
 	}
 
 	public List<QualifiedName> getNodeNames(final int startOffset, final int endOffset) {
@@ -482,7 +482,7 @@ public class Document extends Parent {
 
 		final IUndoableEdit edit = undoEnabled ? new InsertFragmentEdit(offset, fragment) : null;
 
-		fireContentInserted(new DocumentEvent(this, parent, offset, fragment.getContent().getLength(), edit));
+		fireContentInserted(new DocumentEvent(this, parent, offset, fragment.getContent().length(), edit));
 	}
 
 	public void insertText(final int offset, final String text) throws DocumentValidationException {
@@ -695,7 +695,7 @@ public class Document extends Parent {
 		public void undo() throws CannotUndoException {
 			try {
 				setUndoEnabled(false);
-				final int length = frag.getContent().getLength();
+				final int length = frag.getContent().length();
 				delete(offset, offset + length);
 			} catch (final DocumentValidationException ex) {
 				throw new CannotUndoException();
