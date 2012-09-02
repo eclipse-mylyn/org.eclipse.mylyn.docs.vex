@@ -29,7 +29,6 @@ import org.eclipse.vex.core.internal.undo.IUndoableEdit;
  */
 public class Document extends Parent {
 
-	private final Content content;
 	private final Element rootElement;
 	private final ListenerList<DocumentListener, DocumentEvent> listeners = new ListenerList<DocumentListener, DocumentEvent>(DocumentListener.class);
 	private boolean undoEnabled = true;
@@ -49,9 +48,10 @@ public class Document extends Parent {
 	 * 
 	 */
 	public Document(final Element rootElement) {
-		content = new GapContent(100);
+		final GapContent content = new GapContent(100);
 		content.insertElementMarker(0);
 		content.insertElementMarker(0);
+		associate(content, 0, 1);
 
 		this.rootElement = rootElement;
 		addChild(rootElement);
@@ -69,7 +69,7 @@ public class Document extends Parent {
 	 * 
 	 */
 	public Document(final Content content, final Element rootElement) {
-		this.content = content;
+		associate(content, 0, content.getLength() - 1);
 		this.rootElement = rootElement;
 		addChild(rootElement);
 	}
@@ -122,7 +122,7 @@ public class Document extends Parent {
 	}
 
 	public Position createPosition(final int offset) {
-		return content.createPosition(offset);
+		return getContent().createPosition(offset);
 	}
 
 	public void delete(final int startOffset, final int endOffset) throws DocumentValidationException {
@@ -156,7 +156,7 @@ public class Document extends Parent {
 			}
 		}
 
-		content.remove(startOffset, endOffset - startOffset);
+		getContent().remove(startOffset, endOffset - startOffset);
 
 		final IUndoableEdit edit = undoEnabled ? new DeleteEdit(startOffset, endOffset, frag) : null;
 
@@ -184,7 +184,7 @@ public class Document extends Parent {
 	}
 
 	public char getCharacterAt(final int offset) {
-		final String text = content.getText(offset, 1);
+		final String text = getContent().getText(offset, 1);
 		if (text.length() == 0) {
 			/*
 			 * XXX This is used in VexWidgetImpl.deleteNextChar/deletePreviousChar to find out if there is an element
@@ -222,7 +222,7 @@ public class Document extends Parent {
 	}
 
 	public boolean isElementAt(final int offset) {
-		return content.isElementMarker(offset);
+		return getContent().isElementMarker(offset);
 	}
 
 	public String getEncoding() {
@@ -235,8 +235,8 @@ public class Document extends Parent {
 
 	public DocumentFragment getFragment(final int startOffset, final int endOffset) {
 
-		assertOffset(startOffset, 0, content.getLength());
-		assertOffset(endOffset, 0, content.getLength());
+		assertOffset(startOffset, 0, getContent().getLength());
+		assertOffset(endOffset, 0, getContent().getLength());
 
 		if (endOffset <= startOffset) {
 			throw new IllegalArgumentException("Invalid range (" + startOffset + ", " + endOffset + ")");
@@ -250,7 +250,7 @@ public class Document extends Parent {
 
 		final List<Element> children = e1.getChildElements();
 
-		final Content newContent = content.getContent(startOffset, endOffset - startOffset);
+		final Content newContent = getContent().getContent(startOffset, endOffset - startOffset);
 		final List<Element> newChildren = new ArrayList<Element>();
 		for (int i = 0; i < children.size(); i++) {
 			final Element child = children.get(i);
@@ -267,7 +267,7 @@ public class Document extends Parent {
 	}
 
 	public int getLength() {
-		return content.getLength();
+		return getContent().getLength();
 	}
 
 	public List<QualifiedName> getNodeNames(final int startOffset, final int endOffset) {
@@ -378,11 +378,11 @@ public class Document extends Parent {
 	}
 
 	public String getText(final int startOffset, final int endOffset) {
-		return content.getText(startOffset, endOffset - startOffset);
+		return getContent().getText(startOffset, endOffset - startOffset);
 	}
 
 	public String getRawText(final int startOffset, final int endOffset) {
-		return content.getRawText(startOffset, endOffset - startOffset);
+		return getContent().getRawText(startOffset, endOffset - startOffset);
 	}
 
 	public Validator getValidator() {
@@ -433,10 +433,10 @@ public class Document extends Parent {
 
 		fireBeforeContentInserted(new DocumentEvent(this, parent, offset, 2, null));
 
-		content.insertElementMarker(offset);
-		content.insertElementMarker(offset + 1);
+		getContent().insertElementMarker(offset);
+		getContent().insertElementMarker(offset + 1);
 
-		element.associate(content, offset, offset + 1);
+		element.associate(getContent(), offset, offset + 1);
 		element.setParent(parent);
 		parent.insertChild(childIndex, element);
 
@@ -465,7 +465,7 @@ public class Document extends Parent {
 
 		fireBeforeContentInserted(new DocumentEvent(this, parent, offset, 2, null));
 
-		content.insertContent(offset, fragment.getContent());
+		getContent().insertContent(offset, fragment.getContent());
 
 		final List<Element> children = parent.getChildElements();
 		int index = 0;
@@ -475,7 +475,7 @@ public class Document extends Parent {
 
 		final List<Element> elements = fragment.getElements();
 		for (int i = 0; i < elements.size(); i++) {
-			final Element newElement = cloneElement(elements.get(i), content, offset, parent);
+			final Element newElement = cloneElement(elements.get(i), getContent(), offset, parent);
 			parent.insertChild(index, newElement);
 			index++;
 		}
@@ -494,9 +494,9 @@ public class Document extends Parent {
 		final Element parent = getElementAt(offset);
 
 		boolean isValid = false;
-		if (!content.isElementMarker(offset - 1)) {
+		if (!getContent().isElementMarker(offset - 1)) {
 			isValid = true;
-		} else if (!content.isElementMarker(offset)) {
+		} else if (!getContent().isElementMarker(offset)) {
 			isValid = true;
 		} else {
 			final Validator validator = getValidator();
@@ -527,7 +527,7 @@ public class Document extends Parent {
 
 		fireBeforeContentInserted(new DocumentEvent(this, parent, offset, 2, null));
 
-		content.insertText(offset, s);
+		getContent().insertText(offset, s);
 
 		final IUndoableEdit edit = undoEnabled ? new InsertTextEdit(offset, s) : null;
 
