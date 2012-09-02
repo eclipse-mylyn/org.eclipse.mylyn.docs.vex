@@ -114,8 +114,8 @@ public class DocumentBuilder implements ContentHandler, LexicalHandler {
 
 		// we must insert the trailing sentinel first, else the insertion
 		// pushes the end position of the element to after the sentinel
-		content.insertElementMarker(content.getLength());
-		entry.element.associate(content, entry.offset, content.getLength() - 1);
+		content.insertElementMarker(content.length());
+		entry.element.associate(content, entry.offset, content.length() - 1);
 
 		if (isBlock(entry.element)) {
 			trimLeading = true;
@@ -192,8 +192,8 @@ public class DocumentBuilder implements ContentHandler, LexicalHandler {
 
 		appendChars(isBlock(element));
 
-		stack.add(new StackEntry(element, content.getLength(), isPre(element)));
-		content.insertElementMarker(content.getLength());
+		stack.add(new StackEntry(element, content.length(), isPre(element)));
+		content.insertElementMarker(content.length());
 
 		trimLeading = true;
 
@@ -229,15 +229,15 @@ public class DocumentBuilder implements ContentHandler, LexicalHandler {
 		parent.addChild(element);
 
 		appendChars(isBlock(element));
-		final int startOffset = content.getLength();
-		content.insertElementMarker(content.getLength());
+		final int startOffset = content.length();
+		content.insertElementMarker(content.length());
 
 		trimLeading = true;
 		appendPendingCharsFiltered(ch, start, length);
 		appendChars(true);
 
-		content.insertElementMarker(content.getLength());
-		element.associate(content, startOffset, content.getLength() - 1);
+		content.insertElementMarker(content.length());
+		element.associate(content, startOffset, content.length() - 1);
 		if (isBlock(element)) {
 			trimLeading = true;
 		}
@@ -272,7 +272,7 @@ public class DocumentBuilder implements ContentHandler, LexicalHandler {
 
 		sb = cleanUpTextContent(trimTrailing);
 
-		content.insertText(content.getLength(), sb.toString());
+		content.insertText(content.length(), sb.toString());
 
 		pendingChars.setLength(0);
 		trimLeading = false;

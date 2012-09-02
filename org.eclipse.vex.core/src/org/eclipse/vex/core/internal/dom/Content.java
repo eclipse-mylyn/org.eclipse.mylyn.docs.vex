@@ -15,7 +15,7 @@ package org.eclipse.vex.core.internal.dom;
  * 
  * @model
  */
-public interface Content {
+public interface Content extends CharSequence {
 
 	/**
 	 * Creates a new Position object at the given initial offset.
@@ -68,7 +68,7 @@ public interface Content {
 	public String getText();
 
 	/**
-	 * Get the plain text of a region of this content. The plain text does also contain the element markers in this
+	 * Get the raw text of a region of this content. The plain text does also contain the element markers in this
 	 * content.
 	 * 
 	 * @param offset
@@ -80,8 +80,7 @@ public interface Content {
 	public String getRawText(final int offset, final int length);
 
 	/**
-	 * Get the whole plain text of this content. The plain text does not contain any information about the element
-	 * markers in this content.
+	 * Get the whole raw text of this content. The raw text does also contain the element markers in this content.
 	 * 
 	 * @return the whole text including element markers
 	 */
@@ -149,6 +148,6 @@ public interface Content {
 	 * 
 	 * @model
 	 */
-	public int getLength();
+	public int length();
 
 }

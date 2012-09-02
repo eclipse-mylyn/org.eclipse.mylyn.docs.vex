@@ -66,7 +66,7 @@ public class DocumentFragment implements Serializable {
 	 * @see org.eclipse.vex.core.internal.dom.IVEXDocumentFragment#getLength ()
 	 */
 	public int getLength() {
-		return content.getLength();
+		return content.length();
 	}
 
 	/*
@@ -98,7 +98,7 @@ public class DocumentFragment implements Serializable {
 	}
 
 	public List<Node> getNodes() {
-		return Document.createNodeList(getContent(), 0, getContent().getLength(), getElements());
+		return Document.createNodeList(getContent(), 0, getContent().length(), getElements());
 	}
 
 	/*
@@ -113,7 +113,7 @@ public class DocumentFragment implements Serializable {
 	}
 
 	private static void writeContent(final Content content, final ObjectOutputStream out) throws IOException {
-		final int contentLength = content.getLength();
+		final int contentLength = content.length();
 		out.write(contentLength);
 		for (int i = 0; i < contentLength; i++) {
 			if (content.isElementMarker(i)) {
