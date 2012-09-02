@@ -189,4 +189,18 @@ public abstract class ContentTest {
 		content.removePosition(position);
 		assertFalse(position.isValid());
 	}
+
+	@Test
+	public void rawTextContainsElementMarkers() throws Exception {
+		content.insertElementMarker(0);
+		content.insertElementMarker(0);
+		content.insertText(1, "Hello World");
+		content.insertElementMarker(6);
+
+		assertFalse(content.getText().equals(content.getRawText()));
+		assertEquals(content.getText().length() + 3, content.getRawText().length());
+		assertFalse(content.getText().charAt(0) == content.getRawText().charAt(0));
+		assertEquals(content.getText(1, 5), content.getRawText(1, 5));
+		assertEquals(content.getText().substring(0, 5), content.getRawText(1, 5));
+	}
 }

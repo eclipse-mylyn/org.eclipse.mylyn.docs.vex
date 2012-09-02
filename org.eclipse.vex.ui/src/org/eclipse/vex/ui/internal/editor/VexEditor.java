@@ -777,20 +777,7 @@ public class VexEditor extends EditorPart {
 
 				@Override
 				protected CharSequence getDocument() {
-					return new CharSequence() {
-
-						public CharSequence subSequence(final int start, final int end) {
-							return document.getRawText(start, end);
-						}
-
-						public int length() {
-							return document.getLength();
-						}
-
-						public char charAt(final int index) {
-							return document.getCharacterAt(index);
-						}
-					};
+					return document.getRawText(document.getStartOffset(), document.getEndOffset());
 				}
 
 				@Override
