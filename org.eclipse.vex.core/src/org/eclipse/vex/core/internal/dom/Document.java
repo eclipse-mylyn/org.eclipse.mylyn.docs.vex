@@ -369,15 +369,6 @@ public class Document extends Parent {
 		return publicID;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.vex.core.internal.dom.IVEXDocument#getRawText(int, int)
-	 */
-	public String getRawText(final int startOffset, final int endOffset) {
-		return content.getText(startOffset, endOffset - startOffset);
-	}
-
 	public Element getRootElement() {
 		return rootElement;
 	}
@@ -388,6 +379,10 @@ public class Document extends Parent {
 
 	public String getText(final int startOffset, final int endOffset) {
 		return content.getText(startOffset, endOffset - startOffset);
+	}
+
+	public String getRawText(final int startOffset, final int endOffset) {
+		return content.getRawText(startOffset, endOffset - startOffset);
 	}
 
 	public Validator getValidator() {

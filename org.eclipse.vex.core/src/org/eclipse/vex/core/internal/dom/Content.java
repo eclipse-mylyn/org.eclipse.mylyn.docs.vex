@@ -68,6 +68,26 @@ public interface Content {
 	public String getText();
 
 	/**
+	 * Get the plain text of a region of this content. The plain text does also contain the element markers in this
+	 * content.
+	 * 
+	 * @param offset
+	 *            Offset at which the substring begins.
+	 * @param length
+	 *            Number of characters to consider in this content.
+	 * @return the text of the given region including element markers
+	 */
+	public String getRawText(final int offset, final int length);
+
+	/**
+	 * Get the whole plain text of this content. The plain text does not contain any information about the element
+	 * markers in this content.
+	 * 
+	 * @return the whole text including element markers
+	 */
+	public String getRawText();
+
+	/**
 	 * Inserts the given content into this content at the given offset.
 	 * 
 	 * @param offset

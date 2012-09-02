@@ -205,6 +205,30 @@ public class GapContent implements Content {
 		}
 	}
 
+	public String getRawText() {
+		return getRawText(0, getLength());
+	}
+
+	public String getRawText(final int offset, final int length) {
+		assertOffset(offset, 0, getLength() - length);
+		assertPositive(length);
+
+		final StringBuilder result = new StringBuilder(length);
+		if (offset + length < gapStart) {
+			appendRawText(result, offset, length);
+		} else if (offset >= gapStart) {
+			appendRawText(result, offset - gapStart + gapEnd, length);
+		} else {
+			appendRawText(result, offset, gapStart - offset);
+			appendRawText(result, gapEnd, offset + length - gapStart);
+		}
+		return result.toString();
+	}
+
+	private void appendRawText(final StringBuilder stringBuilder, final int offset, final int length) {
+		stringBuilder.append(content, offset, length);
+	}
+
 	public void insertContent(final int offset, final Content content) {
 		assertOffset(offset, 0, getLength());
 
