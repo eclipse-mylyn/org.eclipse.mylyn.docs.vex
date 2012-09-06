@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <site>
    <description>
-      Visual Editor for XML (Incubating)
+      Visual Editor for XML
    </description>
    <feature url="features/org.eclipse.vex.feature_1.0.0.qualifier.jar" id="org.eclipse.vex.feature" version="1.0.0.qualifier">
       <category name="vex_core"/>
@@ -9,12 +9,12 @@
    <feature url="features/org.eclipse.vex.sdk.feature_1.0.0.qualifier.jar" id="org.eclipse.vex.sdk.feature" version="1.0.0.qualifier">
       <category name="vex_sdk"/>
    </feature>
-   <category-def name="vex_core" label="Visual Editor for XML (Incubating)">
+   <category-def name="vex_core" label="Visual Editor for XML">
       <description>
          The Vex XML editor for document-style XML documents, including support for XHTML, DocBook and DITA.
       </description>
    </category-def>
-   <category-def name="vex_sdk" label="Vex SDK (Incubating)">
+   <category-def name="vex_sdk" label="Vex SDK">
       <description>
          The Vex SDK contains all source bundles of the Visual Editor for XML.
       </description>

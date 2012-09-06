@@ -21,7 +21,7 @@
    </license>
 
    <url>
-      <update label="Vex Milestones (Incubating)" url="http://download.eclipse.org/vex/milestones"/>
+      <update label="Vex Milestones" url="http://download.eclipse.org/vex/milestones"/>
    </url>
 
    <requires>
