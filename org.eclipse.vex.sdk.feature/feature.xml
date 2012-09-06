@@ -18,7 +18,7 @@
    </license>
 
    <url>
-      <update label="Vex Milestones" url="http://download.eclipse.org/vex/milestones"/>
+      <update label="Vex 1.0" url="http://download.eclipse.org/vex/releases/1.0"/>
    </url>
 
    <includes
