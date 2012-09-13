@@ -279,32 +279,15 @@ public class InlineElementBox extends CompositeInlineBox {
 
 		final InlineBoxes result = new InlineBoxes();
 
-		final List<Node> nodes = element2.getChildNodes();
-		for (int i = 0; i < nodes.size(); i++) {
+		final List<Node> nodes = element2.getChildNodes(startOffset, endOffset);
+		for (final Node node : nodes) {
+			final InlineBox child;
 
-			final Node node = nodes.get(i);
-			InlineBox child;
-
-			if (node.getStartOffset() >= endOffset) {
-				break;
-			} else if (node instanceof Text) {
-
-				// This check is different for Text and Element, so we have to
-				// do it here and below, too.
-				if (node.getEndOffset() <= startOffset) {
-					continue;
-				}
-
+			if (node instanceof Text) {
 				final int start = Math.max(startOffset, node.getStartOffset());
 				final int end = Math.min(endOffset, node.getEndOffset());
 				child = new DocumentTextBox(context, element2, start, end);
-
 			} else {
-
-				if (node.getEndOffset() < startOffset) {
-					continue;
-				}
-
 				final Element childElement = (Element) node;
 				final InlineBox placeholder = new PlaceholderBox(context, element2, childElement.getStartOffset() - element2.getStartOffset());
 				result.boxes.add(placeholder);
@@ -314,16 +297,20 @@ public class InlineElementBox extends CompositeInlineBox {
 				child = new InlineElementBox(context, childElement, startOffset, endOffset);
 			}
 
-			if (result.firstContentBox == null) {
-				result.firstContentBox = child;
-			}
-
-			result.lastContentBox = child;
-
-			result.boxes.add(child);
+			addChildInlineBox(result, child);
 		}
 
 		return result;
+	}
+
+	private static void addChildInlineBox(final InlineBoxes result, final InlineBox child) {
+		if (result.firstContentBox == null) {
+			result.firstContentBox = child;
+		}
+
+		result.lastContentBox = child;
+
+		result.boxes.add(child);
 	}
 
 	// ========================================================== PRIVATE

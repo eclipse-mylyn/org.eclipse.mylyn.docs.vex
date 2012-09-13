@@ -303,28 +303,7 @@ public class Document extends Parent {
 					new Object[] { startOffset, element.getPrefixedName(), endOffset, getElementAt(endOffset).getPrefixedName() }));
 		}
 
-		final List<Node> list = new ArrayList<Node>();
-		final List<Node> nodes = element.getChildNodes();
-		for (int i = 0; i < nodes.size(); i++) {
-			final Node node = nodes.get(i);
-			if (node.getEndOffset() <= startOffset) {
-				continue;
-			} else if (node.getStartOffset() >= endOffset) {
-				break;
-			} else if (node instanceof Element) {
-				list.add(node);
-			} else {
-				final Text text = (Text) node;
-				if (text.getStartOffset() < startOffset) {
-					text.associate(text.getContent(), startOffset, text.getEndOffset());
-				} else if (text.getEndOffset() > endOffset) {
-					text.associate(text.getContent(), text.getStartOffset(), endOffset);
-				}
-				list.add(text);
-			}
-		}
-
-		return list;
+		return element.getChildNodes(startOffset, endOffset);
 	}
 
 	/**

@@ -114,7 +114,7 @@ public abstract class Node {
 	 */
 	public String getText() {
 		Assert.isTrue(isAssociated(), "Node must be associated to a Content region to have textual content.");
-		return content.getText(getStartOffset(), getEndOffset() - getStartOffset());
+		return content.getText(getStartOffset(), getEndOffset() - getStartOffset() + 1);
 	}
 
 	public Document getDocument() {
