@@ -39,21 +39,24 @@ public abstract class Parent extends Node {
 	 * @return all child nodes which are completely within the given range plus the textual content
 	 */
 	public List<Node> getChildNodes(final int startOffset, final int endOffset) {
+		final int rangeStart = Math.max(startOffset, getStartOffset() + 1);
+		final int rangeEnd = Math.min(endOffset, getEndOffset());
+
 		final List<Node> result = new ArrayList<Node>();
-		int offset = Math.max(startOffset, getStartOffset() + 1);
+		int offset = rangeStart;
 		for (final Node child : children) {
 			if (child.isAssociated()) {
 				final int childStart = child.getStartOffset();
 				final int childEnd = child.getEndOffset();
 				if (offset < childStart) {
-					final int textEnd = Math.min(childStart, endOffset);
+					final int textEnd = Math.min(childStart, rangeEnd);
 					result.add(new Text(getContent(), offset, textEnd));
 					offset = textEnd + 1;
 				}
-				if (childStart >= startOffset && childStart <= endOffset && childEnd <= endOffset) {
+				if (childStart >= rangeStart && childStart <= rangeEnd && childEnd <= rangeEnd) {
 					result.add(child);
 					offset = childEnd + 1;
-				} else if (childEnd >= startOffset) {
+				} else if (childEnd >= rangeStart) {
 					offset = childEnd + 1;
 				}
 			} else {
@@ -61,9 +64,8 @@ public abstract class Parent extends Node {
 			}
 		}
 
-		final int tailTextEnd = Math.min(endOffset, getEndOffset());
-		if (offset < tailTextEnd) {
-			result.add(new Text(getContent(), offset, tailTextEnd));
+		if (offset < rangeEnd) {
+			result.add(new Text(getContent(), offset, rangeEnd));
 		}
 
 		return Collections.unmodifiableList(result);
