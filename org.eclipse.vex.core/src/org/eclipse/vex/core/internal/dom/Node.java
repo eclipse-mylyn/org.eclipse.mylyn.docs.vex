@@ -108,6 +108,19 @@ public abstract class Node {
 	}
 
 	/**
+	 * Indicates if the given offset is within the boundaries of this node. A node contains its end offset, but not its
+	 * start offset. If this node is not associated with textual content, this method returns false.
+	 * 
+	 * @return true if the given offset is withing ]startOffset; endOffset], or false if not associated
+	 */
+	public boolean containsOffset(final int offset) {
+		if (!isAssociated()) {
+			return false;
+		}
+		return offset > getStartOffset() && offset <= getEndOffset();
+	}
+
+	/**
 	 * The textual content, which does not inlude any element markers.
 	 * 
 	 * @return the textual content of this node

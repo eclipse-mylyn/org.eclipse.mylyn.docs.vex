@@ -11,9 +11,11 @@
 package org.eclipse.vex.core.internal.dom;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
 
 import org.eclipse.core.runtime.AssertionFailedException;
 import org.junit.Before;
@@ -84,5 +86,27 @@ public abstract class NodeTest {
 	@Test(expected = AssertionFailedException.class)
 	public void cannotHaveTextualContentIfNotAssociatedToContent() throws Exception {
 		node.getText();
+	}
+
+	@Test
+	public void shouldIndicateIfContainsOffset() throws Exception {
+		final GapContent content = new GapContent(3);
+		content.insertElementMarker(0);
+		content.insertElementMarker(0);
+		content.insertText(1, "Hello World");
+
+		node.associate(content, 0, content.length() - 1);
+
+		assertFalse(node.containsOffset(0));
+		assertTrue(node.containsOffset(1));
+		assertTrue(node.containsOffset(2));
+		assertTrue(node.containsOffset(content.length() - 2));
+		assertTrue(node.containsOffset(content.length() - 1));
+		assertFalse(node.containsOffset(content.length()));
+	}
+
+	@Test
+	public void shouldContainNoOffsetIfNotAssociated() throws Exception {
+		assertFalse(node.containsOffset(0));
 	}
 }
