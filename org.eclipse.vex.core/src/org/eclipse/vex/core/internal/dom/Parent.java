@@ -50,7 +50,7 @@ public abstract class Parent extends Node {
 				final int childEnd = child.getEndOffset();
 				if (offset < childStart) {
 					final int textEnd = Math.min(childStart, rangeEnd);
-					result.add(new Text(getContent(), offset, textEnd));
+					result.add(new Text(this, getContent(), offset, textEnd));
 					offset = textEnd + 1;
 				}
 				if (childStart >= rangeStart && childStart <= rangeEnd && childEnd <= rangeEnd) {
@@ -65,7 +65,7 @@ public abstract class Parent extends Node {
 		}
 
 		if (offset < rangeEnd) {
-			result.add(new Text(getContent(), offset, rangeEnd));
+			result.add(new Text(this, getContent(), offset, rangeEnd));
 		}
 
 		return Collections.unmodifiableList(result);

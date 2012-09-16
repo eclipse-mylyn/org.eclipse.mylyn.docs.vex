@@ -179,6 +179,12 @@ public class ParentTest {
 		assertEquals("Wo", childNodes.get(2).getText());
 	}
 
+	@Test
+	public void shouldSetParentOnTextNodes() throws Exception {
+		content.insertText(parent.getEndOffset(), "Hello World");
+		assertSame(parent, parent.getChildNodes().get(0).getParent());
+	}
+
 	private TestChild addTestChild() {
 		final int offset = parent.getEndOffset();
 		content.insertElementMarker(offset);

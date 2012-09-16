@@ -19,6 +19,8 @@ public class Text extends Node {
 	/**
 	 * Class constructor.
 	 * 
+	 * @param parent
+	 *            The parent node containing the text
 	 * @param content
 	 *            Content object containing the text
 	 * @param startOffset
@@ -26,7 +28,8 @@ public class Text extends Node {
 	 * @param endOffset
 	 *            character offset of the end of the run
 	 */
-	public Text(final Content content, final int startOffset, final int endOffset) {
+	public Text(final Parent parent, final Content content, final int startOffset, final int endOffset) {
+		setParent(parent);
 		associate(content, startOffset, endOffset);
 	}
 

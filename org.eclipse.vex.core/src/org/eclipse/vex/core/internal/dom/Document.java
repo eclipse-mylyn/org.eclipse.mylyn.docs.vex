@@ -326,14 +326,14 @@ public class Document extends Parent {
 		for (int i = 0; i < elements.size(); i++) {
 			final int start = elements.get(i).getStartOffset();
 			if (offset < start) {
-				nodes.add(new Text(content, offset, start));
+				nodes.add(new Text(null, content, offset, start));
 			}
 			nodes.add(elements.get(i));
 			offset = elements.get(i).getEndOffset() + 1;
 		}
 
 		if (offset < endOffset) {
-			nodes.add(new Text(content, offset, endOffset));
+			nodes.add(new Text(null, content, offset, endOffset));
 		}
 
 		return nodes;
