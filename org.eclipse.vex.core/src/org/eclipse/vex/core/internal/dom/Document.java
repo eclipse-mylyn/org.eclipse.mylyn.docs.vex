@@ -16,6 +16,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.osgi.util.NLS;
 import org.eclipse.vex.core.internal.core.ListenerList;
@@ -60,7 +61,7 @@ public class Document extends Parent {
 
 	/**
 	 * Class constructor. This constructor is used by the document builder and assumes that the content and root element
-	 * have bee properly set up.
+	 * have bee properly set up and is already associated with the given content.
 	 * 
 	 * @param content
 	 *            Content object used to store the document's content.
@@ -69,9 +70,20 @@ public class Document extends Parent {
 	 * 
 	 */
 	public Document(final Content content, final Element rootElement) {
+		Assert.isTrue(content == rootElement.getContent(), "The given root element must already be associated with the given content.");
 		associate(content, 0, content.length() - 1);
 		this.rootElement = rootElement;
 		addChild(rootElement);
+	}
+
+	@Override
+	public int getStartOffset() {
+		return 0;
+	}
+
+	@Override
+	public int getEndOffset() {
+		return getContent().length() - 1;
 	}
 
 	@Override
