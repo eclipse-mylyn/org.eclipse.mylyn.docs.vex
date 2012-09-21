@@ -25,6 +25,7 @@ import org.eclipse.vex.core.internal.dom.BlockElementBoxTest;
 import org.eclipse.vex.core.internal.dom.DTDValidatorTest;
 import org.eclipse.vex.core.internal.dom.DocumentContentModelTest;
 import org.eclipse.vex.core.internal.dom.DocumentReaderTest;
+import org.eclipse.vex.core.internal.dom.DocumentTest;
 import org.eclipse.vex.core.internal.dom.DocumentWriterTest;
 import org.eclipse.vex.core.internal.dom.GapContentTest;
 import org.eclipse.vex.core.internal.dom.NamespaceStackTest;
@@ -57,6 +58,7 @@ public class VEXCoreTestSuite extends TestSuite {
 		addTest(new JUnit4TestAdapter(BatikBehaviorTest.class));
 		addTest(new JUnit4TestAdapter(BasicNodeTest.class));
 		addTest(new JUnit4TestAdapter(ParentTest.class));
+		addTest(new JUnit4TestAdapter(DocumentTest.class));
 		addTestSuite(PropertyTest.class);
 		addTestSuite(RuleTest.class);
 		addTestSuite(BlockElementBoxTest.class);
