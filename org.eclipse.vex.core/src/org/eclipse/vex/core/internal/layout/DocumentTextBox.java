@@ -14,7 +14,6 @@ import org.eclipse.vex.core.internal.core.ColorResource;
 import org.eclipse.vex.core.internal.core.FontResource;
 import org.eclipse.vex.core.internal.core.Graphics;
 import org.eclipse.vex.core.internal.css.Styles;
-import org.eclipse.vex.core.internal.dom.Document;
 import org.eclipse.vex.core.internal.dom.Element;
 import org.eclipse.vex.core.internal.dom.Text;
 
@@ -96,8 +95,7 @@ public class DocumentTextBox extends TextBox {
 	 */
 	@Override
 	public String getText() {
-		final Document doc = getElement().getDocument();
-		return doc.getText(getStartOffset(), getEndOffset() + 1);
+		return getElement().getText(getStartOffset(), getEndOffset());
 	}
 
 	/**

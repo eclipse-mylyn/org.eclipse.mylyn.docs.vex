@@ -207,7 +207,7 @@ public class TableLayoutTest extends TestCase {
 	}
 
 	private String contentAsText() {
-		return document.getText(0, document.getLength());
+		return document.getText();
 	}
 
 	private void assertCount(final int expected, final Class<? extends Box> blockClass) {

@@ -356,14 +356,6 @@ public class Document extends Parent {
 		return systemID;
 	}
 
-	public String getText(final int startOffset, final int endOffset) {
-		return getContent().getText(startOffset, endOffset - startOffset);
-	}
-
-	public String getRawText(final int startOffset, final int endOffset) {
-		return getContent().getRawText(startOffset, endOffset - startOffset);
-	}
-
 	public Validator getValidator() {
 		return validator;
 	}

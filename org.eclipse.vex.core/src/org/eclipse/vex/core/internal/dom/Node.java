@@ -121,13 +121,29 @@ public abstract class Node {
 	}
 
 	/**
-	 * The textual content, which does not inlude any element markers.
+	 * The textual content, not inluding any element markers.
 	 * 
 	 * @return the textual content of this node
 	 */
 	public String getText() {
+		return getText(getStartOffset(), getEndOffset());
+	}
+
+	/**
+	 * The textual content in the given range, not including any element markers.
+	 * 
+	 * @param startOffset
+	 *            the start offset
+	 * @param endOffset
+	 *            the end offset
+	 * @return the textual content in the given range
+	 */
+	public String getText(final int startOffset, final int endOffset) {
 		Assert.isTrue(isAssociated(), "Node must be associated to a Content region to have textual content.");
-		return content.getText(getStartOffset(), getEndOffset() - getStartOffset() + 1);
+		Assert.isTrue(startOffset >= getStartOffset(), "Invalid range start.");
+		Assert.isTrue(containsOffset(endOffset), "Invalid range end.");
+
+		return content.getText(startOffset, endOffset - startOffset + 1);
 	}
 
 	public Document getDocument() {
