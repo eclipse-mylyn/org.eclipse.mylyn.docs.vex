@@ -29,9 +29,7 @@ public class DocumentFragment implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	/**
-	 * Mime type representing document fragments: "text/x-vex-document-fragment"
-	 * 
-	 * @model
+	 * Mime type representing document fragments: "application/x-vex-document-fragment"
 	 */
 	public static final String MIME_TYPE = "application/x-vex-document-fragment";
 
@@ -39,8 +37,6 @@ public class DocumentFragment implements Serializable {
 	private List<Element> elements;
 
 	/**
-	 * Class constructor.
-	 * 
 	 * @param content
 	 *            Content holding the fragment's content.
 	 * @param elements
@@ -51,38 +47,18 @@ public class DocumentFragment implements Serializable {
 		this.elements = elements;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.vex.core.internal.dom.IVEXDocumentFragment#getContent ()
-	 */
 	public Content getContent() {
 		return content;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.vex.core.internal.dom.IVEXDocumentFragment#getLength ()
-	 */
 	public int getLength() {
 		return content.length();
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.vex.core.internal.dom.IVEXDocumentFragment#getElements ()
-	 */
 	public List<Element> getElements() {
 		return elements;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.vex.core.internal.dom.IVEXDocumentFragment#getNodeNames ()
-	 */
 	public List<QualifiedName> getNodeNames() {
 		final List<Node> nodes = getNodes();
 		final List<QualifiedName> names = new ArrayList<QualifiedName>(nodes.size());
