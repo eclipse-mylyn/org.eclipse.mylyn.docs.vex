@@ -108,16 +108,35 @@ public abstract class Node {
 	}
 
 	/**
-	 * Indicates if the given offset is within the boundaries of this node. A node contains its end offset, but not its
-	 * start offset. If this node is not associated with textual content, this method returns false.
+	 * Indicates whether the given offset is within the boundaries of this node. If this node is not associated with
+	 * textual content, this method returns false.
 	 * 
-	 * @return true if the given offset is withing ]startOffset; endOffset], or false if not associated
+	 * @param offset
+	 *            the offset
+	 * @return true if the given offset is withing [startOffset; endOffset], or false if not associated
 	 */
 	public boolean containsOffset(final int offset) {
 		if (!isAssociated()) {
 			return false;
 		}
-		return offset > getStartOffset() && offset <= getEndOffset();
+		return offset >= getStartOffset() && offset <= getEndOffset();
+	}
+
+	/**
+	 * Indicates whether this node is fully within the given range. If this node is not associated with textual content,
+	 * this method returns false.
+	 * 
+	 * @param startOffset
+	 *            the range's start offset
+	 * @param endOffset
+	 *            the range's end offst
+	 * @return true if this node is fully within the given range
+	 */
+	public boolean isInRange(final int startOffset, final int endOffset) {
+		if (!isAssociated()) {
+			return false;
+		}
+		return startOffset <= getStartOffset() && endOffset >= getEndOffset();
 	}
 
 	/**
@@ -140,7 +159,7 @@ public abstract class Node {
 	 */
 	public String getText(final int startOffset, final int endOffset) {
 		Assert.isTrue(isAssociated(), "Node must be associated to a Content region to have textual content.");
-		Assert.isTrue(startOffset >= getStartOffset(), "Invalid range start.");
+		Assert.isTrue(containsOffset(startOffset), "Invalid range start.");
 		Assert.isTrue(containsOffset(endOffset), "Invalid range end.");
 
 		return content.getText(startOffset, endOffset - startOffset + 1);

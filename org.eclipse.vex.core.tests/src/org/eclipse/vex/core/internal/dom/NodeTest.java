@@ -89,24 +89,54 @@ public abstract class NodeTest {
 	}
 
 	@Test
-	public void shouldIndicateIfContainsOffset() throws Exception {
+	public void shouldContainStartOffset() throws Exception {
 		final GapContent content = new GapContent(3);
 		content.insertElementMarker(0);
 		content.insertElementMarker(0);
 		content.insertText(1, "Hello World");
-
 		node.associate(content, 0, content.length() - 1);
+		content.insertText(0, "prefix");
 
-		assertFalse(node.containsOffset(0));
-		assertTrue(node.containsOffset(1));
-		assertTrue(node.containsOffset(2));
-		assertTrue(node.containsOffset(content.length() - 2));
-		assertTrue(node.containsOffset(content.length() - 1));
-		assertFalse(node.containsOffset(content.length()));
+		assertFalse(node.containsOffset(node.getStartOffset() - 1));
+		assertTrue(node.containsOffset(node.getStartOffset()));
+		assertTrue(node.containsOffset(node.getStartOffset() + 1));
+	}
+
+	@Test
+	public void shouldContainEndOffset() throws Exception {
+		final GapContent content = new GapContent(3);
+		content.insertElementMarker(0);
+		content.insertElementMarker(0);
+		content.insertText(1, "Hello World");
+		node.associate(content, 0, content.length() - 1);
+		content.insertText(content.length(), "suffix");
+
+		assertTrue(node.containsOffset(node.getEndOffset() - 1));
+		assertTrue(node.containsOffset(node.getEndOffset()));
+		assertFalse(node.containsOffset(node.getEndOffset() + 1));
 	}
 
 	@Test
 	public void shouldContainNoOffsetIfNotAssociated() throws Exception {
 		assertFalse(node.containsOffset(0));
+	}
+
+	@Test
+	public void shouldIndicateIfWithinRange() throws Exception {
+		final GapContent content = new GapContent(3);
+		content.insertElementMarker(0);
+		content.insertElementMarker(0);
+		content.insertText(1, "Hello World");
+		node.associate(content, 0, content.length() - 1);
+		content.insertText(0, "prefix");
+		content.insertText(content.length(), "suffix");
+
+		assertTrue(node.isInRange(node.getStartOffset() - 1, node.getEndOffset()));
+		assertTrue(node.isInRange(node.getStartOffset(), node.getEndOffset()));
+		assertFalse(node.isInRange(node.getStartOffset() + 1, node.getEndOffset()));
+		assertTrue(node.isInRange(node.getStartOffset(), node.getEndOffset() + 1));
+		assertFalse(node.isInRange(node.getStartOffset(), node.getEndOffset() - 1));
+		assertTrue(node.isInRange(node.getStartOffset() - 1, node.getEndOffset() + 1));
+		assertFalse(node.isInRange(node.getStartOffset() + 1, node.getEndOffset() - 1));
 	}
 }
