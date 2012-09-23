@@ -108,6 +108,8 @@ public abstract class Parent extends Node {
 		final int textEnd = findNextTextEnd(endOffset, textStart);
 		if (textStart < textEnd) {
 			result.add(new Text(this, getContent(), textStart, textEnd));
+		} else if (textStart == textEnd && !getContent().isElementMarker(textStart)) {
+			result.add(new Text(this, getContent(), textStart, textEnd));
 		}
 	}
 

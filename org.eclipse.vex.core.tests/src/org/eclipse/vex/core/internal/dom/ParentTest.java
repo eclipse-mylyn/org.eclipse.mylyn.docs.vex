@@ -286,6 +286,16 @@ public class ParentTest {
 	}
 
 	@Test
+	public void shouldProvideSingleCharacterText() throws Exception {
+		content.insertText(parent.getEndOffset(), "x");
+
+		final List<Node> childNodes = parent.getChildNodes();
+
+		assertEquals(1, childNodes.size());
+		assertTextNodeEquals("x", 1, 1, childNodes.get(0));
+	}
+
+	@Test
 	public void shouldProvideTextBeforeChild() throws Exception {
 		content.insertText(parent.getEndOffset(), "Hello World");
 		addTestChild();
@@ -298,6 +308,18 @@ public class ParentTest {
 	}
 
 	@Test
+	public void shouldProvideSingleCharacterTextBeforeChild() throws Exception {
+		content.insertText(parent.getEndOffset(), "x");
+		addTestChild();
+
+		final List<Node> childNodes = parent.getChildNodes();
+
+		assertEquals(2, childNodes.size());
+		assertTextNodeEquals("x", 1, 1, childNodes.get(0));
+		assertChildNodeEquals("", 2, 3, childNodes.get(1));
+	}
+
+	@Test
 	public void shouldProvideTextAfterChild() throws Exception {
 		addTestChild();
 		content.insertText(parent.getEndOffset(), "Hello World");
@@ -307,6 +329,18 @@ public class ParentTest {
 		assertEquals(2, childNodes.size());
 		assertChildNodeEquals("", 1, 2, childNodes.get(0));
 		assertTextNodeEquals("Hello World", 3, 13, childNodes.get(1));
+	}
+
+	@Test
+	public void shouldProvideSingleCharacterTextAfterChild() throws Exception {
+		addTestChild();
+		content.insertText(parent.getEndOffset(), "x");
+
+		final List<Node> childNodes = parent.getChildNodes();
+
+		assertEquals(2, childNodes.size());
+		assertChildNodeEquals("", 1, 2, childNodes.get(0));
+		assertTextNodeEquals("x", 3, 3, childNodes.get(1));
 	}
 
 	@Test
