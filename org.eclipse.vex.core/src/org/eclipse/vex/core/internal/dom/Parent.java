@@ -70,7 +70,7 @@ public abstract class Parent extends Node {
 	 * @return all child nodes including Text nodes
 	 */
 	public List<Node> getChildNodes() {
-		return getChildNodes(getStartOffset() + 1, getEndOffset() - 1);
+		return getChildNodes(getStartOffset(), getEndOffset());
 	}
 
 	/**
@@ -85,36 +85,44 @@ public abstract class Parent extends Node {
 	 * @return all child nodes which are completely within the given range plus the textual content
 	 */
 	public List<Node> getChildNodes(final int startOffset, final int endOffset) {
-		final int rangeStart = Math.max(startOffset, getStartOffset() + 1);
+		final int rangeStart = Math.max(startOffset, getStartOffset());
 		final int rangeEnd = Math.min(endOffset, getEndOffset());
-
+		int textStart = rangeStart;
 		final List<Node> result = new ArrayList<Node>();
-		int offset = rangeStart;
 		for (final Node child : children) {
-			if (child.isAssociated()) {
-				final int childStart = child.getStartOffset();
-				final int childEnd = child.getEndOffset();
-				if (offset < childStart) {
-					final int textEnd = Math.min(childStart, rangeEnd);
-					result.add(new Text(this, getContent(), offset, textEnd));
-					offset = textEnd + 1;
-				}
-				if (childStart >= rangeStart && childStart <= rangeEnd && childEnd <= rangeEnd) {
-					result.add(child);
-					offset = childEnd + 1;
-				} else if (childEnd >= rangeStart) {
-					offset = childEnd + 1;
-				}
-			} else {
+			if (!child.isAssociated()) {
 				result.add(child);
+			} else if (child.isInRange(rangeStart, rangeEnd)) {
+				mergeTextIntoResult(textStart, child.getStartOffset(), result);
+				result.add(child);
+				textStart = child.getEndOffset() + 1;
 			}
 		}
 
-		if (offset < rangeEnd) {
-			result.add(new Text(this, getContent(), offset, rangeEnd));
-		}
-
+		mergeTextIntoResult(textStart, rangeEnd, result);
 		return Collections.unmodifiableList(result);
+	}
+
+	private void mergeTextIntoResult(final int startOffset, final int endOffset, final List<Node> result) {
+		final int textStart = findNextTextStart(startOffset, endOffset);
+		final int textEnd = findNextTextEnd(endOffset, textStart);
+		if (textStart < textEnd) {
+			result.add(new Text(this, getContent(), textStart, textEnd));
+		}
+	}
+
+	private int findNextTextStart(int currentOffset, final int maximumOffset) {
+		while (currentOffset < maximumOffset && getContent().isElementMarker(currentOffset)) {
+			currentOffset++;
+		}
+		return currentOffset;
+	}
+
+	private int findNextTextEnd(int currentOffset, final int minimumOffset) {
+		while (currentOffset > minimumOffset && getContent().isElementMarker(currentOffset)) {
+			currentOffset--;
+		}
+		return currentOffset;
 	}
 
 	/**
