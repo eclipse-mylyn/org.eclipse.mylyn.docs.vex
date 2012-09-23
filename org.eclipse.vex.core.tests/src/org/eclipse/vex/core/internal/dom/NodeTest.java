@@ -139,4 +139,28 @@ public abstract class NodeTest {
 		assertTrue(node.isInRange(node.getStartOffset() - 1, node.getEndOffset() + 1));
 		assertFalse(node.isInRange(node.getStartOffset() + 1, node.getEndOffset() - 1));
 	}
+
+	@Test
+	public void shouldHandleLowerStartOffset() throws Exception {
+		final GapContent content = new GapContent(3);
+		content.insertElementMarker(0);
+		content.insertElementMarker(0);
+		content.insertText(1, "Hello World");
+		node.associate(content, 0, content.length() - 1);
+		content.insertText(0, "prefix");
+
+		assertEquals("Hello World", node.getText(node.getStartOffset() - 2, node.getEndOffset()));
+	}
+
+	@Test
+	public void shouldHandleBiggerEndOffset() throws Exception {
+		final GapContent content = new GapContent(3);
+		content.insertElementMarker(0);
+		content.insertElementMarker(0);
+		content.insertText(1, "Hello World");
+		node.associate(content, 0, content.length() - 1);
+		content.insertText(content.length(), "suffix");
+
+		assertEquals("Hello World", node.getText(node.getStartOffset(), node.getEndOffset() + 2));
+	}
 }
