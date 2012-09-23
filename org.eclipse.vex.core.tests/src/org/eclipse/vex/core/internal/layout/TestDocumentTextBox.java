@@ -121,7 +121,7 @@ public class TestDocumentTextBox extends TestCase {
 			assertEquals(right.length() * width, rightBox.getWidth());
 			assertEquals(styles.getLineHeight(), rightBox.getHeight());
 			assertEquals(midOffset, rightBox.getStartOffset());
-			assertEquals(rightOffset - 1, rightBox.getEndOffset());
+			assertEquals(rightOffset, rightBox.getEndOffset());
 		}
 
 	}

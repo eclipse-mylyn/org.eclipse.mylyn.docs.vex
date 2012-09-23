@@ -53,8 +53,8 @@ public class DocumentTextBox extends TextBox {
 	public DocumentTextBox(final LayoutContext context, final Element element, final int startOffset, final int endOffset) {
 		super(element);
 
-		if (startOffset >= endOffset) {
-			throw new IllegalStateException("DocumentTextBox: startOffset (" + startOffset + ") >= endOffset (" + endOffset + ")");
+		if (startOffset > endOffset) {
+			throw new IllegalStateException("DocumentTextBox: startOffset (" + startOffset + ") > endOffset (" + endOffset + ")");
 		}
 
 		startRelative = startOffset - element.getStartOffset();
@@ -74,7 +74,7 @@ public class DocumentTextBox extends TextBox {
 		if (endRelative == -1) {
 			return -1;
 		} else {
-			return getElement().getStartOffset() + endRelative - 1;
+			return getElement().getStartOffset() + endRelative;
 		}
 	}
 
@@ -180,7 +180,7 @@ public class DocumentTextBox extends TextBox {
 	@Override
 	public Pair splitAt(final LayoutContext context, final int offset) {
 
-		if (offset < 0 || offset > endRelative - startRelative) {
+		if (offset < 0 || offset > endRelative - startRelative + 1) {
 			throw new IllegalStateException();
 		}
 
@@ -190,14 +190,14 @@ public class DocumentTextBox extends TextBox {
 		if (offset == 0) {
 			left = null;
 		} else {
-			left = new DocumentTextBox(context, getElement(), getStartOffset(), split);
+			left = new DocumentTextBox(context, getElement(), getStartOffset(), split - 1);
 		}
 
 		InlineBox right;
-		if (split == getEndOffset() + 1) {
+		if (split >= getEndOffset()) {
 			right = null;
 		} else {
-			right = new DocumentTextBox(context, getElement(), split, getEndOffset() + 1);
+			right = new DocumentTextBox(context, getElement(), split, getEndOffset());
 		}
 		return new Pair(left, right);
 	}
