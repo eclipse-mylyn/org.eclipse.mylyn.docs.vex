@@ -15,6 +15,8 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+import org.eclipse.core.runtime.Assert;
+
 /**
  * A Parent node is a Node which can contain other nodes as children. This class defines the tree-like structure of the
  * DOM. It handles the mergin of the child nodes and the textual content of one node within the structure of the
@@ -156,6 +158,28 @@ public abstract class Parent extends Node {
 	 */
 	public int getChildCount() {
 		return children.size();
+	}
+
+	/**
+	 * Returns the node at the given offset.
+	 * 
+	 * @param offset
+	 *            the offset
+	 * @return the node at the given offset
+	 */
+	public Node getChildNodeAt(final int offset) {
+		Assert.isTrue(containsOffset(offset));
+		final List<Node> childNodes = getChildNodes();
+		for (final Node child : childNodes) {
+			if (child.containsOffset(offset)) {
+				if (child instanceof Parent) {
+					return ((Parent) child).getChildNodeAt(offset);
+				} else {
+					return child;
+				}
+			}
+		}
+		return this;
 	}
 
 	/**

@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import org.eclipse.core.runtime.AssertionFailedException;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -373,6 +374,52 @@ public class ParentTest {
 		assertChildNodeEquals("Child1", 7, 14, childNodes.get(1));
 		assertChildNodeEquals("Child2", 15, 22, childNodes.get(2));
 		assertTextNodeEquals(" World", 23, 28, childNodes.get(3));
+	}
+
+	@Test
+	public void shouldProvideSelfOnOwnBoundaries() throws Exception {
+		assertSame(parent, parent.getChildNodeAt(parent.getStartOffset()));
+		assertSame(parent, parent.getChildNodeAt(parent.getEndOffset()));
+	}
+
+	@Test
+	public void shouldReturnTextWithinBoundaries() throws Exception {
+		content.insertText(parent.getEndOffset(), "Hello World");
+		final Node text = parent.getChildNodes().get(0);
+		assertTextNodeEquals("Hello World", text.getStartOffset(), text.getEndOffset(), parent.getChildNodeAt(text.getStartOffset()));
+		assertTextNodeEquals("Hello World", text.getStartOffset(), text.getEndOffset(), parent.getChildNodeAt(text.getStartOffset() + 1));
+		assertTextNodeEquals("Hello World", text.getStartOffset(), text.getEndOffset(), parent.getChildNodeAt(text.getEndOffset() - 1));
+		assertTextNodeEquals("Hello World", text.getStartOffset(), text.getEndOffset(), parent.getChildNodeAt(text.getEndOffset()));
+	}
+
+	@Test
+	public void shouldReturnTextWithinChildBoundaries() throws Exception {
+		final int offset = parent.getEndOffset();
+		content.insertElementMarker(offset);
+		content.insertElementMarker(offset);
+		final Element child = new Element("child");
+		parent.addChild(child);
+		child.associate(content, offset, offset + 1);
+		content.insertText(child.getEndOffset(), "Hello World");
+		final Node text = child.getChildNodes().get(0);
+		assertTextNodeEquals("Hello World", text.getStartOffset(), text.getEndOffset(), parent.getChildNodeAt(text.getStartOffset()));
+		assertTextNodeEquals("Hello World", text.getStartOffset(), text.getEndOffset(), parent.getChildNodeAt(text.getStartOffset() + 1));
+		assertTextNodeEquals("Hello World", text.getStartOffset(), text.getEndOffset(), parent.getChildNodeAt(text.getEndOffset() - 1));
+		assertTextNodeEquals("Hello World", text.getStartOffset(), text.getEndOffset(), parent.getChildNodeAt(text.getEndOffset()));
+	}
+
+	@Test(expected = AssertionFailedException.class)
+	public void shouldNotProvideChildNodeBeforeStartOffset() throws Exception {
+		content.insertText(parent.getStartOffset(), "prefix");
+		parent.getChildNodeAt(parent.getStartOffset() - 1);
+
+	}
+
+	@Test(expected = AssertionFailedException.class)
+	public void shouldNotProvideChildNodeAfterEndOffset() throws Exception {
+		content.insertText(parent.getEndOffset() + 1, "suffix");
+		parent.getChildNodeAt(parent.getEndOffset() + 1);
+
 	}
 
 	private static void assertTextNodeEquals(final String text, final int startOffset, final int endOffset, final Node actualNode) {
