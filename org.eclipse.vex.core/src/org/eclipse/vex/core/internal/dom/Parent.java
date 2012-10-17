@@ -129,6 +129,14 @@ public abstract class Parent extends Node {
 		return currentOffset;
 	}
 
+	public List<Node> getChildNodesBefore(final int offset) {
+		return getChildNodes(getStartOffset() + 1, offset);
+	}
+
+	public List<Node> getChildNodesAfter(final int offset) {
+		return getChildNodes(offset, getEndOffset() - 1);
+	}
+
 	/**
 	 * An Iterator of all child nodes. The underlying collection is not modifyable.
 	 * 

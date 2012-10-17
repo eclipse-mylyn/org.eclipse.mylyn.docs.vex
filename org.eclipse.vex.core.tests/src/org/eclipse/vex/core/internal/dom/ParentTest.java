@@ -419,7 +419,46 @@ public class ParentTest {
 	public void shouldNotProvideChildNodeAfterEndOffset() throws Exception {
 		content.insertText(parent.getEndOffset() + 1, "suffix");
 		parent.getChildNodeAt(parent.getEndOffset() + 1);
+	}
 
+	@Test
+	public void shouldProvideChildNodesBeforeOffset() throws Exception {
+		final TestChild child1 = addTestChild();
+		final TestChild child2 = addTestChild();
+		final TestChild child3 = addTestChild();
+
+		final List<Node> childNodes12 = parent.getChildNodesBefore(child3.getStartOffset());
+		assertEquals(2, childNodes12.size());
+		assertSame(child1, childNodes12.get(0));
+		assertSame(child2, childNodes12.get(1));
+
+		final List<Node> childNodes123 = parent.getChildNodesBefore(parent.getEndOffset());
+		assertEquals(3, childNodes123.size());
+		assertSame(child1, childNodes123.get(0));
+		assertSame(child2, childNodes123.get(1));
+		assertSame(child3, childNodes123.get(2));
+
+		assertTrue(parent.getChildNodesBefore(parent.getStartOffset()).isEmpty());
+	}
+
+	@Test
+	public void shouldProvideChildNodesAfterOffset() throws Exception {
+		final TestChild child1 = addTestChild();
+		final TestChild child2 = addTestChild();
+		final TestChild child3 = addTestChild();
+
+		final List<Node> childNodes23 = parent.getChildNodesAfter(child1.getEndOffset());
+		assertEquals(2, childNodes23.size());
+		assertSame(child2, childNodes23.get(0));
+		assertSame(child3, childNodes23.get(1));
+
+		final List<Node> childNodes123 = parent.getChildNodesAfter(parent.getStartOffset());
+		assertEquals(3, childNodes123.size());
+		assertSame(child1, childNodes123.get(0));
+		assertSame(child2, childNodes123.get(1));
+		assertSame(child3, childNodes123.get(2));
+
+		assertTrue(parent.getChildNodesAfter(parent.getEndOffset()).isEmpty());
 	}
 
 	private static void assertTextNodeEquals(final String text, final int startOffset, final int endOffset, final Node actualNode) {
