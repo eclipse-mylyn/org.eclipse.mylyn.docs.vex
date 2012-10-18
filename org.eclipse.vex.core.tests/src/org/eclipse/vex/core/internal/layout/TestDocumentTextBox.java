@@ -84,7 +84,7 @@ public class TestDocumentTextBox extends TestCase {
 		assertSplit(box, 0, true, "b", "aggy orange trousers");
 		assertSplit(box, -1, true, "b", "aggy orange trousers");
 
-		doc.delete(1, 22);
+		doc.delete(1, 21);
 	}
 
 	private void assertSplit(final DocumentTextBox box, final int splitPos, final boolean force, final String left, final String right) {

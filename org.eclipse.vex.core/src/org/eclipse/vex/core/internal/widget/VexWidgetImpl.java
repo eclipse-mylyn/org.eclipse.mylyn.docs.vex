@@ -212,9 +212,9 @@ public class VexWidgetImpl implements IVexWidget {
 		}
 
 		final Element parent = getDocument().getElementAt(startOffset);
-		final List<QualifiedName> seq1 = doc.getNodeNames(parent.getStartOffset() + 1, startOffset);
+		final List<QualifiedName> seq1 = doc.getNodeNames(parent.getChildNodesBefore(startOffset));
 		final List<QualifiedName> seq2 = frag.getNodeNames();
-		final List<QualifiedName> seq3 = doc.getNodeNames(endOffset, parent.getEndOffset());
+		final List<QualifiedName> seq3 = doc.getNodeNames(parent.getChildNodesAfter(endOffset));
 
 		return validator.isValidSequence(parent.getQualifiedName(), seq1, seq2, seq3, true);
 	}
@@ -241,9 +241,9 @@ public class VexWidgetImpl implements IVexWidget {
 		}
 
 		final Element parent = getDocument().getElementAt(startOffset);
-		final List<QualifiedName> seq1 = doc.getNodeNames(parent.getStartOffset() + 1, startOffset);
+		final List<QualifiedName> seq1 = doc.getNodeNames(parent.getChildNodesBefore(startOffset));
 		final List<QualifiedName> seq2 = Collections.singletonList(Validator.PCDATA);
-		final List<QualifiedName> seq3 = doc.getNodeNames(endOffset, parent.getEndOffset());
+		final List<QualifiedName> seq3 = doc.getNodeNames(parent.getChildNodesAfter(endOffset));
 
 		return validator.isValidSequence(parent.getQualifiedName(), seq1, seq2, seq3, true);
 	}
@@ -282,9 +282,9 @@ public class VexWidgetImpl implements IVexWidget {
 			return false;
 		}
 
-		final List<QualifiedName> seq1 = doc.getNodeNames(parent.getStartOffset() + 1, element.getStartOffset());
-		final List<QualifiedName> seq2 = doc.getNodeNames(element.getStartOffset() + 1, element.getEndOffset());
-		final List<QualifiedName> seq3 = doc.getNodeNames(element.getEndOffset() + 1, parent.getEndOffset());
+		final List<QualifiedName> seq1 = doc.getNodeNames(parent.getChildNodesBefore(element.getStartOffset()));
+		final List<QualifiedName> seq2 = doc.getNodeNames(element.getChildNodes());
+		final List<QualifiedName> seq3 = doc.getNodeNames(parent.getChildNodesAfter(element.getEndOffset()));
 
 		return validator.isValidSequence(parent.getQualifiedName(), seq1, seq2, seq3, true);
 	}
@@ -538,8 +538,8 @@ public class VexWidgetImpl implements IVexWidget {
 		final int endOffset = getEndOffset();
 
 		final Element parent = doc.getElementAt(startOffset);
-		final List<QualifiedName> nodesBefore = doc.getNodeNames(parent.getStartOffset() + 1, startOffset);
-		final List<QualifiedName> nodesAfter = doc.getNodeNames(endOffset, parent.getEndOffset());
+		final List<QualifiedName> nodesBefore = doc.getNodeNames(parent.getChildNodesBefore(startOffset));
+		final List<QualifiedName> nodesAfter = doc.getNodeNames(parent.getChildNodesAfter(endOffset));
 		final List<QualifiedName> selectedNodes = doc.getNodeNames(startOffset, endOffset);
 		final List<QualifiedName> candidates = createCandidatesList(validator, parent, Validator.PCDATA);
 

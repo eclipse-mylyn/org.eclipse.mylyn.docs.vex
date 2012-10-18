@@ -11,14 +11,15 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.dom;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.QualifiedName;
-import org.eclipse.osgi.util.NLS;
 import org.eclipse.vex.core.internal.core.ListenerList;
 import org.eclipse.vex.core.internal.undo.CannotRedoException;
 import org.eclipse.vex.core.internal.undo.CannotUndoException;
@@ -101,36 +102,29 @@ public class Document extends Parent {
 		listeners.add(listener);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.vex.core.internal.dom.IVEXDocument#canInsertFragment (int,
-	 * org.eclipse.vex.core.internal.dom.DocumentFragment)
-	 */
-	public boolean canInsertFragment(final int offset, final DocumentFragment fragment) {
+	private boolean canInsertAt(final int offset, final QualifiedName... nodeNames) {
+		return canInsertAt(offset, Arrays.asList(nodeNames));
+	}
+
+	private boolean canInsertAt(final int offset, final List<QualifiedName> nodeNames) {
 		if (validator == null) {
 			return true;
 		}
 
-		final Element element = getElementAt(offset);
-		final List<QualifiedName> seq1 = getNodeNames(element.getStartOffset() + 1, offset);
-		final List<QualifiedName> seq2 = fragment.getNodeNames();
-		final List<QualifiedName> seq3 = getNodeNames(offset, element.getEndOffset());
+		final Element parent = getElementAt(offset);
+		final List<QualifiedName> seq1 = getNodeNames(parent.getChildNodesBefore(offset));
+		final List<QualifiedName> seq2 = nodeNames;
+		final List<QualifiedName> seq3 = getNodeNames(parent.getChildNodesAfter(offset));
 
-		return validator.isValidSequence(element.getQualifiedName(), seq1, seq2, seq3, true);
+		return validator.isValidSequence(parent.getQualifiedName(), seq1, seq2, seq3, true);
+	}
+
+	public boolean canInsertFragment(final int offset, final DocumentFragment fragment) {
+		return canInsertAt(offset, fragment.getNodeNames());
 	}
 
 	public boolean canInsertText(final int offset) {
-		if (validator == null) {
-			return true;
-		}
-
-		final Element element = getElementAt(offset);
-		final List<QualifiedName> seq1 = getNodeNames(element.getStartOffset() + 1, offset);
-		final List<QualifiedName> seq2 = Collections.singletonList(Validator.PCDATA);
-		final List<QualifiedName> seq3 = getNodeNames(offset, element.getEndOffset());
-
-		return validator.isValidSequence(element.getQualifiedName(), seq1, seq2, seq3, true);
+		return canInsertAt(offset, Validator.PCDATA);
 	}
 
 	public Position createPosition(final int offset) {
@@ -138,17 +132,16 @@ public class Document extends Parent {
 	}
 
 	public void delete(final int startOffset, final int endOffset) throws DocumentValidationException {
-
-		final Element surroundingElement = getElementAt(startOffset);
-		final Element elementAtEndOffset = getElementAt(endOffset);
+		final Element surroundingElement = getElementAt(startOffset - 1);
+		final Element elementAtEndOffset = getElementAt(endOffset + 1);
 		if (surroundingElement != elementAtEndOffset) {
 			throw new IllegalArgumentException("Deletion from " + startOffset + " to " + endOffset + " is unbalanced");
 		}
 
 		final Validator validator = getValidator();
 		if (validator != null) {
-			final List<QualifiedName> seq1 = getNodeNames(surroundingElement.getStartOffset() + 1, startOffset);
-			final List<QualifiedName> seq2 = getNodeNames(endOffset, surroundingElement.getEndOffset());
+			final List<QualifiedName> seq1 = getNodeNames(surroundingElement.getChildNodesBefore(startOffset));
+			final List<QualifiedName> seq2 = getNodeNames(surroundingElement.getChildNodesAfter(endOffset));
 
 			if (!validator.isValidSequence(surroundingElement.getQualifiedName(), seq1, seq2, null, true)) {
 				throw new DocumentValidationException("Unable to delete from " + startOffset + " to " + endOffset);
@@ -158,41 +151,21 @@ public class Document extends Parent {
 		// Grab the fragment for the undoable edit while it's still here
 		final DocumentFragment frag = getFragment(startOffset, endOffset);
 
-		fireBeforeContentDeleted(new DocumentEvent(this, surroundingElement, startOffset, endOffset - startOffset, null));
+		fireBeforeContentDeleted(new DocumentEvent(this, surroundingElement, startOffset, endOffset - startOffset + 1, null));
 
 		final Iterator<Node> iter = surroundingElement.getChildIterator();
 		while (iter.hasNext()) {
 			final Node child = iter.next();
-			if (startOffset <= child.getStartOffset() && child.getEndOffset() < endOffset) {
+			if (startOffset <= child.getStartOffset() && child.getEndOffset() <= endOffset) {
 				surroundingElement.removeChild(child);
 			}
 		}
 
-		getContent().remove(startOffset, endOffset - startOffset);
+		getContent().remove(startOffset, endOffset - startOffset + 1);
 
 		final IUndoableEdit edit = undoEnabled ? new DeleteEdit(startOffset, endOffset, frag) : null;
 
-		fireContentDeleted(new DocumentEvent(this, surroundingElement, startOffset, endOffset - startOffset, edit));
-	}
-
-	public Element findCommonElement(final int offset1, final int offset2) {
-		Element element = rootElement;
-		for (;;) {
-			boolean tryAgain = false;
-			final List<Element> children = element.getChildElements();
-			for (int i = 0; i < children.size(); i++) {
-				if (offset1 > children.get(i).getStartOffset() && offset2 > children.get(i).getStartOffset() && offset1 <= children.get(i).getEndOffset() && offset2 <= children.get(i).getEndOffset()) {
-
-					element = children.get(i);
-					tryAgain = true;
-					break;
-				}
-			}
-			if (!tryAgain) {
-				break;
-			}
-		}
-		return element;
+		fireContentDeleted(new DocumentEvent(this, surroundingElement, startOffset, endOffset - startOffset + 1, edit));
 	}
 
 	public char getCharacterAt(final int offset) {
@@ -208,19 +181,15 @@ public class Document extends Parent {
 		return text.charAt(0);
 	}
 
-	public Element getElementAt(final int offset) {
-		if (offset < 1 || offset >= getLength()) {
-			throw new IllegalArgumentException("Illegal offset: " + offset + ". Must be between 1 and n-1");
-		}
+	public Element findCommonElement(final int offset1, final int offset2) {
 		Element element = rootElement;
 		for (;;) {
 			boolean tryAgain = false;
 			final List<Element> children = element.getChildElements();
 			for (int i = 0; i < children.size(); i++) {
 				final Element child = children.get(i);
-				if (offset <= child.getStartOffset()) {
-					return element;
-				} else if (offset <= child.getEndOffset()) {
+				if (offset1 >= child.getStartOffset() && offset2 >= child.getStartOffset() && offset1 <= child.getEndOffset() && offset2 <= child.getEndOffset()) {
+
 					element = child;
 					tryAgain = true;
 					break;
@@ -231,6 +200,20 @@ public class Document extends Parent {
 			}
 		}
 		return element;
+	}
+
+	public Element getElementAt(final int offset) {
+		return getContainerElement(getChildNodeAt(offset));
+	}
+
+	private static Element getContainerElement(final Node node) {
+		if (node == null) {
+			return null;
+		}
+		if (node instanceof Element) {
+			return (Element) node;
+		}
+		return getContainerElement(node.getParent());
 	}
 
 	public boolean isElementAt(final int offset) {
@@ -246,36 +229,39 @@ public class Document extends Parent {
 	}
 
 	public DocumentFragment getFragment(final int startOffset, final int endOffset) {
+		final List<Node> childNodes = getParentOfRange(startOffset, endOffset).getChildNodes();
 
-		assertOffset(startOffset, 0, getContent().length());
-		assertOffset(endOffset, 0, getContent().length());
+		final Content cloneContent = getContent().getContent(startOffset, endOffset - startOffset + 1);
+		final List<Node> cloneChildNodes = new ArrayList<Node>();
 
-		if (endOffset <= startOffset) {
-			throw new IllegalArgumentException("Invalid range (" + startOffset + ", " + endOffset + ")");
-		}
-
-		final Element e1 = getElementAt(startOffset);
-		final Element e2 = getElementAt(endOffset);
-		if (e1 != e2) {
-			throw new IllegalArgumentException("Fragment from " + startOffset + " to " + endOffset + " is unbalanced");
-		}
-
-		final List<Element> children = e1.getChildElements();
-
-		final Content newContent = getContent().getContent(startOffset, endOffset - startOffset);
-		final List<Element> newChildren = new ArrayList<Element>();
-		for (int i = 0; i < children.size(); i++) {
-			final Element child = children.get(i);
+		for (final Node child : childNodes) {
 			if (child.getEndOffset() <= startOffset) {
 				continue;
 			} else if (child.getStartOffset() >= endOffset) {
 				break;
 			} else {
-				newChildren.add(cloneElement(child, newContent, -startOffset, null));
+				final Node cloneChildNode = cloneNode(child, cloneContent, -startOffset, null);
+				if (cloneChildNode != null) {
+					cloneChildNodes.add(cloneChildNode);
+				}
 			}
 		}
 
-		return new DocumentFragment(newContent, newChildren);
+		return new DocumentFragment(cloneContent, cloneChildNodes);
+	}
+
+	private Parent getParentOfRange(final int startOffset, final int endOffset) {
+		assertOffset(startOffset, 0, getContent().length());
+		assertOffset(endOffset, 0, getContent().length());
+		Assert.isTrue(startOffset <= endOffset, MessageFormat.format("Invalid range [{0};{1}].", startOffset, endOffset));
+
+		final Node startNode = getChildNodeAt(startOffset);
+		final Node endNode = getChildNodeAt(endOffset);
+		final Parent parent = startNode.getParent();
+		Assert.isTrue(parent == endNode.getParent(), MessageFormat.format("The fragment from {0} to {1} is unbalanced.", startOffset, endOffset));
+		Assert.isNotNull(parent, MessageFormat.format("No balanced parent found for range [{0};{1}].", startOffset, endOffset));
+
+		return parent;
 	}
 
 	public int getLength() {
@@ -283,7 +269,10 @@ public class Document extends Parent {
 	}
 
 	public List<QualifiedName> getNodeNames(final int startOffset, final int endOffset) {
-		final List<Node> nodes = getNodes(startOffset, endOffset);
+		return getNodeNames(getNodes(startOffset, endOffset));
+	}
+
+	public List<QualifiedName> getNodeNames(final Collection<Node> nodes) {
 		final List<QualifiedName> names = new ArrayList<QualifiedName>(nodes.size());
 
 		for (final Node node : nodes) {
@@ -303,19 +292,8 @@ public class Document extends Parent {
 		return names;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.vex.core.internal.dom.IVEXDocument#getNodes(int, int)
-	 */
 	public List<Node> getNodes(final int startOffset, final int endOffset) {
-		final Element element = getElementAt(startOffset);
-		if (element != getElementAt(endOffset)) {
-			throw new IllegalArgumentException(NLS.bind("Offsets are unbalanced: {0} is in {1}, {2} is in {3}.",
-					new Object[] { startOffset, element.getPrefixedName(), endOffset, getElementAt(endOffset).getPrefixedName() }));
-		}
-
-		return element.getChildNodes(startOffset, endOffset);
+		return getParentOfRange(startOffset, endOffset).getChildNodes(startOffset, endOffset);
 	}
 
 	/**
@@ -338,14 +316,14 @@ public class Document extends Parent {
 		for (int i = 0; i < elements.size(); i++) {
 			final int start = elements.get(i).getStartOffset();
 			if (offset < start) {
-				nodes.add(new Text(null, content, offset, start));
+				nodes.add(new Text(null, content, offset, start - 1));
 			}
 			nodes.add(elements.get(i));
 			offset = elements.get(i).getEndOffset() + 1;
 		}
 
 		if (offset < endOffset) {
-			nodes.add(new Text(null, content, offset, endOffset));
+			nodes.add(new Text(null, content, offset, endOffset - 1));
 		}
 
 		return nodes;
@@ -378,16 +356,8 @@ public class Document extends Parent {
 			throw new IllegalArgumentException("Error inserting element <" + element.getPrefixedName() + ">: offset is " + offset + ", but it must be between 1 and " + (getLength() - 1));
 		}
 
-		final Validator validator = getValidator();
-		if (validator != null) {
-			final Element parent = getElementAt(offset);
-			final List<QualifiedName> seq1 = getNodeNames(parent.getStartOffset() + 1, offset);
-			final List<QualifiedName> seq2 = Collections.singletonList(element.getQualifiedName());
-			final List<QualifiedName> seq3 = getNodeNames(offset, parent.getEndOffset());
-
-			if (!validator.isValidSequence(parent.getQualifiedName(), seq1, seq2, seq3, true)) {
-				throw new DocumentValidationException("Cannot insert element " + element.getPrefixedName() + " at offset " + offset);
-			}
+		if (!canInsertAt(offset, element.getQualifiedName())) {
+			throw new DocumentValidationException("Cannot insert element " + element.getPrefixedName() + " at offset " + offset);
 		}
 
 		// find the parent, and the index into its children at which
@@ -417,7 +387,7 @@ public class Document extends Parent {
 		fireBeforeContentInserted(new DocumentEvent(this, parent, offset, 2, null));
 
 		getContent().insertElementMarker(offset);
-		getContent().insertElementMarker(offset + 1);
+		getContent().insertElementMarker(offset);
 
 		element.associate(getContent(), offset, offset + 1);
 		element.setParent(parent);
@@ -429,22 +399,15 @@ public class Document extends Parent {
 	}
 
 	public void insertFragment(final int offset, final DocumentFragment fragment) throws DocumentValidationException {
-
 		if (offset < 1 || offset >= getLength()) {
 			throw new IllegalArgumentException("Error inserting document fragment");
 		}
 
-		final Element parent = getElementAt(offset);
-
-		if (validator != null) {
-			final List<QualifiedName> seq1 = getNodeNames(parent.getStartOffset() + 1, offset);
-			final List<QualifiedName> seq2 = fragment.getNodeNames();
-			final List<QualifiedName> seq3 = getNodeNames(offset, parent.getEndOffset());
-
-			if (!validator.isValidSequence(parent.getQualifiedName(), seq1, seq2, seq3, true)) {
-				throw new DocumentValidationException("Cannot insert document fragment");
-			}
+		if (!canInsertAt(offset, fragment.getNodeNames())) {
+			throw new DocumentValidationException("Cannot insert document fragment");
 		}
+
+		final Element parent = getElementAt(offset);
 
 		fireBeforeContentInserted(new DocumentEvent(this, parent, offset, 2, null));
 
@@ -469,29 +432,17 @@ public class Document extends Parent {
 	}
 
 	public void insertText(final int offset, final String text) throws DocumentValidationException {
-
 		if (offset < 1 || offset >= getLength()) {
 			throw new IllegalArgumentException("Offset must be between 1 and n-1");
 		}
 
-		final Element parent = getElementAt(offset);
-
-		boolean isValid = false;
+		final boolean isValid;
 		if (!getContent().isElementMarker(offset - 1)) {
 			isValid = true;
 		} else if (!getContent().isElementMarker(offset)) {
 			isValid = true;
 		} else {
-			final Validator validator = getValidator();
-			if (validator != null) {
-				final List<QualifiedName> seq1 = getNodeNames(parent.getStartOffset() + 1, offset);
-				final List<QualifiedName> seq2 = Collections.singletonList(Validator.PCDATA);
-				final List<QualifiedName> seq3 = getNodeNames(offset, parent.getEndOffset());
-
-				isValid = validator.isValidSequence(parent.getQualifiedName(), seq1, seq2, seq3, true);
-			} else {
-				isValid = true;
-			}
+			isValid = canInsertAt(offset, Validator.PCDATA);
 		}
 
 		if (!isValid) {
@@ -505,9 +456,9 @@ public class Document extends Parent {
 				sb.setCharAt(i, ' ');
 			}
 		}
-
 		final String s = sb.toString();
 
+		final Element parent = getElementAt(offset);
 		fireBeforeContentInserted(new DocumentEvent(this, parent, offset, 2, null));
 
 		getContent().insertText(offset, s);
@@ -679,7 +630,7 @@ public class Document extends Parent {
 			try {
 				setUndoEnabled(false);
 				final int length = frag.getContent().length();
-				delete(offset, offset + length);
+				delete(offset, offset + length - 1);
 			} catch (final DocumentValidationException ex) {
 				throw new CannotUndoException();
 			} finally {
@@ -757,6 +708,18 @@ public class Document extends Parent {
 		}
 	}
 
+	private Node cloneNode(final Node original, final Content content, final int shift, final Parent parent) {
+		final Node result[] = new Node[1];
+		original.accept(new BaseNodeVisitor() {
+			@Override
+			public void visit(final Element element) {
+				result[0] = cloneElement(element, content, shift, parent);
+			}
+		});
+
+		return result[0];
+	}
+
 	/**
 	 * Clone an element tree, pointing to a new Content object.
 	 * 
@@ -769,15 +732,17 @@ public class Document extends Parent {
 	 * @param parent
 	 *            parent for the cloned Element
 	 */
-	private Element cloneElement(final Element original, final Content content, final int shift, final Element parent) {
+	private Element cloneElement(final Element original, final Content content, final int shift, final Parent parent) {
 		final Element clone = original.clone();
 		clone.associate(content, original.getStartOffset() + shift, original.getEndOffset() + shift);
 		clone.setParent(parent);
 
-		final List<Element> children = original.getChildElements();
-		for (int i = 0; i < children.size(); i++) {
-			final Element cloneChild = cloneElement(children.get(i), content, shift, clone);
-			clone.insertChild(i, cloneChild);
+		final List<Node> children = original.getChildNodes();
+		for (final Node child : children) {
+			final Node cloneChild = cloneNode(child, content, shift, clone);
+			if (cloneChild != null) {
+				clone.addChild(cloneChild);
+			}
 		}
 
 		return clone;

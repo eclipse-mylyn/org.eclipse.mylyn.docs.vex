@@ -95,6 +95,7 @@ public class DTDValidatorTest extends TestCase {
 		doc.insertText(2, "ab");
 		doc.insertElement(5, new Element("para"));
 
+		assertValidItemsAt(doc, 0);
 		assertValidItemsAt(doc, 1, "title", "para");
 		assertValidItemsAt(doc, 2);
 		assertValidItemsAt(doc, 3);
@@ -116,7 +117,11 @@ public class DTDValidatorTest extends TestCase {
 			expected.add(new QualifiedName(null, expectedItem));
 		}
 
-		final Set<QualifiedName> validItems = doc.getValidator().getValidItems(doc.getElementAt(offset));
+		Element element = doc.getElementAt(offset);
+		if (offset == element.getStartOffset()) {
+			element = element.getParentElement();
+		}
+		final Set<QualifiedName> validItems = doc.getValidator().getValidItems(element);
 		assertEquals(expected, validItems);
 	}
 

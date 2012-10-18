@@ -78,24 +78,26 @@ public class VexWidgetTest {
 		final VexWidgetImpl widget = new VexWidgetImpl(new MockHostComponent());
 		widget.setDocument(createDocument(STRUCTURE_NS, "chapter"), StyleSheet.NULL);
 		widget.insertElement(new Element(new QualifiedName(CONTENT_NS, "p")));
-		widget.insertText("text before comment");
+		widget.insertText("1text before comment1");
 		widget.insertElement(new CommentElement());
 		final Element commentElement = widget.getDocument().getElementAt(widget.getCaretOffset());
-		widget.insertText("comment text");
+		widget.insertText("2comment text2");
 		widget.moveBy(1);
-		widget.insertText("text after comment");
+		widget.insertText("3text after comment3");
 
 		final String expectedContentStructure = getContentStructure(widget.getDocument().getRootElement());
 
 		widget.doWork(new Runnable() {
 			public void run() {
 				widget.moveTo(commentElement.getStartOffset() + 1, false);
-				widget.moveTo(commentElement.getEndOffset(), true);
+				widget.moveTo(commentElement.getEndOffset() - 1, true);
 				final DocumentFragment fragment = widget.getSelectedFragment();
 				widget.deleteSelection();
+
 				widget.moveBy(-1, false);
-				widget.moveBy(2, true);
+				widget.moveBy(1, true);
 				widget.deleteSelection();
+
 				widget.insertFragment(fragment);
 			}
 		});

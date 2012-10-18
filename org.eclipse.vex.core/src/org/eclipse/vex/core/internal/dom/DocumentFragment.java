@@ -34,17 +34,17 @@ public class DocumentFragment implements Serializable {
 	public static final String MIME_TYPE = "application/x-vex-document-fragment";
 
 	private Content content;
-	private List<Element> elements;
+	private List<Node> nodes;
 
 	/**
 	 * @param content
 	 *            Content holding the fragment's content.
-	 * @param elements
+	 * @param nodes
 	 *            Elements that make up this fragment.
 	 */
-	public DocumentFragment(final Content content, final List<Element> elements) {
+	public DocumentFragment(final Content content, final List<Node> nodes) {
 		this.content = content;
-		this.elements = elements;
+		this.nodes = nodes;
 	}
 
 	public Content getContent() {
@@ -56,6 +56,15 @@ public class DocumentFragment implements Serializable {
 	}
 
 	public List<Element> getElements() {
+		final List<Element> elements = new ArrayList<Element>();
+		for (final Node node : nodes) {
+			node.accept(new BaseNodeVisitor() {
+				@Override
+				public void visit(final Element element) {
+					elements.add(element);
+				}
+			});
+		}
 		return elements;
 	}
 
@@ -83,8 +92,18 @@ public class DocumentFragment implements Serializable {
 
 	private void writeObject(final ObjectOutputStream out) throws IOException {
 		writeContent(content, out);
-		for (int i = 0; i < elements.size(); i++) {
-			writeElement(elements.get(i), out);
+		for (final Node node : nodes) {
+			node.accept(new BaseNodeVisitor() {
+				@Override
+				public void visit(final Element element) {
+					try {
+						writeElement(element, out);
+					} catch (final IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+			});
 		}
 	}
 
@@ -120,9 +139,9 @@ public class DocumentFragment implements Serializable {
 	private void readObject(final ObjectInputStream in) throws IOException, ClassNotFoundException {
 		content = readContent(in);
 		final int n = in.readInt();
-		elements = new ArrayList<Element>(n);
+		nodes = new ArrayList<Node>(n);
 		for (int i = 0; i < n; i++) {
-			elements.add(readElement(in, content));
+			nodes.add(readElement(in, content));
 		}
 	}
 

@@ -10,9 +10,12 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.dom;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
+
+import java.util.List;
 
 import org.eclipse.core.runtime.AssertionFailedException;
 import org.junit.Test;
@@ -55,5 +58,48 @@ public class DocumentTest {
 		assertSame(document, rootElement.getParent());
 		assertTrue(rootElement.getStartOffset() >= document.getStartOffset());
 		assertTrue(rootElement.getEndOffset() <= document.getEndOffset());
+	}
+
+	@Test
+	public void createFragmentWithTextAndChild() throws Exception {
+		final Document document = new Document(new Element("root"));
+		final Element childElement = new Element("child");
+		document.insertElement(1, childElement);
+		document.insertText(childElement.getStartOffset(), "Hello ");
+		document.insertText(childElement.getEndOffset(), "Child");
+		document.insertText(childElement.getEndOffset() + 1, " World");
+		final int startOffset = childElement.getStartOffset() - 2;
+		final int endOffset = childElement.getEndOffset() + 2;
+		final DocumentFragment fragment = document.getFragment(startOffset, endOffset);
+		assertEquals(11, fragment.getLength());
+		assertNodesEqual(document.getNodes(startOffset, endOffset), fragment.getNodes());
+	}
+
+	@Test
+	public void createFragmentWithExactlyOneChild() throws Exception {
+		final Document document = new Document(new Element("root"));
+		final Element childElement = new Element("child");
+		document.insertElement(1, childElement);
+		document.insertText(childElement.getEndOffset(), "Child");
+		final int startOffset = childElement.getStartOffset();
+		final int endOffset = childElement.getEndOffset();
+		final DocumentFragment fragment = document.getFragment(startOffset, endOffset);
+		assertEquals(7, fragment.getLength());
+		assertNodesEqual(document.getNodes(startOffset, endOffset), fragment.getNodes());
+	}
+
+	private static void assertNodesEqual(final List<? extends Node> expected, final List<? extends Node> actual) {
+		assertEquals(expected.size(), actual.size());
+		for (int i = 0; i < expected.size(); i++) {
+			assertNodeEquals(expected.get(i), actual.get(i));
+		}
+	}
+
+	private static void assertNodeEquals(final Node expected, final Node actual) {
+		assertSame(expected.getClass(), actual.getClass());
+		assertEquals(expected.getText(), actual.getText());
+		if (expected instanceof Parent) {
+			assertNodesEqual(((Parent) expected).getChildNodes(), ((Parent) actual).getChildNodes());
+		}
 	}
 }
