@@ -145,7 +145,6 @@ public class GapContent implements Content {
 	 *            Number of characters to delete.
 	 */
 	public void remove(final int offset, final int length) {
-
 		assertOffset(offset, 0, length() - length);
 		assertPositive(length);
 
@@ -158,23 +157,6 @@ public class GapContent implements Content {
 			} else if (position.getOffset() >= offset) {
 				position.setOffset(offset);
 			}
-		}
-	}
-
-	public String getString(final int offset, final int length) {
-
-		assertOffset(offset, 0, length() - length);
-		assertPositive(length);
-
-		if (offset + length < gapStart) {
-			return new String(content, offset, length);
-		} else if (offset >= gapStart) {
-			return new String(content, offset - gapStart + gapEnd, length);
-		} else {
-			final StringBuilder sb = new StringBuilder(length);
-			sb.append(content, offset, gapStart - offset);
-			sb.append(content, gapEnd, offset + length - gapStart);
-			return sb.toString();
 		}
 	}
 

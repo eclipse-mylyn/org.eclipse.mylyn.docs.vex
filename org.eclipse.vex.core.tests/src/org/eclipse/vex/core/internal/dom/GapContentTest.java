@@ -35,7 +35,7 @@ public class GapContentTest extends ContentTest {
 		stringContent.insertText(0, "\0\0");
 
 		assertEquals(stringContent.length(), elementMarkerContent.length());
-		assertEquals(stringContent.getString(0, stringContent.length()), elementMarkerContent.getString(0, elementMarkerContent.length()));
+		assertEquals(stringContent.getText(0, stringContent.length() - 1), elementMarkerContent.getText(0, elementMarkerContent.length() - 1));
 	}
 
 	@Test
@@ -64,25 +64,25 @@ public class GapContentTest extends ContentTest {
 		final Position pe = content.createPosition(4);
 
 		try {
-			content.getString(-1, 1);
+			content.getText(-1, 0);
 			fail("expected exception");
 		} catch (final IllegalArgumentException ex) {
 		}
 
 		try {
-			content.getString(4, 1);
+			content.getText(4, 4);
 			fail("expected exception");
 		} catch (final IllegalArgumentException ex) {
 		}
 
 		try {
-			content.getString(0, -1);
+			content.getText(0, -1);
 			fail("expected exception");
 		} catch (final IllegalArgumentException ex) {
 		}
 
 		try {
-			content.getString(0, 5);
+			content.getText(0, 4);
 			fail("expected exception");
 		} catch (final IllegalArgumentException ex) {
 		}
@@ -99,19 +99,19 @@ public class GapContentTest extends ContentTest {
 		} catch (final IllegalArgumentException ex) {
 		}
 
-		assertEquals("a", content.getString(0, 1));
-		assertEquals("b", content.getString(1, 1));
-		assertEquals("c", content.getString(2, 1));
-		assertEquals("d", content.getString(3, 1));
+		assertEquals("a", content.getText(0, 0));
+		assertEquals("b", content.getText(1, 1));
+		assertEquals("c", content.getText(2, 2));
+		assertEquals("d", content.getText(3, 3));
 
-		assertEquals("ab", content.getString(0, 2));
-		assertEquals("bc", content.getString(1, 2));
-		assertEquals("cd", content.getString(2, 2));
+		assertEquals("ab", content.getText(0, 1));
+		assertEquals("bc", content.getText(1, 2));
+		assertEquals("cd", content.getText(2, 3));
 
-		assertEquals("abc", content.getString(0, 3));
-		assertEquals("bcd", content.getString(1, 3));
+		assertEquals("abc", content.getText(0, 2));
+		assertEquals("bcd", content.getText(1, 3));
 
-		assertEquals("abcd", content.getString(0, 4));
+		assertEquals("abcd", content.getText(0, 3));
 
 		//
 		// a b x (gap) y c d
@@ -144,19 +144,19 @@ public class GapContentTest extends ContentTest {
 		assertEquals(3, pd.getOffset());
 		assertEquals(4, pe.getOffset());
 
-		assertEquals("a", content.getString(0, 1));
-		assertEquals("b", content.getString(1, 1));
-		assertEquals("c", content.getString(2, 1));
-		assertEquals("d", content.getString(3, 1));
+		assertEquals("a", content.getText(0, 0));
+		assertEquals("b", content.getText(1, 1));
+		assertEquals("c", content.getText(2, 2));
+		assertEquals("d", content.getText(3, 3));
 
-		assertEquals("ab", content.getString(0, 2));
-		assertEquals("bc", content.getString(1, 2));
-		assertEquals("cd", content.getString(2, 2));
+		assertEquals("ab", content.getText(0, 1));
+		assertEquals("bc", content.getText(1, 2));
+		assertEquals("cd", content.getText(2, 3));
 
-		assertEquals("abc", content.getString(0, 3));
-		assertEquals("bcd", content.getString(1, 3));
+		assertEquals("abc", content.getText(0, 2));
+		assertEquals("bcd", content.getText(1, 3));
 
-		assertEquals("abcd", content.getString(0, 4));
+		assertEquals("abcd", content.getText(0, 3));
 
 	}
 
