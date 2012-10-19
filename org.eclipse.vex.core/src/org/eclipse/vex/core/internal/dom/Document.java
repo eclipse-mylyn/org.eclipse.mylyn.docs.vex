@@ -27,7 +27,6 @@ import org.eclipse.vex.core.internal.undo.IUndoableEdit;
 
 /**
  * Represents an XML document.
- * 
  */
 public class Document extends Parent {
 
@@ -92,14 +91,73 @@ public class Document extends Parent {
 		visitor.visit(this);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.vex.core.internal.dom.IVEXDocument#addDocumentListener
-	 * (org.eclipse.vex.core.internal.dom.DocumentListener)
-	 */
+	@Override
+	public String getBaseURI() {
+		return getDocumentURI();
+	}
+
+	public void setDocumentURI(final String documentURI) {
+		this.documentURI = documentURI;
+	}
+
+	public String getDocumentURI() {
+		return documentURI;
+	}
+
+	public String getEncoding() {
+		return encoding;
+	}
+
+	public void setEncoding(final String encoding) {
+		this.encoding = encoding;
+	}
+
+	public String getPublicID() {
+		return publicID;
+	}
+
+	public void setPublicID(final String publicID) {
+		this.publicID = publicID;
+	}
+
+	public String getSystemID() {
+		return systemID;
+	}
+
+	public void setSystemID(final String systemID) {
+		this.systemID = systemID;
+	}
+
+	public Validator getValidator() {
+		return validator;
+	}
+
+	public void setValidator(final Validator validator) {
+		this.validator = validator;
+	}
+
+	public Element getRootElement() {
+		return rootElement;
+	}
+
+	public boolean isUndoEnabled() {
+		return undoEnabled;
+	}
+
+	public void setUndoEnabled(final boolean undoEnabled) {
+		this.undoEnabled = undoEnabled;
+	}
+
 	public void addDocumentListener(final DocumentListener listener) {
 		listeners.add(listener);
+	}
+
+	public void removeDocumentListener(final DocumentListener listener) {
+		listeners.remove(listener);
+	}
+
+	public int getLength() {
+		return getContent().length();
 	}
 
 	private boolean canInsertAt(final int offset, final QualifiedName... nodeNames) {
@@ -220,14 +278,6 @@ public class Document extends Parent {
 		return getContent().isElementMarker(offset);
 	}
 
-	public String getEncoding() {
-		return encoding;
-	}
-
-	public void setEncoding(final String encoding) {
-		this.encoding = encoding;
-	}
-
 	public DocumentFragment getFragment(final int startOffset, final int endOffset) {
 		final List<Node> childNodes = getParentOfRange(startOffset, endOffset).getChildNodes();
 
@@ -251,8 +301,8 @@ public class Document extends Parent {
 	}
 
 	private Parent getParentOfRange(final int startOffset, final int endOffset) {
-		assertOffset(startOffset, 0, getContent().length());
-		assertOffset(endOffset, 0, getContent().length());
+		Assert.isTrue(containsOffset(startOffset));
+		Assert.isTrue(containsOffset(endOffset));
 		Assert.isTrue(startOffset <= endOffset, MessageFormat.format("Invalid range [{0};{1}].", startOffset, endOffset));
 
 		final Node startNode = getChildNodeAt(startOffset);
@@ -264,15 +314,35 @@ public class Document extends Parent {
 		return parent;
 	}
 
-	public int getLength() {
-		return getContent().length();
+	private Node cloneNode(final Node original, final Content content, final int shift, final Parent parent) {
+		final Node result[] = new Node[1];
+		original.accept(new BaseNodeVisitor() {
+			@Override
+			public void visit(final Element element) {
+				result[0] = cloneElement(element, content, shift, parent);
+			}
+		});
+
+		return result[0];
 	}
 
-	public List<QualifiedName> getNodeNames(final int startOffset, final int endOffset) {
-		return getNodeNames(getNodes(startOffset, endOffset));
+	private Element cloneElement(final Element original, final Content content, final int shift, final Parent parent) {
+		final Element clone = original.clone();
+		clone.associate(content, original.getStartOffset() + shift, original.getEndOffset() + shift);
+		clone.setParent(parent);
+
+		final List<Node> children = original.getChildNodes();
+		for (final Node child : children) {
+			final Node cloneChild = cloneNode(child, content, shift, clone);
+			if (cloneChild != null) {
+				clone.addChild(cloneChild);
+			}
+		}
+
+		return clone;
 	}
 
-	public List<QualifiedName> getNodeNames(final Collection<Node> nodes) {
+	public static List<QualifiedName> getNodeNames(final Collection<Node> nodes) {
 		final List<QualifiedName> names = new ArrayList<QualifiedName>(nodes.size());
 
 		for (final Node node : nodes) {
@@ -294,60 +364,6 @@ public class Document extends Parent {
 
 	public List<Node> getNodes(final int startOffset, final int endOffset) {
 		return getParentOfRange(startOffset, endOffset).getChildNodes(startOffset, endOffset);
-	}
-
-	/**
-	 * Creates an array of nodes for a given run of content. The returned array includes the given child elements and
-	 * <code>Text</code> objects where text appears between elements.
-	 * 
-	 * @param content
-	 *            Content object containing the content
-	 * @param startOffset
-	 *            start offset of the run
-	 * @param endOffset
-	 *            end offset of the run
-	 * @param elements
-	 *            child elements that are within the run
-	 */
-	static List<Node> createNodeList(final Content content, final int startOffset, final int endOffset, final List<? extends Node> elements) {
-
-		final List<Node> nodes = new ArrayList<Node>();
-		int offset = startOffset;
-		for (int i = 0; i < elements.size(); i++) {
-			final int start = elements.get(i).getStartOffset();
-			if (offset < start) {
-				nodes.add(new Text(null, content, offset, start - 1));
-			}
-			nodes.add(elements.get(i));
-			offset = elements.get(i).getEndOffset() + 1;
-		}
-
-		if (offset < endOffset) {
-			nodes.add(new Text(null, content, offset, endOffset - 1));
-		}
-
-		return nodes;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.vex.core.internal.dom.IVEXDocument#getPublicID()
-	 */
-	public String getPublicID() {
-		return publicID;
-	}
-
-	public Element getRootElement() {
-		return rootElement;
-	}
-
-	public String getSystemID() {
-		return systemID;
-	}
-
-	public Validator getValidator() {
-		return validator;
 	}
 
 	public void insertElement(final int offset, final Element element) throws DocumentValidationException {
@@ -468,66 +484,32 @@ public class Document extends Parent {
 		fireContentInserted(new DocumentEvent(this, parent, offset, s.length(), edit));
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.vex.core.internal.dom.IVEXDocument#isUndoEnabled()
-	 */
-	public boolean isUndoEnabled() {
-		return undoEnabled;
+	public void fireAttributeChanged(final DocumentEvent e) {
+		listeners.fireEvent("attributeChanged", e);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.vex.core.internal.dom.IVEXDocument#removeDocumentListener
-	 * (org.eclipse.vex.core.internal.dom.DocumentListener)
-	 */
-	public void removeDocumentListener(final DocumentListener listener) {
-		listeners.remove(listener);
+	public void fireNamespaceChanged(final DocumentEvent e) {
+		listeners.fireEvent("namespaceChanged", e);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.vex.core.internal.dom.IVEXDocument#setPublicID(java .lang.String)
-	 */
-	public void setPublicID(final String publicID) {
-		this.publicID = publicID;
+	private void fireBeforeContentDeleted(final DocumentEvent e) {
+		listeners.fireEvent("beforeContentDeleted", e);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.vex.core.internal.dom.IVEXDocument#setSystemID(java .lang.String)
-	 */
-	public void setSystemID(final String systemID) {
-		this.systemID = systemID;
+	private void fireBeforeContentInserted(final DocumentEvent e) {
+		listeners.fireEvent("beforeContentInserted", e);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.vex.core.internal.dom.IVEXDocument#setUndoEnabled (boolean)
-	 */
-	public void setUndoEnabled(final boolean undoEnabled) {
-		this.undoEnabled = undoEnabled;
+	private void fireContentDeleted(final DocumentEvent e) {
+		listeners.fireEvent("contentDeleted", e);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.vex.core.internal.dom.IVEXDocument#setValidator(org .eclipse.vex.core.internal.dom.Validator)
-	 */
-	public void setValidator(final Validator validator) {
-		this.validator = validator;
+	private void fireContentInserted(final DocumentEvent e) {
+		listeners.fireEvent("contentInserted", e);
 	}
 
-	// ==================================================== PRIVATE
+	// TODO move undoable edits int L2
 
-	/**
-	 * Represents a deletion from a document that can be undone and redone.
-	 */
 	private class DeleteEdit implements IUndoableEdit {
 
 		private final int startOffset;
@@ -568,9 +550,6 @@ public class Document extends Parent {
 
 	}
 
-	/**
-	 * Represents an insertion of an element into the document.
-	 */
 	private class InsertElementEdit implements IUndoableEdit {
 
 		private final int offset;
@@ -609,9 +588,6 @@ public class Document extends Parent {
 
 	}
 
-	/**
-	 * Represents an insertion of a fragment into the document.
-	 */
 	private class InsertFragmentEdit implements IUndoableEdit {
 
 		private final int offset;
@@ -651,9 +627,6 @@ public class Document extends Parent {
 
 	}
 
-	/**
-	 * Represents an insertion of text into the document.
-	 */
 	private class InsertTextEdit implements IUndoableEdit {
 
 		private final int offset;
@@ -697,92 +670,6 @@ public class Document extends Parent {
 			}
 		}
 
-	}
-
-	/**
-	 * Assert that the given offset is within the given range, throwing IllegalArgumentException if not.
-	 */
-	private static void assertOffset(final int offset, final int min, final int max) {
-		if (offset < min || offset > max) {
-			throw new IllegalArgumentException("Bad offset " + offset + "must be between " + min + " and " + max);
-		}
-	}
-
-	private Node cloneNode(final Node original, final Content content, final int shift, final Parent parent) {
-		final Node result[] = new Node[1];
-		original.accept(new BaseNodeVisitor() {
-			@Override
-			public void visit(final Element element) {
-				result[0] = cloneElement(element, content, shift, parent);
-			}
-		});
-
-		return result[0];
-	}
-
-	/**
-	 * Clone an element tree, pointing to a new Content object.
-	 * 
-	 * @param original
-	 *            Element to be cloned
-	 * @param content
-	 *            new Content object to which the clone will point
-	 * @param shift
-	 *            amount to shift offsets to be valid in the new Content.
-	 * @param parent
-	 *            parent for the cloned Element
-	 */
-	private Element cloneElement(final Element original, final Content content, final int shift, final Parent parent) {
-		final Element clone = original.clone();
-		clone.associate(content, original.getStartOffset() + shift, original.getEndOffset() + shift);
-		clone.setParent(parent);
-
-		final List<Node> children = original.getChildNodes();
-		for (final Node child : children) {
-			final Node cloneChild = cloneNode(child, content, shift, clone);
-			if (cloneChild != null) {
-				clone.addChild(cloneChild);
-			}
-		}
-
-		return clone;
-	}
-
-	public void fireAttributeChanged(final DocumentEvent e) {
-		listeners.fireEvent("attributeChanged", e);
-	}
-
-	public void fireNamespaceChanged(final DocumentEvent e) {
-		listeners.fireEvent("namespaceChanged", e);
-	}
-
-	private void fireBeforeContentDeleted(final DocumentEvent e) {
-		listeners.fireEvent("beforeContentDeleted", e);
-	}
-
-	private void fireBeforeContentInserted(final DocumentEvent e) {
-		listeners.fireEvent("beforeContentInserted", e);
-	}
-
-	private void fireContentDeleted(final DocumentEvent e) {
-		listeners.fireEvent("contentDeleted", e);
-	}
-
-	private void fireContentInserted(final DocumentEvent e) {
-		listeners.fireEvent("contentInserted", e);
-	}
-
-	public void setDocumentURI(final String documentURI) {
-		this.documentURI = documentURI;
-	}
-
-	public String getDocumentURI() {
-		return documentURI;
-	}
-
-	@Override
-	public String getBaseURI() {
-		return getDocumentURI();
 	}
 
 }

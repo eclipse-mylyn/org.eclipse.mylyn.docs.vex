@@ -52,17 +52,7 @@ public class DocumentFragment extends Parent {
 	}
 
 	public List<QualifiedName> getNodeNames() {
-		final List<Node> nodes = getNodes();
-		final List<QualifiedName> names = new ArrayList<QualifiedName>(nodes.size());
-		for (final Node node : nodes) {
-			if (node instanceof Text) {
-				names.add(Validator.PCDATA);
-			} else {
-				names.add(((Element) node).getQualifiedName());
-			}
-		}
-
-		return names;
+		return Document.getNodeNames(getChildNodes());
 	}
 
 	public List<Node> getNodes() {
