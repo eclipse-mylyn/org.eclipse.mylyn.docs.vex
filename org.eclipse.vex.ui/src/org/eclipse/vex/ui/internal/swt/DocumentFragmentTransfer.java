@@ -139,7 +139,7 @@ public class DocumentFragmentTransfer extends ByteArrayTransfer {
 			if (content.isElementMarker(i)) {
 				out.writeUTF("\0"); // This internal representation of element markers has nothing to do with the internal representation in GapContent.
 			} else {
-				out.writeUTF(content.getText(i, 1));
+				out.writeUTF(content.getText(i, i));
 			}
 		}
 	}

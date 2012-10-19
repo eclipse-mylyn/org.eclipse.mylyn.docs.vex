@@ -14,6 +14,8 @@ package org.eclipse.vex.core.internal.dom;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.eclipse.core.runtime.Assert;
+
 /**
  * Implementation of the <code>Content</code> interface that manages changes efficiently. Implements a buffer that keeps
  * its free space (the "gap") at the location of the last change. Insertions at the start of the gap require no other
@@ -177,27 +179,29 @@ public class GapContent implements Content {
 	}
 
 	public String getText() {
-		return getText(0, length());
+		return getText(0, length() - 1);
 	}
 
-	public String getText(final int offset, final int length) {
-		assertOffset(offset, 0, length() - length);
-		assertPositive(length);
+	public String getText(final int startOffset, final int endOffset) {
+		assertOffset(startOffset, 0, length() - 1);
+		assertOffset(endOffset, 0, length() - 1);
+		Assert.isTrue(startOffset <= endOffset, "The startOffset must not be greater than the endOffset");
 
-		final StringBuilder result = new StringBuilder(length);
-		if (offset + length < gapStart) {
-			appendPlainText(result, offset, length);
-		} else if (offset >= gapStart) {
-			appendPlainText(result, offset - gapStart + gapEnd, length);
+		final int delta = gapEnd - gapStart;
+		final StringBuilder result = new StringBuilder();
+		if (endOffset < gapStart) {
+			appendPlainText(result, startOffset, endOffset);
+		} else if (startOffset >= gapStart) {
+			appendPlainText(result, startOffset + delta, endOffset + delta);
 		} else {
-			appendPlainText(result, offset, gapStart - offset);
-			appendPlainText(result, gapEnd, offset + length - gapStart);
+			appendPlainText(result, startOffset, gapStart - 1);
+			appendPlainText(result, gapEnd, endOffset + delta);
 		}
 		return result.toString();
 	}
 
-	private void appendPlainText(final StringBuilder stringBuilder, final int offset, final int length) {
-		for (int i = offset; i < offset + length; i++) {
+	private void appendPlainText(final StringBuilder stringBuilder, final int startOffset, final int endOffset) {
+		for (int i = startOffset; i <= endOffset; i++) {
 			final char c = content[i];
 			if (!isElementMarker(c)) {
 				stringBuilder.append(c);
@@ -206,54 +210,61 @@ public class GapContent implements Content {
 	}
 
 	public String getRawText() {
-		return getRawText(0, length());
+		return getRawText(0, length() - 1);
 	}
 
-	public String getRawText(final int offset, final int length) {
-		assertOffset(offset, 0, length() - length);
-		assertPositive(length);
+	public String getRawText(final int startOffset, final int endOffset) {
+		assertOffset(startOffset, 0, length() - 1);
+		assertOffset(endOffset, 0, length() - 1);
+		Assert.isTrue(startOffset <= endOffset, "The startOffset must not be greater than the endOffset");
 
-		final StringBuilder result = new StringBuilder(length);
-		if (offset + length < gapStart) {
-			appendRawText(result, offset, length);
-		} else if (offset >= gapStart) {
-			appendRawText(result, offset - gapStart + gapEnd, length);
+		final int delta = gapEnd - gapStart;
+		final StringBuilder result = new StringBuilder();
+		if (endOffset < gapStart) {
+			appendRawText(result, startOffset, endOffset);
+		} else if (startOffset >= gapStart) {
+			appendRawText(result, startOffset + delta, endOffset + delta);
 		} else {
-			appendRawText(result, offset, gapStart - offset);
-			appendRawText(result, gapEnd, offset + length - gapStart);
+			appendRawText(result, startOffset, gapStart - 1);
+			appendRawText(result, gapEnd, endOffset + delta);
 		}
 		return result.toString();
 	}
 
-	private void appendRawText(final StringBuilder stringBuilder, final int offset, final int length) {
-		stringBuilder.append(content, offset, length);
+	private void appendRawText(final StringBuilder stringBuilder, final int startOffset, final int endOffset) {
+		stringBuilder.append(content, startOffset, endOffset - startOffset + 1);
 	}
 
 	public void insertContent(final int offset, final Content content) {
 		assertOffset(offset, 0, length());
 
-		copyContent(content, this, 0, offset, content.length());
+		copyContent(content, this, 0, content.length() - 1, offset);
 	}
 
-	public Content getContent(final int offset, final int length) {
-		assertOffset(offset, 0, length() - length);
-		assertPositive(length);
+	public Content getContent(final int startOffset, final int endOffset) {
+		assertOffset(startOffset, 0, length() - 1);
+		assertOffset(endOffset, 0, length() - 1);
+		Assert.isTrue(startOffset <= endOffset, "The startOffset must not be greater than the endOffset");
 
-		final GapContent result = new GapContent(length);
-		copyContent(this, result, offset, 0, length);
+		final int rangeLength = endOffset - startOffset + 1;
+		final GapContent result = new GapContent(rangeLength);
+		copyContent(this, result, startOffset, endOffset, 0);
 		return result;
 	}
 
 	public Content getContent() {
-		return getContent(0, length());
+		return getContent(0, length() - 1);
 	}
 
-	private static void copyContent(final Content source, final Content destination, final int sourceOffset, final int destinationOffset, final int length) {
-		for (int i = 0; i < length; i++) {
-			if (source.isElementMarker(sourceOffset + i)) {
-				destination.insertElementMarker(destinationOffset + i);
+	private static void copyContent(final Content source, final Content destination, final int sourceStartOffset, final int sourceEndOffset, final int destinationStartOffset) {
+		final int rangeLength = sourceEndOffset - sourceStartOffset + 1;
+		for (int i = 0; i < rangeLength; i++) {
+			final int sourceOffset = sourceStartOffset + i;
+			final int destinationOffset = destinationStartOffset + i;
+			if (source.isElementMarker(sourceOffset)) {
+				destination.insertElementMarker(destinationOffset);
 			} else {
-				destination.insertText(destinationOffset + i, source.getText(sourceOffset + i, 1));
+				destination.insertText(destinationOffset, Character.toString(source.charAt(sourceOffset)));
 			}
 		}
 	}
@@ -285,14 +296,14 @@ public class GapContent implements Content {
 	 * content.
 	 * 
 	 * @see CharSequence#subSequence(int, int)
-	 * @param start
+	 * @param startOffset
 	 *            Offset at which the substring begins.
-	 * @param end
+	 * @param endOffset
 	 *            Offset at which the substring ends.
 	 * @return the text of the given region including element markers
 	 */
-	public CharSequence subSequence(final int start, final int end) {
-		return getRawText(start, end - start);
+	public CharSequence subSequence(final int startOffset, final int endOffset) {
+		return getRawText(startOffset, endOffset);
 	}
 
 	// ====================================================== PRIVATE

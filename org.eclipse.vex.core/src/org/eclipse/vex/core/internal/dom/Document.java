@@ -227,7 +227,7 @@ public class Document extends Parent {
 	}
 
 	public char getCharacterAt(final int offset) {
-		final String text = getContent().getText(offset, 1);
+		final String text = getContent().getText(offset, offset);
 		if (text.length() == 0) {
 			/*
 			 * XXX This is used in VexWidgetImpl.deleteNextChar/deletePreviousChar to find out if there is an element
@@ -281,7 +281,7 @@ public class Document extends Parent {
 	public DocumentFragment getFragment(final int startOffset, final int endOffset) {
 		final List<Node> childNodes = getParentOfRange(startOffset, endOffset).getChildNodes();
 
-		final Content cloneContent = getContent().getContent(startOffset, endOffset - startOffset + 1);
+		final Content cloneContent = getContent().getContent(startOffset, endOffset);
 		final List<Node> cloneChildNodes = new ArrayList<Node>();
 
 		for (final Node child : childNodes) {

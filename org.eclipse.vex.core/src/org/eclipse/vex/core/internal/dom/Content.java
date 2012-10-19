@@ -50,14 +50,14 @@ public interface Content extends CharSequence {
 	 * Get the plain text of a region of this content. The plain text does not contain any information about the element
 	 * markers in this content.
 	 * 
-	 * @param offset
+	 * @param startOffset
 	 *            Offset at which the substring begins.
-	 * @param length
-	 *            Number of characters to consider in this content. The number of the returned characters may be less,
-	 *            since the element markers are removed.
+	 * @param endOffset
+	 *            Offset at which the substring ends. The number of the returned characters may be less, since the
+	 *            element markers are removed.
 	 * @return the plain text of the given region without element markers
 	 */
-	public String getText(final int offset, final int length);
+	public String getText(final int startOffset, final int endOffset);
 
 	/**
 	 * Get the whole plain text of this content. The plain text does not contain any information about the element
@@ -71,13 +71,13 @@ public interface Content extends CharSequence {
 	 * Get the raw text of a region of this content. The plain text does also contain the element markers in this
 	 * content.
 	 * 
-	 * @param offset
+	 * @param startOffset
 	 *            Offset at which the substring begins.
-	 * @param length
-	 *            Number of characters to consider in this content.
+	 * @param endOffset
+	 *            Offset at which the substring ends.
 	 * @return the text of the given region including element markers
 	 */
-	public String getRawText(final int offset, final int length);
+	public String getRawText(final int startOffset, final int endOffset);
 
 	/**
 	 * Get the whole raw text of this content. The raw text does also contain the element markers in this content.
@@ -99,13 +99,13 @@ public interface Content extends CharSequence {
 	/**
 	 * Get a copy of a region of this content.
 	 * 
-	 * @param offset
+	 * @param startOffset
 	 *            Offset at which the region to copy begins.
-	 * @param length
-	 *            Number of characters to copy, including all element markers.
+	 * @param endOffset
+	 *            Offset at which the region to copy ends.
 	 * @return the copy of the given region
 	 */
-	public Content getContent(final int offset, final int length);
+	public Content getContent(final int startOffset, final int endOffset);
 
 	/**
 	 * Get a full copy of this content.

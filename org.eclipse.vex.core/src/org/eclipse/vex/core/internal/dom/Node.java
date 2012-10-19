@@ -161,10 +161,7 @@ public abstract class Node {
 		Assert.isTrue(isAssociated(), "Node must be associated to a Content region to have textual content.");
 		Assert.isTrue(startOffset <= endOffset, "startOffset must not be greater than endOffset.");
 
-		final int offset = Math.max(startOffset, getStartOffset());
-		final int length = Math.min(endOffset, getEndOffset()) - offset + 1;
-
-		return content.getText(offset, length);
+		return content.getText(Math.max(startOffset, getStartOffset()), Math.min(endOffset, getEndOffset()));
 	}
 
 	public Document getDocument() {
