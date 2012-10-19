@@ -19,10 +19,7 @@ import org.eclipse.core.runtime.QualifiedName;
 /**
  * Represents a fragment of an XML document.
  */
-public class DocumentFragment {
-
-	private final Content content;
-	private final List<Node> nodes;
+public class DocumentFragment extends Parent {
 
 	/**
 	 * @param content
@@ -31,21 +28,19 @@ public class DocumentFragment {
 	 *            Elements that make up this fragment.
 	 */
 	public DocumentFragment(final Content content, final List<Node> nodes) {
-		this.content = content;
-		this.nodes = nodes;
-	}
-
-	public Content getContent() {
-		return content;
+		associate(content, 0, content.length() - 1);
+		for (final Node node : nodes) {
+			addChild(node);
+		}
 	}
 
 	public int getLength() {
-		return content.length();
+		return getContent().length();
 	}
 
 	public List<Element> getElements() {
 		final List<Element> elements = new ArrayList<Element>();
-		for (final Node node : nodes) {
+		for (final Node node : getNodes()) {
 			node.accept(new BaseNodeVisitor() {
 				@Override
 				public void visit(final Element element) {
@@ -71,7 +66,17 @@ public class DocumentFragment {
 	}
 
 	public List<Node> getNodes() {
-		return Document.createNodeList(getContent(), 0, getContent().length(), getElements());
+		return getChildNodes();
+	}
+
+	@Override
+	public String getBaseURI() {
+		return null;
+	}
+
+	@Override
+	public void accept(final INodeVisitor visitor) {
+		visitor.visit(this);
 	}
 
 }

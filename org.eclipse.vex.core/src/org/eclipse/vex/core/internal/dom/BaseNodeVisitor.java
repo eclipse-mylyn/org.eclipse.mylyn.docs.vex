@@ -18,11 +18,15 @@ package org.eclipse.vex.core.internal.dom;
  */
 public class BaseNodeVisitor implements INodeVisitor {
 
-	public void visit(final Element element) {
+	public void visit(final Document document) {
 		// ignore
 	}
 
-	public void visit(final Document document) {
+	public void visit(final DocumentFragment fragment) {
+		// ignore
+	}
+
+	public void visit(final Element element) {
 		// ignore
 	}
 

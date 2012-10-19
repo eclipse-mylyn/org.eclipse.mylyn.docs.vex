@@ -19,9 +19,11 @@ package org.eclipse.vex.core.internal.dom;
  */
 public interface INodeVisitor {
 
-	void visit(Element element);
-
 	void visit(Document document);
+
+	void visit(DocumentFragment fragment);
+
+	void visit(Element element);
 
 	void visit(Text text);
 
