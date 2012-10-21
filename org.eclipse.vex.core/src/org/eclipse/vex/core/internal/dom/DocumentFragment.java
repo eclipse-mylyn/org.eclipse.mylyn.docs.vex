@@ -14,6 +14,7 @@ package org.eclipse.vex.core.internal.dom;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.QualifiedName;
 
 /**
@@ -28,6 +29,7 @@ public class DocumentFragment extends Parent {
 	 *            Elements that make up this fragment.
 	 */
 	public DocumentFragment(final Content content, final List<Node> nodes) {
+		Assert.isTrue(content.length() > 0);
 		associate(content, 0, content.length() - 1);
 		for (final Node node : nodes) {
 			addChild(node);
