@@ -72,7 +72,7 @@ public abstract class Parent extends Node {
 	 * @return all child nodes including Text nodes
 	 */
 	public List<Node> getChildNodes() {
-		return getChildNodes(getStartOffset(), getEndOffset());
+		return getChildNodes(getRange());
 	}
 
 	/**
@@ -86,22 +86,21 @@ public abstract class Parent extends Node {
 	 *            the end offset of the range
 	 * @return all child nodes which are completely within the given range plus the textual content
 	 */
-	public List<Node> getChildNodes(final int startOffset, final int endOffset) {
-		final int rangeStart = Math.max(startOffset, getStartOffset());
-		final int rangeEnd = Math.min(endOffset, getEndOffset());
-		int textStart = rangeStart;
+	public List<Node> getChildNodes(final Range range) {
+		final Range trimmedRange = range.trimTo(getRange());
+		int textStart = trimmedRange.getStartOffset();
 		final List<Node> result = new ArrayList<Node>();
 		for (final Node child : children) {
 			if (!child.isAssociated()) {
 				result.add(child);
-			} else if (child.isInRange(rangeStart, rangeEnd)) {
+			} else if (child.isInRange(trimmedRange)) {
 				mergeTextIntoResult(textStart, child.getStartOffset(), result);
 				result.add(child);
 				textStart = child.getEndOffset() + 1;
 			}
 		}
 
-		mergeTextIntoResult(textStart, rangeEnd, result);
+		mergeTextIntoResult(textStart, trimmedRange.getEndOffset(), result);
 		return Collections.unmodifiableList(result);
 	}
 
@@ -109,9 +108,9 @@ public abstract class Parent extends Node {
 		final int textStart = findNextTextStart(startOffset, endOffset);
 		final int textEnd = findNextTextEnd(endOffset, textStart);
 		if (textStart < textEnd) {
-			result.add(new Text(this, getContent(), textStart, textEnd));
+			result.add(new Text(this, getContent(), new Range(textStart, textEnd)));
 		} else if (textStart == textEnd && !getContent().isElementMarker(textStart)) {
-			result.add(new Text(this, getContent(), textStart, textEnd));
+			result.add(new Text(this, getContent(), new Range(textStart, textEnd)));
 		}
 	}
 
@@ -130,11 +129,17 @@ public abstract class Parent extends Node {
 	}
 
 	public List<Node> getChildNodesBefore(final int offset) {
-		return getChildNodes(getStartOffset() + 1, offset);
+		if (offset <= getStartOffset()) {
+			return Collections.emptyList();
+		}
+		return getChildNodes(new Range(getStartOffset() + 1, offset));
 	}
 
 	public List<Node> getChildNodesAfter(final int offset) {
-		return getChildNodes(offset, getEndOffset() - 1);
+		if (offset >= getEndOffset()) {
+			return Collections.emptyList();
+		}
+		return getChildNodes(new Range(offset, getEndOffset() - 1));
 	}
 
 	/**

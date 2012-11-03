@@ -64,7 +64,7 @@ public abstract class ContentTest {
 	public void shouldReturnAPartialCopy() throws Exception {
 		final String text = "Hello World";
 		content.insertText(0, text);
-		final Content partialCopy = content.getContent(3, 7);
+		final Content partialCopy = content.getContent(new Range(3, 7));
 		assertEquals("lo Wo", partialCopy.getText());
 
 		// make shure, it is a copy
@@ -107,11 +107,11 @@ public abstract class ContentTest {
 		content.insertElementMarker(6);
 		content.insertElementMarker(14);
 
-		content.remove(7, 7);
+		content.remove(new Range(7, 13));
 		assertTrue(content.isElementMarker(6));
 		assertTrue(content.isElementMarker(7));
 
-		content.remove(6, 2);
+		content.remove(new Range(6, 7));
 		assertEquals("Hello  World", content.getText());
 
 		content.insertText(6, "Cut Out");
@@ -123,14 +123,14 @@ public abstract class ContentTest {
 		content.insertText(0, "Hello World");
 		final Position helloPosition = content.createPosition(0);
 		final Position worldPosition = content.createPosition(6);
-		assertEquals("Hello", content.getText(helloPosition.getOffset(), helloPosition.getOffset() + 4));
-		assertEquals("World", content.getText(worldPosition.getOffset(), worldPosition.getOffset() + 4));
+		assertEquals("Hello", content.getText(new Range(helloPosition.getOffset(), helloPosition.getOffset() + 4)));
+		assertEquals("World", content.getText(new Range(worldPosition.getOffset(), worldPosition.getOffset() + 4)));
 
 		content.insertText(6, "New ");
 		assertEquals(0, helloPosition.getOffset());
 		assertEquals(10, worldPosition.getOffset());
-		assertEquals("Hello", content.getText(helloPosition.getOffset(), helloPosition.getOffset() + 4));
-		assertEquals("World", content.getText(worldPosition.getOffset(), worldPosition.getOffset() + 4));
+		assertEquals("Hello", content.getText(new Range(helloPosition.getOffset(), helloPosition.getOffset() + 4)));
+		assertEquals("World", content.getText(new Range(worldPosition.getOffset(), worldPosition.getOffset() + 4)));
 	}
 
 	@Test
@@ -138,15 +138,15 @@ public abstract class ContentTest {
 		content.insertText(0, "Hello World");
 		final Position worldStartPosition = content.createPosition(6);
 		final Position worldEndPosition = content.createPosition(10);
-		assertEquals("d", content.getText(worldEndPosition.getOffset(), worldEndPosition.getOffset()));
-		assertEquals("World", content.getText(worldStartPosition.getOffset(), worldEndPosition.getOffset()));
+		assertEquals("d", content.getText(new Range(worldEndPosition.getOffset(), worldEndPosition.getOffset())));
+		assertEquals("World", content.getText(new Range(worldStartPosition.getOffset(), worldEndPosition.getOffset())));
 
 		content.insertElementMarker(11);
 		content.insertElementMarker(6);
 		assertEquals(7, worldStartPosition.getOffset());
 		assertEquals(11, worldEndPosition.getOffset());
-		assertEquals("d", content.getText(worldEndPosition.getOffset(), worldEndPosition.getOffset()));
-		assertEquals("World", content.getText(worldStartPosition.getOffset(), worldEndPosition.getOffset()));
+		assertEquals("d", content.getText(new Range(worldEndPosition.getOffset(), worldEndPosition.getOffset())));
+		assertEquals("World", content.getText(new Range(worldStartPosition.getOffset(), worldEndPosition.getOffset())));
 		assertTrue(content.isElementMarker(worldStartPosition.getOffset() - 1));
 		assertTrue(content.isElementMarker(worldEndPosition.getOffset() + 1));
 	}
@@ -158,14 +158,28 @@ public abstract class ContentTest {
 		content.insertElementMarker(6);
 		final Position worldStartPosition = content.createPosition(12);
 		final Position worldEndPosition = content.createPosition(16);
-		assertEquals("d", content.getText(worldEndPosition.getOffset(), worldEndPosition.getOffset()));
-		assertEquals("World", content.getText(worldStartPosition.getOffset(), worldEndPosition.getOffset()));
+		assertEquals("d", content.getText(new Range(worldEndPosition.getOffset(), worldEndPosition.getOffset())));
+		assertEquals("World", content.getText(new Range(worldStartPosition.getOffset(), worldEndPosition.getOffset())));
 
-		content.remove(6, 6);
-		assertEquals("d", content.getText(worldEndPosition.getOffset(), worldEndPosition.getOffset()));
-		assertEquals("World", content.getText(worldStartPosition.getOffset(), worldEndPosition.getOffset()));
+		content.remove(new Range(6, 11));
+		assertEquals("d", content.getText(new Range(worldEndPosition.getOffset(), worldEndPosition.getOffset())));
+		assertEquals("World", content.getText(new Range(worldStartPosition.getOffset(), worldEndPosition.getOffset())));
 		assertEquals(6, worldStartPosition.getOffset());
 		assertEquals(10, worldEndPosition.getOffset());
+	}
+
+	@Test
+	public void shouldMovePositionsWithinRemovedRangeToRangeStart() throws Exception {
+		content.insertText(0, "Hello New World");
+		final Position nPosition = content.createPosition(6);
+		final Position ePosition = content.createPosition(7);
+		final Position wPosition = content.createPosition(8);
+
+		content.remove(new Range(6, 8));
+
+		assertEquals(6, nPosition.getOffset());
+		assertEquals(6, ePosition.getOffset());
+		assertEquals(6, wPosition.getOffset());
 	}
 
 	@Test
@@ -200,8 +214,8 @@ public abstract class ContentTest {
 		assertFalse(content.getText().equals(content.getRawText()));
 		assertEquals(content.getText().length() + 3, content.getRawText().length());
 		assertFalse(content.getText().charAt(0) == content.getRawText().charAt(0));
-		assertEquals(content.getText(1, 5), content.getRawText(1, 5));
-		assertEquals(content.getText().substring(0, 5), content.getRawText(1, 5));
+		assertEquals(content.getText(new Range(1, 5)), content.getRawText(new Range(1, 5)));
+		assertEquals(content.getText().substring(0, 5), content.getRawText(new Range(1, 5)));
 	}
 
 	@Test

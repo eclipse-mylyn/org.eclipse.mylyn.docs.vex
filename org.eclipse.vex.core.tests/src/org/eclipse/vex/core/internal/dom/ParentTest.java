@@ -27,7 +27,7 @@ public class ParentTest {
 		content = new GapContent(10);
 		content.insertElementMarker(0);
 		content.insertElementMarker(0);
-		parent.associate(content, 0, 1);
+		parent.associate(content, new Range(0, 1));
 	}
 
 	@Test
@@ -157,7 +157,7 @@ public class ParentTest {
 		final TestChild child3 = addTestChild();
 		addTestChild();
 
-		final List<Node> childNodes = parent.getChildNodes(child2.getStartOffset(), child3.getEndOffset());
+		final List<Node> childNodes = parent.getChildNodes(new Range(child2.getStartOffset(), child3.getEndOffset()));
 		assertEquals(2, childNodes.size());
 		assertSame(child2, childNodes.get(0));
 		assertSame(child3, childNodes.get(1));
@@ -171,7 +171,7 @@ public class ParentTest {
 		content.insertText(child1.getStartOffset(), "Hello");
 		content.insertText(child2.getStartOffset(), "World!");
 
-		final List<Node> childNodes = parent.getChildNodes(child1.getStartOffset() - 2, child1.getEndOffset() + 2);
+		final List<Node> childNodes = parent.getChildNodes(child1.getRange().moveBounds(-2, 2));
 		assertEquals(3, childNodes.size());
 		assertTrue(childNodes.get(0) instanceof Text);
 		assertSame(child1, childNodes.get(1));
@@ -214,7 +214,7 @@ public class ParentTest {
 			children.add(addTestChild());
 		}
 
-		final List<Node> childNodes = parent.getChildNodes(children.get(1).getStartOffset(), children.get(3).getEndOffset());
+		final List<Node> childNodes = parent.getChildNodes(new Range(children.get(1).getStartOffset(), children.get(3).getEndOffset()));
 		assertEquals(3, childNodes.size());
 		assertSame(children.get(1), childNodes.get(0));
 		assertSame(children.get(2), childNodes.get(1));
@@ -228,7 +228,7 @@ public class ParentTest {
 			children.add(addTestChild());
 		}
 
-		final List<Node> childNodes = parent.getChildNodes(children.get(1).getStartOffset(), children.get(3).getStartOffset());
+		final List<Node> childNodes = parent.getChildNodes(new Range(children.get(1).getStartOffset(), children.get(3).getStartOffset()));
 		assertEquals(2, childNodes.size());
 		assertSame(children.get(1), childNodes.get(0));
 		assertSame(children.get(2), childNodes.get(1));
@@ -241,7 +241,7 @@ public class ParentTest {
 			children.add(addTestChild());
 		}
 
-		final List<Node> childNodes = parent.getChildNodes(children.get(1).getEndOffset(), children.get(3).getStartOffset());
+		final List<Node> childNodes = parent.getChildNodes(new Range(children.get(1).getEndOffset(), children.get(3).getStartOffset()));
 		assertEquals(1, childNodes.size());
 		assertSame(children.get(2), childNodes.get(0));
 	}
@@ -253,7 +253,7 @@ public class ParentTest {
 			children.add(addTestChild());
 		}
 
-		final List<Node> childNodes = parent.getChildNodes(children.get(1).getEndOffset(), children.get(3).getEndOffset());
+		final List<Node> childNodes = parent.getChildNodes(new Range(children.get(1).getEndOffset(), children.get(3).getEndOffset()));
 		assertEquals(2, childNodes.size());
 		assertSame(children.get(2), childNodes.get(0));
 		assertSame(children.get(3), childNodes.get(1));
@@ -358,7 +358,7 @@ public class ParentTest {
 	public void shouldHandleSmallerStartOffset() throws Exception {
 		setUpChildNodes();
 		content.insertText(parent.getStartOffset(), "prefix");
-		final List<Node> childNodes = parent.getChildNodes(parent.getStartOffset() - 2, parent.getEndOffset());
+		final List<Node> childNodes = parent.getChildNodes(parent.getRange().moveBounds(-2, 0));
 		assertTextNodeEquals("Hello ", 7, 12, childNodes.get(0));
 		assertChildNodeEquals("Child1", 13, 20, childNodes.get(1));
 		assertChildNodeEquals("Child2", 21, 28, childNodes.get(2));
@@ -399,7 +399,7 @@ public class ParentTest {
 		content.insertElementMarker(offset);
 		final Element child = new Element("child");
 		parent.addChild(child);
-		child.associate(content, offset, offset + 1);
+		child.associate(content, new Range(offset, offset + 1));
 		content.insertText(child.getEndOffset(), "Hello World");
 		final Node text = child.getChildNodes().get(0);
 		assertTextNodeEquals("Hello World", text.getStartOffset(), text.getEndOffset(), parent.getChildNodeAt(text.getStartOffset()));
@@ -490,7 +490,7 @@ public class ParentTest {
 		content.insertElementMarker(offset);
 		final TestChild result = new TestChild();
 		parent.addChild(result);
-		result.associate(content, offset, offset + 1);
+		result.associate(content, new Range(offset, offset + 1));
 		return result;
 	}
 

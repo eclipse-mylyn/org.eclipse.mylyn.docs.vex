@@ -52,11 +52,11 @@ public class Document extends Parent {
 		final GapContent content = new GapContent(100);
 		content.insertElementMarker(0);
 		content.insertElementMarker(0);
-		associate(content, 0, 1);
+		associate(content, content.getRange());
 
 		this.rootElement = rootElement;
 		addChild(rootElement);
-		rootElement.associate(content, 0, 1);
+		rootElement.associate(content, content.getRange());
 	}
 
 	/**
@@ -71,7 +71,7 @@ public class Document extends Parent {
 	 */
 	public Document(final Content content, final Element rootElement) {
 		Assert.isTrue(content == rootElement.getContent(), "The given root element must already be associated with the given content.");
-		associate(content, 0, content.length() - 1);
+		associate(content, content.getRange());
 		this.rootElement = rootElement;
 		addChild(rootElement);
 	}
@@ -189,45 +189,45 @@ public class Document extends Parent {
 		return getContent().createPosition(offset);
 	}
 
-	public void delete(final int startOffset, final int endOffset) throws DocumentValidationException {
-		final Element surroundingElement = getElementAt(startOffset - 1);
-		final Element elementAtEndOffset = getElementAt(endOffset + 1);
+	public void delete(final Range range) throws DocumentValidationException {
+		final Element surroundingElement = getElementAt(range.getStartOffset() - 1);
+		final Element elementAtEndOffset = getElementAt(range.getEndOffset() + 1);
 		if (surroundingElement != elementAtEndOffset) {
-			throw new IllegalArgumentException("Deletion from " + startOffset + " to " + endOffset + " is unbalanced");
+			throw new IllegalArgumentException("Deletion in " + range + " is unbalanced");
 		}
 
 		final Validator validator = getValidator();
 		if (validator != null) {
-			final List<QualifiedName> seq1 = getNodeNames(surroundingElement.getChildNodesBefore(startOffset));
-			final List<QualifiedName> seq2 = getNodeNames(surroundingElement.getChildNodesAfter(endOffset));
+			final List<QualifiedName> seq1 = getNodeNames(surroundingElement.getChildNodesBefore(range.getStartOffset()));
+			final List<QualifiedName> seq2 = getNodeNames(surroundingElement.getChildNodesAfter(range.getEndOffset()));
 
 			if (!validator.isValidSequence(surroundingElement.getQualifiedName(), seq1, seq2, null, true)) {
-				throw new DocumentValidationException("Unable to delete from " + startOffset + " to " + endOffset);
+				throw new DocumentValidationException("Unable to delete " + range);
 			}
 		}
 
 		// Grab the fragment for the undoable edit while it's still here
-		final DocumentFragment frag = getFragment(startOffset, endOffset);
+		final DocumentFragment fragment = getFragment(range);
 
-		fireBeforeContentDeleted(new DocumentEvent(this, surroundingElement, startOffset, endOffset - startOffset + 1, null));
+		fireBeforeContentDeleted(new DocumentEvent(this, surroundingElement, range.getStartOffset(), range.length(), null));
 
 		final Iterator<Node> iter = surroundingElement.getChildIterator();
 		while (iter.hasNext()) {
 			final Node child = iter.next();
-			if (startOffset <= child.getStartOffset() && child.getEndOffset() <= endOffset) {
+			if (child.isInRange(range)) {
 				surroundingElement.removeChild(child);
 			}
 		}
 
-		getContent().remove(startOffset, endOffset - startOffset + 1);
+		getContent().remove(range);
 
-		final IUndoableEdit edit = undoEnabled ? new DeleteEdit(startOffset, endOffset, frag) : null;
+		final IUndoableEdit edit = undoEnabled ? new DeleteEdit(range, fragment) : null;
 
-		fireContentDeleted(new DocumentEvent(this, surroundingElement, startOffset, endOffset - startOffset + 1, edit));
+		fireContentDeleted(new DocumentEvent(this, surroundingElement, range.getStartOffset(), range.length(), edit));
 	}
 
 	public char getCharacterAt(final int offset) {
-		final String text = getContent().getText(offset, offset);
+		final String text = getContent().getText(new Range(offset, offset));
 		if (text.length() == 0) {
 			/*
 			 * XXX This is used in VexWidgetImpl.deleteNextChar/deletePreviousChar to find out if there is an element
@@ -246,8 +246,7 @@ public class Document extends Parent {
 			final List<Element> children = element.getChildElements();
 			for (int i = 0; i < children.size(); i++) {
 				final Element child = children.get(i);
-				if (offset1 >= child.getStartOffset() && offset2 >= child.getStartOffset() && offset1 <= child.getEndOffset() && offset2 <= child.getEndOffset()) {
-
+				if (child.containsOffset(offset1) && child.containsOffset(offset2)) {
 					element = child;
 					tryAgain = true;
 					break;
@@ -278,19 +277,19 @@ public class Document extends Parent {
 		return getContent().isElementMarker(offset);
 	}
 
-	public DocumentFragment getFragment(final int startOffset, final int endOffset) {
-		final List<Node> childNodes = getParentOfRange(startOffset, endOffset).getChildNodes();
+	public DocumentFragment getFragment(final Range range) {
+		final List<Node> childNodes = getParentOfRange(range).getChildNodes();
 
-		final Content cloneContent = getContent().getContent(startOffset, endOffset);
+		final Content cloneContent = getContent().getContent(range);
 		final List<Node> cloneChildNodes = new ArrayList<Node>();
 
 		for (final Node child : childNodes) {
-			if (child.getEndOffset() <= startOffset) {
+			if (child.getEndOffset() <= range.getStartOffset()) {
 				continue;
-			} else if (child.getStartOffset() >= endOffset) {
+			} else if (child.getStartOffset() >= range.getEndOffset()) {
 				break;
 			} else {
-				final Node cloneChildNode = cloneNode(child, cloneContent, -startOffset, null);
+				final Node cloneChildNode = cloneNode(child, cloneContent, -range.getStartOffset(), null);
 				if (cloneChildNode != null) {
 					cloneChildNodes.add(cloneChildNode);
 				}
@@ -300,16 +299,14 @@ public class Document extends Parent {
 		return new DocumentFragment(cloneContent, cloneChildNodes);
 	}
 
-	private Parent getParentOfRange(final int startOffset, final int endOffset) {
-		Assert.isTrue(containsOffset(startOffset));
-		Assert.isTrue(containsOffset(endOffset));
-		Assert.isTrue(startOffset <= endOffset, MessageFormat.format("Invalid range [{0};{1}].", startOffset, endOffset));
+	private Parent getParentOfRange(final Range range) {
+		Assert.isTrue(getRange().contains(range));
 
-		final Node startNode = getChildNodeAt(startOffset);
-		final Node endNode = getChildNodeAt(endOffset);
+		final Node startNode = getChildNodeAt(range.getStartOffset());
+		final Node endNode = getChildNodeAt(range.getEndOffset());
 		final Parent parent = startNode.getParent();
-		Assert.isTrue(parent == endNode.getParent(), MessageFormat.format("The fragment from {0} to {1} is unbalanced.", startOffset, endOffset));
-		Assert.isNotNull(parent, MessageFormat.format("No balanced parent found for range [{0};{1}].", startOffset, endOffset));
+		Assert.isTrue(parent == endNode.getParent(), MessageFormat.format("The fragment in {0} is unbalanced.", range));
+		Assert.isNotNull(parent, MessageFormat.format("No balanced parent found for {0}", range));
 
 		return parent;
 	}
@@ -328,7 +325,7 @@ public class Document extends Parent {
 
 	private Element cloneElement(final Element original, final Content content, final int shift, final Parent parent) {
 		final Element clone = original.clone();
-		clone.associate(content, original.getStartOffset() + shift, original.getEndOffset() + shift);
+		clone.associate(content, original.getRange().moveBounds(shift, shift));
 		clone.setParent(parent);
 
 		final List<Node> children = original.getChildNodes();
@@ -362,8 +359,8 @@ public class Document extends Parent {
 		return names;
 	}
 
-	public List<Node> getNodes(final int startOffset, final int endOffset) {
-		return getParentOfRange(startOffset, endOffset).getChildNodes(startOffset, endOffset);
+	public List<Node> getNodes(final Range range) {
+		return getParentOfRange(range).getChildNodes(range);
 	}
 
 	public void insertElement(final int offset, final Element element) throws DocumentValidationException {
@@ -405,7 +402,7 @@ public class Document extends Parent {
 		getContent().insertElementMarker(offset);
 		getContent().insertElementMarker(offset);
 
-		element.associate(getContent(), offset, offset + 1);
+		element.associate(getContent(), new Range(offset, offset + 1));
 		element.setParent(parent);
 		parent.insertChild(childIndex, element);
 
@@ -512,14 +509,12 @@ public class Document extends Parent {
 
 	private class DeleteEdit implements IUndoableEdit {
 
-		private final int startOffset;
-		private final int endOffset;
-		private final DocumentFragment frag;
+		private final Range range;
+		private final DocumentFragment fragment;
 
-		public DeleteEdit(final int startOffset, final int endOffset, final DocumentFragment frag) {
-			this.startOffset = startOffset;
-			this.endOffset = endOffset;
-			this.frag = frag;
+		public DeleteEdit(final Range range, final DocumentFragment fragment) {
+			this.range = range;
+			this.fragment = fragment;
 		}
 
 		public boolean combine(final IUndoableEdit edit) {
@@ -529,7 +524,7 @@ public class Document extends Parent {
 		public void undo() throws CannotUndoException {
 			try {
 				setUndoEnabled(false);
-				insertFragment(startOffset, frag);
+				insertFragment(range.getStartOffset(), fragment);
 			} catch (final DocumentValidationException ex) {
 				throw new CannotUndoException();
 			} finally {
@@ -540,7 +535,7 @@ public class Document extends Parent {
 		public void redo() throws CannotRedoException {
 			try {
 				setUndoEnabled(false);
-				delete(startOffset, endOffset);
+				delete(range);
 			} catch (final DocumentValidationException ex) {
 				throw new CannotUndoException();
 			} finally {
@@ -567,7 +562,7 @@ public class Document extends Parent {
 		public void undo() throws CannotUndoException {
 			try {
 				setUndoEnabled(false);
-				delete(offset, offset + 2);
+				delete(new Range(offset, offset + 2));
 			} catch (final DocumentValidationException ex) {
 				throw new CannotUndoException();
 			} finally {
@@ -605,8 +600,7 @@ public class Document extends Parent {
 		public void undo() throws CannotUndoException {
 			try {
 				setUndoEnabled(false);
-				final int length = frag.getContent().length();
-				delete(offset, offset + length - 1);
+				delete(frag.getContent().getRange().moveBounds(offset, offset));
 			} catch (final DocumentValidationException ex) {
 				throw new CannotUndoException();
 			} finally {
@@ -651,7 +645,7 @@ public class Document extends Parent {
 		public void undo() throws CannotUndoException {
 			try {
 				setUndoEnabled(false);
-				delete(offset, offset + text.length());
+				delete(new Range(offset, offset + text.length()));
 			} catch (final DocumentValidationException ex) {
 				throw new CannotUndoException();
 			} finally {

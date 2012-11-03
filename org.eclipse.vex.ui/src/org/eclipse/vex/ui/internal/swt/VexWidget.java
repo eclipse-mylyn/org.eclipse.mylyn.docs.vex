@@ -63,6 +63,7 @@ import org.eclipse.vex.core.internal.dom.DocumentFragment;
 import org.eclipse.vex.core.internal.dom.DocumentValidationException;
 import org.eclipse.vex.core.internal.dom.Element;
 import org.eclipse.vex.core.internal.dom.Node;
+import org.eclipse.vex.core.internal.dom.Range;
 import org.eclipse.vex.core.internal.layout.Box;
 import org.eclipse.vex.core.internal.layout.BoxFactory;
 import org.eclipse.vex.core.internal.widget.HostComponent;
@@ -503,7 +504,7 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 		public void fireSelectionChanged() {
 
 			if (hasSelection()) {
-				final List<Node> nodes = getDocument().getNodes(getSelectionStart(), getSelectionEnd());
+				final List<Node> nodes = getDocument().getNodes(new Range(getSelectionStart(), getSelectionEnd()));
 				selection = new StructuredSelection(nodes);
 			} else {
 				selection = new StructuredSelection(getCurrentElement());

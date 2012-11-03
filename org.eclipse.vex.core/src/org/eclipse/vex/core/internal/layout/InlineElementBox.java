@@ -24,6 +24,7 @@ import org.eclipse.vex.core.internal.css.Styles;
 import org.eclipse.vex.core.internal.dom.CommentElement;
 import org.eclipse.vex.core.internal.dom.Element;
 import org.eclipse.vex.core.internal.dom.Node;
+import org.eclipse.vex.core.internal.dom.Range;
 import org.eclipse.vex.core.internal.dom.Text;
 
 /**
@@ -279,7 +280,7 @@ public class InlineElementBox extends CompositeInlineBox {
 
 		final InlineBoxes result = new InlineBoxes();
 
-		final List<Node> nodes = element2.getChildNodes(startOffset, endOffset);
+		final List<Node> nodes = element2.getChildNodes(new Range(startOffset, endOffset));
 		for (final Node node : nodes) {
 			final InlineBox child;
 

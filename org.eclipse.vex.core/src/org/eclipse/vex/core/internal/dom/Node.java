@@ -50,14 +50,14 @@ public abstract class Node {
 	 * @param endOffset
 	 *            offset at which the node's content ends
 	 */
-	public void associate(final Content content, final int startOffset, final int endOffset) {
+	public void associate(final Content content, final Range range) {
 		if (isAssociated()) {
 			dissociate();
 		}
 
 		this.content = content;
-		startPosition = content.createPosition(startOffset);
-		endPosition = content.createPosition(endOffset);
+		startPosition = content.createPosition(range.getStartOffset());
+		endPosition = content.createPosition(range.getEndOffset());
 	}
 
 	/**
@@ -107,6 +107,10 @@ public abstract class Node {
 		return endPosition.getOffset();
 	}
 
+	public Range getRange() {
+		return new Range(getStartOffset(), getEndOffset());
+	}
+
 	/**
 	 * Indicates whether the given offset is within the boundaries of this node. If this node is not associated with
 	 * textual content, this method returns false.
@@ -119,7 +123,7 @@ public abstract class Node {
 		if (!isAssociated()) {
 			return false;
 		}
-		return offset >= getStartOffset() && offset <= getEndOffset();
+		return getRange().contains(offset);
 	}
 
 	/**
@@ -132,11 +136,11 @@ public abstract class Node {
 	 *            the range's end offst
 	 * @return true if this node is fully within the given range
 	 */
-	public boolean isInRange(final int startOffset, final int endOffset) {
+	public boolean isInRange(final Range range) {
 		if (!isAssociated()) {
 			return false;
 		}
-		return startOffset <= getStartOffset() && endOffset >= getEndOffset();
+		return range.contains(getRange());
 	}
 
 	/**
@@ -145,7 +149,7 @@ public abstract class Node {
 	 * @return the textual content of this node
 	 */
 	public String getText() {
-		return getText(getStartOffset(), getEndOffset());
+		return getText(getRange());
 	}
 
 	/**
@@ -157,11 +161,9 @@ public abstract class Node {
 	 *            the end offset
 	 * @return the textual content in the given range
 	 */
-	public String getText(final int startOffset, final int endOffset) {
+	public String getText(final Range range) {
 		Assert.isTrue(isAssociated(), "Node must be associated to a Content region to have textual content.");
-		Assert.isTrue(startOffset <= endOffset, "startOffset must not be greater than endOffset.");
-
-		return content.getText(Math.max(startOffset, getStartOffset()), Math.min(endOffset, getEndOffset()));
+		return content.getText(range.trimTo(getRange()));
 	}
 
 	public Document getDocument() {
@@ -192,4 +194,5 @@ public abstract class Node {
 	 *            the visitor
 	 */
 	public abstract void accept(final INodeVisitor visitor);
+
 }

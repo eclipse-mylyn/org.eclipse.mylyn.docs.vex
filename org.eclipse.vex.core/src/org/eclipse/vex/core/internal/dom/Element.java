@@ -358,11 +358,6 @@ public class Element extends Parent implements Cloneable {
 	}
 
 	@Override
-	public void associate(final Content content, final int startOffset, final int endOffset) {
-		super.associate(content, startOffset, endOffset);
-	}
-
-	@Override
 	public String getBaseURI() {
 		final Attribute baseAttribute = getAttribute(XML_BASE_ATTRIBUTE);
 		if (baseAttribute != null) {

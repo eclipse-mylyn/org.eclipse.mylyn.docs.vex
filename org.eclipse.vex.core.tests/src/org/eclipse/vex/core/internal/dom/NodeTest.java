@@ -47,7 +47,7 @@ public abstract class NodeTest {
 		content.insertElementMarker(0);
 		content.insertElementMarker(0);
 
-		node.associate(content, 0, 1);
+		node.associate(content, new Range(0, 1));
 		assertEquals(0, node.getStartOffset());
 		assertEquals(1, node.getEndOffset());
 
@@ -63,7 +63,7 @@ public abstract class NodeTest {
 		content.insertElementMarker(0);
 		content.insertElementMarker(0);
 
-		node.associate(content, 0, 1);
+		node.associate(content, new Range(0, 1));
 		node.dissociate();
 
 		content.insertText(1, "Hello");
@@ -76,7 +76,7 @@ public abstract class NodeTest {
 		content.insertElementMarker(0);
 		content.insertElementMarker(0);
 
-		node.associate(content, 0, 1);
+		node.associate(content, new Range(0, 1));
 		assertEquals("", node.getText());
 
 		content.insertText(1, "Hello");
@@ -94,7 +94,7 @@ public abstract class NodeTest {
 		content.insertElementMarker(0);
 		content.insertElementMarker(0);
 		content.insertText(1, "Hello World");
-		node.associate(content, 0, content.length() - 1);
+		node.associate(content, content.getRange());
 		content.insertText(0, "prefix");
 
 		assertFalse(node.containsOffset(node.getStartOffset() - 1));
@@ -108,7 +108,7 @@ public abstract class NodeTest {
 		content.insertElementMarker(0);
 		content.insertElementMarker(0);
 		content.insertText(1, "Hello World");
-		node.associate(content, 0, content.length() - 1);
+		node.associate(content, content.getRange());
 		content.insertText(content.length(), "suffix");
 
 		assertTrue(node.containsOffset(node.getEndOffset() - 1));
@@ -127,17 +127,17 @@ public abstract class NodeTest {
 		content.insertElementMarker(0);
 		content.insertElementMarker(0);
 		content.insertText(1, "Hello World");
-		node.associate(content, 0, content.length() - 1);
+		node.associate(content, content.getRange());
 		content.insertText(0, "prefix");
 		content.insertText(content.length(), "suffix");
 
-		assertTrue(node.isInRange(node.getStartOffset() - 1, node.getEndOffset()));
-		assertTrue(node.isInRange(node.getStartOffset(), node.getEndOffset()));
-		assertFalse(node.isInRange(node.getStartOffset() + 1, node.getEndOffset()));
-		assertTrue(node.isInRange(node.getStartOffset(), node.getEndOffset() + 1));
-		assertFalse(node.isInRange(node.getStartOffset(), node.getEndOffset() - 1));
-		assertTrue(node.isInRange(node.getStartOffset() - 1, node.getEndOffset() + 1));
-		assertFalse(node.isInRange(node.getStartOffset() + 1, node.getEndOffset() - 1));
+		assertTrue(node.isInRange(node.getRange().moveBounds(-1, 0)));
+		assertTrue(node.isInRange(node.getRange()));
+		assertFalse(node.isInRange(node.getRange().moveBounds(1, 0)));
+		assertTrue(node.isInRange(node.getRange().moveBounds(0, 1)));
+		assertFalse(node.isInRange(node.getRange().moveBounds(0, -1)));
+		assertTrue(node.isInRange(node.getRange().moveBounds(-1, 1)));
+		assertFalse(node.isInRange(node.getRange().moveBounds(1, -1)));
 	}
 
 	@Test
@@ -146,10 +146,10 @@ public abstract class NodeTest {
 		content.insertElementMarker(0);
 		content.insertElementMarker(0);
 		content.insertText(1, "Hello World");
-		node.associate(content, 0, content.length() - 1);
+		node.associate(content, content.getRange());
 		content.insertText(0, "prefix");
 
-		assertEquals("Hello World", node.getText(node.getStartOffset() - 2, node.getEndOffset()));
+		assertEquals("Hello World", node.getText(new Range(node.getStartOffset() - 2, node.getEndOffset())));
 	}
 
 	@Test
@@ -158,9 +158,21 @@ public abstract class NodeTest {
 		content.insertElementMarker(0);
 		content.insertElementMarker(0);
 		content.insertText(1, "Hello World");
-		node.associate(content, 0, content.length() - 1);
+		node.associate(content, content.getRange());
 		content.insertText(content.length(), "suffix");
 
-		assertEquals("Hello World", node.getText(node.getStartOffset(), node.getEndOffset() + 2));
+		assertEquals("Hello World", node.getText(new Range(node.getStartOffset(), node.getEndOffset() + 2)));
+	}
+
+	@Test
+	public void shouldProvideRange() throws Exception {
+		final GapContent content = new GapContent(3);
+		content.insertElementMarker(0);
+		content.insertElementMarker(0);
+		content.insertText(1, "Hello World");
+		node.associate(content, content.getRange());
+		final Range range = node.getRange();
+		assertEquals(0, range.getStartOffset());
+		assertEquals(content.length() - 1, range.getEndOffset());
 	}
 }

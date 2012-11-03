@@ -57,7 +57,7 @@ public interface Content extends CharSequence {
 	 *            element markers are removed.
 	 * @return the plain text of the given region without element markers
 	 */
-	public String getText(final int startOffset, final int endOffset);
+	public String getText(final Range range);
 
 	/**
 	 * Get the whole plain text of this content. The plain text does not contain any information about the element
@@ -77,7 +77,7 @@ public interface Content extends CharSequence {
 	 *            Offset at which the substring ends.
 	 * @return the text of the given region including element markers
 	 */
-	public String getRawText(final int startOffset, final int endOffset);
+	public String getRawText(final Range range);
 
 	/**
 	 * Get the whole raw text of this content. The raw text does also contain the element markers in this content.
@@ -105,7 +105,7 @@ public interface Content extends CharSequence {
 	 *            Offset at which the region to copy ends.
 	 * @return the copy of the given region
 	 */
-	public Content getContent(final int startOffset, final int endOffset);
+	public Content getContent(final Range range);
 
 	/**
 	 * Get a full copy of this content.
@@ -141,7 +141,7 @@ public interface Content extends CharSequence {
 	 *            Number of characters to delete.
 	 * @model
 	 */
-	public void remove(int offset, int length);
+	public void remove(Range range);
 
 	/**
 	 * Return the length of the content.
@@ -150,4 +150,5 @@ public interface Content extends CharSequence {
 	 */
 	public int length();
 
+	public Range getRange();
 }

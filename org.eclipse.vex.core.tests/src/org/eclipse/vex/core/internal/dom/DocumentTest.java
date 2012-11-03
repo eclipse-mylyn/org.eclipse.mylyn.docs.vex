@@ -38,7 +38,7 @@ public class DocumentTest {
 		content.insertElementMarker(0);
 		content.insertElementMarker(0);
 		final Element rootElement = new Element("root");
-		rootElement.associate(content, 0, 1);
+		rootElement.associate(content, new Range(0, 1));
 		final Document document = new Document(content, rootElement);
 		assertDocumentConnectedToRootElement(rootElement, document);
 	}
@@ -68,11 +68,10 @@ public class DocumentTest {
 		document.insertText(childElement.getStartOffset(), "Hello ");
 		document.insertText(childElement.getEndOffset(), "Child");
 		document.insertText(childElement.getEndOffset() + 1, " World");
-		final int startOffset = childElement.getStartOffset() - 2;
-		final int endOffset = childElement.getEndOffset() + 2;
-		final DocumentFragment fragment = document.getFragment(startOffset, endOffset);
+		final Range range = childElement.getRange().moveBounds(-2, 2);
+		final DocumentFragment fragment = document.getFragment(range);
 		assertEquals(11, fragment.getLength());
-		assertNodesEqual(document.getNodes(startOffset, endOffset), fragment.getNodes());
+		assertNodesEqual(document.getNodes(range), fragment.getNodes());
 	}
 
 	@Test
@@ -81,11 +80,10 @@ public class DocumentTest {
 		final Element childElement = new Element("child");
 		document.insertElement(1, childElement);
 		document.insertText(childElement.getEndOffset(), "Child");
-		final int startOffset = childElement.getStartOffset();
-		final int endOffset = childElement.getEndOffset();
-		final DocumentFragment fragment = document.getFragment(startOffset, endOffset);
+		final Range range = childElement.getRange();
+		final DocumentFragment fragment = document.getFragment(range);
 		assertEquals(7, fragment.getLength());
-		assertNodesEqual(document.getNodes(startOffset, endOffset), fragment.getNodes());
+		assertNodesEqual(document.getNodes(range), fragment.getNodes());
 	}
 
 	private static void assertNodesEqual(final List<? extends Node> expected, final List<? extends Node> actual) {

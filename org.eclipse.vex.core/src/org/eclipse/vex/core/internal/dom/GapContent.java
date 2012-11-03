@@ -144,46 +144,44 @@ public class GapContent implements Content {
 	 * @param length
 	 *            Number of characters to delete.
 	 */
-	public void remove(final int offset, final int length) {
-		assertOffset(offset, 0, length() - length);
-		assertPositive(length);
+	public void remove(final Range range) {
+		assertOffset(range.getStartOffset(), 0, length() - range.length());
+		assertPositive(range.length());
 
-		moveGap(offset + length);
-		gapStart -= length;
+		moveGap(range.getEndOffset() + 1);
+		gapStart -= range.length();
 
 		for (final GapContentPosition position : positions) {
-			if (position.getOffset() >= offset + length) {
-				position.setOffset(position.getOffset() - length);
-			} else if (position.getOffset() >= offset) {
-				position.setOffset(offset);
+			if (position.getOffset() > range.getEndOffset()) {
+				position.setOffset(position.getOffset() - range.length());
+			} else if (position.getOffset() >= range.getStartOffset()) {
+				position.setOffset(range.getStartOffset());
 			}
 		}
 	}
 
 	public String getText() {
-		return getText(0, length() - 1);
+		return getText(getRange());
 	}
 
-	public String getText(final int startOffset, final int endOffset) {
-		assertOffset(startOffset, 0, length() - 1);
-		assertOffset(endOffset, 0, length() - 1);
-		Assert.isTrue(startOffset <= endOffset, "The startOffset must not be greater than the endOffset");
+	public String getText(final Range range) {
+		Assert.isTrue(getRange().contains(range));
 
 		final int delta = gapEnd - gapStart;
 		final StringBuilder result = new StringBuilder();
-		if (endOffset < gapStart) {
-			appendPlainText(result, startOffset, endOffset);
-		} else if (startOffset >= gapStart) {
-			appendPlainText(result, startOffset + delta, endOffset + delta);
+		if (range.getEndOffset() < gapStart) {
+			appendPlainText(result, range);
+		} else if (range.getStartOffset() >= gapStart) {
+			appendPlainText(result, range.moveBounds(delta, delta));
 		} else {
-			appendPlainText(result, startOffset, gapStart - 1);
-			appendPlainText(result, gapEnd, endOffset + delta);
+			appendPlainText(result, new Range(range.getStartOffset(), gapStart - 1));
+			appendPlainText(result, new Range(gapEnd, range.getEndOffset() + delta));
 		}
 		return result.toString();
 	}
 
-	private void appendPlainText(final StringBuilder stringBuilder, final int startOffset, final int endOffset) {
-		for (int i = startOffset; i <= endOffset; i++) {
+	private void appendPlainText(final StringBuilder stringBuilder, final Range range) {
+		for (int i = range.getStartOffset(); range.contains(i); i++) {
 			final char c = content[i];
 			if (!isElementMarker(c)) {
 				stringBuilder.append(c);
@@ -192,56 +190,50 @@ public class GapContent implements Content {
 	}
 
 	public String getRawText() {
-		return getRawText(0, length() - 1);
+		return getRawText(getRange());
 	}
 
-	public String getRawText(final int startOffset, final int endOffset) {
-		assertOffset(startOffset, 0, length() - 1);
-		assertOffset(endOffset, 0, length() - 1);
-		Assert.isTrue(startOffset <= endOffset, "The startOffset must not be greater than the endOffset");
+	public String getRawText(final Range range) {
+		Assert.isTrue(getRange().contains(range));
 
 		final int delta = gapEnd - gapStart;
 		final StringBuilder result = new StringBuilder();
-		if (endOffset < gapStart) {
-			appendRawText(result, startOffset, endOffset);
-		} else if (startOffset >= gapStart) {
-			appendRawText(result, startOffset + delta, endOffset + delta);
+		if (range.getEndOffset() < gapStart) {
+			appendRawText(result, range);
+		} else if (range.getStartOffset() >= gapStart) {
+			appendRawText(result, range.moveBounds(delta, delta));
 		} else {
-			appendRawText(result, startOffset, gapStart - 1);
-			appendRawText(result, gapEnd, endOffset + delta);
+			appendRawText(result, new Range(range.getStartOffset(), gapStart - 1));
+			appendRawText(result, new Range(gapEnd, range.getEndOffset() + delta));
 		}
 		return result.toString();
 	}
 
-	private void appendRawText(final StringBuilder stringBuilder, final int startOffset, final int endOffset) {
-		stringBuilder.append(content, startOffset, endOffset - startOffset + 1);
+	private void appendRawText(final StringBuilder stringBuilder, final Range range) {
+		stringBuilder.append(content, range.getStartOffset(), range.length());
 	}
 
 	public void insertContent(final int offset, final Content content) {
 		assertOffset(offset, 0, length());
 
-		copyContent(content, this, 0, content.length() - 1, offset);
-	}
-
-	public Content getContent(final int startOffset, final int endOffset) {
-		assertOffset(startOffset, 0, length() - 1);
-		assertOffset(endOffset, 0, length() - 1);
-		Assert.isTrue(startOffset <= endOffset, "The startOffset must not be greater than the endOffset");
-
-		final int rangeLength = endOffset - startOffset + 1;
-		final GapContent result = new GapContent(rangeLength);
-		copyContent(this, result, startOffset, endOffset, 0);
-		return result;
+		copyContent(content, this, content.getRange(), offset);
 	}
 
 	public Content getContent() {
-		return getContent(0, length() - 1);
+		return getContent(getRange());
 	}
 
-	private static void copyContent(final Content source, final Content destination, final int sourceStartOffset, final int sourceEndOffset, final int destinationStartOffset) {
-		final int rangeLength = sourceEndOffset - sourceStartOffset + 1;
-		for (int i = 0; i < rangeLength; i++) {
-			final int sourceOffset = sourceStartOffset + i;
+	public Content getContent(final Range range) {
+		Assert.isTrue(getRange().contains(range));
+
+		final GapContent result = new GapContent(range.length());
+		copyContent(this, result, range, 0);
+		return result;
+	}
+
+	private static void copyContent(final Content source, final Content destination, final Range sourceRange, final int destinationStartOffset) {
+		for (int i = 0; i < sourceRange.length(); i++) {
+			final int sourceOffset = sourceRange.getStartOffset() + i;
 			final int destinationOffset = destinationStartOffset + i;
 			if (source.isElementMarker(sourceOffset)) {
 				destination.insertElementMarker(destinationOffset);
@@ -257,6 +249,10 @@ public class GapContent implements Content {
 	 */
 	public int length() {
 		return content.length - (gapEnd - gapStart);
+	}
+
+	public Range getRange() {
+		return new Range(0, length() - 1);
 	}
 
 	/**
@@ -285,7 +281,7 @@ public class GapContent implements Content {
 	 * @return the text of the given region including element markers
 	 */
 	public CharSequence subSequence(final int startOffset, final int endOffset) {
-		return getRawText(startOffset, endOffset);
+		return getRawText(new Range(startOffset, endOffset));
 	}
 
 	// ====================================================== PRIVATE

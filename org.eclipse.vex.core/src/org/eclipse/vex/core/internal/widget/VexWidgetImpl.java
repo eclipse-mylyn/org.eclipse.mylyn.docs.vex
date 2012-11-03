@@ -42,6 +42,7 @@ import org.eclipse.vex.core.internal.dom.DocumentListener;
 import org.eclipse.vex.core.internal.dom.DocumentValidationException;
 import org.eclipse.vex.core.internal.dom.Element;
 import org.eclipse.vex.core.internal.dom.Position;
+import org.eclipse.vex.core.internal.dom.Range;
 import org.eclipse.vex.core.internal.dom.Validator;
 import org.eclipse.vex.core.internal.layout.BlockBox;
 import org.eclipse.vex.core.internal.layout.Box;
@@ -212,9 +213,9 @@ public class VexWidgetImpl implements IVexWidget {
 		}
 
 		final Element parent = getDocument().getElementAt(startOffset);
-		final List<QualifiedName> seq1 = doc.getNodeNames(parent.getChildNodesBefore(startOffset));
+		final List<QualifiedName> seq1 = Document.getNodeNames(parent.getChildNodesBefore(startOffset));
 		final List<QualifiedName> seq2 = frag.getNodeNames();
-		final List<QualifiedName> seq3 = doc.getNodeNames(parent.getChildNodesAfter(endOffset));
+		final List<QualifiedName> seq3 = Document.getNodeNames(parent.getChildNodesAfter(endOffset));
 
 		return validator.isValidSequence(parent.getQualifiedName(), seq1, seq2, seq3, true);
 	}
@@ -241,9 +242,9 @@ public class VexWidgetImpl implements IVexWidget {
 		}
 
 		final Element parent = getDocument().getElementAt(startOffset);
-		final List<QualifiedName> seq1 = doc.getNodeNames(parent.getChildNodesBefore(startOffset));
+		final List<QualifiedName> seq1 = Document.getNodeNames(parent.getChildNodesBefore(startOffset));
 		final List<QualifiedName> seq2 = Collections.singletonList(Validator.PCDATA);
-		final List<QualifiedName> seq3 = doc.getNodeNames(parent.getChildNodesAfter(endOffset));
+		final List<QualifiedName> seq3 = Document.getNodeNames(parent.getChildNodesAfter(endOffset));
 
 		return validator.isValidSequence(parent.getQualifiedName(), seq1, seq2, seq3, true);
 	}
@@ -282,9 +283,9 @@ public class VexWidgetImpl implements IVexWidget {
 			return false;
 		}
 
-		final List<QualifiedName> seq1 = doc.getNodeNames(parent.getChildNodesBefore(element.getStartOffset()));
-		final List<QualifiedName> seq2 = doc.getNodeNames(element.getChildNodes());
-		final List<QualifiedName> seq3 = doc.getNodeNames(parent.getChildNodesAfter(element.getEndOffset()));
+		final List<QualifiedName> seq1 = Document.getNodeNames(parent.getChildNodesBefore(element.getStartOffset()));
+		final List<QualifiedName> seq2 = Document.getNodeNames(element.getChildNodes());
+		final List<QualifiedName> seq3 = Document.getNodeNames(parent.getChildNodesAfter(element.getEndOffset()));
 
 		return validator.isValidSequence(parent.getQualifiedName(), seq1, seq2, seq3, true);
 	}
@@ -372,7 +373,7 @@ public class VexWidgetImpl implements IVexWidget {
 	public void deleteSelection() {
 		try {
 			if (hasSelection()) {
-				document.delete(getSelectionStart(), getSelectionEnd());
+				document.delete(new Range(getSelectionStart(), getSelectionEnd()));
 				this.moveTo(getSelectionStart());
 			}
 		} catch (final DocumentValidationException ex) {
@@ -538,9 +539,9 @@ public class VexWidgetImpl implements IVexWidget {
 		final int endOffset = getEndOffset();
 
 		final Element parent = doc.getElementAt(startOffset);
-		final List<QualifiedName> nodesBefore = doc.getNodeNames(parent.getChildNodesBefore(startOffset));
-		final List<QualifiedName> nodesAfter = doc.getNodeNames(parent.getChildNodesAfter(endOffset));
-		final List<QualifiedName> selectedNodes = doc.getNodeNames(parent.getChildNodes(startOffset, endOffset));
+		final List<QualifiedName> nodesBefore = Document.getNodeNames(parent.getChildNodesBefore(startOffset));
+		final List<QualifiedName> nodesAfter = Document.getNodeNames(parent.getChildNodesAfter(endOffset));
+		final List<QualifiedName> selectedNodes = Document.getNodeNames(parent.getChildNodes(new Range(startOffset, endOffset)));
 		final List<QualifiedName> candidates = createCandidatesList(validator, parent, Validator.PCDATA);
 
 		filterInvalidSequences(validator, parent, nodesBefore, nodesAfter, candidates);
@@ -625,7 +626,7 @@ public class VexWidgetImpl implements IVexWidget {
 		final List<QualifiedName> candidates = createCandidatesList(validator, parent, Validator.PCDATA, element.getQualifiedName());
 
 		// root out those that can't contain the current content
-		final List<QualifiedName> content = doc.getNodeNames(element.getChildNodes());
+		final List<QualifiedName> content = Document.getNodeNames(element.getChildNodes());
 
 		for (final Iterator<QualifiedName> iter = candidates.iterator(); iter.hasNext();) {
 			final QualifiedName candidate = iter.next();
@@ -653,7 +654,7 @@ public class VexWidgetImpl implements IVexWidget {
 
 	public DocumentFragment getSelectedFragment() {
 		if (hasSelection()) {
-			return document.getFragment(getSelectionStart(), getSelectionEnd());
+			return document.getFragment(new Range(getSelectionStart(), getSelectionEnd()));
 		} else {
 			return null;
 		}
@@ -661,7 +662,7 @@ public class VexWidgetImpl implements IVexWidget {
 
 	public String getSelectedText() {
 		if (hasSelection()) {
-			return document.getText(getSelectionStart(), getSelectionEnd());
+			return document.getText(new Range(getSelectionStart(), getSelectionEnd()));
 		} else {
 			return "";
 		}
