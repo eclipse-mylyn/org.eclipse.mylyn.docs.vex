@@ -37,11 +37,11 @@ public class VexWidgetTest {
 		final VexWidgetImpl widget = new VexWidgetImpl(new MockHostComponent());
 		widget.setDocument(createDocumentWithDTD(TEST_DTD, "section"), StyleSheet.NULL);
 		assertCanInsertOnly(widget, "title", "para");
-		widget.insertElement(new Element("title"));
+		widget.insertElement(new QualifiedName(null, "title"));
 		assertCanInsertOnly(widget);
 		widget.moveBy(1);
 		assertCanInsertOnly(widget, "para");
-		widget.insertElement(new Element("para"));
+		widget.insertElement(new QualifiedName(null, "para"));
 		widget.moveBy(1);
 		assertCanInsertOnly(widget, "para");
 	}
@@ -51,7 +51,7 @@ public class VexWidgetTest {
 		final VexWidgetImpl widget = new VexWidgetImpl(new MockHostComponent());
 		widget.setDocument(createDocument(CONTENT_NS, "p"), StyleSheet.NULL);
 		assertCanInsertOnly(widget, "b", "i");
-		widget.insertElement(new Element(new QualifiedName(CONTENT_NS, "b")));
+		widget.insertElement(new QualifiedName(CONTENT_NS, "b"));
 		assertCanInsertOnly(widget, "b", "i");
 		widget.moveBy(1);
 		assertCanInsertOnly(widget, "b", "i");
@@ -62,11 +62,11 @@ public class VexWidgetTest {
 		final VexWidgetImpl widget = new VexWidgetImpl(new MockHostComponent());
 		widget.setDocument(createDocument(STRUCTURE_NS, "chapter"), StyleSheet.NULL);
 		assertCanInsertOnly(widget, "title", "chapter", "p");
-		widget.insertElement(new Element(new QualifiedName(STRUCTURE_NS, "title")));
+		widget.insertElement(new QualifiedName(STRUCTURE_NS, "title"));
 		assertCanInsertOnly(widget);
 		widget.moveBy(1);
 		//		assertCanInsertOnly(widget, "chapter", "p");
-		widget.insertElement(new Element(new QualifiedName(CONTENT_NS, "p")));
+		widget.insertElement(new QualifiedName(CONTENT_NS, "p"));
 		assertCanInsertOnly(widget, "b", "i");
 		widget.moveBy(1);
 		//		assertCanInsertOnly(widget, "p");
@@ -77,7 +77,7 @@ public class VexWidgetTest {
 	public void undoRemoveCommentTag() throws Exception {
 		final VexWidgetImpl widget = new VexWidgetImpl(new MockHostComponent());
 		widget.setDocument(createDocument(STRUCTURE_NS, "chapter"), StyleSheet.NULL);
-		widget.insertElement(new Element(new QualifiedName(CONTENT_NS, "p")));
+		widget.insertElement(new QualifiedName(CONTENT_NS, "p"));
 		widget.insertText("1text before comment1");
 		widget.insertElement(new CommentElement());
 		final Element commentElement = widget.getDocument().getElementAt(widget.getCaretOffset());

@@ -139,8 +139,8 @@ public class SchemaValidatorTest {
 		final Validator validator = new WTPVEXValidator();
 		final Document doc = new Document(new Element(P));
 		doc.setValidator(validator);
-		doc.insertElement(1, new Element(B));
-		doc.insertElement(2, new Element(I));
+		doc.insertElement(1, B);
+		doc.insertElement(2, I);
 
 		assertValidItems(validator, doc.getRootElement(), B, I); // p
 		assertValidItems(validator, doc.getElementAt(1), B, I); // b
@@ -164,10 +164,10 @@ public class SchemaValidatorTest {
 		final Validator validator = new WTPVEXValidator();
 		final Document doc = new Document(new Element(CHAPTER));
 		doc.setValidator(validator);
-		doc.insertElement(1, new Element(TITLE));
-		doc.insertElement(3, new Element(P));
-		doc.insertElement(4, new Element(B));
-		doc.insertElement(5, new Element(I));
+		doc.insertElement(1, TITLE);
+		doc.insertElement(3, P);
+		doc.insertElement(4, B);
+		doc.insertElement(5, I);
 
 		assertValidItems(validator, doc.getRootElement(), CHAPTER, TITLE, P); // chapter
 		assertValidItems(validator, doc.getElementAt(2)); // title

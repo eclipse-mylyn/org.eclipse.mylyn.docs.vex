@@ -16,6 +16,7 @@ import java.util.Stack;
 
 import junit.framework.TestCase;
 
+import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.vex.core.internal.core.DisplayDevice;
 import org.eclipse.vex.core.internal.css.MockDisplayDevice;
 import org.eclipse.vex.core.internal.css.StyleSheet;
@@ -80,7 +81,7 @@ public class TableLayoutTest extends TestCase {
 	}
 
 	private void insertElement(final String elementName) {
-		document.insertElement(caretPosition, new Element(elementName));
+		document.insertElement(caretPosition, new QualifiedName(null, elementName));
 		caretPosition++;
 	}
 

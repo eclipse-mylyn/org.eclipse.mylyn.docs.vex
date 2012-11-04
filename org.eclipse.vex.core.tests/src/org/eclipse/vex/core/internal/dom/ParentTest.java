@@ -461,6 +461,18 @@ public class ParentTest {
 		assertTrue(parent.getChildNodesAfter(parent.getEndOffset()).isEmpty());
 	}
 
+	@Test
+	public void shouldProvideInsertionIndexForOffset() throws Exception {
+		final TestChild child1 = addTestChild();
+		final TestChild child2 = addTestChild();
+		final TestChild child3 = addTestChild();
+
+		assertEquals(0, parent.getInsertionIndex(child1.getStartOffset()));
+		assertEquals(1, parent.getInsertionIndex(child2.getStartOffset()));
+		assertEquals(2, parent.getInsertionIndex(child3.getStartOffset()));
+		assertEquals(3, parent.getInsertionIndex(parent.getEndOffset()));
+	}
+
 	private static void assertTextNodeEquals(final String text, final int startOffset, final int endOffset, final Node actualNode) {
 		assertTrue(actualNode instanceof Text);
 		assertEquals(text, actualNode.getText());

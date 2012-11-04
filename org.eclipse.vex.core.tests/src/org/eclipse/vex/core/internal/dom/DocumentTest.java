@@ -18,6 +18,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.List;
 
 import org.eclipse.core.runtime.AssertionFailedException;
+import org.eclipse.core.runtime.QualifiedName;
 import org.junit.Test;
 
 /**
@@ -63,8 +64,7 @@ public class DocumentTest {
 	@Test
 	public void createFragmentWithTextAndChild() throws Exception {
 		final Document document = new Document(new Element("root"));
-		final Element childElement = new Element("child");
-		document.insertElement(1, childElement);
+		final Element childElement = document.insertElement(1, new QualifiedName(null, "child"));
 		document.insertText(childElement.getStartOffset(), "Hello ");
 		document.insertText(childElement.getEndOffset(), "Child");
 		document.insertText(childElement.getEndOffset() + 1, " World");
@@ -77,8 +77,7 @@ public class DocumentTest {
 	@Test
 	public void createFragmentWithExactlyOneChild() throws Exception {
 		final Document document = new Document(new Element("root"));
-		final Element childElement = new Element("child");
-		document.insertElement(1, childElement);
+		final Element childElement = document.insertElement(1, new QualifiedName(null, "child"));
 		document.insertText(childElement.getEndOffset(), "Child");
 		final Range range = childElement.getRange();
 		final DocumentFragment fragment = document.getFragment(range);

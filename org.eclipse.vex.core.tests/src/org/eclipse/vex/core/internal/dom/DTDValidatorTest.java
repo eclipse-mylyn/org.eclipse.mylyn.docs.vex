@@ -91,9 +91,9 @@ public class DTDValidatorTest extends TestCase {
 		// 1 2 3 4 5 6 7
 		final Document doc = new Document(new Element("section"));
 		doc.setValidator(validator);
-		doc.insertElement(1, new Element("title"));
+		doc.insertElement(1, new QualifiedName(null, "title"));
 		doc.insertText(2, "ab");
-		doc.insertElement(5, new Element("para"));
+		doc.insertElement(5, new QualifiedName(null, "para"));
 
 		assertValidItemsAt(doc, 0);
 		assertValidItemsAt(doc, 1, "title", "para");
@@ -157,9 +157,9 @@ public class DTDValidatorTest extends TestCase {
 	public void testValidateDocumentWithDTDAndNamespaces() throws Exception {
 		final Document doc = new Document(new Element(new QualifiedName("http://namespace/uri/is/not/registered", "section")));
 		doc.setValidator(validator);
-		doc.insertElement(1, new Element("title"));
+		doc.insertElement(1, new QualifiedName(null, "title"));
 		doc.insertText(2, "ab");
-		doc.insertElement(5, new Element("para"));
+		doc.insertElement(5, new QualifiedName(null, "para"));
 
 		validator.getAttributeDefinitions(doc.getRootElement());
 	}

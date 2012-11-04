@@ -14,6 +14,7 @@ import java.net.URL;
 
 import junit.framework.TestCase;
 
+import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.vex.core.internal.core.DisplayDevice;
 import org.eclipse.vex.core.internal.css.MockDisplayDevice;
 import org.eclipse.vex.core.internal.css.StyleSheet;
@@ -55,9 +56,9 @@ public class TestBlocksInInlines extends TestCase {
 		context.setDocument(doc);
 
 		doc.insertText(1, "one  five");
-		doc.insertElement(5, new Element("b"));
+		doc.insertElement(5, new QualifiedName(null, "b"));
 		doc.insertText(6, "two  four");
-		doc.insertElement(10, new Element("p"));
+		doc.insertElement(10, new QualifiedName(null, "p"));
 		doc.insertText(11, "three");
 
 		final RootBox rootBox = new RootBox(context, root, 500);

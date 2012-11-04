@@ -707,6 +707,29 @@ public class VexWidgetImpl implements IVexWidget {
 		this.moveTo(getCaretOffset() + frag.getLength());
 	}
 
+	public void insertElement(final QualifiedName elementName) throws DocumentValidationException {
+		boolean success = false;
+		try {
+			beginWork();
+
+			DocumentFragment frag = null;
+			if (hasSelection()) {
+				frag = getSelectedFragment();
+				deleteSelection();
+			}
+
+			document.insertElement(getCaretOffset(), elementName);
+			this.moveTo(getCaretOffset() + 1);
+			if (frag != null) {
+				insertFragment(frag);
+			}
+			scrollCaretVisible();
+			success = true;
+		} finally {
+			endWork(success);
+		}
+	}
+
 	public void insertElement(final Element element) throws DocumentValidationException {
 
 		boolean success = false;
@@ -1188,7 +1211,7 @@ public class VexWidgetImpl implements IVexWidget {
 				// let's move just outside
 				this.moveTo(getCaretOffset() + 1);
 
-				insertElement(new Element(element.getQualifiedName()));
+				insertElement(element.getQualifiedName());
 				// TODO: clone attributes
 
 				if (!atEnd) {

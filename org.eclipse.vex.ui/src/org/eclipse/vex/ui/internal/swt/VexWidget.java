@@ -22,6 +22,7 @@ import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
 
 import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.ISelectionProvider;
@@ -276,6 +277,10 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 
 	public void insertElement(final Element element) throws DocumentValidationException {
 		impl.insertElement(element);
+	}
+
+	public void insertElement(final QualifiedName elementName) throws DocumentValidationException {
+		impl.insertElement(elementName);
 	}
 
 	public void insertText(final String text) throws DocumentValidationException {

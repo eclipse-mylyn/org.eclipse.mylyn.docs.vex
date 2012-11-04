@@ -13,6 +13,7 @@ package org.eclipse.vex.core.internal.widget;
 import java.io.IOException;
 import java.net.URL;
 
+import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.vex.core.internal.core.ElementName;
 import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.dom.Document;
@@ -253,6 +254,8 @@ public interface IVexWidget {
 	 *            Element to insert.
 	 */
 	public void insertElement(Element element) throws DocumentValidationException;
+
+	public void insertElement(QualifiedName elementName) throws DocumentValidationException;
 
 	/**
 	 * Inserts the given text at the current caret position. Any selected content is first deleted.

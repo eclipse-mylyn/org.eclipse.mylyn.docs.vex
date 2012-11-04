@@ -56,6 +56,18 @@ public abstract class Parent extends Node {
 		child.setParent(this);
 	}
 
+	public int getInsertionIndex(final int offset) {
+		Assert.isTrue(getStartOffset() < offset && offset <= getEndOffset(), MessageFormat.format("The offset must be within [{0}, {1}].", getStartOffset() + 1, getEndOffset()));
+		int i = 0;
+		for (final Iterator<Node> iterator = children.iterator(); iterator.hasNext(); i++) {
+			final Node child = iterator.next();
+			if (offset <= child.getStartOffset()) {
+				return i;
+			}
+		}
+		return children.size();
+	}
+
 	/**
 	 * Remove the given child node from the list of children. The parent attribute of the child will be set to null.
 	 * 
