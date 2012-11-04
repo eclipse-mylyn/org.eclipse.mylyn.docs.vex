@@ -160,33 +160,72 @@ public class Document extends Parent {
 		return getContent().length();
 	}
 
-	private boolean canInsertAt(final int offset, final QualifiedName... nodeNames) {
-		return canInsertAt(offset, Arrays.asList(nodeNames));
+	public Position createPosition(final int offset) {
+		return getContent().createPosition(offset);
 	}
 
-	private boolean canInsertAt(final int offset, final List<QualifiedName> nodeNames) {
+	private boolean canInsertAt(final Element insertionParent, final int offset, final QualifiedName... nodeNames) {
+		return canInsertAt(insertionParent, offset, Arrays.asList(nodeNames));
+	}
+
+	private boolean canInsertAt(final Element insertionParent, final int offset, final List<QualifiedName> nodeNames) {
 		if (validator == null) {
 			return true;
 		}
 
-		final Element parent = getElementAt(offset);
-		final List<QualifiedName> seq1 = getNodeNames(parent.getChildNodesBefore(offset));
-		final List<QualifiedName> seq2 = nodeNames;
-		final List<QualifiedName> seq3 = getNodeNames(parent.getChildNodesAfter(offset));
+		if (insertionParent == null) {
+			return false;
+		}
 
-		return validator.isValidSequence(parent.getQualifiedName(), seq1, seq2, seq3, true);
+		final List<QualifiedName> prefix = getNodeNames(insertionParent.getChildNodesBefore(offset));
+		final List<QualifiedName> insertionCandidates = nodeNames;
+		final List<QualifiedName> suffix = getNodeNames(insertionParent.getChildNodesAfter(offset));
+
+		return validator.isValidSequence(insertionParent.getQualifiedName(), prefix, insertionCandidates, suffix, true);
 	}
 
-	public boolean canInsertFragment(final int offset, final DocumentFragment fragment) {
-		return canInsertAt(offset, fragment.getNodeNames());
+	private Element getInsertionParentAt(final int offset) {
+		final Element parent = getElementAt(offset);
+		if (offset == parent.getStartOffset()) {
+			return parent.getParentElement();
+		}
+		return parent;
 	}
 
 	public boolean canInsertText(final int offset) {
-		return canInsertAt(offset, Validator.PCDATA);
+		return canInsertAt(getInsertionParentAt(offset), offset, Validator.PCDATA);
 	}
 
-	public Position createPosition(final int offset) {
-		return getContent().createPosition(offset);
+	public void insertText(final int offset, final String text) throws DocumentValidationException {
+		Assert.isTrue(offset > getStartOffset() && offset <= getEndOffset(), MessageFormat.format("Offset must be in [{0}, {1}]", getStartOffset() + 1, getEndOffset()));
+
+		final Element parent = getInsertionParentAt(offset);
+		if (!canInsertAt(parent, offset, Validator.PCDATA)) {
+			throw new DocumentValidationException(MessageFormat.format("Cannot insert text ''{0}'' at offset {1}.", text, offset));
+		}
+
+		final String adjustedText = convertControlCharactersToSpaces(text);
+
+		fireBeforeContentInserted(new DocumentEvent(this, parent, offset, 2, null));
+
+		getContent().insertText(offset, adjustedText);
+
+		final IUndoableEdit edit = undoEnabled ? new InsertTextEdit(offset, adjustedText) : null;
+		fireContentInserted(new DocumentEvent(this, parent, offset, adjustedText.length(), edit));
+	}
+
+	private String convertControlCharactersToSpaces(final String text) {
+		final char[] characters = text.toCharArray();
+		for (int i = 0; i < characters.length; i++) {
+			if (Character.isISOControl(characters[i]) && characters[i] != '\n') {
+				characters[i] = ' ';
+			}
+		}
+		return new String(characters);
+	}
+
+	public boolean canInsertFragment(final int offset, final DocumentFragment fragment) {
+		return canInsertAt(getInsertionParentAt(offset), offset, fragment.getNodeNames());
 	}
 
 	public void delete(final Range range) throws DocumentValidationException {
@@ -369,7 +408,7 @@ public class Document extends Parent {
 			throw new IllegalArgumentException("Error inserting element <" + element.getPrefixedName() + ">: offset is " + offset + ", but it must be between 1 and " + (getLength() - 1));
 		}
 
-		if (!canInsertAt(offset, element.getQualifiedName())) {
+		if (!canInsertAt(getInsertionParentAt(offset), offset, element.getQualifiedName())) {
 			throw new DocumentValidationException("Cannot insert element " + element.getPrefixedName() + " at offset " + offset);
 		}
 
@@ -416,7 +455,7 @@ public class Document extends Parent {
 			throw new IllegalArgumentException("Error inserting document fragment");
 		}
 
-		if (!canInsertAt(offset, fragment.getNodeNames())) {
+		if (!canInsertAt(getInsertionParentAt(offset), offset, fragment.getNodeNames())) {
 			throw new DocumentValidationException("Cannot insert document fragment");
 		}
 
@@ -442,43 +481,6 @@ public class Document extends Parent {
 		final IUndoableEdit edit = undoEnabled ? new InsertFragmentEdit(offset, fragment) : null;
 
 		fireContentInserted(new DocumentEvent(this, parent, offset, fragment.getContent().length(), edit));
-	}
-
-	public void insertText(final int offset, final String text) throws DocumentValidationException {
-		if (offset < 1 || offset >= getLength()) {
-			throw new IllegalArgumentException("Offset must be between 1 and n-1");
-		}
-
-		final boolean isValid;
-		if (!getContent().isElementMarker(offset - 1)) {
-			isValid = true;
-		} else if (!getContent().isElementMarker(offset)) {
-			isValid = true;
-		} else {
-			isValid = canInsertAt(offset, Validator.PCDATA);
-		}
-
-		if (!isValid) {
-			throw new DocumentValidationException("Cannot insert text '" + text + "' at offset " + offset);
-		}
-
-		// Convert control chars to spaces
-		final StringBuffer sb = new StringBuffer(text);
-		for (int i = 0; i < sb.length(); i++) {
-			if (Character.isISOControl(sb.charAt(i)) && sb.charAt(i) != '\n') {
-				sb.setCharAt(i, ' ');
-			}
-		}
-		final String s = sb.toString();
-
-		final Element parent = getElementAt(offset);
-		fireBeforeContentInserted(new DocumentEvent(this, parent, offset, 2, null));
-
-		getContent().insertText(offset, s);
-
-		final IUndoableEdit edit = undoEnabled ? new InsertTextEdit(offset, s) : null;
-
-		fireContentInserted(new DocumentEvent(this, parent, offset, s.length(), edit));
 	}
 
 	public void fireAttributeChanged(final DocumentEvent e) {

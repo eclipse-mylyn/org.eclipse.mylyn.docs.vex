@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.dom;
 
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -181,7 +182,7 @@ public abstract class Parent extends Node {
 	 * @return the node at the given offset
 	 */
 	public Node getChildNodeAt(final int offset) {
-		Assert.isTrue(containsOffset(offset));
+		Assert.isTrue(containsOffset(offset), MessageFormat.format("Offset must be within {0}.", getRange()));
 		final List<Node> childNodes = getChildNodes();
 		for (final Node child : childNodes) {
 			if (child.containsOffset(offset)) {
