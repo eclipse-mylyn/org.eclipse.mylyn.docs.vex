@@ -14,7 +14,6 @@ package org.eclipse.vex.core.internal.dom;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
 
@@ -376,26 +375,6 @@ public class Document extends Parent {
 		}
 
 		return clone;
-	}
-
-	public static List<QualifiedName> getNodeNames(final Collection<Node> nodes) {
-		final List<QualifiedName> names = new ArrayList<QualifiedName>(nodes.size());
-
-		for (final Node node : nodes) {
-			node.accept(new BaseNodeVisitor() {
-				@Override
-				public void visit(final Text text) {
-					names.add(Validator.PCDATA);
-				}
-
-				@Override
-				public void visit(final Element element) {
-					names.add(element.getQualifiedName());
-				}
-			});
-		}
-
-		return names;
 	}
 
 	public List<Node> getNodes(final Range range) {

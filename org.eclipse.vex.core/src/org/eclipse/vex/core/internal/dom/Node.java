@@ -10,7 +10,12 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.dom;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
 import org.eclipse.core.runtime.Assert;
+import org.eclipse.core.runtime.QualifiedName;
 
 /**
  * This class represents one node within the XML structure, which is also associated to a region of the textual content.
@@ -194,5 +199,25 @@ public abstract class Node {
 	 *            the visitor
 	 */
 	public abstract void accept(final INodeVisitor visitor);
+
+	public static List<QualifiedName> getNodeNames(final Collection<Node> nodes) {
+		final List<QualifiedName> names = new ArrayList<QualifiedName>(nodes.size());
+
+		for (final Node node : nodes) {
+			node.accept(new BaseNodeVisitor() {
+				@Override
+				public void visit(final Text text) {
+					names.add(Validator.PCDATA);
+				}
+
+				@Override
+				public void visit(final Element element) {
+					names.add(element.getQualifiedName());
+				}
+			});
+		}
+
+		return names;
+	}
 
 }

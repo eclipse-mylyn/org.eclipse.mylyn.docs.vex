@@ -54,7 +54,7 @@ public class DocumentFragment extends Parent {
 	}
 
 	public List<QualifiedName> getNodeNames() {
-		return Document.getNodeNames(getChildNodes());
+		return Node.getNodeNames(getChildNodes());
 	}
 
 	public List<Node> getNodes() {
