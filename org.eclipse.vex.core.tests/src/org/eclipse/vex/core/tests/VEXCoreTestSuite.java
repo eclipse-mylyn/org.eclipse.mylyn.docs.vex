@@ -33,6 +33,7 @@ import org.eclipse.vex.core.internal.dom.L1ElementHandlingTest;
 import org.eclipse.vex.core.internal.dom.L1TextHandlingTest;
 import org.eclipse.vex.core.internal.dom.NamespaceStackTest;
 import org.eclipse.vex.core.internal.dom.NamespaceTest;
+import org.eclipse.vex.core.internal.dom.NodeTraversalTest;
 import org.eclipse.vex.core.internal.dom.ParentTest;
 import org.eclipse.vex.core.internal.dom.RangeTest;
 import org.eclipse.vex.core.internal.dom.SchemaValidatorTest;
@@ -67,6 +68,7 @@ public class VEXCoreTestSuite extends TestSuite {
 		addTest(new JUnit4TestAdapter(L1TextHandlingTest.class));
 		addTest(new JUnit4TestAdapter(L1ElementHandlingTest.class));
 		addTest(new JUnit4TestAdapter(DocumentFragmentTest.class));
+		addTest(new JUnit4TestAdapter(NodeTraversalTest.class));
 		addTestSuite(PropertyTest.class);
 		addTestSuite(RuleTest.class);
 		addTestSuite(BlockElementBoxTest.class);
