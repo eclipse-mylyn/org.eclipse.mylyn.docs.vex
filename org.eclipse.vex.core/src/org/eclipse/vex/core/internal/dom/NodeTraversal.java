@@ -23,8 +23,10 @@ public class NodeTraversal {
 		traversalVisitor = new TraversalVisitor();
 	}
 
-	public void traverse(final Node node) {
-		node.accept(traversalVisitor);
+	public void traverse(final Node... nodes) {
+		for (final Node node : nodes) {
+			node.accept(traversalVisitor);
+		}
 	}
 
 	private class TraversalVisitor implements INodeVisitor {
