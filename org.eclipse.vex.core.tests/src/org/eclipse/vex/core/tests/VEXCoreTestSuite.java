@@ -22,7 +22,9 @@ import org.eclipse.vex.core.internal.css.PropertyTest;
 import org.eclipse.vex.core.internal.css.RuleTest;
 import org.eclipse.vex.core.internal.dom.BasicNodeTest;
 import org.eclipse.vex.core.internal.dom.BlockElementBoxTest;
+import org.eclipse.vex.core.internal.dom.CopyVisitorTest;
 import org.eclipse.vex.core.internal.dom.DTDValidatorTest;
+import org.eclipse.vex.core.internal.dom.DeepCopyTest;
 import org.eclipse.vex.core.internal.dom.DocumentContentModelTest;
 import org.eclipse.vex.core.internal.dom.DocumentFragmentTest;
 import org.eclipse.vex.core.internal.dom.DocumentReaderTest;
@@ -69,6 +71,8 @@ public class VEXCoreTestSuite extends TestSuite {
 		addTest(new JUnit4TestAdapter(L1ElementHandlingTest.class));
 		addTest(new JUnit4TestAdapter(DocumentFragmentTest.class));
 		addTest(new JUnit4TestAdapter(NodeTraversalTest.class));
+		addTest(new JUnit4TestAdapter(CopyVisitorTest.class));
+		addTest(new JUnit4TestAdapter(DeepCopyTest.class));
 		addTestSuite(PropertyTest.class);
 		addTestSuite(RuleTest.class);
 		addTestSuite(BlockElementBoxTest.class);
