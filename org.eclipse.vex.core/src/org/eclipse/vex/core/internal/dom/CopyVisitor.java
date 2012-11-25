@@ -49,6 +49,10 @@ public class CopyVisitor implements INodeVisitor {
 		copy = null;
 	}
 
+	public void visit(final Comment comment) {
+		copy = new Comment();
+	}
+
 	/**
 	 * @return the copy of the visited node
 	 */

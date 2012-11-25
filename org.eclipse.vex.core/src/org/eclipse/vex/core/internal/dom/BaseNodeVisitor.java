@@ -34,4 +34,7 @@ public class BaseNodeVisitor implements INodeVisitor {
 		// ignore
 	}
 
+	public void visit(final Comment comment) {
+		// ignore
+	}
 }

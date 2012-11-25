@@ -54,6 +54,9 @@ public class NodeTraversal {
 			text.accept(nodeVisitor);
 		}
 
+		public void visit(final Comment comment) {
+			comment.accept(nodeVisitor);
+		}
 	}
 
 }

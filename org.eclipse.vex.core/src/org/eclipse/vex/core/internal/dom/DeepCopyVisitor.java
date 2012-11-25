@@ -54,6 +54,12 @@ public class DeepCopyVisitor implements INodeVisitor {
 		// ignore Text nodes because they are created dynamically in Element.getChildNodes()
 	}
 
+	public void visit(final Comment comment) {
+		final Comment copy = copy(comment);
+		addToParent(copy);
+		associate(comment, copy);
+	}
+
 	private <T extends Node> T copy(final T node) {
 		node.accept(copyVisitor);
 		return copyVisitor.<T> getCopy();
