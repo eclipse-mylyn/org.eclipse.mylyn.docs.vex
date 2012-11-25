@@ -190,6 +190,14 @@ public class Document extends Parent {
 		return parent;
 	}
 
+	private Node getInsertionNodeAt(final int offset) {
+		final Node node = getChildNodeAt(offset);
+		if (offset == node.getStartOffset()) {
+			return node.getParent();
+		}
+		return node;
+	}
+
 	public boolean canInsertText(final int offset) {
 		return canInsertAt(getInsertionParentAt(offset), offset, Validator.PCDATA);
 	}
@@ -197,19 +205,38 @@ public class Document extends Parent {
 	public void insertText(final int offset, final String text) throws DocumentValidationException {
 		Assert.isTrue(offset > getStartOffset() && offset <= getEndOffset(), MessageFormat.format("Offset must be in [{0}, {1}]", getStartOffset() + 1, getEndOffset()));
 
-		final Element parent = getInsertionParentAt(offset);
-		if (!canInsertAt(parent, offset, Validator.PCDATA)) {
-			throw new DocumentValidationException(MessageFormat.format("Cannot insert text ''{0}'' at offset {1}.", text, offset));
-		}
-
 		final String adjustedText = convertControlCharactersToSpaces(text);
+		final Node insertionNode = getInsertionNodeAt(offset);
+		insertionNode.accept(new INodeVisitor() {
+			public void visit(final Document document) {
+				Assert.isTrue(false, "Cannot insert text directly into Document.");
+			}
 
-		fireBeforeContentInserted(new DocumentEvent(this, parent, offset, 2, null));
+			public void visit(final DocumentFragment fragment) {
+				Assert.isTrue(false, "DocumentFragment is never a child of Document.");
+			}
 
-		getContent().insertText(offset, adjustedText);
+			public void visit(final Element element) {
+				if (!canInsertAt(element, offset, Validator.PCDATA)) {
+					throw new DocumentValidationException(MessageFormat.format("Cannot insert text ''{0}'' at offset {1}.", text, offset));
+				}
 
-		final IUndoableEdit edit = undoEnabled ? new InsertTextEdit(offset, adjustedText) : null;
-		fireContentInserted(new DocumentEvent(this, parent, offset, adjustedText.length(), edit));
+				fireBeforeContentInserted(new DocumentEvent(Document.this, element, offset, 2, null));
+
+				getContent().insertText(offset, adjustedText);
+
+				final IUndoableEdit edit = undoEnabled ? new InsertTextEdit(offset, adjustedText) : null;
+				fireContentInserted(new DocumentEvent(Document.this, element, offset, adjustedText.length(), edit));
+			}
+
+			public void visit(final Text text) {
+				getContent().insertText(offset, adjustedText);
+			}
+
+			public void visit(final Comment comment) {
+				getContent().insertText(offset, adjustedText);
+			}
+		});
 	}
 
 	private String convertControlCharactersToSpaces(final String text) {
@@ -220,6 +247,27 @@ public class Document extends Parent {
 			}
 		}
 		return new String(characters);
+	}
+
+	public boolean canInsertComment(final int offset) {
+		// TODO Currently comments can only be inserted within the root element.
+		return offset > rootElement.getStartOffset() && offset <= rootElement.getEndOffset();
+	}
+
+	public Comment insertComment(final int offset) {
+		Assert.isTrue(canInsertComment(offset));
+
+		final Element parent = getInsertionParentAt(offset);
+
+		// TODO fire events
+		final Comment comment = new Comment();
+		getContent().insertElementMarker(offset);
+		getContent().insertElementMarker(offset);
+		comment.associate(getContent(), new Range(offset, offset + 1));
+
+		parent.insertChild(parent.getInsertionIndex(offset), comment);
+
+		return comment;
 	}
 
 	public boolean canInsertElement(final int offset, final QualifiedName elementName) {
