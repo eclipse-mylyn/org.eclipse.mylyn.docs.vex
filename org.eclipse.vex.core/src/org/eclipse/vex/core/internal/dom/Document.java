@@ -12,7 +12,6 @@
 package org.eclipse.vex.core.internal.dom;
 
 import java.text.MessageFormat;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
@@ -278,6 +277,35 @@ public class Document extends Parent {
 		return canInsertAt(getInsertionParentAt(offset), offset, fragment.getNodeNames());
 	}
 
+	public void insertFragment(final int offset, final DocumentFragment fragment) throws DocumentValidationException {
+		if (offset < 1 || offset >= getLength()) {
+			throw new IllegalArgumentException("Error inserting document fragment");
+		}
+
+		if (!canInsertAt(getInsertionParentAt(offset), offset, fragment.getNodeNames())) {
+			throw new DocumentValidationException("Cannot insert document fragment");
+		}
+
+		final Element parent = getElementAt(offset);
+
+		fireBeforeContentInserted(new DocumentEvent(this, parent, offset, 2, null));
+
+		getContent().insertContent(offset, fragment.getContent());
+
+		final DeepCopy deepCopy = new DeepCopy(fragment);
+		final List<Node> newNodes = deepCopy.getNodes();
+		int index = parent.getInsertionIndex(offset);
+		for (final Node newNode : newNodes) {
+			parent.insertChild(index, newNode);
+			newNode.associate(getContent(), newNode.getRange().moveBounds(offset));
+			index++;
+		}
+
+		final IUndoableEdit edit = undoEnabled ? new InsertFragmentEdit(offset, fragment) : null;
+
+		fireContentInserted(new DocumentEvent(this, parent, offset, fragment.getContent().length(), edit));
+	}
+
 	public void delete(final Range range) throws DocumentValidationException {
 		final Element surroundingElement = getElementAt(range.getStartOffset() - 1);
 		final Element elementAtEndOffset = getElementAt(range.getEndOffset() + 1);
@@ -367,25 +395,9 @@ public class Document extends Parent {
 	}
 
 	public DocumentFragment getFragment(final Range range) {
-		final List<Node> childNodes = getParentOfRange(range).getChildNodes();
-
-		final Content cloneContent = getContent().getContent(range);
-		final List<Node> cloneChildNodes = new ArrayList<Node>();
-
-		for (final Node child : childNodes) {
-			if (child.getEndOffset() <= range.getStartOffset()) {
-				continue;
-			} else if (child.getStartOffset() >= range.getEndOffset()) {
-				break;
-			} else {
-				final Node cloneChildNode = cloneNode(child, cloneContent, -range.getStartOffset(), null);
-				if (cloneChildNode != null) {
-					cloneChildNodes.add(cloneChildNode);
-				}
-			}
-		}
-
-		return new DocumentFragment(cloneContent, cloneChildNodes);
+		final Parent parent = getParentOfRange(range);
+		final DeepCopy deepCopy = new DeepCopy(parent, range);
+		return new DocumentFragment(deepCopy.getContent(), deepCopy.getNodes());
 	}
 
 	private Parent getParentOfRange(final Range range) {
@@ -400,69 +412,8 @@ public class Document extends Parent {
 		return parent;
 	}
 
-	private Node cloneNode(final Node original, final Content content, final int shift, final Parent parent) {
-		final Node result[] = new Node[1];
-		original.accept(new BaseNodeVisitor() {
-			@Override
-			public void visit(final Element element) {
-				result[0] = cloneElement(element, content, shift, parent);
-			}
-		});
-
-		return result[0];
-	}
-
-	private Element cloneElement(final Element original, final Content content, final int shift, final Parent parent) {
-		final Element clone = original.clone();
-		clone.associate(content, original.getRange().moveBounds(shift, shift));
-		clone.setParent(parent);
-
-		final List<Node> children = original.getChildNodes();
-		for (final Node child : children) {
-			final Node cloneChild = cloneNode(child, content, shift, clone);
-			if (cloneChild != null) {
-				clone.addChild(cloneChild);
-			}
-		}
-
-		return clone;
-	}
-
 	public List<Node> getNodes(final Range range) {
 		return getParentOfRange(range).getChildNodes(range);
-	}
-
-	public void insertFragment(final int offset, final DocumentFragment fragment) throws DocumentValidationException {
-		if (offset < 1 || offset >= getLength()) {
-			throw new IllegalArgumentException("Error inserting document fragment");
-		}
-
-		if (!canInsertAt(getInsertionParentAt(offset), offset, fragment.getNodeNames())) {
-			throw new DocumentValidationException("Cannot insert document fragment");
-		}
-
-		final Element parent = getElementAt(offset);
-
-		fireBeforeContentInserted(new DocumentEvent(this, parent, offset, 2, null));
-
-		getContent().insertContent(offset, fragment.getContent());
-
-		final List<Element> children = parent.getChildElements();
-		int index = 0;
-		while (index < children.size() && children.get(index).getEndOffset() < offset) {
-			index++;
-		}
-
-		final List<Element> elements = fragment.getElements();
-		for (int i = 0; i < elements.size(); i++) {
-			final Element newElement = cloneElement(elements.get(i), getContent(), offset, parent);
-			parent.insertChild(index, newElement);
-			index++;
-		}
-
-		final IUndoableEdit edit = undoEnabled ? new InsertFragmentEdit(offset, fragment) : null;
-
-		fireContentInserted(new DocumentEvent(this, parent, offset, fragment.getContent().length(), edit));
 	}
 
 	public void fireAttributeChanged(final DocumentEvent e) {
