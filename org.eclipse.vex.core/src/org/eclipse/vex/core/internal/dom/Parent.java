@@ -85,6 +85,10 @@ public abstract class Parent extends Node {
 	 * @return all child nodes including Text nodes
 	 */
 	public List<Node> getChildNodes() {
+		if (!isAssociated()) {
+			return Collections.unmodifiableList(children);
+		}
+
 		return getChildNodes(getRange());
 	}
 
@@ -100,9 +104,10 @@ public abstract class Parent extends Node {
 	 * @return all child nodes which are completely within the given range plus the textual content
 	 */
 	public List<Node> getChildNodes(final Range range) {
+		final List<Node> result = new ArrayList<Node>();
+
 		final Range trimmedRange = range.trimTo(getRange());
 		int textStart = trimmedRange.getStartOffset();
-		final List<Node> result = new ArrayList<Node>();
 		for (final Node child : children) {
 			if (!child.isAssociated()) {
 				result.add(child);

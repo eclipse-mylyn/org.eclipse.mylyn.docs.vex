@@ -228,9 +228,13 @@ public class Element extends Parent implements Cloneable {
 		}
 
 		sb.append("> (");
-		sb.append(getStartOffset());
-		sb.append(",");
-		sb.append(getEndOffset());
+		if (isAssociated()) {
+			sb.append(getStartOffset());
+			sb.append(",");
+			sb.append(getEndOffset());
+		} else {
+			sb.append("n/a");
+		}
 		sb.append(")");
 
 		return sb.toString();
