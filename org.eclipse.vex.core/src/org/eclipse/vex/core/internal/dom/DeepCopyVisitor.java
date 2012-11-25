@@ -39,7 +39,7 @@ public class DeepCopyVisitor implements INodeVisitor {
 	}
 
 	public void visit(final DocumentFragment fragment) {
-		throw new UnsupportedOperationException("DocumentFragment cannot be deep copied");
+		copyChildren(fragment, null);
 	}
 
 	public void visit(final Element element) {
@@ -70,7 +70,7 @@ public class DeepCopyVisitor implements INodeVisitor {
 	private void associate(final Node source, final Node copy) {
 		if (source.isAssociated()) {
 			final Range range = source.getRange();
-			copy.associate(content, range.moveBounds(delta, delta));
+			copy.associate(content, range.moveBounds(delta));
 		}
 	}
 

@@ -52,6 +52,10 @@ public class Range {
 		return new Range(Math.max(limit.getStartOffset(), startOffset), Math.min(endOffset, limit.getEndOffset()));
 	}
 
+	public Range moveBounds(final int delta) {
+		return moveBounds(delta, delta);
+	}
+
 	public Range moveBounds(final int deltaStart, final int deltaEnd) {
 		return new Range(startOffset + deltaStart, endOffset + deltaEnd);
 	}
