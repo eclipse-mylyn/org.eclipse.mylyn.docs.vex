@@ -17,6 +17,7 @@ import java.util.List;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.vex.core.internal.dom.CopyVisitor;
 import org.eclipse.vex.core.internal.dom.Element;
 import org.eclipse.vex.ui.internal.swt.VexWidget;
 
@@ -60,13 +61,15 @@ public abstract class AbstractAddColumnHandler extends AbstractHandler {
 			}
 		});
 
+		final CopyVisitor copyVisitor = new CopyVisitor();
 		int finalOffset = -1;
 		for (final Element element : cellsToDup) {
 			if (finalOffset == -1) {
 				finalOffset = element.getStartOffset() + 1;
 			}
 			widget.moveTo(addBefore() ? element.getStartOffset() : element.getEndOffset() + 1);
-			widget.insertElement(element.clone());
+			element.accept(copyVisitor);
+			widget.insertElement(copyVisitor.<Element> getCopy());
 		}
 
 		if (finalOffset != -1) {

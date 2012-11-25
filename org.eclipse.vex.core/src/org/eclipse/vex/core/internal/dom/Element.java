@@ -29,7 +29,7 @@ import org.eclipse.vex.core.internal.undo.IUndoableEdit;
 /**
  * Represents a tag in an XML document. Methods are available for managing the element's attributes and children.
  */
-public class Element extends Parent implements Cloneable {
+public class Element extends Parent {
 
 	/**
 	 * The xml:base attribute re-defines the base URI for a part of an XML document, according to the XML Base
@@ -55,28 +55,6 @@ public class Element extends Parent implements Cloneable {
 	@Override
 	public void accept(final INodeVisitor visitor) {
 		visitor.visit(this);
-	}
-
-	@Override
-	public Element clone() {
-		try {
-			final Element element = new Element(getQualifiedName());
-			//add the attributes to the element instance to be cloned
-			for (final Map.Entry<QualifiedName, Attribute> attr : attributes.entrySet()) {
-				element.setAttribute(attr.getKey(), attr.getValue().getValue());
-			}
-			for (final Map.Entry<String, String> namespaceDeclaration : namespaceDeclarations.entrySet()) {
-				if (namespaceDeclaration.getKey() == null) {
-					element.declareDefaultNamespace(namespaceDeclaration.getValue());
-				} else {
-					element.declareNamespace(namespaceDeclaration.getKey(), namespaceDeclaration.getValue());
-				}
-			}
-			return element;
-		} catch (final DocumentValidationException ex) {
-			ex.printStackTrace();
-			return null;
-		}
 	}
 
 	public Attribute getAttribute(final String localName) {
