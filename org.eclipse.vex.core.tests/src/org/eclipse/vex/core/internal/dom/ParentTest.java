@@ -516,6 +516,11 @@ public class ParentTest {
 		public void accept(final INodeVisitor visitor) {
 			throw new UnsupportedOperationException();
 		}
+
+		@Override
+		public <T> T accept(final INodeVisitorWithResult<T> visitor) {
+			throw new UnsupportedOperationException();
+		}
 	}
 
 	private static class TestChild extends Node {
@@ -526,6 +531,11 @@ public class ParentTest {
 
 		@Override
 		public void accept(final INodeVisitor visitor) {
+			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public <T> T accept(final INodeVisitorWithResult<T> visitor) {
 			throw new UnsupportedOperationException();
 		}
 	}

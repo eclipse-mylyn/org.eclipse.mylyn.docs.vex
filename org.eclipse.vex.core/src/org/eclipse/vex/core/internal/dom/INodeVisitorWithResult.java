@@ -11,40 +11,22 @@
 package org.eclipse.vex.core.internal.dom;
 
 /**
+ * An incarantion of the <a href="http://en.wikipedia.org/wiki/Visitor_pattern">Visitor pattern</a> which handles the
+ * nodes of the structural part of the DOM and is able to return a value of a certain type.
+ * 
  * @author Florian Thienel
+ * 
  */
-public class Comment extends Node {
+public interface INodeVisitorWithResult<T> {
 
-	@Override
-	public void accept(final INodeVisitor visitor) {
-		visitor.visit(this);
-	}
+	T visit(Document document);
 
-	@Override
-	public <T> T accept(final INodeVisitorWithResult<T> visitor) {
-		return visitor.visit(this);
-	}
+	T visit(DocumentFragment fragment);
 
-	@Override
-	public String getBaseURI() {
-		return null;
-	}
+	T visit(Element element);
 
-	@Override
-	public String toString() {
-		final StringBuffer sb = new StringBuffer();
+	T visit(Text text);
 
-		sb.append("Comment (");
-		if (isAssociated()) {
-			sb.append(getStartOffset());
-			sb.append(",");
-			sb.append(getEndOffset());
-		} else {
-			sb.append("n/a");
-		}
-		sb.append(")");
-
-		return sb.toString();
-	}
+	T visit(Comment comment);
 
 }

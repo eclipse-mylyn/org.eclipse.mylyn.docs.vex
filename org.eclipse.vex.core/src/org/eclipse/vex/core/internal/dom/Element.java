@@ -65,6 +65,11 @@ public class Element extends Parent {
 		visitor.visit(this);
 	}
 
+	@Override
+	public <T> T accept(final INodeVisitorWithResult<T> visitor) {
+		return visitor.visit(this);
+	}
+
 	public Attribute getAttribute(final String localName) {
 		return getAttribute(qualify(localName));
 	}

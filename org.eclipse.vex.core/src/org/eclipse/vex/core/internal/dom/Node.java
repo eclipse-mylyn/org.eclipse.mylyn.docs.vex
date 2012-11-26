@@ -204,6 +204,15 @@ public abstract class Node {
 	 */
 	public abstract void accept(final INodeVisitor visitor);
 
+	/**
+	 * Accept the given visitor.
+	 * 
+	 * @see INodeVisitorWithResult
+	 * @param visitor
+	 *            the visitor
+	 */
+	public abstract <T> T accept(final INodeVisitorWithResult<T> visitor);
+
 	public static List<QualifiedName> getNodeNames(final Collection<Node> nodes) {
 		final List<QualifiedName> names = new ArrayList<QualifiedName>(nodes.size());
 

@@ -71,4 +71,9 @@ public class DocumentFragment extends Parent {
 		visitor.visit(this);
 	}
 
+	@Override
+	public <T> T accept(final INodeVisitorWithResult<T> visitor) {
+		return visitor.visit(this);
+	}
+
 }

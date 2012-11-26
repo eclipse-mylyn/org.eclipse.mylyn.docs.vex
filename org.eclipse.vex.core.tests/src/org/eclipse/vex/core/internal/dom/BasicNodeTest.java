@@ -27,6 +27,11 @@ public class BasicNodeTest extends NodeTest {
 			public void accept(final INodeVisitor visitor) {
 				throw new UnsupportedOperationException();
 			}
+
+			@Override
+			public <T> T accept(final INodeVisitorWithResult<T> visitor) {
+				throw new UnsupportedOperationException();
+			}
 		};
 	}
 

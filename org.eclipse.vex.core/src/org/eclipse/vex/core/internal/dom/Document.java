@@ -90,6 +90,11 @@ public class Document extends Parent {
 	}
 
 	@Override
+	public <T> T accept(final INodeVisitorWithResult<T> visitor) {
+		return visitor.visit(this);
+	}
+
+	@Override
 	public String getBaseURI() {
 		return getDocumentURI();
 	}
