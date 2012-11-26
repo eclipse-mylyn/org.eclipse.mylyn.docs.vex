@@ -19,6 +19,7 @@ import org.eclipse.vex.core.internal.core.IntRange;
 import org.eclipse.vex.core.internal.css.CSS;
 import org.eclipse.vex.core.internal.css.Styles;
 import org.eclipse.vex.core.internal.dom.Element;
+import org.eclipse.vex.core.internal.dom.Node;
 
 /**
  * A box that wraps inline content into a paragraph.
@@ -69,19 +70,19 @@ public class ParagraphBox extends AbstractBox implements BlockBox {
 	 * 
 	 * @param context
 	 *            LayoutContext used for this layout
-	 * @param element
-	 *            Element that controls the styling of this paragraph, in particular text alignment.
+	 * @param node
+	 *            Node that controls the styling of this paragraph, in particular text alignment.
 	 * @param inlines
 	 *            Array of InlineBox objects to be wrapped.
 	 * @param width
 	 *            width to which the paragraph is to be wrapped.
 	 */
-	public static ParagraphBox create(final LayoutContext context, final Element element, final InlineBox[] inlines, final int width) {
+	public static ParagraphBox create(final LayoutContext context, final Node node, final InlineBox[] inlines, final int width) {
 
 		// lines is the list of LineBoxes we are creating
 		final List<Box> lines = new ArrayList<Box>();
 
-		InlineBox right = new LineBox(context, element, inlines);
+		InlineBox right = new LineBox(context, node, inlines);
 
 		while (right != null) {
 			final InlineBox.Pair pair = right.split(context, width, true);
@@ -91,7 +92,7 @@ public class ParagraphBox extends AbstractBox implements BlockBox {
 			right = pair.getRight();
 		}
 
-		final Styles styles = context.getStyleSheet().getStyles(element);
+		final Styles styles = context.getStyleSheet().getStyles(node);
 		final String textAlign = styles.getTextAlign();
 
 		// y-offset of the next line

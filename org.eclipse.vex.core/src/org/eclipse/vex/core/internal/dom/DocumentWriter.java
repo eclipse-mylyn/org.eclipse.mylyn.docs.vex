@@ -169,16 +169,19 @@ public class DocumentWriter {
 				pw.print(indent);
 				pw.println(line);
 			}
-		} else if (node instanceof CommentElement) {
-
-			final CommentElement element = (CommentElement) node;
-
+		} else if (node instanceof Comment) {
 			pw.print(indent);
 			pw.println("<!-- ");
 
 			final String childIndent = indent + this.indent;
-			for (final Node child : element.getChildNodes()) {
-				writeNode(child, pw, childIndent);
+			// TODO writeText(node.getText(), pw, childIndent); 
+			final TextWrapper wrapper = new TextWrapper();
+			wrapper.add(escape(node.getText()));
+			final String[] lines = wrapper.wrap(wrapColumn - childIndent.length());
+
+			for (final String line : lines) {
+				pw.print(childIndent);
+				pw.println(line);
 			}
 
 			pw.print(indent);
@@ -251,14 +254,9 @@ public class DocumentWriter {
 
 		if (node instanceof Text) {
 			pw.print(escape(node.getText()));
-		} else if (node instanceof CommentElement) {
-
-			final CommentElement element = (CommentElement) node;
-
+		} else if (node instanceof Comment) {
 			pw.print("<!-- ");
-			for (final Node child : element.getChildNodes()) {
-				writeNodeNoWrap(child, pw);
-			}
+			pw.print(escape(node.getText()));
 			pw.print(" -->");
 		} else {
 
@@ -295,16 +293,10 @@ public class DocumentWriter {
 	private static void addNode(final Node node, final TextWrapper wrapper) {
 		if (node instanceof Text) {
 			wrapper.add(escape(node.getText()));
-		} else if (node instanceof CommentElement) {
-
-			final CommentElement element = (CommentElement) node;
+		} else if (node instanceof Comment) {
 
 			wrapper.addNoSplit("<!-- ");
-
-			for (final Node child : element.getChildNodes()) {
-				addNode(child, wrapper);
-			}
-
+			wrapper.add(escape(node.getText()));
 			wrapper.add(" -->");
 		} else {
 			final Element element = (Element) node;

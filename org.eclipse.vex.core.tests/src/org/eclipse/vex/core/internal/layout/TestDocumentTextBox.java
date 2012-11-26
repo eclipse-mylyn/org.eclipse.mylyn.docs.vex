@@ -90,7 +90,7 @@ public class TestDocumentTextBox extends TestCase {
 
 	private void assertSplit(final DocumentTextBox box, final int splitPos, final boolean force, final String left, final String right) {
 
-		final Styles styles = context.getStyleSheet().getStyles(box.getElement());
+		final Styles styles = context.getStyleSheet().getStyles(box.getNode());
 
 		final int width = g.getCharWidth();
 

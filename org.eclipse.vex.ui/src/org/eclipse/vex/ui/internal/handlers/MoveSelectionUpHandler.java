@@ -11,7 +11,7 @@
 package org.eclipse.vex.ui.internal.handlers;
 
 import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.vex.core.internal.dom.Element;
+import org.eclipse.vex.core.internal.dom.Node;
 import org.eclipse.vex.core.internal.layout.BlockBox;
 import org.eclipse.vex.core.internal.layout.Box;
 import org.eclipse.vex.core.internal.widget.IBoxFilter;
@@ -33,7 +33,7 @@ public class MoveSelectionUpHandler extends AbstractVexWidgetHandler {
 		// selection
 		final Box box = widget.findInnermostBox(new IBoxFilter() {
 			public boolean matches(final Box box) {
-				return box instanceof BlockBox && box.getElement() != null && box.getStartOffset() <= widget.getSelectionStart() && box.getEndOffset() >= widget.getSelectionEnd();
+				return box instanceof BlockBox && box.getNode() != null && box.getStartOffset() <= widget.getSelectionStart() && box.getEndOffset() >= widget.getSelectionEnd();
 			}
 		});
 
@@ -51,10 +51,10 @@ public class MoveSelectionUpHandler extends AbstractVexWidgetHandler {
 			// box.getStartPosition() + 1, but this would be a VERY large
 			// change.)
 			System.out.println("Box is " + box);
-			final Element element = box.getElement();
-			if (element != null) {
-				widget.moveTo(element.getEndOffset());
-				widget.moveTo(element.getStartOffset(), true);
+			final Node node = box.getNode();
+			if (node != null) {
+				widget.moveTo(node.getEndOffset());
+				widget.moveTo(node.getStartOffset(), true);
 
 			} else {
 				widget.moveTo(box.getEndOffset());

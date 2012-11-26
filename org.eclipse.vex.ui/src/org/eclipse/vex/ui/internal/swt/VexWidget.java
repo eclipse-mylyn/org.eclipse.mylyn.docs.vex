@@ -287,6 +287,10 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 		impl.insertText(text);
 	}
 
+	public void insertComment() throws DocumentValidationException {
+		impl.insertComment();
+	}
+
 	public boolean isDebugging() {
 		return impl.isDebugging();
 	}

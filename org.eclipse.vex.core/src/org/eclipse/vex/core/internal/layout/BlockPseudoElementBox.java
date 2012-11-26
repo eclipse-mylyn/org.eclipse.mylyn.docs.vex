@@ -16,6 +16,7 @@ import java.util.List;
 import org.eclipse.vex.core.internal.core.IntRange;
 import org.eclipse.vex.core.internal.css.Styles;
 import org.eclipse.vex.core.internal.dom.Element;
+import org.eclipse.vex.core.internal.dom.Node;
 
 /**
  * Implements a Block
@@ -63,10 +64,10 @@ public class BlockPseudoElementBox extends AbstractBox implements BlockBox {
 	}
 
 	/**
-	 * @see org.eclipse.vex.core.internal.layout.Box#getElement()
+	 * @see org.eclipse.vex.core.internal.layout.Box#getNode()
 	 */
 	@Override
-	public Element getElement() {
+	public Node getNode() {
 		return pseudoElement;
 	}
 

@@ -189,6 +189,10 @@ public abstract class Node {
 		return getDocument(parent);
 	}
 
+	public boolean isKindOf(final Node node) {
+		return false;
+	}
+
 	public abstract String getBaseURI();
 
 	/**

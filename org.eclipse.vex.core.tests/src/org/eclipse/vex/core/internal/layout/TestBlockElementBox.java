@@ -54,14 +54,13 @@ public class TestBlockElementBox extends TestCase {
 		assertEquals(1, children.length);
 		assertEquals(BlockElementBox.class, children[0].getClass());
 		beb = (BlockElementBox) children[0];
-		assertEquals(root, beb.getElement());
+		assertEquals(root, beb.getNode());
 
 		children = beb.getChildren();
 		assertEquals(1, children.length);
 		assertEquals(BlockElementBox.class, children[0].getClass());
 		beb = (BlockElementBox) children[0];
-		assertEquals("beforeBlock", beb.getElement().getPrefixedName());
-
+		assertEquals("beforeBlock", ((Element) beb.getNode()).getPrefixedName());
 	}
 
 }

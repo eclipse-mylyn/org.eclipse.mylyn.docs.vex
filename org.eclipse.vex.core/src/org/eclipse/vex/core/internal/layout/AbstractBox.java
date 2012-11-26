@@ -18,7 +18,7 @@ import org.eclipse.vex.core.internal.core.Insets;
 import org.eclipse.vex.core.internal.core.Rectangle;
 import org.eclipse.vex.core.internal.css.CSS;
 import org.eclipse.vex.core.internal.css.Styles;
-import org.eclipse.vex.core.internal.dom.Element;
+import org.eclipse.vex.core.internal.dom.Node;
 
 /**
  * Base implementation of the <code>Box</code> interface, implementing some common methods.
@@ -68,9 +68,9 @@ public abstract class AbstractBox implements Box {
 	/**
 	 * Returns null. Boxes associated with elements must provide an implementation of this method.
 	 * 
-	 * @see org.eclipse.vex.core.internal.layout.Box#getElement()
+	 * @see org.eclipse.vex.core.internal.layout.Box#getNode()
 	 */
-	public Element getElement() {
+	public Node getNode() {
 		return null;
 	}
 
@@ -106,11 +106,11 @@ public abstract class AbstractBox implements Box {
 	 * is associated with this box returns all zeros.
 	 */
 	public Insets getInsets(final LayoutContext context, final int containerWidth) {
-		final Element element = getElement();
-		if (element == null) {
+		final Node node = getNode();
+		if (node == null) {
 			return Insets.ZERO_INSETS;
 		} else {
-			return getInsets(context.getStyleSheet().getStyles(element), containerWidth);
+			return getInsets(context.getStyleSheet().getStyles(node), containerWidth);
 		}
 	}
 
@@ -253,7 +253,7 @@ public abstract class AbstractBox implements Box {
 	 *            This is handy when removing the borders when drawing the selection frame.
 	 */
 	protected void drawBox(final LayoutContext context, final int x, final int y, final int containerWidth, final boolean drawBorders) {
-		this.drawBox(context, getElement(), x, y, containerWidth, drawBorders);
+		this.drawBox(context, getNode(), x, y, containerWidth, drawBorders);
 	}
 
 	/**
@@ -261,7 +261,7 @@ public abstract class AbstractBox implements Box {
 	 * 
 	 * @param context
 	 *            LayoutContext used for drawing.
-	 * @param element
+	 * @param node
 	 *            Element to use when determining styles. This is used by TableBodyBox to specify the corresponding
 	 *            table element.
 	 * @param x
@@ -274,14 +274,14 @@ public abstract class AbstractBox implements Box {
 	 *            If true, the background is filled and the borders are drawn; otherwise, just the background is filled.
 	 *            This is handy when removing the borders when drawing the selection frame.
 	 */
-	protected void drawBox(final LayoutContext context, final Element element, final int x, final int y, final int containerWidth, final boolean drawBorders) {
+	protected void drawBox(final LayoutContext context, final Node node, final int x, final int y, final int containerWidth, final boolean drawBorders) {
 
-		if (element == null) {
+		if (node == null) {
 			return;
 		}
 
 		final Graphics g = context.getGraphics();
-		final Styles styles = context.getStyleSheet().getStyles(element);
+		final Styles styles = context.getStyleSheet().getStyles(node);
 
 		boolean hasLeft = true;
 		boolean hasRight = true;
@@ -292,8 +292,8 @@ public abstract class AbstractBox implements Box {
 
 		if (this instanceof InlineElementBox) {
 			// TODO fix boxes for inline elements
-			hasLeft = getStartOffset() == element.getStartOffset() + 1;
-			hasRight = getEndOffset() == element.getEndOffset();
+			hasLeft = getStartOffset() == node.getStartOffset() + 1;
+			hasRight = getEndOffset() == node.getEndOffset();
 			if (hasLeft) {
 				// left += styles.getMarginLeft().get(0);
 			}

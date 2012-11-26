@@ -224,11 +224,11 @@ public class DocumentBuilder implements ContentHandler, LexicalHandler {
 			return;
 		}
 
-		final CommentElement element = new CommentElement();
+		final Comment comment = new Comment();
 		final Element parent = stack.getLast().element;
-		parent.addChild(element);
+		parent.addChild(comment);
 
-		appendChars(isBlock(element));
+		appendChars(isBlock(comment));
 		final int startOffset = content.length();
 		content.insertElementMarker(content.length());
 
@@ -237,8 +237,8 @@ public class DocumentBuilder implements ContentHandler, LexicalHandler {
 		appendChars(true);
 
 		content.insertElementMarker(content.length());
-		element.associate(content, new Range(startOffset, content.length() - 1));
-		if (isBlock(element)) {
+		comment.associate(content, new Range(startOffset, content.length() - 1));
+		if (isBlock(comment)) {
 			trimLeading = true;
 		}
 	}
@@ -317,12 +317,12 @@ public class DocumentBuilder implements ContentHandler, LexicalHandler {
 		return sb;
 	}
 
-	private boolean isBlock(final Element element) {
-		return policy != null && policy.isBlock(element);
+	private boolean isBlock(final Node node) {
+		return policy != null && policy.isBlock(node);
 	}
 
-	private boolean isPre(final Element element) {
-		return policy != null && policy.isPre(element);
+	private boolean isPre(final Node node) {
+		return policy != null && policy.isPre(node);
 	}
 
 	/**

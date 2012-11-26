@@ -22,6 +22,8 @@ import org.eclipse.vex.core.internal.css.CSS;
 import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.css.Styles;
 import org.eclipse.vex.core.internal.dom.Element;
+import org.eclipse.vex.core.internal.dom.Node;
+import org.eclipse.vex.core.internal.dom.Parent;
 
 /**
  * Box that lays out a table.
@@ -31,11 +33,11 @@ public class TableBox extends AbstractBlockBox {
 	/**
 	 * Class constructor.
 	 * 
-	 * @param element
+	 * @param node
 	 *            Element represented by this box.
 	 */
-	public TableBox(final LayoutContext context, final BlockBox parent, final Element element) {
-		super(context, parent, element);
+	public TableBox(final LayoutContext context, final BlockBox parent, final Node node) {
+		super(context, parent, node);
 	}
 
 	public TableBox(final LayoutContext context, final BlockBox parent, final int startOffset, final int endOffset) {
@@ -58,7 +60,7 @@ public class TableBox extends AbstractBlockBox {
 				children.add(new BlockElementBox(context, TableBox.this, child));
 			}
 
-			public void onRange(final Element parent, final int startOffset, final int endOffset) {
+			public void onRange(final Parent parent, final int startOffset, final int endOffset) {
 				children.add(new TableBodyBox(context, TableBox.this, startOffset, endOffset));
 			}
 		});
@@ -146,7 +148,7 @@ public class TableBox extends AbstractBlockBox {
 			count++;
 		}
 
-		public void onRange(final Element parent, final int startOffset, final int endOffset) {
+		public void onRange(final Parent parent, final int startOffset, final int endOffset) {
 			count++;
 		}
 
@@ -158,7 +160,7 @@ public class TableBox extends AbstractBlockBox {
 	 */
 	private int computeColumnCount(final LayoutContext context) {
 
-		final Element tableElement = findContainingElement();
+		final Parent tableElement = findContainingParent();
 		final int[] columnCounts = new int[1]; // work around Java's insistence
 												// on final
 		columnCounts[0] = 0;
@@ -171,7 +173,7 @@ public class TableBox extends AbstractBlockBox {
 				callback.reset();
 			}
 
-			public void onRange(final Element parent, final int startOffset, final int endOffset) {
+			public void onRange(final Parent parent, final int startOffset, final int endOffset) {
 				LayoutUtils.iterateTableCells(styleSheet, parent, startOffset, endOffset, callback);
 				columnCounts[0] = Math.max(columnCounts[0], callback.getCount());
 				callback.reset();
@@ -196,7 +198,7 @@ public class TableBox extends AbstractBlockBox {
 		int availableWidth = myWidth;
 
 		if (!isAnonymous()) {
-			final Styles styles = context.getStyleSheet().getStyles(getElement());
+			final Styles styles = context.getStyleSheet().getStyles(getNode());
 			horizonalSpacing = styles.getBorderSpacing().getHorizontal();
 			verticalSpacing = styles.getBorderSpacing().getVertical();
 

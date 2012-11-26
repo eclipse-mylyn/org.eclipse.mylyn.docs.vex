@@ -12,7 +12,7 @@ package org.eclipse.vex.core.internal.layout;
 
 import java.io.Serializable;
 
-import org.eclipse.vex.core.internal.dom.Element;
+import org.eclipse.vex.core.internal.dom.Node;
 
 /**
  * Interface to an object that creates boxes from elements. Implementations of this interface must be serializable.
@@ -24,13 +24,13 @@ public interface BoxFactory extends Serializable {
 	 * 
 	 * @param context
 	 *            CSS styles for the new element
-	 * @param element
-	 *            Element for which the box should be created.
+	 * @param node
+	 *            Node for which the box should be created.
 	 * @param parent
 	 *            Parent box for the new box.
 	 * @param containerWidth
 	 *            Width of the box to be created.
 	 */
-	public Box createBox(LayoutContext context, Element element, BlockBox parent, int containerWidth);
+	public Box createBox(LayoutContext context, Node node, BlockBox parent, int containerWidth);
 
 }

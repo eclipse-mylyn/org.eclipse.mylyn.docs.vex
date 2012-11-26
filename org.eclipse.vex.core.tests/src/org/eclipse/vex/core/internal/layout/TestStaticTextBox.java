@@ -96,7 +96,7 @@ public class TestStaticTextBox extends TestCase {
 
 	private void assertSplit(final StaticTextBox box, final int splitPos, final boolean force, final String left, final String right) {
 
-		final Styles styles = context.getStyleSheet().getStyles(box.getElement());
+		final Styles styles = context.getStyleSheet().getStyles(box.getNode());
 		final int width = g.getCharWidth();
 
 		final InlineBox.Pair pair = box.split(context, splitPos * width, force);

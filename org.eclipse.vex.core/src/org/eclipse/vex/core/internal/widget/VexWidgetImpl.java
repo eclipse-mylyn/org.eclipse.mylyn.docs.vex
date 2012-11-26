@@ -785,6 +785,23 @@ public class VexWidgetImpl implements IVexWidget {
 		}
 	}
 
+	public void insertComment() throws DocumentValidationException {
+		if (hasSelection()) {
+			deleteSelection();
+		}
+
+		boolean success = false;
+		try {
+			beginWork();
+			document.insertComment(getCaretOffset());
+			this.moveTo(getCaretOffset() + 1);
+			scrollCaretVisible();
+			success = true;
+		} finally {
+			endWork(success);
+		}
+	}
+
 	public void morph(final Element element) throws DocumentValidationException {
 
 		final Document doc = getDocument();
@@ -1346,7 +1363,7 @@ public class VexWidgetImpl implements IVexWidget {
 
 		final BlockBox elementBox = (BlockBox) this.findInnermostBox(new IBoxFilter() {
 			public boolean matches(final Box box) {
-				return box instanceof BlockBox && box.getElement() != null && box.getStartOffset() <= element.getStartOffset() + 1 && box.getEndOffset() >= element.getEndOffset();
+				return box instanceof BlockBox && box.getNode() != null && box.getStartOffset() <= element.getStartOffset() + 1 && box.getEndOffset() >= element.getEndOffset();
 			}
 		});
 

@@ -266,6 +266,11 @@ public interface IVexWidget {
 	public void insertText(String text) throws DocumentValidationException;
 
 	/**
+	 * Inserts a comment a the current caret position. Any selected content is first deleted.
+	 */
+	public void insertComment() throws DocumentValidationException;
+
+	/**
 	 * Returns the value of the debugging flag.
 	 */
 	public boolean isDebugging();

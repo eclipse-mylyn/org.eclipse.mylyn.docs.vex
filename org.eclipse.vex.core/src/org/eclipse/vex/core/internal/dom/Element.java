@@ -53,6 +53,14 @@ public class Element extends Parent {
 	}
 
 	@Override
+	public boolean isKindOf(final Node node) {
+		if (!(node instanceof Element)) {
+			return false;
+		}
+		return getQualifiedName().equals(((Element) node).getQualifiedName());
+	}
+
+	@Override
 	public void accept(final INodeVisitor visitor) {
 		visitor.visit(this);
 	}

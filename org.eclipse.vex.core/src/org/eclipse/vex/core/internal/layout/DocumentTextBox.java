@@ -14,7 +14,7 @@ import org.eclipse.vex.core.internal.core.ColorResource;
 import org.eclipse.vex.core.internal.core.FontResource;
 import org.eclipse.vex.core.internal.core.Graphics;
 import org.eclipse.vex.core.internal.css.Styles;
-import org.eclipse.vex.core.internal.dom.Element;
+import org.eclipse.vex.core.internal.dom.Node;
 import org.eclipse.vex.core.internal.dom.Range;
 import org.eclipse.vex.core.internal.dom.Text;
 
@@ -31,12 +31,12 @@ public class DocumentTextBox extends TextBox {
 	 * 
 	 * @param context
 	 *            LayoutContext in use
-	 * @param element
-	 *            Element being used
+	 * @param node
+	 *            Node being used
 	 * @param text
 	 */
-	public DocumentTextBox(final LayoutContext context, final Element element, final Text text) {
-		this(context, element, text.getStartOffset(), text.getEndOffset());
+	public DocumentTextBox(final LayoutContext context, final Node node, final Text text) {
+		this(context, node, text.getStartOffset(), text.getEndOffset());
 	}
 
 	/**
@@ -44,22 +44,22 @@ public class DocumentTextBox extends TextBox {
 	 * 
 	 * @param context
 	 *            LayoutContext used to calculate the box's size.
-	 * @param element
-	 *            Element that directly contains the text.
+	 * @param node
+	 *            Node that directly contains the text.
 	 * @param startOffset
 	 *            start offset of the text
 	 * @param endOffset
 	 *            end offset of the text
 	 */
-	public DocumentTextBox(final LayoutContext context, final Element element, final int startOffset, final int endOffset) {
-		super(element);
+	public DocumentTextBox(final LayoutContext context, final Node node, final int startOffset, final int endOffset) {
+		super(node);
 
 		if (startOffset > endOffset) {
 			throw new IllegalStateException("DocumentTextBox: startOffset (" + startOffset + ") > endOffset (" + endOffset + ")");
 		}
 
-		startRelative = startOffset - element.getStartOffset();
-		endRelative = endOffset - element.getStartOffset();
+		startRelative = startOffset - node.getStartOffset();
+		endRelative = endOffset - node.getStartOffset();
 		calculateSize(context);
 
 		if (getText().length() < endOffset - startOffset) {
@@ -75,7 +75,7 @@ public class DocumentTextBox extends TextBox {
 		if (endRelative == -1) {
 			return -1;
 		} else {
-			return getElement().getStartOffset() + endRelative;
+			return getNode().getStartOffset() + endRelative;
 		}
 	}
 
@@ -87,7 +87,7 @@ public class DocumentTextBox extends TextBox {
 		if (startRelative == -1) {
 			return -1;
 		} else {
-			return getElement().getStartOffset() + startRelative;
+			return getNode().getStartOffset() + startRelative;
 		}
 	}
 
@@ -96,7 +96,7 @@ public class DocumentTextBox extends TextBox {
 	 */
 	@Override
 	public String getText() {
-		return getElement().getText(new Range(getStartOffset(), getEndOffset()));
+		return getNode().getText(new Range(getStartOffset(), getEndOffset()));
 	}
 
 	/**
@@ -113,7 +113,7 @@ public class DocumentTextBox extends TextBox {
 	@Override
 	public void paint(final LayoutContext context, final int x, final int y) {
 
-		final Styles styles = context.getStyleSheet().getStyles(getElement());
+		final Styles styles = context.getStyleSheet().getStyles(getNode());
 		final Graphics g = context.getGraphics();
 
 		final FontResource font = g.createFont(styles.getFont());
@@ -191,14 +191,14 @@ public class DocumentTextBox extends TextBox {
 		if (offset == 0) {
 			left = null;
 		} else {
-			left = new DocumentTextBox(context, getElement(), getStartOffset(), split - 1);
+			left = new DocumentTextBox(context, getNode(), getStartOffset(), split - 1);
 		}
 
 		InlineBox right;
 		if (split >= getEndOffset()) {
 			right = null;
 		} else {
-			right = new DocumentTextBox(context, getElement(), split, getEndOffset());
+			right = new DocumentTextBox(context, getNode(), split, getEndOffset());
 		}
 		return new Pair(left, right);
 	}
@@ -211,7 +211,7 @@ public class DocumentTextBox extends TextBox {
 	public int viewToModel(final LayoutContext context, final int x, final int y) {
 
 		final Graphics g = context.getGraphics();
-		final Styles styles = context.getStyleSheet().getStyles(getElement());
+		final Styles styles = context.getStyleSheet().getStyles(getNode());
 		final FontResource font = g.createFont(styles.getFont());
 		final FontResource oldFont = g.setFont(font);
 		final char[] chars = getText().toCharArray();

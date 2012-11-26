@@ -20,7 +20,6 @@ import java.util.List;
 
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.vex.core.internal.css.StyleSheet;
-import org.eclipse.vex.core.internal.dom.CommentElement;
 import org.eclipse.vex.core.internal.dom.Document;
 import org.eclipse.vex.core.internal.dom.DocumentFragment;
 import org.eclipse.vex.core.internal.dom.Element;
@@ -79,8 +78,8 @@ public class VexWidgetTest {
 		widget.setDocument(createDocument(STRUCTURE_NS, "chapter"), StyleSheet.NULL);
 		widget.insertElement(new QualifiedName(CONTENT_NS, "p"));
 		widget.insertText("1text before comment1");
-		widget.insertElement(new CommentElement());
-		final Element commentElement = widget.getDocument().getElementAt(widget.getCaretOffset());
+		widget.insertComment();
+		final Node comment = widget.getDocument().getChildNodeAt(widget.getCaretOffset());
 		widget.insertText("2comment text2");
 		widget.moveBy(1);
 		widget.insertText("3text after comment3");
@@ -89,8 +88,8 @@ public class VexWidgetTest {
 
 		widget.doWork(new Runnable() {
 			public void run() {
-				widget.moveTo(commentElement.getStartOffset() + 1, false);
-				widget.moveTo(commentElement.getEndOffset() - 1, true);
+				widget.moveTo(comment.getStartOffset() + 1, false);
+				widget.moveTo(comment.getEndOffset() - 1, true);
 				final DocumentFragment fragment = widget.getSelectedFragment();
 				widget.deleteSelection();
 
