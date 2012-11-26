@@ -17,7 +17,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.vex.core.internal.VEXCorePlugin;
 import org.eclipse.vex.core.internal.core.DisplayDevice;
-import org.eclipse.vex.core.internal.dom.BaseNodeVisitor;
+import org.eclipse.vex.core.internal.dom.BaseNodeVisitorWithResult;
 import org.eclipse.vex.core.internal.dom.Element;
 import org.eclipse.vex.core.internal.dom.Node;
 import org.w3c.css.sac.CSSException;
@@ -40,12 +40,10 @@ public class LengthProperty extends AbstractProperty {
 	public Object calculate(final LexicalUnit lu, final Styles parentStyles, final Styles styles, final Node node) {
 		final int ppi = getPpi();
 		if (isAttr(lu)) {
-			final Object[] result = new Object[0];
-			result[0] = RelativeLength.createAbsolute(0);
-			node.accept(new BaseNodeVisitor() {
+			return node.accept(new BaseNodeVisitorWithResult<Object>(RelativeLength.createAbsolute(0)) {
 				@Override
-				public void visit(final Element element) {
-					result[0] = calculate(parseAttribute(lu, element), parentStyles, styles, element);
+				public Object visit(final Element element) {
+					return calculate(parseAttribute(lu, element), parentStyles, styles, element);
 				}
 			});
 		}

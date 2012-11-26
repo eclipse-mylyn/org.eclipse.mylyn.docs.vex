@@ -26,7 +26,7 @@ import org.eclipse.vex.core.internal.core.IntRange;
 import org.eclipse.vex.core.internal.css.CSS;
 import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.css.Styles;
-import org.eclipse.vex.core.internal.dom.BaseNodeVisitor;
+import org.eclipse.vex.core.internal.dom.BaseNodeVisitorWithResult;
 import org.eclipse.vex.core.internal.dom.Comment;
 import org.eclipse.vex.core.internal.dom.Document;
 import org.eclipse.vex.core.internal.dom.Element;
@@ -533,19 +533,17 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 	}
 
 	protected String getSelectionFrameName(final Node node) {
-		final String[] result = new String[1];
-		node.accept(new BaseNodeVisitor() {
+		return node.accept(new BaseNodeVisitorWithResult<String>() {
 			@Override
-			public void visit(final Element element) {
-				result[0] = element.getPrefixedName();
+			public String visit(final Element element) {
+				return element.getPrefixedName();
 			}
 
 			@Override
-			public void visit(final Comment comment) {
-				result[0] = "Comment";
+			public String visit(final Comment comment) {
+				return "Comment";
 			}
 		});
-		return result[0];
 	}
 
 	/** Layout is OK */

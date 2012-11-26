@@ -27,7 +27,7 @@ import junit.framework.TestSuite;
 
 import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.css.StyleSheetReader;
-import org.eclipse.vex.core.internal.dom.BaseNodeVisitor;
+import org.eclipse.vex.core.internal.dom.BaseNodeVisitorWithResult;
 import org.eclipse.vex.core.internal.dom.Document;
 import org.eclipse.vex.core.internal.dom.DocumentContentModel;
 import org.eclipse.vex.core.internal.dom.DocumentReader;
@@ -168,15 +168,12 @@ public class LayoutTestSuite extends TestCase {
 	}
 
 	private static String getPrefixedNameOfElement(final Node node) {
-		final String[] result = new String[1];
-		result[0] = "";
-		node.accept(new BaseNodeVisitor() {
+		return node.accept(new BaseNodeVisitorWithResult<String>("") {
 			@Override
-			public void visit(final Element element) {
-				result[0] = element.getPrefixedName();
+			public String visit(final Element element) {
+				return element.getPrefixedName();
 			}
 		});
-		return result[0];
 	}
 
 	private static class TestCaseBuilder extends DefaultHandler {

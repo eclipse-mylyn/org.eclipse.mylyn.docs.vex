@@ -19,7 +19,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
 
-import org.eclipse.vex.core.internal.dom.BaseNodeVisitor;
+import org.eclipse.vex.core.internal.dom.BaseNodeVisitorWithResult;
 import org.eclipse.vex.core.internal.dom.Comment;
 import org.eclipse.vex.core.internal.dom.Document;
 import org.eclipse.vex.core.internal.dom.Element;
@@ -224,15 +224,12 @@ public class Rule {
 	}
 
 	private static String getLocalNameOfElement(final Node node) {
-		final String[] result = new String[1];
-		result[0] = "";
-		node.accept(new BaseNodeVisitor() {
+		return node.accept(new BaseNodeVisitorWithResult<String>("") {
 			@Override
-			public void visit(final Element element) {
-				result[0] = element.getLocalName();
+			public String visit(final Element element) {
+				return element.getLocalName();
 			}
 		});
-		return result[0];
 	}
 
 	/**
@@ -303,14 +300,12 @@ public class Rule {
 	}
 
 	private static String getAttributeValue(final Node node, final String localName) {
-		final String[] result = new String[1];
-		node.accept(new BaseNodeVisitor() {
+		return node.accept(new BaseNodeVisitorWithResult<String>() {
 			@Override
-			public void visit(final Element element) {
-				result[0] = element.getAttributeValue(localName);
+			public String visit(final Element element) {
+				return element.getAttributeValue(localName);
 			}
 		});
-		return result[0];
 	}
 
 	/**
