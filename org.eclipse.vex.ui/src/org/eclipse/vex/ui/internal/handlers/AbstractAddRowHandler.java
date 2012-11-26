@@ -93,15 +93,13 @@ public abstract class AbstractAddRowHandler extends AbstractVexWidgetHandler {
 		final CopyVisitor copyVisitor = new CopyVisitor();
 		for (final RowCells rowCells : rowCellsToInsert) {
 			if (rowCells.row instanceof Element) {
-				((Element) rowCells.row).accept(copyVisitor);
-				widget.insertElement(copyVisitor.<Element> getCopy());
+				widget.insertElement((Element) ((Element) rowCells.row).accept(copyVisitor));
 			}
 
 			//cells that are to be inserted.
 			for (final Object cell : rowCells.cells) {
 				if (cell instanceof Element) {
-					((Element) cell).accept(copyVisitor);
-					widget.insertElement(copyVisitor.<Element> getCopy());
+					widget.insertElement((Element) ((Element) cell).accept(copyVisitor));
 					widget.moveBy(+1);
 				} else {
 					widget.insertText(" ");

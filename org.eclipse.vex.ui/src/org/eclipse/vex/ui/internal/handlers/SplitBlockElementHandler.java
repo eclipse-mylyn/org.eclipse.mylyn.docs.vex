@@ -101,8 +101,7 @@ public class SplitBlockElementHandler extends AbstractVexWidgetHandler {
 					for (int i = children.size() - 1; i >= 0; i--) {
 						child = children.get(i);
 						final DocumentFragment frag = frags.get(i);
-						child.accept(copyVisitor);
-						vexWidget.insertElement(copyVisitor.<Element> getCopy());
+						vexWidget.insertElement((Element) child.accept(copyVisitor));
 						final int offset = vexWidget.getCaretOffset();
 						if (frag != null) {
 							vexWidget.insertFragment(frag);

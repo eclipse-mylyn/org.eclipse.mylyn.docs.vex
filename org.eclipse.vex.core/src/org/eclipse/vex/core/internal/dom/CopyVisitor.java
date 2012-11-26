@@ -16,19 +16,17 @@ package org.eclipse.vex.core.internal.dom;
  * 
  * @author Florian Thienel
  */
-public class CopyVisitor implements INodeVisitor {
+public class CopyVisitor implements INodeVisitorWithResult<Node> {
 
-	private Node copy;
-
-	public void visit(final Document document) {
+	public Document visit(final Document document) {
 		throw new UnsupportedOperationException("Document cannot be copied");
 	}
 
-	public void visit(final DocumentFragment fragment) {
+	public DocumentFragment visit(final DocumentFragment fragment) {
 		throw new UnsupportedOperationException("DocumentFragment cannot be copied");
 	}
 
-	public void visit(final Element element) {
+	public Element visit(final Element element) {
 		final Element copyElement = new Element(element.getQualifiedName());
 
 		for (final Attribute attribute : element.getAttributes()) {
@@ -41,24 +39,16 @@ public class CopyVisitor implements INodeVisitor {
 			copyElement.declareNamespace(prefix, element.getNamespaceURI(prefix));
 		}
 
-		copy = copyElement;
+		return copyElement;
 	}
 
-	public void visit(final Text text) {
+	public Text visit(final Text text) {
 		// ignore Text nodes because they are created dynamically in Element.getChildNodes()
-		copy = null;
+		return null;
 	}
 
-	public void visit(final Comment comment) {
-		copy = new Comment();
-	}
-
-	/**
-	 * @return the copy of the visited node
-	 */
-	@SuppressWarnings("unchecked")
-	public <T extends Node> T getCopy() {
-		return (T) copy;
+	public Comment visit(final Comment comment) {
+		return new Comment();
 	}
 
 }

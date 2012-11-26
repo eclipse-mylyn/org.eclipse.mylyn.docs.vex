@@ -68,8 +68,7 @@ public abstract class AbstractAddColumnHandler extends AbstractHandler {
 				finalOffset = element.getStartOffset() + 1;
 			}
 			widget.moveTo(addBefore() ? element.getStartOffset() : element.getEndOffset() + 1);
-			element.accept(copyVisitor);
-			widget.insertElement(copyVisitor.<Element> getCopy());
+			widget.insertElement((Element) element.accept(copyVisitor));
 		}
 
 		if (finalOffset != -1) {

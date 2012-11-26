@@ -117,8 +117,7 @@ public final class VexHandlerUtil {
 							firstCellIsAnonymous = true;
 						}
 					} else {
-						cells[i].getNode().accept(copyVisitor);
-						vexWidget.insertElement(copyVisitor.<Element> getCopy());
+						vexWidget.insertElement((Element) cells[i].getNode().accept(copyVisitor));
 						vexWidget.moveBy(+1);
 					}
 				}
@@ -151,8 +150,7 @@ public final class VexHandlerUtil {
 				if (!tr.isAnonymous()) {
 					vexWidget.moveBy(+1); // Move past sentinel in current row
 					final CopyVisitor copyVisitor = new CopyVisitor();
-					tr.getNode().accept(copyVisitor);
-					vexWidget.insertElement(copyVisitor.<Element> getCopy());
+					vexWidget.insertElement((Element) tr.getNode().accept(copyVisitor));
 				}
 
 				cloneTableCells(vexWidget, tr, true);

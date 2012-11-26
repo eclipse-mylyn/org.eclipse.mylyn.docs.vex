@@ -60,9 +60,9 @@ public class DeepCopyVisitor implements INodeVisitor {
 		associate(comment, copy);
 	}
 
+	@SuppressWarnings("unchecked")
 	private <T extends Node> T copy(final T node) {
-		node.accept(copyVisitor);
-		return copyVisitor.<T> getCopy();
+		return (T) node.accept(copyVisitor);
 	}
 
 	private void addToParent(final Node node) {
