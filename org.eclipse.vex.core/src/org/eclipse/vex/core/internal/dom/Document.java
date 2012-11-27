@@ -302,30 +302,6 @@ public class Document extends Parent {
 		return element;
 	}
 
-	/**
-	 * @deprecated use Document#insertElement(int, QualifiedName) instead
-	 */
-	@Deprecated
-	public void insertElement(final int offset, final Element element) {
-		Assert.isTrue(offset > rootElement.getStartOffset() && offset <= rootElement.getEndOffset(), MessageFormat.format("Offset must be in [{0}, {1}]", getStartOffset() + 1, getEndOffset()));
-
-		final Element parent = getInsertionParentAt(offset);
-		if (!canInsertAt(parent, offset, element.getQualifiedName())) {
-			throw new DocumentValidationException(MessageFormat.format("Cannot insert element {0} at offset {1}.", element.getQualifiedName(), offset));
-		}
-
-		fireBeforeContentInserted(new DocumentEvent(this, parent, offset, 2, null));
-
-		getContent().insertElementMarker(offset);
-		getContent().insertElementMarker(offset);
-		element.associate(getContent(), new Range(offset, offset + 1));
-
-		parent.insertChild(parent.getInsertionIndex(offset), element);
-
-		final IUndoableEdit edit = undoEnabled ? new InsertElementEdit(offset, element) : null;
-		fireContentInserted(new DocumentEvent(this, parent, offset, 2, edit));
-	}
-
 	public boolean canInsertFragment(final int offset, final DocumentFragment fragment) {
 		return canInsertAt(getInsertionParentAt(offset), offset, fragment.getNodeNames());
 	}

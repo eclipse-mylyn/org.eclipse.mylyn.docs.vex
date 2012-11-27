@@ -18,7 +18,7 @@ import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.vex.core.internal.VEXCorePlugin;
 import org.eclipse.vex.core.internal.css.CSS;
 import org.eclipse.vex.core.internal.css.Styles;
-import org.eclipse.vex.core.internal.dom.CopyVisitor;
+import org.eclipse.vex.core.internal.dom.CopyOfElement;
 import org.eclipse.vex.core.internal.dom.Document;
 import org.eclipse.vex.core.internal.dom.DocumentFragment;
 import org.eclipse.vex.core.internal.dom.Element;
@@ -97,11 +97,11 @@ public class SplitBlockElementHandler extends AbstractVexWidgetHandler {
 						child = child.getParentElement();
 					}
 
-					final CopyVisitor copyVisitor = new CopyVisitor();
 					for (int i = children.size() - 1; i >= 0; i--) {
 						child = children.get(i);
 						final DocumentFragment frag = frags.get(i);
-						vexWidget.insertElement((Element) child.accept(copyVisitor));
+						final Element newChild = vexWidget.insertElement(child.getQualifiedName());
+						newChild.accept(new CopyOfElement(child));
 						final int offset = vexWidget.getCaretOffset();
 						if (frag != null) {
 							vexWidget.insertFragment(frag);

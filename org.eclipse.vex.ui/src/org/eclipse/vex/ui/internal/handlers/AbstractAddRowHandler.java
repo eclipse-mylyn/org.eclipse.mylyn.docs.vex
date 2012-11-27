@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.vex.core.internal.dom.CopyVisitor;
+import org.eclipse.vex.core.internal.dom.CopyOfElement;
 import org.eclipse.vex.core.internal.dom.Element;
 import org.eclipse.vex.ui.internal.swt.VexWidget;
 
@@ -90,16 +90,17 @@ public abstract class AbstractAddRowHandler extends AbstractVexWidgetHandler {
 		final int finalOffset = insertOffset + innerOffset - outerOffset;
 		widget.moveTo(insertOffset);
 
-		final CopyVisitor copyVisitor = new CopyVisitor();
 		for (final RowCells rowCells : rowCellsToInsert) {
 			if (rowCells.row instanceof Element) {
-				widget.insertElement((Element) ((Element) rowCells.row).accept(copyVisitor));
+				final Element rowElement = (Element) rowCells.row;
+				widget.insertElement(rowElement.getQualifiedName()).accept(new CopyOfElement(rowElement));
 			}
 
 			//cells that are to be inserted.
 			for (final Object cell : rowCells.cells) {
 				if (cell instanceof Element) {
-					widget.insertElement((Element) ((Element) cell).accept(copyVisitor));
+					final Element cellElement = (Element) cell;
+					widget.insertElement(cellElement.getQualifiedName()).accept(new CopyOfElement(cellElement));
 					widget.moveBy(+1);
 				} else {
 					widget.insertText(" ");

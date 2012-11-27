@@ -707,8 +707,9 @@ public class VexWidgetImpl implements IVexWidget {
 		this.moveTo(getCaretOffset() + frag.getLength());
 	}
 
-	public void insertElement(final QualifiedName elementName) throws DocumentValidationException {
+	public Element insertElement(final QualifiedName elementName) throws DocumentValidationException {
 		boolean success = false;
+		final Element result;
 		try {
 			beginWork();
 
@@ -718,37 +719,14 @@ public class VexWidgetImpl implements IVexWidget {
 				deleteSelection();
 			}
 
-			document.insertElement(getCaretOffset(), elementName);
+			result = document.insertElement(getCaretOffset(), elementName);
 			this.moveTo(getCaretOffset() + 1);
 			if (frag != null) {
 				insertFragment(frag);
 			}
 			scrollCaretVisible();
 			success = true;
-		} finally {
-			endWork(success);
-		}
-	}
-
-	public void insertElement(final Element element) throws DocumentValidationException {
-
-		boolean success = false;
-		try {
-			beginWork();
-
-			DocumentFragment frag = null;
-			if (hasSelection()) {
-				frag = getSelectedFragment();
-				deleteSelection();
-			}
-
-			document.insertElement(getCaretOffset(), element);
-			this.moveTo(getCaretOffset() + 1);
-			if (frag != null) {
-				insertFragment(frag);
-			}
-			scrollCaretVisible();
-			success = true;
+			return result;
 		} finally {
 			endWork(success);
 		}
@@ -802,7 +780,7 @@ public class VexWidgetImpl implements IVexWidget {
 		}
 	}
 
-	public void morph(final Element element) throws DocumentValidationException {
+	public void morph(final QualifiedName elementName) throws DocumentValidationException {
 
 		final Document doc = getDocument();
 		final int offset = getCaretOffset();
@@ -822,7 +800,7 @@ public class VexWidgetImpl implements IVexWidget {
 			this.moveBy(-1, false);
 			this.moveBy(2, true);
 			deleteSelection();
-			insertElement(element);
+			insertElement(elementName);
 			if (frag != null) {
 				insertFragment(frag);
 			}
