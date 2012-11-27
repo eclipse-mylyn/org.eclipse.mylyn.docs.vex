@@ -19,11 +19,6 @@ public class BasicNodeTest extends NodeTest {
 	protected Node createNode() {
 		return new Node() {
 			@Override
-			public String getBaseURI() {
-				return null;
-			}
-
-			@Override
 			public void accept(final INodeVisitor visitor) {
 				throw new UnsupportedOperationException();
 			}
