@@ -364,7 +364,7 @@ public class ContentAssist extends PopupDialog {
 			actions[i] = new AbstractVexAction(widget, names[i], text, icon) {
 				@Override
 				public void execute(final VexWidget vexWidget) {
-					getWidget().morph(new Element(qualifiedName));
+					getWidget().morph(qualifiedName);
 				}
 			};
 		}

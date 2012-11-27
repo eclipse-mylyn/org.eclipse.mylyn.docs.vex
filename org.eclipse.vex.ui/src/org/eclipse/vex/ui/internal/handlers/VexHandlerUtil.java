@@ -22,7 +22,7 @@ import org.eclipse.ui.handlers.HandlerUtil;
 import org.eclipse.vex.core.internal.core.IntRange;
 import org.eclipse.vex.core.internal.css.CSS;
 import org.eclipse.vex.core.internal.css.StyleSheet;
-import org.eclipse.vex.core.internal.dom.CopyVisitor;
+import org.eclipse.vex.core.internal.dom.CopyOfElement;
 import org.eclipse.vex.core.internal.dom.Document;
 import org.eclipse.vex.core.internal.dom.Element;
 import org.eclipse.vex.core.internal.dom.Node;
@@ -107,7 +107,6 @@ public final class VexHandlerUtil {
 
 				final int offset = vexWidget.getCaretOffset();
 
-				final CopyVisitor copyVisitor = new CopyVisitor();
 				boolean firstCellIsAnonymous = false;
 				final Box[] cells = tr.getChildren();
 				for (int i = 0; i < cells.length; i++) {
@@ -117,7 +116,9 @@ public final class VexHandlerUtil {
 							firstCellIsAnonymous = true;
 						}
 					} else {
-						vexWidget.insertElement((Element) cells[i].getNode().accept(copyVisitor));
+						final Element element = (Element) cells[i].getNode();
+						final Element newElement = vexWidget.insertElement(element.getQualifiedName());
+						newElement.accept(new CopyOfElement(element));
 						vexWidget.moveBy(+1);
 					}
 				}
@@ -149,8 +150,9 @@ public final class VexHandlerUtil {
 
 				if (!tr.isAnonymous()) {
 					vexWidget.moveBy(+1); // Move past sentinel in current row
-					final CopyVisitor copyVisitor = new CopyVisitor();
-					vexWidget.insertElement((Element) tr.getNode().accept(copyVisitor));
+					final Element element = (Element) tr.getNode();
+					final Element newElement = vexWidget.insertElement(element.getQualifiedName());
+					newElement.accept(new CopyOfElement(element));
 				}
 
 				cloneTableCells(vexWidget, tr, true);

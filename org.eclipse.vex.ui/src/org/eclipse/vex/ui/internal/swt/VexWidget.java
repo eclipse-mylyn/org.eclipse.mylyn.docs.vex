@@ -275,12 +275,8 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 		impl.insertFragment(frag);
 	}
 
-	public void insertElement(final Element element) throws DocumentValidationException {
-		impl.insertElement(element);
-	}
-
-	public void insertElement(final QualifiedName elementName) throws DocumentValidationException {
-		impl.insertElement(elementName);
+	public Element insertElement(final QualifiedName elementName) throws DocumentValidationException {
+		return impl.insertElement(elementName);
 	}
 
 	public void insertText(final String text) throws DocumentValidationException {
@@ -295,8 +291,8 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 		return impl.isDebugging();
 	}
 
-	public void morph(final Element element) throws DocumentValidationException {
-		impl.morph(element);
+	public void morph(final QualifiedName elementName) throws DocumentValidationException {
+		impl.morph(elementName);
 	}
 
 	public void moveBy(final int distance) {

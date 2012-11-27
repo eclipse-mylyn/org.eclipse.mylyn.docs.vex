@@ -28,17 +28,7 @@ public class CopyVisitor implements INodeVisitorWithResult<Node> {
 
 	public Element visit(final Element element) {
 		final Element copyElement = new Element(element.getQualifiedName());
-
-		for (final Attribute attribute : element.getAttributes()) {
-			copyElement.setAttribute(attribute.getQualifiedName(), attribute.getValue());
-		}
-
-		copyElement.declareDefaultNamespace(element.getDeclaredDefaultNamespaceURI());
-
-		for (final String prefix : element.getNamespacePrefixes()) {
-			copyElement.declareNamespace(prefix, element.getNamespaceURI(prefix));
-		}
-
+		copyElement.accept(new CopyOfElement(element));
 		return copyElement;
 	}
 

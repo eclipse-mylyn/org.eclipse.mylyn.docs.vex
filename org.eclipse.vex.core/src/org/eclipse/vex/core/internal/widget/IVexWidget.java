@@ -250,12 +250,11 @@ public interface IVexWidget {
 	 * Inserts the given element at the current caret position. Any selected content becomes the new contents of the
 	 * element.
 	 * 
-	 * @param element
-	 *            Element to insert.
+	 * @param elementName
+	 *            Qualified name of the element to insert.
+	 * @return the newly inserted element
 	 */
-	public void insertElement(Element element) throws DocumentValidationException;
-
-	public void insertElement(QualifiedName elementName) throws DocumentValidationException;
+	public Element insertElement(QualifiedName elementName) throws DocumentValidationException;
 
 	/**
 	 * Inserts the given text at the current caret position. Any selected content is first deleted.
@@ -284,15 +283,15 @@ public interface IVexWidget {
 	public void setDebugging(boolean debugging);
 
 	/**
-	 * Replaces the current element with the given element. The content of the element is preserved.
+	 * Replaces the current element with an element with the given name. The content of the element is preserved.
 	 * 
-	 * @param element
-	 *            Element to replace the current element with.
+	 * @param elementName
+	 *            Qualified name of the element to replace the current element with.
 	 * @throws DocumentValidationException
 	 *             if the given element is not valid at this place in the document, or if the current element's content
 	 *             is not compatible with the given element.
 	 */
-	public void morph(Element element) throws DocumentValidationException;
+	public void morph(QualifiedName elementName) throws DocumentValidationException;
 
 	/**
 	 * Moves the caret a given distance relative to the current caret offset.
