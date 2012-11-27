@@ -193,7 +193,15 @@ public abstract class Node {
 		return false;
 	}
 
-	public abstract String getBaseURI();
+	public String getBaseURI() {
+		if (getParent() != null) {
+			return getParent().getBaseURI();
+		}
+		if (getDocument() != null) {
+			return getDocument().getBaseURI();
+		}
+		return null;
+	}
 
 	/**
 	 * Accept the given visitor.

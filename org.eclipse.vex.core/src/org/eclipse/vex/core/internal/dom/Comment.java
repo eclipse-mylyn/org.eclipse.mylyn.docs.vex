@@ -26,11 +26,6 @@ public class Comment extends Node {
 	}
 
 	@Override
-	public String getBaseURI() {
-		return null;
-	}
-
-	@Override
 	public String toString() {
 		final StringBuffer sb = new StringBuffer();
 

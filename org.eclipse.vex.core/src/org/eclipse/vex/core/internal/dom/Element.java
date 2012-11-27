@@ -358,13 +358,7 @@ public class Element extends Parent {
 		if (baseAttribute != null) {
 			return baseAttribute.getValue();
 		}
-		if (getParent() != null) {
-			return getParent().getBaseURI();
-		}
-		if (getDocument() != null) {
-			return getDocument().getBaseURI();
-		}
-		return null;
+		return super.getBaseURI();
 	}
 
 	private class AttributeChangeEdit implements IUndoableEdit {
