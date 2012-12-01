@@ -135,7 +135,6 @@ public class VexWidgetImpl implements IVexWidget {
 				VexWidgetImpl.this.relayout();
 			}
 
-			addEdit(e.getUndoableEdit(), getCaretOffset());
 			hostComponent.fireSelectionChanged();
 		}
 
@@ -151,8 +150,6 @@ public class VexWidgetImpl implements IVexWidget {
 			if (beginWorkCount == 0) {
 				VexWidgetImpl.this.relayout();
 			}
-
-			addEdit(e.getUndoableEdit(), getCaretOffset());
 		}
 
 		public void contentInserted(final DocumentEvent e) {
@@ -161,8 +158,6 @@ public class VexWidgetImpl implements IVexWidget {
 			if (beginWorkCount == 0) {
 				VexWidgetImpl.this.relayout();
 			}
-
-			addEdit(e.getUndoableEdit(), getCaretOffset());
 		}
 
 		public void namespaceChanged(final DocumentEvent e) {
@@ -172,7 +167,6 @@ public class VexWidgetImpl implements IVexWidget {
 				VexWidgetImpl.this.relayout();
 			}
 
-			addEdit(e.getUndoableEdit(), getCaretOffset());
 			hostComponent.fireSelectionChanged();
 		}
 
@@ -379,9 +373,7 @@ public class VexWidgetImpl implements IVexWidget {
 	public void deleteSelection() {
 		try {
 			if (hasSelection()) {
-				final DeleteEdit edit = new DeleteEdit(document, new Range(getSelectionStart(), getSelectionEnd()));
-				addEdit(edit, getSelectionStart());
-				edit.redo();
+				applyEdit(new DeleteEdit(document, new Range(getSelectionStart(), getSelectionEnd())), getSelectionStart());
 				this.moveTo(getSelectionStart());
 			}
 		} catch (final DocumentValidationException e) {
@@ -707,10 +699,7 @@ public class VexWidgetImpl implements IVexWidget {
 				deleteSelection();
 			}
 
-			final InsertElementEdit edit = new InsertElementEdit(document, getCaretOffset(), elementName);
-			addEdit(edit, getCaretOffset());
-			edit.redo();
-			result = edit.getElement();
+			result = applyEdit(new InsertElementEdit(document, getCaretOffset(), elementName), getCaretOffset()).getElement();
 
 			this.moveTo(getCaretOffset() + 1);
 			if (selectedFragment != null) {
@@ -728,9 +717,7 @@ public class VexWidgetImpl implements IVexWidget {
 		if (hasSelection()) {
 			deleteSelection();
 		}
-		final InsertFragmentEdit edit = new InsertFragmentEdit(document, getCaretOffset(), fragment);
-		addEdit(edit, getCaretOffset());
-		edit.redo();
+		applyEdit(new InsertFragmentEdit(document, getCaretOffset(), fragment), getCaretOffset());
 		this.moveTo(getCaretOffset() + fragment.getLength());
 	}
 
@@ -748,18 +735,14 @@ public class VexWidgetImpl implements IVexWidget {
 				if (j == -1) {
 					break;
 				}
-				final InsertTextEdit edit = new InsertTextEdit(document, getCaretOffset(), text.substring(i, j));
-				addEdit(edit, getCaretOffset());
-				edit.redo();
+				applyEdit(new InsertTextEdit(document, getCaretOffset(), text.substring(i, j)), getCaretOffset());
 				this.moveTo(getCaretOffset() + j - i);
 				split();
 				i = j + 1;
 			}
 
 			if (i < text.length()) {
-				final InsertTextEdit edit = new InsertTextEdit(document, getCaretOffset(), text.substring(i));
-				addEdit(edit, getCaretOffset());
-				edit.redo();
+				applyEdit(new InsertTextEdit(document, getCaretOffset(), text.substring(i)), getCaretOffset());
 				this.moveTo(getCaretOffset() + text.length() - i);
 			}
 			success = true;
@@ -772,9 +755,7 @@ public class VexWidgetImpl implements IVexWidget {
 		if (hasSelection()) {
 			deleteSelection();
 		}
-		final InsertTextEdit edit = new InsertTextEdit(document, getCaretOffset(), Character.toString(c));
-		addEdit(edit, getCaretOffset());
-		edit.redo();
+		applyEdit(new InsertTextEdit(document, getCaretOffset(), Character.toString(c)), getCaretOffset());
 		this.moveBy(+1);
 	}
 
@@ -786,9 +767,7 @@ public class VexWidgetImpl implements IVexWidget {
 		boolean success = false;
 		try {
 			beginWork();
-			final InsertCommentEdit edit = new InsertCommentEdit(document, getCaretOffset());
-			addEdit(edit, getCaretOffset());
-			edit.redo();
+			applyEdit(new InsertCommentEdit(document, getCaretOffset()), getCaretOffset());
 			this.moveTo(getCaretOffset() + 1);
 			scrollCaretVisible();
 			success = true;
@@ -1284,6 +1263,12 @@ public class VexWidgetImpl implements IVexWidget {
 			this.edit = edit;
 			this.caretOffset = caretOffset;
 		}
+	}
+
+	private <T extends IUndoableEdit> T applyEdit(final T edit, final int caretOffset) {
+		addEdit(edit, caretOffset);
+		edit.redo();
+		return edit;
 	}
 
 	/**
