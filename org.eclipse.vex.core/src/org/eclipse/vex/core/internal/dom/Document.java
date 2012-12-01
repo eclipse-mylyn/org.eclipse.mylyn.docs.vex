@@ -27,7 +27,6 @@ public class Document extends Parent {
 
 	private final Element rootElement;
 	private final ListenerList<DocumentListener, DocumentEvent> listeners = new ListenerList<DocumentListener, DocumentEvent>(DocumentListener.class);
-	private boolean undoEnabled = true;
 
 	private String publicID;
 	protected String systemID;
@@ -467,18 +466,6 @@ public class Document extends Parent {
 
 	private void fireContentInserted(final DocumentEvent e) {
 		listeners.fireEvent("contentInserted", e);
-	}
-
-	/*
-	 * Edits
-	 */
-
-	public boolean isUndoEnabled() {
-		return undoEnabled;
-	}
-
-	public void setUndoEnabled(final boolean undoEnabled) {
-		this.undoEnabled = undoEnabled;
 	}
 
 }
