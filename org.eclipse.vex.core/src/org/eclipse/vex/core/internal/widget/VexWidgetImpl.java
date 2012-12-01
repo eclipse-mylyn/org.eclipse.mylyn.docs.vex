@@ -1190,10 +1190,8 @@ public class VexWidgetImpl implements IVexWidget {
 		try {
 			beginWork();
 			if (styles.getWhiteSpace().equals(CSS.PRE)) {
-				// can't call this.insertText() or we'll get an infinite loop
-				final int offset = getCaretOffset();
-				doc.insertText(offset, "\n");
-				this.moveTo(offset + 1);
+				applyEdit(new InsertTextEdit(document, getCaretOffset(), "\n"), getCaretOffset());
+				this.moveBy(1);
 			} else {
 				DocumentFragment frag = null;
 				int offset = getCaretOffset();
@@ -1206,7 +1204,7 @@ public class VexWidgetImpl implements IVexWidget {
 
 				// either way, we are now at the end offset for the element
 				// let's move just outside
-				this.moveTo(getCaretOffset() + 1);
+				this.moveBy(1);
 
 				insertElement(element.getQualifiedName());
 				// TODO: clone attributes
