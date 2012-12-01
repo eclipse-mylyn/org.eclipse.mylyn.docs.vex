@@ -33,6 +33,7 @@ import org.eclipse.vex.core.internal.dom.DocumentWriterTest;
 import org.eclipse.vex.core.internal.dom.GapContentTest;
 import org.eclipse.vex.core.internal.dom.L1CommentHandlingTest;
 import org.eclipse.vex.core.internal.dom.L1ElementHandlingTest;
+import org.eclipse.vex.core.internal.dom.L1FragmentHandlingTest;
 import org.eclipse.vex.core.internal.dom.L1TextHandlingTest;
 import org.eclipse.vex.core.internal.dom.NamespaceStackTest;
 import org.eclipse.vex.core.internal.dom.NamespaceTest;
@@ -71,6 +72,7 @@ public class VEXCoreTestSuite extends TestSuite {
 		addTest(new JUnit4TestAdapter(L1TextHandlingTest.class));
 		addTest(new JUnit4TestAdapter(L1CommentHandlingTest.class));
 		addTest(new JUnit4TestAdapter(L1ElementHandlingTest.class));
+		addTest(new JUnit4TestAdapter(L1FragmentHandlingTest.class));
 		addTest(new JUnit4TestAdapter(DocumentFragmentTest.class));
 		addTest(new JUnit4TestAdapter(NodeTraversalTest.class));
 		addTest(new JUnit4TestAdapter(CopyVisitorTest.class));
