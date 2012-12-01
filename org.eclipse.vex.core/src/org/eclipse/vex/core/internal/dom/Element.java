@@ -22,9 +22,6 @@ import java.util.Map.Entry;
 
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.vex.core.internal.core.QualifiedNameComparator;
-import org.eclipse.vex.core.internal.undo.CannotRedoException;
-import org.eclipse.vex.core.internal.undo.CannotUndoException;
-import org.eclipse.vex.core.internal.undo.IUndoableEdit;
 
 /**
  * Represents a tag in an XML document. Methods are available for managing the element's attributes and children.
@@ -111,6 +108,10 @@ public class Element extends Parent {
 		return prefix + ":" + getLocalName();
 	}
 
+	public QualifiedName qualify(final String localName) {
+		return new QualifiedName(name.getQualifier(), localName);
+	}
+
 	/*
 	 * Attributes
 	 */
@@ -155,16 +156,11 @@ public class Element extends Parent {
 			return;
 		}
 
-		final IUndoableEdit edit = document.isUndoEnabled() ? new AttributeChangeEdit(name, oldValue, newValue) : null;
-		document.fireAttributeChanged(new DocumentEvent(document, this, name, oldValue, newValue, edit));
+		document.fireAttributeChanged(new DocumentEvent(document, this, name, oldValue, newValue, null));
 	}
 
 	public void setAttribute(final String name, final String value) throws DocumentValidationException {
 		setAttribute(qualify(name), value);
-	}
-
-	private QualifiedName qualify(final String localName) {
-		return new QualifiedName(name.getQualifier(), localName);
 	}
 
 	public void setAttribute(final QualifiedName name, final String value) throws DocumentValidationException {
@@ -189,8 +185,7 @@ public class Element extends Parent {
 					return;
 				}
 
-				final IUndoableEdit edit = document.isUndoEnabled() ? new AttributeChangeEdit(name, oldValue, value) : null;
-				document.fireAttributeChanged(new DocumentEvent(document, this, name, oldValue, value, edit));
+				document.fireAttributeChanged(new DocumentEvent(document, this, name, oldValue, value, null));
 			}
 		}
 	}
@@ -326,8 +321,7 @@ public class Element extends Parent {
 			return;
 		}
 
-		final IUndoableEdit edit = document.isUndoEnabled() ? new NamespaceChangeEdit(namespacePrefix, oldNamespaceURI, namespaceURI) : null;
-		document.fireNamespaceChanged(new DocumentEvent(document, this, getStartOffset(), 0, edit));
+		document.fireNamespaceChanged(new DocumentEvent(document, this, getStartOffset(), 0, null));
 	}
 
 	public void removeNamespace(final String namespacePrefix) {
@@ -341,8 +335,7 @@ public class Element extends Parent {
 			return; // we have actually removed nothing, so we should not tell anybody about it
 		}
 
-		final IUndoableEdit edit = document.isUndoEnabled() ? new NamespaceChangeEdit(namespacePrefix, oldNamespaceURI, null) : null;
-		document.fireNamespaceChanged(new DocumentEvent(document, this, getStartOffset(), 0, edit));
+		document.fireNamespaceChanged(new DocumentEvent(document, this, getStartOffset(), 0, null));
 	}
 
 	public void declareDefaultNamespace(final String namespaceURI) {
@@ -387,100 +380,6 @@ public class Element extends Parent {
 		sb.append(")");
 
 		return sb.toString();
-	}
-
-	/*
-	 * Edits
-	 */
-
-	private class AttributeChangeEdit implements IUndoableEdit {
-
-		private final QualifiedName name;
-		private final String oldValue;
-		private final String newValue;
-
-		public AttributeChangeEdit(final QualifiedName name, final String oldValue, final String newValue) {
-			this.name = name;
-			this.oldValue = oldValue;
-			this.newValue = newValue;
-		}
-
-		public boolean combine(final IUndoableEdit edit) {
-			return false;
-		}
-
-		public void undo() throws CannotUndoException {
-			final Document doc = getDocument();
-			try {
-				doc.setUndoEnabled(false);
-				setAttribute(name, oldValue);
-			} catch (final DocumentValidationException ex) {
-				throw new CannotUndoException();
-			} finally {
-				doc.setUndoEnabled(true);
-			}
-		}
-
-		public void redo() throws CannotRedoException {
-			final Document doc = getDocument();
-			try {
-				doc.setUndoEnabled(false);
-				setAttribute(name, newValue);
-			} catch (final DocumentValidationException ex) {
-				throw new CannotUndoException();
-			} finally {
-				doc.setUndoEnabled(true);
-			}
-		}
-	}
-
-	private class NamespaceChangeEdit implements IUndoableEdit {
-
-		private final String prefix;
-		private final String oldUri;
-		private final String newUri;
-
-		public NamespaceChangeEdit(final String prefix, final String oldUri, final String newUri) {
-			this.prefix = prefix;
-			this.oldUri = oldUri;
-			this.newUri = newUri;
-		}
-
-		public boolean combine(final IUndoableEdit edit) {
-			return false;
-		}
-
-		public void undo() throws CannotUndoException {
-			final Document doc = getDocument();
-			try {
-				doc.setUndoEnabled(false);
-				if (oldUri == null) {
-					removeNamespace(prefix);
-				} else {
-					declareNamespace(prefix, oldUri);
-				}
-			} catch (final DocumentValidationException ex) {
-				throw new CannotUndoException();
-			} finally {
-				doc.setUndoEnabled(true);
-			}
-		}
-
-		public void redo() throws CannotRedoException {
-			final Document doc = getDocument();
-			try {
-				doc.setUndoEnabled(false);
-				if (newUri == null) {
-					removeNamespace(prefix);
-				} else {
-					declareNamespace(prefix, newUri);
-				}
-			} catch (final DocumentValidationException ex) {
-				throw new CannotUndoException();
-			} finally {
-				doc.setUndoEnabled(true);
-			}
-		}
 	}
 
 }

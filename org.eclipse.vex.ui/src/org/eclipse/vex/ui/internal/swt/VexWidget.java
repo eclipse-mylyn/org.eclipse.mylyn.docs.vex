@@ -427,6 +427,22 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 		return impl.viewToModel(x, y);
 	}
 
+	public void declareNamespace(final String namespacePrefix, final String namespaceURI) {
+		impl.declareNamespace(namespacePrefix, namespaceURI);
+	}
+
+	public void removeNamespace(final String namespacePrefix) {
+		impl.removeNamespace(namespacePrefix);
+	}
+
+	public void declareDefaultNamespace(final String namespaceURI) {
+		impl.declareDefaultNamespace(namespaceURI);
+	}
+
+	public void removeDefaultNamespace() {
+		impl.removeDefaultNamespace();
+	}
+
 	/**
 	 * @return the location of the left bottom corner of the caret relative to the VexWidget
 	 */
