@@ -31,7 +31,7 @@ import org.eclipse.vex.core.internal.undo.IUndoableEdit;
  */
 public class Element extends Parent {
 
-	/**
+	/*
 	 * The xml:base attribute re-defines the base URI for a part of an XML document, according to the XML Base
 	 * Recommendation.
 	 * 
@@ -52,6 +52,23 @@ public class Element extends Parent {
 		name = qualifiedName;
 	}
 
+	/*
+	 * Node
+	 */
+
+	@Override
+	public String getBaseURI() {
+		final Attribute baseAttribute = getAttribute(XML_BASE_ATTRIBUTE);
+		if (baseAttribute != null) {
+			return baseAttribute.getValue();
+		}
+		return super.getBaseURI();
+	}
+
+	public void setBaseURI(final String baseURI) {
+		setAttribute(XML_BASE_ATTRIBUTE, baseURI);
+	}
+
 	@Override
 	public boolean isKindOf(final Node node) {
 		if (!(node instanceof Element)) {
@@ -69,6 +86,34 @@ public class Element extends Parent {
 	public <T> T accept(final INodeVisitorWithResult<T> visitor) {
 		return visitor.visit(this);
 	}
+
+	/*
+	 * Element Name
+	 */
+
+	public QualifiedName getQualifiedName() {
+		return name;
+	}
+
+	public String getLocalName() {
+		return name.getLocalName();
+	}
+
+	public String getPrefix() {
+		return getNamespacePrefix(name.getQualifier());
+	}
+
+	public String getPrefixedName() {
+		final String prefix = getPrefix();
+		if (prefix == null) {
+			return getLocalName();
+		}
+		return prefix + ":" + getLocalName();
+	}
+
+	/*
+	 * Attributes
+	 */
 
 	public Attribute getAttribute(final String localName) {
 		return getAttribute(qualify(localName));
@@ -165,71 +210,9 @@ public class Element extends Parent {
 		return result;
 	}
 
-	public List<Element> getChildElements() {
-		final List<Node> nodes = getChildNodes();
-		final List<Element> elements = new ArrayList<Element>();
-		for (final Node node : nodes) {
-			node.accept(new BaseNodeVisitor() {
-				@Override
-				public void visit(final Element element) {
-					elements.add(element);
-				}
-			});
-		}
-		return elements;
-	}
-
-	public String getLocalName() {
-		return name.getLocalName();
-	}
-
-	public QualifiedName getQualifiedName() {
-		return name;
-	}
-
-	public String getPrefix() {
-		return getNamespacePrefix(name.getQualifier());
-	}
-
-	public String getPrefixedName() {
-		final String prefix = getPrefix();
-		if (prefix == null) {
-			return getLocalName();
-		}
-		return prefix + ":" + getLocalName();
-	}
-
-	public boolean isEmpty() {
-		return getStartOffset() + 1 == getEndOffset();
-	}
-
-	@Override
-	public String toString() {
-
-		final StringBuffer sb = new StringBuffer();
-		sb.append("<");
-		sb.append(getPrefixedName().toString());
-
-		for (final Attribute attribute : getAttributes()) {
-			sb.append(" ");
-			sb.append(attribute.getPrefixedName());
-			sb.append("=\"");
-			sb.append(attribute.getValue());
-			sb.append("\"");
-		}
-
-		sb.append("> (");
-		if (isAssociated()) {
-			sb.append(getStartOffset());
-			sb.append(",");
-			sb.append(getEndOffset());
-		} else {
-			sb.append("n/a");
-		}
-		sb.append(")");
-
-		return sb.toString();
-	}
+	/*
+	 * Element Structure
+	 */
 
 	public Element getParentElement() {
 		return getParentElement(this);
@@ -245,6 +228,24 @@ public class Element extends Parent {
 		}
 		return getParentElement(parent);
 	}
+
+	public List<Element> getChildElements() {
+		final List<Node> nodes = getChildNodes();
+		final List<Element> elements = new ArrayList<Element>();
+		for (final Node node : nodes) {
+			node.accept(new BaseNodeVisitor() {
+				@Override
+				public void visit(final Element element) {
+					elements.add(element);
+				}
+			});
+		}
+		return elements;
+	}
+
+	/*
+	 * Namespaces
+	 */
 
 	public String getNamespaceURI(final String namespacePrefix) {
 		if (namespaceDeclarations.containsKey(namespacePrefix)) {
@@ -352,14 +353,45 @@ public class Element extends Parent {
 		removeNamespace(null);
 	}
 
-	@Override
-	public String getBaseURI() {
-		final Attribute baseAttribute = getAttribute(XML_BASE_ATTRIBUTE);
-		if (baseAttribute != null) {
-			return baseAttribute.getValue();
-		}
-		return super.getBaseURI();
+	/*
+	 * Miscellaneous
+	 */
+
+	public boolean isEmpty() {
+		return getStartOffset() + 1 == getEndOffset();
 	}
+
+	@Override
+	public String toString() {
+
+		final StringBuffer sb = new StringBuffer();
+		sb.append("<");
+		sb.append(getPrefixedName().toString());
+
+		for (final Attribute attribute : getAttributes()) {
+			sb.append(" ");
+			sb.append(attribute.getPrefixedName());
+			sb.append("=\"");
+			sb.append(attribute.getValue());
+			sb.append("\"");
+		}
+
+		sb.append("> (");
+		if (isAssociated()) {
+			sb.append(getStartOffset());
+			sb.append(",");
+			sb.append(getEndOffset());
+		} else {
+			sb.append("n/a");
+		}
+		sb.append(")");
+
+		return sb.toString();
+	}
+
+	/*
+	 * Edits
+	 */
 
 	private class AttributeChangeEdit implements IUndoableEdit {
 

@@ -74,6 +74,10 @@ public class Document extends Parent {
 		addChild(rootElement);
 	}
 
+	/*
+	 * Node
+	 */
+
 	@Override
 	public int getStartOffset() {
 		return 0;
@@ -98,6 +102,10 @@ public class Document extends Parent {
 	public String getBaseURI() {
 		return getDocumentURI();
 	}
+
+	/*
+	 * Document
+	 */
 
 	public void setDocumentURI(final String documentURI) {
 		this.documentURI = documentURI;
@@ -143,22 +151,6 @@ public class Document extends Parent {
 		return rootElement;
 	}
 
-	public boolean isUndoEnabled() {
-		return undoEnabled;
-	}
-
-	public void setUndoEnabled(final boolean undoEnabled) {
-		this.undoEnabled = undoEnabled;
-	}
-
-	public void addDocumentListener(final DocumentListener listener) {
-		listeners.add(listener);
-	}
-
-	public void removeDocumentListener(final DocumentListener listener) {
-		listeners.remove(listener);
-	}
-
 	public int getLength() {
 		return getContent().length();
 	}
@@ -166,6 +158,10 @@ public class Document extends Parent {
 	public Position createPosition(final int offset) {
 		return getContent().createPosition(offset);
 	}
+
+	/*
+	 * L1 Operations
+	 */
 
 	private boolean canInsertAt(final Element insertionParent, final int offset, final QualifiedName... nodeNames) {
 		return canInsertAt(insertionParent, offset, Arrays.asList(nodeNames));
@@ -372,6 +368,10 @@ public class Document extends Parent {
 		fireContentDeleted(new DocumentEvent(this, surroundingElement, range.getStartOffset(), range.length(), edit));
 	}
 
+	/*
+	 * Miscellaneous
+	 */
+
 	public char getCharacterAt(final int offset) {
 		final String text = getContent().getText(new Range(offset, offset));
 		if (text.length() == 0) {
@@ -406,17 +406,17 @@ public class Document extends Parent {
 	}
 
 	public Element getElementAt(final int offset) {
-		return getContainerElement(getChildNodeAt(offset));
+		return getParentElement(getChildNodeAt(offset));
 	}
 
-	private static Element getContainerElement(final Node node) {
+	private static Element getParentElement(final Node node) {
 		if (node == null) {
 			return null;
 		}
 		if (node instanceof Element) {
 			return (Element) node;
 		}
-		return getContainerElement(node.getParent());
+		return getParentElement(node.getParent());
 	}
 
 	public boolean isElementAt(final int offset) {
@@ -445,6 +445,18 @@ public class Document extends Parent {
 		return getParentOfRange(range).getChildNodes(range);
 	}
 
+	/*
+	 * Events
+	 */
+
+	public void addDocumentListener(final DocumentListener listener) {
+		listeners.add(listener);
+	}
+
+	public void removeDocumentListener(final DocumentListener listener) {
+		listeners.remove(listener);
+	}
+
 	public void fireAttributeChanged(final DocumentEvent e) {
 		listeners.fireEvent("attributeChanged", e);
 	}
@@ -469,7 +481,17 @@ public class Document extends Parent {
 		listeners.fireEvent("contentInserted", e);
 	}
 
-	// TODO move undoable edits int L2
+	/*
+	 * Edits
+	 */
+
+	public boolean isUndoEnabled() {
+		return undoEnabled;
+	}
+
+	public void setUndoEnabled(final boolean undoEnabled) {
+		this.undoEnabled = undoEnabled;
+	}
 
 	private class DeleteEdit implements IUndoableEdit {
 
