@@ -69,12 +69,7 @@ public class SplitBlockElementHandler extends AbstractVexWidgetHandler {
 				final Styles styles = vexWidget.getStyleSheet().getStyles(node);
 
 				if (styles.getWhiteSpace().equals(CSS.PRE)) {
-					// can't call vexWidget.insertText() or we'll get an
-					// infinite loop
-					final Document doc = vexWidget.getDocument();
-					final int offset = vexWidget.getCaretOffset();
-					doc.insertText(offset, "\n");
-					vexWidget.moveTo(offset + 1);
+					vexWidget.insertText("\n");
 				} else {
 
 					// There may be a number of child elements below the given
