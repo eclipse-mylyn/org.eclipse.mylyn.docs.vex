@@ -218,7 +218,7 @@ public class Document extends Parent {
 					throw new DocumentValidationException(MessageFormat.format("Cannot insert text ''{0}'' at offset {1}.", text, offset));
 				}
 
-				fireBeforeContentInserted(new DocumentEvent(Document.this, element, offset, 2, null));
+				fireBeforeContentInserted(new DocumentEvent(Document.this, element, offset, adjustedText.length(), null));
 
 				getContent().insertText(offset, adjustedText);
 
@@ -255,13 +255,16 @@ public class Document extends Parent {
 
 		final Element parent = getInsertionParentAt(offset);
 
-		// TODO fire events
+		fireBeforeContentInserted(new DocumentEvent(this, parent, offset, 2, null));
+
 		final Comment comment = new Comment();
 		getContent().insertElementMarker(offset);
 		getContent().insertElementMarker(offset);
 		comment.associate(getContent(), new Range(offset, offset + 1));
 
 		parent.insertChild(parent.getInsertionIndex(offset), comment);
+
+		fireContentInserted(new DocumentEvent(this, parent, offset, 2, null));
 
 		return comment;
 	}
