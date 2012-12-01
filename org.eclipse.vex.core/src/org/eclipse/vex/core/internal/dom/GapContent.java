@@ -11,8 +11,8 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.dom;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import org.eclipse.core.runtime.Assert;
 
@@ -29,7 +29,7 @@ public class GapContent implements Content {
 	private char[] content;
 	private int gapStart;
 	private int gapEnd;
-	private final Set<GapContentPosition> positions = new HashSet<GapContentPosition>();
+	private final SortedSet<GapContentPosition> positions = new TreeSet<GapContentPosition>();
 
 	/**
 	 * Class constructor.
@@ -55,20 +55,34 @@ public class GapContent implements Content {
 
 		assertOffset(offset, 0, length());
 
-		final GapContentPosition position = new GapContentPosition(offset);
-		positions.add(position);
-
-		return position;
+		final GapContentPosition newPosition = new GapContentPosition(offset);
+		if (positions.contains(newPosition)) {
+			final SortedSet<GapContentPosition> tailSet = positions.tailSet(newPosition);
+			final GapContentPosition storedPosition = tailSet.first();
+			storedPosition.increaseUse();
+			return storedPosition;
+		}
+		positions.add(newPosition);
+		return newPosition;
 	}
 
 	public void removePosition(final Position position) {
-		if (positions.remove(position)) {
+		if (positions.contains(position)) {
 			/*
 			 * This cast is save: if the position can be removed, this instance must have created it, hence it is a
 			 * GapContentPosition.
 			 */
-			((GapContentPosition) position).invalidate();
+			final SortedSet<GapContentPosition> tailSet = positions.tailSet((GapContentPosition) position);
+			final GapContentPosition storedPosition = tailSet.first();
+			storedPosition.decreaseUse();
+			if (!storedPosition.isValid()) {
+				positions.remove(storedPosition);
+			}
 		}
+	}
+
+	public int getPositionCount() {
+		return positions.size();
 	}
 
 	/**
@@ -102,7 +116,8 @@ public class GapContent implements Content {
 		if (!atEnd) {
 
 			// Update positions
-			for (final GapContentPosition position : positions) {
+			final GapContentPosition offsetPosition = new GapContentPosition(offset);
+			for (final GapContentPosition position : positions.tailSet(offsetPosition)) {
 				if (position.getOffset() >= offset) {
 					position.setOffset(position.getOffset() + s.length());
 				}
@@ -290,14 +305,14 @@ public class GapContent implements Content {
 	private static final int GROWTH_RATE_FAST = 2;
 	private static final float GROWTH_RATE_SLOW = 1.1f;
 
-	/**
+	/*
 	 * Implementation of the Position interface.
 	 */
-	private static class GapContentPosition implements Position {
+	private static class GapContentPosition implements Position, Comparable<Position> {
 
 		private int offset;
 
-		private boolean valid = true;
+		private int useCount = 1;
 
 		public GapContentPosition(final int offset) {
 			this.offset = offset;
@@ -311,17 +326,51 @@ public class GapContent implements Content {
 			this.offset = offset;
 		}
 
+		public void increaseUse() {
+			useCount++;
+		}
+
+		public void decreaseUse() {
+			useCount--;
+		}
+
 		public boolean isValid() {
-			return valid;
+			return useCount > 0;
 		};
 
-		public void invalidate() {
-			valid = false;
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + offset;
+			return result;
+		}
+
+		@Override
+		public boolean equals(final Object obj) {
+			if (this == obj) {
+				return true;
+			}
+			if (obj == null) {
+				return false;
+			}
+			if (getClass() != obj.getClass()) {
+				return false;
+			}
+			final GapContentPosition other = (GapContentPosition) obj;
+			if (offset != other.offset) {
+				return false;
+			}
+			return true;
 		}
 
 		@Override
 		public String toString() {
 			return Integer.toString(offset);
+		}
+
+		public int compareTo(final Position other) {
+			return offset - other.getOffset();
 		}
 	}
 

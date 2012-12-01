@@ -155,6 +155,10 @@ public class Document extends Parent {
 		return getContent().createPosition(offset);
 	}
 
+	public void removePosition(final Position position) {
+		getContent().removePosition(position);
+	}
+
 	/*
 	 * L1 Operations
 	 */
