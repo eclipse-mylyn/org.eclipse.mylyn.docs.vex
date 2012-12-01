@@ -11,6 +11,7 @@
 package org.eclipse.vex.core.internal.dom;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.fail;
 
 import org.eclipse.core.runtime.AssertionFailedException;
@@ -37,6 +38,17 @@ public class GapContentTest extends ContentTest {
 
 		assertEquals(stringContent.length(), elementMarkerContent.length());
 		assertEquals(stringContent.getText(stringContent.getRange()), elementMarkerContent.getText(elementMarkerContent.getRange()));
+	}
+
+	@Test
+	public void givenAnOffset_whenInvokedMultipleTimes_shouldNotCreateMultiplePositionInstances() throws Exception {
+		final GapContent gapContent = new GapContent(4);
+		gapContent.insertElementMarker(0);
+		final Position firstPosition = gapContent.createPosition(0);
+		assertEquals(1, gapContent.getPositionCount());
+		final Position secondPosition = gapContent.createPosition(0);
+		assertEquals(1, gapContent.getPositionCount());
+		assertSame(firstPosition, secondPosition);
 	}
 
 	@Test
