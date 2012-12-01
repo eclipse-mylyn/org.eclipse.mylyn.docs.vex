@@ -515,4 +515,12 @@ public interface IVexWidget {
 	 */
 	public int viewToModel(int x, int y);
 
+	public void declareNamespace(final String namespacePrefix, final String namespaceURI);
+
+	public void removeNamespace(final String namespacePrefix);
+
+	public void declareDefaultNamespace(final String namespaceURI);
+
+	public void removeDefaultNamespace();
+
 }

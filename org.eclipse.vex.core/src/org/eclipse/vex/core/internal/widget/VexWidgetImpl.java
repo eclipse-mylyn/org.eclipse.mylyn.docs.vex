@@ -53,6 +53,8 @@ import org.eclipse.vex.core.internal.layout.LayoutContext;
 import org.eclipse.vex.core.internal.layout.RootBox;
 import org.eclipse.vex.core.internal.undo.CannotRedoException;
 import org.eclipse.vex.core.internal.undo.CannotUndoException;
+import org.eclipse.vex.core.internal.undo.ChangeAttributeEdit;
+import org.eclipse.vex.core.internal.undo.ChangeNamespaceEdit;
 import org.eclipse.vex.core.internal.undo.CompoundEdit;
 import org.eclipse.vex.core.internal.undo.DeleteEdit;
 import org.eclipse.vex.core.internal.undo.IUndoableEdit;
@@ -1035,17 +1037,6 @@ public class VexWidgetImpl implements IVexWidget {
 		undoDepth++;
 	}
 
-	public void removeAttribute(final String attributeName) {
-		try {
-			final Element element = getCurrentElement();
-			if (element.getAttribute(attributeName) != null) {
-				element.removeAttribute(attributeName);
-			}
-		} catch (final DocumentValidationException ex) {
-			ex.printStackTrace(); // TODO: when can this happen?
-		}
-	}
-
 	public void savePosition(final Runnable runnable) {
 		final Position pos = getDocument().createPosition(getCaretOffset());
 		try {
@@ -1091,13 +1082,28 @@ public class VexWidgetImpl implements IVexWidget {
 	public void setAttribute(final String attributeName, final String value) {
 		try {
 			final Element element = getCurrentElement();
+			final QualifiedName qualifiedAttributeName = element.qualify(attributeName);
+			final String currentAttributeValue = element.getAttributeValue(qualifiedAttributeName);
 			if (value == null) {
 				removeAttribute(attributeName);
-			} else if (!value.equals(element.getAttribute(attributeName))) {
-				element.setAttribute(attributeName, value);
+			} else if (!value.equals(currentAttributeValue)) {
+				applyEdit(new ChangeAttributeEdit(element, qualifiedAttributeName, currentAttributeValue, value), getCaretOffset());
 			}
-		} catch (final DocumentValidationException ex) {
-			ex.printStackTrace(); // TODO: mebbe throw the exception instead
+		} catch (final DocumentValidationException e) {
+			e.printStackTrace(); // TODO: maybe throw the exception instead?
+		}
+	}
+
+	public void removeAttribute(final String attributeName) {
+		try {
+			final Element element = getCurrentElement();
+			final QualifiedName qualifiedAttributeName = element.qualify(attributeName);
+			final String currentAttributeValue = element.getAttributeValue(qualifiedAttributeName);
+			if (currentAttributeValue != null) {
+				applyEdit(new ChangeAttributeEdit(element, qualifiedAttributeName, currentAttributeValue, null), getCaretOffset());
+			}
+		} catch (final DocumentValidationException e) {
+			e.printStackTrace(); // TODO: when can this happen?
 		}
 	}
 
@@ -1248,6 +1254,46 @@ public class VexWidgetImpl implements IVexWidget {
 		final int offset = rootBox.viewToModel(context, x, y);
 		g.dispose();
 		return offset;
+	}
+
+	public void declareNamespace(final String namespacePrefix, final String namespaceURI) {
+		try {
+			final Element element = getCurrentElement();
+			final String currentNamespaceURI = element.getNamespaceURI(namespacePrefix);
+			applyEdit(new ChangeNamespaceEdit(element, namespacePrefix, currentNamespaceURI, namespaceURI), getCaretOffset());
+		} catch (final DocumentValidationException e) {
+			e.printStackTrace(); // TODO: maybe throw the exception instead?
+		}
+	}
+
+	public void removeNamespace(final String namespacePrefix) {
+		try {
+			final Element element = getCurrentElement();
+			final String currentNamespaceURI = element.getNamespaceURI(namespacePrefix);
+			applyEdit(new ChangeNamespaceEdit(element, namespacePrefix, currentNamespaceURI, null), getCaretOffset());
+		} catch (final DocumentValidationException e) {
+			e.printStackTrace(); // TODO: maybe throw the exception instead?
+		}
+	}
+
+	public void declareDefaultNamespace(final String namespaceURI) {
+		try {
+			final Element element = getCurrentElement();
+			final String currentNamespaceURI = element.getDefaultNamespaceURI();
+			applyEdit(new ChangeNamespaceEdit(element, null, currentNamespaceURI, namespaceURI), getCaretOffset());
+		} catch (final DocumentValidationException e) {
+			e.printStackTrace(); // TODO: maybe throw the exception instead?
+		}
+	}
+
+	public void removeDefaultNamespace() {
+		try {
+			final Element element = getCurrentElement();
+			final String currentNamespaceURI = element.getDefaultNamespaceURI();
+			applyEdit(new ChangeNamespaceEdit(element, null, currentNamespaceURI, null), getCaretOffset());
+		} catch (final DocumentValidationException e) {
+			e.printStackTrace(); // TODO: maybe throw the exception instead?
+		}
 	}
 
 	// ================================================== PRIVATE

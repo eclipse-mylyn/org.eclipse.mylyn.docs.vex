@@ -15,20 +15,23 @@ import java.util.HashSet;
 import java.util.List;
 
 import org.eclipse.vex.core.internal.dom.Element;
+import org.eclipse.vex.core.internal.widget.IVexWidget;
 
 /**
  * @author Florian Thienel
  */
 public class EditNamespacesController {
 
+	private final IVexWidget widget;
 	private final Element element;
 
 	private String defaultNamespaceURI;
 
 	private final List<EditableNamespaceDefinition> namespaceDefinitions;
 
-	public EditNamespacesController(final Element element) {
-		this.element = element;
+	public EditNamespacesController(final IVexWidget widget) {
+		this.widget = widget;
+		element = widget.getCurrentElement();
 		defaultNamespaceURI = getDefaultNamespaceURI(element);
 		namespaceDefinitions = getNamespaceDefinitions(element);
 	}
@@ -73,20 +76,20 @@ public class EditNamespacesController {
 
 	public void applyToElement() {
 		if (defaultNamespaceURI == null || "".equals(defaultNamespaceURI)) {
-			element.removeDefaultNamespace();
+			widget.removeDefaultNamespace();
 		} else {
-			element.declareDefaultNamespace(defaultNamespaceURI);
+			widget.declareDefaultNamespace(defaultNamespaceURI);
 		}
 
 		final HashSet<String> declaredPrefixes = new HashSet<String>();
 		for (final EditableNamespaceDefinition definition : namespaceDefinitions) {
-			element.declareNamespace(definition.getPrefix(), definition.getUri());
+			widget.declareNamespace(definition.getPrefix(), definition.getUri());
 			declaredPrefixes.add(definition.getPrefix());
 		}
 
 		for (final String prefix : element.getDeclaredNamespacePrefixes()) {
 			if (!declaredPrefixes.contains(prefix)) {
-				element.removeNamespace(prefix);
+				widget.removeNamespace(prefix);
 			}
 		}
 	}
