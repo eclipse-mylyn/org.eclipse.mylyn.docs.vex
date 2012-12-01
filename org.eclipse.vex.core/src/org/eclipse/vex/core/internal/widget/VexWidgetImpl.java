@@ -54,7 +54,12 @@ import org.eclipse.vex.core.internal.layout.RootBox;
 import org.eclipse.vex.core.internal.undo.CannotRedoException;
 import org.eclipse.vex.core.internal.undo.CannotUndoException;
 import org.eclipse.vex.core.internal.undo.CompoundEdit;
+import org.eclipse.vex.core.internal.undo.DeleteEdit;
 import org.eclipse.vex.core.internal.undo.IUndoableEdit;
+import org.eclipse.vex.core.internal.undo.InsertCommentEdit;
+import org.eclipse.vex.core.internal.undo.InsertElementEdit;
+import org.eclipse.vex.core.internal.undo.InsertFragmentEdit;
+import org.eclipse.vex.core.internal.undo.InsertTextEdit;
 
 /**
  * A component that allows the display and edit of an XML document with an associated CSS stylesheet.
@@ -374,12 +379,13 @@ public class VexWidgetImpl implements IVexWidget {
 	public void deleteSelection() {
 		try {
 			if (hasSelection()) {
-				document.delete(new Range(getSelectionStart(), getSelectionEnd()));
+				final DeleteEdit edit = new DeleteEdit(document, new Range(getSelectionStart(), getSelectionEnd()));
+				addEdit(edit, getSelectionStart());
+				edit.redo();
 				this.moveTo(getSelectionStart());
 			}
-		} catch (final DocumentValidationException ex) {
-			ex.printStackTrace(); // This should never happen, because we
-			// constrain the selection
+		} catch (final DocumentValidationException e) {
+			e.printStackTrace(); // This should never happen, because we constrain the selection
 		}
 	}
 
@@ -689,40 +695,26 @@ public class VexWidgetImpl implements IVexWidget {
 		return getSelectionStart() != getSelectionEnd();
 	}
 
-	public void insertChar(final char c) throws DocumentValidationException {
-		if (hasSelection()) {
-			deleteSelection();
-		}
-		document.insertText(getCaretOffset(), Character.toString(c));
-		this.moveBy(+1);
-	}
-
-	public void insertFragment(final DocumentFragment frag) throws DocumentValidationException {
-
-		if (hasSelection()) {
-			deleteSelection();
-		}
-
-		document.insertFragment(getCaretOffset(), frag);
-		this.moveTo(getCaretOffset() + frag.getLength());
-	}
-
 	public Element insertElement(final QualifiedName elementName) throws DocumentValidationException {
 		boolean success = false;
 		final Element result;
 		try {
 			beginWork();
 
-			DocumentFragment frag = null;
+			DocumentFragment selectedFragment = null;
 			if (hasSelection()) {
-				frag = getSelectedFragment();
+				selectedFragment = getSelectedFragment();
 				deleteSelection();
 			}
 
-			result = document.insertElement(getCaretOffset(), elementName);
+			final InsertElementEdit edit = new InsertElementEdit(document, getCaretOffset(), elementName);
+			addEdit(edit, getCaretOffset());
+			edit.redo();
+			result = edit.getElement();
+
 			this.moveTo(getCaretOffset() + 1);
-			if (frag != null) {
-				insertFragment(frag);
+			if (selectedFragment != null) {
+				insertFragment(selectedFragment);
 			}
 			scrollCaretVisible();
 			success = true;
@@ -732,8 +724,17 @@ public class VexWidgetImpl implements IVexWidget {
 		}
 	}
 
-	public void insertText(final String text) throws DocumentValidationException {
+	public void insertFragment(final DocumentFragment fragment) throws DocumentValidationException {
+		if (hasSelection()) {
+			deleteSelection();
+		}
+		final InsertFragmentEdit edit = new InsertFragmentEdit(document, getCaretOffset(), fragment);
+		addEdit(edit, getCaretOffset());
+		edit.redo();
+		this.moveTo(getCaretOffset() + fragment.getLength());
+	}
 
+	public void insertText(final String text) throws DocumentValidationException {
 		if (hasSelection()) {
 			deleteSelection();
 		}
@@ -747,20 +748,34 @@ public class VexWidgetImpl implements IVexWidget {
 				if (j == -1) {
 					break;
 				}
-				document.insertText(getCaretOffset(), text.substring(i, j));
+				final InsertTextEdit edit = new InsertTextEdit(document, getCaretOffset(), text.substring(i, j));
+				addEdit(edit, getCaretOffset());
+				edit.redo();
 				this.moveTo(getCaretOffset() + j - i);
 				split();
 				i = j + 1;
 			}
 
 			if (i < text.length()) {
-				document.insertText(getCaretOffset(), text.substring(i));
+				final InsertTextEdit edit = new InsertTextEdit(document, getCaretOffset(), text.substring(i));
+				addEdit(edit, getCaretOffset());
+				edit.redo();
 				this.moveTo(getCaretOffset() + text.length() - i);
 			}
 			success = true;
 		} finally {
 			endWork(success);
 		}
+	}
+
+	public void insertChar(final char c) throws DocumentValidationException {
+		if (hasSelection()) {
+			deleteSelection();
+		}
+		final InsertTextEdit edit = new InsertTextEdit(document, getCaretOffset(), Character.toString(c));
+		addEdit(edit, getCaretOffset());
+		edit.redo();
+		this.moveBy(+1);
 	}
 
 	public void insertComment() throws DocumentValidationException {
@@ -771,7 +786,9 @@ public class VexWidgetImpl implements IVexWidget {
 		boolean success = false;
 		try {
 			beginWork();
-			document.insertComment(getCaretOffset());
+			final InsertCommentEdit edit = new InsertCommentEdit(document, getCaretOffset());
+			addEdit(edit, getCaretOffset());
+			edit.redo();
 			this.moveTo(getCaretOffset() + 1);
 			scrollCaretVisible();
 			success = true;
