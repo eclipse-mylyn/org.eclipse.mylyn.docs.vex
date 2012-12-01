@@ -19,9 +19,6 @@ import java.util.List;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.vex.core.internal.core.ListenerList;
-import org.eclipse.vex.core.internal.undo.CannotRedoException;
-import org.eclipse.vex.core.internal.undo.CannotUndoException;
-import org.eclipse.vex.core.internal.undo.IUndoableEdit;
 
 /**
  * Represents an XML document.
@@ -226,8 +223,7 @@ public class Document extends Parent {
 
 				getContent().insertText(offset, adjustedText);
 
-				final IUndoableEdit edit = undoEnabled ? new InsertTextEdit(offset, adjustedText) : null;
-				fireContentInserted(new DocumentEvent(Document.this, element, offset, adjustedText.length(), edit));
+				fireContentInserted(new DocumentEvent(Document.this, element, offset, adjustedText.length(), null));
 			}
 
 			public void visit(final Text text) {
@@ -292,8 +288,7 @@ public class Document extends Parent {
 
 		parent.insertChild(parent.getInsertionIndex(offset), element);
 
-		final IUndoableEdit edit = undoEnabled ? new InsertElementEdit(offset, element) : null;
-		fireContentInserted(new DocumentEvent(this, parent, offset, 2, edit));
+		fireContentInserted(new DocumentEvent(this, parent, offset, 2, null));
 
 		return element;
 	}
@@ -326,9 +321,7 @@ public class Document extends Parent {
 			index++;
 		}
 
-		final IUndoableEdit edit = undoEnabled ? new InsertFragmentEdit(offset, fragment) : null;
-
-		fireContentInserted(new DocumentEvent(this, parent, offset, fragment.getContent().length(), edit));
+		fireContentInserted(new DocumentEvent(this, parent, offset, fragment.getContent().length(), null));
 	}
 
 	public void delete(final Range range) throws DocumentValidationException {
@@ -348,9 +341,6 @@ public class Document extends Parent {
 			}
 		}
 
-		// Grab the fragment for the undoable edit while it's still here
-		final DocumentFragment fragment = getFragment(range);
-
 		fireBeforeContentDeleted(new DocumentEvent(this, surroundingElement, range.getStartOffset(), range.length(), null));
 
 		final Iterator<Node> iter = surroundingElement.getChildIterator();
@@ -363,9 +353,7 @@ public class Document extends Parent {
 
 		getContent().remove(range);
 
-		final IUndoableEdit edit = undoEnabled ? new DeleteEdit(range, fragment) : null;
-
-		fireContentDeleted(new DocumentEvent(this, surroundingElement, range.getStartOffset(), range.length(), edit));
+		fireContentDeleted(new DocumentEvent(this, surroundingElement, range.getStartOffset(), range.length(), null));
 	}
 
 	/*
@@ -491,165 +479,6 @@ public class Document extends Parent {
 
 	public void setUndoEnabled(final boolean undoEnabled) {
 		this.undoEnabled = undoEnabled;
-	}
-
-	private class DeleteEdit implements IUndoableEdit {
-
-		private final Range range;
-		private final DocumentFragment fragment;
-
-		public DeleteEdit(final Range range, final DocumentFragment fragment) {
-			this.range = range;
-			this.fragment = fragment;
-		}
-
-		public boolean combine(final IUndoableEdit edit) {
-			return false;
-		}
-
-		public void undo() throws CannotUndoException {
-			try {
-				setUndoEnabled(false);
-				insertFragment(range.getStartOffset(), fragment);
-			} catch (final DocumentValidationException ex) {
-				throw new CannotUndoException();
-			} finally {
-				setUndoEnabled(true);
-			}
-		}
-
-		public void redo() throws CannotRedoException {
-			try {
-				setUndoEnabled(false);
-				delete(range);
-			} catch (final DocumentValidationException ex) {
-				throw new CannotUndoException();
-			} finally {
-				setUndoEnabled(true);
-			}
-		}
-
-	}
-
-	private class InsertElementEdit implements IUndoableEdit {
-
-		private final int offset;
-		private final Element element;
-
-		public InsertElementEdit(final int offset, final Element element) {
-			this.offset = offset;
-			this.element = element;
-		}
-
-		public boolean combine(final IUndoableEdit edit) {
-			return false;
-		}
-
-		public void undo() throws CannotUndoException {
-			try {
-				setUndoEnabled(false);
-				delete(new Range(offset, offset + 2));
-			} catch (final DocumentValidationException ex) {
-				throw new CannotUndoException();
-			} finally {
-				setUndoEnabled(true);
-			}
-		}
-
-		public void redo() throws CannotRedoException {
-			try {
-				setUndoEnabled(false);
-				insertElement(offset, element.getQualifiedName());
-			} catch (final DocumentValidationException ex) {
-				throw new CannotUndoException();
-			} finally {
-				setUndoEnabled(true);
-			}
-		}
-
-	}
-
-	private class InsertFragmentEdit implements IUndoableEdit {
-
-		private final int offset;
-		private final DocumentFragment frag;
-
-		public InsertFragmentEdit(final int offset, final DocumentFragment frag) {
-			this.offset = offset;
-			this.frag = frag;
-		}
-
-		public boolean combine(final IUndoableEdit edit) {
-			return false;
-		}
-
-		public void undo() throws CannotUndoException {
-			try {
-				setUndoEnabled(false);
-				delete(frag.getContent().getRange().moveBounds(offset, offset));
-			} catch (final DocumentValidationException ex) {
-				throw new CannotUndoException();
-			} finally {
-				setUndoEnabled(true);
-			}
-		}
-
-		public void redo() throws CannotRedoException {
-			try {
-				setUndoEnabled(false);
-				insertFragment(offset, frag);
-			} catch (final DocumentValidationException ex) {
-				throw new CannotUndoException();
-			} finally {
-				setUndoEnabled(true);
-			}
-		}
-
-	}
-
-	private class InsertTextEdit implements IUndoableEdit {
-
-		private final int offset;
-		private String text;
-
-		public InsertTextEdit(final int offset, final String text) {
-			this.offset = offset;
-			this.text = text;
-		}
-
-		public boolean combine(final IUndoableEdit edit) {
-			if (edit instanceof InsertTextEdit) {
-				final InsertTextEdit ite = (InsertTextEdit) edit;
-				if (ite.offset == offset + text.length()) {
-					text = text + ite.text;
-					return true;
-				}
-			}
-			return false;
-		}
-
-		public void undo() throws CannotUndoException {
-			try {
-				setUndoEnabled(false);
-				delete(new Range(offset, offset + text.length()));
-			} catch (final DocumentValidationException ex) {
-				throw new CannotUndoException();
-			} finally {
-				setUndoEnabled(true);
-			}
-		}
-
-		public void redo() throws CannotRedoException {
-			try {
-				setUndoEnabled(false);
-				insertText(offset, text);
-			} catch (final DocumentValidationException ex) {
-				throw new CannotUndoException();
-			} finally {
-				setUndoEnabled(true);
-			}
-		}
-
 	}
 
 }
