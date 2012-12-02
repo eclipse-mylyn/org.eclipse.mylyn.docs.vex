@@ -143,8 +143,8 @@ public class SchemaValidatorTest {
 		doc.insertElement(2, I);
 
 		assertValidItems(validator, doc.getRootElement(), B, I); // p
-		assertValidItems(validator, doc.getElementAt(1), B, I); // b
-		assertValidItems(validator, doc.getElementAt(2), B, I); // i
+		assertValidItems(validator, doc.getElementForInsertionAt(1), B, I); // b
+		assertValidItems(validator, doc.getElementForInsertionAt(2), B, I); // i
 	}
 
 	@Test
@@ -170,10 +170,10 @@ public class SchemaValidatorTest {
 		doc.insertElement(5, I);
 
 		assertValidItems(validator, doc.getRootElement(), CHAPTER, TITLE, P); // chapter
-		assertValidItems(validator, doc.getElementAt(2)); // title
-		assertValidItems(validator, doc.getElementAt(4), B, I); // p
-		assertValidItems(validator, doc.getElementAt(5), B, I); // b
-		assertValidItems(validator, doc.getElementAt(6), B, I); // i
+		assertValidItems(validator, doc.getElementForInsertionAt(2)); // title
+		assertValidItems(validator, doc.getElementForInsertionAt(4), B, I); // p
+		assertValidItems(validator, doc.getElementForInsertionAt(5), B, I); // b
+		assertValidItems(validator, doc.getElementForInsertionAt(6), B, I); // i
 	}
 
 	@Test

@@ -49,6 +49,7 @@ import org.eclipse.vex.core.internal.layout.TestBlockElementBox;
 import org.eclipse.vex.core.internal.layout.TestBlocksInInlines;
 import org.eclipse.vex.core.internal.layout.TestDocumentTextBox;
 import org.eclipse.vex.core.internal.layout.TestStaticTextBox;
+import org.eclipse.vex.core.internal.widget.L2SimpleEditingTest;
 import org.eclipse.vex.core.internal.widget.VexWidgetTest;
 
 public class VEXCoreTestSuite extends TestSuite {
@@ -93,5 +94,6 @@ public class VEXCoreTestSuite extends TestSuite {
 		addTestSuite(TableLayoutTest.class);
 		addTestSuite(ListenerListTest.class);
 		addTest(new JUnit4TestAdapter(VexWidgetTest.class));
+		addTest(new JUnit4TestAdapter(L2SimpleEditingTest.class));
 	}
 }

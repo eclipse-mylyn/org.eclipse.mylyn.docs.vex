@@ -106,27 +106,27 @@ public class VexWidgetTest {
 		assertEquals(expectedContentStructure, getContentStructure(widget.getDocument().getRootElement()));
 	}
 
-	private static Document createDocumentWithDTD(final String dtdIdentifier, final String rootElementName) {
+	public static Document createDocumentWithDTD(final String dtdIdentifier, final String rootElementName) {
 		final Validator validator = new WTPVEXValidator(dtdIdentifier);
 		final Document document = new Document(new Element(rootElementName));
 		document.setValidator(validator);
 		return document;
 	}
 
-	private static Document createDocument(final String rootSchemaIdentifier, final String rootElementName) {
+	public static Document createDocument(final String rootSchemaIdentifier, final String rootElementName) {
 		final Validator validator = new WTPVEXValidator();
 		final Document document = new Document(new Element(new QualifiedName(rootSchemaIdentifier, rootElementName)));
 		document.setValidator(validator);
 		return document;
 	}
 
-	private static void assertCanInsertOnly(final IVexWidget widget, final String... elementNames) {
+	public static void assertCanInsertOnly(final IVexWidget widget, final String... elementNames) {
 		final String[] expected = sortedCopyOf(elementNames);
 		final String[] actual = sortedCopyOf(widget.getValidInsertElements());
 		assertEquals(Arrays.toString(expected), Arrays.toString(actual));
 	}
 
-	private static String[] sortedCopyOf(final Object[] objects) {
+	public static String[] sortedCopyOf(final Object[] objects) {
 		final String[] result = new String[objects.length];
 		for (int i = 0; i < result.length; i++) {
 			result[i] = objects[i].toString();
@@ -135,7 +135,7 @@ public class VexWidgetTest {
 		return result;
 	}
 
-	private static String getContentStructure(final Element element) {
+	public static String getContentStructure(final Element element) {
 		final StringBuilder result = new StringBuilder();
 		result.append("<").append(element.getQualifiedName()).append(" (").append(element.getStartOffset()).append("-").append(element.getEndOffset()).append(")");
 		result.append(" ").append(element.getText());
@@ -155,7 +155,7 @@ public class VexWidgetTest {
 		return result.toString();
 	}
 
-	private static String getContentStructure(final Text text) {
+	public static String getContentStructure(final Text text) {
 		final StringBuilder result = new StringBuilder();
 		result.append("'(").append(text.getStartOffset()).append("-").append(text.getEndOffset()).append(") ").append(text.getText()).append("'");
 		return result.toString();

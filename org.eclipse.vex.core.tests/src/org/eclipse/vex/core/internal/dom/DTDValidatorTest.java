@@ -117,10 +117,16 @@ public class DTDValidatorTest extends TestCase {
 			expected.add(new QualifiedName(null, expectedItem));
 		}
 
-		Element element = doc.getElementAt(offset);
+		Element element = doc.getElementForInsertionAt(offset);
+		if (element == null) {
+			assertEquals(0, expectedItems.length);
+			return;
+		}
+
 		if (offset == element.getStartOffset()) {
 			element = element.getParentElement();
 		}
+
 		final Set<QualifiedName> validItems = doc.getValidator().getValidItems(element);
 		assertEquals(expected, validItems);
 	}

@@ -127,11 +127,14 @@ public class VexWidgetImpl implements IVexWidget {
 	private final DocumentListener documentListener = new DocumentListener() {
 
 		public void attributeChanged(final DocumentEvent e) {
-			invalidateElementBox(e.getParentElement());
+			invalidateElementBox(e.getParent());
 
-			// flush cached styles, since they might depend attribute values
-			// via conditional selectors
-			getStyleSheet().flushStyles(e.getParentElement());
+			/*
+			 * Flush cached styles, since they might depend attribute values via conditional selectors.
+			 * 
+			 * This cast is save because this event is only fired due to the attribute changes of elements.
+			 */
+			getStyleSheet().flushStyles((Element) e.getParent());
 
 			if (beginWorkCount == 0) {
 				VexWidgetImpl.this.relayout();
@@ -147,7 +150,7 @@ public class VexWidgetImpl implements IVexWidget {
 		}
 
 		public void contentDeleted(final DocumentEvent e) {
-			invalidateElementBox(e.getParentElement());
+			invalidateElementBox(e.getParent());
 
 			if (beginWorkCount == 0) {
 				VexWidgetImpl.this.relayout();
@@ -155,7 +158,7 @@ public class VexWidgetImpl implements IVexWidget {
 		}
 
 		public void contentInserted(final DocumentEvent e) {
-			invalidateElementBox(e.getParentElement());
+			invalidateElementBox(e.getParent());
 
 			if (beginWorkCount == 0) {
 				VexWidgetImpl.this.relayout();
@@ -163,7 +166,7 @@ public class VexWidgetImpl implements IVexWidget {
 		}
 
 		public void namespaceChanged(final DocumentEvent e) {
-			invalidateElementBox(e.getParentElement());
+			invalidateElementBox(e.getParent());
 
 			if (beginWorkCount == 0) {
 				VexWidgetImpl.this.relayout();
@@ -214,7 +217,7 @@ public class VexWidgetImpl implements IVexWidget {
 			endOffset = getSelectionEnd();
 		}
 
-		final Element parent = getDocument().getElementAt(startOffset);
+		final Element parent = getDocument().getElementForInsertionAt(startOffset);
 		final List<QualifiedName> seq1 = Node.getNodeNames(parent.getChildNodesBefore(startOffset));
 		final List<QualifiedName> seq2 = frag.getNodeNames();
 		final List<QualifiedName> seq3 = Node.getNodeNames(parent.getChildNodesAfter(endOffset));
@@ -243,7 +246,7 @@ public class VexWidgetImpl implements IVexWidget {
 			endOffset = getSelectionEnd();
 		}
 
-		final Element parent = getDocument().getElementAt(startOffset);
+		final Element parent = getDocument().getElementForInsertionAt(startOffset);
 		final List<QualifiedName> seq1 = Node.getNodeNames(parent.getChildNodesBefore(startOffset));
 		final List<QualifiedName> seq2 = Collections.singletonList(Validator.PCDATA);
 		final List<QualifiedName> seq3 = Node.getNodeNames(parent.getChildNodesAfter(endOffset));
@@ -278,7 +281,7 @@ public class VexWidgetImpl implements IVexWidget {
 			return false;
 		}
 
-		final Element element = doc.getElementAt(getCaretOffset());
+		final Element element = doc.getElementForInsertionAt(getCaretOffset());
 		final Element parent = element.getParentElement();
 		if (parent == null) {
 			// can't unwrap the root
@@ -307,7 +310,7 @@ public class VexWidgetImpl implements IVexWidget {
 			final int offset = getCaretOffset();
 			final Document doc = getDocument();
 			final int n = doc.getLength() - 1;
-			final Element element = doc.getElementAt(offset);
+			final Element element = doc.getElementForInsertionAt(offset);
 
 			if (offset == n) {
 				// nop
@@ -321,7 +324,7 @@ public class VexWidgetImpl implements IVexWidget {
 				this.moveTo(offset - 1, false);
 				this.moveTo(offset + 1, true);
 				deleteSelection();
-			} else if (doc.getElementAt(offset + 1).isEmpty()) {
+			} else if (doc.getElementForInsertionAt(offset + 1).isEmpty()) {
 				// deleting the left sentinel of an empty element
 				// so just delete the whole element an move on
 				this.moveTo(offset + 2, true);
@@ -341,7 +344,7 @@ public class VexWidgetImpl implements IVexWidget {
 		} else {
 			int offset = getCaretOffset();
 			final Document doc = getDocument();
-			final Element element = doc.getElementAt(offset);
+			final Element element = doc.getElementForInsertionAt(offset);
 
 			if (offset == 1) {
 				// nop
@@ -355,7 +358,7 @@ public class VexWidgetImpl implements IVexWidget {
 				this.moveTo(offset - 1, false);
 				this.moveTo(offset + 1, true);
 				deleteSelection();
-			} else if (doc.getElementAt(offset - 1).isEmpty()) {
+			} else if (doc.getElementForInsertionAt(offset - 1).isEmpty()) {
 				// deleting the right sentinel of an empty element
 				// so just delete the whole element an move on
 				this.moveTo(offset - 2, true);
@@ -539,7 +542,7 @@ public class VexWidgetImpl implements IVexWidget {
 		final int startOffset = getStartOffset();
 		final int endOffset = getEndOffset();
 
-		final Element parent = doc.getElementAt(startOffset);
+		final Element parent = doc.getElementForInsertionAt(startOffset);
 		final List<QualifiedName> nodesBefore = Node.getNodeNames(parent.getChildNodesBefore(startOffset));
 		final List<QualifiedName> nodesAfter = Node.getNodeNames(parent.getChildNodesAfter(endOffset));
 		final List<QualifiedName> selectedNodes = Node.getNodeNames(parent.getChildNodes(new Range(startOffset, endOffset)));
@@ -617,7 +620,7 @@ public class VexWidgetImpl implements IVexWidget {
 			return new ElementName[0];
 		}
 
-		final Element element = doc.getElementAt(getCaretOffset());
+		final Element element = doc.getElementForInsertionAt(getCaretOffset());
 		final Element parent = element.getParentElement();
 		if (parent == null) {
 			// can't morph the root
@@ -782,7 +785,7 @@ public class VexWidgetImpl implements IVexWidget {
 
 		final Document doc = getDocument();
 		final int offset = getCaretOffset();
-		final Element currentElement = doc.getElementAt(offset);
+		final Element currentElement = doc.getElementForInsertionAt(offset);
 
 		if (currentElement == doc.getRootElement()) {
 			throw new DocumentValidationException("Cannot morph the root element.");
@@ -834,7 +837,7 @@ public class VexWidgetImpl implements IVexWidget {
 
 			caretOffset = offset;
 
-			currentElement = document.getElementAt(offset);
+			currentElement = document.getElementForInsertionAt(offset);
 
 			if (select) {
 				selectionStart = Math.min(mark, caretOffset);
@@ -844,16 +847,16 @@ public class VexWidgetImpl implements IVexWidget {
 				// select a partial element
 				final Element commonElement = document.findCommonElement(selectionStart, selectionEnd);
 
-				Element element = document.getElementAt(selectionStart);
+				Element element = document.getElementForInsertionAt(selectionStart);
 				while (element != commonElement) {
 					selectionStart = element.getStartOffset();
-					element = document.getElementAt(selectionStart);
+					element = document.getElementForInsertionAt(selectionStart);
 				}
 
-				element = document.getElementAt(selectionEnd);
+				element = document.getElementForInsertionAt(selectionEnd);
 				while (element != commonElement) {
 					selectionEnd = element.getEndOffset() + 1;
-					element = document.getElementAt(selectionEnd);
+					element = document.getElementForInsertionAt(selectionEnd);
 				}
 
 			} else {
@@ -1179,7 +1182,7 @@ public class VexWidgetImpl implements IVexWidget {
 		final long start = System.currentTimeMillis();
 
 		final Document doc = getDocument();
-		Element element = doc.getElementAt(getCaretOffset());
+		Element element = doc.getElementForInsertionAt(getCaretOffset());
 		Styles styles = getStyleSheet().getStyles(element);
 		while (!styles.isBlock()) {
 			element = element.getParentElement();
@@ -1377,17 +1380,17 @@ public class VexWidgetImpl implements IVexWidget {
 	}
 
 	/**
-	 * Invalidates the box tree due to document changes. The lowest box that completely encloses the changed element is
+	 * Invalidates the box tree due to document changes. The lowest box that completely encloses the changed node is
 	 * invalidated.
 	 * 
-	 * @param element
-	 *            Element for which to search.
+	 * @param node
+	 *            Node for which to search.
 	 */
-	private void invalidateElementBox(final Element element) {
+	private void invalidateElementBox(final Node node) {
 
 		final BlockBox elementBox = (BlockBox) this.findInnermostBox(new IBoxFilter() {
 			public boolean matches(final Box box) {
-				return box instanceof BlockBox && box.getNode() != null && box.getStartOffset() <= element.getStartOffset() + 1 && box.getEndOffset() >= element.getEndOffset();
+				return box instanceof BlockBox && box.getNode() != null && box.getStartOffset() <= node.getStartOffset() + 1 && box.getEndOffset() >= node.getEndOffset();
 			}
 		});
 
@@ -1406,8 +1409,8 @@ public class VexWidgetImpl implements IVexWidget {
 		if (offset <= 1 || offset >= getDocument().getLength() - 1) {
 			return false;
 		}
-		final Element e1 = getDocument().getElementAt(offset - 1);
-		final Element e2 = getDocument().getElementAt(offset + 1);
+		final Element e1 = getDocument().getElementForInsertionAt(offset - 1);
+		final Element e2 = getDocument().getElementForInsertionAt(offset + 1);
 		return e1 != e2 && e1.getParent() == e2.getParent() && e1.getQualifiedName().equals(e2.getQualifiedName());
 	}
 

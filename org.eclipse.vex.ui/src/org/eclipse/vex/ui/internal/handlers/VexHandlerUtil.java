@@ -253,7 +253,7 @@ public final class VexHandlerUtil {
 		}
 
 		int previousSiblingStart = -1;
-		final Element parent = vexWidget.getDocument().getElementAt(startOffset);
+		final Element parent = vexWidget.getDocument().getElementForInsertionAt(startOffset);
 		final List<Node> children = parent.getChildNodes();
 		for (final Node child : children) {
 			if (startOffset == child.getStartOffset()) {
@@ -461,7 +461,7 @@ public final class VexHandlerUtil {
 		// This may or may not be a table
 		// In any case, it's the element that contains the top-level table
 		// children
-		Element table = doc.getElementAt(offset);
+		Element table = doc.getElementForInsertionAt(offset);
 
 		while (table != null && !LayoutUtils.isTableChild(ss, table)) {
 			table = table.getParentElement();
