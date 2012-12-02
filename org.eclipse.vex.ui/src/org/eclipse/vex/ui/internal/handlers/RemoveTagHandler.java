@@ -41,7 +41,7 @@ public class RemoveTagHandler extends AbstractVexWidgetHandler implements IEleme
 	public void execute(final VexWidget widget) throws ExecutionException {
 		widget.doWork(new Runnable() {
 			public void run() {
-				final Element element = widget.getDocument().getElementAt(widget.getCaretOffset());
+				final Element element = widget.getDocument().getElementForInsertionAt(widget.getCaretOffset());
 				widget.moveTo(element.getStartOffset() + 1, false);
 				widget.moveTo(element.getEndOffset(), true);
 				final DocumentFragment frag = widget.getSelectedFragment();

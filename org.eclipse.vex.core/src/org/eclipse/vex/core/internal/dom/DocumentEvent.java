@@ -25,7 +25,7 @@ public class DocumentEvent extends EventObject {
 	private static final long serialVersionUID = -9028980559838712720L;
 
 	private final Document document;
-	private final Element parentElement;
+	private final Parent parent;
 	private int offset;
 	private int length;
 	private QualifiedName attributeName;
@@ -38,8 +38,8 @@ public class DocumentEvent extends EventObject {
 	 * 
 	 * @param document
 	 *            Document that changed.
-	 * @param e1
-	 *            Element containing the change.
+	 * @param parent
+	 *            Parent containing the change.
 	 * @param offset
 	 *            offset at which the change occurred.
 	 * @param length
@@ -47,11 +47,11 @@ public class DocumentEvent extends EventObject {
 	 * @param undoableEdit
 	 *            IUndoableEdit that can be used to undo the change.
 	 */
-	public DocumentEvent(final Document document, final Element e1, final int offset, final int length, final IUndoableEdit undoableEdit) {
+	public DocumentEvent(final Document document, final Parent parent, final int offset, final int length, final IUndoableEdit undoableEdit) {
 
 		super(document);
 		this.document = document;
-		parentElement = e1;
+		this.parent = parent;
 		this.offset = offset;
 		this.length = length;
 		this.undoableEdit = undoableEdit;
@@ -62,8 +62,8 @@ public class DocumentEvent extends EventObject {
 	 * 
 	 * @param document
 	 *            Document that changed.
-	 * @param parentElement
-	 *            element containing the attribute that changed
+	 * @param parent
+	 *            Parent containing the attribute that changed
 	 * @param attributeName
 	 *            name of the attribute that changed
 	 * @param oldAttributeValue
@@ -73,12 +73,12 @@ public class DocumentEvent extends EventObject {
 	 * @param undoableEdit
 	 *            IUndoableEdit that can be used to undo the change.
 	 */
-	public DocumentEvent(final Document document, final Element parentElement, final QualifiedName attributeName, final String oldAttributeValue, final String newAttributeValue,
+	public DocumentEvent(final Document document, final Parent parent, final QualifiedName attributeName, final String oldAttributeValue, final String newAttributeValue,
 			final IUndoableEdit undoableEdit) {
 
 		super(document);
 		this.document = document;
-		this.parentElement = parentElement;
+		this.parent = parent;
 		this.attributeName = attributeName;
 		this.oldAttributeValue = oldAttributeValue;
 		this.newAttributeValue = newAttributeValue;
@@ -104,12 +104,10 @@ public class DocumentEvent extends EventObject {
 	}
 
 	/**
-	 * Returns the element containing the change.
-	 * 
-	 * @model
+	 * @return the Parent containing the change.
 	 */
-	public Element getParentElement() {
-		return parentElement;
+	public Parent getParent() {
+		return parent;
 	}
 
 	/**

@@ -163,51 +163,49 @@ public class Document extends Parent {
 	 * L1 Operations
 	 */
 
-	private boolean canInsertAt(final Element insertionParent, final int offset, final QualifiedName... nodeNames) {
-		return canInsertAt(insertionParent, offset, Arrays.asList(nodeNames));
+	private boolean canInsertAt(final Node insertionNode, final int offset, final QualifiedName... nodeNames) {
+		return canInsertAt(insertionNode, offset, Arrays.asList(nodeNames));
 	}
 
-	private boolean canInsertAt(final Element insertionParent, final int offset, final List<QualifiedName> nodeNames) {
-		if (validator == null) {
-			return true;
-		}
-
-		if (insertionParent == null) {
+	private boolean canInsertAt(final Node insertionNode, final int offset, final List<QualifiedName> nodeNames) {
+		if (insertionNode == null) {
 			return false;
 		}
+		return insertionNode.accept(new BaseNodeVisitorWithResult<Boolean>(false) {
+			@Override
+			public Boolean visit(final Element element) {
+				if (validator == null) {
+					return true;
+				}
 
-		final List<QualifiedName> prefix = getNodeNames(insertionParent.getChildNodesBefore(offset));
-		final List<QualifiedName> insertionCandidates = nodeNames;
-		final List<QualifiedName> suffix = getNodeNames(insertionParent.getChildNodesAfter(offset));
+				final List<QualifiedName> prefix = getNodeNames(element.getChildNodesBefore(offset));
+				final List<QualifiedName> insertionCandidates = nodeNames;
+				final List<QualifiedName> suffix = getNodeNames(element.getChildNodesAfter(offset));
 
-		return validator.isValidSequence(insertionParent.getQualifiedName(), prefix, insertionCandidates, suffix, true);
-	}
+				return validator.isValidSequence(element.getQualifiedName(), prefix, insertionCandidates, suffix, true);
+			}
 
-	private Element getInsertionParentAt(final int offset) {
-		final Element parent = getElementAt(offset);
-		if (offset == parent.getStartOffset()) {
-			return parent.getParentElement();
-		}
-		return parent;
-	}
+			@Override
+			public Boolean visit(final Comment comment) {
+				return true;
+			}
 
-	private Node getInsertionNodeAt(final int offset) {
-		final Node node = getChildNodeAt(offset);
-		if (offset == node.getStartOffset()) {
-			return node.getParent();
-		}
-		return node;
+			@Override
+			public Boolean visit(final Text text) {
+				return true;
+			}
+		});
 	}
 
 	public boolean canInsertText(final int offset) {
-		return canInsertAt(getInsertionParentAt(offset), offset, Validator.PCDATA);
+		return canInsertAt(getNodeForInsertionAt(offset), offset, Validator.PCDATA);
 	}
 
 	public void insertText(final int offset, final String text) throws DocumentValidationException {
 		Assert.isTrue(offset > getStartOffset() && offset <= getEndOffset(), MessageFormat.format("Offset must be in [{0}, {1}]", getStartOffset() + 1, getEndOffset()));
 
 		final String adjustedText = convertControlCharactersToSpaces(text);
-		final Node insertionNode = getInsertionNodeAt(offset);
+		final Node insertionNode = getNodeForInsertionAt(offset);
 		insertionNode.accept(new INodeVisitor() {
 			public void visit(final Document document) {
 				Assert.isTrue(false, "Cannot insert text directly into Document.");
@@ -257,7 +255,7 @@ public class Document extends Parent {
 	public Comment insertComment(final int offset) {
 		Assert.isTrue(canInsertComment(offset));
 
-		final Element parent = getInsertionParentAt(offset);
+		final Element parent = getElementForInsertionAt(offset);
 
 		fireBeforeContentInserted(new DocumentEvent(this, parent, offset, 2, null));
 
@@ -274,13 +272,13 @@ public class Document extends Parent {
 	}
 
 	public boolean canInsertElement(final int offset, final QualifiedName elementName) {
-		return canInsertAt(getInsertionParentAt(offset), offset, elementName);
+		return canInsertAt(getElementForInsertionAt(offset), offset, elementName);
 	}
 
 	public Element insertElement(final int offset, final QualifiedName elementName) throws DocumentValidationException {
 		Assert.isTrue(offset > rootElement.getStartOffset() && offset <= rootElement.getEndOffset(), MessageFormat.format("Offset must be in [{0}, {1}]", getStartOffset() + 1, getEndOffset()));
 
-		final Element parent = getInsertionParentAt(offset);
+		final Element parent = getElementForInsertionAt(offset);
 		if (!canInsertAt(parent, offset, elementName)) {
 			throw new DocumentValidationException(MessageFormat.format("Cannot insert element {0} at offset {1}.", elementName, offset));
 		}
@@ -300,7 +298,7 @@ public class Document extends Parent {
 	}
 
 	public boolean canInsertFragment(final int offset, final DocumentFragment fragment) {
-		return canInsertAt(getInsertionParentAt(offset), offset, fragment.getNodeNames());
+		return canInsertAt(getElementForInsertionAt(offset), offset, fragment.getNodeNames());
 	}
 
 	public void insertFragment(final int offset, final DocumentFragment fragment) throws DocumentValidationException {
@@ -308,11 +306,10 @@ public class Document extends Parent {
 			throw new IllegalArgumentException("Error inserting document fragment");
 		}
 
-		if (!canInsertAt(getInsertionParentAt(offset), offset, fragment.getNodeNames())) {
+		final Element parent = getElementForInsertionAt(offset);
+		if (!canInsertAt(parent, offset, fragment.getNodeNames())) {
 			throw new DocumentValidationException("Cannot insert document fragment");
 		}
-
-		final Element parent = getElementAt(offset);
 
 		fireBeforeContentInserted(new DocumentEvent(this, parent, offset, 2, null));
 
@@ -331,35 +328,41 @@ public class Document extends Parent {
 	}
 
 	public void delete(final Range range) throws DocumentValidationException {
-		final Element surroundingElement = getElementAt(range.getStartOffset() - 1);
-		final Element elementAtEndOffset = getElementAt(range.getEndOffset() + 1);
-		if (surroundingElement != elementAtEndOffset) {
+		final Parent surroundingParent = getParentAt(range.getStartOffset() - 1);
+		final Parent parentAtEndOffset = getParentAt(range.getEndOffset() + 1);
+		if (surroundingParent != parentAtEndOffset) {
 			throw new IllegalArgumentException("Deletion in " + range + " is unbalanced");
 		}
 
-		final Validator validator = getValidator();
-		if (validator != null) {
-			final List<QualifiedName> seq1 = getNodeNames(surroundingElement.getChildNodesBefore(range.getStartOffset()));
-			final List<QualifiedName> seq2 = getNodeNames(surroundingElement.getChildNodesAfter(range.getEndOffset()));
-
-			if (!validator.isValidSequence(surroundingElement.getQualifiedName(), seq1, seq2, null, true)) {
-				throw new DocumentValidationException("Unable to delete " + range);
+		final boolean deletionIsValid = surroundingParent.accept(new BaseNodeVisitorWithResult<Boolean>(true) {
+			@Override
+			public Boolean visit(final Element element) {
+				final Validator validator = getValidator();
+				if (validator == null) {
+					return true;
+				}
+				final List<QualifiedName> prefix = getNodeNames(element.getChildNodesBefore(range.getStartOffset()));
+				final List<QualifiedName> suffix = getNodeNames(element.getChildNodesAfter(range.getEndOffset()));
+				return validator.isValidSequence(element.getQualifiedName(), prefix, suffix, null, true);
 			}
+		});
+		if (!deletionIsValid) {
+			throw new DocumentValidationException("Unable to delete " + range);
 		}
 
-		fireBeforeContentDeleted(new DocumentEvent(this, surroundingElement, range.getStartOffset(), range.length(), null));
+		fireBeforeContentDeleted(new DocumentEvent(this, surroundingParent, range.getStartOffset(), range.length(), null));
 
-		final Iterator<Node> iter = surroundingElement.getChildIterator();
+		final Iterator<Node> iter = surroundingParent.getChildIterator();
 		while (iter.hasNext()) {
 			final Node child = iter.next();
 			if (child.isInRange(range)) {
-				surroundingElement.removeChild(child);
+				surroundingParent.removeChild(child);
 			}
 		}
 
 		getContent().remove(range);
 
-		fireContentDeleted(new DocumentEvent(this, surroundingElement, range.getStartOffset(), range.length(), null));
+		fireContentDeleted(new DocumentEvent(this, surroundingParent, range.getStartOffset(), range.length(), null));
 	}
 
 	/*
@@ -399,8 +402,20 @@ public class Document extends Parent {
 		return element;
 	}
 
-	public Element getElementAt(final int offset) {
-		return getParentElement(getChildNodeAt(offset));
+	private Node getNodeForInsertionAt(final int offset) {
+		final Node node = getChildNodeAt(offset);
+		if (offset == node.getStartOffset()) {
+			return node.getParent();
+		}
+		return node;
+	}
+
+	public Element getElementForInsertionAt(final int offset) {
+		final Element parent = getParentElement(getChildNodeAt(offset));
+		if (offset == parent.getStartOffset()) {
+			return parent.getParentElement();
+		}
+		return parent;
 	}
 
 	private static Element getParentElement(final Node node) {
@@ -411,6 +426,14 @@ public class Document extends Parent {
 			return (Element) node;
 		}
 		return getParentElement(node.getParent());
+	}
+
+	private Parent getParentAt(final int offset) {
+		final Node child = getChildNodeAt(offset);
+		if (child instanceof Parent) {
+			return (Parent) child;
+		}
+		return child.getParent();
 	}
 
 	public boolean isElementAt(final int offset) {

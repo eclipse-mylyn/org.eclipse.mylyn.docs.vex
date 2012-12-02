@@ -354,7 +354,7 @@ public class ContentAssist extends PopupDialog {
 		final ElementName[] names = widget.getValidMorphElements();
 		final AbstractVexAction[] actions = new AbstractVexAction[names.length];
 		final int caretOffset = widget.getCaretOffset();
-		final Element element = widget.getDocument().getElementAt(caretOffset);
+		final Element element = widget.getDocument().getElementForInsertionAt(caretOffset);
 		final String sourceName = element.getPrefixedName();
 		for (int i = 0; i < names.length; i++) {
 			final QualifiedName qualifiedName = names[i].getQualifiedName();
