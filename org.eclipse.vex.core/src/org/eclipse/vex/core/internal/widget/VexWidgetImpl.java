@@ -338,7 +338,6 @@ public class VexWidgetImpl implements IVexWidget {
 	}
 
 	public void deletePreviousChar() throws DocumentValidationException {
-
 		if (hasSelection()) {
 			deleteSelection();
 		} else {
@@ -372,13 +371,12 @@ public class VexWidgetImpl implements IVexWidget {
 				}
 			}
 		}
-
 	}
 
 	public void deleteSelection() {
 		try {
 			if (hasSelection()) {
-				applyEdit(new DeleteEdit(document, new Range(getSelectionStart(), getSelectionEnd())), getSelectionStart());
+				applyEdit(new DeleteEdit(document, new Range(getSelectionStart(), getSelectionEnd() - 1)), getSelectionStart());
 				this.moveTo(getSelectionStart());
 			}
 		} catch (final DocumentValidationException e) {
