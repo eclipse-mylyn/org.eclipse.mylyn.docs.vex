@@ -55,4 +55,23 @@ public class L2SimpleEditingTest {
 		assertEquals(titleElement.getStartOffset(), widget.getCaretOffset());
 		assertSame(rootElement, widget.getCurrentElement());
 	}
+
+	@Test
+	public void givenAnElementWithText_whenHittingBackspace_shouldDeleteLastCharacter() throws Exception {
+		final Element titleElement = widget.insertElement(new QualifiedName(null, "title"));
+		widget.insertText("Hello");
+		widget.deletePreviousChar();
+		assertEquals("Hell", titleElement.getText());
+		assertEquals(titleElement.getEndOffset(), widget.getCaretOffset());
+	}
+
+	@Test
+	public void givenAnElementWithText_whenHittingPos1AndDelete_shouldDeleteFirstCharacter() throws Exception {
+		final Element titleElement = widget.insertElement(new QualifiedName(null, "title"));
+		widget.insertText("Hello");
+		widget.moveBy(-5);
+		widget.deleteNextChar();
+		assertEquals("ello", titleElement.getText());
+		assertEquals(titleElement.getStartOffset() + 1, widget.getCaretOffset());
+	}
 }
