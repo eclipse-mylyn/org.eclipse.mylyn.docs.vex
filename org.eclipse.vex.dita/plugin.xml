@@ -80,6 +80,9 @@
       <doctype
             systemId="ditabase.dtd"
             publicId="-//OASIS//DTD DITA Composite//EN">
+         <rootElement
+               name="dita">
+         </rootElement>
       </doctype>
    </extension>
    <extension
@@ -89,6 +92,9 @@
       <doctype
             systemId="reference.dtd"
             publicId="-//OASIS//DTD DITA Reference//EN">
+         <rootElement
+               name="reference">
+         </rootElement>
       </doctype>
    </extension>
    <extension
@@ -98,6 +104,9 @@
       <doctype
             systemId="task.dtd"
             publicId="-//OASIS//DTD DITA Task//EN">
+         <rootElement
+               name="task">
+         </rootElement>
       </doctype>
    </extension>
    <extension
@@ -107,6 +116,9 @@
       <doctype
             systemId="topic.dtd"
             publicId="-//OASIS//DTD DITA Topic//EN">
+         <rootElement
+               name="topic">
+         </rootElement>
       </doctype>
    </extension>
    <extension
@@ -116,6 +128,9 @@
       <doctype
             systemId="map.dtd"
             publicId="-//OASIS//DTD DITA Map//EN">
+         <rootElement
+               name="map">
+         </rootElement>
       </doctype>
    </extension>
    <extension
