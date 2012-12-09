@@ -1478,12 +1478,11 @@ public class VexWidgetImpl implements IVexWidget {
 			final boolean moveContent = !element.isEmpty();
 			DocumentFragment frag = null;
 			if (moveContent) {
-				this.moveTo(element.getEndOffset(), true);
+				this.moveTo(element.getEndOffset() - 1, true);
 				frag = getSelectedFragment();
 				deleteSelection();
 			}
-			this.moveBy(-1);
-			this.moveBy(2, true);
+			this.moveBy(-1, true);
 			deleteSelection();
 			this.moveBy(-1);
 			if (moveContent) {
