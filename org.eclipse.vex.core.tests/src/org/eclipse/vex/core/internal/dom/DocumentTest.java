@@ -52,15 +52,6 @@ public class DocumentTest {
 		assertDocumentConnectedToRootElement(rootElement, document);
 	}
 
-	private static void assertDocumentConnectedToRootElement(final Element rootElement, final Document document) {
-		assertNotNull(document.getContent());
-		assertTrue(document.isAssociated());
-		assertTrue(rootElement.isAssociated());
-		assertSame(document, rootElement.getParent());
-		assertTrue(rootElement.getStartOffset() >= document.getStartOffset());
-		assertTrue(rootElement.getEndOffset() <= document.getEndOffset());
-	}
-
 	@Test
 	public void createFragmentWithTextAndChild() throws Exception {
 		final Document document = new Document(new Element("root"));
@@ -85,6 +76,17 @@ public class DocumentTest {
 		assertNodesEqual(document.getNodes(range), fragment.getNodes());
 	}
 
+	@Test
+	public void givenElementWithText_whenRangeBeginsFromStartOffset_shouldProvideParentAsCommenElement() throws Exception {
+		final Document document = new Document(new Element("root"));
+		final Element childElement = document.insertElement(1, new QualifiedName(null, "child"));
+		document.insertText(childElement.getEndOffset(), "Hello World");
+
+		final Element commonElement = document.findCommonElement(childElement.getStartOffset(), childElement.getEndOffset() - 5);
+
+		assertSame(document.getRootElement(), commonElement);
+	}
+
 	private static void assertNodesEqual(final List<? extends Node> expected, final List<? extends Node> actual) {
 		assertEquals(expected.size(), actual.size());
 		for (int i = 0; i < expected.size(); i++) {
@@ -99,4 +101,14 @@ public class DocumentTest {
 			assertNodesEqual(((Parent) expected).getChildNodes(), ((Parent) actual).getChildNodes());
 		}
 	}
+
+	private static void assertDocumentConnectedToRootElement(final Element rootElement, final Document document) {
+		assertNotNull(document.getContent());
+		assertTrue(document.isAssociated());
+		assertTrue(rootElement.isAssociated());
+		assertSame(document, rootElement.getParent());
+		assertTrue(rootElement.getStartOffset() >= document.getStartOffset());
+		assertTrue(rootElement.getEndOffset() <= document.getEndOffset());
+	}
+
 }

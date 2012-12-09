@@ -397,7 +397,7 @@ public class Document extends Parent {
 			final List<Element> children = element.getChildElements();
 			for (int i = 0; i < children.size(); i++) {
 				final Element child = children.get(i);
-				if (child.containsOffset(offset1) && child.containsOffset(offset2)) {
+				if (isInsertionPointIn(child, offset1) && isInsertionPointIn(child, offset2)) {
 					element = child;
 					tryAgain = true;
 					break;
@@ -408,6 +408,10 @@ public class Document extends Parent {
 			}
 		}
 		return element;
+	}
+
+	private static boolean isInsertionPointIn(final Node node, final int offset) {
+		return node.containsOffset(offset) && offset > node.getStartOffset();
 	}
 
 	private Node getNodeForInsertionAt(final int offset) {

@@ -846,8 +846,7 @@ public class VexWidgetImpl implements IVexWidget {
 				selectionStart = Math.min(mark, caretOffset);
 				selectionEnd = Math.max(mark, caretOffset);
 
-				// move selectionStart and selectionEnd to make sure we don't
-				// select a partial element
+				// move selectionStart and selectionEnd to make sure we don't select a partial element
 				final Element commonElement = document.findCommonElement(selectionStart, selectionEnd);
 
 				Element element = document.getElementForInsertionAt(selectionStart);
@@ -858,8 +857,8 @@ public class VexWidgetImpl implements IVexWidget {
 
 				element = document.getElementForInsertionAt(selectionEnd);
 				while (element != commonElement) {
-					selectionEnd = element.getEndOffset() + 1;
-					element = document.getElementForInsertionAt(selectionEnd);
+					selectionEnd = element.getEndOffset();
+					element = document.getElementForInsertionAt(selectionEnd + 1);
 				}
 
 			} else {
