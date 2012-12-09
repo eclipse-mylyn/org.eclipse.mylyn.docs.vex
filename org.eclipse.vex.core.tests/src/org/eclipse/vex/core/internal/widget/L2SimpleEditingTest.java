@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.widget;
 
+import static org.eclipse.vex.core.internal.widget.VexWidgetTest.PARA;
+import static org.eclipse.vex.core.internal.widget.VexWidgetTest.TITLE;
 import static org.eclipse.vex.core.internal.widget.VexWidgetTest.createDocumentWithDTD;
 import static org.eclipse.vex.core.tests.TestResources.TEST_DTD;
 import static org.junit.Assert.assertEquals;
@@ -17,20 +19,15 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 
-import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.dom.Element;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 /**
  * @author Florian Thienel
  */
 public class L2SimpleEditingTest {
-
-	private static final QualifiedName TITLE = new QualifiedName(null, "title");
-	private static final QualifiedName PARA = new QualifiedName(null, "para");
 
 	private VexWidgetImpl widget;
 	private Element rootElement;
@@ -82,7 +79,6 @@ public class L2SimpleEditingTest {
 	}
 
 	@Test
-	@Ignore("get moveTo working first")
 	public void givenAnEmptyElement_whenCaretBetweenStartAndEndTagAndHittingBackspace_shouldDeleteEmptyElement() throws Exception {
 		widget.insertElement(TITLE);
 		widget.moveBy(1);
@@ -94,7 +90,6 @@ public class L2SimpleEditingTest {
 	}
 
 	@Test
-	@Ignore("get moveTo working first")
 	public void givenAnEmptyElement_whenCaretBeforeStartOffsetAndHittingDelete_shouldDeleteEmptyElement() throws Exception {
 		widget.insertElement(TITLE);
 		widget.moveBy(1);

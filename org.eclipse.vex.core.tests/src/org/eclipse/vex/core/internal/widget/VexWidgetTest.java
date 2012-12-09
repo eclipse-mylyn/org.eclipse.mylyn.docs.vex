@@ -31,6 +31,9 @@ import org.junit.Test;
 
 public class VexWidgetTest {
 
+	static final QualifiedName TITLE = new QualifiedName(null, "title");
+	static final QualifiedName PARA = new QualifiedName(null, "para");
+
 	@Test
 	public void provideOnlyAllowedElementsFromDtd() throws Exception {
 		final VexWidgetImpl widget = new VexWidgetImpl(new MockHostComponent());
