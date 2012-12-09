@@ -13,18 +13,24 @@ package org.eclipse.vex.core.internal.widget;
 import static org.eclipse.vex.core.internal.widget.VexWidgetTest.createDocumentWithDTD;
 import static org.eclipse.vex.core.tests.TestResources.TEST_DTD;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.dom.Element;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 
 /**
  * @author Florian Thienel
  */
 public class L2SimpleEditingTest {
+
+	private static final QualifiedName TITLE = new QualifiedName(null, "title");
+	private static final QualifiedName PARA = new QualifiedName(null, "para");
 
 	private VexWidgetImpl widget;
 	private Element rootElement;
@@ -44,13 +50,13 @@ public class L2SimpleEditingTest {
 
 	@Test
 	public void shouldMoveCaretIntoInsertedElement() throws Exception {
-		final Element titleElement = widget.insertElement(new QualifiedName(null, "title"));
+		final Element titleElement = widget.insertElement(TITLE);
 		assertEquals(titleElement.getEndOffset(), widget.getCaretOffset());
 	}
 
 	@Test
 	public void shouldProvideInsertionElementAsCurrentElement() throws Exception {
-		final Element titleElement = widget.insertElement(new QualifiedName(null, "title"));
+		final Element titleElement = widget.insertElement(TITLE);
 		widget.moveBy(-1);
 		assertEquals(titleElement.getStartOffset(), widget.getCaretOffset());
 		assertSame(rootElement, widget.getCurrentElement());
@@ -58,7 +64,7 @@ public class L2SimpleEditingTest {
 
 	@Test
 	public void givenAnElementWithText_whenHittingBackspace_shouldDeleteLastCharacter() throws Exception {
-		final Element titleElement = widget.insertElement(new QualifiedName(null, "title"));
+		final Element titleElement = widget.insertElement(TITLE);
 		widget.insertText("Hello");
 		widget.deletePreviousChar();
 		assertEquals("Hell", titleElement.getText());
@@ -67,11 +73,36 @@ public class L2SimpleEditingTest {
 
 	@Test
 	public void givenAnElementWithText_whenHittingPos1AndDelete_shouldDeleteFirstCharacter() throws Exception {
-		final Element titleElement = widget.insertElement(new QualifiedName(null, "title"));
+		final Element titleElement = widget.insertElement(TITLE);
 		widget.insertText("Hello");
 		widget.moveBy(-5);
 		widget.deleteNextChar();
 		assertEquals("ello", titleElement.getText());
 		assertEquals(titleElement.getStartOffset() + 1, widget.getCaretOffset());
+	}
+
+	@Test
+	@Ignore("get moveTo working first")
+	public void givenAnEmptyElement_whenCaretBetweenStartAndEndTagAndHittingBackspace_shouldDeleteEmptyElement() throws Exception {
+		widget.insertElement(TITLE);
+		widget.moveBy(1);
+		final Element paraElement = widget.insertElement(PARA);
+		widget.deletePreviousChar();
+		assertEquals(1, rootElement.getChildCount());
+		assertNull(paraElement.getParent());
+		assertFalse(paraElement.isAssociated());
+	}
+
+	@Test
+	@Ignore("get moveTo working first")
+	public void givenAnEmptyElement_whenCaretBeforeStartOffsetAndHittingDelete_shouldDeleteEmptyElement() throws Exception {
+		widget.insertElement(TITLE);
+		widget.moveBy(1);
+		final Element paraElement = widget.insertElement(PARA);
+		widget.moveBy(-1);
+		widget.deleteNextChar();
+		assertEquals(1, rootElement.getChildCount());
+		assertNull(paraElement.getParent());
+		assertFalse(paraElement.isAssociated());
 	}
 }

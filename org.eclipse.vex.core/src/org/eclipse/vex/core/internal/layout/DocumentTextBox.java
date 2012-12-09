@@ -104,7 +104,7 @@ public class DocumentTextBox extends TextBox {
 	 */
 	@Override
 	public boolean hasContent() {
-		return true;
+		return getNode().isAssociated();
 	}
 
 	/**

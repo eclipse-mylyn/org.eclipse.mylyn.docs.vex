@@ -376,7 +376,7 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 
 	@Override
 	public boolean hasContent() {
-		return true;
+		return getNode().isAssociated();
 	}
 
 	public void invalidate(final boolean direct) {

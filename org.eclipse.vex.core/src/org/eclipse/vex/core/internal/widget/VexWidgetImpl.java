@@ -321,18 +321,15 @@ public class VexWidgetImpl implements IVexWidget {
 			} else if (element.isEmpty()) {
 				// deleting the right sentinel of an empty element
 				// so just delete the whole element an move on
-				this.moveTo(offset - 1, false);
-				this.moveTo(offset + 1, true);
+				this.moveTo(offset - 1, true);
 				deleteSelection();
 			} else if (doc.getElementForInsertionAt(offset + 1).isEmpty()) {
 				// deleting the left sentinel of an empty element
 				// so just delete the whole element an move on
-				this.moveTo(offset + 2, true);
-				deleteSelection();
-			} else if (!doc.isElementAt(offset)) {
-				this.moveTo(offset, false);
 				this.moveTo(offset + 1, true);
 				deleteSelection();
+			} else if (!doc.isElementAt(offset)) {
+				deleteOffset();
 			}
 		}
 	}
@@ -354,29 +351,37 @@ public class VexWidgetImpl implements IVexWidget {
 			} else if (element.isEmpty()) {
 				// deleting the left sentinel of an empty element
 				// so just delete the whole element an move on
-				this.moveTo(offset - 1, false);
-				this.moveTo(offset + 1, true);
+				this.moveTo(offset - 1, true);
 				deleteSelection();
 			} else if (doc.getElementForInsertionAt(offset - 1).isEmpty()) {
 				// deleting the right sentinel of an empty element
 				// so just delete the whole element an move on
+				this.moveTo(offset - 1, false);
 				this.moveTo(offset - 2, true);
 				deleteSelection();
 			} else {
 				offset--;
 				if (!doc.isElementAt(offset)) {
-					this.moveTo(offset, false);
-					this.moveTo(offset + 1, true);
-					deleteSelection();
+					moveBy(-1);
+					deleteOffset();
 				}
 			}
+		}
+	}
+
+	private void deleteOffset() {
+		try {
+			applyEdit(new DeleteEdit(document, new Range(getCaretOffset(), getCaretOffset())), getCaretOffset());
+			this.moveTo(getSelectionStart());
+		} catch (final DocumentValidationException e) {
+			e.printStackTrace(); // This should never happen, because we constrain the selection
 		}
 	}
 
 	public void deleteSelection() {
 		try {
 			if (hasSelection()) {
-				applyEdit(new DeleteEdit(document, new Range(getSelectionStart(), getSelectionEnd() - 1)), getSelectionStart());
+				applyEdit(new DeleteEdit(document, new Range(getSelectionStart(), getSelectionEnd())), getSelectionStart());
 				this.moveTo(getSelectionStart());
 			}
 		} catch (final DocumentValidationException e) {

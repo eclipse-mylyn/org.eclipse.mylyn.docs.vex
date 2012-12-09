@@ -328,13 +328,20 @@ public class Document extends Parent {
 	}
 
 	public void delete(final Range range) throws DocumentValidationException {
-		final Parent surroundingParent = getParentAt(range.getStartOffset() - 1);
-		final Parent parentAtEndOffset = getParentAt(range.getEndOffset() + 1);
+		final Parent surroundingParent = getParentAt(range.getStartOffset());
+		final Parent parentAtEndOffset = getParentAt(range.getEndOffset());
 		if (surroundingParent != parentAtEndOffset) {
 			throw new IllegalArgumentException("Deletion in " + range + " is unbalanced");
 		}
 
-		final boolean deletionIsValid = surroundingParent.accept(new BaseNodeVisitorWithResult<Boolean>(true) {
+		final Parent parentForDeletion;
+		if (range.equals(surroundingParent.getRange())) {
+			parentForDeletion = surroundingParent.getParent();
+		} else {
+			parentForDeletion = surroundingParent;
+		}
+
+		final boolean deletionIsValid = parentForDeletion.accept(new BaseNodeVisitorWithResult<Boolean>(true) {
 			@Override
 			public Boolean visit(final Element element) {
 				final Validator validator = getValidator();
@@ -350,19 +357,20 @@ public class Document extends Parent {
 			throw new DocumentValidationException("Unable to delete " + range);
 		}
 
-		fireBeforeContentDeleted(new DocumentEvent(this, surroundingParent, range.getStartOffset(), range.length(), null));
+		fireBeforeContentDeleted(new DocumentEvent(this, parentForDeletion, range.getStartOffset(), range.length(), null));
 
-		final Iterator<Node> iter = surroundingParent.getChildIterator();
+		final Iterator<Node> iter = parentForDeletion.getChildIterator();
 		while (iter.hasNext()) {
 			final Node child = iter.next();
 			if (child.isInRange(range)) {
-				surroundingParent.removeChild(child);
+				parentForDeletion.removeChild(child);
+				child.dissociate();
 			}
 		}
 
 		getContent().remove(range);
 
-		fireContentDeleted(new DocumentEvent(this, surroundingParent, range.getStartOffset(), range.length(), null));
+		fireContentDeleted(new DocumentEvent(this, parentForDeletion, range.getStartOffset(), range.length(), null));
 	}
 
 	/*
