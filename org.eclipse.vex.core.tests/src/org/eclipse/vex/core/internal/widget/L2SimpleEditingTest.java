@@ -18,6 +18,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
 
 import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.dom.Element;
@@ -124,4 +125,87 @@ public class L2SimpleEditingTest {
 		assertFalse(paraElement.isAssociated());
 	}
 
+	@Test
+	public void givenTwoMatchingElements_whenCaretBetweenEndAndStartTagAndHittingBackspace_shouldJoinElements() throws Exception {
+		widget.insertElement(TITLE);
+		widget.moveBy(1);
+		final Element para1 = widget.insertElement(PARA);
+		widget.insertText("Hello");
+		widget.moveBy(1);
+		final Element para2 = widget.insertElement(PARA);
+		widget.insertText("World");
+
+		widget.moveTo(para2.getStartOffset());
+		widget.deletePreviousChar();
+
+		assertEquals(2, rootElement.getChildCount());
+		assertSame(rootElement, para1.getParent());
+		assertTrue(para1.isAssociated());
+		assertEquals("HelloWorld", para1.getText());
+		assertNull(para2.getParent());
+		assertFalse(para2.isAssociated());
+	}
+
+	@Test
+	public void givenTwoMatchingElements_whenCaretBetweenEndAndStartTagAndHittingDelete_shouldJoinElements() throws Exception {
+		widget.insertElement(TITLE);
+		widget.moveBy(1);
+		final Element para1 = widget.insertElement(PARA);
+		widget.insertText("Hello");
+		widget.moveBy(1);
+		final Element para2 = widget.insertElement(PARA);
+		widget.insertText("World");
+
+		widget.moveTo(para2.getStartOffset());
+		widget.deleteNextChar();
+
+		assertEquals(2, rootElement.getChildCount());
+		assertSame(rootElement, para1.getParent());
+		assertTrue(para1.isAssociated());
+		assertEquals("HelloWorld", para1.getText());
+		assertNull(para2.getParent());
+		assertFalse(para2.isAssociated());
+	}
+
+	@Test
+	public void givenTwoMatchingElements_whenCaretAfterStartTagOfSecondElementAndHittingBackspace_shouldJoinElements() throws Exception {
+		widget.insertElement(TITLE);
+		widget.moveBy(1);
+		final Element para1 = widget.insertElement(PARA);
+		widget.insertText("Hello");
+		widget.moveBy(1);
+		final Element para2 = widget.insertElement(PARA);
+		widget.insertText("World");
+
+		widget.moveTo(para2.getStartOffset() + 1);
+		widget.deletePreviousChar();
+
+		assertEquals(2, rootElement.getChildCount());
+		assertSame(rootElement, para1.getParent());
+		assertTrue(para1.isAssociated());
+		assertEquals("HelloWorld", para1.getText());
+		assertNull(para2.getParent());
+		assertFalse(para2.isAssociated());
+	}
+
+	@Test
+	public void givenTwoMatchingElements_whenCaretBeforeEndTagOfFirstElementAndHittingDelete_shouldJoinElements() throws Exception {
+		widget.insertElement(TITLE);
+		widget.moveBy(1);
+		final Element para1 = widget.insertElement(PARA);
+		widget.insertText("Hello");
+		widget.moveBy(1);
+		final Element para2 = widget.insertElement(PARA);
+		widget.insertText("World");
+
+		widget.moveTo(para1.getEndOffset());
+		widget.deleteNextChar();
+
+		assertEquals(2, rootElement.getChildCount());
+		assertSame(rootElement, para1.getParent());
+		assertTrue(para1.isAssociated());
+		assertEquals("HelloWorld", para1.getText());
+		assertNull(para2.getParent());
+		assertFalse(para2.isAssociated());
+	}
 }
