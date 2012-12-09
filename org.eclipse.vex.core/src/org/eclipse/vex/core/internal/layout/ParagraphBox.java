@@ -273,7 +273,7 @@ public class ParagraphBox extends AbstractBox implements BlockBox {
 
 	@Override
 	public boolean hasContent() {
-		return firstContentLine != null;
+		return firstContentLine != null && firstContentLine.hasContent();
 	}
 
 	public IntRange layout(final LayoutContext context, final int top, final int bottom) {

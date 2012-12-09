@@ -76,11 +76,6 @@ public class BlockElementBox extends AbstractBlockBox {
 	}
 
 	@Override
-	public boolean hasContent() {
-		return true;
-	}
-
-	@Override
 	public void paint(final LayoutContext context, final int x, final int y) {
 
 		super.paint(context, x, y);

@@ -33,6 +33,10 @@ public abstract class CompositeInlineBox extends AbstractInlineBox {
 	 */
 	@Override
 	public boolean hasContent() {
+		if (!getNode().isAssociated()) {
+			return false;
+		}
+
 		final Box[] children = getChildren();
 		for (final Box element : children) {
 			if (element.hasContent()) {
