@@ -60,7 +60,7 @@ public class L2SimpleEditingTest {
 	}
 
 	@Test
-	public void givenAnElementWithText_whenHittingBackspace_shouldDeleteLastCharacter() throws Exception {
+	public void givenAnElementWithText_whenAtEndOfTextAndHittingBackspace_shouldDeleteLastCharacter() throws Exception {
 		final Element titleElement = widget.insertElement(TITLE);
 		widget.insertText("Hello");
 		widget.deletePreviousChar();
@@ -69,7 +69,7 @@ public class L2SimpleEditingTest {
 	}
 
 	@Test
-	public void givenAnElementWithText_whenHittingPos1AndDelete_shouldDeleteFirstCharacter() throws Exception {
+	public void givenAnElementWithText_whenAtBeginningOfTextAndHittingDelete_shouldDeleteFirstCharacter() throws Exception {
 		final Element titleElement = widget.insertElement(TITLE);
 		widget.insertText("Hello");
 		widget.moveBy(-5);
@@ -90,7 +90,30 @@ public class L2SimpleEditingTest {
 	}
 
 	@Test
-	public void givenAnEmptyElement_whenCaretBeforeStartOffsetAndHittingDelete_shouldDeleteEmptyElement() throws Exception {
+	public void givenAnEmptyElement_whenCaretBetweenStartAndEndTagAndHittingDelete_shouldDeleteEmptyElement() throws Exception {
+		widget.insertElement(TITLE);
+		widget.moveBy(1);
+		final Element paraElement = widget.insertElement(PARA);
+		widget.deleteNextChar();
+		assertEquals(1, rootElement.getChildCount());
+		assertNull(paraElement.getParent());
+		assertFalse(paraElement.isAssociated());
+	}
+
+	@Test
+	public void givenAnEmptyElement_whenCaretAfterEndTagAndHittingDelete_shouldDeleteEmptyElement() throws Exception {
+		widget.insertElement(TITLE);
+		widget.moveBy(1);
+		final Element paraElement = widget.insertElement(PARA);
+		widget.moveBy(1);
+		widget.deletePreviousChar();
+		assertEquals(1, rootElement.getChildCount());
+		assertNull(paraElement.getParent());
+		assertFalse(paraElement.isAssociated());
+	}
+
+	@Test
+	public void givenAnEmptyElement_whenCaretBeforeStartTagAndHittingDelete_shouldDeleteEmptyElement() throws Exception {
 		widget.insertElement(TITLE);
 		widget.moveBy(1);
 		final Element paraElement = widget.insertElement(PARA);
@@ -100,4 +123,5 @@ public class L2SimpleEditingTest {
 		assertNull(paraElement.getParent());
 		assertFalse(paraElement.isAssociated());
 	}
+
 }

@@ -329,7 +329,7 @@ public class VexWidgetImpl implements IVexWidget {
 				this.moveTo(offset + 1, true);
 				deleteSelection();
 			} else if (!doc.isElementAt(offset)) {
-				deleteOffset();
+				deleteNextToCaret();
 			}
 		}
 	}
@@ -363,13 +363,13 @@ public class VexWidgetImpl implements IVexWidget {
 				offset--;
 				if (!doc.isElementAt(offset)) {
 					moveBy(-1);
-					deleteOffset();
+					deleteNextToCaret();
 				}
 			}
 		}
 	}
 
-	private void deleteOffset() {
+	private void deleteNextToCaret() {
 		try {
 			applyEdit(new DeleteEdit(document, new Range(getCaretOffset(), getCaretOffset())), getCaretOffset());
 			this.moveTo(getSelectionStart());
@@ -1413,7 +1413,7 @@ public class VexWidgetImpl implements IVexWidget {
 		}
 		final Element e1 = getDocument().getElementForInsertionAt(offset - 1);
 		final Element e2 = getDocument().getElementForInsertionAt(offset + 1);
-		return e1 != e2 && e1.getParent() == e2.getParent() && e1.getQualifiedName().equals(e2.getQualifiedName());
+		return e1 != e2 && e1.getParent() == e2.getParent() && e1.isKindOf(e2);
 	}
 
 	/**
