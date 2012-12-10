@@ -362,19 +362,9 @@ public class VexWidgetImpl implements IVexWidget {
 			} else {
 				offset--;
 				if (!doc.isElementAt(offset)) {
-					moveBy(-1);
-					deleteNextToCaret();
+					deleteBeforeCaret();
 				}
 			}
-		}
-	}
-
-	private void deleteNextToCaret() {
-		try {
-			applyEdit(new DeleteEdit(document, new Range(getCaretOffset(), getCaretOffset())), getCaretOffset());
-			this.moveTo(getSelectionStart());
-		} catch (final DocumentValidationException e) {
-			e.printStackTrace(); // This should never happen, because we constrain the selection
 		}
 	}
 
@@ -384,6 +374,26 @@ public class VexWidgetImpl implements IVexWidget {
 				applyEdit(new DeleteEdit(document, new Range(getSelectionStart(), getSelectionEnd())), getSelectionStart());
 				this.moveTo(getSelectionStart());
 			}
+		} catch (final DocumentValidationException e) {
+			e.printStackTrace(); // This should never happen, because we constrain the selection
+		}
+	}
+
+	private void deleteNextToCaret() {
+		try {
+			final int nextToCaret = getCaretOffset();
+			applyEdit(new DeleteEdit(document, new Range(nextToCaret, nextToCaret)), nextToCaret);
+			this.moveTo(nextToCaret);
+		} catch (final DocumentValidationException e) {
+			e.printStackTrace(); // This should never happen, because we constrain the selection
+		}
+	}
+
+	private void deleteBeforeCaret() {
+		try {
+			final int beforeCaret = getCaretOffset() - 1;
+			applyEdit(new DeleteEdit(document, new Range(beforeCaret, beforeCaret)), beforeCaret + 1);
+			this.moveTo(beforeCaret);
 		} catch (final DocumentValidationException e) {
 			e.printStackTrace(); // This should never happen, because we constrain the selection
 		}
