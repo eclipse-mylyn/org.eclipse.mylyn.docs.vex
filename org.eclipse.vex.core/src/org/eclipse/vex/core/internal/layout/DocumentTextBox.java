@@ -16,7 +16,6 @@ import org.eclipse.vex.core.internal.core.Graphics;
 import org.eclipse.vex.core.internal.css.Styles;
 import org.eclipse.vex.core.internal.dom.Node;
 import org.eclipse.vex.core.internal.dom.Range;
-import org.eclipse.vex.core.internal.dom.Text;
 
 /**
  * A TextBox that gets its text from the document. Represents text which is editable within the VexWidget.
@@ -25,19 +24,6 @@ public class DocumentTextBox extends TextBox {
 
 	private final int startRelative;
 	private final int endRelative;
-
-	/**
-	 * Class constructor, accepting a Text object.
-	 * 
-	 * @param context
-	 *            LayoutContext in use
-	 * @param node
-	 *            Node being used
-	 * @param text
-	 */
-	public DocumentTextBox(final LayoutContext context, final Node node, final Text text) {
-		this(context, node, text.getStartOffset(), text.getEndOffset());
-	}
 
 	/**
 	 * Class constructor.
