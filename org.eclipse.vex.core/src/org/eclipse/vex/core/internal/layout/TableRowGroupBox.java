@@ -20,8 +20,6 @@ import org.eclipse.vex.core.internal.core.Insets;
 import org.eclipse.vex.core.internal.css.CSS;
 import org.eclipse.vex.core.internal.css.Styles;
 import org.eclipse.vex.core.internal.dom.Element;
-import org.eclipse.vex.core.internal.dom.Node;
-import org.eclipse.vex.core.internal.dom.Parent;
 
 /**
  * Container for TableRowBox objects. May correspond to an element with display:table-row-group,
@@ -36,11 +34,11 @@ public class TableRowGroupBox extends AbstractBlockBox {
 	 *            LayoutContext to use.
 	 * @param parent
 	 *            Parent of this box.
-	 * @param node
-	 *            Node that generated this box.
+	 * @param element
+	 *            Element that generated this box.
 	 */
-	public TableRowGroupBox(final LayoutContext context, final BlockBox parent, final Node node) {
-		super(context, parent, node);
+	public TableRowGroupBox(final LayoutContext context, final BlockBox parent, final Element element) {
+		super(context, parent, element);
 	}
 
 	/**
@@ -75,7 +73,7 @@ public class TableRowGroupBox extends AbstractBlockBox {
 				children.add(new TableRowBox(context, TableRowGroupBox.this, child));
 			}
 
-			public void onRange(final Parent parent, final int startOffset, final int endOffset) {
+			public void onRange(final Element parent, final int startOffset, final int endOffset) {
 				children.add(new TableRowBox(context, TableRowGroupBox.this, startOffset, endOffset));
 			}
 		});
@@ -113,7 +111,7 @@ public class TableRowGroupBox extends AbstractBlockBox {
 	@Override
 	protected int positionChildren(final LayoutContext context) {
 
-		final Styles styles = context.getStyleSheet().getStyles(findContainingParent());
+		final Styles styles = context.getStyleSheet().getStyles(findContainingElement());
 		final int spacing = styles.getBorderSpacing().getVertical();
 
 		int childY = spacing;

@@ -343,7 +343,7 @@ public class ContentAssist extends PopupDialog {
 			actions[i] = new AbstractVexAction(widget, names[i], names[i].toString(), Icon.ELEMENT) {
 				@Override
 				public void execute(final VexWidget vexWidget) {
-					getWidget().insertElement(qualifiedName);
+					getWidget().insertElement(new Element(qualifiedName));
 				}
 			};
 		}

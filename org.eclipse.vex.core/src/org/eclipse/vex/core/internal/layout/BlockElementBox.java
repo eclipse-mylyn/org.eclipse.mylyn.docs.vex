@@ -13,7 +13,6 @@
 package org.eclipse.vex.core.internal.layout;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.vex.core.internal.VEXCorePlugin;
@@ -24,8 +23,6 @@ import org.eclipse.vex.core.internal.css.CSS;
 import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.css.Styles;
 import org.eclipse.vex.core.internal.dom.Element;
-import org.eclipse.vex.core.internal.dom.Node;
-import org.eclipse.vex.core.internal.dom.Parent;
 
 /**
  * A block box corresponding to a DOM Element. Block boxes lay their children out stacked top to bottom. Block boxes
@@ -51,11 +48,11 @@ public class BlockElementBox extends AbstractBlockBox {
 	 *            LayoutContext used for this layout.
 	 * @param parent
 	 *            This box's parent box.
-	 * @param node
-	 *            Node to which this box corresponds.
+	 * @param element
+	 *            Element to which this box corresponds.
 	 */
-	public BlockElementBox(final LayoutContext context, final BlockBox parent, final Node node) {
-		super(context, parent, node);
+	public BlockElementBox(final LayoutContext context, final BlockBox parent, final Element element) {
+		super(context, parent, element);
 	}
 
 	/**
@@ -67,12 +64,12 @@ public class BlockElementBox extends AbstractBlockBox {
 
 	@Override
 	public int getEndOffset() {
-		return getNode().getEndOffset();
+		return getElement().getEndOffset();
 	}
 
 	@Override
 	public int getStartOffset() {
-		return getNode().getStartOffset() + 1;
+		return getElement().getStartOffset() + 1;
 	}
 
 	@Override
@@ -95,7 +92,7 @@ public class BlockElementBox extends AbstractBlockBox {
 
 		final int repaintStart = super.positionChildren(context);
 
-		final Styles styles = context.getStyleSheet().getStyles(getNode());
+		final Styles styles = context.getStyleSheet().getStyles(getElement());
 		if (beforeMarker != null) {
 			final int x = -beforeMarker.getWidth() - Math.round(BULLET_SPACE * styles.getFontSize());
 			int y = getFirstLineTop(context);
@@ -113,7 +110,7 @@ public class BlockElementBox extends AbstractBlockBox {
 
 	@Override
 	public String toString() {
-		return "BlockElementBox: <" + getNode() + ">" + "[x=" + getX() + ",y=" + getY() + ",width=" + getWidth() + ",height=" + getHeight() + "]";
+		return "BlockElementBox: <" + getElement().getPrefixedName() + ">" + "[x=" + getX() + ",y=" + getY() + ",width=" + getWidth() + ",height=" + getHeight() + "]";
 	}
 
 	// ===================================================== PRIVATE
@@ -129,7 +126,7 @@ public class BlockElementBox extends AbstractBlockBox {
 			start = System.currentTimeMillis();
 		}
 
-		final Node node = getNode();
+		final Element element = getElement();
 		final int width = getWidth();
 
 		final List<Box> childList = new ArrayList<Box>();
@@ -142,23 +139,21 @@ public class BlockElementBox extends AbstractBlockBox {
 
 		// :before content
 		List<InlineBox> beforeInlines = null;
-		if (node instanceof Element) { // TODO replace PseudoElement with a more flexible mechanism
-			genElement = context.getStyleSheet().getBeforeElement((Element) node);
-			if (genElement != null) {
-				genStyles = styleSheet.getStyles(genElement);
-				if (genStyles.getDisplay().equals(CSS.INLINE)) {
-					beforeInlines = new ArrayList<InlineBox>();
-					beforeInlines.addAll(LayoutUtils.createGeneratedInlines(context, genElement));
-				} else {
-					childList.add(new BlockPseudoElementBox(context, genElement, this, width));
-				}
+		genElement = context.getStyleSheet().getBeforeElement(getElement());
+		if (genElement != null) {
+			genStyles = styleSheet.getStyles(genElement);
+			if (genStyles.getDisplay().equals(CSS.INLINE)) {
+				beforeInlines = new ArrayList<InlineBox>();
+				beforeInlines.addAll(LayoutUtils.createGeneratedInlines(context, genElement));
+			} else {
+				childList.add(new BlockPseudoElementBox(context, genElement, this, width));
 			}
 		}
 
 		// background image
-		final Styles styles = context.getStyleSheet().getStyles(node);
+		final Styles styles = context.getStyleSheet().getStyles(getElement());
 		if (styles.hasBackgroundImage() && !styles.getDisplay().equalsIgnoreCase(CSS.NONE)) {
-			final InlineBox imageBox = ImageBox.create(node, context, getWidth());
+			final InlineBox imageBox = ImageBox.create(getElement(), context, getWidth());
 			if (imageBox != null) {
 				if (beforeInlines == null) {
 					beforeInlines = new ArrayList<InlineBox>();
@@ -170,21 +165,19 @@ public class BlockElementBox extends AbstractBlockBox {
 		// :after content
 		Box afterBlock = null;
 		List<InlineBox> afterInlines = null;
-		if (node instanceof Element) {
-			genElement = context.getStyleSheet().getAfterElement((Element) node);
-			if (genElement != null) {
-				genStyles = context.getStyleSheet().getStyles(genElement);
-				if (genStyles.getDisplay().equals(CSS.INLINE)) {
-					afterInlines = new ArrayList<InlineBox>();
-					afterInlines.addAll(LayoutUtils.createGeneratedInlines(context, genElement));
-				} else {
-					afterBlock = new BlockPseudoElementBox(context, genElement, this, width);
-				}
+		genElement = context.getStyleSheet().getAfterElement(getElement());
+		if (genElement != null) {
+			genStyles = context.getStyleSheet().getStyles(genElement);
+			if (genStyles.getDisplay().equals(CSS.INLINE)) {
+				afterInlines = new ArrayList<InlineBox>();
+				afterInlines.addAll(LayoutUtils.createGeneratedInlines(context, genElement));
+			} else {
+				afterBlock = new BlockPseudoElementBox(context, genElement, this, width);
 			}
 		}
 
-		final int startOffset = node.getStartOffset() + 1;
-		final int endOffset = node.getEndOffset();
+		final int startOffset = element.getStartOffset() + 1;
+		final int endOffset = element.getEndOffset();
 		final List<Box> blockBoxes = createBlockBoxes(context, startOffset, endOffset, width, beforeInlines, afterInlines);
 		childList.addAll(blockBoxes);
 
@@ -199,7 +192,7 @@ public class BlockElementBox extends AbstractBlockBox {
 		if (VEXCorePlugin.getInstance().isDebugging()) {
 			final long end = System.currentTimeMillis();
 			if (end - start > 10) {
-				System.out.println("BEB.layout for " + getNode() + " took " + (end - start) + "ms");
+				System.out.println("BEB.layout for " + getElement().getPrefixedName() + " took " + (end - start) + "ms");
 			}
 		}
 
@@ -211,31 +204,31 @@ public class BlockElementBox extends AbstractBlockBox {
 	 */
 	private void createListMarker(final LayoutContext context) {
 
-		final Styles styles = context.getStyleSheet().getStyles(getNode());
+		final Styles styles = context.getStyleSheet().getStyles(getElement());
 
 		InlineBox markerInline;
 		final String type = styles.getListStyleType();
 		if (type.equals(CSS.NONE)) {
 			return;
 		} else if (type.equals(CSS.CIRCLE)) {
-			markerInline = createCircleBullet(getNode(), styles);
+			markerInline = createCircleBullet(getElement(), styles);
 		} else if (type.equals(CSS.SQUARE)) {
-			markerInline = createSquareBullet(getNode(), styles);
+			markerInline = createSquareBullet(getElement(), styles);
 		} else if (isEnumeratedListStyleType(type)) {
 			final String item = getItemNumberString(type);
-			markerInline = new StaticTextBox(context, getNode(), item + ".");
+			markerInline = new StaticTextBox(context, getElement(), item + ".");
 		} else {
-			markerInline = createDiscBullet(getNode(), styles);
+			markerInline = createDiscBullet(getElement(), styles);
 		}
 
-		beforeMarker = ParagraphBox.create(context, getNode(), new InlineBox[] { markerInline }, Integer.MAX_VALUE);
+		beforeMarker = ParagraphBox.create(context, getElement(), new InlineBox[] { markerInline }, Integer.MAX_VALUE);
 
 	}
 
 	/**
 	 * Returns a Drawable that draws a circle-style list item bullet.
 	 */
-	private static InlineBox createCircleBullet(final Node node, final Styles styles) {
+	private static InlineBox createCircleBullet(final Element element, final Styles styles) {
 		final int size = Math.round(0.5f * styles.getFontSize());
 		final int lift = Math.round(0.1f * styles.getFontSize());
 		final Drawable drawable = new Drawable() {
@@ -249,13 +242,13 @@ public class BlockElementBox extends AbstractBlockBox {
 				return new Rectangle(0, -size - lift, size, size);
 			}
 		};
-		return new DrawableBox(drawable, node);
+		return new DrawableBox(drawable, element);
 	}
 
 	/**
 	 * Returns a Drawable that draws a disc-style list item bullet.
 	 */
-	private static InlineBox createDiscBullet(final Node node, final Styles styles) {
+	private static InlineBox createDiscBullet(final Element element, final Styles styles) {
 		final int size = Math.round(0.5f * styles.getFontSize());
 		final int lift = Math.round(0.1f * styles.getFontSize());
 		final Drawable drawable = new Drawable() {
@@ -267,13 +260,13 @@ public class BlockElementBox extends AbstractBlockBox {
 				return new Rectangle(0, -size - lift, size, size);
 			}
 		};
-		return new DrawableBox(drawable, node);
+		return new DrawableBox(drawable, element);
 	}
 
 	/**
 	 * Returns a Drawable that draws a square-style list item bullet.
 	 */
-	private static InlineBox createSquareBullet(final Node node, final Styles styles) {
+	private static InlineBox createSquareBullet(final Element element, final Styles styles) {
 		final int size = Math.round(0.5f * styles.getFontSize());
 		final int lift = Math.round(0.1f * styles.getFontSize());
 		final Drawable drawable = new Drawable() {
@@ -287,14 +280,14 @@ public class BlockElementBox extends AbstractBlockBox {
 				return new Rectangle(0, -size - lift, size, size);
 			}
 		};
-		return new DrawableBox(drawable, node);
+		return new DrawableBox(drawable, element);
 	}
 
 	/**
 	 * Returns the vertical distance from the top of this box to the top of its first line.
 	 */
 	int getFirstLineTop(final LayoutContext context) {
-		final Styles styles = context.getStyleSheet().getStyles(getNode());
+		final Styles styles = context.getStyleSheet().getStyles(getElement());
 		final int top = styles.getBorderTopWidth() + styles.getPaddingTop().get(0);
 		final Box[] children = getChildren();
 		if (children != null && children.length > 0 && children[0] instanceof BlockElementBox) {
@@ -309,20 +302,20 @@ public class BlockElementBox extends AbstractBlockBox {
 	 * amongst its siblings starting with 1.
 	 */
 	private int getItemNumber() {
-		final Node node = getNode();
-		final Parent parent = node.getParent();
+		final Element element = getElement();
+		final Element parent = element.getParent();
 
 		if (parent == null) {
 			return 1;
 		}
 
 		int item = 1;
-		for (final Iterator<Node> iterator = parent.getChildIterator(); iterator.hasNext();) {
-			final Node child = iterator.next();
-			if (child == node) {
+		final List<Element> children = parent.getChildElements();
+		for (int i = 0; i < children.size(); i++) {
+			if (children.get(i) == element) {
 				return item;
 			}
-			if (child.isKindOf(node)) {
+			if (children.get(i).getQualifiedName().equals(element.getQualifiedName())) {
 				item++;
 			}
 		}

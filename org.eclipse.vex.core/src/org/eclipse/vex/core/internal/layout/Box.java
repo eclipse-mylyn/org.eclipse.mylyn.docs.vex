@@ -12,7 +12,7 @@ package org.eclipse.vex.core.internal.layout;
 
 import org.eclipse.vex.core.internal.core.Caret;
 import org.eclipse.vex.core.internal.core.Insets;
-import org.eclipse.vex.core.internal.dom.Node;
+import org.eclipse.vex.core.internal.dom.Element;
 
 /**
  * Represents a rectangular area in the layout. The height and width of the box are measured from the inner edges of the
@@ -48,7 +48,7 @@ public interface Box {
 	 * Returns the Element with which this box is associated, or null if there is no such box. The box may directly
 	 * represent the Element, or simply use it for formatting information.
 	 */
-	public Node getNode();
+	public Element getElement();
 
 	/**
 	 * Returns the offset of the end of the content that the box covers.

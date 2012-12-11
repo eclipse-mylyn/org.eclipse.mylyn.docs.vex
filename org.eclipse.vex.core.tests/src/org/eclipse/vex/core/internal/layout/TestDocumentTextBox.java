@@ -18,8 +18,7 @@ import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.css.StyleSheetReader;
 import org.eclipse.vex.core.internal.css.Styles;
 import org.eclipse.vex.core.internal.dom.Document;
-import org.eclipse.vex.core.internal.dom.Element;
-import org.eclipse.vex.core.internal.dom.Range;
+import org.eclipse.vex.core.internal.dom.RootElement;
 
 /**
  * Tests the DocumentTestBox class. We focus here on proper offsets, since text splitting is tested thoroughly in
@@ -45,7 +44,7 @@ public class TestDocumentTextBox extends TestCase {
 	}
 
 	public void testSplit() throws Exception {
-		final Element root = new Element("root");
+		final RootElement root = new RootElement("root");
 		final Document doc = new Document(root);
 
 		final Styles styles = context.getStyleSheet().getStyles(root);
@@ -85,12 +84,12 @@ public class TestDocumentTextBox extends TestCase {
 		assertSplit(box, 0, true, "b", "aggy orange trousers");
 		assertSplit(box, -1, true, "b", "aggy orange trousers");
 
-		doc.delete(new Range(1, 21));
+		doc.delete(1, 22);
 	}
 
 	private void assertSplit(final DocumentTextBox box, final int splitPos, final boolean force, final String left, final String right) {
 
-		final Styles styles = context.getStyleSheet().getStyles(box.getNode());
+		final Styles styles = context.getStyleSheet().getStyles(box.getElement());
 
 		final int width = g.getCharWidth();
 
@@ -122,7 +121,7 @@ public class TestDocumentTextBox extends TestCase {
 			assertEquals(right.length() * width, rightBox.getWidth());
 			assertEquals(styles.getLineHeight(), rightBox.getHeight());
 			assertEquals(midOffset, rightBox.getStartOffset());
-			assertEquals(rightOffset, rightBox.getEndOffset());
+			assertEquals(rightOffset - 1, rightBox.getEndOffset());
 		}
 
 	}

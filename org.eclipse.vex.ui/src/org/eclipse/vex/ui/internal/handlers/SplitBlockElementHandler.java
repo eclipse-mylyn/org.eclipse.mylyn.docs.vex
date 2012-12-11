@@ -18,11 +18,10 @@ import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.vex.core.internal.VEXCorePlugin;
 import org.eclipse.vex.core.internal.css.CSS;
 import org.eclipse.vex.core.internal.css.Styles;
-import org.eclipse.vex.core.internal.dom.CopyVisitor;
 import org.eclipse.vex.core.internal.dom.Document;
 import org.eclipse.vex.core.internal.dom.DocumentFragment;
 import org.eclipse.vex.core.internal.dom.Element;
-import org.eclipse.vex.core.internal.dom.Node;
+import org.eclipse.vex.core.internal.dom.RootElement;
 import org.eclipse.vex.core.internal.widget.IVexWidget;
 import org.eclipse.vex.ui.internal.swt.VexWidget;
 
@@ -39,8 +38,8 @@ public class SplitBlockElementHandler extends AbstractVexWidgetHandler {
 		Element element = widget.getCurrentElement();
 		Styles styles = widget.getStyleSheet().getStyles(element);
 		while (!styles.isBlock()) {
-			element = element.getParentElement();
-			if (element == null || element.getParent() instanceof Document) {
+			element = element.getParent();
+			if (element == null || element instanceof RootElement) {
 				return; // we reached the root element which cannot be split 
 			}
 			styles = widget.getStyleSheet().getStyles(element);
@@ -53,10 +52,10 @@ public class SplitBlockElementHandler extends AbstractVexWidgetHandler {
 	 * 
 	 * @param vexWidget
 	 *            IVexWidget containing the document.
-	 * @param node
-	 *            Node to be split.
+	 * @param element
+	 *            Element to be split.
 	 */
-	protected void splitElement(final IVexWidget vexWidget, final Node node) {
+	protected void splitElement(final IVexWidget vexWidget, final Element element) {
 
 		vexWidget.doWork(new Runnable() {
 			public void run() {
@@ -66,7 +65,7 @@ public class SplitBlockElementHandler extends AbstractVexWidgetHandler {
 					start = System.currentTimeMillis();
 				}
 
-				final Styles styles = vexWidget.getStyleSheet().getStyles(node);
+				final Styles styles = vexWidget.getStyleSheet().getStyles(element);
 
 				if (styles.getWhiteSpace().equals(CSS.PRE)) {
 					// can't call vexWidget.insertText() or we'll get an
@@ -91,17 +90,16 @@ public class SplitBlockElementHandler extends AbstractVexWidgetHandler {
 						frags.add(vexWidget.getSelectedFragment());
 						vexWidget.deleteSelection();
 						vexWidget.moveTo(child.getEndOffset() + 1);
-						if (child == node) {
+						if (child == element) {
 							break;
 						}
-						child = child.getParentElement();
+						child = child.getParent();
 					}
 
-					final CopyVisitor copyVisitor = new CopyVisitor();
 					for (int i = children.size() - 1; i >= 0; i--) {
 						child = children.get(i);
 						final DocumentFragment frag = frags.get(i);
-						vexWidget.insertElement((Element) child.accept(copyVisitor));
+						vexWidget.insertElement(child.clone());
 						final int offset = vexWidget.getCaretOffset();
 						if (frag != null) {
 							vexWidget.insertFragment(frag);

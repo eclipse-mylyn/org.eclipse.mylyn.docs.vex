@@ -11,6 +11,7 @@
 package org.eclipse.vex.ui.internal.handlers;
 
 import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.vex.core.internal.dom.CommentElement;
 import org.eclipse.vex.ui.internal.swt.VexWidget;
 
 /**
@@ -20,7 +21,7 @@ public class AddCommentHandler extends AbstractVexWidgetHandler {
 
 	@Override
 	public void execute(final VexWidget widget) throws ExecutionException {
-		widget.insertComment();
+		widget.insertElement(new CommentElement());
 	}
 
 }

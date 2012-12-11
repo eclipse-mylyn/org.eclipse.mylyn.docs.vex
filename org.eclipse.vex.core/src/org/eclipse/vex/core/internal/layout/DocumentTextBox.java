@@ -14,8 +14,8 @@ import org.eclipse.vex.core.internal.core.ColorResource;
 import org.eclipse.vex.core.internal.core.FontResource;
 import org.eclipse.vex.core.internal.core.Graphics;
 import org.eclipse.vex.core.internal.css.Styles;
-import org.eclipse.vex.core.internal.dom.Node;
-import org.eclipse.vex.core.internal.dom.Range;
+import org.eclipse.vex.core.internal.dom.Document;
+import org.eclipse.vex.core.internal.dom.Element;
 import org.eclipse.vex.core.internal.dom.Text;
 
 /**
@@ -31,12 +31,12 @@ public class DocumentTextBox extends TextBox {
 	 * 
 	 * @param context
 	 *            LayoutContext in use
-	 * @param node
-	 *            Node being used
+	 * @param element
+	 *            Element being used
 	 * @param text
 	 */
-	public DocumentTextBox(final LayoutContext context, final Node node, final Text text) {
-		this(context, node, text.getStartOffset(), text.getEndOffset());
+	public DocumentTextBox(final LayoutContext context, final Element element, final Text text) {
+		this(context, element, text.getStartOffset(), text.getEndOffset());
 	}
 
 	/**
@@ -44,22 +44,22 @@ public class DocumentTextBox extends TextBox {
 	 * 
 	 * @param context
 	 *            LayoutContext used to calculate the box's size.
-	 * @param node
-	 *            Node that directly contains the text.
+	 * @param element
+	 *            Element that directly contains the text.
 	 * @param startOffset
 	 *            start offset of the text
 	 * @param endOffset
 	 *            end offset of the text
 	 */
-	public DocumentTextBox(final LayoutContext context, final Node node, final int startOffset, final int endOffset) {
-		super(node);
+	public DocumentTextBox(final LayoutContext context, final Element element, final int startOffset, final int endOffset) {
+		super(element);
 
-		if (startOffset > endOffset) {
-			throw new IllegalStateException("DocumentTextBox: startOffset (" + startOffset + ") > endOffset (" + endOffset + ")");
+		if (startOffset >= endOffset) {
+			throw new IllegalStateException("DocumentTextBox: startOffset (" + startOffset + ") >= endOffset (" + endOffset + ")");
 		}
 
-		startRelative = startOffset - node.getStartOffset();
-		endRelative = endOffset - node.getStartOffset();
+		startRelative = startOffset - element.getStartOffset();
+		endRelative = endOffset - element.getStartOffset();
 		calculateSize(context);
 
 		if (getText().length() < endOffset - startOffset) {
@@ -75,7 +75,7 @@ public class DocumentTextBox extends TextBox {
 		if (endRelative == -1) {
 			return -1;
 		} else {
-			return getNode().getStartOffset() + endRelative;
+			return getElement().getStartOffset() + endRelative - 1;
 		}
 	}
 
@@ -87,7 +87,7 @@ public class DocumentTextBox extends TextBox {
 		if (startRelative == -1) {
 			return -1;
 		} else {
-			return getNode().getStartOffset() + startRelative;
+			return getElement().getStartOffset() + startRelative;
 		}
 	}
 
@@ -96,7 +96,8 @@ public class DocumentTextBox extends TextBox {
 	 */
 	@Override
 	public String getText() {
-		return getNode().getText(new Range(getStartOffset(), getEndOffset()));
+		final Document doc = getElement().getDocument();
+		return doc.getText(getStartOffset(), getEndOffset() + 1);
 	}
 
 	/**
@@ -113,7 +114,7 @@ public class DocumentTextBox extends TextBox {
 	@Override
 	public void paint(final LayoutContext context, final int x, final int y) {
 
-		final Styles styles = context.getStyleSheet().getStyles(getNode());
+		final Styles styles = context.getStyleSheet().getStyles(getElement());
 		final Graphics g = context.getGraphics();
 
 		final FontResource font = g.createFont(styles.getFont());
@@ -181,7 +182,7 @@ public class DocumentTextBox extends TextBox {
 	@Override
 	public Pair splitAt(final LayoutContext context, final int offset) {
 
-		if (offset < 0 || offset > endRelative - startRelative + 1) {
+		if (offset < 0 || offset > endRelative - startRelative) {
 			throw new IllegalStateException();
 		}
 
@@ -191,14 +192,14 @@ public class DocumentTextBox extends TextBox {
 		if (offset == 0) {
 			left = null;
 		} else {
-			left = new DocumentTextBox(context, getNode(), getStartOffset(), split - 1);
+			left = new DocumentTextBox(context, getElement(), getStartOffset(), split);
 		}
 
 		InlineBox right;
-		if (split >= getEndOffset()) {
+		if (split == getEndOffset() + 1) {
 			right = null;
 		} else {
-			right = new DocumentTextBox(context, getNode(), split, getEndOffset());
+			right = new DocumentTextBox(context, getElement(), split, getEndOffset() + 1);
 		}
 		return new Pair(left, right);
 	}
@@ -211,7 +212,7 @@ public class DocumentTextBox extends TextBox {
 	public int viewToModel(final LayoutContext context, final int x, final int y) {
 
 		final Graphics g = context.getGraphics();
-		final Styles styles = context.getStyleSheet().getStyles(getNode());
+		final Styles styles = context.getStyleSheet().getStyles(getElement());
 		final FontResource font = g.createFont(styles.getFont());
 		final FontResource oldFont = g.setFont(font);
 		final char[] chars = getText().toCharArray();

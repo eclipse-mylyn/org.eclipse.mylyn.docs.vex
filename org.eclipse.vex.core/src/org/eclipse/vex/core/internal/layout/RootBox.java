@@ -65,10 +65,10 @@ public class RootBox extends AbstractBox implements BlockBox {
 	}
 
 	/**
-	 * @see org.eclipse.vex.core.internal.layout.Box#getNode()
+	 * @see org.eclipse.vex.core.internal.layout.Box#getElement()
 	 */
 	@Override
-	public Element getNode() {
+	public Element getElement() {
 		return element;
 	}
 

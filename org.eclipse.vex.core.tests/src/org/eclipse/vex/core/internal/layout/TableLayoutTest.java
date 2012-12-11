@@ -16,13 +16,13 @@ import java.util.Stack;
 
 import junit.framework.TestCase;
 
-import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.vex.core.internal.core.DisplayDevice;
 import org.eclipse.vex.core.internal.css.MockDisplayDevice;
 import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.css.StyleSheetReader;
 import org.eclipse.vex.core.internal.dom.Document;
 import org.eclipse.vex.core.internal.dom.Element;
+import org.eclipse.vex.core.internal.dom.RootElement;
 
 public class TableLayoutTest extends TestCase {
 
@@ -74,14 +74,14 @@ public class TableLayoutTest extends TestCase {
 	}
 
 	private void resetDocument() {
-		document = new Document(new Element("root"));
+		document = new Document(new RootElement("root"));
 		context.setDocument(document);
 		caretPosition = 1;
 		rootBox = new RootBox(context, document.getRootElement(), 500);
 	}
 
 	private void insertElement(final String elementName) {
-		document.insertElement(caretPosition, new QualifiedName(null, elementName));
+		document.insertElement(caretPosition, new Element(elementName));
 		caretPosition++;
 	}
 
@@ -208,7 +208,7 @@ public class TableLayoutTest extends TestCase {
 	}
 
 	private String contentAsText() {
-		return document.getText();
+		return document.getText(0, document.getLength());
 	}
 
 	private void assertCount(final int expected, final Class<? extends Box> blockClass) {

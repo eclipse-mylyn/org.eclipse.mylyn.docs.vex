@@ -19,12 +19,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
 
-import org.eclipse.vex.core.internal.dom.BaseNodeVisitorWithResult;
-import org.eclipse.vex.core.internal.dom.Comment;
-import org.eclipse.vex.core.internal.dom.Document;
+import org.eclipse.vex.core.internal.dom.CommentElement;
 import org.eclipse.vex.core.internal.dom.Element;
-import org.eclipse.vex.core.internal.dom.Node;
-import org.eclipse.vex.core.internal.dom.Parent;
+import org.eclipse.vex.core.internal.dom.RootElement;
 import org.w3c.css.sac.AttributeCondition;
 import org.w3c.css.sac.CombinatorCondition;
 import org.w3c.css.sac.Condition;
@@ -46,8 +43,6 @@ import org.w3c.css.sac.SiblingSelector;
  * or maps in the <code>java.util</code> package, unless a suitable <code>Comparator</code> is also used.
  */
 public class Rule {
-
-	public static final String COMMENT_RULE_NAME = "COMMENT";
 
 	private final Selector selector;
 	private final List<PropertyDecl> propertyDecls = new ArrayList<PropertyDecl>();
@@ -98,11 +93,11 @@ public class Rule {
 	/**
 	 * Returns true if the given element matches this rule's selector.
 	 * 
-	 * @param node
-	 *            Node to check.
+	 * @param element
+	 *            Element to check.
 	 */
-	public boolean matches(final Node node) {
-		return matches(selector, node);
+	public boolean matches(final Element element) {
+		return matches(selector, element);
 	}
 
 	// ==================================================== PRIVATE
@@ -110,9 +105,9 @@ public class Rule {
 	/**
 	 * Returns true if the given element matches the given selector.
 	 */
-	private static boolean matches(final Selector selector, final Node node) {
+	private static boolean matches(final Selector selector, final Element element) {
 
-		if (node == null) {
+		if (element == null) {
 			// This can happen when, e.g., with the rule "foo > *".
 			// Since the root element matches the "*", we check if
 			// its parent matches "foo", but of course its parent
@@ -130,17 +125,17 @@ public class Rule {
 			// attributes
 			final ConditionalSelector cs = (ConditionalSelector) selector;
 			if (cs.getCondition().getConditionType() == Condition.SAC_PSEUDO_CLASS_CONDITION) {
-				if (node instanceof PseudoElement) {
+				if (element instanceof PseudoElement) {
 					final AttributeCondition ac = (AttributeCondition) cs.getCondition();
-					return ac.getValue().equals(getLocalNameOfElement(node)) && matches(cs.getSimpleSelector(), node.getParent());
-				} else if (node instanceof Comment) {
+					return ac.getValue().equals(element.getLocalName()) && matches(cs.getSimpleSelector(), element.getParent());
+				} else if (element instanceof CommentElement) {
 					final AttributeCondition ac = (AttributeCondition) cs.getCondition();
-					return COMMENT_RULE_NAME.equals(ac.getValue()) && matches(cs.getSimpleSelector(), node.getParent());
+					return CommentElement.CSS_RULE_NAME.equals(ac.getValue()) && matches(cs.getSimpleSelector(), element.getParent());
 				} else {
 					return false;
 				}
 			} else {
-				return matches(cs.getSimpleSelector(), node) && matchesCondition(cs.getCondition(), node);
+				return matches(cs.getSimpleSelector(), element) && matchesCondition(cs.getCondition(), element);
 			}
 
 		case Selector.SAC_ANY_NODE_SELECTOR:
@@ -150,13 +145,13 @@ public class Rule {
 			return true;
 
 		case Selector.SAC_ROOT_NODE_SELECTOR:
-			return node.getParent() instanceof Document;
+			return element instanceof RootElement;
 
 		case Selector.SAC_NEGATIVE_SELECTOR:
 			break; // not yet supported
 
 		case Selector.SAC_ELEMENT_NODE_SELECTOR:
-			final String elementName = getLocalNameOfElement(node);
+			final String elementName = element.getLocalName();
 			final String selectorName = ((ElementSelector) selector).getLocalName();
 			if (selectorName == null) {
 				// We land here if we have a wildcard selector (*) or
@@ -184,33 +179,33 @@ public class Rule {
 
 		case Selector.SAC_PSEUDO_ELEMENT_SELECTOR:
 			final ElementSelector elementSelector = (ElementSelector) selector;
-			return elementSelector.getLocalName().equals(getLocalNameOfElement(node));
+			return elementSelector.getLocalName().equals(element.getLocalName());
 
 		case Selector.SAC_DESCENDANT_SELECTOR:
 			final DescendantSelector ds = (DescendantSelector) selector;
-			return matches(ds.getSimpleSelector(), node) && matchesAncestor(ds.getAncestorSelector(), node.getParent());
+			return matches(ds.getSimpleSelector(), element) && matchesAncestor(ds.getAncestorSelector(), element.getParent());
 
 		case Selector.SAC_CHILD_SELECTOR:
 			final DescendantSelector ds2 = (DescendantSelector) selector;
-			final Parent parent = node.getParent();
-			return matches(ds2.getSimpleSelector(), node) && matches(ds2.getAncestorSelector(), parent);
+			final Element parent = element.getParent();
+			return matches(ds2.getSimpleSelector(), element) && matches(ds2.getAncestorSelector(), parent);
 
 		case Selector.SAC_DIRECT_ADJACENT_SELECTOR:
 
 			final SiblingSelector ss = (SiblingSelector) selector;
 
-			if (node != null && node.getParent() != null && matches(ss.getSiblingSelector(), node)) {
+			if (element != null && element.getParent() != null && matches(ss.getSiblingSelector(), element)) {
 
 				// find next sibling
-				final Iterator<Node> i = node.getParent().getChildIterator();
-				Node e = null;
-				Node f = null;
-				while (i.hasNext() && e != node) {
+				final Iterator<Element> i = element.getParent().getChildElements().iterator();
+				Element e = null;
+				Element f = null;
+				while (i.hasNext() && e != element) {
 					f = e;
 					e = i.next();
 				}
 
-				if (e == node) {
+				if (e == element) {
 					return matches(ss.getSelector(), f);
 				}
 			}
@@ -223,30 +218,21 @@ public class Rule {
 		return false;
 	}
 
-	private static String getLocalNameOfElement(final Node node) {
-		return node.accept(new BaseNodeVisitorWithResult<String>("") {
-			@Override
-			public String visit(final Element element) {
-				return element.getLocalName();
-			}
-		});
-	}
-
 	/**
 	 * Returns true if some ancestor of the given element matches the given selector.
 	 */
-	private static boolean matchesAncestor(final Selector selector, final Node node) {
-		Node n = node;
-		while (n != null) {
-			if (matches(selector, n)) {
+	private static boolean matchesAncestor(final Selector selector, final Element element) {
+		Element e = element;
+		while (e != null) {
+			if (matches(selector, e)) {
 				return true;
 			}
-			n = n.getParent();
+			e = e.getParent();
 		}
 		return false;
 	}
 
-	private static boolean matchesCondition(final Condition condition, final Node node) {
+	private static boolean matchesCondition(final Condition condition, final Element element) {
 
 		AttributeCondition attributeCondition;
 		String attributeName;
@@ -258,7 +244,7 @@ public class Rule {
 
 		case Condition.SAC_ATTRIBUTE_CONDITION:
 			attributeCondition = (AttributeCondition) condition;
-			value = getAttributeValue(node, attributeCondition.getLocalName());
+			value = element.getAttributeValue(attributeCondition.getLocalName());
 			if (attributeCondition.getValue() != null) {
 				return attributeCondition.getValue().equals(value);
 			} else {
@@ -276,7 +262,7 @@ public class Rule {
 				attributeName = attributeCondition.getLocalName();
 			}
 
-			value = getAttributeValue(node, attributeName);
+			value = element.getAttributeValue(attributeName);
 			if (value == null) {
 				return false;
 			}
@@ -290,22 +276,13 @@ public class Rule {
 
 		case Condition.SAC_AND_CONDITION:
 			final CombinatorCondition ccon = (CombinatorCondition) condition;
-			return matchesCondition(ccon.getFirstCondition(), node) && matchesCondition(ccon.getSecondCondition(), node);
+			return matchesCondition(ccon.getFirstCondition(), element) && matchesCondition(ccon.getSecondCondition(), element);
 
 		default:
 			// TODO: warning: condition not supported
 			System.out.println("Unsupported condition type: " + condition.getConditionType());
 		}
 		return false;
-	}
-
-	private static String getAttributeValue(final Node node, final String localName) {
-		return node.accept(new BaseNodeVisitorWithResult<String>() {
-			@Override
-			public String visit(final Element element) {
-				return element.getAttributeValue(localName);
-			}
-		});
 	}
 
 	/**

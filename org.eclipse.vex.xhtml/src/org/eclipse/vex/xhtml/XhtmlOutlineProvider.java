@@ -50,7 +50,7 @@ public class XhtmlOutlineProvider implements IOutlineProvider {
 				return element;
 			}
 
-			element = element.getParentElement();
+			element = element.getParent();
 		}
 		return element;
 	}
@@ -70,7 +70,7 @@ public class XhtmlOutlineProvider implements IOutlineProvider {
 		}
 
 		public Object getParent(final Object element) {
-			final Element parent = ((Element) element).getParentElement();
+			final Element parent = ((Element) element).getParent();
 			if (parent == null) {
 				return element;
 			} else {
@@ -123,7 +123,7 @@ public class XhtmlOutlineProvider implements IOutlineProvider {
 			// between this element and the next element at the same level
 			final int level = Integer.parseInt(element.getLocalName().substring(1));
 			final String childName = "h" + (level + 1);
-			final List<Element> childElements = element.getParentElement().getChildElements();
+			final List<Element> childElements = element.getParent().getChildElements();
 			boolean foundSelf = false;
 			for (final Element child : childElements) {
 				if (child == element) {

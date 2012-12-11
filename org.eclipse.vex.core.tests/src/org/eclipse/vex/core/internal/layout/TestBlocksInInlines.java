@@ -14,13 +14,13 @@ import java.net.URL;
 
 import junit.framework.TestCase;
 
-import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.vex.core.internal.core.DisplayDevice;
 import org.eclipse.vex.core.internal.css.MockDisplayDevice;
 import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.css.StyleSheetReader;
 import org.eclipse.vex.core.internal.dom.Document;
 import org.eclipse.vex.core.internal.dom.Element;
+import org.eclipse.vex.core.internal.dom.RootElement;
 
 /**
  * Tests proper function of a block-level element within an inline element. These must be layed out as a block child of
@@ -51,14 +51,14 @@ public class TestBlocksInInlines extends TestCase {
 	}
 
 	public void testBlockInInline() throws Exception {
-		final Element root = new Element("root");
+		final RootElement root = new RootElement("root");
 		final Document doc = new Document(root);
 		context.setDocument(doc);
 
 		doc.insertText(1, "one  five");
-		doc.insertElement(5, new QualifiedName(null, "b"));
+		doc.insertElement(5, new Element("b"));
 		doc.insertText(6, "two  four");
-		doc.insertElement(10, new QualifiedName(null, "p"));
+		doc.insertElement(10, new Element("p"));
 		doc.insertText(11, "three");
 
 		final RootBox rootBox = new RootBox(context, root, 500);

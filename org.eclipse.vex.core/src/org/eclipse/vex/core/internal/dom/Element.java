@@ -16,6 +16,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -29,18 +30,14 @@ import org.eclipse.vex.core.internal.undo.IUndoableEdit;
 /**
  * Represents a tag in an XML document. Methods are available for managing the element's attributes and children.
  */
-public class Element extends Parent {
+public class Element extends Node implements Cloneable {
 
-	/**
-	 * The xml:base attribute re-defines the base URI for a part of an XML document, according to the XML Base
-	 * Recommendation.
-	 * 
-	 * @see http://www.w3.org/TR/xmlbase/
-	 */
 	private static final QualifiedName XML_BASE_ATTRIBUTE = new QualifiedName(Namespace.XML_NAMESPACE_URI, "base");
 
 	private final QualifiedName name;
 
+	private Element parent = null;
+	private final List<Node> childNodes = new ArrayList<Node>();
 	private final Map<QualifiedName, Attribute> attributes = new HashMap<QualifiedName, Attribute>();
 	private final Map<String, String> namespaceDeclarations = new HashMap<String, String>();
 
@@ -52,22 +49,31 @@ public class Element extends Parent {
 		name = qualifiedName;
 	}
 
+	public void addChild(final Element child) {
+		childNodes.add(child);
+		child.setParent(this);
+	}
+
 	@Override
-	public boolean isKindOf(final Node node) {
-		if (!(node instanceof Element)) {
-			return false;
+	public Element clone() {
+		try {
+			final Element element = new Element(getQualifiedName());
+			//add the attributes to the element instance to be cloned
+			for (final Map.Entry<QualifiedName, Attribute> attr : attributes.entrySet()) {
+				element.setAttribute(attr.getKey(), attr.getValue().getValue());
+			}
+			for (final Map.Entry<String, String> namespaceDeclaration : namespaceDeclarations.entrySet()) {
+				if (namespaceDeclaration.getKey() == null) {
+					element.declareDefaultNamespace(namespaceDeclaration.getValue());
+				} else {
+					element.declareNamespace(namespaceDeclaration.getKey(), namespaceDeclaration.getValue());
+				}
+			}
+			return element;
+		} catch (final DocumentValidationException ex) {
+			ex.printStackTrace();
+			return null;
 		}
-		return getQualifiedName().equals(((Element) node).getQualifiedName());
-	}
-
-	@Override
-	public void accept(final INodeVisitor visitor) {
-		visitor.visit(this);
-	}
-
-	@Override
-	public <T> T accept(final INodeVisitorWithResult<T> visitor) {
-		return visitor.visit(this);
 	}
 
 	public Attribute getAttribute(final String localName) {
@@ -165,18 +171,37 @@ public class Element extends Parent {
 		return result;
 	}
 
+	public Iterator<Node> getChildIterator() {
+		return childNodes.iterator();
+	}
+
 	public List<Element> getChildElements() {
 		final List<Node> nodes = getChildNodes();
+		final Iterator<Node> iter = nodes.iterator();
 		final List<Element> elements = new ArrayList<Element>();
-		for (final Node node : nodes) {
-			node.accept(new BaseNodeVisitor() {
-				@Override
-				public void visit(final Element element) {
-					elements.add(element);
-				}
-			});
+		while (iter.hasNext()) {
+			final Node node = iter.next();
+			if (node.getNodeType().equals("Element")) {
+				elements.add((Element) node);
+			}
 		}
 		return elements;
+	}
+
+	public List<Node> getChildNodes() {
+		return Document.createNodeList(getContent(), getStartOffset() + 1, getEndOffset(), childNodes);
+	}
+
+	public Document getDocument() {
+		Element root = this;
+		while (root.getParent() != null) {
+			root = root.getParent();
+		}
+		if (root instanceof RootElement) {
+			return root.getDocument();
+		} else {
+			return null;
+		}
 	}
 
 	public String getLocalName() {
@@ -199,6 +224,32 @@ public class Element extends Parent {
 		return prefix + ":" + getLocalName();
 	}
 
+	public Element getParent() {
+		return parent;
+	}
+
+	@Override
+	public String getText() {
+		final String s = super.getText();
+		final StringBuilder sb = new StringBuilder(s.length());
+		for (int i = 0; i < s.length(); i++) {
+			final char c = s.charAt(i);
+			if (!getContent().isElementMarker(c)) {
+				sb.append(c);
+			}
+		}
+		return sb.toString();
+	}
+
+	/**
+	 * Inserts the given element as a child at the given child index. Sets the parent attribute of the given element to
+	 * this element.
+	 */
+	public void insertChild(final int index, final Element child) {
+		childNodes.add(index, child);
+		child.setParent(this);
+	}
+
 	public boolean isEmpty() {
 		return getStartOffset() + 1 == getEndOffset();
 	}
@@ -219,38 +270,22 @@ public class Element extends Parent {
 		}
 
 		sb.append("> (");
-		if (isAssociated()) {
-			sb.append(getStartOffset());
-			sb.append(",");
-			sb.append(getEndOffset());
-		} else {
-			sb.append("n/a");
-		}
+		sb.append(getStartPosition());
+		sb.append(",");
+		sb.append(getEndPosition());
 		sb.append(")");
 
 		return sb.toString();
 	}
 
-	public Element getParentElement() {
-		return getParentElement(this);
-	}
-
-	private static Element getParentElement(final Node node) {
-		final Node parent = node.getParent();
-		if (parent == null) {
-			return null;
-		}
-		if (parent instanceof Element) {
-			return (Element) parent;
-		}
-		return getParentElement(parent);
+	public void setParent(final Element parent) {
+		this.parent = parent;
 	}
 
 	public String getNamespaceURI(final String namespacePrefix) {
 		if (namespaceDeclarations.containsKey(namespacePrefix)) {
 			return namespaceDeclarations.get(namespacePrefix);
 		}
-		final Element parent = getParentElement();
 		if (parent != null) {
 			return parent.getNamespaceURI(namespacePrefix);
 		}
@@ -280,7 +315,6 @@ public class Element extends Parent {
 				return entry.getKey();
 			}
 		}
-		final Element parent = getParentElement();
 		if (parent != null) {
 			final String parentPrefix = parent.getNamespacePrefix(namespaceURI);
 			if (!namespaceDeclarations.containsKey(parentPrefix)) {
@@ -304,7 +338,6 @@ public class Element extends Parent {
 	public Collection<String> getNamespacePrefixes() {
 		final HashSet<String> result = new HashSet<String>();
 		result.addAll(getDeclaredNamespacePrefixes());
-		final Element parent = getParentElement();
 		if (parent != null) {
 			result.addAll(parent.getNamespacePrefixes());
 		}
@@ -350,6 +383,16 @@ public class Element extends Parent {
 
 	public void removeDefaultNamespace() {
 		removeNamespace(null);
+	}
+
+	@Override
+	public String getNodeType() {
+		return "Element";
+	}
+
+	@Override
+	public void setContent(final Content content, final int startOffset, final int endOffset) {
+		super.setContent(content, startOffset, endOffset);
 	}
 
 	@Override

@@ -22,7 +22,6 @@ import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
 
 import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.ISelectionProvider;
@@ -64,7 +63,6 @@ import org.eclipse.vex.core.internal.dom.DocumentFragment;
 import org.eclipse.vex.core.internal.dom.DocumentValidationException;
 import org.eclipse.vex.core.internal.dom.Element;
 import org.eclipse.vex.core.internal.dom.Node;
-import org.eclipse.vex.core.internal.dom.Range;
 import org.eclipse.vex.core.internal.layout.Box;
 import org.eclipse.vex.core.internal.layout.BoxFactory;
 import org.eclipse.vex.core.internal.widget.HostComponent;
@@ -279,16 +277,8 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 		impl.insertElement(element);
 	}
 
-	public void insertElement(final QualifiedName elementName) throws DocumentValidationException {
-		impl.insertElement(elementName);
-	}
-
 	public void insertText(final String text) throws DocumentValidationException {
 		impl.insertText(text);
-	}
-
-	public void insertComment() throws DocumentValidationException {
-		impl.insertComment();
 	}
 
 	public boolean isDebugging() {
@@ -513,7 +503,7 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 		public void fireSelectionChanged() {
 
 			if (hasSelection()) {
-				final List<Node> nodes = getDocument().getNodes(new Range(getSelectionStart(), getSelectionEnd()));
+				final List<Node> nodes = getDocument().getNodes(getSelectionStart(), getSelectionEnd());
 				selection = new StructuredSelection(nodes);
 			} else {
 				selection = new StructuredSelection(getCurrentElement());

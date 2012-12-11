@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.css;
 
-import org.eclipse.vex.core.internal.dom.Node;
+import org.eclipse.vex.core.internal.dom.Element;
 import org.w3c.css.sac.LexicalUnit;
 
 /**
@@ -28,7 +28,7 @@ public class FontWeightProperty extends AbstractProperty {
 		super(CSS.FONT_WEIGHT);
 	}
 
-	public Object calculate(final LexicalUnit lu, final Styles parentStyles, final Styles styles, final Node node) {
+	public Object calculate(final LexicalUnit lu, final Styles parentStyles, final Styles styles, final Element element) {
 		return Integer.valueOf(calculateInternal(lu, parentStyles, styles));
 	}
 

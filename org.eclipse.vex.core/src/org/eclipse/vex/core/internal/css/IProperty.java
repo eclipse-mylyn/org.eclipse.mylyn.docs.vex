@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.css;
 
-import org.eclipse.vex.core.internal.dom.Node;
+import org.eclipse.vex.core.internal.dom.Element;
 import org.w3c.css.sac.LexicalUnit;
 
 /**
@@ -37,9 +37,9 @@ public interface IProperty {
 	 * @param styles
 	 *            Styles currently in effect. Often, the calculated value depends on previously calculated styles such
 	 *            as font size and color.
-	 * @param node
-	 *            The current node for which this property is calculated. May be null.
+	 * @param element
+	 *            The current element for which this property is calculated. May be null.
 	 */
-	public Object calculate(LexicalUnit lu, Styles parentStyles, Styles styles, Node node);
+	public Object calculate(LexicalUnit lu, Styles parentStyles, Styles styles, Element element);
 
 }

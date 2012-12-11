@@ -12,8 +12,8 @@ package org.eclipse.vex.core.internal.widget;
 
 import org.eclipse.vex.core.internal.css.CSS;
 import org.eclipse.vex.core.internal.css.StyleSheet;
+import org.eclipse.vex.core.internal.dom.Element;
 import org.eclipse.vex.core.internal.dom.IWhitespacePolicy;
-import org.eclipse.vex.core.internal.dom.Node;
 
 /**
  * Implementation of WhitespacePolicy using a CSS stylesheet.
@@ -30,12 +30,12 @@ public class CssWhitespacePolicy implements IWhitespacePolicy {
 		this.styleSheet = styleSheet;
 	}
 
-	public boolean isBlock(final Node node) {
-		return styleSheet.getStyles(node).isBlock();
+	public boolean isBlock(final Element element) {
+		return styleSheet.getStyles(element).isBlock();
 	}
 
-	public boolean isPre(final Node node) {
-		return CSS.PRE.equals(styleSheet.getStyles(node).getWhiteSpace());
+	public boolean isPre(final Element element) {
+		return CSS.PRE.equals(styleSheet.getStyles(element).getWhiteSpace());
 	}
 
 	// ===================================================== PRIVATE

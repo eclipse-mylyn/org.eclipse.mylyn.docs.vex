@@ -20,11 +20,11 @@ public interface IWhitespacePolicy {
 	 * A NULL object of this type. No blocks and no pre elements.
 	 */
 	IWhitespacePolicy NULL = new IWhitespacePolicy() {
-		public boolean isBlock(final Node node) {
+		public boolean isBlock(final Element element) {
 			return false;
 		}
 
-		public boolean isPre(final Node node) {
+		public boolean isPre(final Element element) {
 			return false;
 		}
 	};
@@ -35,7 +35,7 @@ public interface IWhitespacePolicy {
 	 * @param element
 	 *            Element to test.
 	 */
-	boolean isBlock(Node node);
+	boolean isBlock(Element element);
 
 	/**
 	 * Returns true if the given element is pre-formatted, that is, all of its contained whitespace should be preserved.
@@ -43,5 +43,5 @@ public interface IWhitespacePolicy {
 	 * @param element
 	 *            Element to test.
 	 */
-	boolean isPre(Node node);
+	boolean isPre(Element element);
 }

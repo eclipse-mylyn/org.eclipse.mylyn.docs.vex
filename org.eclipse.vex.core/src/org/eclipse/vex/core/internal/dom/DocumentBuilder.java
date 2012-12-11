@@ -56,7 +56,7 @@ public class DocumentBuilder implements ContentHandler, LexicalHandler {
 
 	private final NamespaceStack namespaceStack = new NamespaceStack();
 
-	private Element rootElement;
+	private RootElement rootElement;
 
 	private final String baseUri;
 	private String dtdPublicID;
@@ -105,6 +105,7 @@ public class DocumentBuilder implements ContentHandler, LexicalHandler {
 		document = new Document(content, rootElement);
 		document.setPublicID(dtdPublicID);
 		document.setSystemID(dtdSystemID);
+		rootElement.setDocument(document);
 	}
 
 	public void endElement(final String namespaceURI, final String localName, final String qName) {
@@ -114,8 +115,8 @@ public class DocumentBuilder implements ContentHandler, LexicalHandler {
 
 		// we must insert the trailing sentinel first, else the insertion
 		// pushes the end position of the element to after the sentinel
-		content.insertElementMarker(content.length());
-		entry.element.associate(content, new Range(entry.offset, content.length() - 1));
+		content.insertElementMarker(content.getLength());
+		entry.element.setContent(content, entry.offset, content.getLength() - 1);
 
 		if (isBlock(entry.element)) {
 			trimLeading = true;
@@ -150,7 +151,7 @@ public class DocumentBuilder implements ContentHandler, LexicalHandler {
 		}
 		Element element;
 		if (stack.isEmpty()) {
-			rootElement = new Element(elementName);
+			rootElement = new RootElement(elementName);
 			element = rootElement;
 		} else {
 			element = new Element(elementName);
@@ -192,8 +193,8 @@ public class DocumentBuilder implements ContentHandler, LexicalHandler {
 
 		appendChars(isBlock(element));
 
-		stack.add(new StackEntry(element, content.length(), isPre(element)));
-		content.insertElementMarker(content.length());
+		stack.add(new StackEntry(element, content.getLength(), isPre(element)));
+		content.insertElementMarker(content.getLength());
 
 		trimLeading = true;
 
@@ -224,21 +225,21 @@ public class DocumentBuilder implements ContentHandler, LexicalHandler {
 			return;
 		}
 
-		final Comment comment = new Comment();
+		final CommentElement element = new CommentElement();
 		final Element parent = stack.getLast().element;
-		parent.addChild(comment);
+		parent.addChild(element);
 
-		appendChars(isBlock(comment));
-		final int startOffset = content.length();
-		content.insertElementMarker(content.length());
+		appendChars(isBlock(element));
+		final int startOffset = content.getLength();
+		content.insertElementMarker(content.getLength());
 
 		trimLeading = true;
 		appendPendingCharsFiltered(ch, start, length);
 		appendChars(true);
 
-		content.insertElementMarker(content.length());
-		comment.associate(content, new Range(startOffset, content.length() - 1));
-		if (isBlock(comment)) {
+		content.insertElementMarker(content.getLength());
+		element.setContent(content, startOffset, content.getLength() - 1);
+		if (isBlock(element)) {
 			trimLeading = true;
 		}
 	}
@@ -272,7 +273,7 @@ public class DocumentBuilder implements ContentHandler, LexicalHandler {
 
 		sb = cleanUpTextContent(trimTrailing);
 
-		content.insertText(content.length(), sb.toString());
+		content.insertString(content.getLength(), sb.toString());
 
 		pendingChars.setLength(0);
 		trimLeading = false;
@@ -317,12 +318,12 @@ public class DocumentBuilder implements ContentHandler, LexicalHandler {
 		return sb;
 	}
 
-	private boolean isBlock(final Node node) {
-		return policy != null && policy.isBlock(node);
+	private boolean isBlock(final Element element) {
+		return policy != null && policy.isBlock(element);
 	}
 
-	private boolean isPre(final Node node) {
-		return policy != null && policy.isPre(node);
+	private boolean isPre(final Element element) {
+		return policy != null && policy.isPre(element);
 	}
 
 	/**

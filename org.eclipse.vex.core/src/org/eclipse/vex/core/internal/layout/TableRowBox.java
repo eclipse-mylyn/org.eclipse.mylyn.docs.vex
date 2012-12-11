@@ -17,7 +17,6 @@ import java.util.List;
 import org.eclipse.vex.core.internal.core.Caret;
 import org.eclipse.vex.core.internal.core.Insets;
 import org.eclipse.vex.core.internal.dom.Element;
-import org.eclipse.vex.core.internal.dom.Parent;
 
 /**
  * Box representing a row in a table.
@@ -37,17 +36,17 @@ public class TableRowBox extends AbstractBlockBox {
 
 		final List<Box> children = new ArrayList<Box>();
 
-		final Parent parent = findContainingParent();
+		final Element element = findContainingElement();
 		final int[] widths = getTableBox().getColumnWidths();
 
-		LayoutUtils.iterateTableCells(context.getStyleSheet(), parent, getStartOffset(), getEndOffset(), new ElementOrRangeCallback() {
+		LayoutUtils.iterateTableCells(context.getStyleSheet(), element, getStartOffset(), getEndOffset(), new ElementOrRangeCallback() {
 			private int column = 0;
 
 			public void onElement(final Element child, final String displayStyle) {
 				children.add(new TableCellBox(context, TableRowBox.this, child, widths[column++]));
 			}
 
-			public void onRange(final Parent parent, final int startOffset, final int endOffset) {
+			public void onRange(final Element parent, final int startOffset, final int endOffset) {
 				children.add(new TableCellBox(context, TableRowBox.this, startOffset, endOffset, widths[column++]));
 			}
 		});

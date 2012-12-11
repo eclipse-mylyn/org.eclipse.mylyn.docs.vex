@@ -10,23 +10,24 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.dom;
 
+import org.eclipse.core.runtime.QualifiedName;
+
 /**
- * An incarantion of the <a href="http://en.wikipedia.org/wiki/Visitor_pattern">Visitor pattern</a> which handles the
- * nodes of the structural part of the DOM.
- * 
- * @author Florian Thienel
- * 
+ * Represents a comment
  */
-public interface INodeVisitor {
+public class CommentElement extends Element {
 
-	void visit(Document document);
+	public static final QualifiedName ELEMENT_NAME = new QualifiedName(null, "<!-- COMMENT -->");
 
-	void visit(DocumentFragment fragment);
+	public static final String CSS_RULE_NAME = "COMMENT";
 
-	void visit(Element element);
+	public CommentElement() {
+		super(ELEMENT_NAME);
+	}
 
-	void visit(Text text);
-
-	void visit(Comment comment);
+	@Override
+	public CommentElement clone() {
+		return new CommentElement();
+	}
 
 }

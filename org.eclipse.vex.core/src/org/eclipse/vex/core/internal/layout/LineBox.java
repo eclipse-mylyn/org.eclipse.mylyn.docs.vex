@@ -10,14 +10,14 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.layout;
 
-import org.eclipse.vex.core.internal.dom.Node;
+import org.eclipse.vex.core.internal.dom.Element;
 
 /**
  * Represents a line of text and inline images.
  */
 public class LineBox extends CompositeInlineBox {
 
-	private final Node node;
+	private final Element element;
 	private final InlineBox[] children;
 	private InlineBox firstContentChild = null;
 	private InlineBox lastContentChild = null;
@@ -31,9 +31,9 @@ public class LineBox extends CompositeInlineBox {
 	 * @param children
 	 *            InlineBoxes that make up this line.
 	 */
-	public LineBox(final LayoutContext context, final Node node, final InlineBox[] children) {
+	public LineBox(final LayoutContext context, final Element element, final InlineBox[] children) {
 
-		this.node = node;
+		this.element = element;
 		this.children = children;
 
 		int height = 0;
@@ -70,11 +70,11 @@ public class LineBox extends CompositeInlineBox {
 	}
 
 	/**
-	 * @see org.eclipse.vex.core.internal.layout.Box#getNode()
+	 * @see org.eclipse.vex.core.internal.layout.Box#getElement()
 	 */
 	@Override
-	public Node getNode() {
-		return node;
+	public Element getElement() {
+		return element;
 	}
 
 	/**
@@ -112,11 +112,11 @@ public class LineBox extends CompositeInlineBox {
 		LineBox right = null;
 
 		if (lefts.length > 0) {
-			left = new LineBox(context, getNode(), lefts);
+			left = new LineBox(context, getElement(), lefts);
 		}
 
 		if (rights.length > 0) {
-			right = new LineBox(context, getNode(), rights);
+			right = new LineBox(context, getElement(), rights);
 		}
 
 		return new Pair(left, right);

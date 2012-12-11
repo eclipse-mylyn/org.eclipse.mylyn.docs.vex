@@ -20,7 +20,7 @@ import org.eclipse.vex.core.internal.VEXCorePlugin;
 import org.eclipse.vex.core.internal.core.Graphics;
 import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.dom.Document;
-import org.eclipse.vex.core.internal.dom.Node;
+import org.eclipse.vex.core.internal.dom.Element;
 
 /**
  * Encapsulation of all the resources needed to create a box tree. Most operations on a box tree, such as creating the
@@ -79,13 +79,13 @@ public class LayoutContext {
 	}
 
 	/**
-	 * Helper method that returns true if the given node is in the selected range.
+	 * Helper method that returns true if the given element is in the selected range.
 	 * 
-	 * @param node
-	 *            Node to test. May be null, in which case this method returns false.
+	 * @param element
+	 *            Element to test. May be null, in which case this method returns false.
 	 */
-	public boolean isNodeSelected(final Node node) {
-		return node != null && node.getStartOffset() >= getSelectionStart() && node.getEndOffset() + 1 <= getSelectionEnd();
+	public boolean isElementSelected(final Element element) {
+		return element != null && element.getStartOffset() >= getSelectionStart() && element.getEndOffset() + 1 <= getSelectionEnd();
 	}
 
 	/**

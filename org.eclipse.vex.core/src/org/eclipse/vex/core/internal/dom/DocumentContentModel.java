@@ -38,11 +38,11 @@ public class DocumentContentModel implements EntityResolver {
 	public DocumentContentModel() {
 	}
 
-	public DocumentContentModel(final String baseUri, final String publicId, final String systemId, final Element rootElement) {
+	public DocumentContentModel(final String baseUri, final String publicId, final String systemId, final RootElement rootElement) {
 		initialize(baseUri, publicId, systemId, rootElement);
 	}
 
-	public void initialize(final String baseUri, final String publicId, final String systemId, final Element rootElement) {
+	public void initialize(final String baseUri, final String publicId, final String systemId, final RootElement rootElement) {
 		this.baseUri = baseUri;
 		this.publicId = publicId;
 		this.systemId = systemId;

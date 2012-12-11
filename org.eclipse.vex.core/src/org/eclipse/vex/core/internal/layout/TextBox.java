@@ -17,7 +17,7 @@ import org.eclipse.vex.core.internal.core.FontResource;
 import org.eclipse.vex.core.internal.core.FontSpec;
 import org.eclipse.vex.core.internal.core.Graphics;
 import org.eclipse.vex.core.internal.css.Styles;
-import org.eclipse.vex.core.internal.dom.Node;
+import org.eclipse.vex.core.internal.dom.Element;
 
 /**
  * An inline box containing text. The <code>getText</code> and <code>splitAt</code> methods are abstract and must be
@@ -25,7 +25,7 @@ import org.eclipse.vex.core.internal.dom.Node;
  */
 public abstract class TextBox extends AbstractInlineBox implements InlineBox {
 
-	private final Node node;
+	private final Element element;
 	private int baseline;
 
 	public static final char NEWLINE_CHAR = 0xa;
@@ -34,11 +34,11 @@ public abstract class TextBox extends AbstractInlineBox implements InlineBox {
 	/**
 	 * Class constructor.
 	 * 
-	 * @param node
-	 *            Node containing the text. This is used for styling information.
+	 * @param element
+	 *            Element containing the text. This is used for styling information.
 	 */
-	public TextBox(final Node node) {
-		this.node = node;
+	public TextBox(final Element element) {
+		this.element = element;
 	}
 
 	/**
@@ -55,7 +55,7 @@ public abstract class TextBox extends AbstractInlineBox implements InlineBox {
 		}
 
 		final Graphics g = context.getGraphics();
-		final Styles styles = context.getStyleSheet().getStyles(getNode());
+		final Styles styles = context.getStyleSheet().getStyles(getElement());
 		final FontResource font = g.createFont(styles.getFont());
 		final FontResource oldFont = g.setFont(font);
 		final FontMetrics fm = g.getFontMetrics();
@@ -80,7 +80,7 @@ public abstract class TextBox extends AbstractInlineBox implements InlineBox {
 	@Override
 	public Caret getCaret(final LayoutContext context, final int offset) {
 		final Graphics g = context.getGraphics();
-		final Styles styles = context.getStyleSheet().getStyles(node);
+		final Styles styles = context.getStyleSheet().getStyles(element);
 		final FontResource oldFont = g.getFont();
 		final FontResource font = g.createFont(styles.getFont());
 		g.setFont(font);
@@ -92,11 +92,11 @@ public abstract class TextBox extends AbstractInlineBox implements InlineBox {
 	}
 
 	/**
-	 * Returns the node that controls the styling for this text box.
+	 * Returns the element that controls the styling for this text element.
 	 */
 	@Override
-	public Node getNode() {
-		return node;
+	public Element getElement() {
+		return element;
 	}
 
 	/**
@@ -137,11 +137,11 @@ public abstract class TextBox extends AbstractInlineBox implements InlineBox {
 		final Graphics g = context.getGraphics();
 
 		boolean inSelectedBlock = false;
-		Node e = getNode();
+		Element e = getElement();
 		while (e != null) {
 			final Styles styles = context.getStyleSheet().getStyles(e);
 			if (styles.isBlock()) {
-				if (context.isNodeSelected(e)) {
+				if (context.isElementSelected(e)) {
 					inSelectedBlock = true;
 				}
 				break;
@@ -216,7 +216,7 @@ public abstract class TextBox extends AbstractInlineBox implements InlineBox {
 		}
 
 		final Graphics g = context.getGraphics();
-		final Styles styles = context.getStyleSheet().getStyles(node);
+		final Styles styles = context.getStyleSheet().getStyles(element);
 		final FontResource font = g.createFont(styles.getFont());
 		final FontResource oldFont = g.setFont(font);
 

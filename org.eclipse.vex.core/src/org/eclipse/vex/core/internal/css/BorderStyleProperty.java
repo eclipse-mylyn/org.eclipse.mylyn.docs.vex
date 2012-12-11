@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.css;
 
-import org.eclipse.vex.core.internal.dom.Node;
+import org.eclipse.vex.core.internal.dom.Element;
 import org.w3c.css.sac.LexicalUnit;
 
 /**
@@ -46,7 +46,7 @@ public class BorderStyleProperty extends AbstractProperty {
 		return false;
 	}
 
-	public Object calculate(final LexicalUnit lu, final Styles parentStyles, final Styles styles, final Node node) {
+	public Object calculate(final LexicalUnit lu, final Styles parentStyles, final Styles styles, final Element element) {
 		if (isBorderStyle(lu)) {
 			return lu.getStringValue();
 		} else if (isInherit(lu) && parentStyles != null) {

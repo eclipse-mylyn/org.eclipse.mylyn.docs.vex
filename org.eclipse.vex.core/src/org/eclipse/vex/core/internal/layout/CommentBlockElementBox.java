@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.vex.core.internal.VEXCorePlugin;
-import org.eclipse.vex.core.internal.dom.Node;
+import org.eclipse.vex.core.internal.dom.Element;
 
 /**
  * @author Florian Thienel
@@ -24,8 +24,8 @@ public class CommentBlockElementBox extends BlockElementBox {
 	private static final String AFTER_TEXT = "-->";
 	private static final String BEFORE_TEXT = "<!--";
 
-	public CommentBlockElementBox(final LayoutContext context, final BlockBox parent, final Node node) {
-		super(context, parent, node);
+	public CommentBlockElementBox(final LayoutContext context, final BlockBox parent, final Element element) {
+		super(context, parent, element);
 	}
 
 	@Override
@@ -35,28 +35,28 @@ public class CommentBlockElementBox extends BlockElementBox {
 			start = System.currentTimeMillis();
 		}
 
-		final Node node = getNode();
+		final Element element = getElement();
 		final int width = getWidth();
 
 		final List<Box> childList = new ArrayList<Box>();
 
 		// :before content
 		final List<InlineBox> beforeInlines = new ArrayList<InlineBox>();
-		beforeInlines.add(new StaticTextBox(context, node, BEFORE_TEXT));
+		beforeInlines.add(new StaticTextBox(context, element, BEFORE_TEXT));
 
 		// :after content
 		final List<InlineBox> afterInlines = new ArrayList<InlineBox>();
-		afterInlines.add(new StaticTextBox(context, node, AFTER_TEXT));
+		afterInlines.add(new StaticTextBox(context, element, AFTER_TEXT));
 
-		final int startOffset = node.getStartOffset() + 1;
-		final int endOffset = node.getEndOffset();
+		final int startOffset = element.getStartOffset() + 1;
+		final int endOffset = element.getEndOffset();
 		final List<Box> blockBoxes = createBlockBoxes(context, startOffset, endOffset, width, beforeInlines, afterInlines);
 		childList.addAll(blockBoxes);
 
 		if (VEXCorePlugin.getInstance().isDebugging()) {
 			final long end = System.currentTimeMillis();
 			if (end - start > 10) {
-				System.out.println("CommentBlockElementBox.layout for " + getNode() + " took " + (end - start) + "ms");
+				System.out.println("CommentBlockElementBox.layout for " + getElement().getPrefixedName() + " took " + (end - start) + "ms");
 			}
 		}
 
