@@ -658,6 +658,17 @@ releaseinfo:before {
 	font-weight: bold;
 }
 
+remark {
+	font-style: italic;
+	color: #b44
+}
+
+remark:before {
+	content: "Remark: ";
+	font-weight: bold;
+	color: #b44
+}
+
 replaceable {
 	display: inline;
 	font-family: "Times New Roman", serif;
@@ -967,6 +978,13 @@ warning:before {
 
 xref {
 	display: inline;
+	color: blue;
+	font-style: italic;	
+}
+
+xref:before {
+	display: inline;
+	content: "XRef: " attr(endterm);
 }
 
 year {

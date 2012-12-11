@@ -2,7 +2,7 @@
 <feature
       id="org.eclipse.vex.feature"
       label="%featureName"
-      version="1.0.0.qualifier"
+      version="1.1.0.qualifier"
       provider-name="%providerName"
       plugin="org.eclipse.vex"
       image="vex32.png"
@@ -21,7 +21,7 @@
    </license>
 
    <url>
-      <update label="Vex 1.0" url="http://download.eclipse.org/vex/releases/1.0"/>
+      <update label="Vex 1.1" url="http://download.eclipse.org/vex/releases/1.1"/>
    </url>
 
    <requires>
@@ -32,7 +32,7 @@
       <import plugin="org.eclipse.core.resources" version="3.4.0" match="compatible"/>
       <import plugin="org.eclipse.ui.ide" version="3.4.0" match="compatible"/>
       <import plugin="org.eclipse.ui.editors" version="3.4.0" match="compatible"/>
-      <import plugin="org.eclipse.vex.core" version="1.0.0" match="compatible"/>
+      <import plugin="org.eclipse.vex.core" version="1.1.0" match="compatible"/>
       <import plugin="org.w3c.css.sac" version="1.3.0" match="compatible"/>
       <import plugin="org.eclipse.jface.text" version="3.4.0" match="compatible"/>
       <import plugin="org.eclipse.wst.sse.core" version="1.1.0" match="compatible"/>
@@ -48,7 +48,7 @@
       <import plugin="org.apache.xerces" version="2.9.0" match="compatible"/>
       <import plugin="org.apache.batik.css" version="1.7.0" match="greaterOrEqual"/>
       <import plugin="org.apache.batik.util" version="1.7.0" match="greaterOrEqual"/>
-      <import plugin="org.eclipse.vex.ui" version="1.0.0" match="compatible"/>
+      <import plugin="org.eclipse.vex.ui" version="1.1.0" match="compatible"/>
       <import plugin="org.eclipse.jface" version="3.4.0" match="compatible"/>
       <import plugin="org.eclipse.emf.common" version="2.4.1" match="compatible"/>
       <import plugin="org.eclipse.emf.ecore" version="2.4.1"/>
@@ -58,7 +58,7 @@
       <import plugin="org.w3c.dom.svg"/>
       <import plugin="org.apache.batik.util.gui" version="1.7.0" match="equivalent"/>
       <import plugin="org.eclipse.core.contenttype"/>
-      <import plugin="org.eclipse.vex.xhtml" version="1.0.0" match="compatible"/>
+      <import plugin="org.eclipse.vex.xhtml" version="1.1.0" match="compatible"/>
    </requires>
 
    <plugin
