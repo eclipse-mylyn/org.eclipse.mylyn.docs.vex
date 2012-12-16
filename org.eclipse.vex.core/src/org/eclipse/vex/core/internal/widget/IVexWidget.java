@@ -183,16 +183,6 @@ public interface IVexWidget {
 	public int getLayoutWidth();
 
 	/**
-	 * Returns the offset at which the selection ends. <b>The selection end is not included in the selection.</b>
-	 */
-	public int getSelectionEnd();
-
-	/**
-	 * Returns the offset at which the selection starts.
-	 */
-	public int getSelectionStart();
-
-	/**
 	 * Returns the offset range in the content which is selected.
 	 */
 	public Range getSelectedRange();

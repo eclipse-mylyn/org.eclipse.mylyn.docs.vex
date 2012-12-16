@@ -18,7 +18,6 @@ import static org.junit.Assert.assertTrue;
 
 import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.dom.Element;
-import org.eclipse.vex.core.internal.dom.Range;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -42,8 +41,7 @@ public class L2SelectionTest {
 		final Element titleElement = widget.insertElement(TITLE);
 		widget.moveBy(-1, true);
 		assertTrue(widget.hasSelection());
-		assertEquals(titleElement.getStartOffset(), widget.getSelectionStart());
-		assertEquals(titleElement.getEndOffset(), widget.getSelectionEnd());
+		assertEquals(titleElement.getRange().moveBounds(0, -1), widget.getSelectedRange());
 	}
 
 	@Test
@@ -53,8 +51,7 @@ public class L2SelectionTest {
 		widget.moveBy(-5, false);
 		widget.moveTo(titleElement.getStartOffset(), true);
 		assertTrue(widget.hasSelection());
-		assertEquals(titleElement.getStartOffset(), widget.getSelectionStart());
-		assertEquals(titleElement.getEndOffset(), widget.getSelectionEnd());
+		assertEquals(titleElement.getRange().moveBounds(0, -1), widget.getSelectedRange());
 	}
 
 	@Test
@@ -63,8 +60,7 @@ public class L2SelectionTest {
 		widget.insertText("Hello World");
 		widget.moveBy(1, true);
 		assertTrue(widget.hasSelection());
-		assertEquals(titleElement.getStartOffset(), widget.getSelectionStart());
-		assertEquals(titleElement.getEndOffset() + 1, widget.getSelectionEnd());
+		assertEquals(titleElement.getRange(), widget.getSelectedRange());
 	}
 
 	@Test
@@ -72,9 +68,6 @@ public class L2SelectionTest {
 		final Element titleElement = widget.insertElement(TITLE);
 		widget.insertText("Hello World");
 		widget.moveTo(titleElement.getStartOffset() + 1, true);
-
-		assertEquals(titleElement.getStartOffset() + 1, widget.getSelectionStart());
-		assertEquals(titleElement.getEndOffset(), widget.getSelectionEnd());
-		assertEquals(new Range(titleElement.getStartOffset() + 1, titleElement.getEndOffset() - 1), widget.getSelectedRange());
+		assertEquals(titleElement.getRange().moveBounds(1, -1), widget.getSelectedRange());
 	}
 }

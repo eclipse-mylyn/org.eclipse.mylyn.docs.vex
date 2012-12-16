@@ -36,7 +36,7 @@ public class DuplicateSelectionHandler extends AbstractVexWidgetHandler {
 				}
 
 				widget.copySelection();
-				final int startOffset = widget.getSelectionEnd();
+				final int startOffset = widget.getSelectedRange().getEndOffset() + 1;
 				widget.moveTo(startOffset);
 				widget.paste();
 				final int endOffset = widget.getCaretOffset();
