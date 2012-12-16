@@ -239,6 +239,10 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 		return impl.getSelectionStart();
 	}
 
+	public Range getSelectedRange() {
+		return impl.getSelectedRange();
+	}
+
 	public DocumentFragment getSelectedFragment() {
 		return impl.getSelectedFragment();
 	}

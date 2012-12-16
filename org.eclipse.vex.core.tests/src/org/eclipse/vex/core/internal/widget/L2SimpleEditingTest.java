@@ -208,4 +208,15 @@ public class L2SimpleEditingTest {
 		assertNull(para2.getParent());
 		assertFalse(para2.isAssociated());
 	}
+
+	@Test
+	public void givenElementWithText_whenAllTextSelectedAndInsertingACharacter_shouldReplaceAllTextWithNewCharacter() throws Exception {
+		final Element titleElement = widget.insertElement(TITLE);
+		widget.insertText("Hello World");
+
+		widget.moveTo(titleElement.getStartOffset() + 1, true);
+		widget.insertChar('A');
+
+		assertEquals("A", titleElement.getText());
+	}
 }

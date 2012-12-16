@@ -310,23 +310,22 @@ public class VexWidgetImpl implements IVexWidget {
 			final int offset = getCaretOffset();
 			final Document doc = getDocument();
 			final int n = doc.getLength() - 1;
-			final Element element = doc.getElementForInsertionAt(offset);
-
 			if (offset == n) {
 				// nop
 			} else if (isBetweenMatchingElements(offset)) {
 				joinElementsAt(offset);
 			} else if (isBetweenMatchingElements(offset + 1)) {
 				joinElementsAt(offset + 1);
-			} else if (element.isEmpty()) {
+			} else if (doc.getElementForInsertionAt(offset).isEmpty()) {
 				// deleting the right sentinel of an empty element
 				// so just delete the whole element an move on
-				this.moveTo(offset - 1, true);
+				moveBy(1);
+				moveBy(-2, true);
 				deleteSelection();
 			} else if (doc.getElementForInsertionAt(offset + 1).isEmpty()) {
 				// deleting the left sentinel of an empty element
 				// so just delete the whole element an move on
-				this.moveTo(offset + 1, true);
+				moveBy(2, true);
 				deleteSelection();
 			} else if (!doc.isElementAt(offset)) {
 				deleteNextToCaret();
@@ -340,24 +339,22 @@ public class VexWidgetImpl implements IVexWidget {
 		} else {
 			int offset = getCaretOffset();
 			final Document doc = getDocument();
-			final Element element = doc.getElementForInsertionAt(offset);
-
 			if (offset == 1) {
 				// nop
 			} else if (isBetweenMatchingElements(offset)) {
 				joinElementsAt(offset);
 			} else if (isBetweenMatchingElements(offset - 1)) {
 				joinElementsAt(offset - 1);
-			} else if (element.isEmpty()) {
+			} else if (doc.getElementForInsertionAt(offset).isEmpty()) {
 				// deleting the left sentinel of an empty element
 				// so just delete the whole element an move on
-				this.moveTo(offset - 1, true);
+				moveBy(1);
+				moveBy(-2, true);
 				deleteSelection();
 			} else if (doc.getElementForInsertionAt(offset - 1).isEmpty()) {
 				// deleting the right sentinel of an empty element
 				// so just delete the whole element an move on
-				this.moveTo(offset - 1, false);
-				this.moveTo(offset - 2, true);
+				moveBy(-2, true);
 				deleteSelection();
 			} else {
 				offset--;
@@ -371,7 +368,7 @@ public class VexWidgetImpl implements IVexWidget {
 	public void deleteSelection() {
 		try {
 			if (hasSelection()) {
-				applyEdit(new DeleteEdit(document, new Range(getSelectionStart(), getSelectionEnd())), getSelectionStart());
+				applyEdit(new DeleteEdit(document, getSelectedRange()), getSelectionStart());
 				this.moveTo(getSelectionStart());
 			}
 		} catch (final DocumentValidationException e) {
@@ -669,9 +666,16 @@ public class VexWidgetImpl implements IVexWidget {
 		return selectionStart;
 	}
 
+	public Range getSelectedRange() {
+		if (!hasSelection()) {
+			return new Range(getCaretOffset(), getCaretOffset());
+		}
+		return new Range(getSelectionStart(), getSelectionEnd() - 1);
+	}
+
 	public DocumentFragment getSelectedFragment() {
 		if (hasSelection()) {
-			return document.getFragment(new Range(getSelectionStart(), getSelectionEnd()));
+			return document.getFragment(getSelectedRange());
 		} else {
 			return null;
 		}
@@ -679,7 +683,7 @@ public class VexWidgetImpl implements IVexWidget {
 
 	public String getSelectedText() {
 		if (hasSelection()) {
-			return document.getText(new Range(getSelectionStart(), getSelectionEnd()));
+			return document.getText(getSelectedRange());
 		} else {
 			return "";
 		}
@@ -1483,22 +1487,33 @@ public class VexWidgetImpl implements IVexWidget {
 		boolean success = false;
 		try {
 			beginWork();
-			this.moveTo(offset + 1);
-			final Element element = getCurrentElement();
-			final boolean moveContent = !element.isEmpty();
-			DocumentFragment frag = null;
-			if (moveContent) {
-				this.moveTo(element.getEndOffset() - 1, true);
-				frag = getSelectedFragment();
+
+			// get the second element
+			moveTo(offset + 1);
+			final Element secondElement = getCurrentElement();
+
+			// p<reserve the second element's content
+			final boolean shouldMoveContent = !secondElement.isEmpty();
+			final DocumentFragment preservedContent;
+			if (shouldMoveContent) {
+				moveTo(secondElement.getEndOffset(), true);
+				preservedContent = getSelectedFragment();
 				deleteSelection();
+			} else {
+				preservedContent = null;
 			}
-			this.moveBy(-1, true);
+
+			// delete the empty element
+			moveBy(1);
+			moveBy(-2, true);
 			deleteSelection();
-			this.moveBy(-1);
-			if (moveContent) {
+
+			// insert the preserved content into the first element
+			moveBy(-1);
+			if (shouldMoveContent) {
 				final int savedOffset = getCaretOffset();
-				insertFragment(frag);
-				this.moveTo(savedOffset, false);
+				insertFragment(preservedContent);
+				moveTo(savedOffset, false);
 			}
 			success = true;
 		} finally {
