@@ -27,6 +27,7 @@ import org.eclipse.vex.core.internal.dom.Document;
 import org.eclipse.vex.core.internal.dom.Element;
 import org.eclipse.vex.core.internal.dom.Node;
 import org.eclipse.vex.core.internal.dom.Parent;
+import org.eclipse.vex.core.internal.dom.Range;
 import org.eclipse.vex.core.internal.layout.BlockBox;
 import org.eclipse.vex.core.internal.layout.Box;
 import org.eclipse.vex.core.internal.layout.ElementOrRangeCallback;
@@ -170,7 +171,8 @@ public final class VexHandlerUtil {
 	 */
 	public static boolean elementOrRangeIsPartiallySelected(final IVexWidget vexWidget, final Object elementOrRange) {
 		final IntRange range = getInnerRange(elementOrRange);
-		return range.getEnd() >= vexWidget.getSelectionStart() && range.getStart() <= vexWidget.getSelectionEnd();
+		final Range selectedRange = vexWidget.getSelectedRange();
+		return range.getEnd() >= selectedRange.getStartOffset() && range.getStart() <= selectedRange.getEndOffset();
 	}
 
 	/**
@@ -237,7 +239,7 @@ public final class VexHandlerUtil {
 		int startOffset;
 
 		if (vexWidget.hasSelection()) {
-			startOffset = vexWidget.getSelectionStart();
+			startOffset = vexWidget.getSelectedRange().getStartOffset();
 		} else {
 			final Box box = vexWidget.findInnermostBox(new IBoxFilter() {
 				public boolean matches(final Box box) {
@@ -280,7 +282,8 @@ public final class VexHandlerUtil {
 		final Box parent = vexWidget.findInnermostBox(new IBoxFilter() {
 			public boolean matches(final Box box) {
 				System.out.println("Matching " + box);
-				return box instanceof BlockBox && box.getStartOffset() <= vexWidget.getSelectionStart() && box.getEndOffset() >= vexWidget.getSelectionEnd();
+				final Range selectedRange = vexWidget.getSelectedRange();
+				return box instanceof BlockBox && box.getStartOffset() <= selectedRange.getStartOffset() && box.getEndOffset() >= selectedRange.getEndOffset();
 			}
 		});
 
@@ -290,8 +293,9 @@ public final class VexHandlerUtil {
 
 		final Box[] children = parent.getChildren();
 		System.out.println("Parent has " + children.length + " children");
+		final Range selectedRange = vexWidget.getSelectedRange();
 		for (final Box child : children) {
-			if (child instanceof BlockBox && child.getStartOffset() >= vexWidget.getSelectionStart() && child.getEndOffset() <= vexWidget.getSelectionEnd()) {
+			if (child instanceof BlockBox && child.getStartOffset() >= selectedRange.getStartOffset() && child.getEndOffset() <= selectedRange.getEndOffset()) {
 				System.out.println("  adding " + child);
 				blockList.add((BlockBox) child);
 			} else {

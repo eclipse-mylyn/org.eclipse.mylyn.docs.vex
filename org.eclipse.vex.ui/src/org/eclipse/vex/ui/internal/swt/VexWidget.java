@@ -231,14 +231,6 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 		return impl.getLayoutWidth();
 	}
 
-	public int getSelectionEnd() {
-		return impl.getSelectionEnd();
-	}
-
-	public int getSelectionStart() {
-		return impl.getSelectionStart();
-	}
-
 	public Range getSelectedRange() {
 		return impl.getSelectedRange();
 	}
@@ -529,7 +521,7 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 		public void fireSelectionChanged() {
 
 			if (hasSelection()) {
-				final List<Node> nodes = getDocument().getNodes(new Range(getSelectionStart(), getSelectionEnd()));
+				final List<Node> nodes = getDocument().getNodes(getSelectedRange());
 				selection = new StructuredSelection(nodes);
 			} else {
 				selection = new StructuredSelection(getCurrentElement());

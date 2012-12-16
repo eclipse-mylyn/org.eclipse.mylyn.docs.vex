@@ -761,18 +761,18 @@ public class VexEditor extends EditorPart {
 
 				@Override
 				protected int getSelectionStart() {
-					return getVexWidget().getSelectionStart();
+					return getVexWidget().getSelectedRange().getStartOffset();
 				}
 
 				@Override
 				protected int getSelectionEnd() {
-					return getVexWidget().getSelectionEnd();
+					return getVexWidget().getSelectedRange().getEndOffset();
 				}
 
 				@Override
 				protected void setSelection(final int start, final int end) {
 					getVexWidget().moveTo(start);
-					getVexWidget().moveTo(end, true);
+					getVexWidget().moveTo(end + 1, true);
 				}
 
 				@Override

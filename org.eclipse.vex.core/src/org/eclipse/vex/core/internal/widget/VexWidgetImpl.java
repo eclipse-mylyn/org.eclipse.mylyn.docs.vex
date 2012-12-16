@@ -658,11 +658,11 @@ public class VexWidgetImpl implements IVexWidget {
 		return result;
 	}
 
-	public int getSelectionEnd() {
+	private int getSelectionEnd() {
 		return selectionEnd;
 	}
 
-	public int getSelectionStart() {
+	private int getSelectionStart() {
 		return selectionStart;
 	}
 
