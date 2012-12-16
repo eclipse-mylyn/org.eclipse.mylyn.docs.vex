@@ -103,10 +103,10 @@ public abstract class Parent extends Node {
 	 *            the end offset of the range
 	 * @return all child nodes which are completely within the given range plus the textual content
 	 */
-	public List<Node> getChildNodes(final Range range) {
+	public List<Node> getChildNodes(final ContentRange range) {
 		final List<Node> result = new ArrayList<Node>();
 
-		final Range trimmedRange = range.trimTo(getRange());
+		final ContentRange trimmedRange = range.trimTo(getRange());
 		int textStart = trimmedRange.getStartOffset();
 		for (final Node child : children) {
 			if (!child.isAssociated()) {
@@ -126,9 +126,9 @@ public abstract class Parent extends Node {
 		final int textStart = findNextTextStart(startOffset, endOffset);
 		final int textEnd = findNextTextEnd(endOffset, textStart);
 		if (textStart < textEnd) {
-			result.add(new Text(this, getContent(), new Range(textStart, textEnd)));
+			result.add(new Text(this, getContent(), new ContentRange(textStart, textEnd)));
 		} else if (textStart == textEnd && !getContent().isElementMarker(textStart)) {
-			result.add(new Text(this, getContent(), new Range(textStart, textEnd)));
+			result.add(new Text(this, getContent(), new ContentRange(textStart, textEnd)));
 		}
 	}
 
@@ -150,14 +150,14 @@ public abstract class Parent extends Node {
 		if (offset <= getStartOffset()) {
 			return Collections.emptyList();
 		}
-		return getChildNodes(new Range(getStartOffset() + 1, offset));
+		return getChildNodes(new ContentRange(getStartOffset() + 1, offset));
 	}
 
 	public List<Node> getChildNodesAfter(final int offset) {
 		if (offset >= getEndOffset()) {
 			return Collections.emptyList();
 		}
-		return getChildNodes(new Range(offset, getEndOffset() - 1));
+		return getChildNodes(new ContentRange(offset, getEndOffset() - 1));
 	}
 
 	/**

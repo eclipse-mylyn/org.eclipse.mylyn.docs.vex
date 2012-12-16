@@ -115,7 +115,7 @@ public class DocumentBuilder implements ContentHandler, LexicalHandler {
 		// we must insert the trailing sentinel first, else the insertion
 		// pushes the end position of the element to after the sentinel
 		content.insertElementMarker(content.length());
-		entry.element.associate(content, new Range(entry.offset, content.length() - 1));
+		entry.element.associate(content, new ContentRange(entry.offset, content.length() - 1));
 
 		if (isBlock(entry.element)) {
 			trimLeading = true;
@@ -237,7 +237,7 @@ public class DocumentBuilder implements ContentHandler, LexicalHandler {
 		appendChars(true);
 
 		content.insertElementMarker(content.length());
-		comment.associate(content, new Range(startOffset, content.length() - 1));
+		comment.associate(content, new ContentRange(startOffset, content.length() - 1));
 		if (isBlock(comment)) {
 			trimLeading = true;
 		}

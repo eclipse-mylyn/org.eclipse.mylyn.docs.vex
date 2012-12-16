@@ -25,7 +25,7 @@ import org.eclipse.vex.core.internal.dom.BaseNodeVisitor;
 import org.eclipse.vex.core.internal.dom.Comment;
 import org.eclipse.vex.core.internal.dom.Element;
 import org.eclipse.vex.core.internal.dom.Node;
-import org.eclipse.vex.core.internal.dom.Range;
+import org.eclipse.vex.core.internal.dom.ContentRange;
 import org.eclipse.vex.core.internal.dom.Text;
 
 /**
@@ -283,7 +283,7 @@ public class InlineElementBox extends CompositeInlineBox {
 		node.accept(new BaseNodeVisitor() {
 			@Override
 			public void visit(final Element element) {
-				for (final Node childNode : element.getChildNodes(new Range(startOffset, endOffset))) {
+				for (final Node childNode : element.getChildNodes(new ContentRange(startOffset, endOffset))) {
 					childNode.accept(new BaseNodeVisitor() {
 						@Override
 						public void visit(final Element element) {

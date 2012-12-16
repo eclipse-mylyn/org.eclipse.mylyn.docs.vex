@@ -36,7 +36,7 @@ public class DeepCopy {
 	public DeepCopy(final Node node) {
 		final int delta;
 		if (node.isAssociated()) {
-			final Range range = node.getRange();
+			final ContentRange range = node.getRange();
 			delta = -range.getStartOffset();
 			content = node.getContent().getContent(range);
 		} else {
@@ -56,7 +56,7 @@ public class DeepCopy {
 	 * @param range
 	 *            the range to copy
 	 */
-	public DeepCopy(final Parent parent, final Range range) {
+	public DeepCopy(final Parent parent, final ContentRange range) {
 		final int delta;
 		if (parent.isAssociated()) {
 			delta = -range.getStartOffset();

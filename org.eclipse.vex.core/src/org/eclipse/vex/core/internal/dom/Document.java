@@ -262,7 +262,7 @@ public class Document extends Parent {
 		final Comment comment = new Comment();
 		getContent().insertElementMarker(offset);
 		getContent().insertElementMarker(offset);
-		comment.associate(getContent(), new Range(offset, offset + 1));
+		comment.associate(getContent(), new ContentRange(offset, offset + 1));
 
 		parent.insertChild(parent.getInsertionIndex(offset), comment);
 
@@ -288,7 +288,7 @@ public class Document extends Parent {
 		final Element element = new Element(elementName);
 		getContent().insertElementMarker(offset);
 		getContent().insertElementMarker(offset);
-		element.associate(getContent(), new Range(offset, offset + 1));
+		element.associate(getContent(), new ContentRange(offset, offset + 1));
 
 		parent.insertChild(parent.getInsertionIndex(offset), element);
 
@@ -327,7 +327,7 @@ public class Document extends Parent {
 		fireContentInserted(new DocumentEvent(this, parent, offset, fragment.getContent().length(), null));
 	}
 
-	public void delete(final Range range) throws DocumentValidationException {
+	public void delete(final ContentRange range) throws DocumentValidationException {
 		final Parent surroundingParent = getParentAt(range.getStartOffset());
 		final Parent parentAtEndOffset = getParentAt(range.getEndOffset());
 		if (surroundingParent != parentAtEndOffset) {
@@ -378,7 +378,7 @@ public class Document extends Parent {
 	 */
 
 	public char getCharacterAt(final int offset) {
-		final String text = getContent().getText(new Range(offset, offset));
+		final String text = getContent().getText(new ContentRange(offset, offset));
 		if (text.length() == 0) {
 			/*
 			 * XXX This is used in VexWidgetImpl.deleteNextChar/deletePreviousChar to find out if there is an element
@@ -452,13 +452,13 @@ public class Document extends Parent {
 		return getContent().isElementMarker(offset);
 	}
 
-	public DocumentFragment getFragment(final Range range) {
+	public DocumentFragment getFragment(final ContentRange range) {
 		final Parent parent = getParentOfRange(range);
 		final DeepCopy deepCopy = new DeepCopy(parent, range);
 		return new DocumentFragment(deepCopy.getContent(), deepCopy.getNodes());
 	}
 
-	private Parent getParentOfRange(final Range range) {
+	private Parent getParentOfRange(final ContentRange range) {
 		Assert.isTrue(getRange().contains(range));
 
 		final Node startNode = getChildNodeAt(range.getStartOffset());
@@ -470,7 +470,7 @@ public class Document extends Parent {
 		return parent;
 	}
 
-	public List<Node> getNodes(final Range range) {
+	public List<Node> getNodes(final ContentRange range) {
 		return getParentOfRange(range).getChildNodes(range);
 	}
 

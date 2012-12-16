@@ -55,7 +55,7 @@ public abstract class Node {
 	 * @param endOffset
 	 *            offset at which the node's content ends
 	 */
-	public void associate(final Content content, final Range range) {
+	public void associate(final Content content, final ContentRange range) {
 		if (isAssociated()) {
 			dissociate();
 		}
@@ -112,8 +112,8 @@ public abstract class Node {
 		return endPosition.getOffset();
 	}
 
-	public Range getRange() {
-		return new Range(getStartOffset(), getEndOffset());
+	public ContentRange getRange() {
+		return new ContentRange(getStartOffset(), getEndOffset());
 	}
 
 	/**
@@ -141,7 +141,7 @@ public abstract class Node {
 	 *            the range's end offst
 	 * @return true if this node is fully within the given range
 	 */
-	public boolean isInRange(final Range range) {
+	public boolean isInRange(final ContentRange range) {
 		if (!isAssociated()) {
 			return false;
 		}
@@ -166,7 +166,7 @@ public abstract class Node {
 	 *            the end offset
 	 * @return the textual content in the given range
 	 */
-	public String getText(final Range range) {
+	public String getText(final ContentRange range) {
 		Assert.isTrue(isAssociated(), "Node must be associated to a Content region to have textual content.");
 		return content.getText(range.trimTo(getRange()));
 	}

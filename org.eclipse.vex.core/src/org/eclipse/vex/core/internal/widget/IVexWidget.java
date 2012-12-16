@@ -20,7 +20,7 @@ import org.eclipse.vex.core.internal.dom.Document;
 import org.eclipse.vex.core.internal.dom.DocumentFragment;
 import org.eclipse.vex.core.internal.dom.DocumentValidationException;
 import org.eclipse.vex.core.internal.dom.Element;
-import org.eclipse.vex.core.internal.dom.Range;
+import org.eclipse.vex.core.internal.dom.ContentRange;
 import org.eclipse.vex.core.internal.layout.Box;
 import org.eclipse.vex.core.internal.layout.BoxFactory;
 import org.eclipse.vex.core.internal.undo.CannotRedoException;
@@ -185,7 +185,7 @@ public interface IVexWidget {
 	/**
 	 * Returns the offset range in the content which is selected.
 	 */
-	public Range getSelectedRange();
+	public ContentRange getSelectedRange();
 
 	/**
 	 * Returns the currently selected document fragment, or null if there is no current selection.

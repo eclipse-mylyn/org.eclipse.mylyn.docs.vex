@@ -17,12 +17,12 @@ import org.eclipse.core.runtime.Assert;
 /**
  * @author Florian Thienel
  */
-public class Range {
+public class ContentRange {
 
 	private final int startOffset;
 	private final int endOffset;
 
-	public Range(final int startOffset, final int endOffset) {
+	public ContentRange(final int startOffset, final int endOffset) {
 		Assert.isTrue(startOffset <= endOffset, MessageFormat.format("startOffset {0} must not be greater than endOffset {1}", startOffset, endOffset));
 		this.startOffset = startOffset;
 		this.endOffset = endOffset;
@@ -40,7 +40,7 @@ public class Range {
 		return endOffset - startOffset + 1;
 	}
 
-	public boolean contains(final Range other) {
+	public boolean contains(final ContentRange other) {
 		return startOffset <= other.startOffset && endOffset >= other.endOffset;
 	}
 
@@ -48,16 +48,16 @@ public class Range {
 		return startOffset <= offset && offset <= endOffset;
 	}
 
-	public Range trimTo(final Range limit) {
-		return new Range(Math.max(limit.getStartOffset(), startOffset), Math.min(endOffset, limit.getEndOffset()));
+	public ContentRange trimTo(final ContentRange limit) {
+		return new ContentRange(Math.max(limit.getStartOffset(), startOffset), Math.min(endOffset, limit.getEndOffset()));
 	}
 
-	public Range moveBounds(final int delta) {
+	public ContentRange moveBounds(final int delta) {
 		return moveBounds(delta, delta);
 	}
 
-	public Range moveBounds(final int deltaStart, final int deltaEnd) {
-		return new Range(startOffset + deltaStart, endOffset + deltaEnd);
+	public ContentRange moveBounds(final int deltaStart, final int deltaEnd) {
+		return new ContentRange(startOffset + deltaStart, endOffset + deltaEnd);
 	}
 
 	@Override
@@ -85,7 +85,7 @@ public class Range {
 		if (getClass() != obj.getClass()) {
 			return false;
 		}
-		final Range other = (Range) obj;
+		final ContentRange other = (ContentRange) obj;
 		if (endOffset != other.endOffset) {
 			return false;
 		}
