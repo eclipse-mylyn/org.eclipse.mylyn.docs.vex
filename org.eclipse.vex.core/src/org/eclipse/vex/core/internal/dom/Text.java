@@ -28,7 +28,7 @@ public class Text extends Node {
 	 * @param endOffset
 	 *            character offset of the end of the run
 	 */
-	public Text(final Parent parent, final Content content, final Range range) {
+	public Text(final Parent parent, final Content content, final ContentRange range) {
 		setParent(parent);
 		associate(content, range);
 	}

@@ -15,7 +15,7 @@ import org.eclipse.vex.core.internal.core.FontResource;
 import org.eclipse.vex.core.internal.core.Graphics;
 import org.eclipse.vex.core.internal.css.Styles;
 import org.eclipse.vex.core.internal.dom.Node;
-import org.eclipse.vex.core.internal.dom.Range;
+import org.eclipse.vex.core.internal.dom.ContentRange;
 
 /**
  * A TextBox that gets its text from the document. Represents text which is editable within the VexWidget.
@@ -82,7 +82,7 @@ public class DocumentTextBox extends TextBox {
 	 */
 	@Override
 	public String getText() {
-		return getNode().getText(new Range(getStartOffset(), getEndOffset()));
+		return getNode().getText(new ContentRange(getStartOffset(), getEndOffset()));
 	}
 
 	/**

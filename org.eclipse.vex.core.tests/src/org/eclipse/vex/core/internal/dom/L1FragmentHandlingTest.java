@@ -88,7 +88,7 @@ public class L1FragmentHandlingTest {
 			content.insertElementMarker(insertOffset);
 			content.insertElementMarker(insertOffset);
 			final Element element = new Element(elementName);
-			element.associate(content, new Range(insertOffset, insertOffset + 1));
+			element.associate(content, new ContentRange(insertOffset, insertOffset + 1));
 			nodes.add(element);
 		}
 		return new DocumentFragment(content, nodes);

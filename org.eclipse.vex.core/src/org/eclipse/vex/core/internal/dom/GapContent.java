@@ -159,7 +159,7 @@ public class GapContent implements Content {
 	 * @param length
 	 *            Number of characters to delete.
 	 */
-	public void remove(final Range range) {
+	public void remove(final ContentRange range) {
 		assertOffset(range.getStartOffset(), 0, length() - range.length());
 		assertPositive(range.length());
 
@@ -179,7 +179,7 @@ public class GapContent implements Content {
 		return getText(getRange());
 	}
 
-	public String getText(final Range range) {
+	public String getText(final ContentRange range) {
 		Assert.isTrue(getRange().contains(range));
 
 		final int delta = gapEnd - gapStart;
@@ -189,13 +189,13 @@ public class GapContent implements Content {
 		} else if (range.getStartOffset() >= gapStart) {
 			appendPlainText(result, range.moveBounds(delta, delta));
 		} else {
-			appendPlainText(result, new Range(range.getStartOffset(), gapStart - 1));
-			appendPlainText(result, new Range(gapEnd, range.getEndOffset() + delta));
+			appendPlainText(result, new ContentRange(range.getStartOffset(), gapStart - 1));
+			appendPlainText(result, new ContentRange(gapEnd, range.getEndOffset() + delta));
 		}
 		return result.toString();
 	}
 
-	private void appendPlainText(final StringBuilder stringBuilder, final Range range) {
+	private void appendPlainText(final StringBuilder stringBuilder, final ContentRange range) {
 		for (int i = range.getStartOffset(); range.contains(i); i++) {
 			final char c = content[i];
 			if (!isElementMarker(c)) {
@@ -208,7 +208,7 @@ public class GapContent implements Content {
 		return getRawText(getRange());
 	}
 
-	public String getRawText(final Range range) {
+	public String getRawText(final ContentRange range) {
 		Assert.isTrue(getRange().contains(range));
 
 		final int delta = gapEnd - gapStart;
@@ -218,13 +218,13 @@ public class GapContent implements Content {
 		} else if (range.getStartOffset() >= gapStart) {
 			appendRawText(result, range.moveBounds(delta, delta));
 		} else {
-			appendRawText(result, new Range(range.getStartOffset(), gapStart - 1));
-			appendRawText(result, new Range(gapEnd, range.getEndOffset() + delta));
+			appendRawText(result, new ContentRange(range.getStartOffset(), gapStart - 1));
+			appendRawText(result, new ContentRange(gapEnd, range.getEndOffset() + delta));
 		}
 		return result.toString();
 	}
 
-	private void appendRawText(final StringBuilder stringBuilder, final Range range) {
+	private void appendRawText(final StringBuilder stringBuilder, final ContentRange range) {
 		stringBuilder.append(content, range.getStartOffset(), range.length());
 	}
 
@@ -238,7 +238,7 @@ public class GapContent implements Content {
 		return getContent(getRange());
 	}
 
-	public Content getContent(final Range range) {
+	public Content getContent(final ContentRange range) {
 		Assert.isTrue(getRange().contains(range));
 
 		final GapContent result = new GapContent(range.length());
@@ -246,7 +246,7 @@ public class GapContent implements Content {
 		return result;
 	}
 
-	private static void copyContent(final Content source, final Content destination, final Range sourceRange, final int destinationStartOffset) {
+	private static void copyContent(final Content source, final Content destination, final ContentRange sourceRange, final int destinationStartOffset) {
 		for (int i = 0; i < sourceRange.length(); i++) {
 			final int sourceOffset = sourceRange.getStartOffset() + i;
 			final int destinationOffset = destinationStartOffset + i;
@@ -266,8 +266,8 @@ public class GapContent implements Content {
 		return content.length - (gapEnd - gapStart);
 	}
 
-	public Range getRange() {
-		return new Range(0, length() - 1);
+	public ContentRange getRange() {
+		return new ContentRange(0, length() - 1);
 	}
 
 	/**
@@ -296,7 +296,7 @@ public class GapContent implements Content {
 	 * @return the text of the given region including element markers
 	 */
 	public CharSequence subSequence(final int startOffset, final int endOffset) {
-		return getRawText(new Range(startOffset, endOffset));
+		return getRawText(new ContentRange(startOffset, endOffset));
 	}
 
 	// ====================================================== PRIVATE

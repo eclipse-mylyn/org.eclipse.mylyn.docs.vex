@@ -2,7 +2,7 @@ package org.eclipse.vex.core.internal.undo;
 
 import org.eclipse.vex.core.internal.dom.Document;
 import org.eclipse.vex.core.internal.dom.DocumentValidationException;
-import org.eclipse.vex.core.internal.dom.Range;
+import org.eclipse.vex.core.internal.dom.ContentRange;
 
 public class InsertTextEdit implements IUndoableEdit {
 
@@ -29,7 +29,7 @@ public class InsertTextEdit implements IUndoableEdit {
 
 	public void undo() throws CannotUndoException {
 		try {
-			document.delete(new Range(offset, offset + text.length()));
+			document.delete(new ContentRange(offset, offset + text.length()));
 		} catch (final DocumentValidationException ex) {
 			throw new CannotUndoException();
 		}

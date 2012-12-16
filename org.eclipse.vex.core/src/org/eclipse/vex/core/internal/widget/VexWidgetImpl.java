@@ -43,7 +43,7 @@ import org.eclipse.vex.core.internal.dom.DocumentValidationException;
 import org.eclipse.vex.core.internal.dom.Element;
 import org.eclipse.vex.core.internal.dom.Node;
 import org.eclipse.vex.core.internal.dom.Position;
-import org.eclipse.vex.core.internal.dom.Range;
+import org.eclipse.vex.core.internal.dom.ContentRange;
 import org.eclipse.vex.core.internal.dom.Validator;
 import org.eclipse.vex.core.internal.layout.BlockBox;
 import org.eclipse.vex.core.internal.layout.Box;
@@ -379,7 +379,7 @@ public class VexWidgetImpl implements IVexWidget {
 	private void deleteNextToCaret() {
 		try {
 			final int nextToCaret = getCaretOffset();
-			applyEdit(new DeleteEdit(document, new Range(nextToCaret, nextToCaret)), nextToCaret);
+			applyEdit(new DeleteEdit(document, new ContentRange(nextToCaret, nextToCaret)), nextToCaret);
 			this.moveTo(nextToCaret);
 		} catch (final DocumentValidationException e) {
 			e.printStackTrace(); // This should never happen, because we constrain the selection
@@ -389,7 +389,7 @@ public class VexWidgetImpl implements IVexWidget {
 	private void deleteBeforeCaret() {
 		try {
 			final int beforeCaret = getCaretOffset() - 1;
-			applyEdit(new DeleteEdit(document, new Range(beforeCaret, beforeCaret)), beforeCaret + 1);
+			applyEdit(new DeleteEdit(document, new ContentRange(beforeCaret, beforeCaret)), beforeCaret + 1);
 			this.moveTo(beforeCaret);
 		} catch (final DocumentValidationException e) {
 			e.printStackTrace(); // This should never happen, because we constrain the selection
@@ -555,7 +555,7 @@ public class VexWidgetImpl implements IVexWidget {
 		final Element parent = doc.getElementForInsertionAt(startOffset);
 		final List<QualifiedName> nodesBefore = Node.getNodeNames(parent.getChildNodesBefore(startOffset));
 		final List<QualifiedName> nodesAfter = Node.getNodeNames(parent.getChildNodesAfter(endOffset));
-		final List<QualifiedName> selectedNodes = Node.getNodeNames(parent.getChildNodes(new Range(startOffset, endOffset)));
+		final List<QualifiedName> selectedNodes = Node.getNodeNames(parent.getChildNodes(new ContentRange(startOffset, endOffset)));
 		final List<QualifiedName> candidates = createCandidatesList(validator, parent, Validator.PCDATA);
 
 		filterInvalidSequences(validator, parent, nodesBefore, nodesAfter, candidates);
@@ -666,11 +666,11 @@ public class VexWidgetImpl implements IVexWidget {
 		return selectionStart;
 	}
 
-	public Range getSelectedRange() {
+	public ContentRange getSelectedRange() {
 		if (!hasSelection()) {
-			return new Range(getCaretOffset(), getCaretOffset());
+			return new ContentRange(getCaretOffset(), getCaretOffset());
 		}
-		return new Range(getSelectionStart(), getSelectionEnd() - 1);
+		return new ContentRange(getSelectionStart(), getSelectionEnd() - 1);
 	}
 
 	public DocumentFragment getSelectedFragment() {

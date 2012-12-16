@@ -64,7 +64,7 @@ import org.eclipse.vex.core.internal.dom.DocumentFragment;
 import org.eclipse.vex.core.internal.dom.DocumentValidationException;
 import org.eclipse.vex.core.internal.dom.Element;
 import org.eclipse.vex.core.internal.dom.Node;
-import org.eclipse.vex.core.internal.dom.Range;
+import org.eclipse.vex.core.internal.dom.ContentRange;
 import org.eclipse.vex.core.internal.layout.Box;
 import org.eclipse.vex.core.internal.layout.BoxFactory;
 import org.eclipse.vex.core.internal.widget.HostComponent;
@@ -231,7 +231,7 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 		return impl.getLayoutWidth();
 	}
 
-	public Range getSelectedRange() {
+	public ContentRange getSelectedRange() {
 		return impl.getSelectedRange();
 	}
 

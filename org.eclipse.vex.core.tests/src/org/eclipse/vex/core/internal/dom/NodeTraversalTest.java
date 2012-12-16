@@ -26,7 +26,7 @@ public class NodeTraversalTest {
 
 	@Test
 	public void givenOneNode_shouldVisitNode() throws Exception {
-		final Text node = new Text(null, new GapContent(1), new Range(0, 0));
+		final Text node = new Text(null, new GapContent(1), new ContentRange(0, 0));
 		final boolean[] nodeWasVisited = new boolean[1];
 		final INodeVisitor nodeVisitor = new BaseNodeVisitor() {
 			@Override
@@ -73,7 +73,7 @@ public class NodeTraversalTest {
 		final Element element = new Element(new QualifiedName(null, localName));
 		content.insertElementMarker(insertionOffset);
 		content.insertElementMarker(insertionOffset);
-		element.associate(content, new Range(insertionOffset, insertionOffset + 1));
+		element.associate(content, new ContentRange(insertionOffset, insertionOffset + 1));
 		return element;
 	}
 }

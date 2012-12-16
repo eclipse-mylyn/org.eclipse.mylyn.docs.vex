@@ -3,15 +3,15 @@ package org.eclipse.vex.core.internal.undo;
 import org.eclipse.vex.core.internal.dom.Document;
 import org.eclipse.vex.core.internal.dom.DocumentFragment;
 import org.eclipse.vex.core.internal.dom.DocumentValidationException;
-import org.eclipse.vex.core.internal.dom.Range;
+import org.eclipse.vex.core.internal.dom.ContentRange;
 
 public class DeleteEdit implements IUndoableEdit {
 
 	private final Document document;
-	private final Range range;
+	private final ContentRange range;
 	private DocumentFragment fragment = null;
 
-	public DeleteEdit(final Document document, final Range range) {
+	public DeleteEdit(final Document document, final ContentRange range) {
 		this.document = document;
 		this.range = range;
 	}

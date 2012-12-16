@@ -30,7 +30,7 @@ import org.eclipse.vex.core.internal.dom.DocumentValidationException;
 import org.eclipse.vex.core.internal.dom.Element;
 import org.eclipse.vex.core.internal.dom.GapContent;
 import org.eclipse.vex.core.internal.dom.Node;
-import org.eclipse.vex.core.internal.dom.Range;
+import org.eclipse.vex.core.internal.dom.ContentRange;
 
 /**
  * Transfer object that handles Vex DocumentFragments.
@@ -140,7 +140,7 @@ public class DocumentFragmentTransfer extends ByteArrayTransfer {
 			if (content.isElementMarker(i)) {
 				out.writeUTF("\0"); // This internal representation of element markers has nothing to do with the internal representation in GapContent.
 			} else {
-				out.writeUTF(content.getText(new Range(i, i)));
+				out.writeUTF(content.getText(new ContentRange(i, i)));
 			}
 		}
 	}
@@ -191,7 +191,7 @@ public class DocumentFragmentTransfer extends ByteArrayTransfer {
 		final int startOffset = in.readInt();
 		final int endOffset = in.readInt();
 		final Element element = new Element(elementName);
-		element.associate(content, new Range(startOffset, endOffset));
+		element.associate(content, new ContentRange(startOffset, endOffset));
 
 		final int attrCount = in.readInt();
 		for (int i = 0; i < attrCount; i++) {

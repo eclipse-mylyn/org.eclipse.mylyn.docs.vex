@@ -64,7 +64,7 @@ public class CopyVisitorTest {
 
 	@Test
 	public void shouldIgnoreText() throws Exception {
-		final Text text = new Text(null, new GapContent(1), new Range(0, 0));
+		final Text text = new Text(null, new GapContent(1), new ContentRange(0, 0));
 
 		final CopyVisitor copyVisitor = new CopyVisitor();
 
