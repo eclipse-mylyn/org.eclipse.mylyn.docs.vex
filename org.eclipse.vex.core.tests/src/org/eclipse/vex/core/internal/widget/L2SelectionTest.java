@@ -18,6 +18,7 @@ import static org.junit.Assert.assertTrue;
 
 import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.dom.Element;
+import org.eclipse.vex.core.internal.dom.Range;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -64,5 +65,16 @@ public class L2SelectionTest {
 		assertTrue(widget.hasSelection());
 		assertEquals(titleElement.getStartOffset(), widget.getSelectionStart());
 		assertEquals(titleElement.getEndOffset() + 1, widget.getSelectionEnd());
+	}
+
+	@Test
+	public void givenCaretInElementAtEndOffset_whenMovedOneBehindStartOffset_shouldNotIncludeEndOffsetInSelectedRange() throws Exception {
+		final Element titleElement = widget.insertElement(TITLE);
+		widget.insertText("Hello World");
+		widget.moveTo(titleElement.getStartOffset() + 1, true);
+
+		assertEquals(titleElement.getStartOffset() + 1, widget.getSelectionStart());
+		assertEquals(titleElement.getEndOffset(), widget.getSelectionEnd());
+		assertEquals(new Range(titleElement.getStartOffset() + 1, titleElement.getEndOffset() - 1), widget.getSelectedRange());
 	}
 }

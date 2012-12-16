@@ -20,6 +20,7 @@ import org.eclipse.vex.core.internal.dom.Document;
 import org.eclipse.vex.core.internal.dom.DocumentFragment;
 import org.eclipse.vex.core.internal.dom.DocumentValidationException;
 import org.eclipse.vex.core.internal.dom.Element;
+import org.eclipse.vex.core.internal.dom.Range;
 import org.eclipse.vex.core.internal.layout.Box;
 import org.eclipse.vex.core.internal.layout.BoxFactory;
 import org.eclipse.vex.core.internal.undo.CannotRedoException;
@@ -182,7 +183,7 @@ public interface IVexWidget {
 	public int getLayoutWidth();
 
 	/**
-	 * Returns the offset at which the selection ends.
+	 * Returns the offset at which the selection ends. <b>The selection end is not included in the selection.</b>
 	 */
 	public int getSelectionEnd();
 
@@ -190,6 +191,11 @@ public interface IVexWidget {
 	 * Returns the offset at which the selection starts.
 	 */
 	public int getSelectionStart();
+
+	/**
+	 * Returns the offset range in the content which is selected.
+	 */
+	public Range getSelectedRange();
 
 	/**
 	 * Returns the currently selected document fragment, or null if there is no current selection.
