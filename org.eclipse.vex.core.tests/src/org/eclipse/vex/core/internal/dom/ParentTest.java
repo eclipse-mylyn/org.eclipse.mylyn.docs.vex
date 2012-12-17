@@ -171,7 +171,7 @@ public class ParentTest {
 		content.insertText(child1.getStartOffset(), "Hello");
 		content.insertText(child2.getStartOffset(), "World!");
 
-		final List<Node> childNodes = parent.getChildNodes(child1.getRange().moveBounds(-2, 2));
+		final List<Node> childNodes = parent.getChildNodes(child1.getRange().resize(-2, 2));
 		assertEquals(3, childNodes.size());
 		assertTrue(childNodes.get(0) instanceof Text);
 		assertSame(child1, childNodes.get(1));
@@ -358,7 +358,7 @@ public class ParentTest {
 	public void shouldHandleSmallerStartOffset() throws Exception {
 		setUpChildNodes();
 		content.insertText(parent.getStartOffset(), "prefix");
-		final List<Node> childNodes = parent.getChildNodes(parent.getRange().moveBounds(-2, 0));
+		final List<Node> childNodes = parent.getChildNodes(parent.getRange().resize(-2, 0));
 		assertTextNodeEquals("Hello ", 7, 12, childNodes.get(0));
 		assertChildNodeEquals("Child1", 13, 20, childNodes.get(1));
 		assertChildNodeEquals("Child2", 21, 28, childNodes.get(2));

@@ -53,13 +53,13 @@ public class RangeTest {
 
 	@Test
 	public void canBeTrimmed() throws Exception {
-		assertEquals(new ContentRange(2, 5), new ContentRange(1, 5).trimTo(new ContentRange(2, 6)));
-		assertEquals(new ContentRange(1, 4), new ContentRange(1, 5).trimTo(new ContentRange(0, 4)));
+		assertEquals(new ContentRange(2, 5), new ContentRange(1, 5).intersection(new ContentRange(2, 6)));
+		assertEquals(new ContentRange(1, 4), new ContentRange(1, 5).intersection(new ContentRange(0, 4)));
 	}
 
 	@Test
 	public void canMoveBounds() throws Exception {
-		assertEquals(new ContentRange(1, 8), new ContentRange(3, 5).moveBounds(-2, 3));
+		assertEquals(new ContentRange(1, 8), new ContentRange(3, 5).resize(-2, 3));
 	}
 
 	@Test

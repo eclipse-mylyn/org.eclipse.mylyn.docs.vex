@@ -320,7 +320,7 @@ public class Document extends Parent {
 		int index = parent.getInsertionIndex(offset);
 		for (final Node newNode : newNodes) {
 			parent.insertChild(index, newNode);
-			newNode.associate(getContent(), newNode.getRange().moveBounds(offset));
+			newNode.associate(getContent(), newNode.getRange().moveBy(offset));
 			index++;
 		}
 

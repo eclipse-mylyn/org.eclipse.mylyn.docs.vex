@@ -76,7 +76,7 @@ public class DeepCopyVisitor implements INodeVisitor {
 	private void associate(final Node source, final Node copy) {
 		if (source.isAssociated()) {
 			final ContentRange range = source.getRange();
-			copy.associate(content, range.moveBounds(delta));
+			copy.associate(content, range.moveBy(delta));
 		}
 	}
 

@@ -48,21 +48,29 @@ public class ContentRange {
 		return startOffset <= offset && offset <= endOffset;
 	}
 
-	public ContentRange trimTo(final ContentRange limit) {
-		return new ContentRange(Math.max(limit.getStartOffset(), startOffset), Math.min(endOffset, limit.getEndOffset()));
+	public boolean intersects(final ContentRange other) {
+		return startOffset <= other.endOffset && endOffset >= other.startOffset;
 	}
 
-	public ContentRange moveBounds(final int delta) {
-		return moveBounds(delta, delta);
+	public ContentRange intersection(final ContentRange other) {
+		return new ContentRange(Math.max(other.getStartOffset(), startOffset), Math.min(endOffset, other.getEndOffset()));
 	}
 
-	public ContentRange moveBounds(final int deltaStart, final int deltaEnd) {
+	public ContentRange union(final ContentRange other) {
+		return new ContentRange(Math.min(startOffset, other.startOffset), Math.min(endOffset, other.endOffset));
+	}
+
+	public ContentRange moveBy(final int delta) {
+		return resize(delta, delta);
+	}
+
+	public ContentRange resize(final int deltaStart, final int deltaEnd) {
 		return new ContentRange(startOffset + deltaStart, endOffset + deltaEnd);
 	}
 
 	@Override
 	public String toString() {
-		return "Range[" + startOffset + ", " + endOffset + "]";
+		return "ContentRange[" + startOffset + ", " + endOffset + "]";
 	}
 
 	@Override
