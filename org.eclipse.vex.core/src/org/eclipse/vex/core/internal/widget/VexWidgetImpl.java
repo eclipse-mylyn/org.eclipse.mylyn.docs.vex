@@ -34,6 +34,7 @@ import org.eclipse.vex.core.internal.css.CSS;
 import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.css.StyleSheetReader;
 import org.eclipse.vex.core.internal.css.Styles;
+import org.eclipse.vex.core.internal.dom.ContentRange;
 import org.eclipse.vex.core.internal.dom.Document;
 import org.eclipse.vex.core.internal.dom.DocumentEvent;
 import org.eclipse.vex.core.internal.dom.DocumentFragment;
@@ -42,15 +43,14 @@ import org.eclipse.vex.core.internal.dom.DocumentValidationException;
 import org.eclipse.vex.core.internal.dom.Element;
 import org.eclipse.vex.core.internal.dom.Node;
 import org.eclipse.vex.core.internal.dom.Position;
-import org.eclipse.vex.core.internal.dom.ContentRange;
 import org.eclipse.vex.core.internal.dom.Validator;
 import org.eclipse.vex.core.internal.layout.BlockBox;
 import org.eclipse.vex.core.internal.layout.Box;
 import org.eclipse.vex.core.internal.layout.BoxFactory;
 import org.eclipse.vex.core.internal.layout.CssBoxFactory;
-import org.eclipse.vex.core.internal.layout.VerticalRange;
 import org.eclipse.vex.core.internal.layout.LayoutContext;
 import org.eclipse.vex.core.internal.layout.RootBox;
+import org.eclipse.vex.core.internal.layout.VerticalRange;
 import org.eclipse.vex.core.internal.undo.CannotRedoException;
 import org.eclipse.vex.core.internal.undo.CannotUndoException;
 import org.eclipse.vex.core.internal.undo.ChangeAttributeEdit;
@@ -1439,19 +1439,20 @@ public class VexWidgetImpl implements IVexWidget {
 	 */
 	private void iterateLayout(final int offset) {
 
-		int repaintStart = Integer.MAX_VALUE;
-		int repaintEnd = 0;
+		VerticalRange repaintRange = null;
 		final Graphics g = hostComponent.createDefaultGraphics();
 		final LayoutContext context = createLayoutContext(g);
 		int layoutY = rootBox.getCaret(context, offset).getY();
 
 		while (true) {
-
 			final int oldLayoutY = layoutY;
-			final VerticalRange repaintRange = rootBox.layout(context, layoutY - LAYOUT_WINDOW / 2, layoutY + LAYOUT_WINDOW / 2);
-			if (repaintRange != null) {
-				repaintStart = Math.min(repaintStart, repaintRange.getStart());
-				repaintEnd = Math.max(repaintEnd, repaintRange.getEnd());
+			final VerticalRange layoutRange = rootBox.layout(context, layoutY - LAYOUT_WINDOW / 2, layoutY + LAYOUT_WINDOW / 2);
+			if (layoutRange != null) {
+				if (repaintRange == null) {
+					repaintRange = layoutRange;
+				} else {
+					repaintRange = repaintRange.union(layoutRange);
+				}
 			}
 
 			layoutY = rootBox.getCaret(context, offset).getY();
@@ -1461,13 +1462,15 @@ public class VexWidgetImpl implements IVexWidget {
 		}
 		g.dispose();
 
-		if (repaintStart < repaintEnd) {
-			final Rectangle viewport = hostComponent.getViewport();
-			if (repaintStart < viewport.getY() + viewport.getHeight() && repaintEnd > viewport.getY()) {
-				final int start = Math.max(repaintStart, viewport.getY());
-				final int end = Math.min(repaintEnd, viewport.getY() + viewport.getHeight());
-				hostComponent.repaint(viewport.getX(), start, viewport.getWidth(), end - start);
-			}
+		if (repaintRange == null || repaintRange.isEmpty()) {
+			return;
+		}
+
+		final Rectangle viewport = hostComponent.getViewport();
+		final VerticalRange viewportRange = new VerticalRange(viewport.getY(), viewport.getY() + viewport.getHeight());
+		if (repaintRange.intersects(viewportRange)) {
+			final VerticalRange intersection = repaintRange.intersection(viewportRange);
+			hostComponent.repaint(viewport.getX(), intersection.getStart(), viewport.getWidth(), intersection.getHeight());
 		}
 	}
 

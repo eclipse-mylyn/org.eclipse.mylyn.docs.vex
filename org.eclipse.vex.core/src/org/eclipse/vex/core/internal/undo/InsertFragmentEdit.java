@@ -22,7 +22,7 @@ public class InsertFragmentEdit implements IUndoableEdit {
 
 	public void undo() throws CannotUndoException {
 		try {
-			document.delete(fragment.getContent().getRange().resize(offset, offset));
+			document.delete(fragment.getContent().getRange().moveBy(offset));
 		} catch (final DocumentValidationException ex) {
 			throw new CannotUndoException();
 		}

@@ -59,7 +59,7 @@ public class RangeTest {
 
 	@Test
 	public void canMoveBounds() throws Exception {
-		assertEquals(new ContentRange(1, 8), new ContentRange(3, 5).resize(-2, 3));
+		assertEquals(new ContentRange(1, 8), new ContentRange(3, 5).resizeBy(-2, 3));
 	}
 
 	@Test

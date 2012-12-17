@@ -154,7 +154,7 @@ public class RootBox extends AbstractBox implements BlockBox {
 		setHeight(childBox.getHeight() + insets.getTop() + insets.getBottom());
 
 		if (repaintRange != null) {
-			return new VerticalRange(repaintRange.getStart() + childBox.getY(), repaintRange.getEnd() + childBox.getY());
+			return repaintRange.moveBy(childBox.getY());
 		} else {
 			return null;
 		}

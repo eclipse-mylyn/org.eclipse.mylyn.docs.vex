@@ -51,6 +51,25 @@ public class VerticalRange {
 		return end;
 	}
 
+	public int getHeight() {
+		return end - start;
+	}
+
+	/**
+	 * Returns true if start and end are equal.
+	 */
+	public boolean isEmpty() {
+		return getHeight() == 0;
+	}
+
+	public boolean contains(final VerticalRange other) {
+		return start <= other.start && end >= other.end;
+	}
+
+	public boolean contains(final int y) {
+		return start <= y && y <= end;
+	}
+
 	/**
 	 * Returns true if this range intersects the given range, even if the result would be an empty range.
 	 * 
@@ -88,11 +107,12 @@ public class VerticalRange {
 		return new VerticalRange(Math.min(start, range.start), Math.min(end, range.end));
 	}
 
-	/**
-	 * Returns true if start and end are equal.
-	 */
-	public boolean isEmpty() {
-		return start == end;
+	public VerticalRange moveBy(final int delta) {
+		return resizeBy(delta, delta);
+	}
+
+	public VerticalRange resizeBy(final int deltaStart, final int deltaEnd) {
+		return new VerticalRange(start + deltaStart, end + deltaEnd);
 	}
 
 	@Override
