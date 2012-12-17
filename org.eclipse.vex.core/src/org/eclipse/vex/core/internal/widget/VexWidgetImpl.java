@@ -28,7 +28,6 @@ import org.eclipse.vex.core.internal.core.Caret;
 import org.eclipse.vex.core.internal.core.Color;
 import org.eclipse.vex.core.internal.core.ElementName;
 import org.eclipse.vex.core.internal.core.Graphics;
-import org.eclipse.vex.core.internal.core.IntRange;
 import org.eclipse.vex.core.internal.core.QualifiedNameComparator;
 import org.eclipse.vex.core.internal.core.Rectangle;
 import org.eclipse.vex.core.internal.css.CSS;
@@ -49,6 +48,7 @@ import org.eclipse.vex.core.internal.layout.BlockBox;
 import org.eclipse.vex.core.internal.layout.Box;
 import org.eclipse.vex.core.internal.layout.BoxFactory;
 import org.eclipse.vex.core.internal.layout.CssBoxFactory;
+import org.eclipse.vex.core.internal.layout.VerticalRange;
 import org.eclipse.vex.core.internal.layout.LayoutContext;
 import org.eclipse.vex.core.internal.layout.RootBox;
 import org.eclipse.vex.core.internal.undo.CannotRedoException;
@@ -1448,7 +1448,7 @@ public class VexWidgetImpl implements IVexWidget {
 		while (true) {
 
 			final int oldLayoutY = layoutY;
-			final IntRange repaintRange = rootBox.layout(context, layoutY - LAYOUT_WINDOW / 2, layoutY + LAYOUT_WINDOW / 2);
+			final VerticalRange repaintRange = rootBox.layout(context, layoutY - LAYOUT_WINDOW / 2, layoutY + LAYOUT_WINDOW / 2);
 			if (repaintRange != null) {
 				repaintStart = Math.min(repaintStart, repaintRange.getStart());
 				repaintEnd = Math.max(repaintEnd, repaintRange.getEnd());

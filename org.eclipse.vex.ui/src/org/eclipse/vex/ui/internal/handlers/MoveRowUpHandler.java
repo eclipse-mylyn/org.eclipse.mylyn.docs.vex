@@ -32,7 +32,7 @@ public class MoveRowUpHandler extends AbstractMoveRowHandler {
 	protected int target(final SelectedRows selected) {
 		final List<Object> rows = selected.getRows();
 		final Object lastRow = rows.get(rows.size() - 1);
-		return VexHandlerUtil.getOuterRange(lastRow).getEnd();
+		return VexHandlerUtil.getOuterRange(lastRow).getEndOffset();
 	}
 
 }

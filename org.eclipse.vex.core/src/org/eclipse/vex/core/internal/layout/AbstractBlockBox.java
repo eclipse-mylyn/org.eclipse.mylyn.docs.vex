@@ -22,12 +22,12 @@ import org.eclipse.vex.core.internal.core.ColorResource;
 import org.eclipse.vex.core.internal.core.FontMetrics;
 import org.eclipse.vex.core.internal.core.Graphics;
 import org.eclipse.vex.core.internal.core.Insets;
-import org.eclipse.vex.core.internal.core.IntRange;
 import org.eclipse.vex.core.internal.css.CSS;
 import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.css.Styles;
 import org.eclipse.vex.core.internal.dom.BaseNodeVisitorWithResult;
 import org.eclipse.vex.core.internal.dom.Comment;
+import org.eclipse.vex.core.internal.dom.ContentRange;
 import org.eclipse.vex.core.internal.dom.Document;
 import org.eclipse.vex.core.internal.dom.Element;
 import org.eclipse.vex.core.internal.dom.Node;
@@ -557,7 +557,7 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 
 	private byte layoutState = LAYOUT_REDO;
 
-	public IntRange layout(final LayoutContext context, final int top, final int bottom) {
+	public VerticalRange layout(final LayoutContext context, final int top, final int bottom) {
 
 		int repaintStart = Integer.MAX_VALUE;
 		int repaintEnd = 0;
@@ -592,7 +592,7 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 				final BlockBox child = (BlockBox) element2;
 				if (top <= child.getY() + child.getHeight() && bottom >= child.getY()) {
 
-					final IntRange repaintRange = child.layout(context, top - child.getY(), bottom - child.getY());
+					final VerticalRange repaintRange = child.layout(context, top - child.getY(), bottom - child.getY());
 					if (repaintRange != null) {
 						repaintStart = Math.min(repaintStart, repaintRange.getStart() + child.getY());
 						repaintEnd = Math.max(repaintEnd, repaintRange.getEnd() + child.getY());
@@ -614,7 +614,7 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 		}
 
 		if (repaintStart < repaintEnd) {
-			return new IntRange(repaintStart, repaintEnd);
+			return new VerticalRange(repaintStart, repaintEnd);
 		} else {
 			return null;
 		}
@@ -649,11 +649,11 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 					break;
 				}
 
-				if (next instanceof IntRange) {
-					final IntRange range = (IntRange) next;
-					final InlineElementBox.InlineBoxes inlineBoxes = InlineElementBox.createInlineBoxes(context, element, range.getStart(), range.getEnd());
+				if (next instanceof ContentRange) {
+					final ContentRange range = (ContentRange) next;
+					final InlineElementBox.InlineBoxes inlineBoxes = InlineElementBox.createInlineBoxes(context, element, range.getStartOffset(), range.getEndOffset());
 					pendingInlines.addAll(inlineBoxes.boxes);
-					pendingInlines.add(new PlaceholderBox(context, element, range.getEnd() - element.getStartOffset()));
+					pendingInlines.add(new PlaceholderBox(context, element, range.getEndOffset() - element.getStartOffset()));
 				} else {
 					if (!pendingInlines.isEmpty()) {
 						blockBoxes.add(ParagraphBox.create(context, element, pendingInlines, width));
@@ -718,7 +718,7 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 				final Element blockElement = findNextBlockElement(context, element, startOffset, endOffset);
 				if (blockElement == null) {
 					if (startOffset < endOffset) {
-						final IntRange result = new IntRange(startOffset, endOffset);
+						final ContentRange result = new ContentRange(startOffset, endOffset);
 						startOffset = endOffset;
 						return result;
 					} else {
@@ -726,7 +726,7 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 					}
 				} else if (blockElement.getStartOffset() > startOffset) {
 					pushStack.addLast(blockElement);
-					final IntRange result = new IntRange(startOffset, blockElement.getStartOffset());
+					final ContentRange result = new ContentRange(startOffset, blockElement.getStartOffset());
 					startOffset = blockElement.getEndOffset() + 1;
 					return result;
 				} else {

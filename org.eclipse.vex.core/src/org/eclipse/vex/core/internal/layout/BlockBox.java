@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.layout;
 
-import org.eclipse.vex.core.internal.core.IntRange;
 
 /**
  * Represents a block box. Block boxes are stacked one on top of another.
@@ -124,7 +123,7 @@ public interface BlockBox extends Box {
 	 * @param bottom
 	 *            Bottom of the range to lay out.
 	 */
-	public IntRange layout(LayoutContext context, int top, int bottom);
+	public VerticalRange layout(LayoutContext context, int top, int bottom);
 
 	/**
 	 * Sets the initial size of the box.

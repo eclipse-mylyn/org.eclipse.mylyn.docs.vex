@@ -80,10 +80,11 @@ public abstract class AbstractAddRowHandler extends AbstractVexWidgetHandler {
 		// save the caret offset to return inside the first table cell after
 		// row has been added
 		final RowCells firstRow = rowCellsToInsert.get(0);
-		final int outerOffset = VexHandlerUtil.getOuterRange(firstRow.row).getStart();
+		final int outerOffset = VexHandlerUtil.getOuterRange(firstRow.row).getStartOffset();
 		final Object firstInner = firstRow.cells.isEmpty() ? firstRow.row : firstRow.cells.get(0);
-		final int innerOffset = VexHandlerUtil.getInnerRange(firstInner).getStart();
-		final int insertOffset = addAbove() ? VexHandlerUtil.getOuterRange(firstRow.row).getStart() : VexHandlerUtil.getOuterRange(rowCellsToInsert.get(rowCellsToInsert.size() - 1).row).getEnd();
+		final int innerOffset = VexHandlerUtil.getInnerRange(firstInner).getStartOffset();
+		final int insertOffset = addAbove() ? VexHandlerUtil.getOuterRange(firstRow.row).getStartOffset() : VexHandlerUtil.getOuterRange(rowCellsToInsert.get(rowCellsToInsert.size() - 1).row)
+				.getEndOffset();
 
 		// (innerOffset - outerOffset) represents the final offset of
 		// the caret, relative to the insertion point of the new rows
