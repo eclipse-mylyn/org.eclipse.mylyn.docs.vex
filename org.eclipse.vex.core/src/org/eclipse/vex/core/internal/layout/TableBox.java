@@ -17,7 +17,6 @@ import java.util.List;
 import java.util.Set;
 
 import org.eclipse.vex.core.internal.core.Insets;
-import org.eclipse.vex.core.internal.core.IntRange;
 import org.eclipse.vex.core.internal.css.CSS;
 import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.css.Styles;
@@ -89,7 +88,7 @@ public class TableBox extends AbstractBlockBox {
 	}
 
 	@Override
-	public IntRange layout(final LayoutContext context, final int top, final int bottom) {
+	public VerticalRange layout(final LayoutContext context, final int top, final int bottom) {
 
 		// TODO Only compute columns widths (a) if re-laying out the whole box
 		// or (b) if the invalid child row now has more columns than us

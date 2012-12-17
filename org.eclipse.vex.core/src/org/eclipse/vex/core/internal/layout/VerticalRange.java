@@ -8,13 +8,13 @@
  * Contributors:
  *     John Krasnay - initial API and implementation
  *******************************************************************************/
-package org.eclipse.vex.core.internal.core;
+package org.eclipse.vex.core.internal.layout;
 
 /**
  * Represents a range of integers. Zero-length ranges (i.e. ranges where start == end) are permitted. This class is
  * immutable.
  */
-public class IntRange {
+public class VerticalRange {
 
 	/**
 	 * Class constuctor.
@@ -24,7 +24,7 @@ public class IntRange {
 	 * @param end
 	 *            End of the range. Must be >= start.
 	 */
-	public IntRange(final int start, final int end) {
+	public VerticalRange(final int start, final int end) {
 		if (start > end) {
 			throw new IllegalArgumentException("start (" + start + ") is greater than end (" + end + ")");
 		}
@@ -53,9 +53,9 @@ public class IntRange {
 	 * @param range
 	 *            Range with which to perform an intersection.
 	 */
-	public IntRange intersection(final IntRange range) {
+	public VerticalRange intersection(final VerticalRange range) {
 		if (intersects(range)) {
-			return new IntRange(Math.max(start, range.start), Math.min(end, range.end));
+			return new VerticalRange(Math.max(start, range.start), Math.min(end, range.end));
 		} else {
 			return null;
 		}
@@ -68,7 +68,7 @@ public class IntRange {
 	 * @param range
 	 *            Range with which to intersect.
 	 */
-	public boolean intersects(final IntRange range) {
+	public boolean intersects(final VerticalRange range) {
 		return start <= range.end && end >= range.start;
 	}
 
@@ -86,8 +86,8 @@ public class IntRange {
 	 * @param range
 	 *            Rnage with which to perform the union
 	 */
-	public IntRange union(final IntRange range) {
-		return new IntRange(Math.min(start, range.start), Math.min(end, range.end));
+	public VerticalRange union(final VerticalRange range) {
+		return new VerticalRange(Math.min(start, range.start), Math.min(end, range.end));
 	}
 
 	@Override

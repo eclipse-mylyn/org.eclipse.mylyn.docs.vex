@@ -19,15 +19,14 @@ import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.handlers.HandlerUtil;
-import org.eclipse.vex.core.internal.core.IntRange;
 import org.eclipse.vex.core.internal.css.CSS;
 import org.eclipse.vex.core.internal.css.StyleSheet;
+import org.eclipse.vex.core.internal.dom.ContentRange;
 import org.eclipse.vex.core.internal.dom.CopyOfElement;
 import org.eclipse.vex.core.internal.dom.Document;
 import org.eclipse.vex.core.internal.dom.Element;
 import org.eclipse.vex.core.internal.dom.Node;
 import org.eclipse.vex.core.internal.dom.Parent;
-import org.eclipse.vex.core.internal.dom.ContentRange;
 import org.eclipse.vex.core.internal.layout.BlockBox;
 import org.eclipse.vex.core.internal.layout.Box;
 import org.eclipse.vex.core.internal.layout.ElementOrRangeCallback;
@@ -170,9 +169,10 @@ public final class VexHandlerUtil {
 	 *            Element or IntRange being tested.
 	 */
 	public static boolean elementOrRangeIsPartiallySelected(final IVexWidget vexWidget, final Object elementOrRange) {
-		final IntRange range = getInnerRange(elementOrRange);
+		final ContentRange elementContentRange = getInnerRange(elementOrRange);
 		final ContentRange selectedRange = vexWidget.getSelectedRange();
-		return range.getEnd() >= selectedRange.getStartOffset() && range.getStart() <= selectedRange.getEndOffset();
+		// TODO use range.intersects(selectedRange);
+		return elementContentRange.getEndOffset() >= selectedRange.getStartOffset() && elementContentRange.getStartOffset() <= selectedRange.getEndOffset();
 	}
 
 	/**
@@ -359,7 +359,7 @@ public final class VexHandlerUtil {
 					}
 
 					public void onRange(final Parent parent, final int startOffset, final int endOffset) {
-						callback.onCell(row, new IntRange(startOffset, endOffset), rowIndex[0], cellIndex);
+						callback.onCell(row, new ContentRange(startOffset, endOffset), rowIndex[0], cellIndex);
 						cellIndex++;
 					}
 				});
@@ -371,7 +371,7 @@ public final class VexHandlerUtil {
 
 			public void onRange(final Parent parent, final int startOffset, final int endOffset) {
 
-				final IntRange row = new IntRange(startOffset, endOffset);
+				final ContentRange row = new ContentRange(startOffset, endOffset);
 				callback.startRow(row, rowIndex[0]);
 
 				LayoutUtils.iterateTableCells(ss, parent, startOffset, endOffset, new ElementOrRangeCallback() {
@@ -383,7 +383,7 @@ public final class VexHandlerUtil {
 					}
 
 					public void onRange(final Parent parent, final int startOffset, final int endOffset) {
-						callback.onCell(row, new IntRange(startOffset, endOffset), rowIndex[0], cellIndex);
+						callback.onCell(row, new ContentRange(startOffset, endOffset), rowIndex[0], cellIndex);
 						cellIndex++;
 					}
 				});
@@ -512,12 +512,12 @@ public final class VexHandlerUtil {
 	 * @param elementOrRange
 	 *            Element or IntRange to be inspected.
 	 */
-	public static IntRange getInnerRange(final Object elementOrRange) {
+	public static ContentRange getInnerRange(final Object elementOrRange) {
 		if (elementOrRange instanceof Element) {
 			final Element element = (Element) elementOrRange;
-			return new IntRange(element.getStartOffset() + 1, element.getEndOffset());
+			return new ContentRange(element.getStartOffset() + 1, element.getEndOffset());
 		} else {
-			return (IntRange) elementOrRange;
+			return (ContentRange) elementOrRange;
 		}
 	}
 
@@ -528,12 +528,12 @@ public final class VexHandlerUtil {
 	 * @param elementOrRange
 	 *            Element or IntRange to be inspected.
 	 */
-	public static IntRange getOuterRange(final Object elementOrRange) {
+	public static ContentRange getOuterRange(final Object elementOrRange) {
 		if (elementOrRange instanceof Element) {
 			final Element element = (Element) elementOrRange;
-			return new IntRange(element.getStartOffset(), element.getEndOffset() + 1);
+			return new ContentRange(element.getStartOffset(), element.getEndOffset() + 1);
 		} else {
-			return (IntRange) elementOrRange;
+			return (ContentRange) elementOrRange;
 		}
 	}
 

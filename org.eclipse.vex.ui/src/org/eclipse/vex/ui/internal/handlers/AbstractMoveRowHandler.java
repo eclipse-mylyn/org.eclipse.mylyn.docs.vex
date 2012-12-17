@@ -11,7 +11,7 @@
 package org.eclipse.vex.ui.internal.handlers;
 
 import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.vex.core.internal.core.IntRange;
+import org.eclipse.vex.core.internal.dom.ContentRange;
 import org.eclipse.vex.ui.internal.handlers.VexHandlerUtil.SelectedRows;
 import org.eclipse.vex.ui.internal.swt.VexWidget;
 
@@ -33,9 +33,9 @@ public abstract class AbstractMoveRowHandler extends AbstractVexWidgetHandler {
 
 		widget.doWork(true, new Runnable() {
 			public void run() {
-				final IntRange range = VexHandlerUtil.getOuterRange(targetRow(selected));
-				widget.moveTo(range.getStart());
-				widget.moveTo(range.getEnd(), true);
+				final ContentRange range = VexHandlerUtil.getOuterRange(targetRow(selected));
+				widget.moveTo(range.getStartOffset());
+				widget.moveTo(range.getEndOffset(), true);
 				widget.cutSelection();
 
 				widget.moveTo(target(selected));

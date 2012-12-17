@@ -17,10 +17,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.eclipse.vex.core.internal.core.IntRange;
 import org.eclipse.vex.core.internal.css.CSS;
 import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.css.Styles;
+import org.eclipse.vex.core.internal.dom.ContentRange;
 import org.eclipse.vex.core.internal.dom.Element;
 import org.eclipse.vex.core.internal.dom.Node;
 import org.eclipse.vex.core.internal.dom.Parent;
@@ -60,8 +60,8 @@ public class LayoutUtils {
 			final Element element = (Element) elementOrRange;
 			return offset > element.getStartOffset() && offset <= element.getEndOffset();
 		} else {
-			final IntRange range = (IntRange) elementOrRange;
-			return offset >= range.getStart() && offset <= range.getEnd();
+			final ContentRange range = (ContentRange) elementOrRange;
+			return offset >= range.getStartOffset() && offset <= range.getEndOffset();
 		}
 	}
 

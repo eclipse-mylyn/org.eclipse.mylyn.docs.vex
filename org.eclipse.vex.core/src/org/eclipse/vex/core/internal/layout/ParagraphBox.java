@@ -15,7 +15,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.vex.core.internal.core.Caret;
-import org.eclipse.vex.core.internal.core.IntRange;
 import org.eclipse.vex.core.internal.css.CSS;
 import org.eclipse.vex.core.internal.css.Styles;
 import org.eclipse.vex.core.internal.dom.Element;
@@ -276,7 +275,7 @@ public class ParagraphBox extends AbstractBox implements BlockBox {
 		return firstContentLine != null && firstContentLine.hasContent();
 	}
 
-	public IntRange layout(final LayoutContext context, final int top, final int bottom) {
+	public VerticalRange layout(final LayoutContext context, final int top, final int bottom) {
 		return null;
 	}
 
