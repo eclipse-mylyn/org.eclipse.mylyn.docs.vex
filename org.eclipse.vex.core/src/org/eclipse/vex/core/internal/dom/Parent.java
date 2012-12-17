@@ -106,7 +106,7 @@ public abstract class Parent extends Node {
 	public List<Node> getChildNodes(final ContentRange range) {
 		final List<Node> result = new ArrayList<Node>();
 
-		final ContentRange trimmedRange = range.trimTo(getRange());
+		final ContentRange trimmedRange = range.intersection(getRange());
 		int textStart = trimmedRange.getStartOffset();
 		for (final Node child : children) {
 			if (!child.isAssociated()) {

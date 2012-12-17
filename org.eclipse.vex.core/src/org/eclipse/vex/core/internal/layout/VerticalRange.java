@@ -10,11 +10,18 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.layout;
 
+import java.text.MessageFormat;
+
+import org.eclipse.core.runtime.Assert;
+
 /**
- * Represents a range of integers. Zero-length ranges (i.e. ranges where start == end) are permitted. This class is
- * immutable.
+ * Represents a vertical range used in the layouting algorithm. Zero-length ranges (i.e. ranges where start == end) are
+ * permitted. This class is immutable.
  */
 public class VerticalRange {
+
+	private final int start;
+	private final int end;
 
 	/**
 	 * Class constuctor.
@@ -25,9 +32,7 @@ public class VerticalRange {
 	 *            End of the range. Must be >= start.
 	 */
 	public VerticalRange(final int start, final int end) {
-		if (start > end) {
-			throw new IllegalArgumentException("start (" + start + ") is greater than end (" + end + ")");
-		}
+		Assert.isTrue(start <= end, MessageFormat.format("start {0} must not be greater than end {1}", start, end));
 		this.start = start;
 		this.end = end;
 	}
@@ -47,6 +52,16 @@ public class VerticalRange {
 	}
 
 	/**
+	 * Returns true if this range intersects the given range, even if the result would be an empty range.
+	 * 
+	 * @param range
+	 *            Range with which to intersect.
+	 */
+	public boolean intersects(final VerticalRange range) {
+		return start <= range.end && end >= range.start;
+	}
+
+	/**
 	 * Returns the range that represents the intersection of this range and the given range. If the ranges do not
 	 * intersect, returns null. May return an empty range.
 	 * 
@@ -63,23 +78,6 @@ public class VerticalRange {
 	}
 
 	/**
-	 * Returns true if this range intersects the given range, even if the result would be an empty range.
-	 * 
-	 * @param range
-	 *            Range with which to intersect.
-	 */
-	public boolean intersects(final VerticalRange range) {
-		return start <= range.end && end >= range.start;
-	}
-
-	/**
-	 * Returns true if start and end are equal.
-	 */
-	public boolean isEmpty() {
-		return start == end;
-	}
-
-	/**
 	 * Returns a range that is the union of this range and the given range. If the ranges are disjoint, the gap between
 	 * the ranges is included in the result.
 	 * 
@@ -90,19 +88,46 @@ public class VerticalRange {
 		return new VerticalRange(Math.min(start, range.start), Math.min(end, range.end));
 	}
 
-	@Override
-	public String toString() {
-		final StringBuffer sb = new StringBuffer();
-		sb.append("IntRange(");
-		sb.append(start);
-		sb.append(",");
-		sb.append(end);
-		sb.append(")");
-		return sb.toString();
+	/**
+	 * Returns true if start and end are equal.
+	 */
+	public boolean isEmpty() {
+		return start == end;
 	}
 
-	// ============================================================= PRIVATE
+	@Override
+	public String toString() {
+		return "VerticalRange[" + start + ", " + end + "]";
+	}
 
-	private final int start;
-	private final int end;
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + end;
+		result = prime * result + start;
+		return result;
+	}
+
+	@Override
+	public boolean equals(final Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		final VerticalRange other = (VerticalRange) obj;
+		if (end != other.end) {
+			return false;
+		}
+		if (start != other.start) {
+			return false;
+		}
+		return true;
+	}
+
 }

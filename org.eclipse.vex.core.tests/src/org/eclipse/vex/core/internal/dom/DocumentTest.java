@@ -59,7 +59,7 @@ public class DocumentTest {
 		document.insertText(childElement.getStartOffset(), "Hello ");
 		document.insertText(childElement.getEndOffset(), "Child");
 		document.insertText(childElement.getEndOffset() + 1, " World");
-		final ContentRange range = childElement.getRange().moveBounds(-2, 2);
+		final ContentRange range = childElement.getRange().resize(-2, 2);
 		final DocumentFragment fragment = document.getFragment(range);
 		assertEquals(11, fragment.getLength());
 		assertNodesEqual(document.getNodes(range), fragment.getNodes());
