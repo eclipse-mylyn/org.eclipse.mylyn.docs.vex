@@ -653,7 +653,7 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 
 				if (next instanceof ContentRange) {
 					final ContentRange range = (ContentRange) next;
-					final InlineElementBox.InlineBoxes inlineBoxes = InlineElementBox.createInlineBoxes(context, element, range.getStartOffset(), range.getEndOffset());
+					final InlineElementBox.InlineBoxes inlineBoxes = InlineElementBox.createInlineBoxes(context, element, range);
 					pendingInlines.addAll(inlineBoxes.boxes);
 					pendingInlines.add(new PlaceholderBox(context, element, range.getEndOffset() - element.getStartOffset()));
 				} else {

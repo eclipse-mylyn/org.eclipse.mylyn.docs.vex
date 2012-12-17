@@ -23,9 +23,9 @@ import org.eclipse.vex.core.internal.css.CSS;
 import org.eclipse.vex.core.internal.css.Styles;
 import org.eclipse.vex.core.internal.dom.BaseNodeVisitor;
 import org.eclipse.vex.core.internal.dom.Comment;
+import org.eclipse.vex.core.internal.dom.ContentRange;
 import org.eclipse.vex.core.internal.dom.Element;
 import org.eclipse.vex.core.internal.dom.Node;
-import org.eclipse.vex.core.internal.dom.ContentRange;
 import org.eclipse.vex.core.internal.dom.Text;
 
 /**
@@ -94,7 +94,7 @@ public class InlineElementBox extends CompositeInlineBox {
 			}
 		}
 
-		final InlineBoxes inlines = createInlineBoxes(context, node, startOffset, endOffset);
+		final InlineBoxes inlines = createInlineBoxes(context, node, new ContentRange(startOffset, endOffset));
 		childList.addAll(inlines.boxes);
 		firstContentChild = inlines.firstContentBox;
 		lastContentChild = inlines.lastContentBox;
@@ -277,13 +277,13 @@ public class InlineElementBox extends CompositeInlineBox {
 	 *            The end of the range to convert to inline boxes.
 	 * @return
 	 */
-	static InlineBoxes createInlineBoxes(final LayoutContext context, final Node node, final int startOffset, final int endOffset) {
+	static InlineBoxes createInlineBoxes(final LayoutContext context, final Node node, final ContentRange range) {
 		final InlineBoxes result = new InlineBoxes();
 
 		node.accept(new BaseNodeVisitor() {
 			@Override
 			public void visit(final Element element) {
-				for (final Node childNode : element.getChildNodes(new ContentRange(startOffset, endOffset))) {
+				for (final Node childNode : element.getChildNodes(range)) {
 					childNode.accept(new BaseNodeVisitor() {
 						@Override
 						public void visit(final Element element) {
@@ -292,15 +292,14 @@ public class InlineElementBox extends CompositeInlineBox {
 							if (result.firstContentBox == null) {
 								result.firstContentBox = placeholder;
 							}
-							final InlineBox child = new InlineElementBox(context, element, startOffset, endOffset);
+							final InlineBox child = new InlineElementBox(context, element, range.getStartOffset(), range.getEndOffset());
 							addChildInlineBox(result, child);
 						}
 
 						@Override
 						public void visit(final Text text) {
-							final int start = Math.max(startOffset, text.getStartOffset());
-							final int end = Math.min(endOffset, text.getEndOffset());
-							final InlineBox child = new DocumentTextBox(context, node, start, end);
+							final ContentRange boxRange = range.intersection(text.getRange());
+							final InlineBox child = new DocumentTextBox(context, node, boxRange.getStartOffset(), boxRange.getEndOffset());
 							addChildInlineBox(result, child);
 						}
 					});
@@ -309,10 +308,8 @@ public class InlineElementBox extends CompositeInlineBox {
 
 			@Override
 			public void visit(final Comment comment) {
-				// TODO use Range
-				final int start = Math.max(startOffset, comment.getStartOffset());
-				final int end = Math.min(endOffset, comment.getEndOffset());
-				final InlineBox child = new DocumentTextBox(context, node, start, end);
+				final ContentRange boxRange = range.intersection(comment.getRange());
+				final InlineBox child = new DocumentTextBox(context, node, boxRange.getStartOffset(), boxRange.getEndOffset());
 				addChildInlineBox(result, child);
 			}
 		});

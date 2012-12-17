@@ -11,8 +11,8 @@
 package org.eclipse.vex.ui.internal.handlers;
 
 import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.vex.core.internal.dom.Node;
 import org.eclipse.vex.core.internal.dom.ContentRange;
+import org.eclipse.vex.core.internal.dom.Node;
 import org.eclipse.vex.core.internal.layout.BlockBox;
 import org.eclipse.vex.core.internal.layout.Box;
 import org.eclipse.vex.core.internal.widget.IBoxFilter;
@@ -34,7 +34,7 @@ public class MoveSelectionUpHandler extends AbstractVexWidgetHandler {
 		final Box box = widget.findInnermostBox(new IBoxFilter() {
 			public boolean matches(final Box box) {
 				final ContentRange selectedRange = widget.getSelectedRange();
-				return box instanceof BlockBox && box.getNode() != null && box.getStartOffset() <= selectedRange.getStartOffset() && box.getEndOffset() >= selectedRange.getEndOffset();
+				return box instanceof BlockBox && box.getNode() != null && new ContentRange(box.getStartOffset(), box.getEndOffset()).contains(selectedRange);
 			}
 		});
 

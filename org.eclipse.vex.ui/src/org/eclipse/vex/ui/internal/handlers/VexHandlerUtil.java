@@ -163,16 +163,15 @@ public final class VexHandlerUtil {
 	/**
 	 * Returns true if the given element or range is at least partially selected.
 	 * 
-	 * @param vexWidget
+	 * @param widget
 	 *            IVexWidget being tested.
 	 * @param elementOrRange
 	 *            Element or IntRange being tested.
 	 */
-	public static boolean elementOrRangeIsPartiallySelected(final IVexWidget vexWidget, final Object elementOrRange) {
+	public static boolean elementOrRangeIsPartiallySelected(final IVexWidget widget, final Object elementOrRange) {
 		final ContentRange elementContentRange = getInnerRange(elementOrRange);
-		final ContentRange selectedRange = vexWidget.getSelectedRange();
-		// TODO use range.intersects(selectedRange);
-		return elementContentRange.getEndOffset() >= selectedRange.getStartOffset() && elementContentRange.getStartOffset() <= selectedRange.getEndOffset();
+		final ContentRange selectedRange = widget.getSelectedRange();
+		return elementContentRange.intersects(selectedRange);
 	}
 
 	/**
@@ -283,7 +282,7 @@ public final class VexHandlerUtil {
 			public boolean matches(final Box box) {
 				System.out.println("Matching " + box);
 				final ContentRange selectedRange = vexWidget.getSelectedRange();
-				return box instanceof BlockBox && box.getStartOffset() <= selectedRange.getStartOffset() && box.getEndOffset() >= selectedRange.getEndOffset();
+				return box instanceof BlockBox && new ContentRange(box.getStartOffset(), box.getEndOffset()).contains(selectedRange);
 			}
 		});
 
@@ -295,7 +294,7 @@ public final class VexHandlerUtil {
 		System.out.println("Parent has " + children.length + " children");
 		final ContentRange selectedRange = vexWidget.getSelectedRange();
 		for (final Box child : children) {
-			if (child instanceof BlockBox && child.getStartOffset() >= selectedRange.getStartOffset() && child.getEndOffset() <= selectedRange.getEndOffset()) {
+			if (child instanceof BlockBox && selectedRange.contains(new ContentRange(child.getStartOffset(), child.getEndOffset()))) {
 				System.out.println("  adding " + child);
 				blockList.add((BlockBox) child);
 			} else {

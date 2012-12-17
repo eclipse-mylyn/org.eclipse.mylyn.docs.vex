@@ -57,11 +57,9 @@ public class LayoutUtils {
 	 */
 	public static boolean elementOrRangeContains(final Object elementOrRange, final int offset) {
 		if (elementOrRange instanceof Element) {
-			final Element element = (Element) elementOrRange;
-			return offset > element.getStartOffset() && offset <= element.getEndOffset();
+			return ((Element) elementOrRange).containsOffset(offset);
 		} else {
-			final ContentRange range = (ContentRange) elementOrRange;
-			return offset >= range.getStartOffset() && offset <= range.getEndOffset();
+			return ((ContentRange) elementOrRange).contains(offset);
 		}
 	}
 
