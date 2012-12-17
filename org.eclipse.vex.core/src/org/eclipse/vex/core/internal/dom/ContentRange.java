@@ -61,10 +61,10 @@ public class ContentRange {
 	}
 
 	public ContentRange moveBy(final int delta) {
-		return resize(delta, delta);
+		return resizeBy(delta, delta);
 	}
 
-	public ContentRange resize(final int deltaStart, final int deltaEnd) {
+	public ContentRange resizeBy(final int deltaStart, final int deltaEnd) {
 		return new ContentRange(startOffset + deltaStart, endOffset + deltaEnd);
 	}
 

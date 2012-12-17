@@ -187,7 +187,7 @@ public class GapContent implements Content {
 		if (range.getEndOffset() < gapStart) {
 			appendPlainText(result, range);
 		} else if (range.getStartOffset() >= gapStart) {
-			appendPlainText(result, range.resize(delta, delta));
+			appendPlainText(result, range.moveBy(delta));
 		} else {
 			appendPlainText(result, new ContentRange(range.getStartOffset(), gapStart - 1));
 			appendPlainText(result, new ContentRange(gapEnd, range.getEndOffset() + delta));
@@ -216,7 +216,7 @@ public class GapContent implements Content {
 		if (range.getEndOffset() < gapStart) {
 			appendRawText(result, range);
 		} else if (range.getStartOffset() >= gapStart) {
-			appendRawText(result, range.resize(delta, delta));
+			appendRawText(result, range.moveBy(delta));
 		} else {
 			appendRawText(result, new ContentRange(range.getStartOffset(), gapStart - 1));
 			appendRawText(result, new ContentRange(gapEnd, range.getEndOffset() + delta));

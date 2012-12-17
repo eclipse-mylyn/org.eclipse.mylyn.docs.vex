@@ -131,13 +131,13 @@ public abstract class NodeTest {
 		content.insertText(0, "prefix");
 		content.insertText(content.length(), "suffix");
 
-		assertTrue(node.isInRange(node.getRange().resize(-1, 0)));
+		assertTrue(node.isInRange(node.getRange().resizeBy(-1, 0)));
 		assertTrue(node.isInRange(node.getRange()));
-		assertFalse(node.isInRange(node.getRange().resize(1, 0)));
-		assertTrue(node.isInRange(node.getRange().resize(0, 1)));
-		assertFalse(node.isInRange(node.getRange().resize(0, -1)));
-		assertTrue(node.isInRange(node.getRange().resize(-1, 1)));
-		assertFalse(node.isInRange(node.getRange().resize(1, -1)));
+		assertFalse(node.isInRange(node.getRange().resizeBy(1, 0)));
+		assertTrue(node.isInRange(node.getRange().resizeBy(0, 1)));
+		assertFalse(node.isInRange(node.getRange().resizeBy(0, -1)));
+		assertTrue(node.isInRange(node.getRange().resizeBy(-1, 1)));
+		assertFalse(node.isInRange(node.getRange().resizeBy(1, -1)));
 	}
 
 	@Test

@@ -559,8 +559,7 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 
 	public VerticalRange layout(final LayoutContext context, final int top, final int bottom) {
 
-		int repaintStart = Integer.MAX_VALUE;
-		int repaintEnd = 0;
+		VerticalRange repaintRange = null;
 		boolean repaintToBottom = false;
 		final int originalHeight = getHeight();
 
@@ -583,7 +582,7 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 
 			// repaint everything
 			repaintToBottom = true;
-			repaintStart = 0;
+			repaintRange = new VerticalRange(0, 0);
 		}
 
 		final Box[] children = getChildren();
@@ -592,10 +591,13 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 				final BlockBox child = (BlockBox) element2;
 				if (top <= child.getY() + child.getHeight() && bottom >= child.getY()) {
 
-					final VerticalRange repaintRange = child.layout(context, top - child.getY(), bottom - child.getY());
-					if (repaintRange != null) {
-						repaintStart = Math.min(repaintStart, repaintRange.getStart() + child.getY());
-						repaintEnd = Math.max(repaintEnd, repaintRange.getEnd() + child.getY());
+					final VerticalRange layoutRange = child.layout(context, top - child.getY(), bottom - child.getY());
+					if (layoutRange != null) {
+						if (repaintRange == null) {
+							repaintRange = layoutRange.moveBy(child.getY());
+						} else {
+							repaintRange = repaintRange.union(layoutRange.moveBy(child.getY()));
+						}
 					}
 				}
 			}
@@ -604,20 +606,20 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 		final int childRepaintStart = positionChildren(context);
 		if (childRepaintStart != -1) {
 			repaintToBottom = true;
-			repaintStart = Math.min(repaintStart, childRepaintStart);
+			repaintRange = new VerticalRange(Math.min(repaintRange.getStart(), childRepaintStart), repaintRange.getEnd());
 		}
 
 		layoutState = LAYOUT_OK;
 
 		if (repaintToBottom) {
-			repaintEnd = Math.max(originalHeight, getHeight());
+			repaintRange = new VerticalRange(repaintRange.getStart(), Math.max(originalHeight, getHeight()));
 		}
 
-		if (repaintStart < repaintEnd) {
-			return new VerticalRange(repaintStart, repaintEnd);
-		} else {
+		if (repaintRange == null || repaintRange.isEmpty()) {
 			return null;
 		}
+
+		return repaintRange;
 	}
 
 	protected abstract List<Box> createChildren(LayoutContext context);

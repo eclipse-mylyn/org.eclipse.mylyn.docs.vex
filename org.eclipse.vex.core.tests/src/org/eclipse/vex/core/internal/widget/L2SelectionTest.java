@@ -41,7 +41,7 @@ public class L2SelectionTest {
 		final Element titleElement = widget.insertElement(TITLE);
 		widget.moveBy(-1, true);
 		assertTrue(widget.hasSelection());
-		assertEquals(titleElement.getRange().resize(0, -1), widget.getSelectedRange());
+		assertEquals(titleElement.getRange().resizeBy(0, -1), widget.getSelectedRange());
 	}
 
 	@Test
@@ -51,7 +51,7 @@ public class L2SelectionTest {
 		widget.moveBy(-5, false);
 		widget.moveTo(titleElement.getStartOffset(), true);
 		assertTrue(widget.hasSelection());
-		assertEquals(titleElement.getRange().resize(0, -1), widget.getSelectedRange());
+		assertEquals(titleElement.getRange().resizeBy(0, -1), widget.getSelectedRange());
 	}
 
 	@Test
@@ -68,6 +68,6 @@ public class L2SelectionTest {
 		final Element titleElement = widget.insertElement(TITLE);
 		widget.insertText("Hello World");
 		widget.moveTo(titleElement.getStartOffset() + 1, true);
-		assertEquals(titleElement.getRange().resize(1, -1), widget.getSelectedRange());
+		assertEquals(titleElement.getRange().resizeBy(1, -1), widget.getSelectedRange());
 	}
 }
