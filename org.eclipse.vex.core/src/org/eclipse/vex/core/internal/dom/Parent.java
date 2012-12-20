@@ -68,7 +68,7 @@ public abstract class Parent extends Node {
 		return children.size();
 	}
 
-	private ContentRange getInsertionRange() {
+	public ContentRange getInsertionRange() {
 		return getRange().resizeBy(1, 0);
 	}
 
