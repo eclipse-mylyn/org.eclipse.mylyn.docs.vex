@@ -14,8 +14,8 @@ import org.eclipse.vex.core.internal.core.ColorResource;
 import org.eclipse.vex.core.internal.core.FontResource;
 import org.eclipse.vex.core.internal.core.Graphics;
 import org.eclipse.vex.core.internal.css.Styles;
-import org.eclipse.vex.core.internal.dom.Node;
 import org.eclipse.vex.core.internal.dom.ContentRange;
+import org.eclipse.vex.core.internal.dom.Node;
 
 /**
  * A TextBox that gets its text from the document. Represents text which is editable within the VexWidget.
@@ -181,7 +181,7 @@ public class DocumentTextBox extends TextBox {
 		}
 
 		InlineBox right;
-		if (split >= getEndOffset()) {
+		if (split > getEndOffset()) {
 			right = null;
 		} else {
 			right = new DocumentTextBox(context, getNode(), split, getEndOffset());
