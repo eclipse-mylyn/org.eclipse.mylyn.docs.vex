@@ -221,18 +221,20 @@ public class Document extends Parent {
 				}
 
 				fireBeforeContentInserted(new DocumentEvent(Document.this, element, offset, adjustedText.length(), null));
-
 				getContent().insertText(offset, adjustedText);
-
 				fireContentInserted(new DocumentEvent(Document.this, element, offset, adjustedText.length(), null));
 			}
 
 			public void visit(final Text text) {
+				fireBeforeContentInserted(new DocumentEvent(Document.this, text.getParent(), offset, adjustedText.length(), null));
 				getContent().insertText(offset, adjustedText);
+				fireContentInserted(new DocumentEvent(Document.this, text.getParent(), offset, adjustedText.length(), null));
 			}
 
 			public void visit(final Comment comment) {
+				fireBeforeContentInserted(new DocumentEvent(Document.this, comment.getParent(), offset, adjustedText.length(), null));
 				getContent().insertText(offset, adjustedText);
+				fireContentInserted(new DocumentEvent(Document.this, comment.getParent(), offset, adjustedText.length(), null));
 			}
 		});
 	}
