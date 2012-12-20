@@ -843,80 +843,85 @@ public class VexWidgetImpl implements IVexWidget {
 	}
 
 	public void moveTo(final int offset, final boolean select) {
-
-		if (offset >= 1 && offset <= document.getLength() - 1) {
-
-			// repaint the selection area, if any
-			repaintCaret();
-			repaintRange(getSelectionStart(), getSelectionEnd());
-
-			final Element oldElement = currentElement;
-
-			caretOffset = offset;
-
-			currentElement = document.getElementForInsertionAt(offset);
-
-			if (select) {
-				selectionStart = Math.min(mark, caretOffset);
-				selectionEnd = Math.max(mark, caretOffset);
-
-				// move selectionStart and selectionEnd to make sure we don't select a partial element
-				final Element commonElement = document.findCommonElement(selectionStart, selectionEnd);
-
-				Element element = document.getElementForInsertionAt(selectionStart);
-				while (element != commonElement) {
-					selectionStart = element.getStartOffset();
-					element = document.getElementForInsertionAt(selectionStart);
-				}
-
-				element = document.getElementForInsertionAt(selectionEnd);
-				while (element != commonElement) {
-					selectionEnd = element.getEndOffset();
-					element = document.getElementForInsertionAt(selectionEnd + 1);
-				}
-
-			} else {
-				mark = offset;
-				selectionStart = offset;
-				selectionEnd = offset;
-			}
-
-			if (beginWorkCount == 0) {
-				relayout();
-			}
-
-			final Graphics g = hostComponent.createDefaultGraphics();
-			final LayoutContext context = createLayoutContext(g);
-			caret = rootBox.getCaret(context, offset);
-
-			Element element = getCurrentElement();
-			if (element != oldElement) {
-				caretColor = Color.BLACK;
-				while (element != null) {
-					final Color bgColor = styleSheet.getStyles(element).getBackgroundColor();
-					if (bgColor != null) {
-						final int red = ~bgColor.getRed() & 0xff;
-						final int green = ~bgColor.getGreen() & 0xff;
-						final int blue = ~bgColor.getBlue() & 0xff;
-						caretColor = new Color(red, green, blue);
-						break;
-					}
-					element = element.getParentElement();
-				}
-			}
-
-			g.dispose();
-
-			magicX = -1;
-
-			scrollCaretVisible();
-
-			hostComponent.fireSelectionChanged();
-
-			caretVisible = true;
-
-			repaintRange(getSelectionStart(), getSelectionEnd());
+		if (offset < 1 || offset > document.getLength() - 1) {
+			return;
 		}
+
+		repaintCaret();
+		repaintRange(getSelectionStart(), getSelectionEnd());
+
+		final Element oldElement = currentElement;
+
+		caretOffset = offset;
+
+		currentElement = document.getElementForInsertionAt(offset);
+
+		if (select) {
+			selectionStart = Math.min(mark, caretOffset);
+			selectionEnd = Math.max(mark, caretOffset);
+
+			// move selectionStart and selectionEnd to make sure we don't select a partial element
+			final Element commonElement = document.findCommonElement(selectionStart, selectionEnd);
+
+			Element element = document.getElementForInsertionAt(selectionStart);
+			while (element != commonElement) {
+				selectionStart = element.getStartOffset();
+				if (mark > caretOffset) {
+					caretOffset = selectionStart;
+				}
+				element = document.getElementForInsertionAt(selectionStart);
+			}
+
+			element = document.getElementForInsertionAt(selectionEnd);
+			while (element != commonElement) {
+				selectionEnd = element.getEndOffset() + 1;
+				if (mark < caretOffset) {
+					caretOffset = selectionEnd;
+				}
+				element = document.getElementForInsertionAt(selectionEnd);
+			}
+
+		} else {
+			mark = offset;
+			selectionStart = offset;
+			selectionEnd = offset;
+		}
+
+		if (beginWorkCount == 0) {
+			relayout();
+		}
+
+		final Graphics g = hostComponent.createDefaultGraphics();
+		final LayoutContext context = createLayoutContext(g);
+		caret = rootBox.getCaret(context, caretOffset);
+
+		Element element = getCurrentElement();
+		if (element != oldElement) {
+			caretColor = Color.BLACK;
+			while (element != null) {
+				final Color bgColor = styleSheet.getStyles(element).getBackgroundColor();
+				if (bgColor != null) {
+					final int red = ~bgColor.getRed() & 0xff;
+					final int green = ~bgColor.getGreen() & 0xff;
+					final int blue = ~bgColor.getBlue() & 0xff;
+					caretColor = new Color(red, green, blue);
+					break;
+				}
+				element = element.getParentElement();
+			}
+		}
+
+		g.dispose();
+
+		magicX = -1;
+
+		scrollCaretVisible();
+
+		hostComponent.fireSelectionChanged();
+
+		caretVisible = true;
+
+		repaintRange(getSelectionStart(), getSelectionEnd());
 	}
 
 	public void moveToLineEnd(final boolean select) {
