@@ -41,7 +41,8 @@ public class L2SelectionTest {
 		final Element titleElement = widget.insertElement(TITLE);
 		widget.moveBy(-1, true);
 		assertTrue(widget.hasSelection());
-		assertEquals(titleElement.getRange().resizeBy(0, -1), widget.getSelectedRange());
+		assertEquals(titleElement.getRange(), widget.getSelectedRange());
+		assertEquals(titleElement.getStartOffset(), widget.getCaretOffset());
 	}
 
 	@Test
@@ -51,7 +52,8 @@ public class L2SelectionTest {
 		widget.moveBy(-5, false);
 		widget.moveTo(titleElement.getStartOffset(), true);
 		assertTrue(widget.hasSelection());
-		assertEquals(titleElement.getRange().resizeBy(0, -1), widget.getSelectedRange());
+		assertEquals(titleElement.getRange(), widget.getSelectedRange());
+		assertEquals(titleElement.getStartOffset(), widget.getCaretOffset());
 	}
 
 	@Test
@@ -61,6 +63,7 @@ public class L2SelectionTest {
 		widget.moveBy(1, true);
 		assertTrue(widget.hasSelection());
 		assertEquals(titleElement.getRange(), widget.getSelectedRange());
+		assertEquals(titleElement.getEndOffset() + 1, widget.getCaretOffset());
 	}
 
 	@Test
@@ -69,5 +72,16 @@ public class L2SelectionTest {
 		widget.insertText("Hello World");
 		widget.moveTo(titleElement.getStartOffset() + 1, true);
 		assertEquals(titleElement.getRange().resizeBy(1, -1), widget.getSelectedRange());
+		assertEquals(titleElement.getStartOffset() + 1, widget.getCaretOffset());
+	}
+
+	@Test
+	public void givenCaretAtStartOffsetOfElementWithText_whenMovedByOneForward_shouldExpandSelectionBehindEndOffset() throws Exception {
+		final Element titleElement = widget.insertElement(TITLE);
+		widget.insertText("Hello World");
+		widget.moveTo(titleElement.getStartOffset(), false);
+		widget.moveBy(1, true);
+		assertEquals(titleElement.getRange(), widget.getSelectedRange());
+		assertEquals(titleElement.getEndOffset() + 1, widget.getCaretOffset());
 	}
 }
