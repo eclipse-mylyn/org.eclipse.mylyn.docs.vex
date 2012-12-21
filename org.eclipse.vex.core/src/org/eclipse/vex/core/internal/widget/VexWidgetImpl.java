@@ -847,92 +847,17 @@ public class VexWidgetImpl implements IVexWidget {
 			return;
 		}
 
-		final boolean movingForward = offset > caretOffset;
-		final boolean movingBackward = offset < caretOffset;
-		final boolean movingTowardMark = movingForward && mark >= offset || movingBackward && mark <= offset;
-		final boolean movingAwayFromMark = !movingTowardMark;
-
 		repaintCaret();
-		repaintRange(getSelectionStart(), getSelectionEnd());
-
-		final Element oldElement = currentElement;
-
-		caretOffset = offset;
-		currentElement = document.getElementForInsertionAt(caretOffset);
+		repaintSelectedRange();
 
 		if (select) {
-			selectionStart = Math.min(mark, caretOffset);
-			selectionEnd = Math.max(mark, caretOffset);
-
-			// expand or shrink the selection to make sure the selection is balanced
-			final Element commonElement = document.findCommonElement(selectionStart, selectionEnd);
-			if (movingForward && movingTowardMark) {
-				// shrink start
-				Element element = document.getElementForInsertionAt(selectionStart);
-				while (element != commonElement) {
-					selectionStart = element.getEndOffset() + 1;
-					caretOffset = selectionStart;
-					element = document.getElementForInsertionAt(selectionStart);
-				}
-
-				// expand end
-				element = document.getElementForInsertionAt(selectionEnd);
-				while (element != commonElement) {
-					selectionEnd = element.getEndOffset() + 1;
-					element = document.getElementForInsertionAt(selectionEnd);
-				}
-			} else if (movingBackward && movingTowardMark) {
-				// shrink end
-				Element element = document.getElementForInsertionAt(selectionEnd);
-				while (element != commonElement) {
-					selectionEnd = element.getStartOffset();
-					caretOffset = selectionEnd;
-					element = document.getElementForInsertionAt(selectionEnd);
-				}
-
-				// expand start
-				element = document.getElementForInsertionAt(selectionStart);
-				while (element != commonElement) {
-					selectionStart = element.getStartOffset();
-					element = document.getElementForInsertionAt(selectionStart);
-				}
-			} else if (movingForward && movingAwayFromMark) {
-				// expand end
-				Element element = document.getElementForInsertionAt(selectionEnd);
-				while (element != commonElement) {
-					selectionEnd = element.getEndOffset() + 1;
-					caretOffset = selectionEnd;
-					element = document.getElementForInsertionAt(selectionEnd);
-				}
-
-				// expand start
-				element = document.getElementForInsertionAt(selectionStart);
-				while (element != commonElement) {
-					selectionStart = element.getStartOffset();
-					element = document.getElementForInsertionAt(selectionStart);
-				}
-			} else if (movingBackward && movingAwayFromMark) {
-				// expand start
-				Element element = document.getElementForInsertionAt(selectionStart);
-				while (element != commonElement) {
-					selectionStart = element.getStartOffset();
-					caretOffset = selectionStart;
-					element = document.getElementForInsertionAt(selectionStart);
-				}
-
-				// expand end
-				element = document.getElementForInsertionAt(selectionEnd);
-				while (element != commonElement) {
-					selectionEnd = element.getEndOffset() + 1;
-					element = document.getElementForInsertionAt(selectionEnd);
-				}
-			}
-
+			moveSelectionTo(offset);
 		} else {
-			mark = offset;
-			selectionStart = offset;
-			selectionEnd = offset;
+			moveCaretTo(offset);
 		}
+
+		final Element oldElement = currentElement;
+		currentElement = document.getElementForInsertionAt(caretOffset);
 
 		if (beginWorkCount == 0) {
 			relayout();
@@ -965,7 +890,63 @@ public class VexWidgetImpl implements IVexWidget {
 		hostComponent.fireSelectionChanged();
 		caretVisible = true;
 
-		repaintRange(getSelectionStart(), getSelectionEnd());
+		repaintSelectedRange();
+	}
+
+	private void moveSelectionTo(final int offset) {
+		final boolean movingForward = offset > caretOffset;
+		final boolean movingBackward = offset < caretOffset;
+		final boolean movingTowardMark = movingForward && mark >= offset || movingBackward && mark <= offset;
+		final boolean movingAwayFromMark = !movingTowardMark;
+
+		// expand or shrink the selection to make sure the selection is balanced
+		final int balancedStart = Math.min(mark, offset);
+		final int balancedEnd = Math.max(mark, offset);
+		final Element balancedParent = document.findCommonElement(balancedStart, balancedEnd);
+		if (movingForward && movingTowardMark) {
+			selectionStart = balanceForward(balancedStart, balancedParent);
+			selectionEnd = balanceForward(balancedEnd, balancedParent);
+			caretOffset = selectionStart;
+		} else if (movingBackward && movingTowardMark) {
+			selectionStart = balanceBackward(balancedStart, balancedParent);
+			selectionEnd = balanceBackward(balancedEnd, balancedParent);
+			caretOffset = selectionEnd;
+		} else if (movingForward && movingAwayFromMark) {
+			selectionStart = balanceBackward(balancedStart, balancedParent);
+			selectionEnd = balanceForward(balancedEnd, balancedParent);
+			caretOffset = selectionEnd;
+		} else if (movingBackward && movingAwayFromMark) {
+			selectionStart = balanceBackward(balancedStart, balancedParent);
+			selectionEnd = balanceForward(balancedEnd, balancedParent);
+			caretOffset = selectionStart;
+		}
+	}
+
+	private int balanceForward(final int offset, final Element balancedParent) {
+		int balancedOffset = offset;
+		Element element = document.getElementForInsertionAt(balancedOffset);
+		while (element != balancedParent) {
+			balancedOffset = element.getEndOffset() + 1;
+			element = document.getElementForInsertionAt(balancedOffset);
+		}
+		return balancedOffset;
+	}
+
+	private int balanceBackward(final int offset, final Element balancedParent) {
+		int balancedOffset = offset;
+		Element element = document.getElementForInsertionAt(balancedOffset);
+		while (element != balancedParent) {
+			balancedOffset = element.getStartOffset();
+			element = document.getElementForInsertionAt(balancedOffset);
+		}
+		return balancedOffset;
+	}
+
+	private void moveCaretTo(final int offset) {
+		selectionStart = offset;
+		selectionEnd = offset;
+		caretOffset = offset;
+		mark = offset;
 	}
 
 	public void moveToLineEnd(final boolean select) {
@@ -1686,23 +1667,17 @@ public class VexWidgetImpl implements IVexWidget {
 
 	/**
 	 * Repaints area of the control corresponding to a range of offsets in the document.
-	 * 
-	 * @param startOffset
-	 *            Starting offset of the range.
-	 * @param endOffset
-	 *            Ending offset of the range.
 	 */
-	private void repaintRange(final int startOffset, final int endOffset) {
-
+	private void repaintSelectedRange() {
 		final Graphics g = hostComponent.createDefaultGraphics();
 
 		final LayoutContext context = createLayoutContext(g);
 
-		final Rectangle startBounds = rootBox.getCaret(context, startOffset).getBounds();
+		final Rectangle startBounds = rootBox.getCaret(context, getSelectionStart()).getBounds();
 		final int top1 = startBounds.getY();
 		final int bottom1 = top1 + startBounds.getHeight();
 
-		final Rectangle endBounds = rootBox.getCaret(context, endOffset).getBounds();
+		final Rectangle endBounds = rootBox.getCaret(context, getSelectionEnd()).getBounds();
 		final int top2 = endBounds.getY();
 		final int bottom2 = top2 + endBounds.getHeight();
 
