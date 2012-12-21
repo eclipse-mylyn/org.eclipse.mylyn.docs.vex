@@ -21,6 +21,7 @@ import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
 import org.eclipse.vex.core.internal.css.StyleSheet;
+import org.eclipse.vex.core.internal.dom.Comment;
 import org.eclipse.vex.core.internal.dom.Element;
 import org.junit.Before;
 import org.junit.Test;
@@ -218,5 +219,20 @@ public class L2SimpleEditingTest {
 		widget.insertChar('A');
 
 		assertEquals("A", titleElement.getText());
+	}
+
+	@Test
+	public void givenAnElement_whenInsertingAComment_elementShouldContainComment() throws Exception {
+		final Comment comment = widget.insertComment();
+		assertTrue(rootElement.getRange().contains(comment.getRange()));
+		assertSame(rootElement, comment.getParent());
+		assertEquals(comment.getEndOffset(), widget.getCaretOffset());
+	}
+
+	@Test
+	public void givenAnElementWithComment_whenInsertingTextWithinComment_shouldAddTextToComment() throws Exception {
+		final Comment comment = widget.insertComment();
+		widget.insertText("Hello World");
+		assertEquals("Hello World", comment.getText());
 	}
 }

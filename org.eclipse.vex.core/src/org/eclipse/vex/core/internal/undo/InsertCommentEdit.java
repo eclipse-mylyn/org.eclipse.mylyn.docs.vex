@@ -37,7 +37,7 @@ public class InsertCommentEdit implements IUndoableEdit {
 		}
 	}
 
-	public Comment getElement() {
+	public Comment getComment() {
 		return comment;
 	}
 

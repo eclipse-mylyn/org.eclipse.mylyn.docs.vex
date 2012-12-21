@@ -16,11 +16,12 @@ import java.net.URL;
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.vex.core.internal.core.ElementName;
 import org.eclipse.vex.core.internal.css.StyleSheet;
+import org.eclipse.vex.core.internal.dom.Comment;
+import org.eclipse.vex.core.internal.dom.ContentRange;
 import org.eclipse.vex.core.internal.dom.Document;
 import org.eclipse.vex.core.internal.dom.DocumentFragment;
 import org.eclipse.vex.core.internal.dom.DocumentValidationException;
 import org.eclipse.vex.core.internal.dom.Element;
-import org.eclipse.vex.core.internal.dom.ContentRange;
 import org.eclipse.vex.core.internal.layout.Box;
 import org.eclipse.vex.core.internal.layout.BoxFactory;
 import org.eclipse.vex.core.internal.undo.CannotRedoException;
@@ -262,8 +263,10 @@ public interface IVexWidget {
 
 	/**
 	 * Inserts a comment a the current caret position. Any selected content is first deleted.
+	 * 
+	 * @return the new comment
 	 */
-	public void insertComment() throws DocumentValidationException;
+	public Comment insertComment() throws DocumentValidationException;
 
 	/**
 	 * Returns the value of the debugging flag.
