@@ -59,12 +59,13 @@ import org.eclipse.vex.core.internal.core.ElementName;
 import org.eclipse.vex.core.internal.core.Graphics;
 import org.eclipse.vex.core.internal.core.Rectangle;
 import org.eclipse.vex.core.internal.css.StyleSheet;
+import org.eclipse.vex.core.internal.dom.Comment;
+import org.eclipse.vex.core.internal.dom.ContentRange;
 import org.eclipse.vex.core.internal.dom.Document;
 import org.eclipse.vex.core.internal.dom.DocumentFragment;
 import org.eclipse.vex.core.internal.dom.DocumentValidationException;
 import org.eclipse.vex.core.internal.dom.Element;
 import org.eclipse.vex.core.internal.dom.Node;
-import org.eclipse.vex.core.internal.dom.ContentRange;
 import org.eclipse.vex.core.internal.layout.Box;
 import org.eclipse.vex.core.internal.layout.BoxFactory;
 import org.eclipse.vex.core.internal.widget.HostComponent;
@@ -279,8 +280,8 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 		impl.insertText(text);
 	}
 
-	public void insertComment() throws DocumentValidationException {
-		impl.insertComment();
+	public Comment insertComment() throws DocumentValidationException {
+		return impl.insertComment();
 	}
 
 	public boolean isDebugging() {

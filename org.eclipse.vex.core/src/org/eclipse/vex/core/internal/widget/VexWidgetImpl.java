@@ -34,6 +34,7 @@ import org.eclipse.vex.core.internal.css.CSS;
 import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.css.StyleSheetReader;
 import org.eclipse.vex.core.internal.css.Styles;
+import org.eclipse.vex.core.internal.dom.Comment;
 import org.eclipse.vex.core.internal.dom.ContentRange;
 import org.eclipse.vex.core.internal.dom.Document;
 import org.eclipse.vex.core.internal.dom.DocumentEvent;
@@ -781,7 +782,7 @@ public class VexWidgetImpl implements IVexWidget {
 		this.moveBy(+1);
 	}
 
-	public void insertComment() throws DocumentValidationException {
+	public Comment insertComment() throws DocumentValidationException {
 		if (hasSelection()) {
 			deleteSelection();
 		}
@@ -789,10 +790,13 @@ public class VexWidgetImpl implements IVexWidget {
 		boolean success = false;
 		try {
 			beginWork();
-			applyEdit(new InsertCommentEdit(document, getCaretOffset()), getCaretOffset());
+
+			final InsertCommentEdit edit = applyEdit(new InsertCommentEdit(document, getCaretOffset()), getCaretOffset());
+			final Comment result = edit.getComment();
 			this.moveTo(getCaretOffset() + 1);
 			scrollCaretVisible();
 			success = true;
+			return result;
 		} finally {
 			endWork(success);
 		}
