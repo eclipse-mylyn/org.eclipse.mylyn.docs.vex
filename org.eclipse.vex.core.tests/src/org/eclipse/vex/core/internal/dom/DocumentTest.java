@@ -77,14 +77,25 @@ public class DocumentTest {
 	}
 
 	@Test
-	public void givenElementWithText_whenRangeBeginsFromStartOffset_shouldProvideParentAsCommenElement() throws Exception {
+	public void givenElementWithText_whenRangeBeginsFromStartOffset_shouldProvideParentAsCommenNode() throws Exception {
 		final Document document = new Document(new Element("root"));
 		final Element childElement = document.insertElement(1, new QualifiedName(null, "child"));
 		document.insertText(childElement.getEndOffset(), "Hello World");
 
-		final Element commonElement = document.findCommonElement(childElement.getStartOffset(), childElement.getEndOffset() - 5);
+		final Node commonNode = document.findCommonNode(childElement.getStartOffset(), childElement.getEndOffset() - 5);
 
-		assertSame(document.getRootElement(), commonElement);
+		assertSame(document.getRootElement(), commonNode);
+	}
+
+	@Test
+	public void givenElementWithText_whenRangeWithinText_shouldProvideElementAsCommonNode() throws Exception {
+		final Document document = new Document(new Element("root"));
+		final Element childElement = document.insertElement(1, new QualifiedName(null, "child"));
+		document.insertText(childElement.getEndOffset(), "Hello World");
+
+		final Node commonNode = document.findCommonNode(childElement.getStartOffset() + 2, childElement.getEndOffset() - 5);
+
+		assertSame(childElement, commonNode);
 	}
 
 	private static void assertNodesEqual(final List<? extends Node> expected, final List<? extends Node> actual) {

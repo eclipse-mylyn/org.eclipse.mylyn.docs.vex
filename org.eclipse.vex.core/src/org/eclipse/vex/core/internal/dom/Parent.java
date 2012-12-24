@@ -68,10 +68,6 @@ public abstract class Parent extends Node {
 		return children.size();
 	}
 
-	public ContentRange getInsertionRange() {
-		return getRange().resizeBy(1, 0);
-	}
-
 	/**
 	 * Remove the given child node from the list of children. The parent attribute of the child will be set to null.
 	 * 

@@ -906,42 +906,42 @@ public class VexWidgetImpl implements IVexWidget {
 		// expand or shrink the selection to make sure the selection is balanced
 		final int balancedStart = Math.min(mark, offset);
 		final int balancedEnd = Math.max(mark, offset);
-		final Element balancedParent = document.findCommonElement(balancedStart, balancedEnd);
+		final Node balancedNode = document.findCommonNode(balancedStart, balancedEnd);
 		if (movingForward && movingTowardMark) {
-			selectionStart = balanceForward(balancedStart, balancedParent);
-			selectionEnd = balanceForward(balancedEnd, balancedParent);
+			selectionStart = balanceForward(balancedStart, balancedNode);
+			selectionEnd = balanceForward(balancedEnd, balancedNode);
 			caretOffset = selectionStart;
 		} else if (movingBackward && movingTowardMark) {
-			selectionStart = balanceBackward(balancedStart, balancedParent);
-			selectionEnd = balanceBackward(balancedEnd, balancedParent);
+			selectionStart = balanceBackward(balancedStart, balancedNode);
+			selectionEnd = balanceBackward(balancedEnd, balancedNode);
 			caretOffset = selectionEnd;
 		} else if (movingForward && movingAwayFromMark) {
-			selectionStart = balanceBackward(balancedStart, balancedParent);
-			selectionEnd = balanceForward(balancedEnd, balancedParent);
+			selectionStart = balanceBackward(balancedStart, balancedNode);
+			selectionEnd = balanceForward(balancedEnd, balancedNode);
 			caretOffset = selectionEnd;
 		} else if (movingBackward && movingAwayFromMark) {
-			selectionStart = balanceBackward(balancedStart, balancedParent);
-			selectionEnd = balanceForward(balancedEnd, balancedParent);
+			selectionStart = balanceBackward(balancedStart, balancedNode);
+			selectionEnd = balanceForward(balancedEnd, balancedNode);
 			caretOffset = selectionStart;
 		}
 	}
 
-	private int balanceForward(final int offset, final Element balancedParent) {
+	private int balanceForward(final int offset, final Node balancedNode) {
 		int balancedOffset = offset;
-		Element element = document.getElementForInsertionAt(balancedOffset);
-		while (element != balancedParent) {
-			balancedOffset = element.getEndOffset() + 1;
-			element = document.getElementForInsertionAt(balancedOffset);
+		Node node = document.getNodeForInsertionAt(balancedOffset);
+		while (node != balancedNode) {
+			balancedOffset = node.getEndOffset() + 1;
+			node = document.getNodeForInsertionAt(balancedOffset);
 		}
 		return balancedOffset;
 	}
 
-	private int balanceBackward(final int offset, final Element balancedParent) {
+	private int balanceBackward(final int offset, final Node balancedNode) {
 		int balancedOffset = offset;
-		Element element = document.getElementForInsertionAt(balancedOffset);
-		while (element != balancedParent) {
-			balancedOffset = element.getStartOffset();
-			element = document.getElementForInsertionAt(balancedOffset);
+		Node node = document.getNodeForInsertionAt(balancedOffset);
+		while (node != balancedNode) {
+			balancedOffset = node.getStartOffset();
+			node = document.getNodeForInsertionAt(balancedOffset);
 		}
 		return balancedOffset;
 	}
