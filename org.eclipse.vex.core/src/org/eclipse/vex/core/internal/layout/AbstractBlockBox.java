@@ -48,6 +48,30 @@ import org.eclipse.vex.core.internal.dom.Position;
  */
 public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 
+	/** The length, in pixels, of the horizontal caret between block boxes */
+	private static final int H_CARET_LENGTH = 20;
+
+	/**
+	 * Element with which we are associated. For anonymous boxes, this is null.
+	 */
+	private final Node node;
+
+	/*
+	 * We cache the top and bottom margins, since they may be affected by our children.
+	 */
+	private int marginTop;
+	private int marginBottom;
+
+	/**
+	 * Start position of an anonymous box. For non-anonymous boxes, this is null.
+	 */
+	private Position startPosition;
+
+	/**
+	 * End position of an anonymous box. For non-anonymous boxes, this is null.
+	 */
+	private Position endPosition;
+
 	/**
 	 * Class constructor for non-anonymous boxes.
 	 * 
@@ -60,9 +84,9 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 	 */
 	public AbstractBlockBox(final LayoutContext context, final BlockBox parent, final Node node) {
 		this.parent = parent;
-		element = node;
+		this.node = node;
 
-		final Styles styles = context.getStyleSheet().getStyles(element);
+		final Styles styles = context.getStyleSheet().getStyles(node);
 		final int parentWidth = parent.getWidth();
 		marginTop = styles.getMarginTop().get(parentWidth);
 		marginBottom = styles.getMarginBottom().get(parentWidth);
@@ -83,6 +107,7 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 	 */
 	public AbstractBlockBox(final LayoutContext context, final BlockBox parent, final int startOffset, final int endOffset) {
 		this.parent = parent;
+		node = null;
 		marginTop = 0;
 		marginBottom = 0;
 
@@ -177,7 +202,7 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 
 	@Override
 	public Node getNode() {
-		return element;
+		return node;
 	}
 
 	@Override
@@ -638,13 +663,13 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 		}
 
 		final Document document = context.getDocument();
-		final Element element = document.findCommonElement(startOffset, endOffset);
+		final Node node = document.findCommonNode(startOffset, endOffset);
 
 		if (startOffset == endOffset) {
-			final int relOffset = startOffset - element.getStartOffset();
-			pendingInlines.add(new PlaceholderBox(context, element, relOffset));
-		} else {
-			final BlockInlineIterator iter = new BlockInlineIterator(context, element, startOffset, endOffset);
+			final int relOffset = startOffset - node.getStartOffset();
+			pendingInlines.add(new PlaceholderBox(context, node, relOffset));
+		} else if (node instanceof Parent) {
+			final BlockInlineIterator iter = new BlockInlineIterator(context, (Parent) node, startOffset, endOffset);
 			while (true) {
 				Object next = iter.next();
 				if (next == null) {
@@ -653,12 +678,12 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 
 				if (next instanceof ContentRange) {
 					final ContentRange range = (ContentRange) next;
-					final InlineElementBox.InlineBoxes inlineBoxes = InlineElementBox.createInlineBoxes(context, element, range);
+					final InlineElementBox.InlineBoxes inlineBoxes = InlineElementBox.createInlineBoxes(context, node, range);
 					pendingInlines.addAll(inlineBoxes.boxes);
-					pendingInlines.add(new PlaceholderBox(context, element, range.getEndOffset() - element.getStartOffset()));
+					pendingInlines.add(new PlaceholderBox(context, node, range.getEndOffset() - node.getStartOffset()));
 				} else {
 					if (!pendingInlines.isEmpty()) {
-						blockBoxes.add(ParagraphBox.create(context, element, pendingInlines, width));
+						blockBoxes.add(ParagraphBox.create(context, node, pendingInlines, width));
 						pendingInlines.clear();
 					}
 
@@ -692,7 +717,7 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 		}
 
 		if (!pendingInlines.isEmpty()) {
-			blockBoxes.add(ParagraphBox.create(context, element, pendingInlines, width));
+			blockBoxes.add(ParagraphBox.create(context, node, pendingInlines, width));
 			pendingInlines.clear();
 		}
 
@@ -701,9 +726,15 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 
 	private static class BlockInlineIterator {
 
-		public BlockInlineIterator(final LayoutContext context, final Element element, final int startOffset, final int endOffset) {
+		private final LayoutContext context;
+		private final Parent parent;
+		private int startOffset;
+		private final int endOffset;
+		private final LinkedList<Object> pushStack = new LinkedList<Object>();
+
+		public BlockInlineIterator(final LayoutContext context, final Parent parent, final int startOffset, final int endOffset) {
 			this.context = context;
-			this.element = element;
+			this.parent = parent;
 			this.startOffset = startOffset;
 			this.endOffset = endOffset;
 		}
@@ -717,7 +748,7 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 			} else if (startOffset == endOffset) {
 				return null;
 			} else {
-				final Node blockNode = findNextBlockNode(context, element, startOffset, endOffset);
+				final Node blockNode = findNextBlockNode(context, parent, startOffset, endOffset);
 				if (blockNode == null) {
 					if (startOffset < endOffset) {
 						final ContentRange result = new ContentRange(startOffset, endOffset);
@@ -742,11 +773,6 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 			pushStack.addLast(pushed);
 		}
 
-		private final LayoutContext context;
-		private final Element element;
-		private int startOffset;
-		private final int endOffset;
-		private final LinkedList<Object> pushStack = new LinkedList<Object>();
 	}
 
 	protected boolean hasChildren() {
@@ -823,29 +849,6 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 	}
 
 	// ========================================================= PRIVATE
-	/** The length, in pixels, of the horizontal caret between block boxes */
-	private static final int H_CARET_LENGTH = 20;
-
-	/**
-	 * Element with which we are associated. For anonymous boxes, this is null.
-	 */
-	private Node element;
-
-	/*
-	 * We cache the top and bottom margins, since they may be affected by our children.
-	 */
-	private int marginTop;
-	private int marginBottom;
-
-	/**
-	 * Start position of an anonymous box. For non-anonymous boxes, this is null.
-	 */
-	private Position startPosition;
-
-	/**
-	 * End position of an anonymous box. For non-anonymous boxes, this is null.
-	 */
-	private Position endPosition;
 
 	/**
 	 * Searches for the next block-formatted child.
