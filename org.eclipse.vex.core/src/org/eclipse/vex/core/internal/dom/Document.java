@@ -397,26 +397,6 @@ public class Document extends Parent {
 		return findCommonNodeIn(this, offset1, offset2);
 	}
 
-	public Element findCommonElement(final int offset1, final int offset2) {
-		Element element = rootElement;
-		for (;;) {
-			boolean tryAgain = false;
-			final List<Element> children = element.getChildElements();
-			for (int i = 0; i < children.size(); i++) {
-				final Element child = children.get(i);
-				if (isInsertionPointIn(child, offset1) && isInsertionPointIn(child, offset2)) {
-					element = child;
-					tryAgain = true;
-					break;
-				}
-			}
-			if (!tryAgain) {
-				break;
-			}
-		}
-		return element;
-	}
-
 	private static Node findCommonNodeIn(final Parent parent, final int offset1, final int offset2) {
 		final List<Node> children = parent.getChildNodes();
 		for (final Node child : children) {
