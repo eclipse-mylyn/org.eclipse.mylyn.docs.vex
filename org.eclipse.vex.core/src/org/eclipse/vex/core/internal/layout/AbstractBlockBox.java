@@ -680,8 +680,8 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 							iter.push(next);
 						}
 					} else { // next is a block box element
-						final Element blockElement = (Element) next;
-						blockBoxes.add(context.getBoxFactory().createBox(context, blockElement, this, width));
+						final Node blockNode = (Node) next;
+						blockBoxes.add(context.getBoxFactory().createBox(context, blockNode, this, width));
 					}
 				}
 			}
@@ -717,8 +717,8 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 			} else if (startOffset == endOffset) {
 				return null;
 			} else {
-				final Element blockElement = findNextBlockElement(context, element, startOffset, endOffset);
-				if (blockElement == null) {
+				final Node blockNode = findNextBlockNode(context, element, startOffset, endOffset);
+				if (blockNode == null) {
 					if (startOffset < endOffset) {
 						final ContentRange result = new ContentRange(startOffset, endOffset);
 						startOffset = endOffset;
@@ -726,14 +726,14 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 					} else {
 						return null;
 					}
-				} else if (blockElement.getStartOffset() > startOffset) {
-					pushStack.addLast(blockElement);
-					final ContentRange result = new ContentRange(startOffset, blockElement.getStartOffset());
-					startOffset = blockElement.getEndOffset() + 1;
+				} else if (blockNode.getStartOffset() > startOffset) {
+					pushStack.addLast(blockNode);
+					final ContentRange result = new ContentRange(startOffset, blockNode.getStartOffset());
+					startOffset = blockNode.getEndOffset() + 1;
 					return result;
 				} else {
-					startOffset = blockElement.getEndOffset() + 1;
-					return blockElement;
+					startOffset = blockNode.getEndOffset() + 1;
+					return blockNode;
 				}
 			}
 		}
@@ -852,43 +852,48 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 	 * 
 	 * @param context
 	 *            LayoutContext to use.
-	 * @param element
+	 * @param parent
 	 *            Element within which to search.
 	 * @param startOffset
 	 *            The offset at which to start the search.
 	 * @param endOffset
 	 *            The offset at which to end the search.
 	 */
-	private static Element findNextBlockElement(final LayoutContext context, final Element element, final int startOffset, final int endOffset) {
+	private static Node findNextBlockNode(final LayoutContext context, final Parent parent, final int startOffset, final int endOffset) {
+		final List<Node> children = parent.getChildNodes(new ContentRange(startOffset, endOffset));
+		for (final Node child : children) {
+			final Node nextBlockNode = child.accept(new BaseNodeVisitorWithResult<Node>() {
+				@Override
+				public Node visit(final Element element) {
+					// found?
+					if (!isInline(context, child, parent)) {
+						return child;
+					}
 
-		final List<Element> children = element.getChildElements();
-		for (int i = 0; i < children.size(); i++) {
-			final Element child = children.get(i);
+					// recursion
+					if (child instanceof Parent) {
+						final Node fromChild = findNextBlockNode(context, (Parent) child, startOffset, endOffset);
+						if (fromChild != null) {
+							return fromChild;
+						}
+					}
+					return null;
+				}
 
-			// inside range?
-			if (child.getEndOffset() < startOffset) {
-				continue;
-			}
-			if (child.getStartOffset() >= endOffset) {
-				break;
-			}
-
-			// found?
-			if (!isInline(context, child, element)) {
-				return child;
-			}
-
-			// recursion
-			final Element fromChild = findNextBlockElement(context, child, startOffset, endOffset);
-			if (fromChild != null) {
-				return fromChild;
+				@Override
+				public Node visit(final Comment comment) {
+					return comment;
+				}
+			});
+			if (nextBlockNode != null) {
+				return nextBlockNode;
 			}
 		}
 
 		return null;
 	}
 
-	private static boolean isInline(final LayoutContext context, final Element child, final Element parent) {
+	private static boolean isInline(final LayoutContext context, final Node child, final Node parent) {
 
 		final String style = displayStyleOf(child, context);
 		final String parentStyle = displayStyleOf(parent, context);
@@ -934,8 +939,8 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 		return false;
 	}
 
-	private static String displayStyleOf(final Element element, final LayoutContext context) {
-		return context.getStyleSheet().getStyles(element).getDisplay();
+	private static String displayStyleOf(final Node node, final LayoutContext context) {
+		return context.getStyleSheet().getStyles(node).getDisplay();
 	}
 
 	/**
