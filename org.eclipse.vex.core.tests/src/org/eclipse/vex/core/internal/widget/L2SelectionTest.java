@@ -18,6 +18,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import org.eclipse.vex.core.internal.css.StyleSheet;
+import org.eclipse.vex.core.internal.dom.Comment;
 import org.eclipse.vex.core.internal.dom.Element;
 import org.junit.Before;
 import org.junit.Test;
@@ -152,5 +153,14 @@ public class L2SelectionTest {
 		widget.moveBy(1, true);
 		assertEquals(paraElement.getRange().resizeBy(1, -4), widget.getSelectedRange());
 		assertEquals(paraElement.getStartOffset() + 1, widget.getCaretOffset());
+	}
+
+	@Test
+	public void givenCarentInEmptyComment_whenMovedBeforeComment_shouldExpandSelectionToIncludeEndOffset() throws Exception {
+		final Comment comment = widget.insertComment();
+		widget.moveBy(-1, true);
+		assertTrue(widget.hasSelection());
+		assertEquals(comment.getRange(), widget.getSelectedRange());
+		assertEquals(comment.getStartOffset(), widget.getCaretOffset());
 	}
 }

@@ -392,6 +392,11 @@ public class Document extends Parent {
 		return text.charAt(0);
 	}
 
+	public Node findCommonNode(final int offset1, final int offset2) {
+		Assert.isTrue(containsOffset(offset1) && containsOffset(offset2));
+		return findCommonNodeIn(this, offset1, offset2);
+	}
+
 	public Element findCommonElement(final int offset1, final int offset2) {
 		Element element = rootElement;
 		for (;;) {
@@ -412,12 +417,35 @@ public class Document extends Parent {
 		return element;
 	}
 
-	private static boolean isInsertionPointIn(final Node node, final int offset) {
-		return node.containsOffset(offset) && offset > node.getStartOffset();
+	private static Node findCommonNodeIn(final Parent parent, final int offset1, final int offset2) {
+		final List<Node> children = parent.getChildNodes();
+		for (final Node child : children) {
+			if (child instanceof Text) {
+				continue;
+			}
+			if (isCommonNodeFor(child, offset1, offset2)) {
+				if (child instanceof Parent) {
+					return findCommonNodeIn((Parent) child, offset1, offset2);
+				}
+				return child;
+			}
+		}
+		return parent;
 	}
 
-	private Node getNodeForInsertionAt(final int offset) {
+	private static boolean isCommonNodeFor(final Node node, final int offset1, final int offset2) {
+		return isInsertionPointIn(node, offset1) && isInsertionPointIn(node, offset2);
+	}
+
+	private static boolean isInsertionPointIn(final Node node, final int offset) {
+		return node.getInsertionRange().contains(offset);
+	}
+
+	public Node getNodeForInsertionAt(final int offset) {
 		final Node node = getChildNodeAt(offset);
+		if (node instanceof Text) {
+			return node.getParent();
+		}
 		if (offset == node.getStartOffset()) {
 			return node.getParent();
 		}

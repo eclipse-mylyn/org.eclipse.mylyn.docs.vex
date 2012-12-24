@@ -116,6 +116,10 @@ public abstract class Node {
 		return new ContentRange(getStartOffset(), getEndOffset());
 	}
 
+	public ContentRange getInsertionRange() {
+		return getRange().resizeBy(1, 0);
+	}
+
 	/**
 	 * Indicates whether the given offset is within the boundaries of this node. If this node is not associated with
 	 * textual content, this method returns false.
