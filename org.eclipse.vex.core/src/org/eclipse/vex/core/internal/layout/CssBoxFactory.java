@@ -22,14 +22,14 @@ public class CssBoxFactory implements BoxFactory {
 
 	private static final long serialVersionUID = -6882526795866485074L;
 
-	public Box createBox(final LayoutContext context, final Node node, final BlockBox parent, final int containerWidth) {
+	public Box createBox(final LayoutContext context, final Node node, final BlockBox parentBox, final int containerWidth) {
 		final Styles styles = context.getStyleSheet().getStyles(node);
 		if (node instanceof Comment) {
-			return new CommentBlockElementBox(context, parent, node);
+			return new CommentBlockBox(context, parentBox, node);
 		} else if (styles.getDisplay().equals(CSS.TABLE)) {
-			return new TableBox(context, parent, node);
+			return new TableBox(context, parentBox, node);
 		} else if (styles.isBlock()) {
-			return new BlockElementBox(context, parent, node);
+			return new BlockElementBox(context, parentBox, node);
 		} else {
 			throw new RuntimeException("Unexpected display property: " + styles.getDisplay());
 		}
