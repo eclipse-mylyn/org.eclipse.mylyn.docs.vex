@@ -847,7 +847,7 @@ public class VexWidgetImpl implements IVexWidget {
 	}
 
 	public void moveTo(final int offset, final boolean select) {
-		if (!document.getInsertionRange().contains(offset)) {
+		if (!Document.isInsertionPointIn(document, offset)) {
 			return;
 		}
 

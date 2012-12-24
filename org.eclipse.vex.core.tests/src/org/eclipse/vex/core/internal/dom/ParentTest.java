@@ -467,10 +467,10 @@ public class ParentTest {
 		final TestChild child2 = addTestChild();
 		final TestChild child3 = addTestChild();
 
-		assertEquals(0, parent.getInsertionIndex(child1.getStartOffset()));
-		assertEquals(1, parent.getInsertionIndex(child2.getStartOffset()));
-		assertEquals(2, parent.getInsertionIndex(child3.getStartOffset()));
-		assertEquals(3, parent.getInsertionIndex(parent.getEndOffset()));
+		assertEquals(0, parent.getIndexOfChildNextTo(child1.getStartOffset()));
+		assertEquals(1, parent.getIndexOfChildNextTo(child2.getStartOffset()));
+		assertEquals(2, parent.getIndexOfChildNextTo(child3.getStartOffset()));
+		assertEquals(3, parent.getIndexOfChildNextTo(parent.getEndOffset()));
 	}
 
 	private static void assertTextNodeEquals(final String text, final int startOffset, final int endOffset, final Node actualNode) {

@@ -56,8 +56,9 @@ public abstract class Parent extends Node {
 		child.setParent(this);
 	}
 
-	public int getInsertionIndex(final int offset) {
-		Assert.isTrue(getInsertionRange().contains(offset), MessageFormat.format("The offset must be within {0}.", getInsertionRange()));
+	public int getIndexOfChildNextTo(final int offset) {
+		final ContentRange insertionRange = getRange().resizeBy(1, 0);
+		Assert.isTrue(insertionRange.contains(offset), MessageFormat.format("The offset must be within {0}.", insertionRange));
 		int i = 0;
 		for (final Iterator<Node> iterator = children.iterator(); iterator.hasNext(); i++) {
 			final Node child = iterator.next();
