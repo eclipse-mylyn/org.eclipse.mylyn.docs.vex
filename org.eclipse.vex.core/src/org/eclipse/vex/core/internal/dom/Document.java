@@ -266,7 +266,7 @@ public class Document extends Parent {
 		getContent().insertElementMarker(offset);
 		comment.associate(getContent(), new ContentRange(offset, offset + 1));
 
-		parent.insertChild(parent.getInsertionIndex(offset), comment);
+		parent.insertChild(parent.getIndexOfChildNextTo(offset), comment);
 
 		fireContentInserted(new DocumentEvent(this, parent, offset, 2, null));
 
@@ -292,7 +292,7 @@ public class Document extends Parent {
 		getContent().insertElementMarker(offset);
 		element.associate(getContent(), new ContentRange(offset, offset + 1));
 
-		parent.insertChild(parent.getInsertionIndex(offset), element);
+		parent.insertChild(parent.getIndexOfChildNextTo(offset), element);
 
 		fireContentInserted(new DocumentEvent(this, parent, offset, 2, null));
 
@@ -319,7 +319,7 @@ public class Document extends Parent {
 
 		final DeepCopy deepCopy = new DeepCopy(fragment);
 		final List<Node> newNodes = deepCopy.getNodes();
-		int index = parent.getInsertionIndex(offset);
+		int index = parent.getIndexOfChildNextTo(offset);
 		for (final Node newNode : newNodes) {
 			parent.insertChild(index, newNode);
 			newNode.associate(getContent(), newNode.getRange().moveBy(offset));
@@ -417,8 +417,8 @@ public class Document extends Parent {
 		return isInsertionPointIn(node, offset1) && isInsertionPointIn(node, offset2);
 	}
 
-	private static boolean isInsertionPointIn(final Node node, final int offset) {
-		return node.getInsertionRange().contains(offset);
+	public static boolean isInsertionPointIn(final Node node, final int offset) {
+		return node.getRange().resizeBy(1, 0).contains(offset);
 	}
 
 	public Node getNodeForInsertionAt(final int offset) {
