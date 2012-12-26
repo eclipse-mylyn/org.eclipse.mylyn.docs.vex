@@ -710,6 +710,11 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 					}
 				}
 			}
+		} else {
+			final ContentRange range = new ContentRange(startOffset, endOffset);
+			final InlineElementBox.InlineBoxes inlineBoxes = InlineElementBox.createInlineBoxes(context, node, range);
+			pendingInlines.addAll(inlineBoxes.boxes);
+			pendingInlines.add(new PlaceholderBox(context, node, range.getEndOffset() - node.getStartOffset()));
 		}
 
 		if (afterInlines != null) {
