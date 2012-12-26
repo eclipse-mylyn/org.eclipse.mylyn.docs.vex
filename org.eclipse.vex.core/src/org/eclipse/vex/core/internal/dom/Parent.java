@@ -116,6 +116,12 @@ public abstract class Parent extends Node {
 				mergeTextIntoResult(textStart, child.getStartOffset(), result);
 				result.add(child);
 				textStart = child.getEndOffset() + 1;
+			} else if (trimmedRange.contains(child.getStartOffset())) {
+				mergeTextIntoResult(textStart, child.getStartOffset(), result);
+				textStart = child.getEndOffset() + 1;
+				break; // we can bail out here because we are behind the trimmed range now
+			} else if (trimmedRange.contains(child.getEndOffset())) {
+				textStart = child.getEndOffset() + 1;
 			}
 		}
 
