@@ -442,6 +442,19 @@ public class ParentTest {
 	}
 
 	@Test
+	public void shouldProvideChildNodesBeforeOffsetWithoutTextfragmentOfIntersectingChild() throws Exception {
+		final TestChild child1 = addTestChild();
+		final TestChild child2 = addTestChild();
+		final TestChild child3 = addTestChild();
+		content.insertText(child3.getEndOffset(), "Hello World");
+
+		final List<Node> childNodes12 = parent.getChildNodesBefore(child3.getStartOffset() + 5);
+		assertEquals(2, childNodes12.size());
+		assertSame(child1, childNodes12.get(0));
+		assertSame(child2, childNodes12.get(1));
+	}
+
+	@Test
 	public void shouldProvideChildNodesAfterOffset() throws Exception {
 		final TestChild child1 = addTestChild();
 		final TestChild child2 = addTestChild();
@@ -459,6 +472,19 @@ public class ParentTest {
 		assertSame(child3, childNodes123.get(2));
 
 		assertTrue(parent.getChildNodesAfter(parent.getEndOffset()).isEmpty());
+	}
+
+	@Test
+	public void shouldProvideChildNodesAfterOffsetWithoutTextfragmentOfIntersectingChild() throws Exception {
+		final TestChild child1 = addTestChild();
+		content.insertText(child1.getEndOffset(), "Hello World");
+		final TestChild child2 = addTestChild();
+		final TestChild child3 = addTestChild();
+
+		final List<Node> childNodes23 = parent.getChildNodesAfter(child1.getEndOffset() - 5);
+		assertEquals(2, childNodes23.size());
+		assertSame(child2, childNodes23.get(0));
+		assertSame(child3, childNodes23.get(1));
 	}
 
 	@Test
