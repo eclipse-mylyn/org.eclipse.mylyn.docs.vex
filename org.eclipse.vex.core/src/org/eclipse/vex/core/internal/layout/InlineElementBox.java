@@ -297,6 +297,24 @@ public class InlineElementBox extends CompositeInlineBox {
 						}
 
 						@Override
+						public void visit(final Comment comment) {
+							final PlaceholderBox placeholder = new PlaceholderBox(context, node, comment.getStartOffset() - node.getStartOffset());
+							result.boxes.add(placeholder);
+							if (result.firstContentBox == null) {
+								result.firstContentBox = placeholder;
+							}
+							final List<Box> commentBoxes = new ArrayList<Box>();
+							commentBoxes.add(new StaticTextBox(context, comment, COMMENT_BEFORE_TEXT));
+							if (comment.getEndOffset() - comment.getStartOffset() > 1) {
+								commentBoxes.add(new DocumentTextBox(context, comment, comment.getStartOffset() + 1, comment.getEndOffset() - 1));
+							}
+							commentBoxes.add(new PlaceholderBox(context, comment, comment.getEndOffset() - comment.getStartOffset()));
+							commentBoxes.add(new StaticTextBox(context, comment, COMMENT_AFTER_TEXT));
+							final InlineBox child = new InlineElementBox(context, comment, commentBoxes.toArray(new InlineBox[commentBoxes.size()]));
+							addChildInlineBox(result, child);
+						};
+
+						@Override
 						public void visit(final Text text) {
 							final ContentRange boxRange = range.intersection(text.getRange());
 							final InlineBox child = new DocumentTextBox(context, node, boxRange.getStartOffset(), boxRange.getEndOffset());
