@@ -255,4 +255,10 @@ public class L2SimpleEditingTest {
 		assertFalse(comment.isAssociated());
 		assertNull(comment.getParent());
 	}
+
+	@Test
+	public void givenAComment_whenCaretInComment_shouldNotAllowToInsertAComment() throws Exception {
+		widget.insertComment();
+		assertFalse("can insert comment within comment", widget.canInsertComment());
+	}
 }

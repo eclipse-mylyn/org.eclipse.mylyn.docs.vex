@@ -251,7 +251,14 @@ public class Document extends Parent {
 
 	public boolean canInsertComment(final int offset) {
 		// TODO Currently comments can only be inserted within the root element.
-		return offset > rootElement.getStartOffset() && offset <= rootElement.getEndOffset();
+		if (!(offset > rootElement.getStartOffset() && offset <= rootElement.getEndOffset())) {
+			return false;
+		}
+		final Node node = getNodeForInsertionAt(offset);
+		if (node instanceof Comment) {
+			return false;
+		}
+		return true;
 	}
 
 	public Comment insertComment(final int offset) {

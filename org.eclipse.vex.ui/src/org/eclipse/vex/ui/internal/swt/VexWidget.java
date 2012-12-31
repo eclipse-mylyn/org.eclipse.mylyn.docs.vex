@@ -135,6 +135,10 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 		impl.beginWork();
 	}
 
+	public boolean canInsertComment() {
+		return impl.canInsertComment();
+	}
+
 	public boolean canPaste() {
 		// TODO Auto-generated method stub
 		return false;

@@ -65,6 +65,8 @@ public interface IVexWidget {
 	 */
 	public void beginWork();
 
+	public boolean canInsertComment();
+
 	/**
 	 * Returns true if the clipboard has content that can be pasted. Used to enable/disable the paste action of a
 	 * containing application.
