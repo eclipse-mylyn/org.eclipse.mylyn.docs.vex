@@ -317,13 +317,13 @@ public class VexWidgetImpl implements IVexWidget {
 				joinElementsAt(offset);
 			} else if (isBetweenMatchingElements(offset + 1)) {
 				joinElementsAt(offset + 1);
-			} else if (doc.getElementForInsertionAt(offset).isEmpty()) {
+			} else if (doc.getNodeForInsertionAt(offset).isEmpty()) {
 				// deleting the right sentinel of an empty element
 				// so just delete the whole element an move on
 				moveBy(1);
 				moveBy(-2, true);
 				deleteSelection();
-			} else if (doc.getElementForInsertionAt(offset + 1).isEmpty()) {
+			} else if (doc.getNodeForInsertionAt(offset + 1).isEmpty()) {
 				// deleting the left sentinel of an empty element
 				// so just delete the whole element an move on
 				moveBy(2, true);
@@ -346,13 +346,13 @@ public class VexWidgetImpl implements IVexWidget {
 				joinElementsAt(offset);
 			} else if (isBetweenMatchingElements(offset - 1)) {
 				joinElementsAt(offset - 1);
-			} else if (doc.getElementForInsertionAt(offset).isEmpty()) {
+			} else if (doc.getNodeForInsertionAt(offset).isEmpty()) {
 				// deleting the left sentinel of an empty element
 				// so just delete the whole element an move on
 				moveBy(1);
 				moveBy(-2, true);
 				deleteSelection();
-			} else if (doc.getElementForInsertionAt(offset - 1).isEmpty()) {
+			} else if (doc.getNodeForInsertionAt(offset - 1).isEmpty()) {
 				// deleting the right sentinel of an empty element
 				// so just delete the whole element an move on
 				moveBy(-2, true);
