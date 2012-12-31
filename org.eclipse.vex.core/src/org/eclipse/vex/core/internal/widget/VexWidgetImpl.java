@@ -23,6 +23,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.vex.core.internal.core.Caret;
 import org.eclipse.vex.core.internal.core.Color;
@@ -191,6 +192,10 @@ public class VexWidgetImpl implements IVexWidget {
 			compoundEdit = new CompoundEdit();
 		}
 		beginWorkCount++;
+	}
+
+	public boolean canInsertComment() {
+		return getDocument().canInsertComment(getCaretOffset());
 	}
 
 	/**
@@ -783,6 +788,8 @@ public class VexWidgetImpl implements IVexWidget {
 	}
 
 	public Comment insertComment() throws DocumentValidationException {
+		Assert.isTrue(canInsertComment());
+
 		if (hasSelection()) {
 			deleteSelection();
 		}
