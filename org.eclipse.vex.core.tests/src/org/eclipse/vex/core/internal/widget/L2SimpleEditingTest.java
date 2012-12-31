@@ -235,4 +235,24 @@ public class L2SimpleEditingTest {
 		widget.insertText("Hello World");
 		assertEquals("Hello World", comment.getText());
 	}
+
+	@Test
+	public void givenAnEmptyComment_whenCaretInCommentAndHittingBackspace_shouldDeleteComment() throws Exception {
+		final Element titleElement = widget.insertElement(TITLE);
+		final Comment comment = widget.insertComment();
+		widget.deletePreviousChar();
+		assertEquals(0, titleElement.getChildCount());
+		assertFalse(comment.isAssociated());
+		assertNull(comment.getParent());
+	}
+
+	@Test
+	public void givenAnEmptyComment_whenCaretInCommentAndHittingDelete_shouldDeleteComment() throws Exception {
+		final Element titleElement = widget.insertElement(TITLE);
+		final Comment comment = widget.insertComment();
+		widget.deleteNextChar();
+		assertEquals(0, titleElement.getChildCount());
+		assertFalse(comment.isAssociated());
+		assertNull(comment.getParent());
+	}
 }

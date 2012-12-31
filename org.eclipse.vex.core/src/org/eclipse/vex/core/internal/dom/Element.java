@@ -350,10 +350,6 @@ public class Element extends Parent {
 	 * Miscellaneous
 	 */
 
-	public boolean isEmpty() {
-		return getStartOffset() + 1 == getEndOffset();
-	}
-
 	@Override
 	public String toString() {
 

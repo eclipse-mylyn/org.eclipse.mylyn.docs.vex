@@ -116,6 +116,10 @@ public abstract class Node {
 		return new ContentRange(getStartOffset(), getEndOffset());
 	}
 
+	public boolean isEmpty() {
+		return getEndOffset() - getStartOffset() == 1;
+	}
+
 	/**
 	 * Indicates whether the given offset is within the boundaries of this node. If this node is not associated with
 	 * textual content, this method returns false.
