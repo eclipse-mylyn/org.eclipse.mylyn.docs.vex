@@ -874,17 +874,16 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 				@Override
 				public Node visit(final Element element) {
 					// found?
-					if (!isInline(context, child, parent)) {
-						return child;
+					if (!isInline(context, element, parent)) {
+						return element;
 					}
 
 					// recursion
-					if (child instanceof Parent) {
-						final Node fromChild = findNextBlockNode(context, (Parent) child, startOffset, endOffset);
-						if (fromChild != null) {
-							return fromChild;
-						}
+					final Node fromChild = findNextBlockNode(context, element, startOffset, endOffset);
+					if (fromChild != null) {
+						return fromChild;
 					}
+
 					return null;
 				}
 
