@@ -33,6 +33,7 @@ import org.eclipse.vex.core.internal.dom.Element;
 import org.eclipse.vex.core.internal.dom.Node;
 import org.eclipse.vex.core.internal.dom.Parent;
 import org.eclipse.vex.core.internal.dom.Position;
+import org.eclipse.vex.core.internal.dom.Text;
 
 /**
  * Base class of block boxes that can contain other block boxes. This class implements the layout method and various
@@ -889,7 +890,10 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 
 				@Override
 				public Node visit(final Comment comment) {
-					return comment;
+					if (!isInline(context, comment, parent)) {
+						return comment;
+					}
+					return null;
 				}
 			});
 			if (nextBlockNode != null) {
@@ -901,49 +905,64 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 	}
 
 	private static boolean isInline(final LayoutContext context, final Node child, final Node parent) {
-
 		final String style = displayStyleOf(child, context);
 		final String parentStyle = displayStyleOf(parent, context);
-		if (style.equals(CSS.INLINE)) {
-			return true;
-		}
 
-		// invalid nested table elements have to be shown as 'inline': 
+		return child.accept(new BaseNodeVisitorWithResult<Boolean>(false) {
+			@Override
+			public Boolean visit(final Element element) {
+				if (style.equals(CSS.INLINE)) {
+					return true;
+				}
 
-		// parent of 'table-cell': 'table-row'
-		if (style.equals(CSS.TABLE_CELL) && !parentStyle.equals(CSS.TABLE_ROW)) {
-			return true;
-		}
+				// invalid nested table elements have to be shown as 'inline': 
 
-		// parent of 'table-row': 'table', 'table-row-group', 
-		// 'table-header-group' or 'table-footer-group'
-		if (style.equals(CSS.TABLE_ROW) && !parentStyle.equals(CSS.TABLE) && !parentStyle.equals(CSS.TABLE_ROW_GROUP) && !parentStyle.equals(CSS.TABLE_HEADER_GROUP)
-				&& !parentStyle.equals(CSS.TABLE_FOOTER_GROUP)) {
-			return true;
-		}
+				// parent of 'table-cell': 'table-row'
+				if (style.equals(CSS.TABLE_CELL) && !parentStyle.equals(CSS.TABLE_ROW)) {
+					return true;
+				}
 
-		// parent of 'table-row-group', table-header-group'
-		// or 'table-footer-group': 'table'
-		if ((style.equals(CSS.TABLE_ROW_GROUP) || style.equals(CSS.TABLE_HEADER_GROUP) || style.equals(CSS.TABLE_FOOTER_GROUP)) && !parentStyle.equals(CSS.TABLE)) {
-			return true;
-		}
+				// parent of 'table-row': 'table', 'table-row-group', 
+				// 'table-header-group' or 'table-footer-group'
+				if (style.equals(CSS.TABLE_ROW) && !parentStyle.equals(CSS.TABLE) && !parentStyle.equals(CSS.TABLE_ROW_GROUP) && !parentStyle.equals(CSS.TABLE_HEADER_GROUP)
+						&& !parentStyle.equals(CSS.TABLE_FOOTER_GROUP)) {
+					return true;
+				}
 
-		// parent of 'table-column': 'table-column-group'
-		if (style.equals(CSS.TABLE_COLUMN) && !parentStyle.equals(CSS.TABLE_COLUMN_GROUP)) {
-			return true;
-		}
+				// parent of 'table-row-group', table-header-group'
+				// or 'table-footer-group': 'table'
+				if ((style.equals(CSS.TABLE_ROW_GROUP) || style.equals(CSS.TABLE_HEADER_GROUP) || style.equals(CSS.TABLE_FOOTER_GROUP)) && !parentStyle.equals(CSS.TABLE)) {
+					return true;
+				}
 
-		// parent of 'table-column-group': 'table'
-		if (style.equals(CSS.TABLE_COLUMN_GROUP) && !parentStyle.equals(CSS.TABLE)) {
-			return true;
-		}
+				// parent of 'table-column': 'table-column-group'
+				if (style.equals(CSS.TABLE_COLUMN) && !parentStyle.equals(CSS.TABLE_COLUMN_GROUP)) {
+					return true;
+				}
 
-		// parent of 'table-caption': 'table'
-		if (style.equals(CSS.TABLE_CAPTION) && !parentStyle.equals(CSS.TABLE)) {
-			return true;
-		}
+				// parent of 'table-column-group': 'table'
+				if (style.equals(CSS.TABLE_COLUMN_GROUP) && !parentStyle.equals(CSS.TABLE)) {
+					return true;
+				}
 
-		return false;
+				// parent of 'table-caption': 'table'
+				if (style.equals(CSS.TABLE_CAPTION) && !parentStyle.equals(CSS.TABLE)) {
+					return true;
+				}
+
+				return false;
+			}
+
+			@Override
+			public Boolean visit(final Comment comment) {
+				return parentStyle.equals(CSS.INLINE);
+			}
+
+			@Override
+			public Boolean visit(final Text text) {
+				return true;
+			}
+		});
 	}
 
 	private static String displayStyleOf(final Node node, final LayoutContext context) {
