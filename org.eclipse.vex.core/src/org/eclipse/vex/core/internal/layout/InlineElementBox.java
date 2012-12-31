@@ -63,7 +63,6 @@ public class InlineElementBox extends CompositeInlineBox {
 		final Styles styles = context.getStyleSheet().getStyles(node);
 
 		if (startOffset <= node.getStartOffset()) {
-
 			// space for the left margin/border/padding
 			final int space = styles.getMarginLeft().get(0) + styles.getBorderLeftWidth() + styles.getPaddingLeft().get(0);
 
@@ -71,19 +70,14 @@ public class InlineElementBox extends CompositeInlineBox {
 				childList.add(new SpaceBox(space, 1));
 			}
 
-			if (node instanceof Comment) {
-				childList.add(new StaticTextBox(context, node, COMMENT_BEFORE_TEXT));
-			} else {
-				// :before content
-				final Element beforeElement;
-				beforeElement = context.getStyleSheet().getBeforeElement((Element) node);
-				if (beforeElement != null) {
-					childList.addAll(LayoutUtils.createGeneratedInlines(context, beforeElement));
-				}
-				// left marker
-				childList.add(createLeftMarker(node, styles));
+			// :before content
+			final Element beforeElement;
+			beforeElement = context.getStyleSheet().getBeforeElement((Element) node);
+			if (beforeElement != null) {
+				childList.addAll(LayoutUtils.createGeneratedInlines(context, beforeElement));
 			}
-
+			// left marker
+			childList.add(createLeftMarker(node, styles));
 		}
 
 		// background image
@@ -100,20 +94,15 @@ public class InlineElementBox extends CompositeInlineBox {
 		lastContentChild = inlines.lastContentBox;
 
 		if (endOffset > node.getEndOffset()) {
-
 			childList.add(new PlaceholderBox(context, node, node.getEndOffset() - node.getStartOffset()));
 
-			if (node instanceof Comment) {
-				childList.add(new StaticTextBox(context, node, COMMENT_AFTER_TEXT));
-			} else {
-				// trailing marker
-				childList.add(createRightMarker(node, styles));
+			// trailing marker
+			childList.add(createRightMarker(node, styles));
 
-				// :after content
-				final Element afterElement = context.getStyleSheet().getAfterElement((Element) node);
-				if (afterElement != null) {
-					childList.addAll(LayoutUtils.createGeneratedInlines(context, afterElement));
-				}
+			// :after content
+			final Element afterElement = context.getStyleSheet().getAfterElement((Element) node);
+			if (afterElement != null) {
+				childList.addAll(LayoutUtils.createGeneratedInlines(context, afterElement));
 			}
 
 			// space for the right margin/border/padding
@@ -322,13 +311,6 @@ public class InlineElementBox extends CompositeInlineBox {
 						}
 					});
 				}
-			}
-
-			@Override
-			public void visit(final Comment comment) {
-				final ContentRange boxRange = range.intersection(comment.getRange());
-				final InlineBox child = new DocumentTextBox(context, node, boxRange.getStartOffset(), boxRange.getEndOffset());
-				addChildInlineBox(result, child);
 			}
 		});
 
