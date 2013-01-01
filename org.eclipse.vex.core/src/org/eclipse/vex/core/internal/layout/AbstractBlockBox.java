@@ -402,6 +402,9 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 
 	@Override
 	public boolean hasContent() {
+		if (isAnonymous()) {
+			return false;
+		}
 		return getNode().isAssociated();
 	}
 
