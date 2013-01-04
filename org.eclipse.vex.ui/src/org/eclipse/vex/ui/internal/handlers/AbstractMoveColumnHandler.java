@@ -16,7 +16,7 @@ import java.util.List;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.vex.core.internal.core.IntRange;
+import org.eclipse.vex.core.internal.dom.ContentRange;
 import org.eclipse.vex.ui.internal.swt.VexWidget;
 
 /**
@@ -81,13 +81,13 @@ public abstract class AbstractMoveColumnHandler extends AbstractHandler {
 			// paste it to the source column.
 			final Object source = sourceCells.get(i);
 			final Object target = targetCells.get(i);
-			final IntRange sourceRange = VexHandlerUtil.getOuterRange(source);
-			final IntRange outerRange = VexHandlerUtil.getOuterRange(target);
-			widget.moveTo(moveRight() ? outerRange.getStart() : outerRange.getEnd());
+			final ContentRange sourceRange = VexHandlerUtil.getOuterRange(source);
+			final ContentRange targetRange = VexHandlerUtil.getOuterRange(target);
+			widget.moveTo(moveRight() ? targetRange.getStartOffset() : targetRange.getEndOffset());
 			widget.savePosition(new Runnable() {
 				public void run() {
-					widget.moveTo(sourceRange.getStart());
-					widget.moveTo(sourceRange.getEnd(), true);
+					widget.moveTo(sourceRange.getStartOffset());
+					widget.moveTo(sourceRange.getEndOffset(), true);
 					widget.cutSelection();
 				}
 			});

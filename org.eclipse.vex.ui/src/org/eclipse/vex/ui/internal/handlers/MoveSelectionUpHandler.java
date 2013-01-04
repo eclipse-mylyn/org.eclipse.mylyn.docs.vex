@@ -11,6 +11,7 @@
 package org.eclipse.vex.ui.internal.handlers;
 
 import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.vex.core.internal.dom.ContentRange;
 import org.eclipse.vex.core.internal.dom.Node;
 import org.eclipse.vex.core.internal.layout.BlockBox;
 import org.eclipse.vex.core.internal.layout.Box;
@@ -29,11 +30,11 @@ public class MoveSelectionUpHandler extends AbstractVexWidgetHandler {
 		// First we determine whether we should expand the selection
 		// to contain an entire block box.
 
-		// Find the lowest block box that completely contains the
-		// selection
+		// Find the lowest block box that completely contains the selection
 		final Box box = widget.findInnermostBox(new IBoxFilter() {
 			public boolean matches(final Box box) {
-				return box instanceof BlockBox && box.getNode() != null && box.getStartOffset() <= widget.getSelectionStart() && box.getEndOffset() >= widget.getSelectionEnd();
+				final ContentRange selectedRange = widget.getSelectedRange();
+				return box instanceof BlockBox && box.getNode() != null && new ContentRange(box.getStartOffset(), box.getEndOffset()).contains(selectedRange);
 			}
 		});
 
@@ -53,11 +54,11 @@ public class MoveSelectionUpHandler extends AbstractVexWidgetHandler {
 			System.out.println("Box is " + box);
 			final Node node = box.getNode();
 			if (node != null) {
-				widget.moveTo(node.getEndOffset());
+				widget.moveTo(node.getEndOffset() + 1);
 				widget.moveTo(node.getStartOffset(), true);
 
 			} else {
-				widget.moveTo(box.getEndOffset());
+				widget.moveTo(box.getEndOffset() + 1);
 				widget.moveTo(box.getStartOffset(), true);
 			}
 		}

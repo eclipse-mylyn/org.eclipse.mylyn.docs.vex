@@ -19,7 +19,7 @@ import org.eclipse.vex.core.internal.css.StyleSheetReader;
 import org.eclipse.vex.core.internal.css.Styles;
 import org.eclipse.vex.core.internal.dom.Document;
 import org.eclipse.vex.core.internal.dom.Element;
-import org.eclipse.vex.core.internal.dom.Range;
+import org.eclipse.vex.core.internal.dom.ContentRange;
 
 /**
  * Tests the DocumentTestBox class. We focus here on proper offsets, since text splitting is tested thoroughly in
@@ -85,7 +85,7 @@ public class TestDocumentTextBox extends TestCase {
 		assertSplit(box, 0, true, "b", "aggy orange trousers");
 		assertSplit(box, -1, true, "b", "aggy orange trousers");
 
-		doc.delete(new Range(1, 21));
+		doc.delete(new ContentRange(1, 21));
 	}
 
 	private void assertSplit(final DocumentTextBox box, final int splitPos, final boolean force, final String left, final String right) {

@@ -11,6 +11,8 @@
 package org.eclipse.vex.ui.internal.views;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
@@ -40,6 +42,7 @@ import org.eclipse.vex.core.internal.core.Caret;
 import org.eclipse.vex.core.internal.core.Rectangle;
 import org.eclipse.vex.core.internal.layout.Box;
 import org.eclipse.vex.core.internal.widget.HostComponent;
+import org.eclipse.vex.core.internal.widget.IBoxFilter;
 import org.eclipse.vex.core.internal.widget.VexWidgetImpl;
 import org.eclipse.vex.ui.internal.editor.VexEditor;
 import org.eclipse.vex.ui.internal.swt.VexWidget;
@@ -104,6 +107,7 @@ class DebugViewPage implements IPageBookViewPage {
 	private static Field rootBoxField;
 	private static Field caretField;
 	private static Field hostComponentField;
+	private static Method findInnermostBoxMethod;
 
 	static {
 		try {
@@ -115,6 +119,7 @@ class DebugViewPage implements IPageBookViewPage {
 			caretField.setAccessible(true);
 			hostComponentField = VexWidgetImpl.class.getDeclaredField("hostComponent");
 			hostComponentField.setAccessible(true);
+			findInnermostBoxMethod = VexWidgetImpl.class.getMethod("findInnermostBox", IBoxFilter.class);
 		} catch (final Exception e) {
 			// TODO: handle exception
 		}
@@ -131,6 +136,7 @@ class DebugViewPage implements IPageBookViewPage {
 	private Table table;
 	private TableItem documentItem;
 	private TableItem viewportItem;
+	private TableItem boxItem;
 	private TableItem caretOffsetItem;
 	private TableItem caretAbsItem;
 	private TableItem caretRelItem;
@@ -189,6 +195,8 @@ class DebugViewPage implements IPageBookViewPage {
 		documentItem.setText(0, "Document");
 		viewportItem = new TableItem(table, SWT.NONE);
 		viewportItem.setText(0, "Viewport");
+		boxItem = new TableItem(table, SWT.NONE);
+		boxItem.setText(0, "Current Box");
 		caretOffsetItem = new TableItem(table, SWT.NONE);
 		caretOffsetItem.setText(0, "Caret Offset");
 		caretAbsItem = new TableItem(table, SWT.NONE);
@@ -239,6 +247,7 @@ class DebugViewPage implements IPageBookViewPage {
 			table.getColumn(1).setWidth(numWidth);
 			table.getColumn(2).setWidth(numWidth);
 			table.getColumn(3).setWidth(numWidth);
+			table.getColumn(4).setWidth(numWidth);
 		}
 	};
 
@@ -278,11 +287,33 @@ class DebugViewPage implements IPageBookViewPage {
 
 	private void repopulate() {
 		setItemFromRect(documentItem, getRootBoxBounds());
+		setFromInnermostBox(boxItem, getInnermostBox());
 		final Rectangle viewport = getViewport();
 		caretOffsetItem.setText(1, Integer.toString(impl.getCaretOffset()));
 		setItemFromRect(viewportItem, viewport);
 		setItemFromRect(caretAbsItem, getCaretBounds());
 		setItemRel(caretRelItem, viewport, getCaretBounds());
+	}
+
+	private static void setFromInnermostBox(final TableItem item, final Box innermostBox) {
+		if (innermostBox == null) {
+			item.setText(1, "n/a");
+			return;
+		}
+
+		item.setText(1, innermostBox.getClass().getSimpleName() + ": " + innermostBox);
+	}
+
+	private Box getInnermostBox() {
+		try {
+			return (Box) findInnermostBoxMethod.invoke(impl, IBoxFilter.TRUE);
+		} catch (final IllegalArgumentException e) {
+			return null;
+		} catch (final IllegalAccessException e) {
+			return null;
+		} catch (final InvocationTargetException e) {
+			return null;
+		}
 	}
 
 	private static void setItemFromRect(final TableItem item, final Rectangle rect) {

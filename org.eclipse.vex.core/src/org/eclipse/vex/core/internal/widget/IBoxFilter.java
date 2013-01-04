@@ -19,6 +19,18 @@ import org.eclipse.vex.core.internal.layout.Box;
  */
 public interface IBoxFilter {
 
+	IBoxFilter TRUE = new IBoxFilter() {
+		public boolean matches(final Box box) {
+			return true;
+		}
+	};
+
+	IBoxFilter FALSE = new IBoxFilter() {
+		public boolean matches(final Box box) {
+			return false;
+		}
+	};
+
 	/**
 	 * Returns <code>true</code> if the given box matches the criteria.
 	 * 

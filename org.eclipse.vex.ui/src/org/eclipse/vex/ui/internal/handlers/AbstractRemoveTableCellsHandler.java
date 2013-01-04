@@ -13,7 +13,7 @@ package org.eclipse.vex.ui.internal.handlers;
 import java.util.List;
 
 import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.vex.core.internal.core.IntRange;
+import org.eclipse.vex.core.internal.dom.ContentRange;
 import org.eclipse.vex.ui.internal.swt.VexWidget;
 
 /**
@@ -56,9 +56,9 @@ public abstract class AbstractRemoveTableCellsHandler extends AbstractVexWidgetH
 		// that are in anonymous cells, which are not stored as Positions.
 		for (int i = cellsToDelete.size() - 1; i >= 0; i--) {
 			final Object cell = cellsToDelete.get(i);
-			final IntRange range = VexHandlerUtil.getOuterRange(cell);
-			widget.moveTo(range.getStart());
-			widget.moveTo(range.getEnd(), true);
+			final ContentRange range = VexHandlerUtil.getOuterRange(cell);
+			widget.moveTo(range.getStartOffset());
+			widget.moveTo(range.getEndOffset(), true);
 			widget.deleteSelection();
 		}
 	}

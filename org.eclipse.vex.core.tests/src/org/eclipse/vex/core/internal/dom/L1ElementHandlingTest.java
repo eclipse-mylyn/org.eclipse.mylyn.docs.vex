@@ -46,7 +46,7 @@ public class L1ElementHandlingTest {
 			@Override
 			public boolean isValidSequence(final QualifiedName element, final List<QualifiedName> sequence1, final List<QualifiedName> sequence2, final List<QualifiedName> sequence3,
 					final boolean partial) {
-				return "root".equals(element.getLocalName()) && "validChild".equals(sequence2.get(0).getLocalName());
+				return "root".equals(element.getLocalName()) && VALID_CHILD.equals(sequence2.get(0));
 			}
 		});
 	}
@@ -66,7 +66,7 @@ public class L1ElementHandlingTest {
 		assertSame(rootElement, newElement.getParent());
 		assertEquals(contentLengthBefore + 2, content.length());
 		assertSame(content, newElement.getContent());
-		assertEquals(new Range(1, 2), newElement.getRange());
+		assertEquals(new ContentRange(1, 2), newElement.getRange());
 	}
 
 	@Test(expected = DocumentValidationException.class)

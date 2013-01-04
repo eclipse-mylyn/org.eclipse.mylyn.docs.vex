@@ -25,9 +25,9 @@ public class ParentTest {
 		parent = new TestParent();
 
 		content = new GapContent(10);
-		content.insertElementMarker(0);
-		content.insertElementMarker(0);
-		parent.associate(content, new Range(0, 1));
+		content.insertTagMarker(0);
+		content.insertTagMarker(0);
+		parent.associate(content, new ContentRange(0, 1));
 	}
 
 	@Test
@@ -157,7 +157,7 @@ public class ParentTest {
 		final TestChild child3 = addTestChild();
 		addTestChild();
 
-		final List<Node> childNodes = parent.getChildNodes(new Range(child2.getStartOffset(), child3.getEndOffset()));
+		final List<Node> childNodes = parent.getChildNodes(new ContentRange(child2.getStartOffset(), child3.getEndOffset()));
 		assertEquals(2, childNodes.size());
 		assertSame(child2, childNodes.get(0));
 		assertSame(child3, childNodes.get(1));
@@ -171,7 +171,7 @@ public class ParentTest {
 		content.insertText(child1.getStartOffset(), "Hello");
 		content.insertText(child2.getStartOffset(), "World!");
 
-		final List<Node> childNodes = parent.getChildNodes(child1.getRange().moveBounds(-2, 2));
+		final List<Node> childNodes = parent.getChildNodes(child1.getRange().resizeBy(-2, 2));
 		assertEquals(3, childNodes.size());
 		assertTrue(childNodes.get(0) instanceof Text);
 		assertSame(child1, childNodes.get(1));
@@ -214,7 +214,7 @@ public class ParentTest {
 			children.add(addTestChild());
 		}
 
-		final List<Node> childNodes = parent.getChildNodes(new Range(children.get(1).getStartOffset(), children.get(3).getEndOffset()));
+		final List<Node> childNodes = parent.getChildNodes(new ContentRange(children.get(1).getStartOffset(), children.get(3).getEndOffset()));
 		assertEquals(3, childNodes.size());
 		assertSame(children.get(1), childNodes.get(0));
 		assertSame(children.get(2), childNodes.get(1));
@@ -228,7 +228,7 @@ public class ParentTest {
 			children.add(addTestChild());
 		}
 
-		final List<Node> childNodes = parent.getChildNodes(new Range(children.get(1).getStartOffset(), children.get(3).getStartOffset()));
+		final List<Node> childNodes = parent.getChildNodes(new ContentRange(children.get(1).getStartOffset(), children.get(3).getStartOffset()));
 		assertEquals(2, childNodes.size());
 		assertSame(children.get(1), childNodes.get(0));
 		assertSame(children.get(2), childNodes.get(1));
@@ -241,7 +241,7 @@ public class ParentTest {
 			children.add(addTestChild());
 		}
 
-		final List<Node> childNodes = parent.getChildNodes(new Range(children.get(1).getEndOffset(), children.get(3).getStartOffset()));
+		final List<Node> childNodes = parent.getChildNodes(new ContentRange(children.get(1).getEndOffset(), children.get(3).getStartOffset()));
 		assertEquals(1, childNodes.size());
 		assertSame(children.get(2), childNodes.get(0));
 	}
@@ -253,7 +253,7 @@ public class ParentTest {
 			children.add(addTestChild());
 		}
 
-		final List<Node> childNodes = parent.getChildNodes(new Range(children.get(1).getEndOffset(), children.get(3).getEndOffset()));
+		final List<Node> childNodes = parent.getChildNodes(new ContentRange(children.get(1).getEndOffset(), children.get(3).getEndOffset()));
 		assertEquals(2, childNodes.size());
 		assertSame(children.get(2), childNodes.get(0));
 		assertSame(children.get(3), childNodes.get(1));
@@ -358,7 +358,7 @@ public class ParentTest {
 	public void shouldHandleSmallerStartOffset() throws Exception {
 		setUpChildNodes();
 		content.insertText(parent.getStartOffset(), "prefix");
-		final List<Node> childNodes = parent.getChildNodes(parent.getRange().moveBounds(-2, 0));
+		final List<Node> childNodes = parent.getChildNodes(parent.getRange().resizeBy(-2, 0));
 		assertTextNodeEquals("Hello ", 7, 12, childNodes.get(0));
 		assertChildNodeEquals("Child1", 13, 20, childNodes.get(1));
 		assertChildNodeEquals("Child2", 21, 28, childNodes.get(2));
@@ -395,11 +395,11 @@ public class ParentTest {
 	@Test
 	public void shouldReturnTextWithinChildBoundaries() throws Exception {
 		final int offset = parent.getEndOffset();
-		content.insertElementMarker(offset);
-		content.insertElementMarker(offset);
+		content.insertTagMarker(offset);
+		content.insertTagMarker(offset);
 		final Element child = new Element("child");
 		parent.addChild(child);
-		child.associate(content, new Range(offset, offset + 1));
+		child.associate(content, new ContentRange(offset, offset + 1));
 		content.insertText(child.getEndOffset(), "Hello World");
 		final Node text = child.getChildNodes().get(0);
 		assertTextNodeEquals("Hello World", text.getStartOffset(), text.getEndOffset(), parent.getChildNodeAt(text.getStartOffset()));
@@ -442,6 +442,19 @@ public class ParentTest {
 	}
 
 	@Test
+	public void shouldProvideChildNodesBeforeOffsetWithoutTextfragmentOfIntersectingChild() throws Exception {
+		final TestChild child1 = addTestChild();
+		final TestChild child2 = addTestChild();
+		final TestChild child3 = addTestChild();
+		content.insertText(child3.getEndOffset(), "Hello World");
+
+		final List<Node> childNodes12 = parent.getChildNodesBefore(child3.getStartOffset() + 5);
+		assertEquals(2, childNodes12.size());
+		assertSame(child1, childNodes12.get(0));
+		assertSame(child2, childNodes12.get(1));
+	}
+
+	@Test
 	public void shouldProvideChildNodesAfterOffset() throws Exception {
 		final TestChild child1 = addTestChild();
 		final TestChild child2 = addTestChild();
@@ -462,15 +475,28 @@ public class ParentTest {
 	}
 
 	@Test
+	public void shouldProvideChildNodesAfterOffsetWithoutTextfragmentOfIntersectingChild() throws Exception {
+		final TestChild child1 = addTestChild();
+		content.insertText(child1.getEndOffset(), "Hello World");
+		final TestChild child2 = addTestChild();
+		final TestChild child3 = addTestChild();
+
+		final List<Node> childNodes23 = parent.getChildNodesAfter(child1.getEndOffset() - 5);
+		assertEquals(2, childNodes23.size());
+		assertSame(child2, childNodes23.get(0));
+		assertSame(child3, childNodes23.get(1));
+	}
+
+	@Test
 	public void shouldProvideInsertionIndexForOffset() throws Exception {
 		final TestChild child1 = addTestChild();
 		final TestChild child2 = addTestChild();
 		final TestChild child3 = addTestChild();
 
-		assertEquals(0, parent.getInsertionIndex(child1.getStartOffset()));
-		assertEquals(1, parent.getInsertionIndex(child2.getStartOffset()));
-		assertEquals(2, parent.getInsertionIndex(child3.getStartOffset()));
-		assertEquals(3, parent.getInsertionIndex(parent.getEndOffset()));
+		assertEquals(0, parent.getIndexOfChildNextTo(child1.getStartOffset()));
+		assertEquals(1, parent.getIndexOfChildNextTo(child2.getStartOffset()));
+		assertEquals(2, parent.getIndexOfChildNextTo(child3.getStartOffset()));
+		assertEquals(3, parent.getIndexOfChildNextTo(parent.getEndOffset()));
 	}
 
 	private static void assertTextNodeEquals(final String text, final int startOffset, final int endOffset, final Node actualNode) {
@@ -498,21 +524,16 @@ public class ParentTest {
 
 	private TestChild addTestChild() {
 		final int offset = parent.getEndOffset();
-		content.insertElementMarker(offset);
-		content.insertElementMarker(offset);
+		content.insertTagMarker(offset);
+		content.insertTagMarker(offset);
 		final TestChild result = new TestChild();
 		parent.addChild(result);
-		result.associate(content, new Range(offset, offset + 1));
+		result.associate(content, new ContentRange(offset, offset + 1));
 		return result;
 	}
 
 	private static class TestParent extends Parent {
 		@Override
-		public String getBaseURI() {
-			return null;
-		}
-
-		@Override
 		public void accept(final INodeVisitor visitor) {
 			throw new UnsupportedOperationException();
 		}
@@ -520,16 +541,16 @@ public class ParentTest {
 		@Override
 		public <T> T accept(final INodeVisitorWithResult<T> visitor) {
 			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public boolean isKindOf(final Node node) {
+			return false;
 		}
 	}
 
 	private static class TestChild extends Node {
 		@Override
-		public String getBaseURI() {
-			return null;
-		}
-
-		@Override
 		public void accept(final INodeVisitor visitor) {
 			throw new UnsupportedOperationException();
 		}
@@ -537,6 +558,11 @@ public class ParentTest {
 		@Override
 		public <T> T accept(final INodeVisitorWithResult<T> visitor) {
 			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public boolean isKindOf(final Node node) {
+			return false;
 		}
 	}
 }

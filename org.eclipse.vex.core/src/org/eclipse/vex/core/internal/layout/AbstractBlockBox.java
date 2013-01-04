@@ -22,17 +22,18 @@ import org.eclipse.vex.core.internal.core.ColorResource;
 import org.eclipse.vex.core.internal.core.FontMetrics;
 import org.eclipse.vex.core.internal.core.Graphics;
 import org.eclipse.vex.core.internal.core.Insets;
-import org.eclipse.vex.core.internal.core.IntRange;
 import org.eclipse.vex.core.internal.css.CSS;
 import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.css.Styles;
 import org.eclipse.vex.core.internal.dom.BaseNodeVisitorWithResult;
 import org.eclipse.vex.core.internal.dom.Comment;
+import org.eclipse.vex.core.internal.dom.ContentRange;
 import org.eclipse.vex.core.internal.dom.Document;
 import org.eclipse.vex.core.internal.dom.Element;
 import org.eclipse.vex.core.internal.dom.Node;
 import org.eclipse.vex.core.internal.dom.Parent;
 import org.eclipse.vex.core.internal.dom.Position;
+import org.eclipse.vex.core.internal.dom.Text;
 
 /**
  * Base class of block boxes that can contain other block boxes. This class implements the layout method and various
@@ -48,6 +49,30 @@ import org.eclipse.vex.core.internal.dom.Position;
  */
 public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 
+	/** The length, in pixels, of the horizontal caret between block boxes */
+	private static final int H_CARET_LENGTH = 20;
+
+	/**
+	 * Element with which we are associated. For anonymous boxes, this is null.
+	 */
+	private final Node node;
+
+	/*
+	 * We cache the top and bottom margins, since they may be affected by our children.
+	 */
+	private int marginTop;
+	private int marginBottom;
+
+	/**
+	 * Start position of an anonymous box. For non-anonymous boxes, this is null.
+	 */
+	private Position startPosition;
+
+	/**
+	 * End position of an anonymous box. For non-anonymous boxes, this is null.
+	 */
+	private Position endPosition;
+
 	/**
 	 * Class constructor for non-anonymous boxes.
 	 * 
@@ -60,9 +85,9 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 	 */
 	public AbstractBlockBox(final LayoutContext context, final BlockBox parent, final Node node) {
 		this.parent = parent;
-		element = node;
+		this.node = node;
 
-		final Styles styles = context.getStyleSheet().getStyles(element);
+		final Styles styles = context.getStyleSheet().getStyles(node);
 		final int parentWidth = parent.getWidth();
 		marginTop = styles.getMarginTop().get(parentWidth);
 		marginBottom = styles.getMarginBottom().get(parentWidth);
@@ -83,6 +108,7 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 	 */
 	public AbstractBlockBox(final LayoutContext context, final BlockBox parent, final int startOffset, final int endOffset) {
 		this.parent = parent;
+		node = null;
 		marginTop = 0;
 		marginBottom = 0;
 
@@ -177,7 +203,7 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 
 	@Override
 	public Node getNode() {
-		return element;
+		return node;
 	}
 
 	@Override
@@ -376,7 +402,10 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 
 	@Override
 	public boolean hasContent() {
-		return true;
+		if (isAnonymous()) {
+			return false;
+		}
+		return getNode().isAssociated();
 	}
 
 	public void invalidate(final boolean direct) {
@@ -557,10 +586,9 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 
 	private byte layoutState = LAYOUT_REDO;
 
-	public IntRange layout(final LayoutContext context, final int top, final int bottom) {
+	public VerticalRange layout(final LayoutContext context, final int top, final int bottom) {
 
-		int repaintStart = Integer.MAX_VALUE;
-		int repaintEnd = 0;
+		VerticalRange repaintRange = null;
 		boolean repaintToBottom = false;
 		final int originalHeight = getHeight();
 
@@ -583,7 +611,7 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 
 			// repaint everything
 			repaintToBottom = true;
-			repaintStart = 0;
+			repaintRange = new VerticalRange(0, 0);
 		}
 
 		final Box[] children = getChildren();
@@ -592,10 +620,13 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 				final BlockBox child = (BlockBox) element2;
 				if (top <= child.getY() + child.getHeight() && bottom >= child.getY()) {
 
-					final IntRange repaintRange = child.layout(context, top - child.getY(), bottom - child.getY());
-					if (repaintRange != null) {
-						repaintStart = Math.min(repaintStart, repaintRange.getStart() + child.getY());
-						repaintEnd = Math.max(repaintEnd, repaintRange.getEnd() + child.getY());
+					final VerticalRange layoutRange = child.layout(context, top - child.getY(), bottom - child.getY());
+					if (layoutRange != null) {
+						if (repaintRange == null) {
+							repaintRange = layoutRange.moveBy(child.getY());
+						} else {
+							repaintRange = repaintRange.union(layoutRange.moveBy(child.getY()));
+						}
 					}
 				}
 			}
@@ -604,20 +635,20 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 		final int childRepaintStart = positionChildren(context);
 		if (childRepaintStart != -1) {
 			repaintToBottom = true;
-			repaintStart = Math.min(repaintStart, childRepaintStart);
+			repaintRange = new VerticalRange(Math.min(repaintRange.getStart(), childRepaintStart), repaintRange.getEnd());
 		}
 
 		layoutState = LAYOUT_OK;
 
 		if (repaintToBottom) {
-			repaintEnd = Math.max(originalHeight, getHeight());
+			repaintRange = new VerticalRange(repaintRange.getStart(), Math.max(originalHeight, getHeight()));
 		}
 
-		if (repaintStart < repaintEnd) {
-			return new IntRange(repaintStart, repaintEnd);
-		} else {
+		if (repaintRange == null || repaintRange.isEmpty()) {
 			return null;
 		}
+
+		return repaintRange;
 	}
 
 	protected abstract List<Box> createChildren(LayoutContext context);
@@ -636,27 +667,27 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 		}
 
 		final Document document = context.getDocument();
-		final Element element = document.findCommonElement(startOffset, endOffset);
+		final Node node = document.findCommonNode(startOffset, endOffset);
 
 		if (startOffset == endOffset) {
-			final int relOffset = startOffset - element.getStartOffset();
-			pendingInlines.add(new PlaceholderBox(context, element, relOffset));
-		} else {
-			final BlockInlineIterator iter = new BlockInlineIterator(context, element, startOffset, endOffset);
+			final int relOffset = startOffset - node.getStartOffset();
+			pendingInlines.add(new PlaceholderBox(context, node, relOffset));
+		} else if (node instanceof Parent) {
+			final BlockInlineIterator iter = new BlockInlineIterator(context, (Parent) node, startOffset, endOffset);
 			while (true) {
 				Object next = iter.next();
 				if (next == null) {
 					break;
 				}
 
-				if (next instanceof IntRange) {
-					final IntRange range = (IntRange) next;
-					final InlineElementBox.InlineBoxes inlineBoxes = InlineElementBox.createInlineBoxes(context, element, range.getStart(), range.getEnd());
+				if (next instanceof ContentRange) {
+					final ContentRange range = (ContentRange) next;
+					final InlineElementBox.InlineBoxes inlineBoxes = InlineElementBox.createInlineBoxes(context, node, range);
 					pendingInlines.addAll(inlineBoxes.boxes);
-					pendingInlines.add(new PlaceholderBox(context, element, range.getEnd() - element.getStartOffset()));
+					pendingInlines.add(new PlaceholderBox(context, node, range.getEndOffset() - node.getStartOffset()));
 				} else {
 					if (!pendingInlines.isEmpty()) {
-						blockBoxes.add(ParagraphBox.create(context, element, pendingInlines, width));
+						blockBoxes.add(ParagraphBox.create(context, node, pendingInlines, width));
 						pendingInlines.clear();
 					}
 
@@ -678,11 +709,16 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 							iter.push(next);
 						}
 					} else { // next is a block box element
-						final Element blockElement = (Element) next;
-						blockBoxes.add(context.getBoxFactory().createBox(context, blockElement, this, width));
+						final Node blockNode = (Node) next;
+						blockBoxes.add(context.getBoxFactory().createBox(context, blockNode, this, width));
 					}
 				}
 			}
+		} else {
+			final ContentRange range = new ContentRange(startOffset, endOffset);
+			final InlineElementBox.InlineBoxes inlineBoxes = InlineElementBox.createInlineBoxes(context, node, range);
+			pendingInlines.addAll(inlineBoxes.boxes);
+			pendingInlines.add(new PlaceholderBox(context, node, range.getEndOffset() - node.getStartOffset()));
 		}
 
 		if (afterInlines != null) {
@@ -690,7 +726,7 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 		}
 
 		if (!pendingInlines.isEmpty()) {
-			blockBoxes.add(ParagraphBox.create(context, element, pendingInlines, width));
+			blockBoxes.add(ParagraphBox.create(context, node, pendingInlines, width));
 			pendingInlines.clear();
 		}
 
@@ -699,9 +735,15 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 
 	private static class BlockInlineIterator {
 
-		public BlockInlineIterator(final LayoutContext context, final Element element, final int startOffset, final int endOffset) {
+		private final LayoutContext context;
+		private final Parent parent;
+		private int startOffset;
+		private final int endOffset;
+		private final LinkedList<Object> pushStack = new LinkedList<Object>();
+
+		public BlockInlineIterator(final LayoutContext context, final Parent parent, final int startOffset, final int endOffset) {
 			this.context = context;
-			this.element = element;
+			this.parent = parent;
 			this.startOffset = startOffset;
 			this.endOffset = endOffset;
 		}
@@ -715,23 +757,23 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 			} else if (startOffset == endOffset) {
 				return null;
 			} else {
-				final Element blockElement = findNextBlockElement(context, element, startOffset, endOffset);
-				if (blockElement == null) {
+				final Node blockNode = findNextBlockNode(context, parent, startOffset, endOffset);
+				if (blockNode == null) {
 					if (startOffset < endOffset) {
-						final IntRange result = new IntRange(startOffset, endOffset);
+						final ContentRange result = new ContentRange(startOffset, endOffset);
 						startOffset = endOffset;
 						return result;
 					} else {
 						return null;
 					}
-				} else if (blockElement.getStartOffset() > startOffset) {
-					pushStack.addLast(blockElement);
-					final IntRange result = new IntRange(startOffset, blockElement.getStartOffset());
-					startOffset = blockElement.getEndOffset() + 1;
+				} else if (blockNode.getStartOffset() > startOffset) {
+					pushStack.addLast(blockNode);
+					final ContentRange result = new ContentRange(startOffset, blockNode.getStartOffset());
+					startOffset = blockNode.getEndOffset() + 1;
 					return result;
 				} else {
-					startOffset = blockElement.getEndOffset() + 1;
-					return blockElement;
+					startOffset = blockNode.getEndOffset() + 1;
+					return blockNode;
 				}
 			}
 		}
@@ -740,11 +782,6 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 			pushStack.addLast(pushed);
 		}
 
-		private final LayoutContext context;
-		private final Element element;
-		private int startOffset;
-		private final int endOffset;
-		private final LinkedList<Object> pushStack = new LinkedList<Object>();
 	}
 
 	protected boolean hasChildren() {
@@ -821,119 +858,118 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 	}
 
 	// ========================================================= PRIVATE
-	/** The length, in pixels, of the horizontal caret between block boxes */
-	private static final int H_CARET_LENGTH = 20;
-
-	/**
-	 * Element with which we are associated. For anonymous boxes, this is null.
-	 */
-	private Node element;
-
-	/*
-	 * We cache the top and bottom margins, since they may be affected by our children.
-	 */
-	private int marginTop;
-	private int marginBottom;
-
-	/**
-	 * Start position of an anonymous box. For non-anonymous boxes, this is null.
-	 */
-	private Position startPosition;
-
-	/**
-	 * End position of an anonymous box. For non-anonymous boxes, this is null.
-	 */
-	private Position endPosition;
 
 	/**
 	 * Searches for the next block-formatted child.
 	 * 
 	 * @param context
 	 *            LayoutContext to use.
-	 * @param element
+	 * @param parent
 	 *            Element within which to search.
 	 * @param startOffset
 	 *            The offset at which to start the search.
 	 * @param endOffset
 	 *            The offset at which to end the search.
 	 */
-	private static Element findNextBlockElement(final LayoutContext context, final Element element, final int startOffset, final int endOffset) {
+	private static Node findNextBlockNode(final LayoutContext context, final Parent parent, final int startOffset, final int endOffset) {
+		final List<Node> children = parent.getChildNodes(new ContentRange(startOffset, endOffset));
+		for (final Node child : children) {
+			final Node nextBlockNode = child.accept(new BaseNodeVisitorWithResult<Node>() {
+				@Override
+				public Node visit(final Element element) {
+					// found?
+					if (!isInline(context, element, parent)) {
+						return element;
+					}
 
-		final List<Element> children = element.getChildElements();
-		for (int i = 0; i < children.size(); i++) {
-			final Element child = children.get(i);
+					// recursion
+					final Node fromChild = findNextBlockNode(context, element, startOffset, endOffset);
+					if (fromChild != null) {
+						return fromChild;
+					}
 
-			// inside range?
-			if (child.getEndOffset() < startOffset) {
-				continue;
-			}
-			if (child.getStartOffset() >= endOffset) {
-				break;
-			}
+					return null;
+				}
 
-			// found?
-			if (!isInline(context, child, element)) {
-				return child;
-			}
-
-			// recursion
-			final Element fromChild = findNextBlockElement(context, child, startOffset, endOffset);
-			if (fromChild != null) {
-				return fromChild;
+				@Override
+				public Node visit(final Comment comment) {
+					if (!isInline(context, comment, parent)) {
+						return comment;
+					}
+					return null;
+				}
+			});
+			if (nextBlockNode != null) {
+				return nextBlockNode;
 			}
 		}
 
 		return null;
 	}
 
-	private static boolean isInline(final LayoutContext context, final Element child, final Element parent) {
-
+	private static boolean isInline(final LayoutContext context, final Node child, final Node parent) {
 		final String style = displayStyleOf(child, context);
 		final String parentStyle = displayStyleOf(parent, context);
-		if (style.equals(CSS.INLINE)) {
-			return true;
-		}
 
-		// invalid nested table elements have to be shown as 'inline': 
+		return child.accept(new BaseNodeVisitorWithResult<Boolean>(false) {
+			@Override
+			public Boolean visit(final Element element) {
+				if (style.equals(CSS.INLINE)) {
+					return true;
+				}
 
-		// parent of 'table-cell': 'table-row'
-		if (style.equals(CSS.TABLE_CELL) && !parentStyle.equals(CSS.TABLE_ROW)) {
-			return true;
-		}
+				// invalid nested table elements have to be shown as 'inline': 
 
-		// parent of 'table-row': 'table', 'table-row-group', 
-		// 'table-header-group' or 'table-footer-group'
-		if (style.equals(CSS.TABLE_ROW) && !parentStyle.equals(CSS.TABLE) && !parentStyle.equals(CSS.TABLE_ROW_GROUP) && !parentStyle.equals(CSS.TABLE_HEADER_GROUP)
-				&& !parentStyle.equals(CSS.TABLE_FOOTER_GROUP)) {
-			return true;
-		}
+				// parent of 'table-cell': 'table-row'
+				if (style.equals(CSS.TABLE_CELL) && !parentStyle.equals(CSS.TABLE_ROW)) {
+					return true;
+				}
 
-		// parent of 'table-row-group', table-header-group'
-		// or 'table-footer-group': 'table'
-		if ((style.equals(CSS.TABLE_ROW_GROUP) || style.equals(CSS.TABLE_HEADER_GROUP) || style.equals(CSS.TABLE_FOOTER_GROUP)) && !parentStyle.equals(CSS.TABLE)) {
-			return true;
-		}
+				// parent of 'table-row': 'table', 'table-row-group', 
+				// 'table-header-group' or 'table-footer-group'
+				if (style.equals(CSS.TABLE_ROW) && !parentStyle.equals(CSS.TABLE) && !parentStyle.equals(CSS.TABLE_ROW_GROUP) && !parentStyle.equals(CSS.TABLE_HEADER_GROUP)
+						&& !parentStyle.equals(CSS.TABLE_FOOTER_GROUP)) {
+					return true;
+				}
 
-		// parent of 'table-column': 'table-column-group'
-		if (style.equals(CSS.TABLE_COLUMN) && !parentStyle.equals(CSS.TABLE_COLUMN_GROUP)) {
-			return true;
-		}
+				// parent of 'table-row-group', table-header-group'
+				// or 'table-footer-group': 'table'
+				if ((style.equals(CSS.TABLE_ROW_GROUP) || style.equals(CSS.TABLE_HEADER_GROUP) || style.equals(CSS.TABLE_FOOTER_GROUP)) && !parentStyle.equals(CSS.TABLE)) {
+					return true;
+				}
 
-		// parent of 'table-column-group': 'table'
-		if (style.equals(CSS.TABLE_COLUMN_GROUP) && !parentStyle.equals(CSS.TABLE)) {
-			return true;
-		}
+				// parent of 'table-column': 'table-column-group'
+				if (style.equals(CSS.TABLE_COLUMN) && !parentStyle.equals(CSS.TABLE_COLUMN_GROUP)) {
+					return true;
+				}
 
-		// parent of 'table-caption': 'table'
-		if (style.equals(CSS.TABLE_CAPTION) && !parentStyle.equals(CSS.TABLE)) {
-			return true;
-		}
+				// parent of 'table-column-group': 'table'
+				if (style.equals(CSS.TABLE_COLUMN_GROUP) && !parentStyle.equals(CSS.TABLE)) {
+					return true;
+				}
 
-		return false;
+				// parent of 'table-caption': 'table'
+				if (style.equals(CSS.TABLE_CAPTION) && !parentStyle.equals(CSS.TABLE)) {
+					return true;
+				}
+
+				return false;
+			}
+
+			@Override
+			public Boolean visit(final Comment comment) {
+				return parentStyle.equals(CSS.INLINE);
+			}
+
+			@Override
+			public Boolean visit(final Text text) {
+				return true;
+			}
+		});
 	}
 
-	private static String displayStyleOf(final Element element, final LayoutContext context) {
-		return context.getStyleSheet().getStyles(element).getDisplay();
+	private static String displayStyleOf(final Node node, final LayoutContext context) {
+		return context.getStyleSheet().getStyles(node).getDisplay();
 	}
 
 	/**

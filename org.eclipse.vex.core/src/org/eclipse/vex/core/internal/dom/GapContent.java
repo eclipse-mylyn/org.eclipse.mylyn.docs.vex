@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2008 John Krasnay and others.
+ * Copyright (c) 2004, 2013 John Krasnay and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,11 +8,12 @@
  * Contributors:
  *     John Krasnay - initial API and implementation
  *     Igor Jacy Lino Campista - Java 5 warnings fixed (bug 311325)
+ *     Florian Thienel - refactoring to full fledged DOM
  *******************************************************************************/
 package org.eclipse.vex.core.internal.dom;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import org.eclipse.core.runtime.Assert;
 
@@ -24,15 +25,19 @@ import org.eclipse.core.runtime.Assert;
  */
 public class GapContent implements Content {
 
-	private static final char ELEMENT_MARKER = '\0';
+	private static final int GROWTH_SLOWDOWN_SIZE = 100000;
+	private static final int GROWTH_RATE_FAST = 2;
+	private static final float GROWTH_RATE_SLOW = 1.1f;
+
+	private static final char TAG_MARKER = '\0';
 
 	private char[] content;
 	private int gapStart;
 	private int gapEnd;
-	private final Set<GapContentPosition> positions = new HashSet<GapContentPosition>();
+	private final SortedSet<GapContentPosition> positions = new TreeSet<GapContentPosition>();
 
 	/**
-	 * Class constructor.
+	 * Create a GapContent with the given initial capacity.
 	 * 
 	 * @param initialCapacity
 	 *            initial capacity of the content.
@@ -45,45 +50,45 @@ public class GapContent implements Content {
 		gapEnd = initialCapacity;
 	}
 
-	/**
-	 * Creates a new Position object at the given initial offset.
-	 * 
-	 * @param offset
-	 *            initial offset of the position
-	 */
 	public Position createPosition(final int offset) {
 
 		assertOffset(offset, 0, length());
 
-		final GapContentPosition position = new GapContentPosition(offset);
-		positions.add(position);
-
-		return position;
+		final GapContentPosition newPosition = new GapContentPosition(offset);
+		if (positions.contains(newPosition)) {
+			final SortedSet<GapContentPosition> tailSet = positions.tailSet(newPosition);
+			final GapContentPosition storedPosition = tailSet.first();
+			storedPosition.increaseUse();
+			return storedPosition;
+		}
+		positions.add(newPosition);
+		return newPosition;
 	}
 
 	public void removePosition(final Position position) {
-		if (positions.remove(position)) {
+		if (positions.contains(position)) {
 			/*
 			 * This cast is save: if the position can be removed, this instance must have created it, hence it is a
 			 * GapContentPosition.
 			 */
-			((GapContentPosition) position).invalidate();
+			final SortedSet<GapContentPosition> tailSet = positions.tailSet((GapContentPosition) position);
+			final GapContentPosition storedPosition = tailSet.first();
+			storedPosition.decreaseUse();
+			if (!storedPosition.isValid()) {
+				positions.remove(storedPosition);
+			}
 		}
 	}
 
-	/**
-	 * Insert a string into the content.
-	 * 
-	 * @param offset
-	 *            Offset at which to insert the string.
-	 * @param s
-	 *            String to insert.
-	 */
-	public void insertText(final int offset, final String s) {
+	public int getPositionCount() {
+		return positions.size();
+	}
+
+	public void insertText(final int offset, final String text) {
 		assertOffset(offset, 0, length());
 
-		if (s.length() > gapEnd - gapStart) {
-			expandContent(length() + s.length());
+		if (text.length() > gapEnd - gapStart) {
+			expandContent(length() + text.length());
 		}
 
 		//
@@ -96,33 +101,34 @@ public class GapContent implements Content {
 		final boolean atEnd = offset == length() && offset == gapStart;
 
 		moveGap(offset);
-		s.getChars(0, s.length(), content, offset);
-		gapStart += s.length();
+		text.getChars(0, text.length(), content, offset);
+		gapStart += text.length();
 
 		if (!atEnd) {
 
 			// Update positions
-			for (final GapContentPosition position : positions) {
+			final GapContentPosition offsetPosition = new GapContentPosition(offset);
+			for (final GapContentPosition position : positions.tailSet(offsetPosition)) {
 				if (position.getOffset() >= offset) {
-					position.setOffset(position.getOffset() + s.length());
+					position.setOffset(position.getOffset() + text.length());
 				}
 			}
 
 		}
 	}
 
-	public void insertElementMarker(final int offset) {
+	public void insertTagMarker(final int offset) {
 		assertOffset(offset, 0, length());
 
-		insertText(offset, Character.toString(ELEMENT_MARKER));
+		insertText(offset, Character.toString(TAG_MARKER));
 	}
 
-	public boolean isElementMarker(final int offset) {
+	public boolean isTagMarker(final int offset) {
 		if (offset < 0 || offset >= length()) {
 			return false;
 		}
 
-		return isElementMarker(content[getIndex(offset)]);
+		return isTagMarker(content[getIndex(offset)]);
 	}
 
 	private int getIndex(final int offset) {
@@ -132,19 +138,11 @@ public class GapContent implements Content {
 		return offset + gapEnd - gapStart;
 	}
 
-	private boolean isElementMarker(final char c) {
-		return c == ELEMENT_MARKER;
+	private boolean isTagMarker(final char c) {
+		return c == TAG_MARKER;
 	}
 
-	/**
-	 * Deletes the given range of characters.
-	 * 
-	 * @param offset
-	 *            Offset from which characters should be deleted.
-	 * @param length
-	 *            Number of characters to delete.
-	 */
-	public void remove(final Range range) {
+	public void remove(final ContentRange range) {
 		assertOffset(range.getStartOffset(), 0, length() - range.length());
 		assertPositive(range.length());
 
@@ -164,7 +162,7 @@ public class GapContent implements Content {
 		return getText(getRange());
 	}
 
-	public String getText(final Range range) {
+	public String getText(final ContentRange range) {
 		Assert.isTrue(getRange().contains(range));
 
 		final int delta = gapEnd - gapStart;
@@ -172,18 +170,18 @@ public class GapContent implements Content {
 		if (range.getEndOffset() < gapStart) {
 			appendPlainText(result, range);
 		} else if (range.getStartOffset() >= gapStart) {
-			appendPlainText(result, range.moveBounds(delta, delta));
+			appendPlainText(result, range.moveBy(delta));
 		} else {
-			appendPlainText(result, new Range(range.getStartOffset(), gapStart - 1));
-			appendPlainText(result, new Range(gapEnd, range.getEndOffset() + delta));
+			appendPlainText(result, new ContentRange(range.getStartOffset(), gapStart - 1));
+			appendPlainText(result, new ContentRange(gapEnd, range.getEndOffset() + delta));
 		}
 		return result.toString();
 	}
 
-	private void appendPlainText(final StringBuilder stringBuilder, final Range range) {
+	private void appendPlainText(final StringBuilder stringBuilder, final ContentRange range) {
 		for (int i = range.getStartOffset(); range.contains(i); i++) {
 			final char c = content[i];
-			if (!isElementMarker(c)) {
+			if (!isTagMarker(c)) {
 				stringBuilder.append(c);
 			}
 		}
@@ -193,7 +191,7 @@ public class GapContent implements Content {
 		return getRawText(getRange());
 	}
 
-	public String getRawText(final Range range) {
+	public String getRawText(final ContentRange range) {
 		Assert.isTrue(getRange().contains(range));
 
 		final int delta = gapEnd - gapStart;
@@ -201,15 +199,15 @@ public class GapContent implements Content {
 		if (range.getEndOffset() < gapStart) {
 			appendRawText(result, range);
 		} else if (range.getStartOffset() >= gapStart) {
-			appendRawText(result, range.moveBounds(delta, delta));
+			appendRawText(result, range.moveBy(delta));
 		} else {
-			appendRawText(result, new Range(range.getStartOffset(), gapStart - 1));
-			appendRawText(result, new Range(gapEnd, range.getEndOffset() + delta));
+			appendRawText(result, new ContentRange(range.getStartOffset(), gapStart - 1));
+			appendRawText(result, new ContentRange(gapEnd, range.getEndOffset() + delta));
 		}
 		return result.toString();
 	}
 
-	private void appendRawText(final StringBuilder stringBuilder, final Range range) {
+	private void appendRawText(final StringBuilder stringBuilder, final ContentRange range) {
 		stringBuilder.append(content, range.getStartOffset(), range.length());
 	}
 
@@ -223,7 +221,7 @@ public class GapContent implements Content {
 		return getContent(getRange());
 	}
 
-	public Content getContent(final Range range) {
+	public Content getContent(final ContentRange range) {
 		Assert.isTrue(getRange().contains(range));
 
 		final GapContent result = new GapContent(range.length());
@@ -231,12 +229,12 @@ public class GapContent implements Content {
 		return result;
 	}
 
-	private static void copyContent(final Content source, final Content destination, final Range sourceRange, final int destinationStartOffset) {
+	private static void copyContent(final Content source, final Content destination, final ContentRange sourceRange, final int destinationStartOffset) {
 		for (int i = 0; i < sourceRange.length(); i++) {
 			final int sourceOffset = sourceRange.getStartOffset() + i;
 			final int destinationOffset = destinationStartOffset + i;
-			if (source.isElementMarker(sourceOffset)) {
-				destination.insertElementMarker(destinationOffset);
+			if (source.isTagMarker(sourceOffset)) {
+				destination.insertTagMarker(destinationOffset);
 			} else {
 				destination.insertText(destinationOffset, Character.toString(source.charAt(sourceOffset)));
 			}
@@ -245,21 +243,21 @@ public class GapContent implements Content {
 
 	/**
 	 * @see CharSequence#length()
-	 * @return the length of the raw textual content, including element markers.
+	 * @return the length of the raw textual content, including tag markers.
 	 */
 	public int length() {
 		return content.length - (gapEnd - gapStart);
 	}
 
-	public Range getRange() {
-		return new Range(0, length() - 1);
+	public ContentRange getRange() {
+		return new ContentRange(0, length() - 1);
 	}
 
 	/**
 	 * @see CharSequence#charAt(int)
 	 * @param offset
 	 *            the offset of the character within the raw textual content
-	 * @return the character at the given offset (element markers included)
+	 * @return the character at the given offset (tag markers included)
 	 */
 	public char charAt(final int offset) {
 		if (offset < gapStart) {
@@ -270,34 +268,27 @@ public class GapContent implements Content {
 	}
 
 	/**
-	 * Get the raw text of a region of this content. The plain text does also contain the element markers in this
-	 * content.
+	 * Get the raw text of a region of this content. The plain text does also contain the tag markers in this content.
 	 * 
 	 * @see CharSequence#subSequence(int, int)
 	 * @param startOffset
 	 *            Offset at which the substring begins.
 	 * @param endOffset
 	 *            Offset at which the substring ends.
-	 * @return the text of the given region including element markers
+	 * @return the text of the given region including tag markers
 	 */
 	public CharSequence subSequence(final int startOffset, final int endOffset) {
-		return getRawText(new Range(startOffset, endOffset));
+		return getRawText(new ContentRange(startOffset, endOffset));
 	}
 
-	// ====================================================== PRIVATE
-
-	private static final int GROWTH_SLOWDOWN_SIZE = 100000;
-	private static final int GROWTH_RATE_FAST = 2;
-	private static final float GROWTH_RATE_SLOW = 1.1f;
-
-	/**
+	/*
 	 * Implementation of the Position interface.
 	 */
-	private static class GapContentPosition implements Position {
+	private static class GapContentPosition implements Position, Comparable<Position> {
 
 		private int offset;
 
-		private boolean valid = true;
+		private int useCount = 1;
 
 		public GapContentPosition(final int offset) {
 			this.offset = offset;
@@ -311,17 +302,51 @@ public class GapContent implements Content {
 			this.offset = offset;
 		}
 
+		public void increaseUse() {
+			useCount++;
+		}
+
+		public void decreaseUse() {
+			useCount--;
+		}
+
 		public boolean isValid() {
-			return valid;
+			return useCount > 0;
 		};
 
-		public void invalidate() {
-			valid = false;
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + offset;
+			return result;
+		}
+
+		@Override
+		public boolean equals(final Object obj) {
+			if (this == obj) {
+				return true;
+			}
+			if (obj == null) {
+				return false;
+			}
+			if (getClass() != obj.getClass()) {
+				return false;
+			}
+			final GapContentPosition other = (GapContentPosition) obj;
+			if (offset != other.offset) {
+				return false;
+			}
+			return true;
 		}
 
 		@Override
 		public String toString() {
 			return Integer.toString(offset);
+		}
+
+		public int compareTo(final Position other) {
+			return offset - other.getOffset();
 		}
 	}
 

@@ -20,7 +20,7 @@ import org.eclipse.core.runtime.Assert;
 
 /**
  * A Parent node is a Node which can contain other nodes as children. This class defines the tree-like structure of the
- * DOM. It handles the mergin of the child nodes and the textual content of one node within the structure of the
+ * DOM. It handles the merging of the child nodes and the textual content of one node within the structure of the
  * document.
  * 
  * @author Florian Thienel
@@ -56,8 +56,12 @@ public abstract class Parent extends Node {
 		child.setParent(this);
 	}
 
-	public int getInsertionIndex(final int offset) {
-		Assert.isTrue(getStartOffset() < offset && offset <= getEndOffset(), MessageFormat.format("The offset must be within [{0}, {1}].", getStartOffset() + 1, getEndOffset()));
+	/**
+	 * @return the child node of this parent following the given offset
+	 */
+	public int getIndexOfChildNextTo(final int offset) {
+		final ContentRange insertionRange = getRange().resizeBy(1, 0);
+		Assert.isTrue(insertionRange.contains(offset), MessageFormat.format("The offset must be within {0}.", insertionRange));
 		int i = 0;
 		for (final Iterator<Node> iterator = children.iterator(); iterator.hasNext(); i++) {
 			final Node child = iterator.next();
@@ -103,10 +107,10 @@ public abstract class Parent extends Node {
 	 *            the end offset of the range
 	 * @return all child nodes which are completely within the given range plus the textual content
 	 */
-	public List<Node> getChildNodes(final Range range) {
+	public List<Node> getChildNodes(final ContentRange range) {
 		final List<Node> result = new ArrayList<Node>();
 
-		final Range trimmedRange = range.trimTo(getRange());
+		final ContentRange trimmedRange = range.intersection(getRange());
 		int textStart = trimmedRange.getStartOffset();
 		for (final Node child : children) {
 			if (!child.isAssociated()) {
@@ -114,6 +118,12 @@ public abstract class Parent extends Node {
 			} else if (child.isInRange(trimmedRange)) {
 				mergeTextIntoResult(textStart, child.getStartOffset(), result);
 				result.add(child);
+				textStart = child.getEndOffset() + 1;
+			} else if (trimmedRange.contains(child.getStartOffset())) {
+				mergeTextIntoResult(textStart, child.getStartOffset(), result);
+				textStart = child.getEndOffset() + 1;
+				break; // we can bail out here because we are behind the trimmed range now
+			} else if (trimmedRange.contains(child.getEndOffset())) {
 				textStart = child.getEndOffset() + 1;
 			}
 		}
@@ -126,42 +136,48 @@ public abstract class Parent extends Node {
 		final int textStart = findNextTextStart(startOffset, endOffset);
 		final int textEnd = findNextTextEnd(endOffset, textStart);
 		if (textStart < textEnd) {
-			result.add(new Text(this, getContent(), new Range(textStart, textEnd)));
-		} else if (textStart == textEnd && !getContent().isElementMarker(textStart)) {
-			result.add(new Text(this, getContent(), new Range(textStart, textEnd)));
+			result.add(new Text(this, getContent(), new ContentRange(textStart, textEnd)));
+		} else if (textStart == textEnd && !getContent().isTagMarker(textStart)) {
+			result.add(new Text(this, getContent(), new ContentRange(textStart, textEnd)));
 		}
 	}
 
 	private int findNextTextStart(int currentOffset, final int maximumOffset) {
-		while (currentOffset < maximumOffset && getContent().isElementMarker(currentOffset)) {
+		while (currentOffset < maximumOffset && getContent().isTagMarker(currentOffset)) {
 			currentOffset++;
 		}
 		return currentOffset;
 	}
 
 	private int findNextTextEnd(int currentOffset, final int minimumOffset) {
-		while (currentOffset > minimumOffset && getContent().isElementMarker(currentOffset)) {
+		while (currentOffset > minimumOffset && getContent().isTagMarker(currentOffset)) {
 			currentOffset--;
 		}
 		return currentOffset;
 	}
 
+	/**
+	 * @return all child nodes before the given offset, including Text nodes
+	 */
 	public List<Node> getChildNodesBefore(final int offset) {
 		if (offset <= getStartOffset()) {
 			return Collections.emptyList();
 		}
-		return getChildNodes(new Range(getStartOffset() + 1, offset));
+		return getChildNodes(new ContentRange(getStartOffset() + 1, offset));
 	}
 
+	/**
+	 * @return all child nodes after the given offset, including Text nodes
+	 */
 	public List<Node> getChildNodesAfter(final int offset) {
 		if (offset >= getEndOffset()) {
 			return Collections.emptyList();
 		}
-		return getChildNodes(new Range(offset, getEndOffset() - 1));
+		return getChildNodes(new ContentRange(offset, getEndOffset() - 1));
 	}
 
 	/**
-	 * An Iterator of all child nodes. The underlying collection is not modifyable.
+	 * An Iterator of all child nodes including Text nodes. The underlying collection is not modifyable.
 	 * 
 	 * @see Parent#getChildNodes()
 	 * @see Iterator
@@ -192,7 +208,7 @@ public abstract class Parent extends Node {
 	}
 
 	/**
-	 * Returns the node at the given offset.
+	 * Returns the child node which contains the given offset, or this node, if no child contains the offset.
 	 * 
 	 * @param offset
 	 *            the offset
@@ -214,10 +230,10 @@ public abstract class Parent extends Node {
 	}
 
 	/**
-	 * Indicates if this parent node has child nodes. Text nodes are ignored, i.e. this method will return false if this
-	 * parent node contains only text.
+	 * Indicates whether this parent node has child nodes. Text nodes are ignored, i.e. this method will return false if
+	 * this parent node contains only text.
 	 * 
-	 * @return true if this parent node has child nodes
+	 * @return true if this parent node has any child nodes besides text
 	 */
 	public boolean hasChildren() {
 		return !children.isEmpty();

@@ -13,7 +13,6 @@ package org.eclipse.vex.core.internal.layout;
 
 import java.util.List;
 
-import org.eclipse.vex.core.internal.core.IntRange;
 import org.eclipse.vex.core.internal.css.Styles;
 import org.eclipse.vex.core.internal.dom.Element;
 import org.eclipse.vex.core.internal.dom.Node;
@@ -130,7 +129,7 @@ public class BlockPseudoElementBox extends AbstractBox implements BlockBox {
 		throw new IllegalStateException();
 	}
 
-	public IntRange layout(final LayoutContext context, final int top, final int bottom) {
+	public VerticalRange layout(final LayoutContext context, final int top, final int bottom) {
 		return null;
 	}
 

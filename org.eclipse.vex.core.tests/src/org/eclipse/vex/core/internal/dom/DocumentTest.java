@@ -36,10 +36,10 @@ public class DocumentTest {
 	@Test
 	public void createDocumentWithRootElementAndContent() throws Exception {
 		final GapContent content = new GapContent(10);
-		content.insertElementMarker(0);
-		content.insertElementMarker(0);
+		content.insertTagMarker(0);
+		content.insertTagMarker(0);
 		final Element rootElement = new Element("root");
-		rootElement.associate(content, new Range(0, 1));
+		rootElement.associate(content, new ContentRange(0, 1));
 		final Document document = new Document(content, rootElement);
 		assertDocumentConnectedToRootElement(rootElement, document);
 	}
@@ -52,15 +52,6 @@ public class DocumentTest {
 		assertDocumentConnectedToRootElement(rootElement, document);
 	}
 
-	private static void assertDocumentConnectedToRootElement(final Element rootElement, final Document document) {
-		assertNotNull(document.getContent());
-		assertTrue(document.isAssociated());
-		assertTrue(rootElement.isAssociated());
-		assertSame(document, rootElement.getParent());
-		assertTrue(rootElement.getStartOffset() >= document.getStartOffset());
-		assertTrue(rootElement.getEndOffset() <= document.getEndOffset());
-	}
-
 	@Test
 	public void createFragmentWithTextAndChild() throws Exception {
 		final Document document = new Document(new Element("root"));
@@ -68,7 +59,7 @@ public class DocumentTest {
 		document.insertText(childElement.getStartOffset(), "Hello ");
 		document.insertText(childElement.getEndOffset(), "Child");
 		document.insertText(childElement.getEndOffset() + 1, " World");
-		final Range range = childElement.getRange().moveBounds(-2, 2);
+		final ContentRange range = childElement.getRange().resizeBy(-2, 2);
 		final DocumentFragment fragment = document.getFragment(range);
 		assertEquals(11, fragment.getLength());
 		assertNodesEqual(document.getNodes(range), fragment.getNodes());
@@ -79,10 +70,32 @@ public class DocumentTest {
 		final Document document = new Document(new Element("root"));
 		final Element childElement = document.insertElement(1, new QualifiedName(null, "child"));
 		document.insertText(childElement.getEndOffset(), "Child");
-		final Range range = childElement.getRange();
+		final ContentRange range = childElement.getRange();
 		final DocumentFragment fragment = document.getFragment(range);
 		assertEquals(7, fragment.getLength());
 		assertNodesEqual(document.getNodes(range), fragment.getNodes());
+	}
+
+	@Test
+	public void givenElementWithText_whenRangeBeginsFromStartOffset_shouldProvideParentAsCommenNode() throws Exception {
+		final Document document = new Document(new Element("root"));
+		final Element childElement = document.insertElement(1, new QualifiedName(null, "child"));
+		document.insertText(childElement.getEndOffset(), "Hello World");
+
+		final Node commonNode = document.findCommonNode(childElement.getStartOffset(), childElement.getEndOffset() - 5);
+
+		assertSame(document.getRootElement(), commonNode);
+	}
+
+	@Test
+	public void givenElementWithText_whenRangeWithinText_shouldProvideElementAsCommonNode() throws Exception {
+		final Document document = new Document(new Element("root"));
+		final Element childElement = document.insertElement(1, new QualifiedName(null, "child"));
+		document.insertText(childElement.getEndOffset(), "Hello World");
+
+		final Node commonNode = document.findCommonNode(childElement.getStartOffset() + 2, childElement.getEndOffset() - 5);
+
+		assertSame(childElement, commonNode);
 	}
 
 	private static void assertNodesEqual(final List<? extends Node> expected, final List<? extends Node> actual) {
@@ -99,4 +112,14 @@ public class DocumentTest {
 			assertNodesEqual(((Parent) expected).getChildNodes(), ((Parent) actual).getChildNodes());
 		}
 	}
+
+	private static void assertDocumentConnectedToRootElement(final Element rootElement, final Document document) {
+		assertNotNull(document.getContent());
+		assertTrue(document.isAssociated());
+		assertTrue(rootElement.isAssociated());
+		assertSame(document, rootElement.getParent());
+		assertTrue(rootElement.getStartOffset() >= document.getStartOffset());
+		assertTrue(rootElement.getEndOffset() <= document.getEndOffset());
+	}
+
 }

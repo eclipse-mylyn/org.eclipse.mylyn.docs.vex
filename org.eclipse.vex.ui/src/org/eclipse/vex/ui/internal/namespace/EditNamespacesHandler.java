@@ -22,7 +22,7 @@ public class EditNamespacesHandler extends AbstractVexWidgetHandler {
 
 	@Override
 	public void execute(final VexWidget widget) throws ExecutionException {
-		final EditNamespacesController controller = new EditNamespacesController(widget.getCurrentElement());
+		final EditNamespacesController controller = new EditNamespacesController(widget);
 		final EditNamespacesDialog dialog = new EditNamespacesDialog(widget.getShell(), controller);
 		if (dialog.open() == Window.OK) {
 			widget.beginWork();

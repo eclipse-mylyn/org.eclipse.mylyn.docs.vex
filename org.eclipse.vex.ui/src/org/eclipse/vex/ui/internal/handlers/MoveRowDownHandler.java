@@ -28,7 +28,7 @@ public class MoveRowDownHandler extends AbstractMoveRowHandler {
 	@Override
 	protected int target(final SelectedRows selected) {
 		final Object firstRow = selected.getRows().get(0);
-		return VexHandlerUtil.getOuterRange(firstRow).getStart();
+		return VexHandlerUtil.getOuterRange(firstRow).getStartOffset();
 	}
 
 }

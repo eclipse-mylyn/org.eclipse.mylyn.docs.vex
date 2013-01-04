@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2008 John Krasnay and others.
+ * Copyright (c) 2004, 2013 John Krasnay and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,13 +7,14 @@
  * 
  * Contributors:
  *     John Krasnay - initial API and implementation
+ *     Florian Thienel - NULL object
  *******************************************************************************/
 package org.eclipse.vex.core.internal.dom;
 
 /**
  * Represents a logical location in a document. As the document is modified, existing <code>Position</code> objects are
  * updated to reflect the appropriate character offset in the document.
- * 
+ * <p>
  * Positions can be invalid if they were removed from their associated Content instance. Invalid positions do not get
  * updated on content modifications. They must not be used for anything anymore.
  */

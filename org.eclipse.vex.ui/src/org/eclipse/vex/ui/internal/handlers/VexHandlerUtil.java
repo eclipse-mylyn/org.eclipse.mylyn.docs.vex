@@ -19,10 +19,10 @@ import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.handlers.HandlerUtil;
-import org.eclipse.vex.core.internal.core.IntRange;
 import org.eclipse.vex.core.internal.css.CSS;
 import org.eclipse.vex.core.internal.css.StyleSheet;
-import org.eclipse.vex.core.internal.dom.CopyVisitor;
+import org.eclipse.vex.core.internal.dom.ContentRange;
+import org.eclipse.vex.core.internal.dom.CopyOfElement;
 import org.eclipse.vex.core.internal.dom.Document;
 import org.eclipse.vex.core.internal.dom.Element;
 import org.eclipse.vex.core.internal.dom.Node;
@@ -107,7 +107,6 @@ public final class VexHandlerUtil {
 
 				final int offset = vexWidget.getCaretOffset();
 
-				final CopyVisitor copyVisitor = new CopyVisitor();
 				boolean firstCellIsAnonymous = false;
 				final Box[] cells = tr.getChildren();
 				for (int i = 0; i < cells.length; i++) {
@@ -117,7 +116,9 @@ public final class VexHandlerUtil {
 							firstCellIsAnonymous = true;
 						}
 					} else {
-						vexWidget.insertElement((Element) cells[i].getNode().accept(copyVisitor));
+						final Element element = (Element) cells[i].getNode();
+						final Element newElement = vexWidget.insertElement(element.getQualifiedName());
+						newElement.accept(new CopyOfElement(element));
 						vexWidget.moveBy(+1);
 					}
 				}
@@ -149,8 +150,9 @@ public final class VexHandlerUtil {
 
 				if (!tr.isAnonymous()) {
 					vexWidget.moveBy(+1); // Move past sentinel in current row
-					final CopyVisitor copyVisitor = new CopyVisitor();
-					vexWidget.insertElement((Element) tr.getNode().accept(copyVisitor));
+					final Element element = (Element) tr.getNode();
+					final Element newElement = vexWidget.insertElement(element.getQualifiedName());
+					newElement.accept(new CopyOfElement(element));
 				}
 
 				cloneTableCells(vexWidget, tr, true);
@@ -161,14 +163,15 @@ public final class VexHandlerUtil {
 	/**
 	 * Returns true if the given element or range is at least partially selected.
 	 * 
-	 * @param vexWidget
+	 * @param widget
 	 *            IVexWidget being tested.
 	 * @param elementOrRange
 	 *            Element or IntRange being tested.
 	 */
-	public static boolean elementOrRangeIsPartiallySelected(final IVexWidget vexWidget, final Object elementOrRange) {
-		final IntRange range = getInnerRange(elementOrRange);
-		return range.getEnd() >= vexWidget.getSelectionStart() && range.getStart() <= vexWidget.getSelectionEnd();
+	public static boolean elementOrRangeIsPartiallySelected(final IVexWidget widget, final Object elementOrRange) {
+		final ContentRange elementContentRange = getInnerRange(elementOrRange);
+		final ContentRange selectedRange = widget.getSelectedRange();
+		return elementContentRange.intersects(selectedRange);
 	}
 
 	/**
@@ -235,7 +238,7 @@ public final class VexHandlerUtil {
 		int startOffset;
 
 		if (vexWidget.hasSelection()) {
-			startOffset = vexWidget.getSelectionStart();
+			startOffset = vexWidget.getSelectedRange().getStartOffset();
 		} else {
 			final Box box = vexWidget.findInnermostBox(new IBoxFilter() {
 				public boolean matches(final Box box) {
@@ -251,7 +254,7 @@ public final class VexHandlerUtil {
 		}
 
 		int previousSiblingStart = -1;
-		final Element parent = vexWidget.getDocument().getElementAt(startOffset);
+		final Element parent = vexWidget.getDocument().getElementForInsertionAt(startOffset);
 		final List<Node> children = parent.getChildNodes();
 		for (final Node child : children) {
 			if (startOffset == child.getStartOffset()) {
@@ -278,7 +281,8 @@ public final class VexHandlerUtil {
 		final Box parent = vexWidget.findInnermostBox(new IBoxFilter() {
 			public boolean matches(final Box box) {
 				System.out.println("Matching " + box);
-				return box instanceof BlockBox && box.getStartOffset() <= vexWidget.getSelectionStart() && box.getEndOffset() >= vexWidget.getSelectionEnd();
+				final ContentRange selectedRange = vexWidget.getSelectedRange();
+				return box instanceof BlockBox && new ContentRange(box.getStartOffset(), box.getEndOffset()).contains(selectedRange);
 			}
 		});
 
@@ -288,8 +292,9 @@ public final class VexHandlerUtil {
 
 		final Box[] children = parent.getChildren();
 		System.out.println("Parent has " + children.length + " children");
+		final ContentRange selectedRange = vexWidget.getSelectedRange();
 		for (final Box child : children) {
-			if (child instanceof BlockBox && child.getStartOffset() >= vexWidget.getSelectionStart() && child.getEndOffset() <= vexWidget.getSelectionEnd()) {
+			if (child instanceof BlockBox && selectedRange.contains(new ContentRange(child.getStartOffset(), child.getEndOffset()))) {
 				System.out.println("  adding " + child);
 				blockList.add((BlockBox) child);
 			} else {
@@ -353,7 +358,7 @@ public final class VexHandlerUtil {
 					}
 
 					public void onRange(final Parent parent, final int startOffset, final int endOffset) {
-						callback.onCell(row, new IntRange(startOffset, endOffset), rowIndex[0], cellIndex);
+						callback.onCell(row, new ContentRange(startOffset, endOffset), rowIndex[0], cellIndex);
 						cellIndex++;
 					}
 				});
@@ -365,7 +370,7 @@ public final class VexHandlerUtil {
 
 			public void onRange(final Parent parent, final int startOffset, final int endOffset) {
 
-				final IntRange row = new IntRange(startOffset, endOffset);
+				final ContentRange row = new ContentRange(startOffset, endOffset);
 				callback.startRow(row, rowIndex[0]);
 
 				LayoutUtils.iterateTableCells(ss, parent, startOffset, endOffset, new ElementOrRangeCallback() {
@@ -377,7 +382,7 @@ public final class VexHandlerUtil {
 					}
 
 					public void onRange(final Parent parent, final int startOffset, final int endOffset) {
-						callback.onCell(row, new IntRange(startOffset, endOffset), rowIndex[0], cellIndex);
+						callback.onCell(row, new ContentRange(startOffset, endOffset), rowIndex[0], cellIndex);
 						cellIndex++;
 					}
 				});
@@ -459,7 +464,7 @@ public final class VexHandlerUtil {
 		// This may or may not be a table
 		// In any case, it's the element that contains the top-level table
 		// children
-		Element table = doc.getElementAt(offset);
+		Element table = doc.getElementForInsertionAt(offset);
 
 		while (table != null && !LayoutUtils.isTableChild(ss, table)) {
 			table = table.getParentElement();
@@ -506,12 +511,12 @@ public final class VexHandlerUtil {
 	 * @param elementOrRange
 	 *            Element or IntRange to be inspected.
 	 */
-	public static IntRange getInnerRange(final Object elementOrRange) {
+	public static ContentRange getInnerRange(final Object elementOrRange) {
 		if (elementOrRange instanceof Element) {
 			final Element element = (Element) elementOrRange;
-			return new IntRange(element.getStartOffset() + 1, element.getEndOffset());
+			return new ContentRange(element.getStartOffset() + 1, element.getEndOffset());
 		} else {
-			return (IntRange) elementOrRange;
+			return (ContentRange) elementOrRange;
 		}
 	}
 
@@ -522,12 +527,12 @@ public final class VexHandlerUtil {
 	 * @param elementOrRange
 	 *            Element or IntRange to be inspected.
 	 */
-	public static IntRange getOuterRange(final Object elementOrRange) {
+	public static ContentRange getOuterRange(final Object elementOrRange) {
 		if (elementOrRange instanceof Element) {
 			final Element element = (Element) elementOrRange;
-			return new IntRange(element.getStartOffset(), element.getEndOffset() + 1);
+			return new ContentRange(element.getStartOffset(), element.getEndOffset() + 1);
 		} else {
-			return (IntRange) elementOrRange;
+			return (ContentRange) elementOrRange;
 		}
 	}
 

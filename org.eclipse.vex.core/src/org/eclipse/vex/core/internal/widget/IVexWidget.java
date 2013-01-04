@@ -16,6 +16,8 @@ import java.net.URL;
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.vex.core.internal.core.ElementName;
 import org.eclipse.vex.core.internal.css.StyleSheet;
+import org.eclipse.vex.core.internal.dom.Comment;
+import org.eclipse.vex.core.internal.dom.ContentRange;
 import org.eclipse.vex.core.internal.dom.Document;
 import org.eclipse.vex.core.internal.dom.DocumentFragment;
 import org.eclipse.vex.core.internal.dom.DocumentValidationException;
@@ -62,6 +64,8 @@ public interface IVexWidget {
 	 * @see endWork(boolean)
 	 */
 	public void beginWork();
+
+	public boolean canInsertComment();
 
 	/**
 	 * Returns true if the clipboard has content that can be pasted. Used to enable/disable the paste action of a
@@ -182,14 +186,9 @@ public interface IVexWidget {
 	public int getLayoutWidth();
 
 	/**
-	 * Returns the offset at which the selection ends.
+	 * Returns the offset range in the content which is selected.
 	 */
-	public int getSelectionEnd();
-
-	/**
-	 * Returns the offset at which the selection starts.
-	 */
-	public int getSelectionStart();
+	public ContentRange getSelectedRange();
 
 	/**
 	 * Returns the currently selected document fragment, or null if there is no current selection.
@@ -250,12 +249,11 @@ public interface IVexWidget {
 	 * Inserts the given element at the current caret position. Any selected content becomes the new contents of the
 	 * element.
 	 * 
-	 * @param element
-	 *            Element to insert.
+	 * @param elementName
+	 *            Qualified name of the element to insert.
+	 * @return the newly inserted element
 	 */
-	public void insertElement(Element element) throws DocumentValidationException;
-
-	public void insertElement(QualifiedName elementName) throws DocumentValidationException;
+	public Element insertElement(QualifiedName elementName) throws DocumentValidationException;
 
 	/**
 	 * Inserts the given text at the current caret position. Any selected content is first deleted.
@@ -267,8 +265,10 @@ public interface IVexWidget {
 
 	/**
 	 * Inserts a comment a the current caret position. Any selected content is first deleted.
+	 * 
+	 * @return the new comment
 	 */
-	public void insertComment() throws DocumentValidationException;
+	public Comment insertComment() throws DocumentValidationException;
 
 	/**
 	 * Returns the value of the debugging flag.
@@ -284,15 +284,15 @@ public interface IVexWidget {
 	public void setDebugging(boolean debugging);
 
 	/**
-	 * Replaces the current element with the given element. The content of the element is preserved.
+	 * Replaces the current element with an element with the given name. The content of the element is preserved.
 	 * 
-	 * @param element
-	 *            Element to replace the current element with.
+	 * @param elementName
+	 *            Qualified name of the element to replace the current element with.
 	 * @throws DocumentValidationException
 	 *             if the given element is not valid at this place in the document, or if the current element's content
 	 *             is not compatible with the given element.
 	 */
-	public void morph(Element element) throws DocumentValidationException;
+	public void morph(QualifiedName elementName) throws DocumentValidationException;
 
 	/**
 	 * Moves the caret a given distance relative to the current caret offset.
@@ -515,5 +515,13 @@ public interface IVexWidget {
 	 *            the y-coordinate
 	 */
 	public int viewToModel(int x, int y);
+
+	public void declareNamespace(final String namespacePrefix, final String namespaceURI);
+
+	public void removeNamespace(final String namespacePrefix);
+
+	public void declareDefaultNamespace(final String namespaceURI);
+
+	public void removeDefaultNamespace();
 
 }

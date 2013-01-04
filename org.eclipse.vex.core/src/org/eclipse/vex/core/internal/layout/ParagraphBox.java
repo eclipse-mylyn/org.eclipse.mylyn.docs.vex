@@ -15,10 +15,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.vex.core.internal.core.Caret;
-import org.eclipse.vex.core.internal.core.IntRange;
 import org.eclipse.vex.core.internal.css.CSS;
 import org.eclipse.vex.core.internal.css.Styles;
-import org.eclipse.vex.core.internal.dom.Element;
 import org.eclipse.vex.core.internal.dom.Node;
 
 /**
@@ -53,16 +51,16 @@ public class ParagraphBox extends AbstractBox implements BlockBox {
 	 * 
 	 * @param context
 	 *            LayoutContext used for this layout.
-	 * @param element
+	 * @param node
 	 *            Element that controls the styling for this paragraph.
 	 * @param inlines
 	 *            List of InlineBox objects to be wrapped
 	 * @param width
 	 *            width to which the paragraph is to be wrapped
 	 */
-	public static ParagraphBox create(final LayoutContext context, final Element element, final List<InlineBox> inlines, final int width) {
+	public static ParagraphBox create(final LayoutContext context, final Node node, final List<InlineBox> inlines, final int width) {
 		final InlineBox[] array = inlines.toArray(new InlineBox[inlines.size()]);
-		return create(context, element, array, width);
+		return create(context, node, array, width);
 	}
 
 	/**
@@ -273,10 +271,10 @@ public class ParagraphBox extends AbstractBox implements BlockBox {
 
 	@Override
 	public boolean hasContent() {
-		return firstContentLine != null;
+		return firstContentLine != null && firstContentLine.hasContent();
 	}
 
-	public IntRange layout(final LayoutContext context, final int top, final int bottom) {
+	public VerticalRange layout(final LayoutContext context, final int top, final int bottom) {
 		return null;
 	}
 

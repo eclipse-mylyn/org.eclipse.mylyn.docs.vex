@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2008 John Krasnay and others.
+ * Copyright (c) 2004, 2013 John Krasnay and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -18,10 +18,10 @@ public class DocumentValidationException extends RuntimeException {
 	private static final long serialVersionUID = 1L;
 
 	/**
-	 * Class constructor.
+	 * Create a new exception with the given message.
 	 * 
 	 * @param message
-	 *            Message indicating the nature of the exception.
+	 *            message indicating the nature of the exception
 	 */
 	public DocumentValidationException(final String message) {
 		super(message);

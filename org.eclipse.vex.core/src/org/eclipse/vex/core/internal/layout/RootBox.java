@@ -13,7 +13,6 @@ package org.eclipse.vex.core.internal.layout;
 import org.eclipse.vex.core.internal.VEXCorePlugin;
 import org.eclipse.vex.core.internal.core.Caret;
 import org.eclipse.vex.core.internal.core.Insets;
-import org.eclipse.vex.core.internal.core.IntRange;
 import org.eclipse.vex.core.internal.core.Rectangle;
 import org.eclipse.vex.core.internal.dom.Element;
 
@@ -134,7 +133,7 @@ public class RootBox extends AbstractBox implements BlockBox {
 		// do nothing. layout is always propagated to our child box.
 	}
 
-	public IntRange layout(final LayoutContext context, final int top, final int bottom) {
+	public VerticalRange layout(final LayoutContext context, final int top, final int bottom) {
 
 		final Insets insets = this.getInsets(context, getWidth());
 
@@ -143,7 +142,7 @@ public class RootBox extends AbstractBox implements BlockBox {
 			start = System.currentTimeMillis();
 		}
 
-		final IntRange repaintRange = childBox.layout(context, top - insets.getTop(), bottom - insets.getBottom());
+		final VerticalRange repaintRange = childBox.layout(context, top - insets.getTop(), bottom - insets.getBottom());
 
 		if (VEXCorePlugin.getInstance().isDebugging()) {
 			final long end = System.currentTimeMillis();
@@ -155,7 +154,7 @@ public class RootBox extends AbstractBox implements BlockBox {
 		setHeight(childBox.getHeight() + insets.getTop() + insets.getBottom());
 
 		if (repaintRange != null) {
-			return new IntRange(repaintRange.getStart() + childBox.getY(), repaintRange.getEnd() + childBox.getY());
+			return repaintRange.moveBy(childBox.getY());
 		} else {
 			return null;
 		}

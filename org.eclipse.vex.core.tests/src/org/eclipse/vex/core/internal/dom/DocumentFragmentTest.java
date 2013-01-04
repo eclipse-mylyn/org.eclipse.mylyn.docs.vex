@@ -56,14 +56,14 @@ public class DocumentFragmentTest {
 	@Test
 	public void shouldContainGivenChildren() throws Exception {
 		final GapContent content = new GapContent(4);
-		content.insertElementMarker(0);
-		content.insertElementMarker(0);
-		content.insertElementMarker(0);
-		content.insertElementMarker(0);
+		content.insertTagMarker(0);
+		content.insertTagMarker(0);
+		content.insertTagMarker(0);
+		content.insertTagMarker(0);
 		final Element child1 = new Element("child");
-		child1.associate(content, new Range(0, 1));
+		child1.associate(content, new ContentRange(0, 1));
 		final Element child2 = new Element("child");
-		child2.associate(content, new Range(2, 3));
+		child2.associate(content, new ContentRange(2, 3));
 
 		final DocumentFragment fragment = new DocumentFragment(content, Arrays.<Node> asList(child1, child2));
 		assertSame(child1, fragment.getChildNodes().get(0));
@@ -73,14 +73,14 @@ public class DocumentFragmentTest {
 	@Test
 	public void hasNoOwnElementMarkers() throws Exception {
 		final GapContent content = new GapContent(4);
-		content.insertElementMarker(0);
-		content.insertElementMarker(0);
-		content.insertElementMarker(0);
-		content.insertElementMarker(0);
+		content.insertTagMarker(0);
+		content.insertTagMarker(0);
+		content.insertTagMarker(0);
+		content.insertTagMarker(0);
 		final Element child1 = new Element("child");
-		child1.associate(content, new Range(0, 1));
+		child1.associate(content, new ContentRange(0, 1));
 		final Element child2 = new Element("child");
-		child2.associate(content, new Range(2, 3));
+		child2.associate(content, new ContentRange(2, 3));
 
 		final DocumentFragment fragment = new DocumentFragment(content, Arrays.<Node> asList(child1, child2));
 		assertEquals(fragment.getStartOffset(), child1.getStartOffset());

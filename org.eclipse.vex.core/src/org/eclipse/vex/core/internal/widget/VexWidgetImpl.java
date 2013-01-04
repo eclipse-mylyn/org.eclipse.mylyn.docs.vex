@@ -23,18 +23,20 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.vex.core.internal.core.Caret;
 import org.eclipse.vex.core.internal.core.Color;
 import org.eclipse.vex.core.internal.core.ElementName;
 import org.eclipse.vex.core.internal.core.Graphics;
-import org.eclipse.vex.core.internal.core.IntRange;
 import org.eclipse.vex.core.internal.core.QualifiedNameComparator;
 import org.eclipse.vex.core.internal.core.Rectangle;
 import org.eclipse.vex.core.internal.css.CSS;
 import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.css.StyleSheetReader;
 import org.eclipse.vex.core.internal.css.Styles;
+import org.eclipse.vex.core.internal.dom.Comment;
+import org.eclipse.vex.core.internal.dom.ContentRange;
 import org.eclipse.vex.core.internal.dom.Document;
 import org.eclipse.vex.core.internal.dom.DocumentEvent;
 import org.eclipse.vex.core.internal.dom.DocumentFragment;
@@ -43,7 +45,6 @@ import org.eclipse.vex.core.internal.dom.DocumentValidationException;
 import org.eclipse.vex.core.internal.dom.Element;
 import org.eclipse.vex.core.internal.dom.Node;
 import org.eclipse.vex.core.internal.dom.Position;
-import org.eclipse.vex.core.internal.dom.Range;
 import org.eclipse.vex.core.internal.dom.Validator;
 import org.eclipse.vex.core.internal.layout.BlockBox;
 import org.eclipse.vex.core.internal.layout.Box;
@@ -51,10 +52,18 @@ import org.eclipse.vex.core.internal.layout.BoxFactory;
 import org.eclipse.vex.core.internal.layout.CssBoxFactory;
 import org.eclipse.vex.core.internal.layout.LayoutContext;
 import org.eclipse.vex.core.internal.layout.RootBox;
+import org.eclipse.vex.core.internal.layout.VerticalRange;
 import org.eclipse.vex.core.internal.undo.CannotRedoException;
 import org.eclipse.vex.core.internal.undo.CannotUndoException;
+import org.eclipse.vex.core.internal.undo.ChangeAttributeEdit;
+import org.eclipse.vex.core.internal.undo.ChangeNamespaceEdit;
 import org.eclipse.vex.core.internal.undo.CompoundEdit;
+import org.eclipse.vex.core.internal.undo.DeleteEdit;
 import org.eclipse.vex.core.internal.undo.IUndoableEdit;
+import org.eclipse.vex.core.internal.undo.InsertCommentEdit;
+import org.eclipse.vex.core.internal.undo.InsertElementEdit;
+import org.eclipse.vex.core.internal.undo.InsertFragmentEdit;
+import org.eclipse.vex.core.internal.undo.InsertTextEdit;
 
 /**
  * A component that allows the display and edit of an XML document with an associated CSS stylesheet.
@@ -120,17 +129,19 @@ public class VexWidgetImpl implements IVexWidget {
 	private final DocumentListener documentListener = new DocumentListener() {
 
 		public void attributeChanged(final DocumentEvent e) {
-			invalidateElementBox(e.getParentElement());
+			invalidateElementBox(e.getParent());
 
-			// flush cached styles, since they might depend attribute values
-			// via conditional selectors
-			getStyleSheet().flushStyles(e.getParentElement());
+			/*
+			 * Flush cached styles, since they might depend attribute values via conditional selectors.
+			 * 
+			 * This cast is save because this event is only fired due to the attribute changes of elements.
+			 */
+			getStyleSheet().flushStyles((Element) e.getParent());
 
 			if (beginWorkCount == 0) {
 				VexWidgetImpl.this.relayout();
 			}
 
-			addEdit(e.getUndoableEdit(), getCaretOffset());
 			hostComponent.fireSelectionChanged();
 		}
 
@@ -141,33 +152,28 @@ public class VexWidgetImpl implements IVexWidget {
 		}
 
 		public void contentDeleted(final DocumentEvent e) {
-			invalidateElementBox(e.getParentElement());
+			invalidateElementBox(e.getParent());
 
 			if (beginWorkCount == 0) {
 				VexWidgetImpl.this.relayout();
 			}
-
-			addEdit(e.getUndoableEdit(), getCaretOffset());
 		}
 
 		public void contentInserted(final DocumentEvent e) {
-			invalidateElementBox(e.getParentElement());
+			invalidateElementBox(e.getParent());
 
 			if (beginWorkCount == 0) {
 				VexWidgetImpl.this.relayout();
 			}
-
-			addEdit(e.getUndoableEdit(), getCaretOffset());
 		}
 
 		public void namespaceChanged(final DocumentEvent e) {
-			invalidateElementBox(e.getParentElement());
+			invalidateElementBox(e.getParent());
 
 			if (beginWorkCount == 0) {
 				VexWidgetImpl.this.relayout();
 			}
 
-			addEdit(e.getUndoableEdit(), getCaretOffset());
 			hostComponent.fireSelectionChanged();
 		}
 
@@ -186,6 +192,10 @@ public class VexWidgetImpl implements IVexWidget {
 			compoundEdit = new CompoundEdit();
 		}
 		beginWorkCount++;
+	}
+
+	public boolean canInsertComment() {
+		return getDocument().canInsertComment(getCaretOffset());
 	}
 
 	/**
@@ -213,7 +223,7 @@ public class VexWidgetImpl implements IVexWidget {
 			endOffset = getSelectionEnd();
 		}
 
-		final Element parent = getDocument().getElementAt(startOffset);
+		final Element parent = getDocument().getElementForInsertionAt(startOffset);
 		final List<QualifiedName> seq1 = Node.getNodeNames(parent.getChildNodesBefore(startOffset));
 		final List<QualifiedName> seq2 = frag.getNodeNames();
 		final List<QualifiedName> seq3 = Node.getNodeNames(parent.getChildNodesAfter(endOffset));
@@ -242,7 +252,7 @@ public class VexWidgetImpl implements IVexWidget {
 			endOffset = getSelectionEnd();
 		}
 
-		final Element parent = getDocument().getElementAt(startOffset);
+		final Element parent = getDocument().getElementForInsertionAt(startOffset);
 		final List<QualifiedName> seq1 = Node.getNodeNames(parent.getChildNodesBefore(startOffset));
 		final List<QualifiedName> seq2 = Collections.singletonList(Validator.PCDATA);
 		final List<QualifiedName> seq3 = Node.getNodeNames(parent.getChildNodesAfter(endOffset));
@@ -277,7 +287,7 @@ public class VexWidgetImpl implements IVexWidget {
 			return false;
 		}
 
-		final Element element = doc.getElementAt(getCaretOffset());
+		final Element element = doc.getElementForInsertionAt(getCaretOffset());
 		final Element parent = element.getParentElement();
 		if (parent == null) {
 			// can't unwrap the root
@@ -306,80 +316,89 @@ public class VexWidgetImpl implements IVexWidget {
 			final int offset = getCaretOffset();
 			final Document doc = getDocument();
 			final int n = doc.getLength() - 1;
-			final Element element = doc.getElementAt(offset);
-
 			if (offset == n) {
 				// nop
 			} else if (isBetweenMatchingElements(offset)) {
 				joinElementsAt(offset);
 			} else if (isBetweenMatchingElements(offset + 1)) {
 				joinElementsAt(offset + 1);
-			} else if (element.isEmpty()) {
+			} else if (doc.getNodeForInsertionAt(offset).isEmpty()) {
 				// deleting the right sentinel of an empty element
 				// so just delete the whole element an move on
-				this.moveTo(offset - 1, false);
-				this.moveTo(offset + 1, true);
+				moveBy(1);
+				moveBy(-2, true);
 				deleteSelection();
-			} else if (doc.getElementAt(offset + 1).isEmpty()) {
+			} else if (doc.getNodeForInsertionAt(offset + 1).isEmpty()) {
 				// deleting the left sentinel of an empty element
 				// so just delete the whole element an move on
-				this.moveTo(offset + 2, true);
+				moveBy(2, true);
 				deleteSelection();
-			} else if (!doc.isElementAt(offset)) {
-				this.moveTo(offset, false);
-				this.moveTo(offset + 1, true);
-				deleteSelection();
+			} else if (!doc.isTagAt(offset)) {
+				deleteNextToCaret();
 			}
 		}
 	}
 
 	public void deletePreviousChar() throws DocumentValidationException {
-
 		if (hasSelection()) {
 			deleteSelection();
 		} else {
 			int offset = getCaretOffset();
 			final Document doc = getDocument();
-			final Element element = doc.getElementAt(offset);
-
 			if (offset == 1) {
 				// nop
 			} else if (isBetweenMatchingElements(offset)) {
 				joinElementsAt(offset);
 			} else if (isBetweenMatchingElements(offset - 1)) {
 				joinElementsAt(offset - 1);
-			} else if (element.isEmpty()) {
+			} else if (doc.getNodeForInsertionAt(offset).isEmpty()) {
 				// deleting the left sentinel of an empty element
 				// so just delete the whole element an move on
-				this.moveTo(offset - 1, false);
-				this.moveTo(offset + 1, true);
+				moveBy(1);
+				moveBy(-2, true);
 				deleteSelection();
-			} else if (doc.getElementAt(offset - 1).isEmpty()) {
+			} else if (doc.getNodeForInsertionAt(offset - 1).isEmpty()) {
 				// deleting the right sentinel of an empty element
 				// so just delete the whole element an move on
-				this.moveTo(offset - 2, true);
+				moveBy(-2, true);
 				deleteSelection();
 			} else {
 				offset--;
-				if (!doc.isElementAt(offset)) {
-					this.moveTo(offset, false);
-					this.moveTo(offset + 1, true);
-					deleteSelection();
+				if (!doc.isTagAt(offset)) {
+					deleteBeforeCaret();
 				}
 			}
 		}
-
 	}
 
 	public void deleteSelection() {
 		try {
 			if (hasSelection()) {
-				document.delete(new Range(getSelectionStart(), getSelectionEnd()));
+				applyEdit(new DeleteEdit(document, getSelectedRange()), getSelectionStart());
 				this.moveTo(getSelectionStart());
 			}
-		} catch (final DocumentValidationException ex) {
-			ex.printStackTrace(); // This should never happen, because we
-			// constrain the selection
+		} catch (final DocumentValidationException e) {
+			e.printStackTrace(); // This should never happen, because we constrain the selection
+		}
+	}
+
+	private void deleteNextToCaret() {
+		try {
+			final int nextToCaret = getCaretOffset();
+			applyEdit(new DeleteEdit(document, new ContentRange(nextToCaret, nextToCaret)), nextToCaret);
+			this.moveTo(nextToCaret);
+		} catch (final DocumentValidationException e) {
+			e.printStackTrace(); // This should never happen, because we constrain the selection
+		}
+	}
+
+	private void deleteBeforeCaret() {
+		try {
+			final int beforeCaret = getCaretOffset() - 1;
+			applyEdit(new DeleteEdit(document, new ContentRange(beforeCaret, beforeCaret)), beforeCaret + 1);
+			this.moveTo(beforeCaret);
+		} catch (final DocumentValidationException e) {
+			e.printStackTrace(); // This should never happen, because we constrain the selection
 		}
 	}
 
@@ -539,10 +558,10 @@ public class VexWidgetImpl implements IVexWidget {
 		final int startOffset = getStartOffset();
 		final int endOffset = getEndOffset();
 
-		final Element parent = doc.getElementAt(startOffset);
+		final Element parent = doc.getElementForInsertionAt(startOffset);
 		final List<QualifiedName> nodesBefore = Node.getNodeNames(parent.getChildNodesBefore(startOffset));
 		final List<QualifiedName> nodesAfter = Node.getNodeNames(parent.getChildNodesAfter(endOffset));
-		final List<QualifiedName> selectedNodes = Node.getNodeNames(parent.getChildNodes(new Range(startOffset, endOffset)));
+		final List<QualifiedName> selectedNodes = Node.getNodeNames(parent.getChildNodes(new ContentRange(startOffset, endOffset)));
 		final List<QualifiedName> candidates = createCandidatesList(validator, parent, Validator.PCDATA);
 
 		filterInvalidSequences(validator, parent, nodesBefore, nodesAfter, candidates);
@@ -617,7 +636,7 @@ public class VexWidgetImpl implements IVexWidget {
 			return new ElementName[0];
 		}
 
-		final Element element = doc.getElementAt(getCaretOffset());
+		final Element element = doc.getElementForInsertionAt(getCaretOffset());
 		final Element parent = element.getParentElement();
 		if (parent == null) {
 			// can't morph the root
@@ -645,17 +664,24 @@ public class VexWidgetImpl implements IVexWidget {
 		return result;
 	}
 
-	public int getSelectionEnd() {
+	private int getSelectionEnd() {
 		return selectionEnd;
 	}
 
-	public int getSelectionStart() {
+	private int getSelectionStart() {
 		return selectionStart;
+	}
+
+	public ContentRange getSelectedRange() {
+		if (!hasSelection()) {
+			return new ContentRange(getCaretOffset(), getCaretOffset());
+		}
+		return new ContentRange(getSelectionStart(), getSelectionEnd() - 1);
 	}
 
 	public DocumentFragment getSelectedFragment() {
 		if (hasSelection()) {
-			return document.getFragment(new Range(getSelectionStart(), getSelectionEnd()));
+			return document.getFragment(getSelectedRange());
 		} else {
 			return null;
 		}
@@ -663,7 +689,7 @@ public class VexWidgetImpl implements IVexWidget {
 
 	public String getSelectedText() {
 		if (hasSelection()) {
-			return document.getText(new Range(getSelectionStart(), getSelectionEnd()));
+			return document.getText(getSelectedRange());
 		} else {
 			return "";
 		}
@@ -689,73 +715,41 @@ public class VexWidgetImpl implements IVexWidget {
 		return getSelectionStart() != getSelectionEnd();
 	}
 
-	public void insertChar(final char c) throws DocumentValidationException {
-		if (hasSelection()) {
-			deleteSelection();
-		}
-		document.insertText(getCaretOffset(), Character.toString(c));
-		this.moveBy(+1);
-	}
-
-	public void insertFragment(final DocumentFragment frag) throws DocumentValidationException {
-
-		if (hasSelection()) {
-			deleteSelection();
-		}
-
-		document.insertFragment(getCaretOffset(), frag);
-		this.moveTo(getCaretOffset() + frag.getLength());
-	}
-
-	public void insertElement(final QualifiedName elementName) throws DocumentValidationException {
+	public Element insertElement(final QualifiedName elementName) throws DocumentValidationException {
 		boolean success = false;
+		final Element result;
 		try {
 			beginWork();
 
-			DocumentFragment frag = null;
+			DocumentFragment selectedFragment = null;
 			if (hasSelection()) {
-				frag = getSelectedFragment();
+				selectedFragment = getSelectedFragment();
 				deleteSelection();
 			}
 
-			document.insertElement(getCaretOffset(), elementName);
+			result = applyEdit(new InsertElementEdit(document, getCaretOffset(), elementName), getCaretOffset()).getElement();
+
 			this.moveTo(getCaretOffset() + 1);
-			if (frag != null) {
-				insertFragment(frag);
+			if (selectedFragment != null) {
+				insertFragment(selectedFragment);
 			}
 			scrollCaretVisible();
 			success = true;
+			return result;
 		} finally {
 			endWork(success);
 		}
 	}
 
-	public void insertElement(final Element element) throws DocumentValidationException {
-
-		boolean success = false;
-		try {
-			beginWork();
-
-			DocumentFragment frag = null;
-			if (hasSelection()) {
-				frag = getSelectedFragment();
-				deleteSelection();
-			}
-
-			document.insertElement(getCaretOffset(), element);
-			this.moveTo(getCaretOffset() + 1);
-			if (frag != null) {
-				insertFragment(frag);
-			}
-			scrollCaretVisible();
-			success = true;
-		} finally {
-			endWork(success);
+	public void insertFragment(final DocumentFragment fragment) throws DocumentValidationException {
+		if (hasSelection()) {
+			deleteSelection();
 		}
+		applyEdit(new InsertFragmentEdit(document, getCaretOffset(), fragment), getCaretOffset());
+		this.moveTo(getCaretOffset() + fragment.getLength());
 	}
 
 	public void insertText(final String text) throws DocumentValidationException {
-
 		if (hasSelection()) {
 			deleteSelection();
 		}
@@ -769,14 +763,14 @@ public class VexWidgetImpl implements IVexWidget {
 				if (j == -1) {
 					break;
 				}
-				document.insertText(getCaretOffset(), text.substring(i, j));
+				applyEdit(new InsertTextEdit(document, getCaretOffset(), text.substring(i, j)), getCaretOffset());
 				this.moveTo(getCaretOffset() + j - i);
 				split();
 				i = j + 1;
 			}
 
 			if (i < text.length()) {
-				document.insertText(getCaretOffset(), text.substring(i));
+				applyEdit(new InsertTextEdit(document, getCaretOffset(), text.substring(i)), getCaretOffset());
 				this.moveTo(getCaretOffset() + text.length() - i);
 			}
 			success = true;
@@ -785,7 +779,17 @@ public class VexWidgetImpl implements IVexWidget {
 		}
 	}
 
-	public void insertComment() throws DocumentValidationException {
+	public void insertChar(final char c) throws DocumentValidationException {
+		if (hasSelection()) {
+			deleteSelection();
+		}
+		applyEdit(new InsertTextEdit(document, getCaretOffset(), Character.toString(c)), getCaretOffset());
+		this.moveBy(+1);
+	}
+
+	public Comment insertComment() throws DocumentValidationException {
+		Assert.isTrue(canInsertComment());
+
 		if (hasSelection()) {
 			deleteSelection();
 		}
@@ -793,20 +797,23 @@ public class VexWidgetImpl implements IVexWidget {
 		boolean success = false;
 		try {
 			beginWork();
-			document.insertComment(getCaretOffset());
+
+			final InsertCommentEdit edit = applyEdit(new InsertCommentEdit(document, getCaretOffset()), getCaretOffset());
+			final Comment result = edit.getComment();
 			this.moveTo(getCaretOffset() + 1);
 			scrollCaretVisible();
 			success = true;
+			return result;
 		} finally {
 			endWork(success);
 		}
 	}
 
-	public void morph(final Element element) throws DocumentValidationException {
+	public void morph(final QualifiedName elementName) throws DocumentValidationException {
 
 		final Document doc = getDocument();
 		final int offset = getCaretOffset();
-		final Element currentElement = doc.getElementAt(offset);
+		final Element currentElement = doc.getElementForInsertionAt(offset);
 
 		if (currentElement == doc.getRootElement()) {
 			throw new DocumentValidationException("Cannot morph the root element.");
@@ -822,7 +829,7 @@ public class VexWidgetImpl implements IVexWidget {
 			this.moveBy(-1, false);
 			this.moveBy(2, true);
 			deleteSelection();
-			insertElement(element);
+			insertElement(elementName);
 			if (frag != null) {
 				insertFragment(frag);
 			}
@@ -847,81 +854,110 @@ public class VexWidgetImpl implements IVexWidget {
 	}
 
 	public void moveTo(final int offset, final boolean select) {
-
-		if (offset >= 1 && offset <= document.getLength() - 1) {
-
-			// repaint the selection area, if any
-			repaintCaret();
-			repaintRange(getSelectionStart(), getSelectionEnd());
-
-			final Element oldElement = currentElement;
-
-			caretOffset = offset;
-
-			currentElement = document.getElementAt(offset);
-
-			if (select) {
-				selectionStart = Math.min(mark, caretOffset);
-				selectionEnd = Math.max(mark, caretOffset);
-
-				// move selectionStart and selectionEnd to make sure we don't
-				// select a partial element
-				final Element commonElement = document.findCommonElement(selectionStart, selectionEnd);
-
-				Element element = document.getElementAt(selectionStart);
-				while (element != commonElement) {
-					selectionStart = element.getStartOffset();
-					element = document.getElementAt(selectionStart);
-				}
-
-				element = document.getElementAt(selectionEnd);
-				while (element != commonElement) {
-					selectionEnd = element.getEndOffset() + 1;
-					element = document.getElementAt(selectionEnd);
-				}
-
-			} else {
-				mark = offset;
-				selectionStart = offset;
-				selectionEnd = offset;
-			}
-
-			if (beginWorkCount == 0) {
-				relayout();
-			}
-
-			final Graphics g = hostComponent.createDefaultGraphics();
-			final LayoutContext context = createLayoutContext(g);
-			caret = rootBox.getCaret(context, offset);
-
-			Element element = getCurrentElement();
-			if (element != oldElement) {
-				caretColor = Color.BLACK;
-				while (element != null) {
-					final Color bgColor = styleSheet.getStyles(element).getBackgroundColor();
-					if (bgColor != null) {
-						final int red = ~bgColor.getRed() & 0xff;
-						final int green = ~bgColor.getGreen() & 0xff;
-						final int blue = ~bgColor.getBlue() & 0xff;
-						caretColor = new Color(red, green, blue);
-						break;
-					}
-					element = element.getParentElement();
-				}
-			}
-
-			g.dispose();
-
-			magicX = -1;
-
-			scrollCaretVisible();
-
-			hostComponent.fireSelectionChanged();
-
-			caretVisible = true;
-
-			repaintRange(getSelectionStart(), getSelectionEnd());
+		if (!Document.isInsertionPointIn(document, offset)) {
+			return;
 		}
+
+		repaintCaret();
+		repaintSelectedRange();
+
+		if (select) {
+			moveSelectionTo(offset);
+		} else {
+			moveCaretTo(offset);
+		}
+
+		final Element oldElement = currentElement;
+		currentElement = document.getElementForInsertionAt(caretOffset);
+
+		if (beginWorkCount == 0) {
+			relayout();
+		}
+
+		final Graphics g = hostComponent.createDefaultGraphics();
+		final LayoutContext context = createLayoutContext(g);
+		caret = rootBox.getCaret(context, caretOffset);
+
+		Element element = getCurrentElement();
+		if (element != oldElement) {
+			caretColor = Color.BLACK;
+			while (element != null) {
+				final Color bgColor = styleSheet.getStyles(element).getBackgroundColor();
+				if (bgColor != null) {
+					final int red = ~bgColor.getRed() & 0xff;
+					final int green = ~bgColor.getGreen() & 0xff;
+					final int blue = ~bgColor.getBlue() & 0xff;
+					caretColor = new Color(red, green, blue);
+					break;
+				}
+				element = element.getParentElement();
+			}
+		}
+
+		g.dispose();
+
+		magicX = -1;
+		scrollCaretVisible();
+		hostComponent.fireSelectionChanged();
+		caretVisible = true;
+
+		repaintSelectedRange();
+	}
+
+	private void moveSelectionTo(final int offset) {
+		final boolean movingForward = offset > caretOffset;
+		final boolean movingBackward = offset < caretOffset;
+		final boolean movingTowardMark = movingForward && mark >= offset || movingBackward && mark <= offset;
+		final boolean movingAwayFromMark = !movingTowardMark;
+
+		// expand or shrink the selection to make sure the selection is balanced
+		final int balancedStart = Math.min(mark, offset);
+		final int balancedEnd = Math.max(mark, offset);
+		final Node balancedNode = document.findCommonNode(balancedStart, balancedEnd);
+		if (movingForward && movingTowardMark) {
+			selectionStart = balanceForward(balancedStart, balancedNode);
+			selectionEnd = balanceForward(balancedEnd, balancedNode);
+			caretOffset = selectionStart;
+		} else if (movingBackward && movingTowardMark) {
+			selectionStart = balanceBackward(balancedStart, balancedNode);
+			selectionEnd = balanceBackward(balancedEnd, balancedNode);
+			caretOffset = selectionEnd;
+		} else if (movingForward && movingAwayFromMark) {
+			selectionStart = balanceBackward(balancedStart, balancedNode);
+			selectionEnd = balanceForward(balancedEnd, balancedNode);
+			caretOffset = selectionEnd;
+		} else if (movingBackward && movingAwayFromMark) {
+			selectionStart = balanceBackward(balancedStart, balancedNode);
+			selectionEnd = balanceForward(balancedEnd, balancedNode);
+			caretOffset = selectionStart;
+		}
+	}
+
+	private int balanceForward(final int offset, final Node balancedNode) {
+		int balancedOffset = offset;
+		Node node = document.getNodeForInsertionAt(balancedOffset);
+		while (node != balancedNode) {
+			balancedOffset = node.getEndOffset() + 1;
+			node = document.getNodeForInsertionAt(balancedOffset);
+		}
+		return balancedOffset;
+	}
+
+	private int balanceBackward(final int offset, final Node balancedNode) {
+		int balancedOffset = offset;
+		Node node = document.getNodeForInsertionAt(balancedOffset);
+		while (node != balancedNode) {
+			balancedOffset = node.getStartOffset();
+			node = document.getNodeForInsertionAt(balancedOffset);
+		}
+		return balancedOffset;
+	}
+
+	private void moveCaretTo(final int offset) {
+		selectionStart = offset;
+		selectionEnd = offset;
+		caretOffset = offset;
+		mark = offset;
 	}
 
 	public void moveToLineEnd(final boolean select) {
@@ -1061,17 +1097,6 @@ public class VexWidgetImpl implements IVexWidget {
 		undoDepth++;
 	}
 
-	public void removeAttribute(final String attributeName) {
-		try {
-			final Element element = getCurrentElement();
-			if (element.getAttribute(attributeName) != null) {
-				element.removeAttribute(attributeName);
-			}
-		} catch (final DocumentValidationException ex) {
-			ex.printStackTrace(); // TODO: when can this happen?
-		}
-	}
-
 	public void savePosition(final Runnable runnable) {
 		final Position pos = getDocument().createPosition(getCaretOffset());
 		try {
@@ -1117,13 +1142,28 @@ public class VexWidgetImpl implements IVexWidget {
 	public void setAttribute(final String attributeName, final String value) {
 		try {
 			final Element element = getCurrentElement();
+			final QualifiedName qualifiedAttributeName = element.qualify(attributeName);
+			final String currentAttributeValue = element.getAttributeValue(qualifiedAttributeName);
 			if (value == null) {
 				removeAttribute(attributeName);
-			} else if (!value.equals(element.getAttribute(attributeName))) {
-				element.setAttribute(attributeName, value);
+			} else if (!value.equals(currentAttributeValue)) {
+				applyEdit(new ChangeAttributeEdit(element, qualifiedAttributeName, currentAttributeValue, value), getCaretOffset());
 			}
-		} catch (final DocumentValidationException ex) {
-			ex.printStackTrace(); // TODO: mebbe throw the exception instead
+		} catch (final DocumentValidationException e) {
+			e.printStackTrace(); // TODO: maybe throw the exception instead?
+		}
+	}
+
+	public void removeAttribute(final String attributeName) {
+		try {
+			final Element element = getCurrentElement();
+			final QualifiedName qualifiedAttributeName = element.qualify(attributeName);
+			final String currentAttributeValue = element.getAttributeValue(qualifiedAttributeName);
+			if (currentAttributeValue != null) {
+				applyEdit(new ChangeAttributeEdit(element, qualifiedAttributeName, currentAttributeValue, null), getCaretOffset());
+			}
+		} catch (final DocumentValidationException e) {
+			e.printStackTrace(); // TODO: when can this happen?
 		}
 	}
 
@@ -1199,7 +1239,7 @@ public class VexWidgetImpl implements IVexWidget {
 		final long start = System.currentTimeMillis();
 
 		final Document doc = getDocument();
-		Element element = doc.getElementAt(getCaretOffset());
+		Element element = doc.getElementForInsertionAt(getCaretOffset());
 		Styles styles = getStyleSheet().getStyles(element);
 		while (!styles.isBlock()) {
 			element = element.getParentElement();
@@ -1210,10 +1250,8 @@ public class VexWidgetImpl implements IVexWidget {
 		try {
 			beginWork();
 			if (styles.getWhiteSpace().equals(CSS.PRE)) {
-				// can't call this.insertText() or we'll get an infinite loop
-				final int offset = getCaretOffset();
-				doc.insertText(offset, "\n");
-				this.moveTo(offset + 1);
+				applyEdit(new InsertTextEdit(document, getCaretOffset(), "\n"), getCaretOffset());
+				this.moveBy(1);
 			} else {
 				DocumentFragment frag = null;
 				int offset = getCaretOffset();
@@ -1226,7 +1264,7 @@ public class VexWidgetImpl implements IVexWidget {
 
 				// either way, we are now at the end offset for the element
 				// let's move just outside
-				this.moveTo(getCaretOffset() + 1);
+				this.moveBy(1);
 
 				insertElement(element.getQualifiedName());
 				// TODO: clone attributes
@@ -1276,6 +1314,46 @@ public class VexWidgetImpl implements IVexWidget {
 		return offset;
 	}
 
+	public void declareNamespace(final String namespacePrefix, final String namespaceURI) {
+		try {
+			final Element element = getCurrentElement();
+			final String currentNamespaceURI = element.getNamespaceURI(namespacePrefix);
+			applyEdit(new ChangeNamespaceEdit(element, namespacePrefix, currentNamespaceURI, namespaceURI), getCaretOffset());
+		} catch (final DocumentValidationException e) {
+			e.printStackTrace(); // TODO: maybe throw the exception instead?
+		}
+	}
+
+	public void removeNamespace(final String namespacePrefix) {
+		try {
+			final Element element = getCurrentElement();
+			final String currentNamespaceURI = element.getNamespaceURI(namespacePrefix);
+			applyEdit(new ChangeNamespaceEdit(element, namespacePrefix, currentNamespaceURI, null), getCaretOffset());
+		} catch (final DocumentValidationException e) {
+			e.printStackTrace(); // TODO: maybe throw the exception instead?
+		}
+	}
+
+	public void declareDefaultNamespace(final String namespaceURI) {
+		try {
+			final Element element = getCurrentElement();
+			final String currentNamespaceURI = element.getDefaultNamespaceURI();
+			applyEdit(new ChangeNamespaceEdit(element, null, currentNamespaceURI, namespaceURI), getCaretOffset());
+		} catch (final DocumentValidationException e) {
+			e.printStackTrace(); // TODO: maybe throw the exception instead?
+		}
+	}
+
+	public void removeDefaultNamespace() {
+		try {
+			final Element element = getCurrentElement();
+			final String currentNamespaceURI = element.getDefaultNamespaceURI();
+			applyEdit(new ChangeNamespaceEdit(element, null, currentNamespaceURI, null), getCaretOffset());
+		} catch (final DocumentValidationException e) {
+			e.printStackTrace(); // TODO: maybe throw the exception instead?
+		}
+	}
+
 	// ================================================== PRIVATE
 
 	/**
@@ -1289,6 +1367,12 @@ public class VexWidgetImpl implements IVexWidget {
 			this.edit = edit;
 			this.caretOffset = caretOffset;
 		}
+	}
+
+	private <T extends IUndoableEdit> T applyEdit(final T edit, final int caretOffset) {
+		addEdit(edit, caretOffset);
+		edit.redo();
+		return edit;
 	}
 
 	/**
@@ -1353,17 +1437,17 @@ public class VexWidgetImpl implements IVexWidget {
 	}
 
 	/**
-	 * Invalidates the box tree due to document changes. The lowest box that completely encloses the changed element is
+	 * Invalidates the box tree due to document changes. The lowest box that completely encloses the changed node is
 	 * invalidated.
 	 * 
-	 * @param element
-	 *            Element for which to search.
+	 * @param node
+	 *            Node for which to search.
 	 */
-	private void invalidateElementBox(final Element element) {
+	private void invalidateElementBox(final Node node) {
 
 		final BlockBox elementBox = (BlockBox) this.findInnermostBox(new IBoxFilter() {
 			public boolean matches(final Box box) {
-				return box instanceof BlockBox && box.getNode() != null && box.getStartOffset() <= element.getStartOffset() + 1 && box.getEndOffset() >= element.getEndOffset();
+				return box instanceof BlockBox && box.getNode() != null && box.getStartOffset() <= node.getStartOffset() + 1 && box.getEndOffset() >= node.getEndOffset();
 			}
 		});
 
@@ -1382,9 +1466,9 @@ public class VexWidgetImpl implements IVexWidget {
 		if (offset <= 1 || offset >= getDocument().getLength() - 1) {
 			return false;
 		}
-		final Element e1 = getDocument().getElementAt(offset - 1);
-		final Element e2 = getDocument().getElementAt(offset + 1);
-		return e1 != e2 && e1.getParent() == e2.getParent() && e1.getQualifiedName().equals(e2.getQualifiedName());
+		final Element e1 = getDocument().getElementForInsertionAt(offset - 1);
+		final Element e2 = getDocument().getElementForInsertionAt(offset + 1);
+		return e1 != e2 && e1.getParent() == e2.getParent() && e1.isKindOf(e2);
 	}
 
 	/**
@@ -1396,19 +1480,20 @@ public class VexWidgetImpl implements IVexWidget {
 	 */
 	private void iterateLayout(final int offset) {
 
-		int repaintStart = Integer.MAX_VALUE;
-		int repaintEnd = 0;
+		VerticalRange repaintRange = null;
 		final Graphics g = hostComponent.createDefaultGraphics();
 		final LayoutContext context = createLayoutContext(g);
 		int layoutY = rootBox.getCaret(context, offset).getY();
 
 		while (true) {
-
 			final int oldLayoutY = layoutY;
-			final IntRange repaintRange = rootBox.layout(context, layoutY - LAYOUT_WINDOW / 2, layoutY + LAYOUT_WINDOW / 2);
-			if (repaintRange != null) {
-				repaintStart = Math.min(repaintStart, repaintRange.getStart());
-				repaintEnd = Math.max(repaintEnd, repaintRange.getEnd());
+			final VerticalRange layoutRange = rootBox.layout(context, layoutY - LAYOUT_WINDOW / 2, layoutY + LAYOUT_WINDOW / 2);
+			if (layoutRange != null) {
+				if (repaintRange == null) {
+					repaintRange = layoutRange;
+				} else {
+					repaintRange = repaintRange.union(layoutRange);
+				}
 			}
 
 			layoutY = rootBox.getCaret(context, offset).getY();
@@ -1418,13 +1503,15 @@ public class VexWidgetImpl implements IVexWidget {
 		}
 		g.dispose();
 
-		if (repaintStart < repaintEnd) {
-			final Rectangle viewport = hostComponent.getViewport();
-			if (repaintStart < viewport.getY() + viewport.getHeight() && repaintEnd > viewport.getY()) {
-				final int start = Math.max(repaintStart, viewport.getY());
-				final int end = Math.min(repaintEnd, viewport.getY() + viewport.getHeight());
-				hostComponent.repaint(viewport.getX(), start, viewport.getWidth(), end - start);
-			}
+		if (repaintRange == null || repaintRange.isEmpty()) {
+			return;
+		}
+
+		final Rectangle viewport = hostComponent.getViewport();
+		final VerticalRange viewportRange = new VerticalRange(viewport.getY(), viewport.getY() + viewport.getHeight());
+		if (repaintRange.intersects(viewportRange)) {
+			final VerticalRange intersection = repaintRange.intersection(viewportRange);
+			hostComponent.repaint(viewport.getX(), intersection.getStart(), viewport.getWidth(), intersection.getHeight());
 		}
 	}
 
@@ -1444,23 +1531,33 @@ public class VexWidgetImpl implements IVexWidget {
 		boolean success = false;
 		try {
 			beginWork();
-			this.moveTo(offset + 1);
-			final Element element = getCurrentElement();
-			final boolean moveContent = !element.isEmpty();
-			DocumentFragment frag = null;
-			if (moveContent) {
-				this.moveTo(element.getEndOffset(), true);
-				frag = getSelectedFragment();
+
+			// get the second element
+			moveTo(offset + 1);
+			final Element secondElement = getCurrentElement();
+
+			// p<reserve the second element's content
+			final boolean shouldMoveContent = !secondElement.isEmpty();
+			final DocumentFragment preservedContent;
+			if (shouldMoveContent) {
+				moveTo(secondElement.getEndOffset(), true);
+				preservedContent = getSelectedFragment();
 				deleteSelection();
+			} else {
+				preservedContent = null;
 			}
-			this.moveBy(-1);
-			this.moveBy(2, true);
+
+			// delete the empty element
+			moveBy(1);
+			moveBy(-2, true);
 			deleteSelection();
-			this.moveBy(-1);
-			if (moveContent) {
+
+			// insert the preserved content into the first element
+			moveBy(-1);
+			if (shouldMoveContent) {
 				final int savedOffset = getCaretOffset();
-				insertFragment(frag);
-				this.moveTo(savedOffset, false);
+				insertFragment(preservedContent);
+				moveTo(savedOffset, false);
 			}
 			success = true;
 		} finally {
@@ -1581,23 +1678,17 @@ public class VexWidgetImpl implements IVexWidget {
 
 	/**
 	 * Repaints area of the control corresponding to a range of offsets in the document.
-	 * 
-	 * @param startOffset
-	 *            Starting offset of the range.
-	 * @param endOffset
-	 *            Ending offset of the range.
 	 */
-	private void repaintRange(final int startOffset, final int endOffset) {
-
+	private void repaintSelectedRange() {
 		final Graphics g = hostComponent.createDefaultGraphics();
 
 		final LayoutContext context = createLayoutContext(g);
 
-		final Rectangle startBounds = rootBox.getCaret(context, startOffset).getBounds();
+		final Rectangle startBounds = rootBox.getCaret(context, getSelectionStart()).getBounds();
 		final int top1 = startBounds.getY();
 		final int bottom1 = top1 + startBounds.getHeight();
 
-		final Rectangle endBounds = rootBox.getCaret(context, endOffset).getBounds();
+		final Rectangle endBounds = rootBox.getCaret(context, getSelectionEnd()).getBounds();
 		final int top2 = endBounds.getY();
 		final int bottom2 = top2 + endBounds.getHeight();
 

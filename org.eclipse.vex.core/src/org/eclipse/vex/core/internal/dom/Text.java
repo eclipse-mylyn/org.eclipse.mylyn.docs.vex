@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2008 John Krasnay and others.
+ * Copyright (c) 2004, 2013 John Krasnay and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,17 +7,21 @@
  * 
  * Contributors:
  *     John Krasnay - initial API and implementation
+ *     Florian Thienel - refactoring to full fledged DOM
  *******************************************************************************/
 package org.eclipse.vex.core.internal.dom;
 
 /**
- * <code>Text</code> represents a run of text in a document. Text objects are not used in the internal document
- * structure; they are only returned as needed by the <code>Element.getContent</code> method.
+ * A representation of textual content of an XML document within the DOM. Text objects are not used in the internal
+ * document structure; they are dynamically created as needed by the <code>Element.getChildNodes()</code> method.
+ * 
+ * @see Element#getChildNodes()
  */
 public class Text extends Node {
 
 	/**
-	 * Class constructor.
+	 * Create a new Text node for the given range in the given content. This constructor automatically associates the
+	 * Text node with the given content and sets its parent.
 	 * 
 	 * @param parent
 	 *            The parent node containing the text
@@ -28,7 +32,7 @@ public class Text extends Node {
 	 * @param endOffset
 	 *            character offset of the end of the run
 	 */
-	public Text(final Parent parent, final Content content, final Range range) {
+	public Text(final Parent parent, final Content content, final ContentRange range) {
 		setParent(parent);
 		associate(content, range);
 	}
@@ -44,8 +48,8 @@ public class Text extends Node {
 	}
 
 	@Override
-	public String getBaseURI() {
-		return null;
+	public boolean isKindOf(final Node node) {
+		return false;
 	}
 
 	@Override

@@ -15,7 +15,6 @@ package org.eclipse.vex.core.internal.dom;
  * nodes of the structural part of the DOM and is able to return a value of a certain type.
  * 
  * @author Florian Thienel
- * 
  */
 public interface INodeVisitorWithResult<T> {
 

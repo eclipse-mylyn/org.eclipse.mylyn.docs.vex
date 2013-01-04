@@ -44,10 +44,10 @@ public abstract class NodeTest {
 	@Test
 	public void canBeAssociatedToContentRegion() throws Exception {
 		final GapContent content = new GapContent(3);
-		content.insertElementMarker(0);
-		content.insertElementMarker(0);
+		content.insertTagMarker(0);
+		content.insertTagMarker(0);
 
-		node.associate(content, new Range(0, 1));
+		node.associate(content, new ContentRange(0, 1));
 		assertEquals(0, node.getStartOffset());
 		assertEquals(1, node.getEndOffset());
 
@@ -60,10 +60,10 @@ public abstract class NodeTest {
 	@Test
 	public void canBeDissociatedFromContent() throws Exception {
 		final GapContent content = new GapContent(3);
-		content.insertElementMarker(0);
-		content.insertElementMarker(0);
+		content.insertTagMarker(0);
+		content.insertTagMarker(0);
 
-		node.associate(content, new Range(0, 1));
+		node.associate(content, new ContentRange(0, 1));
 		node.dissociate();
 
 		content.insertText(1, "Hello");
@@ -73,10 +73,10 @@ public abstract class NodeTest {
 	@Test
 	public void hasTextualContent() throws Exception {
 		final GapContent content = new GapContent(3);
-		content.insertElementMarker(0);
-		content.insertElementMarker(0);
+		content.insertTagMarker(0);
+		content.insertTagMarker(0);
 
-		node.associate(content, new Range(0, 1));
+		node.associate(content, new ContentRange(0, 1));
 		assertEquals("", node.getText());
 
 		content.insertText(1, "Hello");
@@ -91,8 +91,8 @@ public abstract class NodeTest {
 	@Test
 	public void shouldContainStartOffset() throws Exception {
 		final GapContent content = new GapContent(3);
-		content.insertElementMarker(0);
-		content.insertElementMarker(0);
+		content.insertTagMarker(0);
+		content.insertTagMarker(0);
 		content.insertText(1, "Hello World");
 		node.associate(content, content.getRange());
 		content.insertText(0, "prefix");
@@ -105,8 +105,8 @@ public abstract class NodeTest {
 	@Test
 	public void shouldContainEndOffset() throws Exception {
 		final GapContent content = new GapContent(3);
-		content.insertElementMarker(0);
-		content.insertElementMarker(0);
+		content.insertTagMarker(0);
+		content.insertTagMarker(0);
 		content.insertText(1, "Hello World");
 		node.associate(content, content.getRange());
 		content.insertText(content.length(), "suffix");
@@ -124,54 +124,54 @@ public abstract class NodeTest {
 	@Test
 	public void shouldIndicateIfWithinRange() throws Exception {
 		final GapContent content = new GapContent(3);
-		content.insertElementMarker(0);
-		content.insertElementMarker(0);
+		content.insertTagMarker(0);
+		content.insertTagMarker(0);
 		content.insertText(1, "Hello World");
 		node.associate(content, content.getRange());
 		content.insertText(0, "prefix");
 		content.insertText(content.length(), "suffix");
 
-		assertTrue(node.isInRange(node.getRange().moveBounds(-1, 0)));
+		assertTrue(node.isInRange(node.getRange().resizeBy(-1, 0)));
 		assertTrue(node.isInRange(node.getRange()));
-		assertFalse(node.isInRange(node.getRange().moveBounds(1, 0)));
-		assertTrue(node.isInRange(node.getRange().moveBounds(0, 1)));
-		assertFalse(node.isInRange(node.getRange().moveBounds(0, -1)));
-		assertTrue(node.isInRange(node.getRange().moveBounds(-1, 1)));
-		assertFalse(node.isInRange(node.getRange().moveBounds(1, -1)));
+		assertFalse(node.isInRange(node.getRange().resizeBy(1, 0)));
+		assertTrue(node.isInRange(node.getRange().resizeBy(0, 1)));
+		assertFalse(node.isInRange(node.getRange().resizeBy(0, -1)));
+		assertTrue(node.isInRange(node.getRange().resizeBy(-1, 1)));
+		assertFalse(node.isInRange(node.getRange().resizeBy(1, -1)));
 	}
 
 	@Test
 	public void shouldHandleLowerStartOffset() throws Exception {
 		final GapContent content = new GapContent(3);
-		content.insertElementMarker(0);
-		content.insertElementMarker(0);
+		content.insertTagMarker(0);
+		content.insertTagMarker(0);
 		content.insertText(1, "Hello World");
 		node.associate(content, content.getRange());
 		content.insertText(0, "prefix");
 
-		assertEquals("Hello World", node.getText(new Range(node.getStartOffset() - 2, node.getEndOffset())));
+		assertEquals("Hello World", node.getText(new ContentRange(node.getStartOffset() - 2, node.getEndOffset())));
 	}
 
 	@Test
 	public void shouldHandleBiggerEndOffset() throws Exception {
 		final GapContent content = new GapContent(3);
-		content.insertElementMarker(0);
-		content.insertElementMarker(0);
+		content.insertTagMarker(0);
+		content.insertTagMarker(0);
 		content.insertText(1, "Hello World");
 		node.associate(content, content.getRange());
 		content.insertText(content.length(), "suffix");
 
-		assertEquals("Hello World", node.getText(new Range(node.getStartOffset(), node.getEndOffset() + 2)));
+		assertEquals("Hello World", node.getText(new ContentRange(node.getStartOffset(), node.getEndOffset() + 2)));
 	}
 
 	@Test
 	public void shouldProvideRange() throws Exception {
 		final GapContent content = new GapContent(3);
-		content.insertElementMarker(0);
-		content.insertElementMarker(0);
+		content.insertTagMarker(0);
+		content.insertTagMarker(0);
 		content.insertText(1, "Hello World");
 		node.associate(content, content.getRange());
-		final Range range = node.getRange();
+		final ContentRange range = node.getRange();
 		assertEquals(0, range.getStartOffset());
 		assertEquals(content.length() - 1, range.getEndOffset());
 	}

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2008 John Krasnay and others.
+ * Copyright (c) 2004, 2013 John Krasnay and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,6 +8,7 @@
  * Contributors:
  *     John Krasnay - initial API and implementation
  *     Igor Jacy Lino Campista - Java 5 warnings fixed (bug 311325)
+ *     Florian Thienel - refactoring to full fledged DOM
  *******************************************************************************/
 package org.eclipse.vex.core.internal.dom;
 
@@ -19,18 +20,14 @@ import java.util.List;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.vex.core.internal.core.ListenerList;
-import org.eclipse.vex.core.internal.undo.CannotRedoException;
-import org.eclipse.vex.core.internal.undo.CannotUndoException;
-import org.eclipse.vex.core.internal.undo.IUndoableEdit;
 
 /**
- * Represents an XML document.
+ * A representation of an XML document in the DOM.
  */
 public class Document extends Parent {
 
 	private final Element rootElement;
 	private final ListenerList<DocumentListener, DocumentEvent> listeners = new ListenerList<DocumentListener, DocumentEvent>(DocumentListener.class);
-	private boolean undoEnabled = true;
 
 	private String publicID;
 	protected String systemID;
@@ -40,7 +37,8 @@ public class Document extends Parent {
 	private Validator validator;
 
 	/**
-	 * Class constructor.
+	 * Create a new document with the given root element. This constructor creates a Content object and associates both
+	 * the root element and the document with it.
 	 * 
 	 * @param rootElement
 	 *            root element of the document. The document property of this RootElement is set by this constructor.
@@ -48,8 +46,8 @@ public class Document extends Parent {
 	 */
 	public Document(final Element rootElement) {
 		final GapContent content = new GapContent(100);
-		content.insertElementMarker(0);
-		content.insertElementMarker(0);
+		content.insertTagMarker(0);
+		content.insertTagMarker(0);
 		associate(content, content.getRange());
 
 		this.rootElement = rootElement;
@@ -58,8 +56,8 @@ public class Document extends Parent {
 	}
 
 	/**
-	 * Class constructor. This constructor is used by the document builder and assumes that the content and root element
-	 * have bee properly set up and is already associated with the given content.
+	 * Create a new document with the given content and root element. This constructor assumes that the content and root
+	 * element have bee properly set up and are already associated. It associates the document with the given content.
 	 * 
 	 * @param content
 	 *            Content object used to store the document's content.
@@ -73,6 +71,10 @@ public class Document extends Parent {
 		this.rootElement = rootElement;
 		addChild(rootElement);
 	}
+
+	/*
+	 * Node
+	 */
 
 	@Override
 	public int getStartOffset() {
@@ -98,6 +100,15 @@ public class Document extends Parent {
 	public String getBaseURI() {
 		return getDocumentURI();
 	}
+
+	@Override
+	public boolean isKindOf(final Node node) {
+		return false;
+	}
+
+	/*
+	 * Document
+	 */
 
 	public void setDocumentURI(final String documentURI) {
 		this.documentURI = documentURI;
@@ -143,75 +154,97 @@ public class Document extends Parent {
 		return rootElement;
 	}
 
-	public boolean isUndoEnabled() {
-		return undoEnabled;
-	}
-
-	public void setUndoEnabled(final boolean undoEnabled) {
-		this.undoEnabled = undoEnabled;
-	}
-
-	public void addDocumentListener(final DocumentListener listener) {
-		listeners.add(listener);
-	}
-
-	public void removeDocumentListener(final DocumentListener listener) {
-		listeners.remove(listener);
-	}
-
+	/**
+	 * @return the length of the textual content of this document plus 1 for each opening or closing XML tag (element
+	 *         tags, comment tags, PI tags and entity references).
+	 */
 	public int getLength() {
 		return getContent().length();
 	}
 
+	/**
+	 * Create a Position for the given offset. A position is automatically updated if it "moves" due to content
+	 * modifications.
+	 * 
+	 * <p>
+	 * All created positions are referenced by this document. <b>Make sure to remove positions you don't need
+	 * anymore.</b>
+	 * 
+	 * @see Position
+	 * @see Document#removePosition(Position)
+	 * @return the Position for the given offset
+	 */
 	public Position createPosition(final int offset) {
 		return getContent().createPosition(offset);
 	}
 
-	private boolean canInsertAt(final Element insertionParent, final int offset, final QualifiedName... nodeNames) {
-		return canInsertAt(insertionParent, offset, Arrays.asList(nodeNames));
+	/**
+	 * Remove the given Position. A removed position is not updated anymore.
+	 */
+	public void removePosition(final Position position) {
+		getContent().removePosition(position);
 	}
 
-	private boolean canInsertAt(final Element insertionParent, final int offset, final List<QualifiedName> nodeNames) {
-		if (validator == null) {
-			return true;
-		}
+	/*
+	 * L1 Operations
+	 */
 
-		if (insertionParent == null) {
+	private boolean canInsertAt(final Node insertionNode, final int offset, final QualifiedName... nodeNames) {
+		return canInsertAt(insertionNode, offset, Arrays.asList(nodeNames));
+	}
+
+	private boolean canInsertAt(final Node insertionNode, final int offset, final List<QualifiedName> nodeNames) {
+		if (insertionNode == null) {
 			return false;
 		}
+		return insertionNode.accept(new BaseNodeVisitorWithResult<Boolean>(false) {
+			@Override
+			public Boolean visit(final Element element) {
+				if (validator == null) {
+					return true;
+				}
 
-		final List<QualifiedName> prefix = getNodeNames(insertionParent.getChildNodesBefore(offset));
-		final List<QualifiedName> insertionCandidates = nodeNames;
-		final List<QualifiedName> suffix = getNodeNames(insertionParent.getChildNodesAfter(offset));
+				final List<QualifiedName> prefix = getNodeNames(element.getChildNodesBefore(offset));
+				final List<QualifiedName> insertionCandidates = nodeNames;
+				final List<QualifiedName> suffix = getNodeNames(element.getChildNodesAfter(offset));
 
-		return validator.isValidSequence(insertionParent.getQualifiedName(), prefix, insertionCandidates, suffix, true);
+				return validator.isValidSequence(element.getQualifiedName(), prefix, insertionCandidates, suffix, true);
+			}
+
+			@Override
+			public Boolean visit(final Comment comment) {
+				return true;
+			}
+
+			@Override
+			public Boolean visit(final Text text) {
+				return true;
+			}
+		});
 	}
 
-	private Element getInsertionParentAt(final int offset) {
-		final Element parent = getElementAt(offset);
-		if (offset == parent.getStartOffset()) {
-			return parent.getParentElement();
-		}
-		return parent;
-	}
-
-	private Node getInsertionNodeAt(final int offset) {
-		final Node node = getChildNodeAt(offset);
-		if (offset == node.getStartOffset()) {
-			return node.getParent();
-		}
-		return node;
-	}
-
+	/**
+	 * @return true if text can be inserted at the given offset
+	 */
 	public boolean canInsertText(final int offset) {
-		return canInsertAt(getInsertionParentAt(offset), offset, Validator.PCDATA);
+		return canInsertAt(getNodeForInsertionAt(offset), offset, Validator.PCDATA);
 	}
 
+	/**
+	 * Insert the given text at the given offset.
+	 * 
+	 * @param offset
+	 *            the offset at which the text should be inserted
+	 * @param text
+	 *            The text to insert. Control characters are automatically converted to \s (except for \n).
+	 * @throws DocumentValidationException
+	 *             if text is not allowed at the given offset
+	 */
 	public void insertText(final int offset, final String text) throws DocumentValidationException {
 		Assert.isTrue(offset > getStartOffset() && offset <= getEndOffset(), MessageFormat.format("Offset must be in [{0}, {1}]", getStartOffset() + 1, getEndOffset()));
 
 		final String adjustedText = convertControlCharactersToSpaces(text);
-		final Node insertionNode = getInsertionNodeAt(offset);
+		final Node insertionNode = getNodeForInsertionAt(offset);
 		insertionNode.accept(new INodeVisitor() {
 			public void visit(final Document document) {
 				Assert.isTrue(false, "Cannot insert text directly into Document.");
@@ -226,20 +259,21 @@ public class Document extends Parent {
 					throw new DocumentValidationException(MessageFormat.format("Cannot insert text ''{0}'' at offset {1}.", text, offset));
 				}
 
-				fireBeforeContentInserted(new DocumentEvent(Document.this, element, offset, 2, null));
-
+				fireBeforeContentInserted(new DocumentEvent(Document.this, element, offset, adjustedText.length(), null));
 				getContent().insertText(offset, adjustedText);
-
-				final IUndoableEdit edit = undoEnabled ? new InsertTextEdit(offset, adjustedText) : null;
-				fireContentInserted(new DocumentEvent(Document.this, element, offset, adjustedText.length(), edit));
+				fireContentInserted(new DocumentEvent(Document.this, element, offset, adjustedText.length(), null));
 			}
 
 			public void visit(final Text text) {
+				fireBeforeContentInserted(new DocumentEvent(Document.this, text.getParent(), offset, adjustedText.length(), null));
 				getContent().insertText(offset, adjustedText);
+				fireContentInserted(new DocumentEvent(Document.this, text.getParent(), offset, adjustedText.length(), null));
 			}
 
 			public void visit(final Comment comment) {
+				fireBeforeContentInserted(new DocumentEvent(Document.this, comment.getParent(), offset, adjustedText.length(), null));
 				getContent().insertText(offset, adjustedText);
+				fireContentInserted(new DocumentEvent(Document.this, comment.getParent(), offset, adjustedText.length(), null));
 			}
 		});
 	}
@@ -254,35 +288,76 @@ public class Document extends Parent {
 		return new String(characters);
 	}
 
+	/**
+	 * @return true if a comment can be inserted a the given offset
+	 */
 	public boolean canInsertComment(final int offset) {
 		// TODO Currently comments can only be inserted within the root element.
-		return offset > rootElement.getStartOffset() && offset <= rootElement.getEndOffset();
+		if (!(offset > rootElement.getStartOffset() && offset <= rootElement.getEndOffset())) {
+			return false;
+		}
+		final Node node = getNodeForInsertionAt(offset);
+		if (node instanceof Comment) {
+			return false;
+		}
+		return true;
 	}
 
-	public Comment insertComment(final int offset) {
-		Assert.isTrue(canInsertComment(offset));
+	/**
+	 * Insert a new comment at the given offset.
+	 * 
+	 * @see Comment
+	 * @param offset
+	 *            the offset at which the comment should be inserted
+	 * @return the new comment
+	 * @throws DocumentValidationException
+	 *             if a comment is not allowed a the given offset (e.g. within an existing comment)
+	 */
+	public Comment insertComment(final int offset) throws DocumentValidationException {
+		if (!canInsertComment(offset)) {
+			throw new DocumentValidationException(MessageFormat.format("Cannot insert a comment at offset {0}.", offset));
+		}
 
-		final Element parent = getInsertionParentAt(offset);
+		final Element parent = getElementForInsertionAt(offset);
 
-		// TODO fire events
+		fireBeforeContentInserted(new DocumentEvent(this, parent, offset, 2, null));
+
 		final Comment comment = new Comment();
-		getContent().insertElementMarker(offset);
-		getContent().insertElementMarker(offset);
-		comment.associate(getContent(), new Range(offset, offset + 1));
+		getContent().insertTagMarker(offset);
+		getContent().insertTagMarker(offset);
+		comment.associate(getContent(), new ContentRange(offset, offset + 1));
 
-		parent.insertChild(parent.getInsertionIndex(offset), comment);
+		parent.insertChild(parent.getIndexOfChildNextTo(offset), comment);
+
+		fireContentInserted(new DocumentEvent(this, parent, offset, 2, null));
 
 		return comment;
 	}
 
+	/**
+	 * @return true if a new element with the given qualified name can be inserted at the given offset
+	 */
 	public boolean canInsertElement(final int offset, final QualifiedName elementName) {
-		return canInsertAt(getInsertionParentAt(offset), offset, elementName);
+		return canInsertAt(getElementForInsertionAt(offset), offset, elementName);
 	}
 
+	/**
+	 * Insert a new element with the given qualified name a the given offset.
+	 * 
+	 * @see Element
+	 * @see QualifiedName
+	 * @param offset
+	 *            the offset at which the element should be inserted
+	 * @param elementName
+	 *            the qualified name of the new element
+	 * @return the new element
+	 * @throws DocumentValidationException
+	 *             if an element with the given qualified name is not allowed a the given offset
+	 */
 	public Element insertElement(final int offset, final QualifiedName elementName) throws DocumentValidationException {
 		Assert.isTrue(offset > rootElement.getStartOffset() && offset <= rootElement.getEndOffset(), MessageFormat.format("Offset must be in [{0}, {1}]", getStartOffset() + 1, getEndOffset()));
 
-		final Element parent = getInsertionParentAt(offset);
+		final Element parent = getElementForInsertionAt(offset);
 		if (!canInsertAt(parent, offset, elementName)) {
 			throw new DocumentValidationException(MessageFormat.format("Cannot insert element {0} at offset {1}.", elementName, offset));
 		}
@@ -290,56 +365,42 @@ public class Document extends Parent {
 		fireBeforeContentInserted(new DocumentEvent(this, parent, offset, 2, null));
 
 		final Element element = new Element(elementName);
-		getContent().insertElementMarker(offset);
-		getContent().insertElementMarker(offset);
-		element.associate(getContent(), new Range(offset, offset + 1));
+		getContent().insertTagMarker(offset);
+		getContent().insertTagMarker(offset);
+		element.associate(getContent(), new ContentRange(offset, offset + 1));
 
-		parent.insertChild(parent.getInsertionIndex(offset), element);
+		parent.insertChild(parent.getIndexOfChildNextTo(offset), element);
 
-		final IUndoableEdit edit = undoEnabled ? new InsertElementEdit(offset, element) : null;
-		fireContentInserted(new DocumentEvent(this, parent, offset, 2, edit));
+		fireContentInserted(new DocumentEvent(this, parent, offset, 2, null));
 
 		return element;
 	}
 
 	/**
-	 * @deprecated use Document#insertElement(int, QualifiedName) instead
+	 * @return true if the given DocumentFragment can be inserted at the given offset
 	 */
-	@Deprecated
-	public void insertElement(final int offset, final Element element) {
-		Assert.isTrue(offset > rootElement.getStartOffset() && offset <= rootElement.getEndOffset(), MessageFormat.format("Offset must be in [{0}, {1}]", getStartOffset() + 1, getEndOffset()));
-
-		final Element parent = getInsertionParentAt(offset);
-		if (!canInsertAt(parent, offset, element.getQualifiedName())) {
-			throw new DocumentValidationException(MessageFormat.format("Cannot insert element {0} at offset {1}.", element.getQualifiedName(), offset));
-		}
-
-		fireBeforeContentInserted(new DocumentEvent(this, parent, offset, 2, null));
-
-		getContent().insertElementMarker(offset);
-		getContent().insertElementMarker(offset);
-		element.associate(getContent(), new Range(offset, offset + 1));
-
-		parent.insertChild(parent.getInsertionIndex(offset), element);
-
-		final IUndoableEdit edit = undoEnabled ? new InsertElementEdit(offset, element) : null;
-		fireContentInserted(new DocumentEvent(this, parent, offset, 2, edit));
-	}
-
 	public boolean canInsertFragment(final int offset, final DocumentFragment fragment) {
-		return canInsertAt(getInsertionParentAt(offset), offset, fragment.getNodeNames());
+		return canInsertAt(getElementForInsertionAt(offset), offset, fragment.getNodeNames());
 	}
 
+	/**
+	 * Insert the given DocumentFragment at the given offset.
+	 * 
+	 * @see DocumentFragment
+	 * @param offset
+	 *            the offset at which the fragment should be inserted
+	 * @param fragment
+	 *            the fragment to insert
+	 * @throws DocumentValidationException
+	 *             if the given fragment may not be inserted at the given offset
+	 */
 	public void insertFragment(final int offset, final DocumentFragment fragment) throws DocumentValidationException {
-		if (offset < 1 || offset >= getLength()) {
-			throw new IllegalArgumentException("Error inserting document fragment");
-		}
+		Assert.isTrue(isInsertionPointIn(this, offset), "Cannot insert fragment outside of the document range.");
 
-		if (!canInsertAt(getInsertionParentAt(offset), offset, fragment.getNodeNames())) {
-			throw new DocumentValidationException("Cannot insert document fragment");
+		final Element parent = getElementForInsertionAt(offset);
+		if (!canInsertAt(parent, offset, fragment.getNodeNames())) {
+			throw new DocumentValidationException(MessageFormat.format("Cannot insert document fragment at offset {0}.", offset));
 		}
-
-		final Element parent = getElementAt(offset);
 
 		fireBeforeContentInserted(new DocumentEvent(this, parent, offset, 2, null));
 
@@ -347,57 +408,77 @@ public class Document extends Parent {
 
 		final DeepCopy deepCopy = new DeepCopy(fragment);
 		final List<Node> newNodes = deepCopy.getNodes();
-		int index = parent.getInsertionIndex(offset);
+		int index = parent.getIndexOfChildNextTo(offset);
 		for (final Node newNode : newNodes) {
 			parent.insertChild(index, newNode);
-			newNode.associate(getContent(), newNode.getRange().moveBounds(offset));
+			newNode.associate(getContent(), newNode.getRange().moveBy(offset));
 			index++;
 		}
 
-		final IUndoableEdit edit = undoEnabled ? new InsertFragmentEdit(offset, fragment) : null;
-
-		fireContentInserted(new DocumentEvent(this, parent, offset, fragment.getContent().length(), edit));
+		fireContentInserted(new DocumentEvent(this, parent, offset, fragment.getContent().length(), null));
 	}
 
-	public void delete(final Range range) throws DocumentValidationException {
-		final Element surroundingElement = getElementAt(range.getStartOffset() - 1);
-		final Element elementAtEndOffset = getElementAt(range.getEndOffset() + 1);
-		if (surroundingElement != elementAtEndOffset) {
-			throw new IllegalArgumentException("Deletion in " + range + " is unbalanced");
+	/**
+	 * Delete everything in the given range. The range must be balanced i.e. it must start in the same node as it ends.
+	 * 
+	 * @param range
+	 *            the range to delete
+	 * @throws DocumentValidationException
+	 *             if the deletion would lead to an invalid document
+	 */
+	public void delete(final ContentRange range) throws DocumentValidationException {
+		final Parent surroundingParent = getParentAt(range.getStartOffset());
+		final Parent parentAtEndOffset = getParentAt(range.getEndOffset());
+		Assert.isTrue(surroundingParent == parentAtEndOffset, MessageFormat.format("Range {0} for deletion is unbalanced: {1} -> {2}", range, surroundingParent, parentAtEndOffset));
+
+		final Parent parentForDeletion;
+		if (range.equals(surroundingParent.getRange())) {
+			parentForDeletion = surroundingParent.getParent();
+		} else {
+			parentForDeletion = surroundingParent;
 		}
 
-		final Validator validator = getValidator();
-		if (validator != null) {
-			final List<QualifiedName> seq1 = getNodeNames(surroundingElement.getChildNodesBefore(range.getStartOffset()));
-			final List<QualifiedName> seq2 = getNodeNames(surroundingElement.getChildNodesAfter(range.getEndOffset()));
-
-			if (!validator.isValidSequence(surroundingElement.getQualifiedName(), seq1, seq2, null, true)) {
-				throw new DocumentValidationException("Unable to delete " + range);
+		final boolean deletionIsValid = parentForDeletion.accept(new BaseNodeVisitorWithResult<Boolean>(true) {
+			@Override
+			public Boolean visit(final Element element) {
+				final Validator validator = getValidator();
+				if (validator == null) {
+					return true;
+				}
+				final List<QualifiedName> prefix = getNodeNames(element.getChildNodesBefore(range.getStartOffset()));
+				final List<QualifiedName> suffix = getNodeNames(element.getChildNodesAfter(range.getEndOffset()));
+				return validator.isValidSequence(element.getQualifiedName(), prefix, suffix, null, true);
 			}
+		});
+		if (!deletionIsValid) {
+			throw new DocumentValidationException("Unable to delete " + range);
 		}
 
-		// Grab the fragment for the undoable edit while it's still here
-		final DocumentFragment fragment = getFragment(range);
+		fireBeforeContentDeleted(new DocumentEvent(this, parentForDeletion, range.getStartOffset(), range.length(), null));
 
-		fireBeforeContentDeleted(new DocumentEvent(this, surroundingElement, range.getStartOffset(), range.length(), null));
-
-		final Iterator<Node> iter = surroundingElement.getChildIterator();
+		final Iterator<Node> iter = parentForDeletion.getChildIterator();
 		while (iter.hasNext()) {
 			final Node child = iter.next();
 			if (child.isInRange(range)) {
-				surroundingElement.removeChild(child);
+				parentForDeletion.removeChild(child);
+				child.dissociate();
 			}
 		}
 
 		getContent().remove(range);
 
-		final IUndoableEdit edit = undoEnabled ? new DeleteEdit(range, fragment) : null;
-
-		fireContentDeleted(new DocumentEvent(this, surroundingElement, range.getStartOffset(), range.length(), edit));
+		fireContentDeleted(new DocumentEvent(this, parentForDeletion, range.getStartOffset(), range.length(), null));
 	}
 
+	/*
+	 * Miscellaneous
+	 */
+
+	/**
+	 * @return the character at the given offset. If there is an XML tag at the given offset \0 is returned.
+	 */
 	public char getCharacterAt(final int offset) {
-		final String text = getContent().getText(new Range(offset, offset));
+		final String text = getContent().getText(new ContentRange(offset, offset));
 		if (text.length() == 0) {
 			/*
 			 * XXX This is used in VexWidgetImpl.deleteNextChar/deletePreviousChar to find out if there is an element
@@ -409,51 +490,114 @@ public class Document extends Parent {
 		return text.charAt(0);
 	}
 
-	public Element findCommonElement(final int offset1, final int offset2) {
-		Element element = rootElement;
-		for (;;) {
-			boolean tryAgain = false;
-			final List<Element> children = element.getChildElements();
-			for (int i = 0; i < children.size(); i++) {
-				final Element child = children.get(i);
-				if (child.containsOffset(offset1) && child.containsOffset(offset2)) {
-					element = child;
-					tryAgain = true;
-					break;
-				}
+	/**
+	 * Find the nearest common node of the given offsets going from each offset to the root element.
+	 * 
+	 * @param offset1
+	 *            the first offset
+	 * @param offset2
+	 *            the second offset
+	 * @return the nearest common node for both offsets
+	 */
+	public Node findCommonNode(final int offset1, final int offset2) {
+		Assert.isTrue(containsOffset(offset1) && containsOffset(offset2));
+		return findCommonNodeIn(this, offset1, offset2);
+	}
+
+	private static Node findCommonNodeIn(final Parent parent, final int offset1, final int offset2) {
+		final List<Node> children = parent.getChildNodes();
+		for (final Node child : children) {
+			if (child instanceof Text) {
+				continue;
 			}
-			if (!tryAgain) {
-				break;
+			if (isCommonNodeFor(child, offset1, offset2)) {
+				if (child instanceof Parent) {
+					return findCommonNodeIn((Parent) child, offset1, offset2);
+				}
+				return child;
 			}
 		}
-		return element;
+		return parent;
 	}
 
-	public Element getElementAt(final int offset) {
-		return getContainerElement(getChildNodeAt(offset));
+	private static boolean isCommonNodeFor(final Node node, final int offset1, final int offset2) {
+		return isInsertionPointIn(node, offset1) && isInsertionPointIn(node, offset2);
 	}
 
-	private static Element getContainerElement(final Node node) {
+	/**
+	 * @return true if the given node would contain an insertion at the given offset
+	 */
+	public static boolean isInsertionPointIn(final Node node, final int offset) {
+		return node.getRange().resizeBy(1, 0).contains(offset);
+	}
+
+	/**
+	 * @return the node in which an insertion at the given offset will end
+	 */
+	public Node getNodeForInsertionAt(final int offset) {
+		final Node node = getChildNodeAt(offset);
+		if (node instanceof Text) {
+			return node.getParent();
+		}
+		if (offset == node.getStartOffset()) {
+			return node.getParent();
+		}
+		return node;
+	}
+
+	/**
+	 * @return the element in which an insertion at the given offset will end
+	 */
+	public Element getElementForInsertionAt(final int offset) {
+		final Element parent = getParentElement(getChildNodeAt(offset));
+		if (offset == parent.getStartOffset()) {
+			return parent.getParentElement();
+		}
+		return parent;
+	}
+
+	private static Element getParentElement(final Node node) {
 		if (node == null) {
 			return null;
 		}
 		if (node instanceof Element) {
 			return (Element) node;
 		}
-		return getContainerElement(node.getParent());
+		return getParentElement(node.getParent());
 	}
 
-	public boolean isElementAt(final int offset) {
-		return getContent().isElementMarker(offset);
+	private Parent getParentAt(final int offset) {
+		final Node child = getChildNodeAt(offset);
+		if (child instanceof Parent) {
+			return (Parent) child;
+		}
+		return child.getParent();
 	}
 
-	public DocumentFragment getFragment(final Range range) {
+	/**
+	 * @return true if there is an XML tag at the given offset (element tags, comment tags, PI tags and entity
+	 *         references)
+	 */
+	public boolean isTagAt(final int offset) {
+		return getContent().isTagMarker(offset);
+	}
+
+	/**
+	 * Create a new DocumentFragment with a deep copy of the given range in this document. The range must be balanced
+	 * i.e. it must start in the same node as it ends.
+	 * 
+	 * @see DocumentFragment
+	 * @param range
+	 *            the range to copy into the fragment
+	 * @return a new fragment with a deep copy of the given range
+	 */
+	public DocumentFragment getFragment(final ContentRange range) {
 		final Parent parent = getParentOfRange(range);
 		final DeepCopy deepCopy = new DeepCopy(parent, range);
 		return new DocumentFragment(deepCopy.getContent(), deepCopy.getNodes());
 	}
 
-	private Parent getParentOfRange(final Range range) {
+	private Parent getParentOfRange(final ContentRange range) {
 		Assert.isTrue(getRange().contains(range));
 
 		final Node startNode = getChildNodeAt(range.getStartOffset());
@@ -465,8 +609,23 @@ public class Document extends Parent {
 		return parent;
 	}
 
-	public List<Node> getNodes(final Range range) {
+	/**
+	 * @return all nodes in the given range in this document
+	 */
+	public List<Node> getNodes(final ContentRange range) {
 		return getParentOfRange(range).getChildNodes(range);
+	}
+
+	/*
+	 * Events
+	 */
+
+	public void addDocumentListener(final DocumentListener listener) {
+		listeners.add(listener);
+	}
+
+	public void removeDocumentListener(final DocumentListener listener) {
+		listeners.remove(listener);
 	}
 
 	public void fireAttributeChanged(final DocumentEvent e) {
@@ -491,167 +650,6 @@ public class Document extends Parent {
 
 	private void fireContentInserted(final DocumentEvent e) {
 		listeners.fireEvent("contentInserted", e);
-	}
-
-	// TODO move undoable edits int L2
-
-	private class DeleteEdit implements IUndoableEdit {
-
-		private final Range range;
-		private final DocumentFragment fragment;
-
-		public DeleteEdit(final Range range, final DocumentFragment fragment) {
-			this.range = range;
-			this.fragment = fragment;
-		}
-
-		public boolean combine(final IUndoableEdit edit) {
-			return false;
-		}
-
-		public void undo() throws CannotUndoException {
-			try {
-				setUndoEnabled(false);
-				insertFragment(range.getStartOffset(), fragment);
-			} catch (final DocumentValidationException ex) {
-				throw new CannotUndoException();
-			} finally {
-				setUndoEnabled(true);
-			}
-		}
-
-		public void redo() throws CannotRedoException {
-			try {
-				setUndoEnabled(false);
-				delete(range);
-			} catch (final DocumentValidationException ex) {
-				throw new CannotUndoException();
-			} finally {
-				setUndoEnabled(true);
-			}
-		}
-
-	}
-
-	private class InsertElementEdit implements IUndoableEdit {
-
-		private final int offset;
-		private final Element element;
-
-		public InsertElementEdit(final int offset, final Element element) {
-			this.offset = offset;
-			this.element = element;
-		}
-
-		public boolean combine(final IUndoableEdit edit) {
-			return false;
-		}
-
-		public void undo() throws CannotUndoException {
-			try {
-				setUndoEnabled(false);
-				delete(new Range(offset, offset + 2));
-			} catch (final DocumentValidationException ex) {
-				throw new CannotUndoException();
-			} finally {
-				setUndoEnabled(true);
-			}
-		}
-
-		public void redo() throws CannotRedoException {
-			try {
-				setUndoEnabled(false);
-				insertElement(offset, element.getQualifiedName());
-			} catch (final DocumentValidationException ex) {
-				throw new CannotUndoException();
-			} finally {
-				setUndoEnabled(true);
-			}
-		}
-
-	}
-
-	private class InsertFragmentEdit implements IUndoableEdit {
-
-		private final int offset;
-		private final DocumentFragment frag;
-
-		public InsertFragmentEdit(final int offset, final DocumentFragment frag) {
-			this.offset = offset;
-			this.frag = frag;
-		}
-
-		public boolean combine(final IUndoableEdit edit) {
-			return false;
-		}
-
-		public void undo() throws CannotUndoException {
-			try {
-				setUndoEnabled(false);
-				delete(frag.getContent().getRange().moveBounds(offset, offset));
-			} catch (final DocumentValidationException ex) {
-				throw new CannotUndoException();
-			} finally {
-				setUndoEnabled(true);
-			}
-		}
-
-		public void redo() throws CannotRedoException {
-			try {
-				setUndoEnabled(false);
-				insertFragment(offset, frag);
-			} catch (final DocumentValidationException ex) {
-				throw new CannotUndoException();
-			} finally {
-				setUndoEnabled(true);
-			}
-		}
-
-	}
-
-	private class InsertTextEdit implements IUndoableEdit {
-
-		private final int offset;
-		private String text;
-
-		public InsertTextEdit(final int offset, final String text) {
-			this.offset = offset;
-			this.text = text;
-		}
-
-		public boolean combine(final IUndoableEdit edit) {
-			if (edit instanceof InsertTextEdit) {
-				final InsertTextEdit ite = (InsertTextEdit) edit;
-				if (ite.offset == offset + text.length()) {
-					text = text + ite.text;
-					return true;
-				}
-			}
-			return false;
-		}
-
-		public void undo() throws CannotUndoException {
-			try {
-				setUndoEnabled(false);
-				delete(new Range(offset, offset + text.length()));
-			} catch (final DocumentValidationException ex) {
-				throw new CannotUndoException();
-			} finally {
-				setUndoEnabled(true);
-			}
-		}
-
-		public void redo() throws CannotRedoException {
-			try {
-				setUndoEnabled(false);
-				insertText(offset, text);
-			} catch (final DocumentValidationException ex) {
-				throw new CannotUndoException();
-			} finally {
-				setUndoEnabled(true);
-			}
-		}
-
 	}
 
 }

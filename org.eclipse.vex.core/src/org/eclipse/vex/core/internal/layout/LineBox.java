@@ -98,7 +98,7 @@ public class LineBox extends CompositeInlineBox {
 	 */
 	@Override
 	public boolean hasContent() {
-		return firstContentChild != null;
+		return firstContentChild != null && firstContentChild.hasContent();
 	}
 
 	/**

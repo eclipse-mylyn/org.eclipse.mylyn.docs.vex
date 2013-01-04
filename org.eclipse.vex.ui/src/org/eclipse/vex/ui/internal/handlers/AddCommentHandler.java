@@ -20,7 +20,9 @@ public class AddCommentHandler extends AbstractVexWidgetHandler {
 
 	@Override
 	public void execute(final VexWidget widget) throws ExecutionException {
-		widget.insertComment();
+		if (widget.canInsertComment()) {
+			widget.insertComment();
+		}
 	}
 
 }

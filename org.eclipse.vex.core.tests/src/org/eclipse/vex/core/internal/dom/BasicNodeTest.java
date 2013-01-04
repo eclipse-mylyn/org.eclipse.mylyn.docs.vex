@@ -19,11 +19,6 @@ public class BasicNodeTest extends NodeTest {
 	protected Node createNode() {
 		return new Node() {
 			@Override
-			public String getBaseURI() {
-				return null;
-			}
-
-			@Override
 			public void accept(final INodeVisitor visitor) {
 				throw new UnsupportedOperationException();
 			}
@@ -31,6 +26,11 @@ public class BasicNodeTest extends NodeTest {
 			@Override
 			public <T> T accept(final INodeVisitorWithResult<T> visitor) {
 				throw new UnsupportedOperationException();
+			}
+
+			@Override
+			public boolean isKindOf(final Node node) {
+				return false;
 			}
 		};
 	}

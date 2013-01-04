@@ -17,7 +17,6 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 
-import org.eclipse.core.runtime.AssertionFailedException;
 import org.eclipse.core.runtime.QualifiedName;
 import org.junit.Before;
 import org.junit.Test;
@@ -79,7 +78,7 @@ public class L1CommentHandlingTest {
 		assertEquals("Hello World", comment.getText());
 	}
 
-	@Test(expected = AssertionFailedException.class)
+	@Test(expected = DocumentValidationException.class)
 	public void shouldNotInsertCommentAtInvalidInsertionPoint() throws Exception {
 		document.insertComment(rootElement.getStartOffset());
 	}

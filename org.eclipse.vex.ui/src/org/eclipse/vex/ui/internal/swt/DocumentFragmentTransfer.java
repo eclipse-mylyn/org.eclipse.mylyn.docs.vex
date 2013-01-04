@@ -25,12 +25,12 @@ import org.eclipse.swt.dnd.TransferData;
 import org.eclipse.vex.core.internal.dom.Attribute;
 import org.eclipse.vex.core.internal.dom.BaseNodeVisitor;
 import org.eclipse.vex.core.internal.dom.Content;
+import org.eclipse.vex.core.internal.dom.ContentRange;
 import org.eclipse.vex.core.internal.dom.DocumentFragment;
 import org.eclipse.vex.core.internal.dom.DocumentValidationException;
 import org.eclipse.vex.core.internal.dom.Element;
 import org.eclipse.vex.core.internal.dom.GapContent;
 import org.eclipse.vex.core.internal.dom.Node;
-import org.eclipse.vex.core.internal.dom.Range;
 
 /**
  * Transfer object that handles Vex DocumentFragments.
@@ -137,10 +137,10 @@ public class DocumentFragmentTransfer extends ByteArrayTransfer {
 		final int contentLength = content.length();
 		out.write(contentLength);
 		for (int i = 0; i < contentLength; i++) {
-			if (content.isElementMarker(i)) {
-				out.writeUTF("\0"); // This internal representation of element markers has nothing to do with the internal representation in GapContent.
+			if (content.isTagMarker(i)) {
+				out.writeUTF("\0"); // This internal representation of tag markers has nothing to do with the internal representation in GapContent.
 			} else {
-				out.writeUTF(content.getText(new Range(i, i)));
+				out.writeUTF(content.getText(new ContentRange(i, i)));
 			}
 		}
 	}
@@ -177,8 +177,8 @@ public class DocumentFragmentTransfer extends ByteArrayTransfer {
 		final Content result = new GapContent(contentLength);
 		for (int i = 0; i < contentLength; i++) {
 			final String input = in.readUTF();
-			if ("\0".equals(input)) { // This internal representation of element markers has nothing to do with the internal representation in GapContent.
-				result.insertElementMarker(i);
+			if ("\0".equals(input)) { // This internal representation of tag markers has nothing to do with the internal representation in GapContent.
+				result.insertTagMarker(i);
 			} else {
 				result.insertText(i, input);
 			}
@@ -191,7 +191,7 @@ public class DocumentFragmentTransfer extends ByteArrayTransfer {
 		final int startOffset = in.readInt();
 		final int endOffset = in.readInt();
 		final Element element = new Element(elementName);
-		element.associate(content, new Range(startOffset, endOffset));
+		element.associate(content, new ContentRange(startOffset, endOffset));
 
 		final int attrCount = in.readInt();
 		for (int i = 0; i < attrCount; i++) {

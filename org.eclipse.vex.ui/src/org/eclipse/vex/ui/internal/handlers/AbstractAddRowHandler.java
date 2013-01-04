@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.vex.core.internal.dom.CopyVisitor;
+import org.eclipse.vex.core.internal.dom.CopyOfElement;
 import org.eclipse.vex.core.internal.dom.Element;
 import org.eclipse.vex.ui.internal.swt.VexWidget;
 
@@ -80,26 +80,28 @@ public abstract class AbstractAddRowHandler extends AbstractVexWidgetHandler {
 		// save the caret offset to return inside the first table cell after
 		// row has been added
 		final RowCells firstRow = rowCellsToInsert.get(0);
-		final int outerOffset = VexHandlerUtil.getOuterRange(firstRow.row).getStart();
+		final int outerOffset = VexHandlerUtil.getOuterRange(firstRow.row).getStartOffset();
 		final Object firstInner = firstRow.cells.isEmpty() ? firstRow.row : firstRow.cells.get(0);
-		final int innerOffset = VexHandlerUtil.getInnerRange(firstInner).getStart();
-		final int insertOffset = addAbove() ? VexHandlerUtil.getOuterRange(firstRow.row).getStart() : VexHandlerUtil.getOuterRange(rowCellsToInsert.get(rowCellsToInsert.size() - 1).row).getEnd();
+		final int innerOffset = VexHandlerUtil.getInnerRange(firstInner).getStartOffset();
+		final int insertOffset = addAbove() ? VexHandlerUtil.getOuterRange(firstRow.row).getStartOffset() : VexHandlerUtil.getOuterRange(rowCellsToInsert.get(rowCellsToInsert.size() - 1).row)
+				.getEndOffset();
 
 		// (innerOffset - outerOffset) represents the final offset of
 		// the caret, relative to the insertion point of the new rows
 		final int finalOffset = insertOffset + innerOffset - outerOffset;
 		widget.moveTo(insertOffset);
 
-		final CopyVisitor copyVisitor = new CopyVisitor();
 		for (final RowCells rowCells : rowCellsToInsert) {
 			if (rowCells.row instanceof Element) {
-				widget.insertElement((Element) ((Element) rowCells.row).accept(copyVisitor));
+				final Element rowElement = (Element) rowCells.row;
+				widget.insertElement(rowElement.getQualifiedName()).accept(new CopyOfElement(rowElement));
 			}
 
 			//cells that are to be inserted.
 			for (final Object cell : rowCells.cells) {
 				if (cell instanceof Element) {
-					widget.insertElement((Element) ((Element) cell).accept(copyVisitor));
+					final Element cellElement = (Element) cell;
+					widget.insertElement(cellElement.getQualifiedName()).accept(new CopyOfElement(cellElement));
 					widget.moveBy(+1);
 				} else {
 					widget.insertText(" ");

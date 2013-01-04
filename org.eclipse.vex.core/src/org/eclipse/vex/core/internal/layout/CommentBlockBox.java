@@ -19,13 +19,18 @@ import org.eclipse.vex.core.internal.dom.Node;
 /**
  * @author Florian Thienel
  */
-public class CommentBlockElementBox extends BlockElementBox {
+public class CommentBlockBox extends BlockElementBox {
 
 	private static final String AFTER_TEXT = "-->";
 	private static final String BEFORE_TEXT = "<!--";
 
-	public CommentBlockElementBox(final LayoutContext context, final BlockBox parent, final Node node) {
+	public CommentBlockBox(final LayoutContext context, final BlockBox parent, final Node node) {
 		super(context, parent, node);
+	}
+
+	@Override
+	public VerticalRange layout(final LayoutContext context, final int top, final int bottom) {
+		return super.layout(context, top, bottom);
 	}
 
 	@Override
@@ -38,20 +43,25 @@ public class CommentBlockElementBox extends BlockElementBox {
 		final Node node = getNode();
 		final int width = getWidth();
 
-		final List<Box> childList = new ArrayList<Box>();
+		final List<Box> result = new ArrayList<Box>();
+
+		final List<InlineBox> pendingInlines = new ArrayList<InlineBox>();
 
 		// :before content
-		final List<InlineBox> beforeInlines = new ArrayList<InlineBox>();
-		beforeInlines.add(new StaticTextBox(context, node, BEFORE_TEXT));
+		pendingInlines.add(new StaticTextBox(context, node, BEFORE_TEXT));
+
+		// textual content
+		if (node.getEndOffset() - node.getStartOffset() > 1) {
+			pendingInlines.add(new DocumentTextBox(context, node, node.getStartOffset() + 1, node.getEndOffset() - 1));
+		}
+
+		// placeholder
+		pendingInlines.add(new PlaceholderBox(context, node, node.getEndOffset() - node.getStartOffset()));
 
 		// :after content
-		final List<InlineBox> afterInlines = new ArrayList<InlineBox>();
-		afterInlines.add(new StaticTextBox(context, node, AFTER_TEXT));
+		pendingInlines.add(new StaticTextBox(context, node, AFTER_TEXT));
 
-		final int startOffset = node.getStartOffset() + 1;
-		final int endOffset = node.getEndOffset();
-		final List<Box> blockBoxes = createBlockBoxes(context, startOffset, endOffset, width, beforeInlines, afterInlines);
-		childList.addAll(blockBoxes);
+		result.add(ParagraphBox.create(context, node, pendingInlines, width));
 
 		if (VEXCorePlugin.getInstance().isDebugging()) {
 			final long end = System.currentTimeMillis();
@@ -60,6 +70,6 @@ public class CommentBlockElementBox extends BlockElementBox {
 			}
 		}
 
-		return childList;
+		return result;
 	}
 }

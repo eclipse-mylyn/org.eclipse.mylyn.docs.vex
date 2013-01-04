@@ -33,10 +33,10 @@ import org.eclipse.vex.core.internal.dom.DocumentWriterTest;
 import org.eclipse.vex.core.internal.dom.GapContentTest;
 import org.eclipse.vex.core.internal.dom.L1CommentHandlingTest;
 import org.eclipse.vex.core.internal.dom.L1ElementHandlingTest;
+import org.eclipse.vex.core.internal.dom.L1FragmentHandlingTest;
 import org.eclipse.vex.core.internal.dom.L1TextHandlingTest;
 import org.eclipse.vex.core.internal.dom.NamespaceStackTest;
 import org.eclipse.vex.core.internal.dom.NamespaceTest;
-import org.eclipse.vex.core.internal.dom.NodeTraversalTest;
 import org.eclipse.vex.core.internal.dom.ParentTest;
 import org.eclipse.vex.core.internal.dom.RangeTest;
 import org.eclipse.vex.core.internal.dom.SchemaValidatorTest;
@@ -48,6 +48,8 @@ import org.eclipse.vex.core.internal.layout.TestBlockElementBox;
 import org.eclipse.vex.core.internal.layout.TestBlocksInInlines;
 import org.eclipse.vex.core.internal.layout.TestDocumentTextBox;
 import org.eclipse.vex.core.internal.layout.TestStaticTextBox;
+import org.eclipse.vex.core.internal.widget.L2SelectionTest;
+import org.eclipse.vex.core.internal.widget.L2SimpleEditingTest;
 import org.eclipse.vex.core.internal.widget.VexWidgetTest;
 
 public class VEXCoreTestSuite extends TestSuite {
@@ -71,8 +73,8 @@ public class VEXCoreTestSuite extends TestSuite {
 		addTest(new JUnit4TestAdapter(L1TextHandlingTest.class));
 		addTest(new JUnit4TestAdapter(L1CommentHandlingTest.class));
 		addTest(new JUnit4TestAdapter(L1ElementHandlingTest.class));
+		addTest(new JUnit4TestAdapter(L1FragmentHandlingTest.class));
 		addTest(new JUnit4TestAdapter(DocumentFragmentTest.class));
-		addTest(new JUnit4TestAdapter(NodeTraversalTest.class));
 		addTest(new JUnit4TestAdapter(CopyVisitorTest.class));
 		addTest(new JUnit4TestAdapter(DeepCopyTest.class));
 		addTestSuite(PropertyTest.class);
@@ -91,5 +93,7 @@ public class VEXCoreTestSuite extends TestSuite {
 		addTestSuite(TableLayoutTest.class);
 		addTestSuite(ListenerListTest.class);
 		addTest(new JUnit4TestAdapter(VexWidgetTest.class));
+		addTest(new JUnit4TestAdapter(L2SimpleEditingTest.class));
+		addTest(new JUnit4TestAdapter(L2SelectionTest.class));
 	}
 }
