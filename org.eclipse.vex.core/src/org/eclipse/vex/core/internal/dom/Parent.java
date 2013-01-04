@@ -20,7 +20,7 @@ import org.eclipse.core.runtime.Assert;
 
 /**
  * A Parent node is a Node which can contain other nodes as children. This class defines the tree-like structure of the
- * DOM. It handles the mergin of the child nodes and the textual content of one node within the structure of the
+ * DOM. It handles the merging of the child nodes and the textual content of one node within the structure of the
  * document.
  * 
  * @author Florian Thienel
@@ -56,6 +56,9 @@ public abstract class Parent extends Node {
 		child.setParent(this);
 	}
 
+	/**
+	 * @return the child node of this parent following the given offset
+	 */
 	public int getIndexOfChildNextTo(final int offset) {
 		final ContentRange insertionRange = getRange().resizeBy(1, 0);
 		Assert.isTrue(insertionRange.contains(offset), MessageFormat.format("The offset must be within {0}.", insertionRange));
@@ -153,6 +156,9 @@ public abstract class Parent extends Node {
 		return currentOffset;
 	}
 
+	/**
+	 * @return all child nodes before the given offset, including Text nodes
+	 */
 	public List<Node> getChildNodesBefore(final int offset) {
 		if (offset <= getStartOffset()) {
 			return Collections.emptyList();
@@ -160,6 +166,9 @@ public abstract class Parent extends Node {
 		return getChildNodes(new ContentRange(getStartOffset() + 1, offset));
 	}
 
+	/**
+	 * @return all child nodes after the given offset, including Text nodes
+	 */
 	public List<Node> getChildNodesAfter(final int offset) {
 		if (offset >= getEndOffset()) {
 			return Collections.emptyList();
@@ -168,7 +177,7 @@ public abstract class Parent extends Node {
 	}
 
 	/**
-	 * An Iterator of all child nodes. The underlying collection is not modifyable.
+	 * An Iterator of all child nodes including Text nodes. The underlying collection is not modifyable.
 	 * 
 	 * @see Parent#getChildNodes()
 	 * @see Iterator
@@ -199,7 +208,7 @@ public abstract class Parent extends Node {
 	}
 
 	/**
-	 * Returns the node at the given offset.
+	 * Returns the child node which contains the given offset, or this node, if no child contains the offset.
 	 * 
 	 * @param offset
 	 *            the offset
@@ -221,10 +230,10 @@ public abstract class Parent extends Node {
 	}
 
 	/**
-	 * Indicates if this parent node has child nodes. Text nodes are ignored, i.e. this method will return false if this
-	 * parent node contains only text.
+	 * Indicates whether this parent node has child nodes. Text nodes are ignored, i.e. this method will return false if
+	 * this parent node contains only text.
 	 * 
-	 * @return true if this parent node has child nodes
+	 * @return true if this parent node has any child nodes besides text
 	 */
 	public boolean hasChildren() {
 		return !children.isEmpty();

@@ -15,7 +15,6 @@ package org.eclipse.vex.core.internal.dom;
  * nodes of the structural part of the DOM.
  * 
  * @author Florian Thienel
- * 
  */
 public interface INodeVisitor {
 

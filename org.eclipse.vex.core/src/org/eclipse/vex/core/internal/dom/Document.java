@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2008 John Krasnay and others.
+ * Copyright (c) 2004, 2013 John Krasnay and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,6 +8,7 @@
  * Contributors:
  *     John Krasnay - initial API and implementation
  *     Igor Jacy Lino Campista - Java 5 warnings fixed (bug 311325)
+ *     Florian Thienel - refactoring to full fledged DOM
  *******************************************************************************/
 package org.eclipse.vex.core.internal.dom;
 
@@ -21,7 +22,7 @@ import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.vex.core.internal.core.ListenerList;
 
 /**
- * Represents an XML document.
+ * A representation of an XML document in the DOM.
  */
 public class Document extends Parent {
 
@@ -36,7 +37,8 @@ public class Document extends Parent {
 	private Validator validator;
 
 	/**
-	 * Class constructor.
+	 * Create a new document with the given root element. This constructor creates a Content object and associates both
+	 * the root element and the document with it.
 	 * 
 	 * @param rootElement
 	 *            root element of the document. The document property of this RootElement is set by this constructor.
@@ -54,8 +56,8 @@ public class Document extends Parent {
 	}
 
 	/**
-	 * Class constructor. This constructor is used by the document builder and assumes that the content and root element
-	 * have bee properly set up and is already associated with the given content.
+	 * Create a new document with the given content and root element. This constructor assumes that the content and root
+	 * element have bee properly set up and are already associated. It associates the document with the given content.
 	 * 
 	 * @param content
 	 *            Content object used to store the document's content.
@@ -147,14 +149,33 @@ public class Document extends Parent {
 		return rootElement;
 	}
 
+	/**
+	 * @return the length of the textual content of this document plus 1 for each opening or closing XML tag (element
+	 *         tags, comment tags, PI tags and entity references).
+	 */
 	public int getLength() {
 		return getContent().length();
 	}
 
+	/**
+	 * Create a Position for the given offset. A position is automatically updated if it "moves" due to content
+	 * modifications.
+	 * 
+	 * <p>
+	 * All created positions are referenced by this document. <b>Make sure to remove positions you don't need
+	 * anymore.</b>
+	 * 
+	 * @see Position
+	 * @see Document#removePosition(Position)
+	 * @return the Position for the given offset
+	 */
 	public Position createPosition(final int offset) {
 		return getContent().createPosition(offset);
 	}
 
+	/**
+	 * Remove the given Position. A removed position is not updated anymore.
+	 */
 	public void removePosition(final Position position) {
 		getContent().removePosition(position);
 	}
@@ -197,10 +218,23 @@ public class Document extends Parent {
 		});
 	}
 
+	/**
+	 * @return true if text can be inserted at the given offset
+	 */
 	public boolean canInsertText(final int offset) {
 		return canInsertAt(getNodeForInsertionAt(offset), offset, Validator.PCDATA);
 	}
 
+	/**
+	 * Insert the given text at the given offset.
+	 * 
+	 * @param offset
+	 *            the offset at which the text should be inserted
+	 * @param text
+	 *            The text to insert. Control characters are automatically converted to \s (except for \n).
+	 * @throws DocumentValidationException
+	 *             if text is not allowed at the given offset
+	 */
 	public void insertText(final int offset, final String text) throws DocumentValidationException {
 		Assert.isTrue(offset > getStartOffset() && offset <= getEndOffset(), MessageFormat.format("Offset must be in [{0}, {1}]", getStartOffset() + 1, getEndOffset()));
 
@@ -249,6 +283,9 @@ public class Document extends Parent {
 		return new String(characters);
 	}
 
+	/**
+	 * @return true if a comment can be inserted a the given offset
+	 */
 	public boolean canInsertComment(final int offset) {
 		// TODO Currently comments can only be inserted within the root element.
 		if (!(offset > rootElement.getStartOffset() && offset <= rootElement.getEndOffset())) {
@@ -261,8 +298,20 @@ public class Document extends Parent {
 		return true;
 	}
 
-	public Comment insertComment(final int offset) {
-		Assert.isTrue(canInsertComment(offset));
+	/**
+	 * Insert a new comment at the given offset.
+	 * 
+	 * @see Comment
+	 * @param offset
+	 *            the offset at which the comment should be inserted
+	 * @return the new comment
+	 * @throws DocumentValidationException
+	 *             if a comment is not allowed a the given offset (e.g. within an existing comment)
+	 */
+	public Comment insertComment(final int offset) throws DocumentValidationException {
+		if (!canInsertComment(offset)) {
+			throw new DocumentValidationException(MessageFormat.format("Cannot insert a comment at offset {0}.", offset));
+		}
 
 		final Element parent = getElementForInsertionAt(offset);
 
@@ -280,10 +329,26 @@ public class Document extends Parent {
 		return comment;
 	}
 
+	/**
+	 * @return true if a new element with the given qualified name can be inserted at the given offset
+	 */
 	public boolean canInsertElement(final int offset, final QualifiedName elementName) {
 		return canInsertAt(getElementForInsertionAt(offset), offset, elementName);
 	}
 
+	/**
+	 * Insert a new element with the given qualified name a the given offset.
+	 * 
+	 * @see Element
+	 * @see QualifiedName
+	 * @param offset
+	 *            the offset at which the element should be inserted
+	 * @param elementName
+	 *            the qualified name of the new element
+	 * @return the new element
+	 * @throws DocumentValidationException
+	 *             if an element with the given qualified name is not allowed a the given offset
+	 */
 	public Element insertElement(final int offset, final QualifiedName elementName) throws DocumentValidationException {
 		Assert.isTrue(offset > rootElement.getStartOffset() && offset <= rootElement.getEndOffset(), MessageFormat.format("Offset must be in [{0}, {1}]", getStartOffset() + 1, getEndOffset()));
 
@@ -306,18 +371,30 @@ public class Document extends Parent {
 		return element;
 	}
 
+	/**
+	 * @return true if the given DocumentFragment can be inserted at the given offset
+	 */
 	public boolean canInsertFragment(final int offset, final DocumentFragment fragment) {
 		return canInsertAt(getElementForInsertionAt(offset), offset, fragment.getNodeNames());
 	}
 
+	/**
+	 * Insert the given DocumentFragment at the given offset.
+	 * 
+	 * @see DocumentFragment
+	 * @param offset
+	 *            the offset at which the fragment should be inserted
+	 * @param fragment
+	 *            the fragment to insert
+	 * @throws DocumentValidationException
+	 *             if the given fragment may not be inserted at the given offset
+	 */
 	public void insertFragment(final int offset, final DocumentFragment fragment) throws DocumentValidationException {
-		if (offset < 1 || offset >= getLength()) {
-			throw new IllegalArgumentException("Error inserting document fragment");
-		}
+		Assert.isTrue(isInsertionPointIn(this, offset), "Cannot insert fragment outside of the document range.");
 
 		final Element parent = getElementForInsertionAt(offset);
 		if (!canInsertAt(parent, offset, fragment.getNodeNames())) {
-			throw new DocumentValidationException("Cannot insert document fragment");
+			throw new DocumentValidationException(MessageFormat.format("Cannot insert document fragment at offset {0}.", offset));
 		}
 
 		fireBeforeContentInserted(new DocumentEvent(this, parent, offset, 2, null));
@@ -336,12 +413,18 @@ public class Document extends Parent {
 		fireContentInserted(new DocumentEvent(this, parent, offset, fragment.getContent().length(), null));
 	}
 
+	/**
+	 * Delete everything in the given range. The range must be balanced i.e. it must start in the same node as it ends.
+	 * 
+	 * @param range
+	 *            the range to delete
+	 * @throws DocumentValidationException
+	 *             if the deletion would lead to an invalid document
+	 */
 	public void delete(final ContentRange range) throws DocumentValidationException {
 		final Parent surroundingParent = getParentAt(range.getStartOffset());
 		final Parent parentAtEndOffset = getParentAt(range.getEndOffset());
-		if (surroundingParent != parentAtEndOffset) {
-			throw new IllegalArgumentException("Deletion in " + range + " is unbalanced");
-		}
+		Assert.isTrue(surroundingParent == parentAtEndOffset, MessageFormat.format("Range {0} for deletion is unbalanced: {1} -> {2}", range, surroundingParent, parentAtEndOffset));
 
 		final Parent parentForDeletion;
 		if (range.equals(surroundingParent.getRange())) {
@@ -386,6 +469,9 @@ public class Document extends Parent {
 	 * Miscellaneous
 	 */
 
+	/**
+	 * @return the character at the given offset. If there is an XML tag at the given offset \0 is returned.
+	 */
 	public char getCharacterAt(final int offset) {
 		final String text = getContent().getText(new ContentRange(offset, offset));
 		if (text.length() == 0) {
@@ -399,6 +485,15 @@ public class Document extends Parent {
 		return text.charAt(0);
 	}
 
+	/**
+	 * Find the nearest common node of the given offsets going from each offset to the root element.
+	 * 
+	 * @param offset1
+	 *            the first offset
+	 * @param offset2
+	 *            the second offset
+	 * @return the nearest common node for both offsets
+	 */
 	public Node findCommonNode(final int offset1, final int offset2) {
 		Assert.isTrue(containsOffset(offset1) && containsOffset(offset2));
 		return findCommonNodeIn(this, offset1, offset2);
@@ -424,10 +519,16 @@ public class Document extends Parent {
 		return isInsertionPointIn(node, offset1) && isInsertionPointIn(node, offset2);
 	}
 
+	/**
+	 * @return true if the given node would contain an insertion at the given offset
+	 */
 	public static boolean isInsertionPointIn(final Node node, final int offset) {
 		return node.getRange().resizeBy(1, 0).contains(offset);
 	}
 
+	/**
+	 * @return the node in which an insertion at the given offset will end
+	 */
 	public Node getNodeForInsertionAt(final int offset) {
 		final Node node = getChildNodeAt(offset);
 		if (node instanceof Text) {
@@ -439,6 +540,9 @@ public class Document extends Parent {
 		return node;
 	}
 
+	/**
+	 * @return the element in which an insertion at the given offset will end
+	 */
 	public Element getElementForInsertionAt(final int offset) {
 		final Element parent = getParentElement(getChildNodeAt(offset));
 		if (offset == parent.getStartOffset()) {
@@ -465,10 +569,23 @@ public class Document extends Parent {
 		return child.getParent();
 	}
 
+	/**
+	 * @return true if there is an XML tag at the given offset (element tags, comment tags, PI tags and entity
+	 *         references)
+	 */
 	public boolean isElementAt(final int offset) {
 		return getContent().isElementMarker(offset);
 	}
 
+	/**
+	 * Create a new DocumentFragment with a deep copy of the given range in this document. The range must be balanced
+	 * i.e. it must start in the same node as it ends.
+	 * 
+	 * @see DocumentFragment
+	 * @param range
+	 *            the range to copy into the fragment
+	 * @return a new fragment with a deep copy of the given range
+	 */
 	public DocumentFragment getFragment(final ContentRange range) {
 		final Parent parent = getParentOfRange(range);
 		final DeepCopy deepCopy = new DeepCopy(parent, range);
@@ -487,6 +604,9 @@ public class Document extends Parent {
 		return parent;
 	}
 
+	/**
+	 * @return all nodes in the given range in this document
+	 */
 	public List<Node> getNodes(final ContentRange range) {
 		return getParentOfRange(range).getChildNodes(range);
 	}

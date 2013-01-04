@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010 Florian Thienel and others.
+ * Copyright (c) 2010, 2013 Florian Thienel and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -13,8 +13,8 @@ package org.eclipse.vex.core.internal.dom;
 import org.eclipse.core.runtime.QualifiedName;
 
 /**
- * An immutable representation of an attribute within the start tag of an element. The attribute is Comparable by its
- * qualified name.
+ * An immutable representation of an attribute within the start tag of an element. An attribute consists of a qualified
+ * name and a value. It is Comparable by its qualified name, which is the natural order of attributes.
  * 
  * @author Florian Thienel
  */
@@ -26,10 +26,31 @@ public class Attribute implements Comparable<Attribute> {
 
 	private final String value;
 
+	/**
+	 * Create an attribute within the namespace of the parent element, i.e. only the local name without a qualifier is
+	 * given.
+	 * 
+	 * @param parent
+	 *            the element containing the attribute
+	 * @param localName
+	 *            the local name of the attribute
+	 * @param value
+	 *            the value of the attribute
+	 */
 	public Attribute(final Element parent, final String localName, final String value) {
 		this(parent, new QualifiedName(null, localName), value);
 	}
 
+	/**
+	 * Create an attribute within an arbitrary namespace.
+	 * 
+	 * @param parent
+	 *            the element containing the attribute
+	 * @param name
+	 *            the qualified name of the attribute
+	 * @param value
+	 *            the value of the attribute
+	 */
 	public Attribute(final Element parent, final QualifiedName name, final String value) {
 		this.parent = parent;
 		this.name = name;
@@ -48,9 +69,6 @@ public class Attribute implements Comparable<Attribute> {
 		return value;
 	}
 
-	/**
-	 * @return a pair of the namespace URI and the local name
-	 */
 	public QualifiedName getQualifiedName() {
 		return name;
 	}
@@ -73,7 +91,7 @@ public class Attribute implements Comparable<Attribute> {
 	}
 
 	/**
-	 * Compares two attributes by their name.
+	 * Compares two attributes by their qualified name.
 	 * 
 	 * @param otherAttribute
 	 *            the other attribute

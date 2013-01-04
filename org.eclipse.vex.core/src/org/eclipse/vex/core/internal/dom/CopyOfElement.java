@@ -11,12 +11,22 @@
 package org.eclipse.vex.core.internal.dom;
 
 /**
+ * This visitor copies the properties of a source element into the visited elements:
+ * <ul>
+ * <li>attributes</li>
+ * <li>namespace declarations</li>
+ * </ul>
+ * 
  * @author Florian Thienel
  */
 public class CopyOfElement extends BaseNodeVisitor {
 
 	private final Element source;
 
+	/**
+	 * @param source
+	 *            the source element
+	 */
 	public CopyOfElement(final Element source) {
 		this.source = source;
 	}

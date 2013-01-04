@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2008 John Krasnay and others.
+ * Copyright (c) 2004, 2013 John Krasnay and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,28 +7,26 @@
  * 
  * Contributors:
  *     John Krasnay - initial API and implementation
+ *     Florian Thienel - refactoring to full fledged DOM
  *******************************************************************************/
 package org.eclipse.vex.core.internal.dom;
 
 /**
- * Interface for classes that manage a string of characters representing the content of a document.
- * 
- * @model
+ * Interface for classes that manage a string of characters representing the textual content of a document.
  */
 public interface Content extends CharSequence {
 
 	/**
-	 * Creates a new Position object at the given initial offset.
+	 * Create a new Position object at the given initial offset.
 	 * 
 	 * @param offset
 	 *            initial offset of the position
-	 * @model
 	 */
 	public Position createPosition(int offset);
 
 	/**
-	 * Removes the given Position from the list of positions. A removed position is not updated anymore when this
-	 * content is modified.
+	 * Remove the given Position from the list of positions. A removed position is not updated anymore when this content
+	 * is modified.
 	 * 
 	 * @param position
 	 *            the position to remove
@@ -36,15 +34,14 @@ public interface Content extends CharSequence {
 	public void removePosition(Position position);
 
 	/**
-	 * Insert a string into the content.
+	 * Insert given text into the content.
 	 * 
 	 * @param offset
 	 *            Offset at which to insert the string.
-	 * @param s
-	 *            String to insert.
-	 * @model
+	 * @param text
+	 *            Text to insert.
 	 */
-	public void insertText(int offset, String s);
+	public void insertText(int offset, String text);
 
 	/**
 	 * Get the plain text of a region of this content. The plain text does not contain any information about the element
@@ -87,7 +84,7 @@ public interface Content extends CharSequence {
 	public String getRawText();
 
 	/**
-	 * Inserts the given content into this content at the given offset.
+	 * Insert the given content into this content at the given offset.
 	 * 
 	 * @param offset
 	 *            Offset at which to insert the given content
@@ -119,34 +116,29 @@ public interface Content extends CharSequence {
 	 * 
 	 * @param offset
 	 *            Offset at which to insert the element marker.
-	 * @model
 	 */
 	public void insertElementMarker(int offset);
 
 	/**
-	 * Indicates if the character at the given offset is an element marker.
+	 * Indicate if the character at the given offset is an element marker.
 	 * 
 	 * @param offset
 	 *            Offset at which to check if an element marker is present.
-	 * @model
 	 */
 	public boolean isElementMarker(int offset);
 
 	/**
-	 * Deletes the given range of characters.
+	 * Delete the given range of characters.
 	 * 
 	 * @param offset
 	 *            Offset from which characters should be deleted.
 	 * @param length
 	 *            Number of characters to delete.
-	 * @model
 	 */
 	public void remove(ContentRange range);
 
 	/**
-	 * Return the length of the content.
-	 * 
-	 * @model
+	 * @return the length of the content.
 	 */
 	public int length();
 

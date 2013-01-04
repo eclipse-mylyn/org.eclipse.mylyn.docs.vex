@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2012 John Krasnay and others.
+ * Copyright (c) 2004, 2013 John Krasnay and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  * 
  * Contributors:
  *     John Krasnay - initial API and implementation
+ *     Florian Thienel - refactoring to full fledged DOM
  *******************************************************************************/
 package org.eclipse.vex.core.internal.dom;
 
@@ -18,8 +19,9 @@ import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.QualifiedName;
 
 /**
- * This class represents one node within the XML structure, which is also associated to a region of the textual content.
- * It is the base class for all representatives of the XML structure in the document object model (DOM).
+ * A representation of one node in the XML structure. A node is associated to a range of the textual content.
+ * <p>
+ * This is the base class for all representatives of the XML structure in the document object model (DOM).
  */
 public abstract class Node {
 
@@ -46,14 +48,12 @@ public abstract class Node {
 	}
 
 	/**
-	 * Associates this node to a region within the given content.
+	 * Associate this node to a range within the given content.
 	 * 
 	 * @param content
 	 *            Content object holding the node's content
-	 * @param startOffset
-	 *            offset at which the node's content starts
-	 * @param endOffset
-	 *            offset at which the node's content ends
+	 * @param range
+	 *            the range of this node's content
 	 */
 	public void associate(final Content content, final ContentRange range) {
 		if (isAssociated()) {
@@ -66,10 +66,10 @@ public abstract class Node {
 	}
 
 	/**
-	 * Dissociates this node from its associated content region.
+	 * Dissociates this node from its associated content range.
 	 */
 	public void dissociate() {
-		Assert.isTrue(isAssociated(), "Node must be associated to a Content region before it can be dissociated.");
+		Assert.isTrue(isAssociated(), "This node must be associated to a ContentRange before it can be dissociated.");
 
 		content.removePosition(startPosition);
 		content.removePosition(endPosition);
@@ -93,35 +93,47 @@ public abstract class Node {
 	}
 
 	/**
-	 * The start offset of this node, which eventually also includes the position of an element marker.
+	 * The start offset of this node, which eventually also includes the position of a tag marker.
 	 * 
 	 * @return the start offset of this node within the textual content
 	 */
 	public int getStartOffset() {
-		Assert.isTrue(isAssociated(), "Node must be associated to a Content region to have a start offset.");
+		Assert.isTrue(isAssociated(), "Node must be associated to a ContentRange to have a start offset.");
 		return startPosition.getOffset();
 	}
 
 	/**
-	 * The end offset of this node, which eventually also includes the position of an element marker.
+	 * The end offset of this node, which eventually also includes the position of a tag marker.
 	 * 
 	 * @return the end offset of this node within the textual content
 	 */
 	public int getEndOffset() {
-		Assert.isTrue(isAssociated(), "Node must be associated to a Content region to have an end offset.");
+		Assert.isTrue(isAssociated(), "Node must be associated to a ContentRange to have an end offset.");
 		return endPosition.getOffset();
 	}
 
+	/**
+	 * @return the range in the content to which this node is associated, eventually including tag markers
+	 */
 	public ContentRange getRange() {
 		return new ContentRange(getStartOffset(), getEndOffset());
 	}
 
+	/**
+	 * Indicate whether this node has no content beside its tag markers. If this node is not associated with textual
+	 * content, this method returns false.
+	 * 
+	 * @return true if this node has no content beside its tag markers
+	 */
 	public boolean isEmpty() {
+		if (!isAssociated()) {
+			return false;
+		}
 		return getEndOffset() - getStartOffset() == 1;
 	}
 
 	/**
-	 * Indicates whether the given offset is within the boundaries of this node. If this node is not associated with
+	 * Indicate whether the given offset is within the boundaries of this node. If this node is not associated with
 	 * textual content, this method returns false.
 	 * 
 	 * @param offset
@@ -136,13 +148,11 @@ public abstract class Node {
 	}
 
 	/**
-	 * Indicates whether this node is fully within the given range. If this node is not associated with textual content,
+	 * Indicate whether this node is fully within the given range. If this node is not associated with textual content,
 	 * this method returns false.
 	 * 
-	 * @param startOffset
-	 *            the range's start offset
-	 * @param endOffset
-	 *            the range's end offst
+	 * @param range
+	 *            the range
 	 * @return true if this node is fully within the given range
 	 */
 	public boolean isInRange(final ContentRange range) {
@@ -153,9 +163,7 @@ public abstract class Node {
 	}
 
 	/**
-	 * The textual content, not inluding any element markers.
-	 * 
-	 * @return the textual content of this node
+	 * @return the textual content of this node, not including any tag markers
 	 */
 	public String getText() {
 		return getText(getRange());
@@ -164,10 +172,8 @@ public abstract class Node {
 	/**
 	 * The textual content in the given range, not including any element markers.
 	 * 
-	 * @param startOffset
-	 *            the start offset
-	 * @param endOffset
-	 *            the end offset
+	 * @param range
+	 *            the range of the textual content
 	 * @return the textual content in the given range
 	 */
 	public String getText(final ContentRange range) {
@@ -175,6 +181,9 @@ public abstract class Node {
 		return content.getText(range.intersection(getRange()));
 	}
 
+	/**
+	 * @return the document to which this node belongs, or null if this node does not belong to any document
+	 */
 	public Document getDocument() {
 		return getDocument(this);
 	}
@@ -193,10 +202,19 @@ public abstract class Node {
 		return getDocument(parent);
 	}
 
+	/**
+	 * Indicate whether this and the given node are of the same kind (e.g. elements with the same qualified name).
+	 * 
+	 * @return true if this and the given node are of the same kind
+	 */
 	public boolean isKindOf(final Node node) {
 		return false;
 	}
 
+	/**
+	 * @see Element#setBaseURI(String)
+	 * @return the base URI of this node
+	 */
 	public String getBaseURI() {
 		if (getParent() != null) {
 			return getParent().getBaseURI();
@@ -225,6 +243,9 @@ public abstract class Node {
 	 */
 	public abstract <T> T accept(final INodeVisitorWithResult<T> visitor);
 
+	/**
+	 * @return the qualified names of the given nodes
+	 */
 	public static List<QualifiedName> getNodeNames(final Collection<Node> nodes) {
 		final List<QualifiedName> names = new ArrayList<QualifiedName>(nodes.size());
 
