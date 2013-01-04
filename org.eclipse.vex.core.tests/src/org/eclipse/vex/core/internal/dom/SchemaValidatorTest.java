@@ -137,10 +137,10 @@ public class SchemaValidatorTest {
 	@Test
 	public void validItemsFromSimpleSchema() throws Exception {
 		final Validator validator = new WTPVEXValidator();
-		final Document doc = new Document(new RootElement(P));
+		final Document doc = new Document(new Element(P));
 		doc.setValidator(validator);
-		doc.insertElement(1, new Element(B));
-		doc.insertElement(2, new Element(I));
+		doc.insertElement(1, B);
+		doc.insertElement(2, I);
 
 		assertValidItems(validator, doc.getRootElement(), B, I); // p
 		assertValidItems(validator, doc.getElementAt(1), B, I); // b
@@ -162,12 +162,12 @@ public class SchemaValidatorTest {
 		 * needs their parent to find the definition of their content model.
 		 */
 		final Validator validator = new WTPVEXValidator();
-		final Document doc = new Document(new RootElement(CHAPTER));
+		final Document doc = new Document(new Element(CHAPTER));
 		doc.setValidator(validator);
-		doc.insertElement(1, new Element(TITLE));
-		doc.insertElement(3, new Element(P));
-		doc.insertElement(4, new Element(B));
-		doc.insertElement(5, new Element(I));
+		doc.insertElement(1, TITLE);
+		doc.insertElement(3, P);
+		doc.insertElement(4, B);
+		doc.insertElement(5, I);
 
 		assertValidItems(validator, doc.getRootElement(), CHAPTER, TITLE, P); // chapter
 		assertValidItems(validator, doc.getElementAt(2)); // title
@@ -178,14 +178,14 @@ public class SchemaValidatorTest {
 
 	@Test
 	public void getAllRequiredNamespacesForSimpleSchema() throws Exception {
-		final Validator validator = new WTPVEXValidator(new DocumentContentModel(null, null, null, new RootElement(P)));
+		final Validator validator = new WTPVEXValidator(new DocumentContentModel(null, null, null, new Element(P)));
 		final Set<String> requiredNamespaces = validator.getRequiredNamespaces();
 		assertEquals(1, requiredNamespaces.size());
 	}
 
 	@Test
 	public void getAllRequiredNamespacesForComplexSchema() throws Exception {
-		final Validator validator = new WTPVEXValidator(new DocumentContentModel(null, null, null, new RootElement(CHAPTER)));
+		final Validator validator = new WTPVEXValidator(new DocumentContentModel(null, null, null, new Element(CHAPTER)));
 		final Set<String> requiredNamespaces = validator.getRequiredNamespaces();
 		assertEquals(2, requiredNamespaces.size());
 		assertTrue(requiredNamespaces.contains(CONTENT_NS));

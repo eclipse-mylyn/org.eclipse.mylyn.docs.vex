@@ -26,8 +26,12 @@ import org.eclipse.vex.core.internal.core.IntRange;
 import org.eclipse.vex.core.internal.css.CSS;
 import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.css.Styles;
+import org.eclipse.vex.core.internal.dom.BaseNodeVisitorWithResult;
+import org.eclipse.vex.core.internal.dom.Comment;
 import org.eclipse.vex.core.internal.dom.Document;
 import org.eclipse.vex.core.internal.dom.Element;
+import org.eclipse.vex.core.internal.dom.Node;
+import org.eclipse.vex.core.internal.dom.Parent;
 import org.eclipse.vex.core.internal.dom.Position;
 
 /**
@@ -51,13 +55,12 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 	 *            LayoutContext being used.
 	 * @param parent
 	 *            Parent box.
-	 * @param element
-	 *            Element associated with this box. anonymous box.
+	 * @param node
+	 *            Node associated with this box. anonymous box.
 	 */
-	public AbstractBlockBox(final LayoutContext context, final BlockBox parent, final Element element) {
-
+	public AbstractBlockBox(final LayoutContext context, final BlockBox parent, final Node node) {
 		this.parent = parent;
-		this.element = element;
+		element = node;
 
 		final Styles styles = context.getStyleSheet().getStyles(element);
 		final int parentWidth = parent.getWidth();
@@ -91,14 +94,14 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 	/**
 	 * Walks the box tree and returns the nearest enclosing element.
 	 */
-	protected Element findContainingElement() {
+	protected Parent findContainingParent() {
 		BlockBox box = this;
-		Element element = box.getElement();
-		while (element == null) {
+		Node node = box.getNode();
+		while (!(node instanceof Parent)) {
 			box = box.getParent();
-			element = box.getElement();
+			node = box.getNode();
 		}
-		return element;
+		return (Parent) node;
 	}
 
 	/**
@@ -173,13 +176,13 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 	}
 
 	@Override
-	public Element getElement() {
+	public Node getNode() {
 		return element;
 	}
 
 	@Override
 	public int getEndOffset() {
-		final Element element = getElement();
+		final Node element = getNode();
 		if (element != null) {
 			return element.getEndOffset();
 		} else if (getEndPosition() != null) {
@@ -199,8 +202,8 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 	 */
 	protected int getEstimatedHeight(final LayoutContext context) {
 
-		final Element element = findContainingElement();
-		final Styles styles = context.getStyleSheet().getStyles(element);
+		final Node node = findContainingParent();
+		final Styles styles = context.getStyleSheet().getStyles(node);
 		final int charCount = getEndOffset() - getStartOffset();
 
 		final float fontSize = styles.getFontSize();
@@ -230,8 +233,8 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 	@Override
 	public Insets getInsets(final LayoutContext context, final int containerWidth) {
 
-		if (getElement() != null) {
-			final Styles styles = context.getStyleSheet().getStyles(getElement());
+		if (getNode() != null) {
+			final Styles styles = context.getStyleSheet().getStyles(getNode());
 
 			final int top = marginTop + styles.getBorderTopWidth() + styles.getPaddingTop().get(containerWidth);
 
@@ -361,9 +364,9 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 
 	@Override
 	public int getStartOffset() {
-		final Element element = getElement();
-		if (element != null) {
-			return element.getStartOffset() + 1;
+		final Node node = getNode();
+		if (node != null) {
+			return node.getStartOffset() + 1;
 		} else if (getStartPosition() != null) {
 			return getStartPosition().getOffset();
 		} else {
@@ -391,7 +394,7 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 
 	@Override
 	public boolean isAnonymous() {
-		return getElement() == null;
+		return getNode() == null;
 	}
 
 	/**
@@ -408,7 +411,7 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 	 *            ranges.
 	 */
 	protected void iterateChildrenByDisplayStyle(final StyleSheet styleSheet, final Set<String> displayStyles, final ElementOrRangeCallback callback) {
-		LayoutUtils.iterateChildrenByDisplayStyle(styleSheet, displayStyles, findContainingElement(), getStartOffset(), getEndOffset(), callback);
+		LayoutUtils.iterateChildrenByDisplayStyle(styleSheet, displayStyles, findContainingParent(), getStartOffset(), getEndOffset(), callback);
 	}
 
 	@Override
@@ -418,7 +421,7 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 			return;
 		}
 
-		final boolean drawBorders = !context.isElementSelected(getElement());
+		final boolean drawBorders = !context.isNodeSelected(getNode());
 
 		this.drawBox(context, x, y, getParent().getWidth(), drawBorders);
 
@@ -487,10 +490,10 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 	 */
 	protected void paintSelectionFrame(final LayoutContext context, final int x, final int y, final boolean selected) {
 
-		final Element element = getElement();
-		final Element parent = element == null ? null : element.getParent();
+		final Node node = getNode();
+		final Parent parent = node == null ? null : node.getParent();
 
-		final boolean paintFrame = context.isElementSelected(element) && !context.isElementSelected(parent);
+		final boolean paintFrame = context.isNodeSelected(node) && !context.isNodeSelected(parent);
 
 		if (!paintFrame) {
 			return;
@@ -512,20 +515,35 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 		final ColorResource oldColor = g.setColor(background);
 		g.setLineStyle(Graphics.LINE_SOLID);
 		g.setLineWidth(1);
-		final int tabWidth = g.stringWidth(getElement().getPrefixedName()) + fm.getLeading();
+		final String frameName = getSelectionFrameName(node);
+		final int tabWidth = g.stringWidth(frameName) + fm.getLeading();
 		final int tabHeight = fm.getHeight();
 		final int tabX = x + getWidth() - tabWidth;
 		final int tabY = y + getHeight() - tabHeight;
 		g.drawRect(x, y, getWidth(), getHeight());
 		g.fillRect(tabX, tabY, tabWidth, tabHeight);
 		g.setColor(foreground);
-		g.drawString(getElement().getPrefixedName(), tabX + fm.getLeading() / 2, tabY);
+		g.drawString(frameName, tabX + fm.getLeading() / 2, tabY);
 
 		g.setColor(oldColor);
 		if (!selected) {
 			foreground.dispose();
 			background.dispose();
 		}
+	}
+
+	protected String getSelectionFrameName(final Node node) {
+		return node.accept(new BaseNodeVisitorWithResult<String>() {
+			@Override
+			public String visit(final Element element) {
+				return element.getPrefixedName();
+			}
+
+			@Override
+			public String visit(final Comment comment) {
+				return "Comment";
+			}
+		});
 	}
 
 	/** Layout is OK */
@@ -747,7 +765,7 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 		Styles styles = null;
 
 		if (!isAnonymous()) {
-			styles = context.getStyleSheet().getStyles(getElement());
+			styles = context.getStyleSheet().getStyles(getNode());
 		}
 
 		if (styles != null && children.length > 0) {
@@ -809,7 +827,7 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 	/**
 	 * Element with which we are associated. For anonymous boxes, this is null.
 	 */
-	private Element element;
+	private Node element;
 
 	/*
 	 * We cache the top and bottom margins, since they may be affected by our children.

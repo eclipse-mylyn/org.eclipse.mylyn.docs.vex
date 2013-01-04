@@ -21,9 +21,11 @@ import org.eclipse.vex.core.internal.core.Graphics;
 import org.eclipse.vex.core.internal.core.Rectangle;
 import org.eclipse.vex.core.internal.css.CSS;
 import org.eclipse.vex.core.internal.css.Styles;
-import org.eclipse.vex.core.internal.dom.CommentElement;
+import org.eclipse.vex.core.internal.dom.BaseNodeVisitor;
+import org.eclipse.vex.core.internal.dom.Comment;
 import org.eclipse.vex.core.internal.dom.Element;
 import org.eclipse.vex.core.internal.dom.Node;
+import org.eclipse.vex.core.internal.dom.Range;
 import org.eclipse.vex.core.internal.dom.Text;
 
 /**
@@ -33,7 +35,7 @@ public class InlineElementBox extends CompositeInlineBox {
 
 	private static final String COMMENT_AFTER_TEXT = "-->";
 	private static final String COMMENT_BEFORE_TEXT = "<!--";
-	private final Element element;
+	private final Node node;
 	private final InlineBox[] children;
 	private InlineBox firstContentChild = null;
 	private InlineBox lastContentChild = null;
@@ -45,22 +47,22 @@ public class InlineElementBox extends CompositeInlineBox {
 	 * 
 	 * @param context
 	 *            LayoutContext to use.
-	 * @param element
+	 * @param node
 	 *            Element that generated this box
 	 * @param startOffset
 	 *            Start offset of the range being rendered, which may be arbitrarily before or inside the element.
 	 * @param endOffset
 	 *            End offset of the range being rendered, which may be arbitrarily after or inside the element.
 	 */
-	private InlineElementBox(final LayoutContext context, final Element element, final int startOffset, final int endOffset) {
+	private InlineElementBox(final LayoutContext context, final Node node, final int startOffset, final int endOffset) {
 
-		this.element = element;
+		this.node = node;
 
 		final List<InlineBox> childList = new ArrayList<InlineBox>();
 
-		final Styles styles = context.getStyleSheet().getStyles(element);
+		final Styles styles = context.getStyleSheet().getStyles(node);
 
-		if (startOffset <= element.getStartOffset()) {
+		if (startOffset <= node.getStartOffset()) {
 
 			// space for the left margin/border/padding
 			final int space = styles.getMarginLeft().get(0) + styles.getBorderLeftWidth() + styles.getPaddingLeft().get(0);
@@ -69,46 +71,46 @@ public class InlineElementBox extends CompositeInlineBox {
 				childList.add(new SpaceBox(space, 1));
 			}
 
-			if (element instanceof CommentElement) {
-				childList.add(new StaticTextBox(context, element, COMMENT_BEFORE_TEXT));
+			if (node instanceof Comment) {
+				childList.add(new StaticTextBox(context, node, COMMENT_BEFORE_TEXT));
 			} else {
 				// :before content
 				final Element beforeElement;
-				beforeElement = context.getStyleSheet().getBeforeElement(element);
+				beforeElement = context.getStyleSheet().getBeforeElement((Element) node);
 				if (beforeElement != null) {
 					childList.addAll(LayoutUtils.createGeneratedInlines(context, beforeElement));
 				}
 				// left marker
-				childList.add(createLeftMarker(element, styles));
+				childList.add(createLeftMarker(node, styles));
 			}
 
 		}
 
 		// background image
 		if (styles.hasBackgroundImage() && !styles.getDisplay().equalsIgnoreCase(CSS.NONE)) {
-			final ImageBox imageBox = ImageBox.createWithHeight(getElement(), context, styles.getLineHeight());
+			final ImageBox imageBox = ImageBox.createWithHeight(getNode(), context, styles.getLineHeight());
 			if (imageBox != null) {
 				childList.add(imageBox);
 			}
 		}
 
-		final InlineBoxes inlines = createInlineBoxes(context, element, startOffset, endOffset);
+		final InlineBoxes inlines = createInlineBoxes(context, node, startOffset, endOffset);
 		childList.addAll(inlines.boxes);
 		firstContentChild = inlines.firstContentBox;
 		lastContentChild = inlines.lastContentBox;
 
-		if (endOffset > element.getEndOffset()) {
+		if (endOffset > node.getEndOffset()) {
 
-			childList.add(new PlaceholderBox(context, element, element.getEndOffset() - element.getStartOffset()));
+			childList.add(new PlaceholderBox(context, node, node.getEndOffset() - node.getStartOffset()));
 
-			if (element instanceof CommentElement) {
-				childList.add(new StaticTextBox(context, element, COMMENT_AFTER_TEXT));
+			if (node instanceof Comment) {
+				childList.add(new StaticTextBox(context, node, COMMENT_AFTER_TEXT));
 			} else {
 				// trailing marker
-				childList.add(createRightMarker(element, styles));
+				childList.add(createRightMarker(node, styles));
 
 				// :after content
-				final Element afterElement = context.getStyleSheet().getAfterElement(element);
+				final Element afterElement = context.getStyleSheet().getAfterElement((Element) node);
 				if (afterElement != null) {
 					childList.addAll(LayoutUtils.createGeneratedInlines(context, afterElement));
 				}
@@ -131,13 +133,13 @@ public class InlineElementBox extends CompositeInlineBox {
 	 * 
 	 * @param context
 	 *            LayoutContext used for the layout.
-	 * @param element
-	 *            Element to which this box applies.
+	 * @param node
+	 *            Node to which this box applies.
 	 * @param children
 	 *            Child boxes.
 	 */
-	private InlineElementBox(final LayoutContext context, final Element element, final InlineBox[] children) {
-		this.element = element;
+	private InlineElementBox(final LayoutContext context, final Node node, final InlineBox[] children) {
+		this.node = node;
 		this.children = children;
 		layout(context);
 		for (final InlineBox child : children) {
@@ -169,8 +171,8 @@ public class InlineElementBox extends CompositeInlineBox {
 	 * Returns the element associated with this box.
 	 */
 	@Override
-	public Element getElement() {
-		return element;
+	public Node getNode() {
+		return node;
 	}
 
 	/**
@@ -179,7 +181,7 @@ public class InlineElementBox extends CompositeInlineBox {
 	@Override
 	public int getEndOffset() {
 		if (lastContentChild == null) {
-			return getElement().getEndOffset();
+			return getNode().getEndOffset();
 		} else {
 			return lastContentChild.getEndOffset();
 		}
@@ -191,7 +193,7 @@ public class InlineElementBox extends CompositeInlineBox {
 	@Override
 	public int getStartOffset() {
 		if (firstContentChild == null) {
-			return getElement().getStartOffset();
+			return getNode().getStartOffset();
 		} else {
 			return firstContentChild.getStartOffset();
 		}
@@ -216,11 +218,11 @@ public class InlineElementBox extends CompositeInlineBox {
 		InlineElementBox right = null;
 
 		if (lefts.length > 0 || rights.length == 0) {
-			left = new InlineElementBox(context, getElement(), lefts);
+			left = new InlineElementBox(context, getNode(), lefts);
 		}
 
 		if (rights.length > 0) {
-			right = new InlineElementBox(context, getElement(), rights);
+			right = new InlineElementBox(context, getNode(), rights);
 		}
 
 		return new Pair(left, right);
@@ -229,18 +231,18 @@ public class InlineElementBox extends CompositeInlineBox {
 	@Override
 	public String toString() {
 		final StringBuffer sb = new StringBuffer();
-		if (getStartOffset() == getElement().getStartOffset() + 1) {
+		if (getStartOffset() == getNode().getStartOffset() + 1) {
 			sb.append("<");
-			sb.append(getElement().getPrefixedName());
+			sb.append(getNode());
 			sb.append(">");
 		}
 		final Box[] children = getChildren();
 		for (final Box element2 : children) {
 			sb.append(element2);
 		}
-		if (getEndOffset() == getElement().getEndOffset()) {
+		if (getEndOffset() == getNode().getEndOffset()) {
 			sb.append("</");
-			sb.append(getElement().getPrefixedName());
+			sb.append(getNode());
 			sb.append(">");
 		}
 		return sb.toString();
@@ -267,68 +269,70 @@ public class InlineElementBox extends CompositeInlineBox {
 	 * 
 	 * @param context
 	 *            LayoutContext to be used.
-	 * @param element2
-	 *            Element containing both offsets
+	 * @param node
+	 *            Parent containing both offsets
 	 * @param startOffset
 	 *            The start of the range to convert to inline boxes.
 	 * @param endOffset
 	 *            The end of the range to convert to inline boxes.
 	 * @return
 	 */
-	static InlineBoxes createInlineBoxes(final LayoutContext context, final Element element2, final int startOffset, final int endOffset) {
-
+	static InlineBoxes createInlineBoxes(final LayoutContext context, final Node node, final int startOffset, final int endOffset) {
 		final InlineBoxes result = new InlineBoxes();
 
-		final List<Node> nodes = element2.getChildNodes();
-		for (int i = 0; i < nodes.size(); i++) {
+		node.accept(new BaseNodeVisitor() {
+			@Override
+			public void visit(final Element element) {
+				for (final Node childNode : element.getChildNodes(new Range(startOffset, endOffset))) {
+					childNode.accept(new BaseNodeVisitor() {
+						@Override
+						public void visit(final Element element) {
+							final InlineBox placeholder = new PlaceholderBox(context, node, element.getStartOffset() - node.getStartOffset());
+							result.boxes.add(placeholder);
+							if (result.firstContentBox == null) {
+								result.firstContentBox = placeholder;
+							}
+							final InlineBox child = new InlineElementBox(context, element, startOffset, endOffset);
+							addChildInlineBox(result, child);
+						}
 
-			final Node node = nodes.get(i);
-			InlineBox child;
-
-			if (node.getStartOffset() >= endOffset) {
-				break;
-			} else if (node instanceof Text) {
-
-				// This check is different for Text and Element, so we have to
-				// do it here and below, too.
-				if (node.getEndOffset() <= startOffset) {
-					continue;
+						@Override
+						public void visit(final Text text) {
+							final int start = Math.max(startOffset, text.getStartOffset());
+							final int end = Math.min(endOffset, text.getEndOffset());
+							final InlineBox child = new DocumentTextBox(context, node, start, end);
+							addChildInlineBox(result, child);
+						}
+					});
 				}
-
-				final int start = Math.max(startOffset, node.getStartOffset());
-				final int end = Math.min(endOffset, node.getEndOffset());
-				child = new DocumentTextBox(context, element2, start, end);
-
-			} else {
-
-				if (node.getEndOffset() < startOffset) {
-					continue;
-				}
-
-				final Element childElement = (Element) node;
-				final InlineBox placeholder = new PlaceholderBox(context, element2, childElement.getStartOffset() - element2.getStartOffset());
-				result.boxes.add(placeholder);
-				if (result.firstContentBox == null) {
-					result.firstContentBox = placeholder;
-				}
-				child = new InlineElementBox(context, childElement, startOffset, endOffset);
 			}
 
-			if (result.firstContentBox == null) {
-				result.firstContentBox = child;
+			@Override
+			public void visit(final Comment comment) {
+				// TODO use Range
+				final int start = Math.max(startOffset, comment.getStartOffset());
+				final int end = Math.min(endOffset, comment.getEndOffset());
+				final InlineBox child = new DocumentTextBox(context, node, start, end);
+				addChildInlineBox(result, child);
 			}
-
-			result.lastContentBox = child;
-
-			result.boxes.add(child);
-		}
+		});
 
 		return result;
 	}
 
+	private static void addChildInlineBox(final InlineBoxes result, final InlineBox child) {
+		if (result.firstContentBox == null) {
+			result.firstContentBox = child;
+		}
+
+		result.lastContentBox = child;
+
+		result.boxes.add(child);
+	}
+
 	// ========================================================== PRIVATE
 
-	private static InlineBox createLeftMarker(final Element element, final Styles styles) {
+	private static InlineBox createLeftMarker(final Node node, final Styles styles) {
 		final int size = Math.round(0.5f * styles.getFontSize());
 		final int lift = Math.round(0.1f * styles.getFontSize());
 		final Drawable drawable = new Drawable() {
@@ -345,10 +349,10 @@ public class InlineElementBox extends CompositeInlineBox {
 				return new Rectangle(0, -size, size, size);
 			}
 		};
-		return new DrawableBox(drawable, element, DrawableBox.START_MARKER);
+		return new DrawableBox(drawable, node, DrawableBox.START_MARKER);
 	}
 
-	private static InlineBox createRightMarker(final Element element, final Styles styles) {
+	private static InlineBox createRightMarker(final Node node, final Styles styles) {
 		final int size = Math.round(0.5f * styles.getFontSize());
 		final int lift = Math.round(0.1f * styles.getFontSize());
 		final Drawable drawable = new Drawable() {
@@ -365,12 +369,12 @@ public class InlineElementBox extends CompositeInlineBox {
 				return new Rectangle(0, -size, size, size);
 			}
 		};
-		return new DrawableBox(drawable, element, DrawableBox.END_MARKER);
+		return new DrawableBox(drawable, node, DrawableBox.END_MARKER);
 	}
 
 	private void layout(final LayoutContext context) {
 		final Graphics g = context.getGraphics();
-		final Styles styles = context.getStyleSheet().getStyles(element);
+		final Styles styles = context.getStyleSheet().getStyles(node);
 		final FontResource font = g.createFont(styles.getFont());
 		final FontResource oldFont = g.setFont(font);
 		final FontMetrics fm = g.getFontMetrics();

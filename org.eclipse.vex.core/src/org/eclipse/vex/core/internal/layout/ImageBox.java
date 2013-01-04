@@ -5,18 +5,18 @@ import java.net.URL;
 import org.eclipse.vex.core.internal.core.Image;
 import org.eclipse.vex.core.internal.core.Point;
 import org.eclipse.vex.core.internal.css.Styles;
-import org.eclipse.vex.core.internal.dom.Element;
+import org.eclipse.vex.core.internal.dom.Node;
 
 public class ImageBox extends AbstractInlineBox {
 
 	private final Image image;
 
-	public static ImageBox create(final Element element, final LayoutContext context, final int maxWidth) {
-		if (element == null) {
+	public static ImageBox create(final Node node, final LayoutContext context, final int maxWidth) {
+		if (node == null) {
 			return null;
 		}
-		final Styles styles = context.getStyleSheet().getStyles(element);
-		final URL imageUrl = context.resolveUrl(element.getBaseURI(), styles.getBackgroundImage());
+		final Styles styles = context.getStyleSheet().getStyles(node);
+		final URL imageUrl = context.resolveUrl(node.getBaseURI(), styles.getBackgroundImage());
 		if (imageUrl == null) {
 			return null;
 		}
@@ -51,11 +51,11 @@ public class ImageBox extends AbstractInlineBox {
 		return Math.round(1f * scaled / current * opposite);
 	}
 
-	public static ImageBox createWithHeight(final Element element, final LayoutContext context, final int maxHeight) {
-		if (element == null) {
+	public static ImageBox createWithHeight(final Node node, final LayoutContext context, final int maxHeight) {
+		if (node == null) {
 			return null;
 		}
-		final URL imageUrl = context.resolveUrl(element.getBaseURI(), context.getStyleSheet().getStyles(element).getBackgroundImage());
+		final URL imageUrl = context.resolveUrl(node.getBaseURI(), context.getStyleSheet().getStyles(node).getBackgroundImage());
 		if (imageUrl == null) {
 			return null;
 		}

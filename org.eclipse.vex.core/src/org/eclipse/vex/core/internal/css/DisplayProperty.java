@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.css;
 
-import org.eclipse.vex.core.internal.dom.Element;
+import org.eclipse.vex.core.internal.dom.Node;
 import org.w3c.css.sac.LexicalUnit;
 
 /**
@@ -25,7 +25,7 @@ public class DisplayProperty extends AbstractProperty {
 		super(CSS.DISPLAY);
 	}
 
-	public Object calculate(final LexicalUnit lu, final Styles parentStyles, final Styles styles, final Element element) {
+	public Object calculate(final LexicalUnit lu, final Styles parentStyles, final Styles styles, final Node node) {
 
 		if (isDisplay(lu)) {
 			return lu.getStringValue();

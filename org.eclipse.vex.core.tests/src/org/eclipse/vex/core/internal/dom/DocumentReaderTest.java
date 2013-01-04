@@ -136,13 +136,13 @@ public class DocumentReaderTest {
 		final List<Node> rootChildNodes = rootElement.getChildNodes();
 		assertEquals(4, rootChildNodes.size());
 
-		final CommentElement comment1 = (CommentElement) rootChildNodes.get(0);
+		final Comment comment1 = (Comment) rootChildNodes.get(0);
 		assertEquals("A comment within the root element.", comment1.getText());
 
-		final CommentElement comment2 = (CommentElement) ((Element) rootChildNodes.get(1)).getChildNodes().get(1);
+		final Comment comment2 = (Comment) ((Element) rootChildNodes.get(1)).getChildNodes().get(1);
 		assertEquals("A comment within text.", comment2.getText());
 
-		final CommentElement comment3 = (CommentElement) rootChildNodes.get(2);
+		final Comment comment3 = (Comment) rootChildNodes.get(2);
 		assertEquals("Another comment between two child elements.", comment3.getText());
 	}
 }

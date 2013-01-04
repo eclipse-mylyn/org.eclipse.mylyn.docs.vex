@@ -15,11 +15,11 @@ import static org.junit.Assert.assertNull;
 
 import java.net.URL;
 
+import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.vex.core.internal.core.Color;
 import org.eclipse.vex.core.internal.core.DisplayDevice;
 import org.eclipse.vex.core.internal.dom.Document;
 import org.eclipse.vex.core.internal.dom.Element;
-import org.eclipse.vex.core.internal.dom.RootElement;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -168,10 +168,9 @@ public class CssTest {
 
 	@Test
 	public void testDefaultInheritance() throws Exception {
-		final RootElement simple = new RootElement("simple");
-		final Element defaults = new Element("defaults");
+		final Element simple = new Element("simple");
 		final Document doc = new Document(simple);
-		doc.insertElement(1, defaults);
+		final Element defaults = doc.insertElement(1, new QualifiedName(null, "defaults"));
 
 		final StyleSheet ss = parseStyleSheetResource("test2.css");
 		final Styles styles = ss.getStyles(defaults);
@@ -431,10 +430,9 @@ public class CssTest {
 
 	@Test
 	public void testForcedInheritance() throws Exception {
-		final RootElement simple = new RootElement("simple");
-		final Element inherit = new Element("inherit");
+		final Element simple = new Element("simple");
 		final Document doc = new Document(simple);
-		doc.insertElement(1, inherit);
+		final Element inherit = doc.insertElement(1, new QualifiedName(null, "inherit"));
 
 		final StyleSheet ss = parseStyleSheetResource("test2.css");
 		final Styles styles = ss.getStyles(inherit);

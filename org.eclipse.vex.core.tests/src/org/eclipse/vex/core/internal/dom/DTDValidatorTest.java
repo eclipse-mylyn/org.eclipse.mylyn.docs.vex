@@ -39,7 +39,7 @@ public class DTDValidatorTest extends TestCase {
 	}
 
 	public void testAttributeDefinition() throws Exception {
-		final Document doc = new Document(new RootElement("section"));
+		final Document doc = new Document(new Element("section"));
 		doc.setValidator(validator);
 		final Element sectionElement = doc.getRootElement();
 		final AttributeDefinition.Type adType = validator.getAttributeDefinitions(sectionElement).get(0).getType();
@@ -49,7 +49,7 @@ public class DTDValidatorTest extends TestCase {
 	}
 
 	public void testEnumAttribute() throws Exception {
-		final Document doc = new Document(new RootElement("section"));
+		final Document doc = new Document(new Element("section"));
 		doc.setValidator(validator);
 		final Element sectionElement = doc.getRootElement();
 		final AttributeDefinition attributeDefinition = validator.getAttributeDefinitions(sectionElement).get(0);
@@ -89,12 +89,13 @@ public class DTDValidatorTest extends TestCase {
 	public void testSectionElement() {
 		// <section> <title> a b </title> <para> </para> </section>
 		// 1 2 3 4 5 6 7
-		final Document doc = new Document(new RootElement("section"));
+		final Document doc = new Document(new Element("section"));
 		doc.setValidator(validator);
-		doc.insertElement(1, new Element("title"));
+		doc.insertElement(1, new QualifiedName(null, "title"));
 		doc.insertText(2, "ab");
-		doc.insertElement(5, new Element("para"));
+		doc.insertElement(5, new QualifiedName(null, "para"));
 
+		assertValidItemsAt(doc, 0);
 		assertValidItemsAt(doc, 1, "title", "para");
 		assertValidItemsAt(doc, 2);
 		assertValidItemsAt(doc, 3);
@@ -105,7 +106,7 @@ public class DTDValidatorTest extends TestCase {
 	}
 
 	public void testOneKindOfChild() {
-		final Document doc = new Document(new RootElement("one-kind-of-child"));
+		final Document doc = new Document(new Element("one-kind-of-child"));
 		doc.setValidator(validator);
 		assertValidItemsAt(doc, 1, "section");
 	}
@@ -116,7 +117,11 @@ public class DTDValidatorTest extends TestCase {
 			expected.add(new QualifiedName(null, expectedItem));
 		}
 
-		final Set<QualifiedName> validItems = doc.getValidator().getValidItems(doc.getElementAt(offset));
+		Element element = doc.getElementAt(offset);
+		if (offset == element.getStartOffset()) {
+			element = element.getParentElement();
+		}
+		final Set<QualifiedName> validItems = doc.getValidator().getValidItems(element);
 		assertEquals(expected, validItems);
 	}
 
@@ -150,11 +155,11 @@ public class DTDValidatorTest extends TestCase {
 	}
 
 	public void testValidateDocumentWithDTDAndNamespaces() throws Exception {
-		final Document doc = new Document(new RootElement(new QualifiedName("http://namespace/uri/is/not/registered", "section")));
+		final Document doc = new Document(new Element(new QualifiedName("http://namespace/uri/is/not/registered", "section")));
 		doc.setValidator(validator);
-		doc.insertElement(1, new Element("title"));
+		doc.insertElement(1, new QualifiedName(null, "title"));
 		doc.insertText(2, "ab");
-		doc.insertElement(5, new Element("para"));
+		doc.insertElement(5, new QualifiedName(null, "para"));
 
 		validator.getAttributeDefinitions(doc.getRootElement());
 	}

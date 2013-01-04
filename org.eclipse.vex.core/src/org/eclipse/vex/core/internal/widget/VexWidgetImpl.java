@@ -41,7 +41,9 @@ import org.eclipse.vex.core.internal.dom.DocumentFragment;
 import org.eclipse.vex.core.internal.dom.DocumentListener;
 import org.eclipse.vex.core.internal.dom.DocumentValidationException;
 import org.eclipse.vex.core.internal.dom.Element;
+import org.eclipse.vex.core.internal.dom.Node;
 import org.eclipse.vex.core.internal.dom.Position;
+import org.eclipse.vex.core.internal.dom.Range;
 import org.eclipse.vex.core.internal.dom.Validator;
 import org.eclipse.vex.core.internal.layout.BlockBox;
 import org.eclipse.vex.core.internal.layout.Box;
@@ -212,9 +214,9 @@ public class VexWidgetImpl implements IVexWidget {
 		}
 
 		final Element parent = getDocument().getElementAt(startOffset);
-		final List<QualifiedName> seq1 = doc.getNodeNames(parent.getStartOffset() + 1, startOffset);
+		final List<QualifiedName> seq1 = Node.getNodeNames(parent.getChildNodesBefore(startOffset));
 		final List<QualifiedName> seq2 = frag.getNodeNames();
-		final List<QualifiedName> seq3 = doc.getNodeNames(endOffset, parent.getEndOffset());
+		final List<QualifiedName> seq3 = Node.getNodeNames(parent.getChildNodesAfter(endOffset));
 
 		return validator.isValidSequence(parent.getQualifiedName(), seq1, seq2, seq3, true);
 	}
@@ -241,9 +243,9 @@ public class VexWidgetImpl implements IVexWidget {
 		}
 
 		final Element parent = getDocument().getElementAt(startOffset);
-		final List<QualifiedName> seq1 = doc.getNodeNames(parent.getStartOffset() + 1, startOffset);
+		final List<QualifiedName> seq1 = Node.getNodeNames(parent.getChildNodesBefore(startOffset));
 		final List<QualifiedName> seq2 = Collections.singletonList(Validator.PCDATA);
-		final List<QualifiedName> seq3 = doc.getNodeNames(endOffset, parent.getEndOffset());
+		final List<QualifiedName> seq3 = Node.getNodeNames(parent.getChildNodesAfter(endOffset));
 
 		return validator.isValidSequence(parent.getQualifiedName(), seq1, seq2, seq3, true);
 	}
@@ -276,15 +278,15 @@ public class VexWidgetImpl implements IVexWidget {
 		}
 
 		final Element element = doc.getElementAt(getCaretOffset());
-		final Element parent = element.getParent();
+		final Element parent = element.getParentElement();
 		if (parent == null) {
 			// can't unwrap the root
 			return false;
 		}
 
-		final List<QualifiedName> seq1 = doc.getNodeNames(parent.getStartOffset() + 1, element.getStartOffset());
-		final List<QualifiedName> seq2 = doc.getNodeNames(element.getStartOffset() + 1, element.getEndOffset());
-		final List<QualifiedName> seq3 = doc.getNodeNames(element.getEndOffset() + 1, parent.getEndOffset());
+		final List<QualifiedName> seq1 = Node.getNodeNames(parent.getChildNodesBefore(element.getStartOffset()));
+		final List<QualifiedName> seq2 = Node.getNodeNames(element.getChildNodes());
+		final List<QualifiedName> seq3 = Node.getNodeNames(parent.getChildNodesAfter(element.getEndOffset()));
 
 		return validator.isValidSequence(parent.getQualifiedName(), seq1, seq2, seq3, true);
 	}
@@ -323,7 +325,7 @@ public class VexWidgetImpl implements IVexWidget {
 				// so just delete the whole element an move on
 				this.moveTo(offset + 2, true);
 				deleteSelection();
-			} else if (doc.getCharacterAt(offset) != 0) {
+			} else if (!doc.isElementAt(offset)) {
 				this.moveTo(offset, false);
 				this.moveTo(offset + 1, true);
 				deleteSelection();
@@ -359,7 +361,7 @@ public class VexWidgetImpl implements IVexWidget {
 				deleteSelection();
 			} else {
 				offset--;
-				if (doc.getCharacterAt(offset) != 0) {
+				if (!doc.isElementAt(offset)) {
 					this.moveTo(offset, false);
 					this.moveTo(offset + 1, true);
 					deleteSelection();
@@ -372,7 +374,7 @@ public class VexWidgetImpl implements IVexWidget {
 	public void deleteSelection() {
 		try {
 			if (hasSelection()) {
-				document.delete(getSelectionStart(), getSelectionEnd());
+				document.delete(new Range(getSelectionStart(), getSelectionEnd()));
 				this.moveTo(getSelectionStart());
 			}
 		} catch (final DocumentValidationException ex) {
@@ -538,9 +540,9 @@ public class VexWidgetImpl implements IVexWidget {
 		final int endOffset = getEndOffset();
 
 		final Element parent = doc.getElementAt(startOffset);
-		final List<QualifiedName> nodesBefore = doc.getNodeNames(parent.getStartOffset() + 1, startOffset);
-		final List<QualifiedName> nodesAfter = doc.getNodeNames(endOffset, parent.getEndOffset());
-		final List<QualifiedName> selectedNodes = doc.getNodeNames(startOffset, endOffset);
+		final List<QualifiedName> nodesBefore = Node.getNodeNames(parent.getChildNodesBefore(startOffset));
+		final List<QualifiedName> nodesAfter = Node.getNodeNames(parent.getChildNodesAfter(endOffset));
+		final List<QualifiedName> selectedNodes = Node.getNodeNames(parent.getChildNodes(new Range(startOffset, endOffset)));
 		final List<QualifiedName> candidates = createCandidatesList(validator, parent, Validator.PCDATA);
 
 		filterInvalidSequences(validator, parent, nodesBefore, nodesAfter, candidates);
@@ -616,7 +618,7 @@ public class VexWidgetImpl implements IVexWidget {
 		}
 
 		final Element element = doc.getElementAt(getCaretOffset());
-		final Element parent = element.getParent();
+		final Element parent = element.getParentElement();
 		if (parent == null) {
 			// can't morph the root
 			return new ElementName[0];
@@ -625,7 +627,7 @@ public class VexWidgetImpl implements IVexWidget {
 		final List<QualifiedName> candidates = createCandidatesList(validator, parent, Validator.PCDATA, element.getQualifiedName());
 
 		// root out those that can't contain the current content
-		final List<QualifiedName> content = doc.getNodeNames(element.getStartOffset() + 1, element.getEndOffset());
+		final List<QualifiedName> content = Node.getNodeNames(element.getChildNodes());
 
 		for (final Iterator<QualifiedName> iter = candidates.iterator(); iter.hasNext();) {
 			final QualifiedName candidate = iter.next();
@@ -653,7 +655,7 @@ public class VexWidgetImpl implements IVexWidget {
 
 	public DocumentFragment getSelectedFragment() {
 		if (hasSelection()) {
-			return document.getFragment(getSelectionStart(), getSelectionEnd());
+			return document.getFragment(new Range(getSelectionStart(), getSelectionEnd()));
 		} else {
 			return null;
 		}
@@ -661,7 +663,7 @@ public class VexWidgetImpl implements IVexWidget {
 
 	public String getSelectedText() {
 		if (hasSelection()) {
-			return document.getText(getSelectionStart(), getSelectionEnd());
+			return document.getText(new Range(getSelectionStart(), getSelectionEnd()));
 		} else {
 			return "";
 		}
@@ -703,6 +705,29 @@ public class VexWidgetImpl implements IVexWidget {
 
 		document.insertFragment(getCaretOffset(), frag);
 		this.moveTo(getCaretOffset() + frag.getLength());
+	}
+
+	public void insertElement(final QualifiedName elementName) throws DocumentValidationException {
+		boolean success = false;
+		try {
+			beginWork();
+
+			DocumentFragment frag = null;
+			if (hasSelection()) {
+				frag = getSelectedFragment();
+				deleteSelection();
+			}
+
+			document.insertElement(getCaretOffset(), elementName);
+			this.moveTo(getCaretOffset() + 1);
+			if (frag != null) {
+				insertFragment(frag);
+			}
+			scrollCaretVisible();
+			success = true;
+		} finally {
+			endWork(success);
+		}
 	}
 
 	public void insertElement(final Element element) throws DocumentValidationException {
@@ -754,6 +779,23 @@ public class VexWidgetImpl implements IVexWidget {
 				document.insertText(getCaretOffset(), text.substring(i));
 				this.moveTo(getCaretOffset() + text.length() - i);
 			}
+			success = true;
+		} finally {
+			endWork(success);
+		}
+	}
+
+	public void insertComment() throws DocumentValidationException {
+		if (hasSelection()) {
+			deleteSelection();
+		}
+
+		boolean success = false;
+		try {
+			beginWork();
+			document.insertComment(getCaretOffset());
+			this.moveTo(getCaretOffset() + 1);
+			scrollCaretVisible();
 			success = true;
 		} finally {
 			endWork(success);
@@ -864,7 +906,7 @@ public class VexWidgetImpl implements IVexWidget {
 						caretColor = new Color(red, green, blue);
 						break;
 					}
-					element = element.getParent();
+					element = element.getParentElement();
 				}
 			}
 
@@ -1160,7 +1202,7 @@ public class VexWidgetImpl implements IVexWidget {
 		Element element = doc.getElementAt(getCaretOffset());
 		Styles styles = getStyleSheet().getStyles(element);
 		while (!styles.isBlock()) {
-			element = element.getParent();
+			element = element.getParentElement();
 			styles = getStyleSheet().getStyles(element);
 		}
 
@@ -1186,7 +1228,7 @@ public class VexWidgetImpl implements IVexWidget {
 				// let's move just outside
 				this.moveTo(getCaretOffset() + 1);
 
-				insertElement(new Element(element.getQualifiedName()));
+				insertElement(element.getQualifiedName());
 				// TODO: clone attributes
 
 				if (!atEnd) {
@@ -1321,7 +1363,7 @@ public class VexWidgetImpl implements IVexWidget {
 
 		final BlockBox elementBox = (BlockBox) this.findInnermostBox(new IBoxFilter() {
 			public boolean matches(final Box box) {
-				return box instanceof BlockBox && box.getElement() != null && box.getStartOffset() <= element.getStartOffset() + 1 && box.getEndOffset() >= element.getEndOffset();
+				return box instanceof BlockBox && box.getNode() != null && box.getStartOffset() <= element.getStartOffset() + 1 && box.getEndOffset() >= element.getEndOffset();
 			}
 		});
 

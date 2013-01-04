@@ -19,6 +19,8 @@ public class Text extends Node {
 	/**
 	 * Class constructor.
 	 * 
+	 * @param parent
+	 *            The parent node containing the text
 	 * @param content
 	 *            Content object containing the text
 	 * @param startOffset
@@ -26,17 +28,36 @@ public class Text extends Node {
 	 * @param endOffset
 	 *            character offset of the end of the run
 	 */
-	public Text(final Content content, final int startOffset, final int endOffset) {
-		setContent(content, startOffset, endOffset);
+	public Text(final Parent parent, final Content content, final Range range) {
+		setParent(parent);
+		associate(content, range);
 	}
 
 	@Override
-	public String getNodeType() {
-		return "Text";
+	public void accept(final INodeVisitor visitor) {
+		visitor.visit(this);
+	}
+
+	@Override
+	public <T> T accept(final INodeVisitorWithResult<T> visitor) {
+		return visitor.visit(this);
 	}
 
 	@Override
 	public String getBaseURI() {
 		return null;
+	}
+
+	@Override
+	public String toString() {
+		final StringBuffer sb = new StringBuffer();
+
+		sb.append("Text (");
+		sb.append(getStartOffset());
+		sb.append(",");
+		sb.append(getEndOffset());
+		sb.append(")");
+
+		return sb.toString();
 	}
 }

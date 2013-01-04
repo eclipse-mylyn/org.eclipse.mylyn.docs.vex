@@ -25,7 +25,6 @@ import java.util.Set;
 
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.vex.core.internal.dom.Attribute;
-import org.eclipse.vex.core.internal.dom.CommentElement;
 import org.eclipse.vex.core.internal.dom.DocumentContentModel;
 import org.eclipse.vex.core.internal.dom.Element;
 import org.eclipse.vex.core.internal.dom.Validator;
@@ -55,7 +54,7 @@ public class WTPVEXValidator implements Validator {
 
 		@Override
 		public boolean isIgnorable(final Object o) {
-			return CommentElement.ELEMENT_NAME.toString().equals(o);
+			return o == null;
 		}
 	};
 
@@ -180,7 +179,7 @@ public class WTPVEXValidator implements Validator {
 		if (declarationFromRoot != null) {
 			return declarationFromRoot;
 		}
-		final CMElementDeclaration parentDeclaration = getElementDeclaration(element.getParent());
+		final CMElementDeclaration parentDeclaration = getElementDeclaration(element.getParentElement());
 		if (parentDeclaration == null) {
 			return null;
 		}

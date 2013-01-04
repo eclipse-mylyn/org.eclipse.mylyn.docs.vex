@@ -15,7 +15,9 @@ import java.text.MessageFormat;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.vex.core.internal.VEXCorePlugin;
+import org.eclipse.vex.core.internal.dom.BaseNodeVisitorWithResult;
 import org.eclipse.vex.core.internal.dom.Element;
+import org.eclipse.vex.core.internal.dom.Node;
 import org.w3c.css.sac.LexicalUnit;
 
 /**
@@ -29,7 +31,7 @@ public class BackgroundImageProperty extends AbstractProperty {
 		super(CSS.BACKGROUND_IMAGE);
 	}
 
-	public Object calculate(final LexicalUnit lexicalUnit, final Styles parentStyles, final Styles styles, final Element element) {
+	public Object calculate(final LexicalUnit lexicalUnit, final Styles parentStyles, final Styles styles, final Node node) {
 		if (lexicalUnit == null) {
 			return DEFAULT;
 		}
@@ -37,11 +39,16 @@ public class BackgroundImageProperty extends AbstractProperty {
 		case LexicalUnit.SAC_STRING_VALUE:
 			return lexicalUnit.getStringValue();
 		case LexicalUnit.SAC_ATTR:
-			final String attributeValue = element.getAttributeValue(lexicalUnit.getStringValue());
-			if (attributeValue != null) {
-				return attributeValue;
-			}
-			return DEFAULT;
+			return node.accept(new BaseNodeVisitorWithResult<Object>(DEFAULT) {
+				@Override
+				public Object visit(final Element element) {
+					final String attributeValue = element.getAttributeValue(lexicalUnit.getStringValue());
+					if (attributeValue != null) {
+						return attributeValue;
+					}
+					return DEFAULT;
+				}
+			});
 		default:
 			VEXCorePlugin
 					.getInstance()

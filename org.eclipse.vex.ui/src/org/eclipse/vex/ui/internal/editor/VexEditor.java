@@ -723,7 +723,7 @@ public class VexEditor extends EditorPart {
 		Element element = vexWidget.getCurrentElement();
 		while (element != null) {
 			path.add(element.getPrefixedName());
-			element = element.getParent();
+			element = element.getParentElement();
 		}
 		Collections.reverse(path);
 		final StringBuilder sb = new StringBuilder(path.size() * 15);
@@ -777,20 +777,7 @@ public class VexEditor extends EditorPart {
 
 				@Override
 				protected CharSequence getDocument() {
-					return new CharSequence() {
-
-						public CharSequence subSequence(final int start, final int end) {
-							return document.getRawText(start, end);
-						}
-
-						public int length() {
-							return document.getLength();
-						}
-
-						public char charAt(final int index) {
-							return document.getCharacterAt(index);
-						}
-					};
+					return document.getContent();
 				}
 
 				@Override

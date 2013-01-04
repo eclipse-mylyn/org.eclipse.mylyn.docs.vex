@@ -22,9 +22,11 @@ import org.eclipse.ui.handlers.HandlerUtil;
 import org.eclipse.vex.core.internal.core.IntRange;
 import org.eclipse.vex.core.internal.css.CSS;
 import org.eclipse.vex.core.internal.css.StyleSheet;
+import org.eclipse.vex.core.internal.dom.CopyVisitor;
 import org.eclipse.vex.core.internal.dom.Document;
 import org.eclipse.vex.core.internal.dom.Element;
 import org.eclipse.vex.core.internal.dom.Node;
+import org.eclipse.vex.core.internal.dom.Parent;
 import org.eclipse.vex.core.internal.layout.BlockBox;
 import org.eclipse.vex.core.internal.layout.Box;
 import org.eclipse.vex.core.internal.layout.ElementOrRangeCallback;
@@ -105,6 +107,7 @@ public final class VexHandlerUtil {
 
 				final int offset = vexWidget.getCaretOffset();
 
+				final CopyVisitor copyVisitor = new CopyVisitor();
 				boolean firstCellIsAnonymous = false;
 				final Box[] cells = tr.getChildren();
 				for (int i = 0; i < cells.length; i++) {
@@ -114,7 +117,7 @@ public final class VexHandlerUtil {
 							firstCellIsAnonymous = true;
 						}
 					} else {
-						vexWidget.insertElement(cells[i].getElement().clone());
+						vexWidget.insertElement((Element) cells[i].getNode().accept(copyVisitor));
 						vexWidget.moveBy(+1);
 					}
 				}
@@ -146,7 +149,8 @@ public final class VexHandlerUtil {
 
 				if (!tr.isAnonymous()) {
 					vexWidget.moveBy(+1); // Move past sentinel in current row
-					vexWidget.insertElement(tr.getElement().clone());
+					final CopyVisitor copyVisitor = new CopyVisitor();
+					vexWidget.insertElement((Element) tr.getNode().accept(copyVisitor));
 				}
 
 				cloneTableCells(vexWidget, tr, true);
@@ -191,7 +195,7 @@ public final class VexHandlerUtil {
 				i++;
 			}
 
-			public void onRange(final Element parent, final int startOffset, final int endOffset) {
+			public void onRange(final Parent parent, final int startOffset, final int endOffset) {
 				i++;
 			}
 		});
@@ -214,7 +218,7 @@ public final class VexHandlerUtil {
 			if (ss.getStyles(element).getDisplay().equals(CSS.TABLE_ROW)) {
 				return element;
 			}
-			element = element.getParent();
+			element = element.getParentElement();
 		}
 
 		return null;
@@ -235,15 +239,15 @@ public final class VexHandlerUtil {
 		} else {
 			final Box box = vexWidget.findInnermostBox(new IBoxFilter() {
 				public boolean matches(final Box box) {
-					return box instanceof BlockBox && box.getElement() != null;
+					return box instanceof BlockBox && box.getNode() != null;
 				}
 			});
 
-			if (box.getElement() == vexWidget.getDocument().getRootElement()) {
+			if (box.getNode() == vexWidget.getDocument().getRootElement()) {
 				return -1;
 			}
 
-			startOffset = box.getElement().getStartOffset();
+			startOffset = box.getNode().getStartOffset();
 		}
 
 		int previousSiblingStart = -1;
@@ -348,7 +352,7 @@ public final class VexHandlerUtil {
 						cellIndex++;
 					}
 
-					public void onRange(final Element parent, final int startOffset, final int endOffset) {
+					public void onRange(final Parent parent, final int startOffset, final int endOffset) {
 						callback.onCell(row, new IntRange(startOffset, endOffset), rowIndex[0], cellIndex);
 						cellIndex++;
 					}
@@ -359,7 +363,7 @@ public final class VexHandlerUtil {
 				rowIndex[0]++;
 			}
 
-			public void onRange(final Element parent, final int startOffset, final int endOffset) {
+			public void onRange(final Parent parent, final int startOffset, final int endOffset) {
 
 				final IntRange row = new IntRange(startOffset, endOffset);
 				callback.startRow(row, rowIndex[0]);
@@ -372,7 +376,7 @@ public final class VexHandlerUtil {
 						cellIndex++;
 					}
 
-					public void onRange(final Element parent, final int startOffset, final int endOffset) {
+					public void onRange(final Parent parent, final int startOffset, final int endOffset) {
 						callback.onCell(row, new IntRange(startOffset, endOffset), rowIndex[0], cellIndex);
 						cellIndex++;
 					}
@@ -458,14 +462,14 @@ public final class VexHandlerUtil {
 		Element table = doc.getElementAt(offset);
 
 		while (table != null && !LayoutUtils.isTableChild(ss, table)) {
-			table = table.getParent();
+			table = table.getParentElement();
 		}
 
 		while (table != null && LayoutUtils.isTableChild(ss, table)) {
-			table = table.getParent();
+			table = table.getParentElement();
 		}
 
-		if (table == null || table.getParent() == null) {
+		if (table == null || table.getParentElement() == null) {
 			return;
 		}
 
@@ -479,7 +483,7 @@ public final class VexHandlerUtil {
 				tableChildren.add(child);
 			}
 
-			public void onRange(final Element parent, final int startOffset, final int endOffset) {
+			public void onRange(final Parent parent, final int startOffset, final int endOffset) {
 				if (!found[0]) {
 					tableChildren.clear();
 				}

@@ -11,13 +11,13 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.dom;
 
-import java.util.ArrayList;
-import java.util.Collections;
+import java.text.MessageFormat;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
+import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.QualifiedName;
-import org.eclipse.osgi.util.NLS;
 import org.eclipse.vex.core.internal.core.ListenerList;
 import org.eclipse.vex.core.internal.undo.CannotRedoException;
 import org.eclipse.vex.core.internal.undo.CannotUndoException;
@@ -25,12 +25,10 @@ import org.eclipse.vex.core.internal.undo.IUndoableEdit;
 
 /**
  * Represents an XML document.
- * 
  */
-public class Document {
+public class Document extends Parent {
 
-	private final Content content;
-	private final RootElement rootElement;
+	private final Element rootElement;
 	private final ListenerList<DocumentListener, DocumentEvent> listeners = new ListenerList<DocumentListener, DocumentEvent>(DocumentListener.class);
 	private boolean undoEnabled = true;
 
@@ -48,19 +46,20 @@ public class Document {
 	 *            root element of the document. The document property of this RootElement is set by this constructor.
 	 * 
 	 */
-	public Document(final RootElement rootElement) {
-		content = new GapContent(100);
+	public Document(final Element rootElement) {
+		final GapContent content = new GapContent(100);
 		content.insertElementMarker(0);
 		content.insertElementMarker(0);
+		associate(content, content.getRange());
 
 		this.rootElement = rootElement;
-		rootElement.setDocument(this);
-		rootElement.setContent(content, 0, 1);
+		addChild(rootElement);
+		rootElement.associate(content, content.getRange());
 	}
 
 	/**
 	 * Class constructor. This constructor is used by the document builder and assumes that the content and root element
-	 * have bee properly set up.
+	 * have bee properly set up and is already associated with the given content.
 	 * 
 	 * @param content
 	 *            Content object used to store the document's content.
@@ -68,96 +67,346 @@ public class Document {
 	 *            RootElement of the document.
 	 * 
 	 */
-	public Document(final Content content, final RootElement rootElement) {
-		this.content = content;
+	public Document(final Content content, final Element rootElement) {
+		Assert.isTrue(content == rootElement.getContent(), "The given root element must already be associated with the given content.");
+		associate(content, content.getRange());
 		this.rootElement = rootElement;
+		addChild(rootElement);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.vex.core.internal.dom.IVEXDocument#addDocumentListener
-	 * (org.eclipse.vex.core.internal.dom.DocumentListener)
-	 */
+	@Override
+	public int getStartOffset() {
+		return 0;
+	}
+
+	@Override
+	public int getEndOffset() {
+		return getContent().length() - 1;
+	}
+
+	@Override
+	public void accept(final INodeVisitor visitor) {
+		visitor.visit(this);
+	}
+
+	@Override
+	public <T> T accept(final INodeVisitorWithResult<T> visitor) {
+		return visitor.visit(this);
+	}
+
+	@Override
+	public String getBaseURI() {
+		return getDocumentURI();
+	}
+
+	public void setDocumentURI(final String documentURI) {
+		this.documentURI = documentURI;
+	}
+
+	public String getDocumentURI() {
+		return documentURI;
+	}
+
+	public String getEncoding() {
+		return encoding;
+	}
+
+	public void setEncoding(final String encoding) {
+		this.encoding = encoding;
+	}
+
+	public String getPublicID() {
+		return publicID;
+	}
+
+	public void setPublicID(final String publicID) {
+		this.publicID = publicID;
+	}
+
+	public String getSystemID() {
+		return systemID;
+	}
+
+	public void setSystemID(final String systemID) {
+		this.systemID = systemID;
+	}
+
+	public Validator getValidator() {
+		return validator;
+	}
+
+	public void setValidator(final Validator validator) {
+		this.validator = validator;
+	}
+
+	public Element getRootElement() {
+		return rootElement;
+	}
+
+	public boolean isUndoEnabled() {
+		return undoEnabled;
+	}
+
+	public void setUndoEnabled(final boolean undoEnabled) {
+		this.undoEnabled = undoEnabled;
+	}
+
 	public void addDocumentListener(final DocumentListener listener) {
 		listeners.add(listener);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.vex.core.internal.dom.IVEXDocument#canInsertFragment (int,
-	 * org.eclipse.vex.core.internal.dom.DocumentFragment)
-	 */
-	public boolean canInsertFragment(final int offset, final DocumentFragment fragment) {
-		if (validator == null) {
-			return true;
-		}
-
-		final Element element = getElementAt(offset);
-		final List<QualifiedName> seq1 = getNodeNames(element.getStartOffset() + 1, offset);
-		final List<QualifiedName> seq2 = fragment.getNodeNames();
-		final List<QualifiedName> seq3 = getNodeNames(offset, element.getEndOffset());
-
-		return validator.isValidSequence(element.getQualifiedName(), seq1, seq2, seq3, true);
+	public void removeDocumentListener(final DocumentListener listener) {
+		listeners.remove(listener);
 	}
 
-	public boolean canInsertText(final int offset) {
-		if (validator == null) {
-			return true;
-		}
-
-		final Element element = getElementAt(offset);
-		final List<QualifiedName> seq1 = getNodeNames(element.getStartOffset() + 1, offset);
-		final List<QualifiedName> seq2 = Collections.singletonList(Validator.PCDATA);
-		final List<QualifiedName> seq3 = getNodeNames(offset, element.getEndOffset());
-
-		return validator.isValidSequence(element.getQualifiedName(), seq1, seq2, seq3, true);
+	public int getLength() {
+		return getContent().length();
 	}
 
 	public Position createPosition(final int offset) {
-		return content.createPosition(offset);
+		return getContent().createPosition(offset);
 	}
 
-	public void delete(final int startOffset, final int endOffset) throws DocumentValidationException {
+	private boolean canInsertAt(final Element insertionParent, final int offset, final QualifiedName... nodeNames) {
+		return canInsertAt(insertionParent, offset, Arrays.asList(nodeNames));
+	}
 
-		final Element e1 = getElementAt(startOffset);
-		final Element e2 = getElementAt(endOffset);
-		if (e1 != e2) {
-			throw new IllegalArgumentException("Deletion from " + startOffset + " to " + endOffset + " is unbalanced");
+	private boolean canInsertAt(final Element insertionParent, final int offset, final List<QualifiedName> nodeNames) {
+		if (validator == null) {
+			return true;
+		}
+
+		if (insertionParent == null) {
+			return false;
+		}
+
+		final List<QualifiedName> prefix = getNodeNames(insertionParent.getChildNodesBefore(offset));
+		final List<QualifiedName> insertionCandidates = nodeNames;
+		final List<QualifiedName> suffix = getNodeNames(insertionParent.getChildNodesAfter(offset));
+
+		return validator.isValidSequence(insertionParent.getQualifiedName(), prefix, insertionCandidates, suffix, true);
+	}
+
+	private Element getInsertionParentAt(final int offset) {
+		final Element parent = getElementAt(offset);
+		if (offset == parent.getStartOffset()) {
+			return parent.getParentElement();
+		}
+		return parent;
+	}
+
+	private Node getInsertionNodeAt(final int offset) {
+		final Node node = getChildNodeAt(offset);
+		if (offset == node.getStartOffset()) {
+			return node.getParent();
+		}
+		return node;
+	}
+
+	public boolean canInsertText(final int offset) {
+		return canInsertAt(getInsertionParentAt(offset), offset, Validator.PCDATA);
+	}
+
+	public void insertText(final int offset, final String text) throws DocumentValidationException {
+		Assert.isTrue(offset > getStartOffset() && offset <= getEndOffset(), MessageFormat.format("Offset must be in [{0}, {1}]", getStartOffset() + 1, getEndOffset()));
+
+		final String adjustedText = convertControlCharactersToSpaces(text);
+		final Node insertionNode = getInsertionNodeAt(offset);
+		insertionNode.accept(new INodeVisitor() {
+			public void visit(final Document document) {
+				Assert.isTrue(false, "Cannot insert text directly into Document.");
+			}
+
+			public void visit(final DocumentFragment fragment) {
+				Assert.isTrue(false, "DocumentFragment is never a child of Document.");
+			}
+
+			public void visit(final Element element) {
+				if (!canInsertAt(element, offset, Validator.PCDATA)) {
+					throw new DocumentValidationException(MessageFormat.format("Cannot insert text ''{0}'' at offset {1}.", text, offset));
+				}
+
+				fireBeforeContentInserted(new DocumentEvent(Document.this, element, offset, 2, null));
+
+				getContent().insertText(offset, adjustedText);
+
+				final IUndoableEdit edit = undoEnabled ? new InsertTextEdit(offset, adjustedText) : null;
+				fireContentInserted(new DocumentEvent(Document.this, element, offset, adjustedText.length(), edit));
+			}
+
+			public void visit(final Text text) {
+				getContent().insertText(offset, adjustedText);
+			}
+
+			public void visit(final Comment comment) {
+				getContent().insertText(offset, adjustedText);
+			}
+		});
+	}
+
+	private String convertControlCharactersToSpaces(final String text) {
+		final char[] characters = text.toCharArray();
+		for (int i = 0; i < characters.length; i++) {
+			if (Character.isISOControl(characters[i]) && characters[i] != '\n') {
+				characters[i] = ' ';
+			}
+		}
+		return new String(characters);
+	}
+
+	public boolean canInsertComment(final int offset) {
+		// TODO Currently comments can only be inserted within the root element.
+		return offset > rootElement.getStartOffset() && offset <= rootElement.getEndOffset();
+	}
+
+	public Comment insertComment(final int offset) {
+		Assert.isTrue(canInsertComment(offset));
+
+		final Element parent = getInsertionParentAt(offset);
+
+		// TODO fire events
+		final Comment comment = new Comment();
+		getContent().insertElementMarker(offset);
+		getContent().insertElementMarker(offset);
+		comment.associate(getContent(), new Range(offset, offset + 1));
+
+		parent.insertChild(parent.getInsertionIndex(offset), comment);
+
+		return comment;
+	}
+
+	public boolean canInsertElement(final int offset, final QualifiedName elementName) {
+		return canInsertAt(getInsertionParentAt(offset), offset, elementName);
+	}
+
+	public Element insertElement(final int offset, final QualifiedName elementName) throws DocumentValidationException {
+		Assert.isTrue(offset > rootElement.getStartOffset() && offset <= rootElement.getEndOffset(), MessageFormat.format("Offset must be in [{0}, {1}]", getStartOffset() + 1, getEndOffset()));
+
+		final Element parent = getInsertionParentAt(offset);
+		if (!canInsertAt(parent, offset, elementName)) {
+			throw new DocumentValidationException(MessageFormat.format("Cannot insert element {0} at offset {1}.", elementName, offset));
+		}
+
+		fireBeforeContentInserted(new DocumentEvent(this, parent, offset, 2, null));
+
+		final Element element = new Element(elementName);
+		getContent().insertElementMarker(offset);
+		getContent().insertElementMarker(offset);
+		element.associate(getContent(), new Range(offset, offset + 1));
+
+		parent.insertChild(parent.getInsertionIndex(offset), element);
+
+		final IUndoableEdit edit = undoEnabled ? new InsertElementEdit(offset, element) : null;
+		fireContentInserted(new DocumentEvent(this, parent, offset, 2, edit));
+
+		return element;
+	}
+
+	/**
+	 * @deprecated use Document#insertElement(int, QualifiedName) instead
+	 */
+	@Deprecated
+	public void insertElement(final int offset, final Element element) {
+		Assert.isTrue(offset > rootElement.getStartOffset() && offset <= rootElement.getEndOffset(), MessageFormat.format("Offset must be in [{0}, {1}]", getStartOffset() + 1, getEndOffset()));
+
+		final Element parent = getInsertionParentAt(offset);
+		if (!canInsertAt(parent, offset, element.getQualifiedName())) {
+			throw new DocumentValidationException(MessageFormat.format("Cannot insert element {0} at offset {1}.", element.getQualifiedName(), offset));
+		}
+
+		fireBeforeContentInserted(new DocumentEvent(this, parent, offset, 2, null));
+
+		getContent().insertElementMarker(offset);
+		getContent().insertElementMarker(offset);
+		element.associate(getContent(), new Range(offset, offset + 1));
+
+		parent.insertChild(parent.getInsertionIndex(offset), element);
+
+		final IUndoableEdit edit = undoEnabled ? new InsertElementEdit(offset, element) : null;
+		fireContentInserted(new DocumentEvent(this, parent, offset, 2, edit));
+	}
+
+	public boolean canInsertFragment(final int offset, final DocumentFragment fragment) {
+		return canInsertAt(getInsertionParentAt(offset), offset, fragment.getNodeNames());
+	}
+
+	public void insertFragment(final int offset, final DocumentFragment fragment) throws DocumentValidationException {
+		if (offset < 1 || offset >= getLength()) {
+			throw new IllegalArgumentException("Error inserting document fragment");
+		}
+
+		if (!canInsertAt(getInsertionParentAt(offset), offset, fragment.getNodeNames())) {
+			throw new DocumentValidationException("Cannot insert document fragment");
+		}
+
+		final Element parent = getElementAt(offset);
+
+		fireBeforeContentInserted(new DocumentEvent(this, parent, offset, 2, null));
+
+		getContent().insertContent(offset, fragment.getContent());
+
+		final DeepCopy deepCopy = new DeepCopy(fragment);
+		final List<Node> newNodes = deepCopy.getNodes();
+		int index = parent.getInsertionIndex(offset);
+		for (final Node newNode : newNodes) {
+			parent.insertChild(index, newNode);
+			newNode.associate(getContent(), newNode.getRange().moveBounds(offset));
+			index++;
+		}
+
+		final IUndoableEdit edit = undoEnabled ? new InsertFragmentEdit(offset, fragment) : null;
+
+		fireContentInserted(new DocumentEvent(this, parent, offset, fragment.getContent().length(), edit));
+	}
+
+	public void delete(final Range range) throws DocumentValidationException {
+		final Element surroundingElement = getElementAt(range.getStartOffset() - 1);
+		final Element elementAtEndOffset = getElementAt(range.getEndOffset() + 1);
+		if (surroundingElement != elementAtEndOffset) {
+			throw new IllegalArgumentException("Deletion in " + range + " is unbalanced");
 		}
 
 		final Validator validator = getValidator();
 		if (validator != null) {
-			final List<QualifiedName> seq1 = getNodeNames(e1.getStartOffset() + 1, startOffset);
-			final List<QualifiedName> seq2 = getNodeNames(endOffset, e1.getEndOffset());
+			final List<QualifiedName> seq1 = getNodeNames(surroundingElement.getChildNodesBefore(range.getStartOffset()));
+			final List<QualifiedName> seq2 = getNodeNames(surroundingElement.getChildNodesAfter(range.getEndOffset()));
 
-			if (!validator.isValidSequence(e1.getQualifiedName(), seq1, seq2, null, true)) {
-				throw new DocumentValidationException("Unable to delete from " + startOffset + " to " + endOffset);
+			if (!validator.isValidSequence(surroundingElement.getQualifiedName(), seq1, seq2, null, true)) {
+				throw new DocumentValidationException("Unable to delete " + range);
 			}
 		}
 
 		// Grab the fragment for the undoable edit while it's still here
-		final DocumentFragment frag = getFragment(startOffset, endOffset);
+		final DocumentFragment fragment = getFragment(range);
 
-		fireBeforeContentDeleted(new DocumentEvent(this, e1, startOffset, endOffset - startOffset, null));
+		fireBeforeContentDeleted(new DocumentEvent(this, surroundingElement, range.getStartOffset(), range.length(), null));
 
-		Iterator<Node> iter = e1.getChildNodes().iterator();
-		if (e1 instanceof Element) {
-			iter = e1.getChildIterator();
-		}
+		final Iterator<Node> iter = surroundingElement.getChildIterator();
 		while (iter.hasNext()) {
 			final Node child = iter.next();
-			if (startOffset <= child.getStartOffset() && child.getEndOffset() < endOffset) {
-				iter.remove();
+			if (child.isInRange(range)) {
+				surroundingElement.removeChild(child);
 			}
 		}
 
-		content.remove(startOffset, endOffset - startOffset);
+		getContent().remove(range);
 
-		final IUndoableEdit edit = undoEnabled ? new DeleteEdit(startOffset, endOffset, frag) : null;
+		final IUndoableEdit edit = undoEnabled ? new DeleteEdit(range, fragment) : null;
 
-		fireContentDeleted(new DocumentEvent(this, e1, startOffset, endOffset - startOffset, edit));
+		fireContentDeleted(new DocumentEvent(this, surroundingElement, range.getStartOffset(), range.length(), edit));
+	}
+
+	public char getCharacterAt(final int offset) {
+		final String text = getContent().getText(new Range(offset, offset));
+		if (text.length() == 0) {
+			/*
+			 * XXX This is used in VexWidgetImpl.deleteNextChar/deletePreviousChar to find out if there is an element
+			 * marker at the given offset. VexWidgetImpl has no access to Content, so there should be a method in
+			 * Document to find out if there is an element at a given offset.
+			 */
+			return '\0';
+		}
+		return text.charAt(0);
 	}
 
 	public Element findCommonElement(final int offset1, final int offset2) {
@@ -166,37 +415,8 @@ public class Document {
 			boolean tryAgain = false;
 			final List<Element> children = element.getChildElements();
 			for (int i = 0; i < children.size(); i++) {
-				if (offset1 > children.get(i).getStartOffset() && offset2 > children.get(i).getStartOffset() && offset1 <= children.get(i).getEndOffset() && offset2 <= children.get(i).getEndOffset()) {
-
-					element = children.get(i);
-					tryAgain = true;
-					break;
-				}
-			}
-			if (!tryAgain) {
-				break;
-			}
-		}
-		return element;
-	}
-
-	public char getCharacterAt(final int offset) {
-		return content.getString(offset, 1).charAt(0);
-	}
-
-	public Element getElementAt(final int offset) {
-		if (offset < 1 || offset >= getLength()) {
-			throw new IllegalArgumentException("Illegal offset: " + offset + ". Must be between 1 and n-1");
-		}
-		Element element = rootElement;
-		for (;;) {
-			boolean tryAgain = false;
-			final List<Element> children = element.getChildElements();
-			for (int i = 0; i < children.size(); i++) {
 				final Element child = children.get(i);
-				if (offset <= child.getStartOffset()) {
-					return element;
-				} else if (offset <= child.getEndOffset()) {
+				if (child.containsOffset(offset1) && child.containsOffset(offset2)) {
 					element = child;
 					tryAgain = true;
 					break;
@@ -209,592 +429,44 @@ public class Document {
 		return element;
 	}
 
-	public String getEncoding() {
-		return encoding;
+	public Element getElementAt(final int offset) {
+		return getContainerElement(getChildNodeAt(offset));
 	}
 
-	public void setEncoding(final String encoding) {
-		this.encoding = encoding;
+	private static Element getContainerElement(final Node node) {
+		if (node == null) {
+			return null;
+		}
+		if (node instanceof Element) {
+			return (Element) node;
+		}
+		return getContainerElement(node.getParent());
 	}
 
-	public DocumentFragment getFragment(final int startOffset, final int endOffset) {
-
-		assertOffset(startOffset, 0, content.getLength());
-		assertOffset(endOffset, 0, content.getLength());
-
-		if (endOffset <= startOffset) {
-			throw new IllegalArgumentException("Invalid range (" + startOffset + ", " + endOffset + ")");
-		}
-
-		final Element e1 = getElementAt(startOffset);
-		final Element e2 = getElementAt(endOffset);
-		if (e1 != e2) {
-			throw new IllegalArgumentException("Fragment from " + startOffset + " to " + endOffset + " is unbalanced");
-		}
-
-		final List<Element> children = e1.getChildElements();
-
-		final Content newContent = new GapContent(endOffset - startOffset);
-		final String s = content.getString(startOffset, endOffset - startOffset);
-		newContent.insertString(0, s);
-		final List<Element> newChildren = new ArrayList<Element>();
-		for (int i = 0; i < children.size(); i++) {
-			final Element child = children.get(i);
-			if (child.getEndOffset() <= startOffset) {
-				continue;
-			} else if (child.getStartOffset() >= endOffset) {
-				break;
-			} else {
-				newChildren.add(cloneElement(child, newContent, -startOffset, null));
-			}
-		}
-
-		return new DocumentFragment(newContent, newChildren);
+	public boolean isElementAt(final int offset) {
+		return getContent().isElementMarker(offset);
 	}
 
-	public int getLength() {
-		return content.getLength();
+	public DocumentFragment getFragment(final Range range) {
+		final Parent parent = getParentOfRange(range);
+		final DeepCopy deepCopy = new DeepCopy(parent, range);
+		return new DocumentFragment(deepCopy.getContent(), deepCopy.getNodes());
 	}
 
-	public List<QualifiedName> getNodeNames(final int startOffset, final int endOffset) {
+	private Parent getParentOfRange(final Range range) {
+		Assert.isTrue(getRange().contains(range));
 
-		final List<Node> nodes = getNodes(startOffset, endOffset);
-		final List<QualifiedName> names = new ArrayList<QualifiedName>(nodes.size());
+		final Node startNode = getChildNodeAt(range.getStartOffset());
+		final Node endNode = getChildNodeAt(range.getEndOffset());
+		final Parent parent = startNode.getParent();
+		Assert.isTrue(parent == endNode.getParent(), MessageFormat.format("The fragment in {0} is unbalanced.", range));
+		Assert.isNotNull(parent, MessageFormat.format("No balanced parent found for {0}", range));
 
-		for (int i = 0; i < nodes.size(); i++) {
-			final Node node = nodes.get(i);
-			if (node instanceof Element) {
-				names.add(((Element) node).getQualifiedName());
-			} else {
-				names.add(Validator.PCDATA);
-			}
-		}
-
-		return names;
+		return parent;
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.vex.core.internal.dom.IVEXDocument#getNodes(int, int)
-	 */
-	public List<Node> getNodes(final int startOffset, final int endOffset) {
-		final Element element = getElementAt(startOffset);
-		if (element != getElementAt(endOffset)) {
-			throw new IllegalArgumentException(NLS.bind("Offsets are unbalanced: {0} is in {1}, {2} is in {3}.",
-					new Object[] { startOffset, element.getPrefixedName(), endOffset, getElementAt(endOffset).getPrefixedName() }));
-		}
-
-		final List<Node> list = new ArrayList<Node>();
-		final List<Node> nodes = element.getChildNodes();
-		for (int i = 0; i < nodes.size(); i++) {
-			final Node node = nodes.get(i);
-			if (node.getEndOffset() <= startOffset) {
-				continue;
-			} else if (node.getStartOffset() >= endOffset) {
-				break;
-			} else if (node instanceof Element) {
-				list.add(node);
-			} else {
-				final Text text = (Text) node;
-				if (text.getStartOffset() < startOffset) {
-					text.setContent(text.getContent(), startOffset, text.getEndOffset());
-				} else if (text.getEndOffset() > endOffset) {
-					text.setContent(text.getContent(), text.getStartOffset(), endOffset);
-				}
-				list.add(text);
-			}
-		}
-
-		return list;
-	}
-
-	/**
-	 * Creates an array of nodes for a given run of content. The returned array includes the given child elements and
-	 * <code>Text</code> objects where text appears between elements.
-	 * 
-	 * @param content
-	 *            Content object containing the content
-	 * @param startOffset
-	 *            start offset of the run
-	 * @param endOffset
-	 *            end offset of the run
-	 * @param elements
-	 *            child elements that are within the run
-	 */
-	static List<Node> createNodeList(final Content content, final int startOffset, final int endOffset, final List<Node> elements) {
-
-		final List<Node> nodes = new ArrayList<Node>();
-		int offset = startOffset;
-		for (int i = 0; i < elements.size(); i++) {
-			final int start = elements.get(i).getStartOffset();
-			if (offset < start) {
-				nodes.add(new Text(content, offset, start));
-			}
-			nodes.add(elements.get(i));
-			offset = elements.get(i).getEndOffset() + 1;
-		}
-
-		if (offset < endOffset) {
-			nodes.add(new Text(content, offset, endOffset));
-		}
-
-		return nodes;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.vex.core.internal.dom.IVEXDocument#getPublicID()
-	 */
-	public String getPublicID() {
-		return publicID;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.vex.core.internal.dom.IVEXDocument#getRawText(int, int)
-	 */
-	public String getRawText(final int startOffset, final int endOffset) {
-		return content.getString(startOffset, endOffset - startOffset);
-	}
-
-	public Element getRootElement() {
-		return rootElement;
-	}
-
-	public String getSystemID() {
-		return systemID;
-	}
-
-	public String getText(final int startOffset, final int endOffset) {
-		final String raw = content.getString(startOffset, endOffset - startOffset);
-		final StringBuffer sb = new StringBuffer(raw.length());
-		for (int i = 0; i < raw.length(); i++) {
-			final char c = raw.charAt(i);
-			if (!content.isElementMarker(c)) {
-				sb.append(c);
-			}
-		}
-		return sb.toString();
-	}
-
-	public Validator getValidator() {
-		return validator;
-	}
-
-	public void insertElement(final int offset, final Element element) throws DocumentValidationException {
-
-		if (offset < 1 || offset >= getLength()) {
-			throw new IllegalArgumentException("Error inserting element <" + element.getPrefixedName() + ">: offset is " + offset + ", but it must be between 1 and " + (getLength() - 1));
-		}
-
-		final Validator validator = getValidator();
-		if (validator != null) {
-			final Element parent = getElementAt(offset);
-			final List<QualifiedName> seq1 = getNodeNames(parent.getStartOffset() + 1, offset);
-			final List<QualifiedName> seq2 = Collections.singletonList(element.getQualifiedName());
-			final List<QualifiedName> seq3 = getNodeNames(offset, parent.getEndOffset());
-
-			if (!validator.isValidSequence(parent.getQualifiedName(), seq1, seq2, seq3, true)) {
-				throw new DocumentValidationException("Cannot insert element " + element.getPrefixedName() + " at offset " + offset);
-			}
-		}
-
-		// find the parent, and the index into its children at which
-		// this element should be inserted
-		Element parent = rootElement;
-		int childIndex = -1;
-		while (childIndex == -1) {
-			boolean tryAgain = false;
-			final List<Element> children = parent.getChildElements();
-			for (int i = 0; i < children.size(); i++) {
-				final Element child = children.get(i);
-				if (offset <= child.getStartOffset()) {
-					childIndex = i;
-					break;
-				} else if (offset <= child.getEndOffset()) {
-					parent = child;
-					tryAgain = true;
-					break;
-				}
-			}
-			if (!tryAgain && childIndex == -1) {
-				childIndex = children.size();
-				break;
-			}
-		}
-
-		fireBeforeContentInserted(new DocumentEvent(this, parent, offset, 2, null));
-
-		content.insertElementMarker(offset);
-		content.insertElementMarker(offset + 1);
-
-		element.setContent(content, offset, offset + 1);
-		element.setParent(parent);
-		parent.insertChild(childIndex, element);
-
-		final IUndoableEdit edit = undoEnabled ? new InsertElementEdit(offset, element) : null;
-
-		fireContentInserted(new DocumentEvent(this, parent, offset, 2, edit));
-	}
-
-	public void insertFragment(final int offset, final DocumentFragment fragment) throws DocumentValidationException {
-
-		if (offset < 1 || offset >= getLength()) {
-			throw new IllegalArgumentException("Error inserting document fragment");
-		}
-
-		final Element parent = getElementAt(offset);
-
-		if (validator != null) {
-			final List<QualifiedName> seq1 = getNodeNames(parent.getStartOffset() + 1, offset);
-			final List<QualifiedName> seq2 = fragment.getNodeNames();
-			final List<QualifiedName> seq3 = getNodeNames(offset, parent.getEndOffset());
-
-			if (!validator.isValidSequence(parent.getQualifiedName(), seq1, seq2, seq3, true)) {
-				throw new DocumentValidationException("Cannot insert document fragment");
-			}
-		}
-
-		fireBeforeContentInserted(new DocumentEvent(this, parent, offset, 2, null));
-
-		final Content c = fragment.getContent();
-		final String s = c.getString(0, c.getLength());
-		content.insertString(offset, s);
-
-		final List<Element> children = parent.getChildElements();
-		int index = 0;
-		while (index < children.size() && children.get(index).getEndOffset() < offset) {
-			index++;
-		}
-
-		final List<Element> elements = fragment.getElements();
-		for (int i = 0; i < elements.size(); i++) {
-			final Element newElement = cloneElement(elements.get(i), content, offset, parent);
-			parent.insertChild(index, newElement);
-			index++;
-		}
-
-		final IUndoableEdit edit = undoEnabled ? new InsertFragmentEdit(offset, fragment) : null;
-
-		fireContentInserted(new DocumentEvent(this, parent, offset, fragment.getContent().getLength(), edit));
-	}
-
-	public void insertText(final int offset, final String text) throws DocumentValidationException {
-
-		if (offset < 1 || offset >= getLength()) {
-			throw new IllegalArgumentException("Offset must be between 1 and n-1");
-		}
-
-		final Element parent = getElementAt(offset);
-
-		boolean isValid = false;
-		if (!content.isElementMarker(getCharacterAt(offset - 1))) {
-			isValid = true;
-		} else if (!content.isElementMarker(getCharacterAt(offset))) {
-			isValid = true;
-		} else {
-			final Validator validator = getValidator();
-			if (validator != null) {
-				final List<QualifiedName> seq1 = getNodeNames(parent.getStartOffset() + 1, offset);
-				final List<QualifiedName> seq2 = Collections.singletonList(Validator.PCDATA);
-				final List<QualifiedName> seq3 = getNodeNames(offset, parent.getEndOffset());
-
-				isValid = validator.isValidSequence(parent.getQualifiedName(), seq1, seq2, seq3, true);
-			} else {
-				isValid = true;
-			}
-		}
-
-		if (!isValid) {
-			throw new DocumentValidationException("Cannot insert text '" + text + "' at offset " + offset);
-		}
-
-		// Convert control chars to spaces
-		final StringBuffer sb = new StringBuffer(text);
-		for (int i = 0; i < sb.length(); i++) {
-			if (Character.isISOControl(sb.charAt(i)) && sb.charAt(i) != '\n') {
-				sb.setCharAt(i, ' ');
-			}
-		}
-
-		final String s = sb.toString();
-
-		fireBeforeContentInserted(new DocumentEvent(this, parent, offset, 2, null));
-
-		content.insertString(offset, s);
-
-		final IUndoableEdit edit = undoEnabled ? new InsertTextEdit(offset, s) : null;
-
-		fireContentInserted(new DocumentEvent(this, parent, offset, s.length(), edit));
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.vex.core.internal.dom.IVEXDocument#isUndoEnabled()
-	 */
-	public boolean isUndoEnabled() {
-		return undoEnabled;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.vex.core.internal.dom.IVEXDocument#removeDocumentListener
-	 * (org.eclipse.vex.core.internal.dom.DocumentListener)
-	 */
-	public void removeDocumentListener(final DocumentListener listener) {
-		listeners.remove(listener);
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.vex.core.internal.dom.IVEXDocument#setPublicID(java .lang.String)
-	 */
-	public void setPublicID(final String publicID) {
-		this.publicID = publicID;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.vex.core.internal.dom.IVEXDocument#setSystemID(java .lang.String)
-	 */
-	public void setSystemID(final String systemID) {
-		this.systemID = systemID;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.vex.core.internal.dom.IVEXDocument#setUndoEnabled (boolean)
-	 */
-	public void setUndoEnabled(final boolean undoEnabled) {
-		this.undoEnabled = undoEnabled;
-	}
-
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see org.eclipse.vex.core.internal.dom.IVEXDocument#setValidator(org .eclipse.vex.core.internal.dom.Validator)
-	 */
-	public void setValidator(final Validator validator) {
-		this.validator = validator;
-	}
-
-	// ==================================================== PRIVATE
-
-	/**
-	 * Represents a deletion from a document that can be undone and redone.
-	 */
-	private class DeleteEdit implements IUndoableEdit {
-
-		private final int startOffset;
-		private final int endOffset;
-		private final DocumentFragment frag;
-
-		public DeleteEdit(final int startOffset, final int endOffset, final DocumentFragment frag) {
-			this.startOffset = startOffset;
-			this.endOffset = endOffset;
-			this.frag = frag;
-		}
-
-		public boolean combine(final IUndoableEdit edit) {
-			return false;
-		}
-
-		public void undo() throws CannotUndoException {
-			try {
-				setUndoEnabled(false);
-				insertFragment(startOffset, frag);
-			} catch (final DocumentValidationException ex) {
-				throw new CannotUndoException();
-			} finally {
-				setUndoEnabled(true);
-			}
-		}
-
-		public void redo() throws CannotRedoException {
-			try {
-				setUndoEnabled(false);
-				delete(startOffset, endOffset);
-			} catch (final DocumentValidationException ex) {
-				throw new CannotUndoException();
-			} finally {
-				setUndoEnabled(true);
-			}
-		}
-
-	}
-
-	/**
-	 * Represents an insertion of an element into the document.
-	 */
-	private class InsertElementEdit implements IUndoableEdit {
-
-		private final int offset;
-		private final Element element;
-
-		public InsertElementEdit(final int offset, final Element element2) {
-			this.offset = offset;
-			element = element2;
-		}
-
-		public boolean combine(final IUndoableEdit edit) {
-			return false;
-		}
-
-		public void undo() throws CannotUndoException {
-			try {
-				setUndoEnabled(false);
-				delete(offset, offset + 2);
-			} catch (final DocumentValidationException ex) {
-				throw new CannotUndoException();
-			} finally {
-				setUndoEnabled(true);
-			}
-		}
-
-		public void redo() throws CannotRedoException {
-			try {
-				setUndoEnabled(false);
-				insertElement(offset, element);
-			} catch (final DocumentValidationException ex) {
-				throw new CannotUndoException();
-			} finally {
-				setUndoEnabled(true);
-			}
-		}
-
-	}
-
-	/**
-	 * Represents an insertion of a fragment into the document.
-	 */
-	private class InsertFragmentEdit implements IUndoableEdit {
-
-		private final int offset;
-		private final DocumentFragment frag;
-
-		public InsertFragmentEdit(final int offset, final DocumentFragment frag) {
-			this.offset = offset;
-			this.frag = frag;
-		}
-
-		public boolean combine(final IUndoableEdit edit) {
-			return false;
-		}
-
-		public void undo() throws CannotUndoException {
-			try {
-				setUndoEnabled(false);
-				final int length = frag.getContent().getLength();
-				delete(offset, offset + length);
-			} catch (final DocumentValidationException ex) {
-				throw new CannotUndoException();
-			} finally {
-				setUndoEnabled(true);
-			}
-		}
-
-		public void redo() throws CannotRedoException {
-			try {
-				setUndoEnabled(false);
-				insertFragment(offset, frag);
-			} catch (final DocumentValidationException ex) {
-				throw new CannotUndoException();
-			} finally {
-				setUndoEnabled(true);
-			}
-		}
-
-	}
-
-	/**
-	 * Represents an insertion of text into the document.
-	 */
-	private class InsertTextEdit implements IUndoableEdit {
-
-		private final int offset;
-		private String text;
-
-		public InsertTextEdit(final int offset, final String text) {
-			this.offset = offset;
-			this.text = text;
-		}
-
-		public boolean combine(final IUndoableEdit edit) {
-			if (edit instanceof InsertTextEdit) {
-				final InsertTextEdit ite = (InsertTextEdit) edit;
-				if (ite.offset == offset + text.length()) {
-					text = text + ite.text;
-					return true;
-				}
-			}
-			return false;
-		}
-
-		public void undo() throws CannotUndoException {
-			try {
-				setUndoEnabled(false);
-				delete(offset, offset + text.length());
-			} catch (final DocumentValidationException ex) {
-				throw new CannotUndoException();
-			} finally {
-				setUndoEnabled(true);
-			}
-		}
-
-		public void redo() throws CannotRedoException {
-			try {
-				setUndoEnabled(false);
-				insertText(offset, text);
-			} catch (final DocumentValidationException ex) {
-				throw new CannotUndoException();
-			} finally {
-				setUndoEnabled(true);
-			}
-		}
-
-	}
-
-	/**
-	 * Assert that the given offset is within the given range, throwing IllegalArgumentException if not.
-	 */
-	private static void assertOffset(final int offset, final int min, final int max) {
-		if (offset < min || offset > max) {
-			throw new IllegalArgumentException("Bad offset " + offset + "must be between " + min + " and " + max);
-		}
-	}
-
-	/**
-	 * Clone an element tree, pointing to a new Content object.
-	 * 
-	 * @param original
-	 *            Element to be cloned
-	 * @param content
-	 *            new Content object to which the clone will point
-	 * @param shift
-	 *            amount to shift offsets to be valid in the new Content.
-	 * @param parent
-	 *            parent for the cloned Element
-	 */
-	private Element cloneElement(final Element original, final Content content, final int shift, final Element parent) {
-		final Element clone = original.clone();
-		clone.setContent(content, original.getStartOffset() + shift, original.getEndOffset() + shift);
-		clone.setParent(parent);
-
-		final List<Element> children = original.getChildElements();
-		for (int i = 0; i < children.size(); i++) {
-			final Element cloneChild = cloneElement(children.get(i), content, shift, clone);
-			clone.insertChild(i, cloneChild);
-		}
-
-		return clone;
+	public List<Node> getNodes(final Range range) {
+		return getParentOfRange(range).getChildNodes(range);
 	}
 
 	public void fireAttributeChanged(final DocumentEvent e) {
@@ -821,15 +493,165 @@ public class Document {
 		listeners.fireEvent("contentInserted", e);
 	}
 
-	public void setDocumentURI(final String documentURI) {
-		this.documentURI = documentURI;
+	// TODO move undoable edits int L2
+
+	private class DeleteEdit implements IUndoableEdit {
+
+		private final Range range;
+		private final DocumentFragment fragment;
+
+		public DeleteEdit(final Range range, final DocumentFragment fragment) {
+			this.range = range;
+			this.fragment = fragment;
+		}
+
+		public boolean combine(final IUndoableEdit edit) {
+			return false;
+		}
+
+		public void undo() throws CannotUndoException {
+			try {
+				setUndoEnabled(false);
+				insertFragment(range.getStartOffset(), fragment);
+			} catch (final DocumentValidationException ex) {
+				throw new CannotUndoException();
+			} finally {
+				setUndoEnabled(true);
+			}
+		}
+
+		public void redo() throws CannotRedoException {
+			try {
+				setUndoEnabled(false);
+				delete(range);
+			} catch (final DocumentValidationException ex) {
+				throw new CannotUndoException();
+			} finally {
+				setUndoEnabled(true);
+			}
+		}
+
 	}
 
-	public String getDocumentURI() {
-		return documentURI;
+	private class InsertElementEdit implements IUndoableEdit {
+
+		private final int offset;
+		private final Element element;
+
+		public InsertElementEdit(final int offset, final Element element) {
+			this.offset = offset;
+			this.element = element;
+		}
+
+		public boolean combine(final IUndoableEdit edit) {
+			return false;
+		}
+
+		public void undo() throws CannotUndoException {
+			try {
+				setUndoEnabled(false);
+				delete(new Range(offset, offset + 2));
+			} catch (final DocumentValidationException ex) {
+				throw new CannotUndoException();
+			} finally {
+				setUndoEnabled(true);
+			}
+		}
+
+		public void redo() throws CannotRedoException {
+			try {
+				setUndoEnabled(false);
+				insertElement(offset, element.getQualifiedName());
+			} catch (final DocumentValidationException ex) {
+				throw new CannotUndoException();
+			} finally {
+				setUndoEnabled(true);
+			}
+		}
+
 	}
 
-	public String getBaseURI() {
-		return getDocumentURI();
+	private class InsertFragmentEdit implements IUndoableEdit {
+
+		private final int offset;
+		private final DocumentFragment frag;
+
+		public InsertFragmentEdit(final int offset, final DocumentFragment frag) {
+			this.offset = offset;
+			this.frag = frag;
+		}
+
+		public boolean combine(final IUndoableEdit edit) {
+			return false;
+		}
+
+		public void undo() throws CannotUndoException {
+			try {
+				setUndoEnabled(false);
+				delete(frag.getContent().getRange().moveBounds(offset, offset));
+			} catch (final DocumentValidationException ex) {
+				throw new CannotUndoException();
+			} finally {
+				setUndoEnabled(true);
+			}
+		}
+
+		public void redo() throws CannotRedoException {
+			try {
+				setUndoEnabled(false);
+				insertFragment(offset, frag);
+			} catch (final DocumentValidationException ex) {
+				throw new CannotUndoException();
+			} finally {
+				setUndoEnabled(true);
+			}
+		}
+
 	}
+
+	private class InsertTextEdit implements IUndoableEdit {
+
+		private final int offset;
+		private String text;
+
+		public InsertTextEdit(final int offset, final String text) {
+			this.offset = offset;
+			this.text = text;
+		}
+
+		public boolean combine(final IUndoableEdit edit) {
+			if (edit instanceof InsertTextEdit) {
+				final InsertTextEdit ite = (InsertTextEdit) edit;
+				if (ite.offset == offset + text.length()) {
+					text = text + ite.text;
+					return true;
+				}
+			}
+			return false;
+		}
+
+		public void undo() throws CannotUndoException {
+			try {
+				setUndoEnabled(false);
+				delete(new Range(offset, offset + text.length()));
+			} catch (final DocumentValidationException ex) {
+				throw new CannotUndoException();
+			} finally {
+				setUndoEnabled(true);
+			}
+		}
+
+		public void redo() throws CannotRedoException {
+			try {
+				setUndoEnabled(false);
+				insertText(offset, text);
+			} catch (final DocumentValidationException ex) {
+				throw new CannotUndoException();
+			} finally {
+				setUndoEnabled(true);
+			}
+		}
+
+	}
+
 }

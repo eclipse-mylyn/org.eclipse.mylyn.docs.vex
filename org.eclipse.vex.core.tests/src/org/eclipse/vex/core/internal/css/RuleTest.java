@@ -18,7 +18,6 @@ import junit.framework.TestCase;
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.vex.core.internal.dom.Document;
 import org.eclipse.vex.core.internal.dom.Element;
-import org.eclipse.vex.core.internal.dom.RootElement;
 
 /**
  * Test rule matching.
@@ -31,25 +30,19 @@ public class RuleTest extends TestCase {
 		final StyleSheet ss = reader.read(url);
 		final List<Rule> rules = ss.getRules();
 
-		final RootElement a = new RootElement("a");
-		final Element b = new Element("b");
-		final Element c = new Element("c");
-		final Element d = new Element("d");
-		final Element e = new Element("e");
-		final Element f = new Element("f");
+		final Element a = new Element("a");
+		final Document doc = new Document(a);
+		final Element b = doc.insertElement(1, new QualifiedName(null, "b"));
+		final Element c = doc.insertElement(2, new QualifiedName(null, "c"));
+		final Element d = doc.insertElement(3, new QualifiedName(null, "d"));
+		final Element e = doc.insertElement(4, new QualifiedName(null, "e"));
+		final Element f = doc.insertElement(5, new QualifiedName(null, "f"));
 
 		b.setAttribute("color", "blue");
 		c.setAttribute("color", "blue red");
 		d.setAttribute("color", "gree blue red");
 		e.setAttribute("color", "red blue");
 		f.setAttribute("color", "bluered");
-
-		final Document doc = new Document(a);
-		doc.insertElement(1, b);
-		doc.insertElement(2, c);
-		doc.insertElement(3, d);
-		doc.insertElement(4, e);
-		doc.insertElement(5, f);
 
 		// /* 0 */ c { }
 		Rule rule = rules.get(0);
@@ -273,13 +266,11 @@ public class RuleTest extends TestCase {
 		final StyleSheet ss = reader.read(url);
 		final List<Rule> rules = ss.getRules();
 
-		final RootElement a = new RootElement("a");
-		final Element ns = new Element(new QualifiedName("http://namespace/uri", "b"));
+		final Element a = new Element("a");
+		final Document doc = new Document(a);
+		final Element ns = doc.insertElement(1, new QualifiedName("http://namespace/uri", "b"));
 
 		ns.setAttribute("color", "blue");
-
-		final Document doc = new Document(a);
-		doc.insertElement(1, ns);
 
 		// /* 0 */ c { }
 		Rule rule = rules.get(0);

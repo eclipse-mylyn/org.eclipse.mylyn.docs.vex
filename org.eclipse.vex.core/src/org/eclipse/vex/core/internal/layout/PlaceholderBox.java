@@ -15,14 +15,14 @@ import org.eclipse.vex.core.internal.core.FontMetrics;
 import org.eclipse.vex.core.internal.core.FontResource;
 import org.eclipse.vex.core.internal.core.Graphics;
 import org.eclipse.vex.core.internal.css.Styles;
-import org.eclipse.vex.core.internal.dom.Element;
+import org.eclipse.vex.core.internal.dom.Node;
 
 /**
  * A zero-width box that represents a single offset in the document.
  */
 public class PlaceholderBox extends AbstractInlineBox {
 
-	private final Element element;
+	private final Node node;
 	private final int relOffset;
 	private final int textTop;
 	private final int baseline;
@@ -32,21 +32,21 @@ public class PlaceholderBox extends AbstractInlineBox {
 	 * 
 	 * @param context
 	 *            LayoutContext in effect.
-	 * @param element2
-	 *            Element containing this placeholder. the element is used both to determine the size of the box and its
+	 * @param node
+	 *            Node containing this placeholder. The node is used both to determine the size of the box and its
 	 *            caret, but also as a base point for relOffset.
 	 * @param relOffset
 	 *            Offset of the placeholder, relative to the start of the element.
 	 */
-	public PlaceholderBox(final LayoutContext context, final Element element2, final int relOffset) {
+	public PlaceholderBox(final LayoutContext context, final Node node, final int relOffset) {
 
-		element = element2;
+		this.node = node;
 		this.relOffset = relOffset;
 
 		setWidth(0);
 
 		final Graphics g = context.getGraphics();
-		final Styles styles = context.getStyleSheet().getStyles(element2);
+		final Styles styles = context.getStyleSheet().getStyles(node);
 		final FontResource font = g.createFont(styles.getFont());
 		final FontResource oldFont = g.setFont(font);
 		final FontMetrics fm = g.getFontMetrics();
@@ -85,11 +85,11 @@ public class PlaceholderBox extends AbstractInlineBox {
 	}
 
 	/**
-	 * @see org.eclipse.vex.core.internal.layout.Box#getElement()
+	 * @see org.eclipse.vex.core.internal.layout.Box#getNode()
 	 */
 	@Override
-	public Element getElement() {
-		return element;
+	public Node getNode() {
+		return node;
 	}
 
 	/**
@@ -97,7 +97,7 @@ public class PlaceholderBox extends AbstractInlineBox {
 	 */
 	@Override
 	public int getEndOffset() {
-		return element.getStartOffset() + relOffset;
+		return node.getStartOffset() + relOffset;
 	}
 
 	/**
@@ -105,7 +105,7 @@ public class PlaceholderBox extends AbstractInlineBox {
 	 */
 	@Override
 	public int getStartOffset() {
-		return element.getStartOffset() + relOffset;
+		return node.getStartOffset() + relOffset;
 	}
 
 	/**

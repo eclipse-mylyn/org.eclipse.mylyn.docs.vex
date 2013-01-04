@@ -14,11 +14,11 @@ import java.net.URL;
 
 import junit.framework.TestCase;
 
+import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.css.StyleSheetReader;
 import org.eclipse.vex.core.internal.dom.Document;
 import org.eclipse.vex.core.internal.dom.Element;
-import org.eclipse.vex.core.internal.dom.RootElement;
 
 public class TestBlockElementBox extends TestCase {
 
@@ -39,9 +39,9 @@ public class TestBlockElementBox extends TestCase {
 	}
 
 	public void testBeforeAfter() throws Exception {
-		final RootElement root = new RootElement("root");
+		final Element root = new Element("root");
 		final Document doc = new Document(root);
-		doc.insertElement(1, new Element("beforeBlock"));
+		doc.insertElement(1, new QualifiedName(null, "beforeBlock"));
 		context.setDocument(doc);
 
 		final RootBox rootBox = new RootBox(context, root, 500);
@@ -54,14 +54,13 @@ public class TestBlockElementBox extends TestCase {
 		assertEquals(1, children.length);
 		assertEquals(BlockElementBox.class, children[0].getClass());
 		beb = (BlockElementBox) children[0];
-		assertEquals(root, beb.getElement());
+		assertEquals(root, beb.getNode());
 
 		children = beb.getChildren();
 		assertEquals(1, children.length);
 		assertEquals(BlockElementBox.class, children[0].getClass());
 		beb = (BlockElementBox) children[0];
-		assertEquals("beforeBlock", beb.getElement().getPrefixedName());
-
+		assertEquals("beforeBlock", ((Element) beb.getNode()).getPrefixedName());
 	}
 
 }

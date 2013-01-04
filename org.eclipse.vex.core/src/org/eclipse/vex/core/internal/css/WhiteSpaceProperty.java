@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.css;
 
-import org.eclipse.vex.core.internal.dom.Element;
+import org.eclipse.vex.core.internal.dom.Node;
 import org.w3c.css.sac.LexicalUnit;
 
 /**
@@ -29,7 +29,7 @@ public class WhiteSpaceProperty extends AbstractProperty {
      *
      */
 
-	public Object calculate(final LexicalUnit lu, final Styles parentStyles, final Styles styles, final Element element) {
+	public Object calculate(final LexicalUnit lu, final Styles parentStyles, final Styles styles, final Node node) {
 		if (isWhiteSpace(lu)) {
 			return lu.getStringValue();
 		} else {

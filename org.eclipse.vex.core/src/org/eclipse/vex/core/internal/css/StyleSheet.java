@@ -28,7 +28,9 @@ import java.util.Map;
 import java.util.WeakHashMap;
 
 import org.eclipse.vex.core.internal.core.FontSpec;
+import org.eclipse.vex.core.internal.dom.BaseNodeVisitor;
 import org.eclipse.vex.core.internal.dom.Element;
+import org.eclipse.vex.core.internal.dom.Node;
 import org.w3c.css.sac.LexicalUnit;
 
 /**
@@ -85,7 +87,7 @@ public class StyleSheet {
 	 * 
 	 * This must be transient to prevent it from being serialized, as WeakHashMaps are not serializable.
 	 */
-	private transient Map<Element, WeakReference<Styles>> styleMap;
+	private transient Map<Node, WeakReference<Styles>> styleMap;
 
 	/**
 	 * Class constructor.
@@ -144,13 +146,13 @@ public class StyleSheet {
 	/**
 	 * Returns the styles for the given element. The styles are cached to ensure reasonable performance.
 	 * 
-	 * @param element
-	 *            Element for which to calculate the styles.
+	 * @param node
+	 *            Node for which to calculate the styles.
 	 */
-	public Styles getStyles(final Element element) {
+	public Styles getStyles(final Node node) {
 
 		Styles styles;
-		final WeakReference<Styles> ref = getStyleMap().get(element);
+		final WeakReference<Styles> ref = getStyleMap().get(node);
 
 		if (ref != null) {
 			// can't combine these tests, since calling ref.get() twice
@@ -160,39 +162,39 @@ public class StyleSheet {
 			if (styles != null) {
 				return styles;
 			}
-		} else if (getStyleMap().containsKey(element)) {
+		} else if (getStyleMap().containsKey(node)) {
 			// this must be a pseudo-element with no content
 			return null;
 		}
 
-		styles = calculateStyles(element);
+		styles = calculateStyles(node);
 
 		if (styles == null) {
 			// Yes, they can be null if element is a PseudoElement with no
 			// content property
-			getStyleMap().put(element, null);
+			getStyleMap().put(node, null);
 		} else {
-			getStyleMap().put(element, new WeakReference<Styles>(styles));
+			getStyleMap().put(node, new WeakReference<Styles>(styles));
 		}
 
 		return styles;
 	}
 
-	private Styles calculateStyles(final Element element) {
+	private Styles calculateStyles(final Node node) {
 
 		final Styles styles = new Styles();
 		Styles parentStyles = null;
-		if (element.getParent() != null) {
-			parentStyles = getStyles(element.getParent());
+		if (node != null && node.getParent() != null) {
+			parentStyles = getStyles(node.getParent());
 		}
 
-		final Map<String, LexicalUnit> decls = getApplicableDeclarations(element);
+		final Map<String, LexicalUnit> decls = getApplicableDeclarations(node);
 
 		LexicalUnit lexicalUnit;
 
 		// If we're finding a pseudo-element, look at the 'content' property
 		// first, since most of the time it'll be empty and we'll return null.
-		if (element instanceof PseudoElement) {
+		if (node instanceof PseudoElement) {
 			lexicalUnit = decls.get(CSS.CONTENT);
 			if (lexicalUnit == null) {
 				return null;
@@ -207,10 +209,16 @@ public class StyleSheet {
 					break;
 				case LexicalUnit.SAC_ATTR:
 					// content: attr(attributeName)
-					final String attributeValue = element.getParent().getAttributeValue(lexicalUnit.getStringValue());
-					if (attributeValue != null) {
-						content.add(attributeValue);
-					}
+					final LexicalUnit currentLexicalUnit = lexicalUnit;
+					node.accept(new BaseNodeVisitor() {
+						@Override
+						public void visit(final Element element) {
+							final String attributeValue = element.getParentElement().getAttributeValue(currentLexicalUnit.getStringValue());
+							if (attributeValue != null) {
+								content.add(attributeValue);
+							}
+						}
+					});
 					break;
 				}
 				lexicalUnit = lexicalUnit.getNextLexicalUnit();
@@ -220,7 +228,7 @@ public class StyleSheet {
 
 		for (final IProperty property : CSS_PROPERTIES) {
 			lexicalUnit = decls.get(property.getName());
-			final Object value = property.calculate(lexicalUnit, parentStyles, styles, element);
+			final Object value = property.calculate(lexicalUnit, parentStyles, styles, node);
 			styles.put(property.getName(), value);
 		}
 
@@ -260,8 +268,8 @@ public class StyleSheet {
 	/**
 	 * Returns all the declarations that apply to the given element.
 	 */
-	private Map<String, LexicalUnit> getApplicableDeclarations(final Element element) {
-		final List<PropertyDecl> rawDeclarationsForElement = findAllDeclarationsFor(element);
+	private Map<String, LexicalUnit> getApplicableDeclarations(final Node node) {
+		final List<PropertyDecl> rawDeclarationsForElement = findAllDeclarationsFor(node);
 
 		// Sort in cascade order. We can then just stuff them into a
 		// map and get the right values since higher-priority values
@@ -281,10 +289,10 @@ public class StyleSheet {
 		return values;
 	}
 
-	private List<PropertyDecl> findAllDeclarationsFor(final Element element) {
+	private List<PropertyDecl> findAllDeclarationsFor(final Node node) {
 		final List<PropertyDecl> rawDeclarations = new ArrayList<PropertyDecl>();
 		for (final Rule rule : rules) {
-			if (rule.matches(element)) {
+			if (rule.matches(node)) {
 				final PropertyDecl[] ruleDecls = rule.getPropertyDecls();
 				for (final PropertyDecl ruleDecl : ruleDecls) {
 					rawDeclarations.add(ruleDecl);
@@ -294,9 +302,9 @@ public class StyleSheet {
 		return rawDeclarations;
 	}
 
-	private Map<Element, WeakReference<Styles>> getStyleMap() {
+	private Map<Node, WeakReference<Styles>> getStyleMap() {
 		if (styleMap == null) {
-			styleMap = new WeakHashMap<Element, WeakReference<Styles>>();
+			styleMap = new WeakHashMap<Node, WeakReference<Styles>>();
 		}
 		return styleMap;
 	}
