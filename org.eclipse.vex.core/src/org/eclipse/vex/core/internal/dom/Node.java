@@ -207,9 +207,7 @@ public abstract class Node {
 	 * 
 	 * @return true if this and the given node are of the same kind
 	 */
-	public boolean isKindOf(final Node node) {
-		return false;
-	}
+	public abstract boolean isKindOf(final Node node);
 
 	/**
 	 * @see Element#setBaseURI(String)

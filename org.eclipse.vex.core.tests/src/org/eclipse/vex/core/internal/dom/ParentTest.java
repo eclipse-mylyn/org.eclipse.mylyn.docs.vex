@@ -542,6 +542,11 @@ public class ParentTest {
 		public <T> T accept(final INodeVisitorWithResult<T> visitor) {
 			throw new UnsupportedOperationException();
 		}
+
+		@Override
+		public boolean isKindOf(final Node node) {
+			return false;
+		}
 	}
 
 	private static class TestChild extends Node {
@@ -553,6 +558,11 @@ public class ParentTest {
 		@Override
 		public <T> T accept(final INodeVisitorWithResult<T> visitor) {
 			throw new UnsupportedOperationException();
+		}
+
+		@Override
+		public boolean isKindOf(final Node node) {
+			return false;
 		}
 	}
 }
