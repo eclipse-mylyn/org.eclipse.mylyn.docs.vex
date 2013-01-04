@@ -30,8 +30,8 @@ public class GapContentTest extends ContentTest {
 	@Test
 	public void useChar0AsElementMarker() throws Exception {
 		final GapContent elementMarkerContent = new GapContent(4);
-		elementMarkerContent.insertElementMarker(0);
-		elementMarkerContent.insertElementMarker(0);
+		elementMarkerContent.insertTagMarker(0);
+		elementMarkerContent.insertTagMarker(0);
 
 		final GapContent stringContent = new GapContent(4);
 		stringContent.insertText(0, "\0\0");
@@ -43,7 +43,7 @@ public class GapContentTest extends ContentTest {
 	@Test
 	public void givenAnOffset_whenInvokedMultipleTimes_shouldNotCreateMultiplePositionInstances() throws Exception {
 		final GapContent gapContent = new GapContent(4);
-		gapContent.insertElementMarker(0);
+		gapContent.insertTagMarker(0);
 		final Position firstPosition = gapContent.createPosition(0);
 		assertEquals(1, gapContent.getPositionCount());
 		final Position secondPosition = gapContent.createPosition(0);

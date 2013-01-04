@@ -25,8 +25,8 @@ public class ParentTest {
 		parent = new TestParent();
 
 		content = new GapContent(10);
-		content.insertElementMarker(0);
-		content.insertElementMarker(0);
+		content.insertTagMarker(0);
+		content.insertTagMarker(0);
 		parent.associate(content, new ContentRange(0, 1));
 	}
 
@@ -395,8 +395,8 @@ public class ParentTest {
 	@Test
 	public void shouldReturnTextWithinChildBoundaries() throws Exception {
 		final int offset = parent.getEndOffset();
-		content.insertElementMarker(offset);
-		content.insertElementMarker(offset);
+		content.insertTagMarker(offset);
+		content.insertTagMarker(offset);
 		final Element child = new Element("child");
 		parent.addChild(child);
 		child.associate(content, new ContentRange(offset, offset + 1));
@@ -524,8 +524,8 @@ public class ParentTest {
 
 	private TestChild addTestChild() {
 		final int offset = parent.getEndOffset();
-		content.insertElementMarker(offset);
-		content.insertElementMarker(offset);
+		content.insertTagMarker(offset);
+		content.insertTagMarker(offset);
 		final TestChild result = new TestChild();
 		parent.addChild(result);
 		result.associate(content, new ContentRange(offset, offset + 1));

@@ -85,8 +85,8 @@ public class L1FragmentHandlingTest {
 		final List<Node> nodes = new ArrayList<Node>();
 		for (final QualifiedName elementName : elementNames) {
 			final int insertOffset = content.length();
-			content.insertElementMarker(insertOffset);
-			content.insertElementMarker(insertOffset);
+			content.insertTagMarker(insertOffset);
+			content.insertTagMarker(insertOffset);
 			final Element element = new Element(elementName);
 			element.associate(content, new ContentRange(insertOffset, insertOffset + 1));
 			nodes.add(element);

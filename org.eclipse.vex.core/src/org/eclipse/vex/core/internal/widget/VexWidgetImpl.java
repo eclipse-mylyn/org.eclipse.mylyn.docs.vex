@@ -333,7 +333,7 @@ public class VexWidgetImpl implements IVexWidget {
 				// so just delete the whole element an move on
 				moveBy(2, true);
 				deleteSelection();
-			} else if (!doc.isElementAt(offset)) {
+			} else if (!doc.isTagAt(offset)) {
 				deleteNextToCaret();
 			}
 		}
@@ -364,7 +364,7 @@ public class VexWidgetImpl implements IVexWidget {
 				deleteSelection();
 			} else {
 				offset--;
-				if (!doc.isElementAt(offset)) {
+				if (!doc.isTagAt(offset)) {
 					deleteBeforeCaret();
 				}
 			}

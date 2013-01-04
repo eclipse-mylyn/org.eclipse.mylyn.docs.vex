@@ -56,10 +56,10 @@ public class DocumentFragmentTest {
 	@Test
 	public void shouldContainGivenChildren() throws Exception {
 		final GapContent content = new GapContent(4);
-		content.insertElementMarker(0);
-		content.insertElementMarker(0);
-		content.insertElementMarker(0);
-		content.insertElementMarker(0);
+		content.insertTagMarker(0);
+		content.insertTagMarker(0);
+		content.insertTagMarker(0);
+		content.insertTagMarker(0);
 		final Element child1 = new Element("child");
 		child1.associate(content, new ContentRange(0, 1));
 		final Element child2 = new Element("child");
@@ -73,10 +73,10 @@ public class DocumentFragmentTest {
 	@Test
 	public void hasNoOwnElementMarkers() throws Exception {
 		final GapContent content = new GapContent(4);
-		content.insertElementMarker(0);
-		content.insertElementMarker(0);
-		content.insertElementMarker(0);
-		content.insertElementMarker(0);
+		content.insertTagMarker(0);
+		content.insertTagMarker(0);
+		content.insertTagMarker(0);
+		content.insertTagMarker(0);
 		final Element child1 = new Element("child");
 		child1.associate(content, new ContentRange(0, 1));
 		final Element child2 = new Element("child");
