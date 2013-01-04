@@ -101,6 +101,11 @@ public class Document extends Parent {
 		return getDocumentURI();
 	}
 
+	@Override
+	public boolean isKindOf(final Node node) {
+		return false;
+	}
+
 	/*
 	 * Document
 	 */

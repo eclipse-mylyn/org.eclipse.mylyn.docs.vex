@@ -48,6 +48,11 @@ public class Text extends Node {
 	}
 
 	@Override
+	public boolean isKindOf(final Node node) {
+		return false;
+	}
+
+	@Override
 	public String toString() {
 		final StringBuffer sb = new StringBuffer();
 

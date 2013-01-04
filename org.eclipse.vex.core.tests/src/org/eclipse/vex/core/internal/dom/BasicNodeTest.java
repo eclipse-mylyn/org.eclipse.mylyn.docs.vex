@@ -27,6 +27,11 @@ public class BasicNodeTest extends NodeTest {
 			public <T> T accept(final INodeVisitorWithResult<T> visitor) {
 				throw new UnsupportedOperationException();
 			}
+
+			@Override
+			public boolean isKindOf(final Node node) {
+				return false;
+			}
 		};
 	}
 

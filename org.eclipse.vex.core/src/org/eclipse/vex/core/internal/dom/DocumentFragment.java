@@ -81,4 +81,8 @@ public class DocumentFragment extends Parent {
 		return visitor.visit(this);
 	}
 
+	@Override
+	public boolean isKindOf(final Node node) {
+		return false;
+	}
 }
