@@ -11,6 +11,8 @@
 package org.eclipse.vex.core.internal.dom;
 
 /**
+ * A representation of an XML comment in the DOM. Comments have textual content, a start and an end tag.
+ * 
  * @author Florian Thienel
  */
 public class Comment extends Node {
@@ -23,6 +25,14 @@ public class Comment extends Node {
 	@Override
 	public <T> T accept(final INodeVisitorWithResult<T> visitor) {
 		return visitor.visit(this);
+	}
+
+	@Override
+	public boolean isKindOf(final Node node) {
+		if (!(node instanceof Comment)) {
+			return false;
+		}
+		return true;
 	}
 
 	@Override

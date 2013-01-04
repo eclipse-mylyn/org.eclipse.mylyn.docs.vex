@@ -15,6 +15,9 @@ import java.text.MessageFormat;
 import org.eclipse.core.runtime.Assert;
 
 /**
+ * An immutable representation of a range within Content.
+ * 
+ * @see Content
  * @author Florian Thienel
  */
 public class ContentRange {
@@ -22,6 +25,12 @@ public class ContentRange {
 	private final int startOffset;
 	private final int endOffset;
 
+	/**
+	 * @param startOffset
+	 *            the start offset of this range
+	 * @param endOffset
+	 *            the end offset of this range
+	 */
 	public ContentRange(final int startOffset, final int endOffset) {
 		Assert.isTrue(startOffset <= endOffset, MessageFormat.format("startOffset {0} must not be greater than endOffset {1}", startOffset, endOffset));
 		this.startOffset = startOffset;
@@ -36,34 +45,73 @@ public class ContentRange {
 		return endOffset;
 	}
 
+	/**
+	 * The length is always >= 1, since a range includes all characters from its start offset to its end offset.
+	 * 
+	 * @return the length of this range
+	 */
 	public int length() {
 		return endOffset - startOffset + 1;
 	}
 
+	/**
+	 * Indicate whether this range contains the given range.
+	 * 
+	 * @return true if this range contains the given range
+	 */
 	public boolean contains(final ContentRange other) {
 		return startOffset <= other.startOffset && endOffset >= other.endOffset;
 	}
 
+	/**
+	 * Indicate whether this range contains the given offset.
+	 * 
+	 * @return true if this range contains the given offset
+	 */
 	public boolean contains(final int offset) {
 		return startOffset <= offset && offset <= endOffset;
 	}
 
+	/**
+	 * Indicate whether this range intersects with the given range. Intersection is weaker than containment: one range
+	 * may contain only a part of the other range.
+	 * 
+	 * @return true if this range intersects with the given range
+	 */
 	public boolean intersects(final ContentRange other) {
 		return startOffset <= other.endOffset && endOffset >= other.startOffset;
 	}
 
+	/**
+	 * @return the intersection of this and the given range
+	 */
 	public ContentRange intersection(final ContentRange other) {
 		return new ContentRange(Math.max(other.getStartOffset(), startOffset), Math.min(endOffset, other.getEndOffset()));
 	}
 
+	/**
+	 * The union of this and the given range may also include characters between both ranges, if they do not intersect.
+	 * 
+	 * @return the union of this and the given range
+	 */
 	public ContentRange union(final ContentRange other) {
 		return new ContentRange(Math.min(startOffset, other.startOffset), Math.min(endOffset, other.endOffset));
 	}
 
-	public ContentRange moveBy(final int delta) {
-		return resizeBy(delta, delta);
+	/**
+	 * Move this range by the given distance. Since ContentRange is immutable, a new moved range is returned.
+	 * 
+	 * @return the moved range
+	 */
+	public ContentRange moveBy(final int distance) {
+		return resizeBy(distance, distance);
 	}
 
+	/**
+	 * Resize this range by the given delta. Since ContentRange is immutable, a new resized range is returned.
+	 * 
+	 * @return the resized range
+	 */
 	public ContentRange resizeBy(final int deltaStart, final int deltaEnd) {
 		return new ContentRange(startOffset + deltaStart, endOffset + deltaEnd);
 	}

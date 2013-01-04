@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2008 John Krasnay and others.
+ * Copyright (c) 2004, 2013 John Krasnay and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,25 +8,27 @@
  * Contributors:
  *     John Krasnay - initial API and implementation
  *     Igor Jacy Lino Campista - Java 5 warnings fixed (bug 311325)
+ *     Florian Thienel - extracted responsibility for serialization, refactoring to full fledged DOM  
  *******************************************************************************/
 package org.eclipse.vex.core.internal.dom;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.QualifiedName;
 
 /**
- * Represents a fragment of an XML document.
+ * Represents a wellformed fragment of an XML document.
  */
 public class DocumentFragment extends Parent {
 
 	/**
+	 * Create a new fragment with based on the given content and nodes.
+	 * 
 	 * @param content
-	 *            Content holding the fragment's content.
+	 *            the Content holding the fragment's content
 	 * @param nodes
-	 *            Elements that make up this fragment.
+	 *            the nodes that make up the structure of this fragment
 	 */
 	public DocumentFragment(final Content content, final List<Node> nodes) {
 		Assert.isTrue(content.length() > 0);
@@ -36,31 +38,34 @@ public class DocumentFragment extends Parent {
 		}
 	}
 
+	/**
+	 * @return the length of the textual content of this fragment plus 1 for each opening or closing XML tag (element
+	 *         tags, comment tags, PI tags and entity references)
+	 */
 	public int getLength() {
 		return getContent().length();
 	}
 
-	public List<Element> getElements() {
-		final List<Element> elements = new ArrayList<Element>();
-		for (final Node node : getNodes()) {
-			node.accept(new BaseNodeVisitor() {
-				@Override
-				public void visit(final Element element) {
-					elements.add(element);
-				}
-			});
-		}
-		return elements;
-	}
-
+	/**
+	 * @return a list with the qualified names off all nodes on the root level of this fragment
+	 */
 	public List<QualifiedName> getNodeNames() {
 		return Node.getNodeNames(getChildNodes());
 	}
 
+	/**
+	 * @return all nodes on the root level of this fragment
+	 */
 	public List<Node> getNodes() {
 		return getChildNodes();
 	}
 
+	/**
+	 * The base URI of a fragment is always null because a fragment has no persistent representation.
+	 * 
+	 * @see Node#getBaseURI()
+	 * @return null
+	 */
 	@Override
 	public String getBaseURI() {
 		return null;
