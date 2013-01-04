@@ -38,25 +38,25 @@ public abstract class ContentTest {
 	}
 
 	@Test
-	public void insertElementMarker() throws Exception {
-		content.insertElementMarker(0);
+	public void insertTagMarker() throws Exception {
+		content.insertTagMarker(0);
 		assertEquals(1, content.length());
-		assertTrue(content.isElementMarker(0));
+		assertTrue(content.isTagMarker(0));
 	}
 
 	@Test
-	public void mixTextWithElementMarkers() throws Exception {
+	public void mixTextWithTagMarkers() throws Exception {
 		final String text = "Hello World";
 		content.insertText(0, text);
-		content.insertElementMarker(5);
-		assertEquals("Each element marker should count 1 in the length calculation.", text.length() + 1, content.length());
+		content.insertTagMarker(5);
+		assertEquals("Each tag marker should count 1 in the length calculation.", text.length() + 1, content.length());
 	}
 
 	@Test
-	public void shouldReturnPlainTextWithoutElementMarkers() throws Exception {
+	public void shouldReturnPlainTextWithoutTagMarkers() throws Exception {
 		final String text = "Hello World";
 		content.insertText(0, text);
-		content.insertElementMarker(5);
+		content.insertTagMarker(5);
 		assertEquals(text, content.getText());
 	}
 
@@ -90,26 +90,26 @@ public abstract class ContentTest {
 	public void insertContent() throws Exception {
 		content.insertText(0, "Hello World");
 		final Content other = createContent();
-		other.insertElementMarker(0);
+		other.insertTagMarker(0);
 		other.insertText(1, "New");
-		other.insertElementMarker(4);
+		other.insertTagMarker(4);
 
 		content.insertContent(6, other);
 		assertEquals(16, content.length());
 		assertEquals("Hello NewWorld", content.getText());
-		assertTrue(content.isElementMarker(6));
-		assertTrue(content.isElementMarker(10));
+		assertTrue(content.isTagMarker(6));
+		assertTrue(content.isTagMarker(10));
 	}
 
 	@Test
 	public void removeAndInsertContent() throws Exception {
 		content.insertText(0, "Hello Cut Out World");
-		content.insertElementMarker(6);
-		content.insertElementMarker(14);
+		content.insertTagMarker(6);
+		content.insertTagMarker(14);
 
 		content.remove(new ContentRange(7, 13));
-		assertTrue(content.isElementMarker(6));
-		assertTrue(content.isElementMarker(7));
+		assertTrue(content.isTagMarker(6));
+		assertTrue(content.isTagMarker(7));
 
 		content.remove(new ContentRange(6, 7));
 		assertEquals("Hello  World", content.getText());
@@ -134,28 +134,28 @@ public abstract class ContentTest {
 	}
 
 	@Test
-	public void shouldIncreasePositionsOnInsertElementMarker() throws Exception {
+	public void shouldIncreasePositionsOnInsertTagMarker() throws Exception {
 		content.insertText(0, "Hello World");
 		final Position worldStartPosition = content.createPosition(6);
 		final Position worldEndPosition = content.createPosition(10);
 		assertEquals("d", content.getText(new ContentRange(worldEndPosition.getOffset(), worldEndPosition.getOffset())));
 		assertEquals("World", content.getText(new ContentRange(worldStartPosition.getOffset(), worldEndPosition.getOffset())));
 
-		content.insertElementMarker(11);
-		content.insertElementMarker(6);
+		content.insertTagMarker(11);
+		content.insertTagMarker(6);
 		assertEquals(7, worldStartPosition.getOffset());
 		assertEquals(11, worldEndPosition.getOffset());
 		assertEquals("d", content.getText(new ContentRange(worldEndPosition.getOffset(), worldEndPosition.getOffset())));
 		assertEquals("World", content.getText(new ContentRange(worldStartPosition.getOffset(), worldEndPosition.getOffset())));
-		assertTrue(content.isElementMarker(worldStartPosition.getOffset() - 1));
-		assertTrue(content.isElementMarker(worldEndPosition.getOffset() + 1));
+		assertTrue(content.isTagMarker(worldStartPosition.getOffset() - 1));
+		assertTrue(content.isTagMarker(worldEndPosition.getOffset() + 1));
 	}
 
 	@Test
 	public void shouldDecreasePositionOnRemove() throws Exception {
 		content.insertText(0, "Hello New World");
-		content.insertElementMarker(8);
-		content.insertElementMarker(6);
+		content.insertTagMarker(8);
+		content.insertTagMarker(6);
 		final Position worldStartPosition = content.createPosition(12);
 		final Position worldEndPosition = content.createPosition(16);
 		assertEquals("d", content.getText(new ContentRange(worldEndPosition.getOffset(), worldEndPosition.getOffset())));
@@ -184,8 +184,8 @@ public abstract class ContentTest {
 
 	@Test
 	public void canRemovePosition() throws Exception {
-		content.insertElementMarker(0);
-		content.insertElementMarker(0);
+		content.insertTagMarker(0);
+		content.insertTagMarker(0);
 		final Position position = content.createPosition(1);
 		assertEquals(1, position.getOffset());
 
@@ -196,8 +196,8 @@ public abstract class ContentTest {
 
 	@Test
 	public void invalidatesPositionsOnRemoval() throws Exception {
-		content.insertElementMarker(0);
-		content.insertElementMarker(0);
+		content.insertTagMarker(0);
+		content.insertTagMarker(0);
 		final Position position = content.createPosition(1);
 		assertTrue(position.isValid());
 		content.removePosition(position);
@@ -205,11 +205,11 @@ public abstract class ContentTest {
 	}
 
 	@Test
-	public void rawTextContainsElementMarkers() throws Exception {
-		content.insertElementMarker(0);
-		content.insertElementMarker(0);
+	public void rawTextContainsTagMarkers() throws Exception {
+		content.insertTagMarker(0);
+		content.insertTagMarker(0);
 		content.insertText(1, "Hello World");
-		content.insertElementMarker(6);
+		content.insertTagMarker(6);
 
 		assertFalse(content.getText().equals(content.getRawText()));
 		assertEquals(content.getText().length() + 3, content.getRawText().length());
@@ -220,8 +220,8 @@ public abstract class ContentTest {
 
 	@Test
 	public void shouldReturnCharacterAtOffset() throws Exception {
-		content.insertElementMarker(0);
-		content.insertElementMarker(0);
+		content.insertTagMarker(0);
+		content.insertTagMarker(0);
 		content.insertText(1, "Hello World");
 
 		for (int i = 0; i < content.length(); i++) {

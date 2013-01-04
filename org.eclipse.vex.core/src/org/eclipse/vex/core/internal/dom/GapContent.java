@@ -25,7 +25,11 @@ import org.eclipse.core.runtime.Assert;
  */
 public class GapContent implements Content {
 
-	private static final char ELEMENT_MARKER = '\0';
+	private static final int GROWTH_SLOWDOWN_SIZE = 100000;
+	private static final int GROWTH_RATE_FAST = 2;
+	private static final float GROWTH_RATE_SLOW = 1.1f;
+
+	private static final char TAG_MARKER = '\0';
 
 	private char[] content;
 	private int gapStart;
@@ -33,7 +37,7 @@ public class GapContent implements Content {
 	private final SortedSet<GapContentPosition> positions = new TreeSet<GapContentPosition>();
 
 	/**
-	 * Class constructor.
+	 * Create a GapContent with the given initial capacity.
 	 * 
 	 * @param initialCapacity
 	 *            initial capacity of the content.
@@ -46,12 +50,6 @@ public class GapContent implements Content {
 		gapEnd = initialCapacity;
 	}
 
-	/**
-	 * Creates a new Position object at the given initial offset.
-	 * 
-	 * @param offset
-	 *            initial offset of the position
-	 */
 	public Position createPosition(final int offset) {
 
 		assertOffset(offset, 0, length());
@@ -86,19 +84,11 @@ public class GapContent implements Content {
 		return positions.size();
 	}
 
-	/**
-	 * Insert a string into the content.
-	 * 
-	 * @param offset
-	 *            Offset at which to insert the string.
-	 * @param s
-	 *            String to insert.
-	 */
-	public void insertText(final int offset, final String s) {
+	public void insertText(final int offset, final String text) {
 		assertOffset(offset, 0, length());
 
-		if (s.length() > gapEnd - gapStart) {
-			expandContent(length() + s.length());
+		if (text.length() > gapEnd - gapStart) {
+			expandContent(length() + text.length());
 		}
 
 		//
@@ -111,8 +101,8 @@ public class GapContent implements Content {
 		final boolean atEnd = offset == length() && offset == gapStart;
 
 		moveGap(offset);
-		s.getChars(0, s.length(), content, offset);
-		gapStart += s.length();
+		text.getChars(0, text.length(), content, offset);
+		gapStart += text.length();
 
 		if (!atEnd) {
 
@@ -120,25 +110,25 @@ public class GapContent implements Content {
 			final GapContentPosition offsetPosition = new GapContentPosition(offset);
 			for (final GapContentPosition position : positions.tailSet(offsetPosition)) {
 				if (position.getOffset() >= offset) {
-					position.setOffset(position.getOffset() + s.length());
+					position.setOffset(position.getOffset() + text.length());
 				}
 			}
 
 		}
 	}
 
-	public void insertElementMarker(final int offset) {
+	public void insertTagMarker(final int offset) {
 		assertOffset(offset, 0, length());
 
-		insertText(offset, Character.toString(ELEMENT_MARKER));
+		insertText(offset, Character.toString(TAG_MARKER));
 	}
 
-	public boolean isElementMarker(final int offset) {
+	public boolean isTagMarker(final int offset) {
 		if (offset < 0 || offset >= length()) {
 			return false;
 		}
 
-		return isElementMarker(content[getIndex(offset)]);
+		return isTagMarker(content[getIndex(offset)]);
 	}
 
 	private int getIndex(final int offset) {
@@ -148,18 +138,10 @@ public class GapContent implements Content {
 		return offset + gapEnd - gapStart;
 	}
 
-	private boolean isElementMarker(final char c) {
-		return c == ELEMENT_MARKER;
+	private boolean isTagMarker(final char c) {
+		return c == TAG_MARKER;
 	}
 
-	/**
-	 * Deletes the given range of characters.
-	 * 
-	 * @param offset
-	 *            Offset from which characters should be deleted.
-	 * @param length
-	 *            Number of characters to delete.
-	 */
 	public void remove(final ContentRange range) {
 		assertOffset(range.getStartOffset(), 0, length() - range.length());
 		assertPositive(range.length());
@@ -199,7 +181,7 @@ public class GapContent implements Content {
 	private void appendPlainText(final StringBuilder stringBuilder, final ContentRange range) {
 		for (int i = range.getStartOffset(); range.contains(i); i++) {
 			final char c = content[i];
-			if (!isElementMarker(c)) {
+			if (!isTagMarker(c)) {
 				stringBuilder.append(c);
 			}
 		}
@@ -251,8 +233,8 @@ public class GapContent implements Content {
 		for (int i = 0; i < sourceRange.length(); i++) {
 			final int sourceOffset = sourceRange.getStartOffset() + i;
 			final int destinationOffset = destinationStartOffset + i;
-			if (source.isElementMarker(sourceOffset)) {
-				destination.insertElementMarker(destinationOffset);
+			if (source.isTagMarker(sourceOffset)) {
+				destination.insertTagMarker(destinationOffset);
 			} else {
 				destination.insertText(destinationOffset, Character.toString(source.charAt(sourceOffset)));
 			}
@@ -261,7 +243,7 @@ public class GapContent implements Content {
 
 	/**
 	 * @see CharSequence#length()
-	 * @return the length of the raw textual content, including element markers.
+	 * @return the length of the raw textual content, including tag markers.
 	 */
 	public int length() {
 		return content.length - (gapEnd - gapStart);
@@ -275,7 +257,7 @@ public class GapContent implements Content {
 	 * @see CharSequence#charAt(int)
 	 * @param offset
 	 *            the offset of the character within the raw textual content
-	 * @return the character at the given offset (element markers included)
+	 * @return the character at the given offset (tag markers included)
 	 */
 	public char charAt(final int offset) {
 		if (offset < gapStart) {
@@ -286,25 +268,18 @@ public class GapContent implements Content {
 	}
 
 	/**
-	 * Get the raw text of a region of this content. The plain text does also contain the element markers in this
-	 * content.
+	 * Get the raw text of a region of this content. The plain text does also contain the tag markers in this content.
 	 * 
 	 * @see CharSequence#subSequence(int, int)
 	 * @param startOffset
 	 *            Offset at which the substring begins.
 	 * @param endOffset
 	 *            Offset at which the substring ends.
-	 * @return the text of the given region including element markers
+	 * @return the text of the given region including tag markers
 	 */
 	public CharSequence subSequence(final int startOffset, final int endOffset) {
 		return getRawText(new ContentRange(startOffset, endOffset));
 	}
-
-	// ====================================================== PRIVATE
-
-	private static final int GROWTH_SLOWDOWN_SIZE = 100000;
-	private static final int GROWTH_RATE_FAST = 2;
-	private static final float GROWTH_RATE_SLOW = 1.1f;
 
 	/*
 	 * Implementation of the Position interface.

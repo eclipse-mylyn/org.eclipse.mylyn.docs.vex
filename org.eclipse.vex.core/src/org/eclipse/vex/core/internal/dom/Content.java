@@ -34,52 +34,46 @@ public interface Content extends CharSequence {
 	public void removePosition(Position position);
 
 	/**
-	 * Insert given text into the content.
+	 * Insert the given text at the given offset into this content.
 	 * 
 	 * @param offset
-	 *            Offset at which to insert the string.
+	 *            offset at which to insert the text
 	 * @param text
-	 *            Text to insert.
+	 *            the text to insert
 	 */
 	public void insertText(int offset, String text);
 
 	/**
-	 * Get the plain text of a region of this content. The plain text does not contain any information about the element
-	 * markers in this content.
+	 * Get the plain text of a range in this content. The plain text does not contain any tag markers in this content.
+	 * The length of the returned text may be less then the length of the given range since the returned text does not
+	 * contain tag markers.
 	 * 
-	 * @param startOffset
-	 *            Offset at which the substring begins.
-	 * @param endOffset
-	 *            Offset at which the substring ends. The number of the returned characters may be less, since the
-	 *            element markers are removed.
-	 * @return the plain text of the given region without element markers
+	 * @param range
+	 *            the range of the text to return
+	 * @return the plain text of the given range, not including tag markers
 	 */
 	public String getText(final ContentRange range);
 
 	/**
-	 * Get the whole plain text of this content. The plain text does not contain any information about the element
-	 * markers in this content.
+	 * Get the whole plain text of this content. The plain text does not contain any tag markers.
 	 * 
-	 * @return the whole plain text without element markers
+	 * @return the whole plain text, not including tag markers
 	 */
 	public String getText();
 
 	/**
-	 * Get the raw text of a region of this content. The plain text does also contain the element markers in this
-	 * content.
+	 * Get the raw text of a range in this content. The plain text does also contain the tag markers in this content.
 	 * 
-	 * @param startOffset
-	 *            Offset at which the substring begins.
-	 * @param endOffset
-	 *            Offset at which the substring ends.
-	 * @return the text of the given region including element markers
+	 * @param range
+	 *            the range of the text to return
+	 * @return the text of the given range, including element markers
 	 */
 	public String getRawText(final ContentRange range);
 
 	/**
-	 * Get the whole raw text of this content. The raw text does also contain the element markers in this content.
+	 * Get the whole raw text of this content. The raw text does also contain the tag markers in this content.
 	 * 
-	 * @return the whole text including element markers
+	 * @return the whole text, including tag markers
 	 */
 	public String getRawText();
 
@@ -87,60 +81,57 @@ public interface Content extends CharSequence {
 	 * Insert the given content into this content at the given offset.
 	 * 
 	 * @param offset
-	 *            Offset at which to insert the given content
+	 *            offset at which to insert the given content
 	 * @param content
-	 *            Content to insert
+	 *            content to insert
 	 */
 	public void insertContent(final int offset, final Content content);
 
 	/**
-	 * Get a copy of a region of this content.
+	 * Get a copy of a range in this content.
 	 * 
-	 * @param startOffset
-	 *            Offset at which the region to copy begins.
-	 * @param endOffset
-	 *            Offset at which the region to copy ends.
-	 * @return the copy of the given region
+	 * @param range
+	 *            the range to copy
+	 * @return the copy of the given range
 	 */
 	public Content getContent(final ContentRange range);
 
 	/**
-	 * Get a full copy of this content.
-	 * 
 	 * @return a full copy of this content
 	 */
 	public Content getContent();
 
 	/**
-	 * Insert an element marker into the content.
+	 * Insert a tag marker at the given offset into this content.
 	 * 
 	 * @param offset
-	 *            Offset at which to insert the element marker.
+	 *            offset at which to insert the tag marker.
 	 */
-	public void insertElementMarker(int offset);
+	public void insertTagMarker(int offset);
 
 	/**
-	 * Indicate if the character at the given offset is an element marker.
+	 * Indicate if there is a tag marker at the given offset.
 	 * 
 	 * @param offset
-	 *            Offset at which to check if an element marker is present.
+	 *            offset at which to check if a tag marker is present.
 	 */
-	public boolean isElementMarker(int offset);
+	public boolean isTagMarker(int offset);
 
 	/**
 	 * Delete the given range of characters.
 	 * 
-	 * @param offset
-	 *            Offset from which characters should be deleted.
-	 * @param length
-	 *            Number of characters to delete.
+	 * @param range
+	 *            the range to delete from this content
 	 */
 	public void remove(ContentRange range);
 
 	/**
-	 * @return the length of the content.
+	 * @return the length of the content including tag markers
 	 */
 	public int length();
 
+	/**
+	 * @return the range of this content = [0, length - 1].
+	 */
 	public ContentRange getRange();
 }

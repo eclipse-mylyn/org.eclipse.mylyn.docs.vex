@@ -46,8 +46,8 @@ public class Document extends Parent {
 	 */
 	public Document(final Element rootElement) {
 		final GapContent content = new GapContent(100);
-		content.insertElementMarker(0);
-		content.insertElementMarker(0);
+		content.insertTagMarker(0);
+		content.insertTagMarker(0);
 		associate(content, content.getRange());
 
 		this.rootElement = rootElement;
@@ -318,8 +318,8 @@ public class Document extends Parent {
 		fireBeforeContentInserted(new DocumentEvent(this, parent, offset, 2, null));
 
 		final Comment comment = new Comment();
-		getContent().insertElementMarker(offset);
-		getContent().insertElementMarker(offset);
+		getContent().insertTagMarker(offset);
+		getContent().insertTagMarker(offset);
 		comment.associate(getContent(), new ContentRange(offset, offset + 1));
 
 		parent.insertChild(parent.getIndexOfChildNextTo(offset), comment);
@@ -360,8 +360,8 @@ public class Document extends Parent {
 		fireBeforeContentInserted(new DocumentEvent(this, parent, offset, 2, null));
 
 		final Element element = new Element(elementName);
-		getContent().insertElementMarker(offset);
-		getContent().insertElementMarker(offset);
+		getContent().insertTagMarker(offset);
+		getContent().insertTagMarker(offset);
 		element.associate(getContent(), new ContentRange(offset, offset + 1));
 
 		parent.insertChild(parent.getIndexOfChildNextTo(offset), element);
@@ -573,8 +573,8 @@ public class Document extends Parent {
 	 * @return true if there is an XML tag at the given offset (element tags, comment tags, PI tags and entity
 	 *         references)
 	 */
-	public boolean isElementAt(final int offset) {
-		return getContent().isElementMarker(offset);
+	public boolean isTagAt(final int offset) {
+		return getContent().isTagMarker(offset);
 	}
 
 	/**

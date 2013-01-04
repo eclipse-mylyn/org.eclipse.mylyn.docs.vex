@@ -36,8 +36,8 @@ public class DocumentTest {
 	@Test
 	public void createDocumentWithRootElementAndContent() throws Exception {
 		final GapContent content = new GapContent(10);
-		content.insertElementMarker(0);
-		content.insertElementMarker(0);
+		content.insertTagMarker(0);
+		content.insertTagMarker(0);
 		final Element rootElement = new Element("root");
 		rootElement.associate(content, new ContentRange(0, 1));
 		final Document document = new Document(content, rootElement);

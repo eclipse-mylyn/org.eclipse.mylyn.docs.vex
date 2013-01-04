@@ -137,20 +137,20 @@ public abstract class Parent extends Node {
 		final int textEnd = findNextTextEnd(endOffset, textStart);
 		if (textStart < textEnd) {
 			result.add(new Text(this, getContent(), new ContentRange(textStart, textEnd)));
-		} else if (textStart == textEnd && !getContent().isElementMarker(textStart)) {
+		} else if (textStart == textEnd && !getContent().isTagMarker(textStart)) {
 			result.add(new Text(this, getContent(), new ContentRange(textStart, textEnd)));
 		}
 	}
 
 	private int findNextTextStart(int currentOffset, final int maximumOffset) {
-		while (currentOffset < maximumOffset && getContent().isElementMarker(currentOffset)) {
+		while (currentOffset < maximumOffset && getContent().isTagMarker(currentOffset)) {
 			currentOffset++;
 		}
 		return currentOffset;
 	}
 
 	private int findNextTextEnd(int currentOffset, final int minimumOffset) {
-		while (currentOffset > minimumOffset && getContent().isElementMarker(currentOffset)) {
+		while (currentOffset > minimumOffset && getContent().isTagMarker(currentOffset)) {
 			currentOffset--;
 		}
 		return currentOffset;

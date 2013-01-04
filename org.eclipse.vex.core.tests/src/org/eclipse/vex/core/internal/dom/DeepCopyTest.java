@@ -39,8 +39,8 @@ public class DeepCopyTest {
 	@Test
 	public void givenOneElementWithContent_shouldCopyAssociatedContent() throws Exception {
 		final GapContent content = new GapContent(10);
-		content.insertElementMarker(0);
-		content.insertElementMarker(0);
+		content.insertTagMarker(0);
+		content.insertTagMarker(0);
 		final Element element = new Element("element");
 		element.associate(content, new ContentRange(0, 1));
 		content.insertText(1, "Hello World");
@@ -57,8 +57,8 @@ public class DeepCopyTest {
 	@Test
 	public void givenOneElementWithHugeContent_shouldOnlyCopyRelevantContent() throws Exception {
 		final GapContent content = new GapContent(10);
-		content.insertElementMarker(0);
-		content.insertElementMarker(0);
+		content.insertTagMarker(0);
+		content.insertTagMarker(0);
 		final Element element = new Element("element");
 		element.associate(content, new ContentRange(0, 1));
 		content.insertText(2, "World");
@@ -75,8 +75,8 @@ public class DeepCopyTest {
 	@Test
 	public void givenOneElementWithHugeContent_shouldAssociateCopiedElementWithCopiedContent() throws Exception {
 		final GapContent content = new GapContent(10);
-		content.insertElementMarker(0);
-		content.insertElementMarker(0);
+		content.insertTagMarker(0);
+		content.insertTagMarker(0);
 		final Element element = new Element("element");
 		element.associate(content, new ContentRange(0, 1));
 		content.insertText(2, "World");
@@ -112,12 +112,12 @@ public class DeepCopyTest {
 	@Test
 	public void givenOneParentWithTwoChildrenAndContent_shouldCopyParentChildrenAndContent() throws Exception {
 		final Content content = new GapContent(10);
-		content.insertElementMarker(0);
-		content.insertElementMarker(0);
-		content.insertElementMarker(0);
-		content.insertElementMarker(0);
-		content.insertElementMarker(0);
-		content.insertElementMarker(0);
+		content.insertTagMarker(0);
+		content.insertTagMarker(0);
+		content.insertTagMarker(0);
+		content.insertTagMarker(0);
+		content.insertTagMarker(0);
+		content.insertTagMarker(0);
 		final Element parent = new Element("parent");
 		parent.associate(content, content.getRange());
 		final Element child1 = new Element("child");
@@ -149,12 +149,12 @@ public class DeepCopyTest {
 	@Test
 	public void givenOneParentWithTwoChildrenInHugeContent_shouldCopyOnlyRelevantContent() throws Exception {
 		final Content content = new GapContent(10);
-		content.insertElementMarker(0);
-		content.insertElementMarker(0);
-		content.insertElementMarker(0);
-		content.insertElementMarker(0);
-		content.insertElementMarker(0);
-		content.insertElementMarker(0);
+		content.insertTagMarker(0);
+		content.insertTagMarker(0);
+		content.insertTagMarker(0);
+		content.insertTagMarker(0);
+		content.insertTagMarker(0);
+		content.insertTagMarker(0);
 		final Element parent = new Element("parent");
 		parent.associate(content, content.getRange());
 		final Element child1 = new Element("child");
@@ -177,12 +177,12 @@ public class DeepCopyTest {
 	@Test
 	public void givenOneParentWithTwoChildrenAndContent_whenGivenRange_shouldOnlyCopyChildrenAndContentWithinRange() throws Exception {
 		final Content content = new GapContent(10);
-		content.insertElementMarker(0);
-		content.insertElementMarker(0);
-		content.insertElementMarker(0);
-		content.insertElementMarker(0);
-		content.insertElementMarker(0);
-		content.insertElementMarker(0);
+		content.insertTagMarker(0);
+		content.insertTagMarker(0);
+		content.insertTagMarker(0);
+		content.insertTagMarker(0);
+		content.insertTagMarker(0);
+		content.insertTagMarker(0);
 		final Element parent = new Element("parent");
 		parent.associate(content, content.getRange());
 		final Element child1 = new Element("child");
@@ -207,12 +207,12 @@ public class DeepCopyTest {
 	@Test
 	public void givenOneParentWithTwoCommentChildren_shouldCopyParentAndChildren() throws Exception {
 		final Content content = new GapContent(10);
-		content.insertElementMarker(0);
-		content.insertElementMarker(0);
-		content.insertElementMarker(0);
-		content.insertElementMarker(0);
-		content.insertElementMarker(0);
-		content.insertElementMarker(0);
+		content.insertTagMarker(0);
+		content.insertTagMarker(0);
+		content.insertTagMarker(0);
+		content.insertTagMarker(0);
+		content.insertTagMarker(0);
+		content.insertTagMarker(0);
 		final Element parent = new Element("parent");
 		parent.associate(content, content.getRange());
 		final Comment child1 = new Comment();
