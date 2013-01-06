@@ -54,7 +54,7 @@ public class BlockElementBoxTest extends TestCase {
 		final Document doc = docReader.read(docString);
 		context.setDocument(doc);
 
-		final RootBox parentBox = new RootBox(context, doc.getRootElement(), 500);
+		final RootBox parentBox = new RootBox(context, doc, 500);
 
 		final BlockElementBox box = new BlockElementBox(context, parentBox, doc.getRootElement());
 

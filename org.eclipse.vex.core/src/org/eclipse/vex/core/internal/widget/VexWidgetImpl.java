@@ -1436,7 +1436,7 @@ public class VexWidgetImpl implements IVexWidget {
 	private void createRootBox() {
 		final Graphics g = hostComponent.createDefaultGraphics();
 		final LayoutContext context = createLayoutContext(g);
-		rootBox = new RootBox(context, document.getRootElement(), getLayoutWidth());
+		rootBox = new RootBox(context, document, getLayoutWidth());
 		g.dispose();
 	}
 

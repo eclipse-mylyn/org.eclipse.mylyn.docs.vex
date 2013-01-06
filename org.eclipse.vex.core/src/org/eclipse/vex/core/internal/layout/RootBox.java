@@ -14,14 +14,15 @@ import org.eclipse.vex.core.internal.VEXCorePlugin;
 import org.eclipse.vex.core.internal.core.Caret;
 import org.eclipse.vex.core.internal.core.Insets;
 import org.eclipse.vex.core.internal.core.Rectangle;
-import org.eclipse.vex.core.internal.dom.Element;
+import org.eclipse.vex.core.internal.dom.Document;
+import org.eclipse.vex.core.internal.dom.Node;
 
 /**
  * A wrapper for the top level <code>BlockElementBox</code> that applies its margins.
  */
 public class RootBox extends AbstractBox implements BlockBox {
 
-	private final Element element;
+	private final Document document;
 	private final BlockElementBox childBox;
 	private final Box[] children = new Box[1];
 
@@ -30,16 +31,16 @@ public class RootBox extends AbstractBox implements BlockBox {
 	 * 
 	 * @param context
 	 *            LayoutContext used to create children.
-	 * @param element
+	 * @param document
 	 *            Element associated with this box.
 	 * @param width
 	 *            width of this box
 	 */
-	public RootBox(final LayoutContext context, final Element element, final int width) {
-		this.element = element;
+	public RootBox(final LayoutContext context, final Document document, final int width) {
+		this.document = document;
 		setWidth(width);
 
-		childBox = new BlockElementBox(context, this, this.element);
+		childBox = new BlockElementBox(context, this, this.document);
 
 		final Insets insets = this.getInsets(context, getWidth());
 		childBox.setX(insets.getLeft());
@@ -67,8 +68,8 @@ public class RootBox extends AbstractBox implements BlockBox {
 	 * @see org.eclipse.vex.core.internal.layout.Box#getNode()
 	 */
 	@Override
-	public Element getNode() {
-		return element;
+	public Node getNode() {
+		return document;
 	}
 
 	/**

@@ -110,7 +110,7 @@ public class LayoutTestSuite extends TestCase {
 		final Document doc = docReader.read(this.doc);
 		context.setDocument(doc);
 
-		final RootBox rootBox = new RootBox(context, doc.getRootElement(), layoutWidth);
+		final RootBox rootBox = new RootBox(context, doc, layoutWidth);
 		rootBox.layout(context, 0, Integer.MAX_VALUE);
 
 		assertBox(result, rootBox, "");

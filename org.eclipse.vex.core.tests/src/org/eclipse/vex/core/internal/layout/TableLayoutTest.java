@@ -77,7 +77,7 @@ public class TableLayoutTest extends TestCase {
 		document = new Document(new Element("root"));
 		context.setDocument(document);
 		caretPosition = 2;
-		rootBox = new RootBox(context, document.getRootElement(), 500);
+		rootBox = new RootBox(context, document, 500);
 	}
 
 	private void insertElement(final String elementName) {

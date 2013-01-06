@@ -44,13 +44,19 @@ public class TestBlockElementBox extends TestCase {
 		doc.insertElement(2, new QualifiedName(null, "beforeBlock"));
 		context.setDocument(doc);
 
-		final RootBox rootBox = new RootBox(context, root, 500);
+		final RootBox rootBox = new RootBox(context, doc, 500);
 		rootBox.layout(context, 0, Integer.MAX_VALUE);
 
 		Box[] children;
 		BlockElementBox beb;
 
 		children = rootBox.getChildren();
+		assertEquals(1, children.length);
+		assertEquals(BlockElementBox.class, children[0].getClass());
+		beb = (BlockElementBox) children[0];
+		assertEquals(doc, beb.getNode());
+
+		children = beb.getChildren();
 		assertEquals(1, children.length);
 		assertEquals(BlockElementBox.class, children[0].getClass());
 		beb = (BlockElementBox) children[0];
