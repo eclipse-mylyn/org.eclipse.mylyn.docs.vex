@@ -76,7 +76,7 @@ public class TableLayoutTest extends TestCase {
 	private void resetDocument() {
 		document = new Document(new Element("root"));
 		context.setDocument(document);
-		caretPosition = 1;
+		caretPosition = 2;
 		rootBox = new RootBox(context, document.getRootElement(), 500);
 	}
 

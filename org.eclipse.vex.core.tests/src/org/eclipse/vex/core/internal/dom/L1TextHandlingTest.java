@@ -32,7 +32,7 @@ public class L1TextHandlingTest {
 	@Before
 	public void setUp() throws Exception {
 		document = new Document(new Element("root"));
-		titleElement = document.insertElement(1, new QualifiedName(null, "title"));
+		titleElement = document.insertElement(2, new QualifiedName(null, "title"));
 		document.setValidator(new DummyValidator() {
 			@Override
 			public boolean isValidSequence(final QualifiedName element, final List<QualifiedName> nodes, final boolean partial) {

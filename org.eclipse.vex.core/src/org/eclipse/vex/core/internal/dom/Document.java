@@ -52,7 +52,9 @@ public class Document extends Parent {
 
 		this.rootElement = rootElement;
 		addChild(rootElement);
-		rootElement.associate(content, content.getRange());
+		content.insertTagMarker(1);
+		content.insertTagMarker(1);
+		rootElement.associate(content, getRange().resizeBy(1, -1));
 	}
 
 	/**
@@ -67,7 +69,10 @@ public class Document extends Parent {
 	 */
 	public Document(final Content content, final Element rootElement) {
 		Assert.isTrue(content == rootElement.getContent(), "The given root element must already be associated with the given content.");
+		content.insertTagMarker(0);
+		content.insertTagMarker(content.length());
 		associate(content, content.getRange());
+
 		this.rootElement = rootElement;
 		addChild(rootElement);
 	}
@@ -355,7 +360,8 @@ public class Document extends Parent {
 	 *             if an element with the given qualified name is not allowed a the given offset
 	 */
 	public Element insertElement(final int offset, final QualifiedName elementName) throws DocumentValidationException {
-		Assert.isTrue(offset > rootElement.getStartOffset() && offset <= rootElement.getEndOffset(), MessageFormat.format("Offset must be in [{0}, {1}]", getStartOffset() + 1, getEndOffset()));
+		Assert.isTrue(offset > rootElement.getStartOffset() && offset <= rootElement.getEndOffset(),
+				MessageFormat.format("Offset must be in [{0}, {1}]", rootElement.getStartOffset() + 1, rootElement.getEndOffset()));
 
 		final Element parent = getElementForInsertionAt(offset);
 		if (!canInsertAt(parent, offset, elementName)) {
@@ -550,6 +556,9 @@ public class Document extends Parent {
 	 */
 	public Element getElementForInsertionAt(final int offset) {
 		final Element parent = getParentElement(getChildNodeAt(offset));
+		if (parent == null) {
+			return null;
+		}
 		if (offset == parent.getStartOffset()) {
 			return parent.getParentElement();
 		}

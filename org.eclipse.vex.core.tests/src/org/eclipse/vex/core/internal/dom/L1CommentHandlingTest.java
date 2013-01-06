@@ -34,7 +34,7 @@ public class L1CommentHandlingTest {
 	public void setUp() throws Exception {
 		document = new Document(new Element("root"));
 		rootElement = document.getRootElement();
-		titleElement = document.insertElement(1, new QualifiedName(null, "title"));
+		titleElement = document.insertElement(2, new QualifiedName(null, "title"));
 	}
 
 	@Test

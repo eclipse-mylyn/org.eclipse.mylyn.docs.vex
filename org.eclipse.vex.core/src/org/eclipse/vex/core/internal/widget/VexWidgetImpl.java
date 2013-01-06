@@ -559,6 +559,10 @@ public class VexWidgetImpl implements IVexWidget {
 		final int endOffset = getEndOffset();
 
 		final Element parent = doc.getElementForInsertionAt(startOffset);
+		if (parent == null) {
+			return new ElementName[0];
+		}
+
 		final List<QualifiedName> nodesBefore = Node.getNodeNames(parent.getChildNodesBefore(startOffset));
 		final List<QualifiedName> nodesAfter = Node.getNodeNames(parent.getChildNodesAfter(endOffset));
 		final List<QualifiedName> selectedNodes = Node.getNodeNames(parent.getChildNodes(new ContentRange(startOffset, endOffset)));
@@ -1195,7 +1199,7 @@ public class VexWidgetImpl implements IVexWidget {
 
 		createRootBox();
 
-		this.moveTo(1);
+		this.moveTo(this.document.getRootElement().getStartOffset() + 1);
 		this.document.addDocumentListener(documentListener);
 	}
 
@@ -1468,7 +1472,7 @@ public class VexWidgetImpl implements IVexWidget {
 		}
 		final Element e1 = getDocument().getElementForInsertionAt(offset - 1);
 		final Element e2 = getDocument().getElementForInsertionAt(offset + 1);
-		return e1 != e2 && e1.getParent() == e2.getParent() && e1.isKindOf(e2);
+		return e1 != e2 && e1 != null && e2 != null && e1.getParent() == e2.getParent() && e1.isKindOf(e2);
 	}
 
 	/**

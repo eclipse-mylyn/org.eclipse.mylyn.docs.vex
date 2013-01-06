@@ -55,7 +55,7 @@ public class DocumentTest {
 	@Test
 	public void createFragmentWithTextAndChild() throws Exception {
 		final Document document = new Document(new Element("root"));
-		final Element childElement = document.insertElement(1, new QualifiedName(null, "child"));
+		final Element childElement = document.insertElement(2, new QualifiedName(null, "child"));
 		document.insertText(childElement.getStartOffset(), "Hello ");
 		document.insertText(childElement.getEndOffset(), "Child");
 		document.insertText(childElement.getEndOffset() + 1, " World");
@@ -68,7 +68,7 @@ public class DocumentTest {
 	@Test
 	public void createFragmentWithExactlyOneChild() throws Exception {
 		final Document document = new Document(new Element("root"));
-		final Element childElement = document.insertElement(1, new QualifiedName(null, "child"));
+		final Element childElement = document.insertElement(2, new QualifiedName(null, "child"));
 		document.insertText(childElement.getEndOffset(), "Child");
 		final ContentRange range = childElement.getRange();
 		final DocumentFragment fragment = document.getFragment(range);
@@ -79,7 +79,7 @@ public class DocumentTest {
 	@Test
 	public void givenElementWithText_whenRangeBeginsFromStartOffset_shouldProvideParentAsCommenNode() throws Exception {
 		final Document document = new Document(new Element("root"));
-		final Element childElement = document.insertElement(1, new QualifiedName(null, "child"));
+		final Element childElement = document.insertElement(2, new QualifiedName(null, "child"));
 		document.insertText(childElement.getEndOffset(), "Hello World");
 
 		final Node commonNode = document.findCommonNode(childElement.getStartOffset(), childElement.getEndOffset() - 5);
@@ -90,7 +90,7 @@ public class DocumentTest {
 	@Test
 	public void givenElementWithText_whenRangeWithinText_shouldProvideElementAsCommonNode() throws Exception {
 		final Document document = new Document(new Element("root"));
-		final Element childElement = document.insertElement(1, new QualifiedName(null, "child"));
+		final Element childElement = document.insertElement(2, new QualifiedName(null, "child"));
 		document.insertText(childElement.getEndOffset(), "Hello World");
 
 		final Node commonNode = document.findCommonNode(childElement.getStartOffset() + 2, childElement.getEndOffset() - 5);

@@ -91,24 +91,25 @@ public class DTDValidatorTest extends TestCase {
 		// 1 2 3 4 5 6 7
 		final Document doc = new Document(new Element("section"));
 		doc.setValidator(validator);
-		doc.insertElement(1, new QualifiedName(null, "title"));
-		doc.insertText(2, "ab");
-		doc.insertElement(5, new QualifiedName(null, "para"));
+		doc.insertElement(2, new QualifiedName(null, "title"));
+		doc.insertText(3, "ab");
+		doc.insertElement(6, new QualifiedName(null, "para"));
 
 		assertValidItemsAt(doc, 0);
-		assertValidItemsAt(doc, 1, "title", "para");
-		assertValidItemsAt(doc, 2);
+		assertValidItemsAt(doc, 1);
+		assertValidItemsAt(doc, 2, "title", "para");
 		assertValidItemsAt(doc, 3);
 		assertValidItemsAt(doc, 4);
-		assertValidItemsAt(doc, 5, "title", "para");
-		assertValidItemsAt(doc, 6, "emphasis");
-		assertValidItemsAt(doc, 7, "title", "para");
+		assertValidItemsAt(doc, 5);
+		assertValidItemsAt(doc, 6, "title", "para");
+		assertValidItemsAt(doc, 7, "emphasis");
+		assertValidItemsAt(doc, 8, "title", "para");
 	}
 
 	public void testOneKindOfChild() {
 		final Document doc = new Document(new Element("one-kind-of-child"));
 		doc.setValidator(validator);
-		assertValidItemsAt(doc, 1, "section");
+		assertValidItemsAt(doc, 2, "section");
 	}
 
 	private static void assertValidItemsAt(final Document doc, final int offset, final String... expectedItems) {
@@ -163,9 +164,9 @@ public class DTDValidatorTest extends TestCase {
 	public void testValidateDocumentWithDTDAndNamespaces() throws Exception {
 		final Document doc = new Document(new Element(new QualifiedName("http://namespace/uri/is/not/registered", "section")));
 		doc.setValidator(validator);
-		doc.insertElement(1, new QualifiedName(null, "title"));
-		doc.insertText(2, "ab");
-		doc.insertElement(5, new QualifiedName(null, "para"));
+		doc.insertElement(2, new QualifiedName(null, "title"));
+		doc.insertText(3, "ab");
+		doc.insertElement(6, new QualifiedName(null, "para"));
 
 		validator.getAttributeDefinitions(doc.getRootElement());
 	}

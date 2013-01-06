@@ -66,7 +66,7 @@ public class L1ElementHandlingTest {
 		assertSame(rootElement, newElement.getParent());
 		assertEquals(contentLengthBefore + 2, content.length());
 		assertSame(content, newElement.getContent());
-		assertEquals(new ContentRange(1, 2), newElement.getRange());
+		assertEquals(new ContentRange(2, 3), newElement.getRange());
 	}
 
 	@Test(expected = DocumentValidationException.class)

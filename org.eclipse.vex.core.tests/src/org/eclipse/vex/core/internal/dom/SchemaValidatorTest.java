@@ -139,12 +139,12 @@ public class SchemaValidatorTest {
 		final Validator validator = new WTPVEXValidator();
 		final Document doc = new Document(new Element(P));
 		doc.setValidator(validator);
-		doc.insertElement(1, B);
-		doc.insertElement(2, I);
+		doc.insertElement(2, B);
+		doc.insertElement(3, I);
 
 		assertValidItems(validator, doc.getRootElement(), B, I); // p
-		assertValidItems(validator, doc.getElementForInsertionAt(1), B, I); // b
-		assertValidItems(validator, doc.getElementForInsertionAt(2), B, I); // i
+		assertValidItems(validator, doc.getElementForInsertionAt(2), B, I); // b
+		assertValidItems(validator, doc.getElementForInsertionAt(3), B, I); // i
 	}
 
 	@Test
@@ -164,16 +164,16 @@ public class SchemaValidatorTest {
 		final Validator validator = new WTPVEXValidator();
 		final Document doc = new Document(new Element(CHAPTER));
 		doc.setValidator(validator);
-		doc.insertElement(1, TITLE);
-		doc.insertElement(3, P);
-		doc.insertElement(4, B);
-		doc.insertElement(5, I);
+		doc.insertElement(2, TITLE);
+		doc.insertElement(4, P);
+		doc.insertElement(5, B);
+		doc.insertElement(6, I);
 
 		assertValidItems(validator, doc.getRootElement(), CHAPTER, TITLE, P); // chapter
-		assertValidItems(validator, doc.getElementForInsertionAt(2)); // title
-		assertValidItems(validator, doc.getElementForInsertionAt(4), B, I); // p
-		assertValidItems(validator, doc.getElementForInsertionAt(5), B, I); // b
-		assertValidItems(validator, doc.getElementForInsertionAt(6), B, I); // i
+		assertValidItems(validator, doc.getElementForInsertionAt(3)); // title
+		assertValidItems(validator, doc.getElementForInsertionAt(5), B, I); // p
+		assertValidItems(validator, doc.getElementForInsertionAt(6), B, I); // b
+		assertValidItems(validator, doc.getElementForInsertionAt(7), B, I); // i
 	}
 
 	@Test

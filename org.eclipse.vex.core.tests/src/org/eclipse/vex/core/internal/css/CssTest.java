@@ -170,7 +170,7 @@ public class CssTest {
 	public void testDefaultInheritance() throws Exception {
 		final Element simple = new Element("simple");
 		final Document doc = new Document(simple);
-		final Element defaults = doc.insertElement(1, new QualifiedName(null, "defaults"));
+		final Element defaults = doc.insertElement(2, new QualifiedName(null, "defaults"));
 
 		final StyleSheet ss = parseStyleSheetResource("test2.css");
 		final Styles styles = ss.getStyles(defaults);
@@ -432,7 +432,7 @@ public class CssTest {
 	public void testForcedInheritance() throws Exception {
 		final Element simple = new Element("simple");
 		final Document doc = new Document(simple);
-		final Element inherit = doc.insertElement(1, new QualifiedName(null, "inherit"));
+		final Element inherit = doc.insertElement(2, new QualifiedName(null, "inherit"));
 
 		final StyleSheet ss = parseStyleSheetResource("test2.css");
 		final Styles styles = ss.getStyles(inherit);

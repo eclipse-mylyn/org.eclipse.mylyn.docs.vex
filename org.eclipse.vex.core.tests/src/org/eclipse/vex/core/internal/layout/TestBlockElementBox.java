@@ -41,7 +41,7 @@ public class TestBlockElementBox extends TestCase {
 	public void testBeforeAfter() throws Exception {
 		final Element root = new Element("root");
 		final Document doc = new Document(root);
-		doc.insertElement(1, new QualifiedName(null, "beforeBlock"));
+		doc.insertElement(2, new QualifiedName(null, "beforeBlock"));
 		context.setDocument(doc);
 
 		final RootBox rootBox = new RootBox(context, root, 500);

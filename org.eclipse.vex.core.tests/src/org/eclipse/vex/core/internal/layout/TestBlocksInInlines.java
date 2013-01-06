@@ -55,11 +55,11 @@ public class TestBlocksInInlines extends TestCase {
 		final Document doc = new Document(root);
 		context.setDocument(doc);
 
-		doc.insertText(1, "one  five");
-		doc.insertElement(5, new QualifiedName(null, "b"));
-		doc.insertText(6, "two  four");
-		doc.insertElement(10, new QualifiedName(null, "p"));
-		doc.insertText(11, "three");
+		doc.insertText(2, "one  five");
+		doc.insertElement(6, new QualifiedName(null, "b"));
+		doc.insertText(7, "two  four");
+		doc.insertElement(11, new QualifiedName(null, "p"));
+		doc.insertText(12, "three");
 
 		final RootBox rootBox = new RootBox(context, root, 500);
 		rootBox.layout(context, 0, Integer.MAX_VALUE);

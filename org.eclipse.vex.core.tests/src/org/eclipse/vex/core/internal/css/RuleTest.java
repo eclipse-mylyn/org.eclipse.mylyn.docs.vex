@@ -32,11 +32,11 @@ public class RuleTest extends TestCase {
 
 		final Element a = new Element("a");
 		final Document doc = new Document(a);
-		final Element b = doc.insertElement(1, new QualifiedName(null, "b"));
-		final Element c = doc.insertElement(2, new QualifiedName(null, "c"));
-		final Element d = doc.insertElement(3, new QualifiedName(null, "d"));
-		final Element e = doc.insertElement(4, new QualifiedName(null, "e"));
-		final Element f = doc.insertElement(5, new QualifiedName(null, "f"));
+		final Element b = doc.insertElement(2, new QualifiedName(null, "b"));
+		final Element c = doc.insertElement(3, new QualifiedName(null, "c"));
+		final Element d = doc.insertElement(4, new QualifiedName(null, "d"));
+		final Element e = doc.insertElement(5, new QualifiedName(null, "e"));
+		final Element f = doc.insertElement(6, new QualifiedName(null, "f"));
 
 		b.setAttribute("color", "blue");
 		c.setAttribute("color", "blue red");
@@ -268,7 +268,7 @@ public class RuleTest extends TestCase {
 
 		final Element a = new Element("a");
 		final Document doc = new Document(a);
-		final Element ns = doc.insertElement(1, new QualifiedName("http://namespace/uri", "b"));
+		final Element ns = doc.insertElement(2, new QualifiedName("http://namespace/uri", "b"));
 
 		ns.setAttribute("color", "blue");
 
