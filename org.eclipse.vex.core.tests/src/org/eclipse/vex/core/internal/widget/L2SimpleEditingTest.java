@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 Florian Thienel and others.
+ * Copyright (c) 2012, 2013 Florian Thienel and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -21,7 +21,6 @@ import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
 import org.eclipse.vex.core.internal.css.StyleSheet;
-import org.eclipse.vex.core.internal.dom.Comment;
 import org.eclipse.vex.core.internal.dom.Element;
 import org.junit.Before;
 import org.junit.Test;
@@ -221,44 +220,4 @@ public class L2SimpleEditingTest {
 		assertEquals("A", titleElement.getText());
 	}
 
-	@Test
-	public void givenAnElement_whenInsertingAComment_elementShouldContainComment() throws Exception {
-		final Comment comment = widget.insertComment();
-		assertTrue(rootElement.getRange().contains(comment.getRange()));
-		assertSame(rootElement, comment.getParent());
-		assertEquals(comment.getEndOffset(), widget.getCaretOffset());
-	}
-
-	@Test
-	public void givenAnElementWithComment_whenInsertingTextWithinComment_shouldAddTextToComment() throws Exception {
-		final Comment comment = widget.insertComment();
-		widget.insertText("Hello World");
-		assertEquals("Hello World", comment.getText());
-	}
-
-	@Test
-	public void givenAnEmptyComment_whenCaretInCommentAndHittingBackspace_shouldDeleteComment() throws Exception {
-		final Element titleElement = widget.insertElement(TITLE);
-		final Comment comment = widget.insertComment();
-		widget.deletePreviousChar();
-		assertEquals(0, titleElement.getChildCount());
-		assertFalse(comment.isAssociated());
-		assertNull(comment.getParent());
-	}
-
-	@Test
-	public void givenAnEmptyComment_whenCaretInCommentAndHittingDelete_shouldDeleteComment() throws Exception {
-		final Element titleElement = widget.insertElement(TITLE);
-		final Comment comment = widget.insertComment();
-		widget.deleteNextChar();
-		assertEquals(0, titleElement.getChildCount());
-		assertFalse(comment.isAssociated());
-		assertNull(comment.getParent());
-	}
-
-	@Test
-	public void givenAComment_whenCaretInComment_shouldNotAllowToInsertAComment() throws Exception {
-		widget.insertComment();
-		assertFalse("can insert comment within comment", widget.canInsertComment());
-	}
 }

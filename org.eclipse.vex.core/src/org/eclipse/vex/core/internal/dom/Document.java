@@ -297,8 +297,7 @@ public class Document extends Parent {
 	 * @return true if a comment can be inserted a the given offset
 	 */
 	public boolean canInsertComment(final int offset) {
-		// TODO Currently comments can only be inserted within the root element.
-		if (!(offset > rootElement.getStartOffset() && offset <= rootElement.getEndOffset())) {
+		if (!(offset > getStartOffset() && offset <= getEndOffset())) {
 			return false;
 		}
 		final Node node = getNodeForInsertionAt(offset);
@@ -323,7 +322,7 @@ public class Document extends Parent {
 			throw new DocumentValidationException(MessageFormat.format("Cannot insert a comment at offset {0}.", offset));
 		}
 
-		final Element parent = getElementForInsertionAt(offset);
+		final Parent parent = getParentForInsertionAt(offset);
 
 		fireBeforeContentInserted(new DocumentEvent(this, parent, offset, 2, null));
 
@@ -549,6 +548,18 @@ public class Document extends Parent {
 			return node.getParent();
 		}
 		return node;
+	}
+
+	private Parent getParentForInsertionAt(final int offset) {
+		final Node node = getChildNodeAt(offset);
+		if (!(node instanceof Parent)) {
+			return node.getParent();
+		}
+		if (offset == node.getStartOffset()) {
+			return node.getParent();
+		}
+		// this cast is save because if we got here node is a Parent
+		return (Parent) node;
 	}
 
 	/**

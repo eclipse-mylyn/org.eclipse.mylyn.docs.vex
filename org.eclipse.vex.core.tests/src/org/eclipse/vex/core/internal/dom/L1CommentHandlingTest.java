@@ -39,11 +39,13 @@ public class L1CommentHandlingTest {
 
 	@Test
 	public void shouldIndicateValidCommentInsertionPoints() throws Exception {
-		assertFalse(document.canInsertComment(rootElement.getStartOffset()));
+		assertFalse(document.canInsertComment(document.getStartOffset()));
+		assertTrue(document.canInsertComment(rootElement.getStartOffset()));
 		assertTrue(document.canInsertComment(titleElement.getStartOffset()));
 		assertTrue(document.canInsertComment(titleElement.getEndOffset()));
 		assertTrue(document.canInsertComment(rootElement.getEndOffset()));
-		assertFalse(document.canInsertComment(rootElement.getEndOffset() + 1));
+		assertTrue(document.canInsertComment(document.getEndOffset()));
+		assertFalse(document.canInsertComment(document.getEndOffset() + 1));
 	}
 
 	@Test
@@ -80,6 +82,12 @@ public class L1CommentHandlingTest {
 
 	@Test(expected = DocumentValidationException.class)
 	public void shouldNotInsertCommentAtInvalidInsertionPoint() throws Exception {
+		document.insertComment(document.getStartOffset());
+	}
+
+	@Test
+	public void shouldInsertCommentBeforeRootElement() throws Exception {
 		document.insertComment(rootElement.getStartOffset());
+		assertEquals(2, document.getChildCount());
 	}
 }
