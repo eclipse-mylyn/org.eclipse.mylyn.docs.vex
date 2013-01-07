@@ -958,7 +958,13 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 
 			@Override
 			public Boolean visit(final Comment comment) {
-				return parentStyle.equals(CSS.INLINE);
+				final boolean parentIsInline = parent.accept(new BaseNodeVisitorWithResult<Boolean>(false) {
+					@Override
+					public Boolean visit(final Element element) {
+						return parentStyle.equals(CSS.INLINE);
+					};
+				});
+				return parentIsInline && style.equals(CSS.INLINE);
 			}
 
 			@Override
