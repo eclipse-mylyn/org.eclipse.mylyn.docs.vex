@@ -452,7 +452,7 @@ public class VexEditor extends EditorPart {
 	public void setFocus() {
 		if (vexWidget != null) {
 			vexWidget.setFocus();
-			setStatus(getLocation());
+			setStatus(getLocationPath());
 		}
 	}
 
@@ -665,7 +665,7 @@ public class VexEditor extends EditorPart {
 				firePropertyChange(IEditorPart.PROP_DIRTY);
 				wasDirty = isDirty();
 			}
-			setStatus(getLocation());
+			setStatus(getLocationPath());
 
 			// update dynamic UI element labels
 			final IEditorSite editorSite = VexEditor.this.getEditorSite();
@@ -713,12 +713,7 @@ public class VexEditor extends EditorPart {
 
 	private final ResourceChangeListener resourceChangeListener = new ResourceChangeListener();
 
-	//
-	// wsFactory communicates failures back to init() through the XML parser
-	// by throwing one of these exceptions
-	//
-
-	private String getLocation() {
+	private String getLocationPath() {
 		final List<String> path = new ArrayList<String>();
 		Element element = vexWidget.getCurrentElement();
 		while (element != null) {
@@ -726,12 +721,17 @@ public class VexEditor extends EditorPart {
 			element = element.getParentElement();
 		}
 		Collections.reverse(path);
-		final StringBuilder sb = new StringBuilder(path.size() * 15);
-		for (final String part : path) {
-			sb.append("/"); //$NON-NLS-1$
-			sb.append(part);
+
+		if (path.isEmpty()) {
+			return "/";
 		}
-		return sb.toString();
+
+		final StringBuilder pathString = new StringBuilder(path.size() * 15);
+		for (final String part : path) {
+			pathString.append('/');
+			pathString.append(part);
+		}
+		return pathString.toString();
 	}
 
 	@Override
