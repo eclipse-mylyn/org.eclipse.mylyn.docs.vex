@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 
+import org.eclipse.core.runtime.Assert;
 import org.eclipse.vex.core.internal.dom.Element;
 import org.eclipse.vex.core.internal.widget.IVexWidget;
 
@@ -32,6 +33,7 @@ public class EditNamespacesController {
 	public EditNamespacesController(final IVexWidget widget) {
 		this.widget = widget;
 		element = widget.getCurrentElement();
+		Assert.isNotNull(element, "There is no current element available. Namespaces can only be edited in elements.");
 		defaultNamespaceURI = getDefaultNamespaceURI(element);
 		namespaceDefinitions = getNamespaceDefinitions(element);
 	}

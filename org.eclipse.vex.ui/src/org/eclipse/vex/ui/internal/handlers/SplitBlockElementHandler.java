@@ -37,6 +37,9 @@ public class SplitBlockElementHandler extends AbstractVexWidgetHandler {
 	@Override
 	public void execute(final VexWidget widget) throws ExecutionException {
 		Element element = widget.getCurrentElement();
+		if (element == null) {
+			return; // we are not in an element, so we bail out here
+		}
 		Styles styles = widget.getStyleSheet().getStyles(element);
 		while (!styles.isBlock()) {
 			element = element.getParentElement();

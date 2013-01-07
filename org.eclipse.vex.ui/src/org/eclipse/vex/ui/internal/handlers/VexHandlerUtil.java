@@ -213,12 +213,11 @@ public final class VexHandlerUtil {
 	 *            IVexWidget to use.
 	 */
 	public static Element getCurrentTableRow(final IVexWidget vexWidget) {
-
-		final StyleSheet ss = vexWidget.getStyleSheet();
+		final StyleSheet styleSheet = vexWidget.getStyleSheet();
 		Element element = vexWidget.getCurrentElement();
 
 		while (element != null) {
-			if (ss.getStyles(element).getDisplay().equals(CSS.TABLE_ROW)) {
+			if (styleSheet.getStyles(element).getDisplay().equals(CSS.TABLE_ROW)) {
 				return element;
 			}
 			element = element.getParentElement();

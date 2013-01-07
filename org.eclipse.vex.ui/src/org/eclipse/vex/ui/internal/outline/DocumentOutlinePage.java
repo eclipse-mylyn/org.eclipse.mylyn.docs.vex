@@ -206,19 +206,19 @@ public class DocumentOutlinePage extends Page implements IContentOutlinePage {
 	 */
 	private final ISelectionChangedListener selectionListener = new ISelectionChangedListener() {
 		public void selectionChanged(final SelectionChangedEvent event) {
-
 			if (event.getSource() instanceof VexWidget) {
-
 				final VexWidget vexWidget = (VexWidget) event.getSource();
 				if (vexWidget.isFocusControl() && getTreeViewer() != null) {
 					final Element element = vexWidget.getCurrentElement();
-					final Element outlineElement = outlineProvider.getOutlineElement(element);
-					getTreeViewer().refresh(outlineElement);
-					getTreeViewer().setSelection(new StructuredSelection(outlineElement), true);
+					if (element != null) {
+						final Element outlineElement = outlineProvider.getOutlineElement(element);
+						getTreeViewer().refresh(outlineElement);
+						getTreeViewer().setSelection(new StructuredSelection(outlineElement), true);
+					} else {
+						getTreeViewer().setSelection(new StructuredSelection(), true);
+					}
 				}
-
 			} else {
-
 				// it's our tree control being selected
 				final TreeViewer treeViewer = (TreeViewer) event.getSource();
 				if (treeViewer.getTree().isFocusControl()) {
@@ -233,7 +233,6 @@ public class DocumentOutlinePage extends Page implements IContentOutlinePage {
 						// caret at the top of the viewport
 						vexWidget.moveTo(element.getEndOffset());
 						vexWidget.moveTo(element.getStartOffset() + 1);
-
 					}
 				}
 			}

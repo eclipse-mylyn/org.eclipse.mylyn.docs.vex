@@ -1168,30 +1168,32 @@ public class VexWidgetImpl implements IVexWidget {
 	}
 
 	public void setAttribute(final String attributeName, final String value) {
-		try {
-			final Element element = getCurrentElement();
-			final QualifiedName qualifiedAttributeName = element.qualify(attributeName);
-			final String currentAttributeValue = element.getAttributeValue(qualifiedAttributeName);
-			if (value == null) {
-				removeAttribute(attributeName);
-			} else if (!value.equals(currentAttributeValue)) {
-				applyEdit(new ChangeAttributeEdit(element, qualifiedAttributeName, currentAttributeValue, value), getCaretOffset());
-			}
-		} catch (final DocumentValidationException e) {
-			e.printStackTrace(); // TODO: maybe throw the exception instead?
+		final Element element = getCurrentElement();
+		if (element == null) {
+			// TODO throw IllegalStateException("Not in element");
+			return;
+		}
+
+		final QualifiedName qualifiedAttributeName = element.qualify(attributeName);
+		final String currentAttributeValue = element.getAttributeValue(qualifiedAttributeName);
+		if (value == null) {
+			removeAttribute(attributeName);
+		} else if (!value.equals(currentAttributeValue)) {
+			applyEdit(new ChangeAttributeEdit(element, qualifiedAttributeName, currentAttributeValue, value), getCaretOffset());
 		}
 	}
 
 	public void removeAttribute(final String attributeName) {
-		try {
-			final Element element = getCurrentElement();
-			final QualifiedName qualifiedAttributeName = element.qualify(attributeName);
-			final String currentAttributeValue = element.getAttributeValue(qualifiedAttributeName);
-			if (currentAttributeValue != null) {
-				applyEdit(new ChangeAttributeEdit(element, qualifiedAttributeName, currentAttributeValue, null), getCaretOffset());
-			}
-		} catch (final DocumentValidationException e) {
-			e.printStackTrace(); // TODO: when can this happen?
+		final Element element = getCurrentElement();
+		if (element == null) {
+			// TODO throw IllegalStateException("Not in element");
+			return;
+		}
+
+		final QualifiedName qualifiedAttributeName = element.qualify(attributeName);
+		final String currentAttributeValue = element.getAttributeValue(qualifiedAttributeName);
+		if (currentAttributeValue != null) {
+			applyEdit(new ChangeAttributeEdit(element, qualifiedAttributeName, currentAttributeValue, null), getCaretOffset());
 		}
 	}
 
@@ -1343,43 +1345,43 @@ public class VexWidgetImpl implements IVexWidget {
 	}
 
 	public void declareNamespace(final String namespacePrefix, final String namespaceURI) {
-		try {
-			final Element element = getCurrentElement();
-			final String currentNamespaceURI = element.getNamespaceURI(namespacePrefix);
-			applyEdit(new ChangeNamespaceEdit(element, namespacePrefix, currentNamespaceURI, namespaceURI), getCaretOffset());
-		} catch (final DocumentValidationException e) {
-			e.printStackTrace(); // TODO: maybe throw the exception instead?
+		final Element element = getCurrentElement();
+		if (element == null) {
+			// TODO throw IllegalStateException("Not in element");
+			return;
 		}
+		final String currentNamespaceURI = element.getNamespaceURI(namespacePrefix);
+		applyEdit(new ChangeNamespaceEdit(element, namespacePrefix, currentNamespaceURI, namespaceURI), getCaretOffset());
 	}
 
 	public void removeNamespace(final String namespacePrefix) {
-		try {
-			final Element element = getCurrentElement();
-			final String currentNamespaceURI = element.getNamespaceURI(namespacePrefix);
-			applyEdit(new ChangeNamespaceEdit(element, namespacePrefix, currentNamespaceURI, null), getCaretOffset());
-		} catch (final DocumentValidationException e) {
-			e.printStackTrace(); // TODO: maybe throw the exception instead?
+		final Element element = getCurrentElement();
+		if (element == null) {
+			// TODO throw IllegalStateException("Not in element");
+			return;
 		}
+		final String currentNamespaceURI = element.getNamespaceURI(namespacePrefix);
+		applyEdit(new ChangeNamespaceEdit(element, namespacePrefix, currentNamespaceURI, null), getCaretOffset());
 	}
 
 	public void declareDefaultNamespace(final String namespaceURI) {
-		try {
-			final Element element = getCurrentElement();
-			final String currentNamespaceURI = element.getDefaultNamespaceURI();
-			applyEdit(new ChangeNamespaceEdit(element, null, currentNamespaceURI, namespaceURI), getCaretOffset());
-		} catch (final DocumentValidationException e) {
-			e.printStackTrace(); // TODO: maybe throw the exception instead?
+		final Element element = getCurrentElement();
+		if (element == null) {
+			// TODO throw IllegalStateException("Not in element");
+			return;
 		}
+		final String currentNamespaceURI = element.getDefaultNamespaceURI();
+		applyEdit(new ChangeNamespaceEdit(element, null, currentNamespaceURI, namespaceURI), getCaretOffset());
 	}
 
 	public void removeDefaultNamespace() {
-		try {
-			final Element element = getCurrentElement();
-			final String currentNamespaceURI = element.getDefaultNamespaceURI();
-			applyEdit(new ChangeNamespaceEdit(element, null, currentNamespaceURI, null), getCaretOffset());
-		} catch (final DocumentValidationException e) {
-			e.printStackTrace(); // TODO: maybe throw the exception instead?
+		final Element element = getCurrentElement();
+		if (element == null) {
+			// TODO throw IllegalStateException("Not in element");
+			return;
 		}
+		final String currentNamespaceURI = element.getDefaultNamespaceURI();
+		applyEdit(new ChangeNamespaceEdit(element, null, currentNamespaceURI, null), getCaretOffset());
 	}
 
 	// ================================================== PRIVATE
@@ -1543,19 +1545,7 @@ public class VexWidgetImpl implements IVexWidget {
 		}
 	}
 
-	/**
-	 * Joins the elements at the given offset. Only works if isBetweenMatchingElements returns true for the same offset.
-	 * Afterwards, the caret is left at the point where the join occurred.
-	 * 
-	 * @param offset
-	 *            Offset where the two elements meet.
-	 */
 	private void joinElementsAt(final int offset) throws DocumentValidationException {
-
-		if (!isBetweenMatchingElements(offset)) {
-			throw new DocumentValidationException("Cannot join elements at offset " + offset);
-		}
-
 		boolean success = false;
 		try {
 			beginWork();
@@ -1564,7 +1554,7 @@ public class VexWidgetImpl implements IVexWidget {
 			moveTo(offset + 1);
 			final Element secondElement = getCurrentElement();
 
-			// p<reserve the second element's content
+			// preserve the second element's content
 			final boolean shouldMoveContent = !secondElement.isEmpty();
 			final DocumentFragment preservedContent;
 			if (shouldMoveContent) {

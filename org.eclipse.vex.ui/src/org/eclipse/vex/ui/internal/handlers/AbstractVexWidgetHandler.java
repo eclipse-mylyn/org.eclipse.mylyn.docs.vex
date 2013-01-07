@@ -19,6 +19,7 @@ import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.menus.UIElement;
 import org.eclipse.ui.services.IServiceScopes;
+import org.eclipse.vex.core.internal.dom.Element;
 import org.eclipse.vex.ui.internal.editor.Messages;
 import org.eclipse.vex.ui.internal.swt.VexWidget;
 
@@ -59,7 +60,13 @@ public abstract class AbstractVexWidgetHandler extends AbstractHandler implement
 			return;
 		}
 
-		final String name = widget.getCurrentElement().getPrefixedName();
+		final Element currentElement = widget.getCurrentElement();
+		final String name;
+		if (currentElement != null) {
+			name = currentElement.getPrefixedName();
+		} else {
+			name = "/";
+		}
 		final String dynamicLabelId = parameters.containsKey(IServiceScopes.PARTSITE_SCOPE) ? partsiteScopeDynamicLabelId : windowScopeDynamicLabelId;
 		final String message = Messages.getString(dynamicLabelId);
 		element.setText(MessageFormat.format(message, name));
