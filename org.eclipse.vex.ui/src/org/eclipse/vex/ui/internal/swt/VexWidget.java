@@ -533,7 +533,7 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 				final List<Node> nodes = getDocument().getNodes(getSelectedRange());
 				selection = new StructuredSelection(nodes);
 			} else {
-				selection = new StructuredSelection(getCurrentElement());
+				selection = new StructuredSelection(getCurrentNode());
 			}
 
 			final SelectionChangedEvent e = new SelectionChangedEvent(VexWidget.this, selection);
