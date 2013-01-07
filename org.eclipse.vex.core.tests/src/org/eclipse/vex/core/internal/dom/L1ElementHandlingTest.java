@@ -84,4 +84,8 @@ public class L1ElementHandlingTest {
 		document.insertElement(rootElement.getEndOffset() + 1, VALID_CHILD);
 	}
 
+	@Test(expected = DocumentValidationException.class)
+	public void shouldNotDeleteRootElement() throws Exception {
+		document.delete(rootElement.getRange());
+	}
 }

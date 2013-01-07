@@ -445,6 +445,14 @@ public class Document extends Parent {
 
 		final boolean deletionIsValid = parentForDeletion.accept(new BaseNodeVisitorWithResult<Boolean>(true) {
 			@Override
+			public Boolean visit(final Document document) {
+				if (range.intersects(document.getRootElement().getRange())) {
+					return false;
+				}
+				return true;
+			}
+
+			@Override
 			public Boolean visit(final Element element) {
 				final Validator validator = getValidator();
 				if (validator == null) {
@@ -456,7 +464,7 @@ public class Document extends Parent {
 			}
 		});
 		if (!deletionIsValid) {
-			throw new DocumentValidationException("Unable to delete " + range);
+			throw new DocumentValidationException(MessageFormat.format("Cannot delete {0}", range));
 		}
 
 		fireBeforeContentDeleted(new DocumentEvent(this, parentForDeletion, range.getStartOffset(), range.length(), null));
