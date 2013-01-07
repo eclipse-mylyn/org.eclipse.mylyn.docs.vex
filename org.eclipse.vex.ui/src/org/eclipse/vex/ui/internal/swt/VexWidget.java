@@ -228,6 +228,10 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 		return impl.getCurrentElement();
 	}
 
+	public Node getCurrentNode() {
+		return impl.getCurrentNode();
+	}
+
 	public Document getDocument() {
 		return impl.getDocument();
 	}

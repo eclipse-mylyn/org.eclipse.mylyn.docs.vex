@@ -35,6 +35,7 @@ import org.eclipse.vex.core.internal.css.CSS;
 import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.css.StyleSheetReader;
 import org.eclipse.vex.core.internal.css.Styles;
+import org.eclipse.vex.core.internal.dom.BaseNodeVisitorWithResult;
 import org.eclipse.vex.core.internal.dom.Comment;
 import org.eclipse.vex.core.internal.dom.ContentRange;
 import org.eclipse.vex.core.internal.dom.Document;
@@ -45,6 +46,7 @@ import org.eclipse.vex.core.internal.dom.DocumentValidationException;
 import org.eclipse.vex.core.internal.dom.Element;
 import org.eclipse.vex.core.internal.dom.Node;
 import org.eclipse.vex.core.internal.dom.Position;
+import org.eclipse.vex.core.internal.dom.Text;
 import org.eclipse.vex.core.internal.dom.Validator;
 import org.eclipse.vex.core.internal.layout.BlockBox;
 import org.eclipse.vex.core.internal.layout.Box;
@@ -115,7 +117,10 @@ public class VexWidgetImpl implements IVexWidget {
 	private int selectionStart;
 	private int selectionEnd;
 
-	private Element currentElement;
+	// TODO remove
+	// private Element currentElement;
+
+	private Node currentNode;
 
 	private boolean caretVisible = true;
 	private Caret caret;
@@ -530,7 +535,26 @@ public class VexWidgetImpl implements IVexWidget {
 	}
 
 	public Element getCurrentElement() {
-		return currentElement;
+		return currentNode.accept(new BaseNodeVisitorWithResult<Element>(null) {
+			@Override
+			public Element visit(final Element element) {
+				return element;
+			}
+
+			@Override
+			public Element visit(final Comment comment) {
+				return comment.getParent().accept(this);
+			}
+
+			@Override
+			public Element visit(final Text text) {
+				return text.getParent().accept(this);
+			}
+		});
+	}
+
+	public Node getCurrentNode() {
+		return currentNode;
 	}
 
 	public Document getDocument() {
@@ -871,8 +895,8 @@ public class VexWidgetImpl implements IVexWidget {
 			moveCaretTo(offset);
 		}
 
-		final Element oldElement = currentElement;
-		currentElement = document.getElementForInsertionAt(caretOffset);
+		final Node oldNode = currentNode;
+		currentNode = document.getNodeForInsertionAt(caretOffset);
 
 		if (beginWorkCount == 0) {
 			relayout();
@@ -882,11 +906,11 @@ public class VexWidgetImpl implements IVexWidget {
 		final LayoutContext context = createLayoutContext(g);
 		caret = rootBox.getCaret(context, caretOffset);
 
-		Element element = getCurrentElement();
-		if (element != oldElement) {
+		Node node = currentNode;
+		if (node != oldNode) {
 			caretColor = Color.BLACK;
-			while (element != null) {
-				final Color bgColor = styleSheet.getStyles(element).getBackgroundColor();
+			while (node != null) {
+				final Color bgColor = styleSheet.getStyles(node).getBackgroundColor();
 				if (bgColor != null) {
 					final int red = ~bgColor.getRed() & 0xff;
 					final int green = ~bgColor.getGreen() & 0xff;
@@ -894,7 +918,7 @@ public class VexWidgetImpl implements IVexWidget {
 					caretColor = new Color(red, green, blue);
 					break;
 				}
-				element = element.getParentElement();
+				node = node.getParent();
 			}
 		}
 

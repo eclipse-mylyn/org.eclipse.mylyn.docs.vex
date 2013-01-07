@@ -22,6 +22,7 @@ import org.eclipse.vex.core.internal.dom.Document;
 import org.eclipse.vex.core.internal.dom.DocumentFragment;
 import org.eclipse.vex.core.internal.dom.DocumentValidationException;
 import org.eclipse.vex.core.internal.dom.Element;
+import org.eclipse.vex.core.internal.dom.Node;
 import org.eclipse.vex.core.internal.layout.Box;
 import org.eclipse.vex.core.internal.layout.BoxFactory;
 import org.eclipse.vex.core.internal.undo.CannotRedoException;
@@ -174,6 +175,11 @@ public interface IVexWidget {
 	 * Returns the element at the current caret offset.
 	 */
 	public Element getCurrentElement();
+
+	/**
+	 * Returns the node a the current caret offset.
+	 */
+	public Node getCurrentNode();
 
 	/**
 	 * Returns the document associated with this component.
