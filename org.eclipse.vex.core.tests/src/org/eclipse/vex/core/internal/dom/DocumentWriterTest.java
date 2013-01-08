@@ -11,12 +11,14 @@
 package org.eclipse.vex.core.internal.dom;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.Collection;
 import java.util.List;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -76,15 +78,48 @@ public class DocumentWriterTest {
 		assertDocumentsEqual(expectedDocument, actualDocument);
 	}
 
+	private static Document readDocument(final InputSource inputSource) throws IOException, ParserConfigurationException, SAXException {
+		final DocumentReader documentReader = new DocumentReader();
+		return documentReader.read(inputSource);
+	}
+
 	private static void assertDocumentsEqual(final Document expected, final Document actual) {
 		assertEquals(expected.getPublicID(), actual.getPublicID());
 		assertEquals(expected.getSystemID(), actual.getSystemID());
-		assertElementsEqual(expected.getRootElement(), actual.getRootElement());
+		assertContentEqual(expected, actual);
+	}
+
+	private static void assertContentEqual(final Parent expected, final Parent actual) {
+		final List<Node> expectedContent = expected.getChildNodes();
+		final List<Node> actualContent = actual.getChildNodes();
+		assertEquals("children of " + expected, expectedContent.size(), actualContent.size());
+		for (int i = 0; i < expectedContent.size(); i++) {
+			final Node expectedNode = expectedContent.get(i);
+			final Node actualNode = actualContent.get(i);
+			assertEquals(expectedNode.getClass(), actualNode.getClass());
+			expectedNode.accept(new BaseNodeVisitor() {
+				@Override
+				public void visit(final Element element) {
+					assertElementsEqual((Element) expectedNode, (Element) actualNode);
+				}
+
+				@Override
+				public void visit(final Comment comment) {
+					assertEquals(expectedNode.getText(), actualNode.getText());
+				}
+
+				@Override
+				public void visit(final Text text) {
+					assertEquals(expectedNode.getText(), actualNode.getText());
+				}
+			});
+		}
 	}
 
 	private static void assertElementsEqual(final Element expected, final Element actual) {
-		assertEquals(expected.getQualifiedName(), actual.getQualifiedName());
+		assertEquals("qualified name of " + expected, expected.getQualifiedName(), actual.getQualifiedName());
 		assertAttributesEqual(expected, actual);
+		assertNamespacesEqual(expected, actual);
 		assertContentEqual(expected, actual);
 	}
 
@@ -92,28 +127,21 @@ public class DocumentWriterTest {
 		final List<QualifiedName> expectedAttrs = expected.getAttributeNames();
 		final List<QualifiedName> actualAttrs = actual.getAttributeNames();
 
-		assertEquals(expectedAttrs.size(), actualAttrs.size());
+		assertEquals("attributes of " + expected, expectedAttrs.size(), actualAttrs.size());
 		for (int i = 0; i < expectedAttrs.size(); i++) {
 			assertEquals(expectedAttrs.get(i), actualAttrs.get(i));
 		}
 	}
 
-	private static void assertContentEqual(final Element expected, final Element actual) {
-		final List<Node> expectedContent = expected.getChildNodes();
-		final List<Node> actualContent = actual.getChildNodes();
-		assertEquals(expectedContent.size(), actualContent.size());
-		for (int i = 0; i < expectedContent.size(); i++) {
-			assertEquals(expectedContent.get(i).getClass(), actualContent.get(i).getClass());
-			if (expectedContent.get(i) instanceof Element) {
-				assertElementsEqual((Element) expectedContent.get(i), (Element) actualContent.get(i));
-			} else {
-				assertEquals(expectedContent.get(i).getText(), actualContent.get(i).getText());
-			}
-		}
-	}
+	private static void assertNamespacesEqual(final Element expected, final Element actual) {
+		assertEquals("declared default namespace of " + expected, expected.getDeclaredDefaultNamespaceURI(), actual.getDeclaredDefaultNamespaceURI());
 
-	private static Document readDocument(final InputSource inputSource) throws IOException, ParserConfigurationException, SAXException {
-		final DocumentReader documentReader = new DocumentReader();
-		return documentReader.read(inputSource);
+		final Collection<String> expectedNamespacePrefixes = expected.getDeclaredNamespacePrefixes();
+		final Collection<String> actualNamespacePrefixes = actual.getDeclaredNamespacePrefixes();
+		assertEquals("declared namespaces of " + expected, expectedNamespacePrefixes.size(), actualNamespacePrefixes.size());
+		for (final String prefix : expectedNamespacePrefixes) {
+			assertTrue("namespace not declared: " + prefix, actualNamespacePrefixes.contains(prefix));
+			assertEquals("namespace URI of prefix " + prefix, expected.getNamespaceURI(prefix), actual.getNamespaceURI(prefix));
+		}
 	}
 }

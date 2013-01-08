@@ -55,25 +55,25 @@ public class DocumentWriter {
      * @return the escaped string
      */
 	public static String escape(final String s) {
-		final StringBuffer sb = new StringBuffer(s.length());
+		final StringBuilder result = new StringBuilder(s.length());
 
 		for (int i = 0; i < s.length(); i++) {
 			final char c = s.charAt(i);
 			if (c == '<') {
-				sb.append("&lt;");
+				result.append("&lt;");
 			} else if (c == '>') {
-				sb.append("&gt;");
+				result.append("&gt;");
 			} else if (c == '&') {
-				sb.append("&amp;");
+				result.append("&amp;");
 			} else if (c == '"') {
-				sb.append("&quot;");
+				result.append("&quot;");
 			} else if (c == '\'') {
-				sb.append("&apos;");
+				result.append("&apos;");
 			} else {
-				sb.append(c);
+				result.append(c);
 			}
 		}
-		return sb.toString();
+		return result.toString();
 	}
 
 	/**
@@ -128,154 +128,171 @@ public class DocumentWriter {
 		this.wrapColumn = wrapColumn;
 	}
 
-	public void write(final Document doc, final OutputStream os) throws IOException {
+	public void write(final Document document, final OutputStream os) throws IOException {
 
 		final OutputStreamWriter osw = new OutputStreamWriter(os, "UTF-8");
 		final PrintWriter pw = new PrintWriter(osw);
 		pw.println("<?xml version='1.0'?>");
 
-		if (doc.getSystemID() != null) {
-			final StringBuffer sb = new StringBuffer();
-			sb.append("<!DOCTYPE ");
-			sb.append(doc.getRootElement().getPrefixedName());
-			if (doc.getPublicID() != null) {
-				sb.append(" PUBLIC");
-				sb.append(" \"");
-				sb.append(doc.getPublicID());
-				sb.append("\"");
-			} else {
-				sb.append(" SYSTEM");
-			}
-			sb.append(" \"");
-			sb.append(doc.getSystemID());
-			sb.append("\">");
-			pw.println(sb.toString());
-		}
-		writeNode(doc.getRootElement(), pw, "");
+		writeNode(document, pw, "");
 		pw.flush();
 	}
 
 	// ====================================================== PRIVATE
 
 	private void writeNode(final Node node, final PrintWriter pw, final String indent) {
+		node.accept(new BaseNodeVisitor() {
+			@Override
+			public void visit(final Document document) {
+				if (document.getSystemID() != null) {
+					final StringBuilder buffer = new StringBuilder();
+					buffer.append("<!DOCTYPE ");
+					buffer.append(document.getRootElement().getPrefixedName());
+					if (document.getPublicID() != null) {
+						buffer.append(" PUBLIC");
+						buffer.append(" \"");
+						buffer.append(document.getPublicID());
+						buffer.append("\"");
+					} else {
+						buffer.append(" SYSTEM");
+					}
+					buffer.append(" \"");
+					buffer.append(document.getSystemID());
+					buffer.append("\">");
+					pw.println(buffer.toString());
+				}
 
-		if (node instanceof Text) {
-			final TextWrapper wrapper = new TextWrapper();
-			wrapper.add(escape(node.getText()));
-
-			final String[] lines = wrapper.wrap(wrapColumn - indent.length());
-
-			for (final String line : lines) {
-				pw.print(indent);
-				pw.println(line);
-			}
-		} else if (node instanceof Comment) {
-			pw.print(indent);
-			pw.println("<!-- ");
-
-			final String childIndent = indent + this.indent;
-			// TODO writeText(node.getText(), pw, childIndent); 
-			final TextWrapper wrapper = new TextWrapper();
-			wrapper.add(escape(node.getText()));
-			final String[] lines = wrapper.wrap(wrapColumn - childIndent.length());
-
-			for (final String line : lines) {
-				pw.print(childIndent);
-				pw.println(line);
-			}
-
-			pw.print(indent);
-			pw.println(" -->");
-		} else {
-
-			final Element element = (Element) node;
-
-			if (whitespacePolicy != null && whitespacePolicy.isPre(element)) {
-				pw.print(indent);
-				writeNodeNoWrap(node, pw);
-				pw.println();
-				return;
-			}
-
-			boolean hasBlockChild = false;
-			final List<Element> children = element.getChildElements();
-			for (int i = 0; i < children.size(); i++) {
-				if (whitespacePolicy != null && whitespacePolicy.isBlock(children.get(i))) {
-					hasBlockChild = true;
-					break;
+				for (final Node child : document.getChildNodes()) {
+					writeNode(child, pw, indent);
 				}
 			}
 
-			if (hasBlockChild) {
-				pw.print(indent);
-				pw.print("<");
-				pw.print(element.getPrefixedName());
+			@Override
+			public void visit(final Element element) {
+				if (whitespacePolicy != null && whitespacePolicy.isPre(element)) {
+					pw.print(indent);
+					writeNodeNoWrap(node, pw);
+					pw.println();
+					return;
+				}
 
-				final TextWrapper wrapper = new TextWrapper();
-				wrapper.addNoSplit(getNamespaceDeclarationsString(element));
-				wrapper.addNoSplit(getAttributeString(element));
-				final int outdent = indent.length() + 1 + element.getPrefixedName().length();
-				final String[] lines = wrapper.wrap(wrapColumn - outdent);
-				final char[] bigIndent = new char[outdent];
-				Arrays.fill(bigIndent, ' ');
-				for (int i = 0; i < lines.length; i++) {
-					if (i > 0) {
-						pw.print(bigIndent);
-					}
-					pw.print(lines[i]);
-					if (i < lines.length - 1) {
-						pw.println();
+				boolean hasBlockChild = false;
+				final List<Element> children = element.getChildElements();
+				for (int i = 0; i < children.size(); i++) {
+					if (whitespacePolicy != null && whitespacePolicy.isBlock(children.get(i))) {
+						hasBlockChild = true;
+						break;
 					}
 				}
-				pw.println(">");
 
-				final String childIndent = indent + this.indent;
-				for (final Node child : element.getChildNodes()) {
-					writeNode(child, pw, childIndent);
+				if (hasBlockChild) {
+					pw.print(indent);
+					pw.print("<");
+					pw.print(element.getPrefixedName());
+
+					final TextWrapper wrapper = new TextWrapper();
+					wrapper.addNoSplit(getNamespaceDeclarationsString(element));
+					wrapper.addNoSplit(getAttributeString(element));
+					final int outdent = indent.length() + 1 + element.getPrefixedName().length();
+					final String[] lines = wrapper.wrap(wrapColumn - outdent);
+					final char[] bigIndent = new char[outdent];
+					Arrays.fill(bigIndent, ' ');
+					for (int i = 0; i < lines.length; i++) {
+						if (i > 0) {
+							pw.print(bigIndent);
+						}
+						pw.print(lines[i]);
+						if (i < lines.length - 1) {
+							pw.println();
+						}
+					}
+					pw.println(">");
+
+					final String childIndent = indent + DocumentWriter.this.indent;
+					for (final Node child : element.getChildNodes()) {
+						writeNode(child, pw, childIndent);
+					}
+					pw.print(indent);
+					pw.print("</");
+					pw.print(element.getPrefixedName());
+					pw.println(">");
+				} else {
+					final TextWrapper wrapper = new TextWrapper();
+					addNode(element, wrapper);
+					final String[] lines = wrapper.wrap(wrapColumn - indent.length());
+					for (final String line : lines) {
+						pw.print(indent);
+						pw.println(line);
+					}
 				}
+			}
+
+			@Override
+			public void visit(final Comment comment) {
 				pw.print(indent);
-				pw.print("</");
-				pw.print(element.getPrefixedName());
-				pw.println(">");
-			} else {
+				pw.println("<!-- ");
+
+				final String childIndent = indent + DocumentWriter.this.indent;
+				// TODO writeText(node.getText(), pw, childIndent); 
 				final TextWrapper wrapper = new TextWrapper();
-				addNode(element, wrapper);
+				wrapper.add(escape(node.getText()));
+				final String[] lines = wrapper.wrap(wrapColumn - childIndent.length());
+
+				for (final String line : lines) {
+					pw.print(childIndent);
+					pw.println(line);
+				}
+
+				pw.print(indent);
+				pw.println(" -->");
+			}
+
+			@Override
+			public void visit(final Text text) {
+				final TextWrapper wrapper = new TextWrapper();
+				wrapper.add(escape(node.getText()));
+
 				final String[] lines = wrapper.wrap(wrapColumn - indent.length());
+
 				for (final String line : lines) {
 					pw.print(indent);
 					pw.println(line);
 				}
 			}
-
-		}
+		});
 	}
 
 	private void writeNodeNoWrap(final Node node, final PrintWriter pw) {
+		node.accept(new BaseNodeVisitor() {
+			@Override
+			public void visit(final Element element) {
+				pw.print("<");
+				pw.print(element.getPrefixedName());
+				pw.print(getNamespaceDeclarationsString(element));
+				pw.print(getAttributeString(element));
+				pw.print(">");
 
-		if (node instanceof Text) {
-			pw.print(escape(node.getText()));
-		} else if (node instanceof Comment) {
-			pw.print("<!-- ");
-			pw.print(escape(node.getText()));
-			pw.print(" -->");
-		} else {
+				for (final Node child : element.getChildNodes()) {
+					writeNodeNoWrap(child, pw);
+				}
 
-			final Element element = (Element) node;
-
-			pw.print("<");
-			pw.print(element.getPrefixedName());
-			pw.print(getNamespaceDeclarationsString(element));
-			pw.print(getAttributeString(element));
-			pw.print(">");
-
-			for (final Node child : element.getChildNodes()) {
-				writeNodeNoWrap(child, pw);
+				pw.print("</");
+				pw.print(element.getPrefixedName());
+				pw.print(">");
 			}
 
-			pw.print("</");
-			pw.print(element.getPrefixedName());
-			pw.print(">");
-		}
+			@Override
+			public void visit(final Comment comment) {
+				pw.print("<!-- ");
+				pw.print(escape(node.getText()));
+				pw.print(" -->");
+			}
+
+			@Override
+			public void visit(final Text text) {
+				pw.print(escape(node.getText()));
+			}
+		});
 	}
 
 	private static String getNamespaceDeclarationsString(final Element element) {
@@ -291,36 +308,43 @@ public class DocumentWriter {
 	}
 
 	private static void addNode(final Node node, final TextWrapper wrapper) {
-		if (node instanceof Text) {
-			wrapper.add(escape(node.getText()));
-		} else if (node instanceof Comment) {
+		node.accept(new BaseNodeVisitor() {
+			@Override
+			public void visit(final Element element) {
+				final List<Node> content = element.getChildNodes();
 
-			wrapper.addNoSplit("<!-- ");
-			wrapper.add(escape(node.getText()));
-			wrapper.add(" -->");
-		} else {
-			final Element element = (Element) node;
-			final List<Node> content = element.getChildNodes();
+				final StringBuilder buffer = new StringBuilder();
+				buffer.append("<").append(element.getPrefixedName());
+				buffer.append(getNamespaceDeclarationsString(element));
+				buffer.append(getAttributeString(element));
+				if (content.isEmpty()) {
+					buffer.append("/>");
+				} else {
+					buffer.append(">");
+				}
+				wrapper.addNoSplit(buffer.toString());
 
-			final StringBuilder buffer = new StringBuilder();
-			buffer.append("<").append(element.getPrefixedName());
-			buffer.append(getNamespaceDeclarationsString(element));
-			buffer.append(getAttributeString(element));
-			if (content.isEmpty()) {
-				buffer.append("/>");
-			} else {
-				buffer.append(">");
+				for (final Node child : content) {
+					addNode(child, wrapper);
+				}
+
+				if (!content.isEmpty()) {
+					wrapper.add("</" + element.getPrefixedName() + ">");
+				}
 			}
-			wrapper.addNoSplit(buffer.toString());
 
-			for (final Node child : content) {
-				addNode(child, wrapper);
+			@Override
+			public void visit(final Comment comment) {
+				wrapper.addNoSplit("<!-- ");
+				wrapper.add(escape(node.getText()));
+				wrapper.addNoSplit(" -->");
 			}
 
-			if (!content.isEmpty()) {
-				wrapper.add("</" + element.getPrefixedName() + ">");
+			@Override
+			public void visit(final Text text) {
+				wrapper.add(escape(node.getText()));
 			}
-		}
+		});
 	}
 
 	private static String getAttributeString(final Element element) {
