@@ -11,7 +11,9 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.dom;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.List;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.QualifiedName;
@@ -55,6 +57,11 @@ public class DocumentBuilder implements ContentHandler, LexicalHandler {
 	private final LinkedList<StackEntry> stack = new LinkedList<StackEntry>();
 
 	private final NamespaceStack namespaceStack = new NamespaceStack();
+
+	private final List<Node> nodesBeforeRoot = new ArrayList<Node>();
+	private final List<Node> nodesAfterRoot = new ArrayList<Node>();
+
+	private boolean inDTD = false;
 
 	private Element rootElement;
 
@@ -105,6 +112,15 @@ public class DocumentBuilder implements ContentHandler, LexicalHandler {
 		document = new Document(content, rootElement);
 		document.setPublicID(dtdPublicID);
 		document.setSystemID(dtdSystemID);
+
+		int i = 0;
+		for (final Node node : nodesBeforeRoot) {
+			document.insertChild(i++, node);
+		}
+
+		for (final Node node : nodesAfterRoot) {
+			document.addChild(node);
+		}
 	}
 
 	public void endElement(final String namespaceURI, final String localName, final String qName) {
@@ -220,33 +236,76 @@ public class DocumentBuilder implements ContentHandler, LexicalHandler {
 	// ============================================== LexicalHandler methods
 
 	public void comment(final char[] ch, final int start, final int length) {
-		if (stack.isEmpty()) {
+		if (inDTD) {
 			return;
 		}
 
-		final Comment comment = new Comment();
-		final Element parent = stack.getLast().element;
-		parent.addChild(comment);
+		if (isBeforeRoot()) {
+			final Comment comment = new Comment();
+			final int startOffset = content.length();
+			content.insertTagMarker(content.length());
 
-		appendChars(isBlock(comment));
-		final int startOffset = content.length();
-		content.insertTagMarker(content.length());
-
-		trimLeading = true;
-		appendPendingCharsFiltered(ch, start, length);
-		appendChars(true);
-
-		content.insertTagMarker(content.length());
-		comment.associate(content, new ContentRange(startOffset, content.length() - 1));
-		if (isBlock(comment)) {
 			trimLeading = true;
+			appendPendingCharsFiltered(ch, start, length);
+			appendChars(true);
+
+			content.insertTagMarker(content.length());
+			comment.associate(content, new ContentRange(startOffset, content.length() - 1));
+			if (isBlock(comment)) {
+				trimLeading = true;
+			}
+
+			nodesBeforeRoot.add(comment);
+		} else if (isAfterRoot()) {
+			final Comment comment = new Comment();
+			final int startOffset = content.length();
+			content.insertTagMarker(content.length());
+
+			trimLeading = true;
+			appendPendingCharsFiltered(ch, start, length);
+			appendChars(true);
+
+			content.insertTagMarker(content.length());
+			comment.associate(content, new ContentRange(startOffset, content.length() - 1));
+			if (isBlock(comment)) {
+				trimLeading = true;
+			}
+
+			nodesAfterRoot.add(comment);
+		} else {
+			final Comment comment = new Comment();
+			final Element parent = stack.getLast().element;
+			parent.addChild(comment);
+
+			appendChars(isBlock(comment));
+			final int startOffset = content.length();
+			content.insertTagMarker(content.length());
+
+			trimLeading = true;
+			appendPendingCharsFiltered(ch, start, length);
+			appendChars(true);
+
+			content.insertTagMarker(content.length());
+			comment.associate(content, new ContentRange(startOffset, content.length() - 1));
+			if (isBlock(comment)) {
+				trimLeading = true;
+			}
 		}
+	}
+
+	private boolean isBeforeRoot() {
+		return stack.isEmpty() && rootElement == null;
+	}
+
+	private boolean isAfterRoot() {
+		return stack.isEmpty() && rootElement != null;
 	}
 
 	public void endCDATA() {
 	}
 
 	public void endDTD() {
+		inDTD = false;
 	}
 
 	public void endEntity(final String name) {
@@ -258,9 +317,10 @@ public class DocumentBuilder implements ContentHandler, LexicalHandler {
 	public void startDTD(final String name, final String publicId, final String systemId) {
 		dtdPublicID = publicId;
 		dtdSystemID = systemId;
+		inDTD = true;
 	}
 
-	public void startEntity(final java.lang.String name) {
+	public void startEntity(final String name) {
 	}
 
 	// ======================================================== PRIVATE

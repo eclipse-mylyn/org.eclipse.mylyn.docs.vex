@@ -131,7 +131,17 @@ public class DocumentReaderTest {
 	@Test
 	public void readDocumentWithComments() throws Exception {
 		final DocumentReader reader = new DocumentReader();
+
 		final Document document = reader.read(TestResources.get("documentWithComments.xml"));
+		final List<Node> documentChildNodes = document.getChildNodes();
+		assertEquals(3, documentChildNodes.size());
+
+		final Comment documentComment1 = (Comment) documentChildNodes.get(0);
+		assertEquals("A comment before the root element.", documentComment1.getText());
+
+		final Comment documentComment2 = (Comment) documentChildNodes.get(2);
+		assertEquals("A final comment after the root element.", documentComment2.getText());
+
 		final Element rootElement = document.getRootElement();
 		final List<Node> rootChildNodes = rootElement.getChildNodes();
 		assertEquals(4, rootChildNodes.size());
