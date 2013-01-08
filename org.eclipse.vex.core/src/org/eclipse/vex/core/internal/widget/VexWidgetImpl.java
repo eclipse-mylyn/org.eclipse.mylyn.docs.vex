@@ -1736,7 +1736,7 @@ public class VexWidgetImpl implements IVexWidget {
 			if (rootBox.getHeight() < viewport.getHeight()) {
 				y = 0;
 			} else {
-				y = rootBox.getHeight() - viewport.getHeight();
+				y = rootBox.getHeight() - viewport.getHeight() + caret.getBounds().getHeight();
 			}
 		} else if (caretBounds.getY() < viewport.getY()) {
 			y = caretBounds.getY();
