@@ -41,6 +41,10 @@
              uri="5.0/xsd/docbook.xsd">
        </uri>
        <uri
+             name="http://docbook.org/ns/docbook"
+             uri="5.0/xsd/docbook.xsd">
+       </uri>
+       <uri
              name="http://www.oasis-open.org/docbook/xml/5.0/xsd/xlink.xsd"
              uri="5.0/xsd/xlink.xsd">
        </uri>
@@ -228,6 +232,48 @@
    </extension>
 
    <extension
+         id="docbook5_0_XSD2"
+         name="%doctype.docbook5_0_XSD3"
+         point="org.eclipse.vex.ui.doctypes">
+      <doctype
+            outlineProvider="org.eclipse.vex.docbook.DocBookOutlineProvider"
+            publicId="http://docbook.org/ns/docbook"
+            systemId="5.0/xsd/docbook.xsd">
+            
+         <rootElement
+               name="article">
+         </rootElement>
+         <rootElement
+               name="appendix">
+         </rootElement>
+         <rootElement
+               name="book">
+         </rootElement>
+         <rootElement
+               name="chapter">
+         </rootElement>
+         <rootElement
+               name="sect1">
+         </rootElement>
+         <rootElement
+               name="sect2">
+         </rootElement>
+         <rootElement
+               name="sect3">
+         </rootElement>
+         <rootElement
+               name="sect4">
+         </rootElement>
+         <rootElement
+               name="sect5">
+         </rootElement>
+         <rootElement
+               name="section">
+         </rootElement>
+      </doctype>
+   </extension>
+
+   <extension
          id="docbook-plain"
          name="%style.docbook-plain"
          point="org.eclipse.vex.ui.styles">
@@ -238,6 +284,7 @@
          <doctypeRef publicId="-//OASIS//DTD DocBook XML 5.0//EN"/>
          <doctypeRef publicId="http://www.oasis-open.org/docbook/xml/5.0/xsd/docbook.xsd"/>
          <doctypeRef publicId="http://docbook.org/xml/5.0/xsd/docbook.xsd"/>
+         <doctypeRef publicId="http://docbook.org/ns/docbook"/>
       </style>
    </extension>
 
