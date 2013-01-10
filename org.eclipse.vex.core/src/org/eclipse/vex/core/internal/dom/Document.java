@@ -40,17 +40,16 @@ public class Document extends Parent {
 	 * Create a new document with the given root element. This constructor creates a Content object and associates both
 	 * the root element and the document with it.
 	 * 
-	 * @param rootElement
-	 *            root element of the document. The document property of this RootElement is set by this constructor.
-	 * 
+	 * @param rootElementName
+	 *            the name of the root element of the document
 	 */
-	public Document(final Element rootElement) {
+	public Document(final QualifiedName rootElementName) {
 		final GapContent content = new GapContent(100);
 		content.insertTagMarker(0);
 		content.insertTagMarker(0);
 		associate(content, content.getRange());
 
-		this.rootElement = rootElement;
+		rootElement = new Element(rootElementName);
 		addChild(rootElement);
 		content.insertTagMarker(1);
 		content.insertTagMarker(1);
@@ -62,9 +61,9 @@ public class Document extends Parent {
 	 * element have bee properly set up and are already associated. It associates the document with the given content.
 	 * 
 	 * @param content
-	 *            Content object used to store the document's content.
+	 *            Content object used to store the document's content
 	 * @param rootElement
-	 *            RootElement of the document.
+	 *            root element of the document
 	 * 
 	 */
 	public Document(final Content content, final Element rootElement) {

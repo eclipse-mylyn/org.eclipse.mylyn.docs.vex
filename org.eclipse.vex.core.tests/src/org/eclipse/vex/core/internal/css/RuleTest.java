@@ -30,8 +30,8 @@ public class RuleTest extends TestCase {
 		final StyleSheet ss = reader.read(url);
 		final List<Rule> rules = ss.getRules();
 
-		final Element a = new Element("a");
-		final Document doc = new Document(a);
+		final Document doc = new Document(new QualifiedName(null, "a"));
+		final Element a = doc.getRootElement();
 		final Element b = doc.insertElement(2, new QualifiedName(null, "b"));
 		final Element c = doc.insertElement(3, new QualifiedName(null, "c"));
 		final Element d = doc.insertElement(4, new QualifiedName(null, "d"));
@@ -266,8 +266,8 @@ public class RuleTest extends TestCase {
 		final StyleSheet ss = reader.read(url);
 		final List<Rule> rules = ss.getRules();
 
-		final Element a = new Element("a");
-		final Document doc = new Document(a);
+		final Document doc = new Document(new QualifiedName(null, "a"));
+		final Element a = doc.getRootElement();
 		final Element ns = doc.insertElement(2, new QualifiedName("http://namespace/uri", "b"));
 
 		ns.setAttribute("color", "blue");

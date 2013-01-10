@@ -28,9 +28,8 @@ public class DocumentTest {
 
 	@Test
 	public void createDocumentWithRootElement() throws Exception {
-		final Element rootElement = new Element("root");
-		final Document document = new Document(rootElement);
-		assertDocumentConnectedToRootElement(rootElement, document);
+		final Document document = new Document(new QualifiedName(null, "root"));
+		assertDocumentConnectedToRootElement(document.getRootElement(), document);
 	}
 
 	@Test
@@ -54,7 +53,7 @@ public class DocumentTest {
 
 	@Test
 	public void createFragmentWithTextAndChild() throws Exception {
-		final Document document = new Document(new Element("root"));
+		final Document document = new Document(new QualifiedName(null, "root"));
 		final Element childElement = document.insertElement(2, new QualifiedName(null, "child"));
 		document.insertText(childElement.getStartOffset(), "Hello ");
 		document.insertText(childElement.getEndOffset(), "Child");
@@ -67,7 +66,7 @@ public class DocumentTest {
 
 	@Test
 	public void createFragmentWithExactlyOneChild() throws Exception {
-		final Document document = new Document(new Element("root"));
+		final Document document = new Document(new QualifiedName(null, "root"));
 		final Element childElement = document.insertElement(2, new QualifiedName(null, "child"));
 		document.insertText(childElement.getEndOffset(), "Child");
 		final ContentRange range = childElement.getRange();
@@ -78,7 +77,7 @@ public class DocumentTest {
 
 	@Test
 	public void givenElementWithText_whenRangeBeginsFromStartOffset_shouldProvideParentAsCommenNode() throws Exception {
-		final Document document = new Document(new Element("root"));
+		final Document document = new Document(new QualifiedName(null, "root"));
 		final Element childElement = document.insertElement(2, new QualifiedName(null, "child"));
 		document.insertText(childElement.getEndOffset(), "Hello World");
 
@@ -89,7 +88,7 @@ public class DocumentTest {
 
 	@Test
 	public void givenElementWithText_whenRangeWithinText_shouldProvideElementAsCommonNode() throws Exception {
-		final Document document = new Document(new Element("root"));
+		final Document document = new Document(new QualifiedName(null, "root"));
 		final Element childElement = document.insertElement(2, new QualifiedName(null, "child"));
 		document.insertText(childElement.getEndOffset(), "Hello World");
 

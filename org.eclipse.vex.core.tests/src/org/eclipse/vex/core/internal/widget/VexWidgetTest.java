@@ -31,8 +31,8 @@ import org.junit.Test;
 
 public class VexWidgetTest {
 
-	static final QualifiedName TITLE = new QualifiedName(null, "title");
-	static final QualifiedName PARA = new QualifiedName(null, "para");
+	public static final QualifiedName TITLE = new QualifiedName(null, "title");
+	public static final QualifiedName PARA = new QualifiedName(null, "para");
 
 	@Test
 	public void provideOnlyAllowedElementsFromDtd() throws Exception {
@@ -111,14 +111,14 @@ public class VexWidgetTest {
 
 	public static Document createDocumentWithDTD(final String dtdIdentifier, final String rootElementName) {
 		final Validator validator = new WTPVEXValidator(dtdIdentifier);
-		final Document document = new Document(new Element(rootElementName));
+		final Document document = new Document(new QualifiedName(null, rootElementName));
 		document.setValidator(validator);
 		return document;
 	}
 
 	public static Document createDocument(final String rootSchemaIdentifier, final String rootElementName) {
 		final Validator validator = new WTPVEXValidator();
-		final Document document = new Document(new Element(new QualifiedName(rootSchemaIdentifier, rootElementName)));
+		final Document document = new Document(new QualifiedName(rootSchemaIdentifier, rootElementName));
 		document.setValidator(validator);
 		return document;
 	}

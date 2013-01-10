@@ -128,8 +128,7 @@ public class NewDocumentWizard extends BasicNewResourceWizard {
 	}
 
 	private static Document createDocumentWithDTD(final DocumentType documentType, final String rootElementName) {
-		final Element root = new Element(rootElementName);
-		final Document result = new Document(root);
+		final Document result = new Document(new QualifiedName(null, rootElementName));
 		result.setPublicID(documentType.getPublicId());
 		result.setSystemID(documentType.getSystemId());
 		return result;
@@ -137,7 +136,9 @@ public class NewDocumentWizard extends BasicNewResourceWizard {
 
 	private static Document createDocumentWithSchema(final DocumentType documentType, final String rootElementName) {
 		final String defaultNamespaceUri = documentType.getPublicId();
-		final Element root = new Element(new QualifiedName(defaultNamespaceUri, rootElementName));
+		final Document document = new Document(new QualifiedName(defaultNamespaceUri, rootElementName));
+
+		final Element root = document.getRootElement();
 		root.declareDefaultNamespace(defaultNamespaceUri);
 
 		final WTPVEXValidator validator = new WTPVEXValidator(new DocumentContentModel(null, null, null, root));
@@ -148,7 +149,7 @@ public class NewDocumentWizard extends BasicNewResourceWizard {
 			}
 		}
 
-		return new Document(root);
+		return document;
 	}
 
 	/**

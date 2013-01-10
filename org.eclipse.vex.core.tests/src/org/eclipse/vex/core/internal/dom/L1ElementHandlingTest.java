@@ -35,7 +35,7 @@ public class L1ElementHandlingTest {
 
 	@Before
 	public void setUp() throws Exception {
-		document = new Document(new Element("root"));
+		document = new Document(new QualifiedName(null, "root"));
 		rootElement = document.getRootElement();
 		document.setValidator(new DummyValidator() {
 			@Override

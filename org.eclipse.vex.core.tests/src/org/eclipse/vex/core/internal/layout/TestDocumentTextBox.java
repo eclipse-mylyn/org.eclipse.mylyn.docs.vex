@@ -14,6 +14,7 @@ import java.net.URL;
 
 import junit.framework.TestCase;
 
+import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.css.StyleSheetReader;
 import org.eclipse.vex.core.internal.css.Styles;
@@ -45,8 +46,8 @@ public class TestDocumentTextBox extends TestCase {
 	}
 
 	public void testSplit() throws Exception {
-		final Element root = new Element("root");
-		final Document doc = new Document(root);
+		final Document doc = new Document(new QualifiedName(null, "root"));
+		final Element root = doc.getRootElement();
 
 		final Styles styles = context.getStyleSheet().getStyles(root);
 

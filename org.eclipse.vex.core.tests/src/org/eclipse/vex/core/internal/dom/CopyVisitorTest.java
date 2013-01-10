@@ -25,7 +25,7 @@ public class CopyVisitorTest {
 
 	@Test(expected = UnsupportedOperationException.class)
 	public void shouldNotCopyDocument() throws Exception {
-		final Document document = new Document(new Element("root"));
+		final Document document = new Document(new QualifiedName(null, "root"));
 
 		final CopyVisitor copyVisitor = new CopyVisitor();
 		document.accept(copyVisitor);

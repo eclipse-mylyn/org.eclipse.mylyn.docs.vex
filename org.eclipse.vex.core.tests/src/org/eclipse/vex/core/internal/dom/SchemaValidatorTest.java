@@ -137,7 +137,7 @@ public class SchemaValidatorTest {
 	@Test
 	public void validItemsFromSimpleSchema() throws Exception {
 		final Validator validator = new WTPVEXValidator();
-		final Document doc = new Document(new Element(P));
+		final Document doc = new Document(P);
 		doc.setValidator(validator);
 		doc.insertElement(2, B);
 		doc.insertElement(3, I);
@@ -162,7 +162,7 @@ public class SchemaValidatorTest {
 		 * needs their parent to find the definition of their content model.
 		 */
 		final Validator validator = new WTPVEXValidator();
-		final Document doc = new Document(new Element(CHAPTER));
+		final Document doc = new Document(CHAPTER);
 		doc.setValidator(validator);
 		doc.insertElement(2, TITLE);
 		doc.insertElement(4, P);

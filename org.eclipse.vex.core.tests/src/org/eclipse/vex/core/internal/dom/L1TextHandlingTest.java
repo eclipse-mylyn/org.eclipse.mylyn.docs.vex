@@ -31,7 +31,7 @@ public class L1TextHandlingTest {
 
 	@Before
 	public void setUp() throws Exception {
-		document = new Document(new Element("root"));
+		document = new Document(new QualifiedName(null, "root"));
 		titleElement = document.insertElement(2, new QualifiedName(null, "title"));
 		document.setValidator(new DummyValidator() {
 			@Override

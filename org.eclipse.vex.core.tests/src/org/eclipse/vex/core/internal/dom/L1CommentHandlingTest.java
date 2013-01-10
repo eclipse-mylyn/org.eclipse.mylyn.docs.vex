@@ -32,7 +32,7 @@ public class L1CommentHandlingTest {
 
 	@Before
 	public void setUp() throws Exception {
-		document = new Document(new Element("root"));
+		document = new Document(new QualifiedName(null, "root"));
 		rootElement = document.getRootElement();
 		titleElement = document.insertElement(2, new QualifiedName(null, "title"));
 	}

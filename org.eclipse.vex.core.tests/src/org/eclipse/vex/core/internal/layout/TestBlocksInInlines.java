@@ -20,7 +20,6 @@ import org.eclipse.vex.core.internal.css.MockDisplayDevice;
 import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.css.StyleSheetReader;
 import org.eclipse.vex.core.internal.dom.Document;
-import org.eclipse.vex.core.internal.dom.Element;
 
 /**
  * Tests proper function of a block-level element within an inline element. These must be layed out as a block child of
@@ -51,8 +50,7 @@ public class TestBlocksInInlines extends TestCase {
 	}
 
 	public void testBlockInInline() throws Exception {
-		final Element root = new Element("root");
-		final Document doc = new Document(root);
+		final Document doc = new Document(new QualifiedName(null, "root"));
 		context.setDocument(doc);
 
 		doc.insertText(2, "one  five");
