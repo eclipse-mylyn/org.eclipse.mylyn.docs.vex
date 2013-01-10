@@ -18,6 +18,7 @@ import org.eclipse.vex.ui.internal.config.tests.ConfigLoaderJobTest;
 import org.eclipse.vex.ui.internal.config.tests.ConfigurationRegistryTest;
 import org.eclipse.vex.ui.internal.editor.tests.FindReplaceTargetTest;
 import org.eclipse.vex.ui.internal.namespace.tests.EditNamespacesControllerTest;
+import org.eclipse.vex.ui.internal.swt.tests.DocumentFragmentTransferTest;
 import org.eclipse.vex.ui.internal.tests.ResourceTrackerTest;
 
 public class VexUiTestSuite extends TestSuite {
@@ -31,7 +32,8 @@ public class VexUiTestSuite extends TestSuite {
 		addTest(new JUnit4TestAdapter(ConfigLoaderJobTest.class));
 		addTest(new JUnit4TestAdapter(ConfigurationRegistryTest.class));
 		addTest(new JUnit4TestAdapter(EditNamespacesControllerTest.class));
-		addTestSuite(IconTest.class);
+		addTest(new JUnit4TestAdapter(DocumentFragmentTransferTest.class));
+		//		addTestSuite(IconTest.class);
 		addTestSuite(FindReplaceTargetTest.class);
 		addTestSuite(ResourceTrackerTest.class);
 	}

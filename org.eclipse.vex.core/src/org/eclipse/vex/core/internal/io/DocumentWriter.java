@@ -22,6 +22,7 @@ import org.eclipse.vex.core.internal.dom.Attribute;
 import org.eclipse.vex.core.internal.dom.BaseNodeVisitor;
 import org.eclipse.vex.core.internal.dom.Comment;
 import org.eclipse.vex.core.internal.dom.Document;
+import org.eclipse.vex.core.internal.dom.DocumentFragment;
 import org.eclipse.vex.core.internal.dom.Element;
 import org.eclipse.vex.core.internal.dom.IWhitespacePolicy;
 import org.eclipse.vex.core.internal.dom.Node;
@@ -147,6 +148,14 @@ public class DocumentWriter {
 		printWriter.flush();
 	}
 
+	public void write(final DocumentFragment fragment, final OutputStream out) throws IOException {
+		final PrintWriter printWriter = new PrintWriter(new OutputStreamWriter(out, "UTF-8"));
+		printWriter.println("<?xml version='1.0' encoding='UTF-8'?>");
+
+		writeNode(fragment, printWriter, "");
+		printWriter.flush();
+	}
+
 	// ====================================================== PRIVATE
 
 	private void writeNode(final Node node, final PrintWriter out, final String indent) {
@@ -174,6 +183,15 @@ public class DocumentWriter {
 				for (final Node child : document.getChildNodes()) {
 					writeNode(child, out, indent);
 				}
+			}
+
+			@Override
+			public void visit(final DocumentFragment fragment) {
+				out.print("<vex_fragment>");
+				for (final Node child : fragment.getChildNodes()) {
+					writeNodeNoWrap(child, out);
+				}
+				out.println("</vex_fragment>");
 			}
 
 			@Override
@@ -356,7 +374,8 @@ public class DocumentWriter {
 	}
 
 	private static String getAttributeString(final Element element) {
-		final Validator validator = element.getDocument().getValidator();
+		final Document document = element.getDocument();
+		final Validator validator = document != null ? document.getValidator() : null;
 
 		final StringBuffer result = new StringBuffer();
 		for (final Attribute attribute : element.getAttributes()) {
