@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.eclipse.core.runtime.QualifiedName;
+import org.eclipse.vex.core.internal.io.DocumentReader;
 import org.eclipse.vex.core.internal.validator.WTPVEXValidator;
 import org.eclipse.wst.common.uriresolver.internal.provisional.URIResolver;
 import org.eclipse.wst.common.uriresolver.internal.provisional.URIResolverPlugin;

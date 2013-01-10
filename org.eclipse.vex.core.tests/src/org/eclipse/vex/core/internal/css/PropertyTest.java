@@ -16,8 +16,8 @@ import junit.framework.TestCase;
 
 import org.eclipse.vex.core.internal.core.DisplayDevice;
 import org.eclipse.vex.core.internal.dom.Document;
-import org.eclipse.vex.core.internal.dom.DocumentReader;
 import org.eclipse.vex.core.internal.dom.Element;
+import org.eclipse.vex.core.internal.io.DocumentReader;
 import org.w3c.css.sac.InputSource;
 import org.w3c.css.sac.LexicalUnit;
 import org.w3c.css.sac.Parser;

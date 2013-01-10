@@ -8,7 +8,7 @@
  * Contributors:
  *     John Krasnay - initial API and implementation
  *******************************************************************************/
-package org.eclipse.vex.core.internal.dom;
+package org.eclipse.vex.core.internal.io;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -26,6 +26,15 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.css.StyleSheetReader;
+import org.eclipse.vex.core.internal.dom.BaseNodeVisitor;
+import org.eclipse.vex.core.internal.dom.Comment;
+import org.eclipse.vex.core.internal.dom.Document;
+import org.eclipse.vex.core.internal.dom.Element;
+import org.eclipse.vex.core.internal.dom.Node;
+import org.eclipse.vex.core.internal.dom.Parent;
+import org.eclipse.vex.core.internal.dom.Text;
+import org.eclipse.vex.core.internal.io.DocumentReader;
+import org.eclipse.vex.core.internal.io.DocumentWriter;
 import org.eclipse.vex.core.internal.widget.CssWhitespacePolicy;
 import org.eclipse.vex.core.tests.TestResources;
 import org.junit.Test;

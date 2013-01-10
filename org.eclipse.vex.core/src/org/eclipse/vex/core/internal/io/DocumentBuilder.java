@@ -9,7 +9,7 @@
  *     John Krasnay - initial API and implementation
  *     Igor Jacy Lino Campista - Java 5 warnings fixed (bug 311325)
  *******************************************************************************/
-package org.eclipse.vex.core.internal.dom;
+package org.eclipse.vex.core.internal.io;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -17,6 +17,16 @@ import java.util.List;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.QualifiedName;
+import org.eclipse.vex.core.internal.dom.Comment;
+import org.eclipse.vex.core.internal.dom.Content;
+import org.eclipse.vex.core.internal.dom.ContentRange;
+import org.eclipse.vex.core.internal.dom.Document;
+import org.eclipse.vex.core.internal.dom.DocumentContentModel;
+import org.eclipse.vex.core.internal.dom.DocumentValidationException;
+import org.eclipse.vex.core.internal.dom.Element;
+import org.eclipse.vex.core.internal.dom.GapContent;
+import org.eclipse.vex.core.internal.dom.IWhitespacePolicy;
+import org.eclipse.vex.core.internal.dom.Node;
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.Locator;

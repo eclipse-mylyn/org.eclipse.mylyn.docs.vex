@@ -33,7 +33,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.vex.core.internal.dom.DocumentWriter;
+import org.eclipse.vex.core.internal.io.DocumentWriter;
 import org.eclipse.vex.ui.internal.VexPlugin;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;

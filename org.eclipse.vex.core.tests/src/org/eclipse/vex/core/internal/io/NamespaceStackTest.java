@@ -8,12 +8,13 @@
  * Contributors:
  * 		Florian Thienel - initial API and implementation
  *******************************************************************************/
-package org.eclipse.vex.core.internal.dom;
+package org.eclipse.vex.core.internal.io;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
+import org.eclipse.vex.core.internal.io.NamespaceStack;
 import org.junit.Test;
 
 /**

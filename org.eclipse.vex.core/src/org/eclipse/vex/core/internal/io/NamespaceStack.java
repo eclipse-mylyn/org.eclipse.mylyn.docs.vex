@@ -8,7 +8,7 @@
  * Contributors:
  * 		Florian Thienel - initial API and implementation
  *******************************************************************************/
-package org.eclipse.vex.core.internal.dom;
+package org.eclipse.vex.core.internal.io;
 
 import java.util.ArrayList;
 import java.util.Collection;

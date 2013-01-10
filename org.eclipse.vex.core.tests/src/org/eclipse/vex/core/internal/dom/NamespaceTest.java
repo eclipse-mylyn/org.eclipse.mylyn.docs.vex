@@ -22,6 +22,8 @@ import java.io.IOException;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.eclipse.core.runtime.QualifiedName;
+import org.eclipse.vex.core.internal.io.DocumentReader;
+import org.eclipse.vex.core.internal.io.DocumentWriter;
 import org.junit.Test;
 import org.xml.sax.SAXException;
 

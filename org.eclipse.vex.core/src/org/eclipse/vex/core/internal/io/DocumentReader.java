@@ -8,7 +8,7 @@
  * Contributors:
  *     John Krasnay - initial API and implementation
  *******************************************************************************/
-package org.eclipse.vex.core.internal.dom;
+package org.eclipse.vex.core.internal.io;
 
 import java.io.CharArrayReader;
 import java.io.IOException;
@@ -22,6 +22,8 @@ import java.net.URL;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParserFactory;
 
+import org.eclipse.vex.core.internal.dom.Document;
+import org.eclipse.vex.core.internal.dom.DocumentContentModel;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;

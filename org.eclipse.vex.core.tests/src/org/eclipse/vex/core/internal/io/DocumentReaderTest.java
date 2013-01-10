@@ -8,7 +8,7 @@
  * Contributors:
  * 		Florian Thienel - initial API and implementation
  *******************************************************************************/
-package org.eclipse.vex.core.internal.dom;
+package org.eclipse.vex.core.internal.io;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -20,6 +20,12 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.List;
 
+import org.eclipse.vex.core.internal.dom.Comment;
+import org.eclipse.vex.core.internal.dom.Document;
+import org.eclipse.vex.core.internal.dom.DocumentContentModel;
+import org.eclipse.vex.core.internal.dom.Element;
+import org.eclipse.vex.core.internal.dom.Node;
+import org.eclipse.vex.core.internal.io.DocumentReader;
 import org.eclipse.vex.core.tests.TestResources;
 import org.eclipse.wst.xml.core.internal.contentmodel.CMDocument;
 import org.eclipse.wst.xml.core.internal.contentmodel.ContentModelManager;

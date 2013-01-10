@@ -9,7 +9,7 @@
  *     John Krasnay - initial API and implementation
  *     Igor Jacy Lino Campista - Java 5 warnings fixed (bug 311325)
  *******************************************************************************/
-package org.eclipse.vex.core.internal.dom;
+package org.eclipse.vex.core.internal.io;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -41,6 +41,12 @@ import org.eclipse.vex.core.internal.core.DisplayDevice;
 import org.eclipse.vex.core.internal.css.MockDisplayDevice;
 import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.css.StyleSheetReader;
+import org.eclipse.vex.core.internal.dom.Document;
+import org.eclipse.vex.core.internal.dom.DocumentContentModel;
+import org.eclipse.vex.core.internal.dom.Element;
+import org.eclipse.vex.core.internal.dom.IWhitespacePolicy;
+import org.eclipse.vex.core.internal.dom.Node;
+import org.eclipse.vex.core.internal.dom.Text;
 import org.eclipse.vex.core.internal.widget.CssWhitespacePolicy;
 import org.eclipse.vex.core.tests.VEXCoreTestPlugin;
 import org.osgi.framework.Bundle;
@@ -104,7 +110,7 @@ public class SpaceNormalizerTest extends TestCase {
 		destinationFile.create(source, true, new NullProgressMonitor());
 	}
 
-	protected IFile getFileInProject(final String path) {
+	private IFile getFileInProject(final String path) {
 		return fTestProject.getFile(new Path(path));
 	}
 
@@ -148,7 +154,7 @@ public class SpaceNormalizerTest extends TestCase {
 	/**
 	 * Returns the workspace instance.
 	 */
-	public static IWorkspace getWorkspace() {
+	private static IWorkspace getWorkspace() {
 		return ResourcesPlugin.getWorkspace();
 	}
 

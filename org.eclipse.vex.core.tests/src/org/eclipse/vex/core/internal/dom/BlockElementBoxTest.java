@@ -19,6 +19,7 @@ import junit.framework.TestCase;
 import org.eclipse.vex.core.internal.core.Graphics;
 import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.css.StyleSheetReader;
+import org.eclipse.vex.core.internal.io.DocumentReader;
 import org.eclipse.vex.core.internal.layout.BlockElementBox;
 import org.eclipse.vex.core.internal.layout.Box;
 import org.eclipse.vex.core.internal.layout.CssBoxFactory;

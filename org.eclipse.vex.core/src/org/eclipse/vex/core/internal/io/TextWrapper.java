@@ -10,7 +10,7 @@
  *     David Carver unit tests fixes
  *     Igor Jacy Lino Campista - Java 5 warnings fixed (bug 311325)
  *******************************************************************************/
-package org.eclipse.vex.core.internal.dom;
+package org.eclipse.vex.core.internal.io;
 
 import java.util.ArrayList;
 import java.util.List;

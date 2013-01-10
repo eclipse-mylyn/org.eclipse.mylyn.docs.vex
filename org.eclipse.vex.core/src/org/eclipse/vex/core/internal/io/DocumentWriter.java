@@ -9,7 +9,7 @@
  *     John Krasnay - initial API and implementation
  *     Igor Jacy Lino Campista - Java 5 warnings fixed (bug 311325)
  *******************************************************************************/
-package org.eclipse.vex.core.internal.dom;
+package org.eclipse.vex.core.internal.io;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -18,6 +18,15 @@ import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.List;
 
+import org.eclipse.vex.core.internal.dom.Attribute;
+import org.eclipse.vex.core.internal.dom.BaseNodeVisitor;
+import org.eclipse.vex.core.internal.dom.Comment;
+import org.eclipse.vex.core.internal.dom.Document;
+import org.eclipse.vex.core.internal.dom.Element;
+import org.eclipse.vex.core.internal.dom.IWhitespacePolicy;
+import org.eclipse.vex.core.internal.dom.Node;
+import org.eclipse.vex.core.internal.dom.Text;
+import org.eclipse.vex.core.internal.dom.Validator;
 import org.eclipse.vex.core.internal.validator.AttributeDefinition;
 
 /**
