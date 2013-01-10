@@ -48,12 +48,10 @@ public class DocumentWriter {
 	private String indent;
 	private int wrapColumn;
 
-	/**
-	 * Class constructor.
-	 */
 	public DocumentWriter() {
 		indent = "  ";
 		wrapColumn = 72;
+		whitespacePolicy = IWhitespacePolicy.NULL;
 	}
 
 /**
@@ -86,24 +84,10 @@ public class DocumentWriter {
 	}
 
 	/**
-	 * Returns the indent string. By default this is two spaces.
+	 * @return the indent string. By default this is two spaces.
 	 */
 	public String getIndent() {
 		return indent;
-	}
-
-	/**
-	 * Returns the whitespace policy used by this writer.
-	 */
-	public IWhitespacePolicy getWhitespacePolicy() {
-		return whitespacePolicy;
-	}
-
-	/**
-	 * Returns the column at which text should be wrapped. By default this is 72.
-	 */
-	public int getWrapColumn() {
-		return wrapColumn;
 	}
 
 	/**
@@ -117,6 +101,13 @@ public class DocumentWriter {
 	}
 
 	/**
+	 * @return the whitespace policy used by this writer.
+	 */
+	public IWhitespacePolicy getWhitespacePolicy() {
+		return whitespacePolicy;
+	}
+
+	/**
 	 * Sets the whitespace policy for this writer. The whitespace policy tells the writer which elements are
 	 * block-formatted and which are pre-formatted.
 	 * 
@@ -124,7 +115,18 @@ public class DocumentWriter {
 	 *            The whitespacePolicy to set.
 	 */
 	public void setWhitespacePolicy(final IWhitespacePolicy whitespacePolicy) {
-		this.whitespacePolicy = whitespacePolicy;
+		if (whitespacePolicy == null) {
+			this.whitespacePolicy = IWhitespacePolicy.NULL;
+		} else {
+			this.whitespacePolicy = whitespacePolicy;
+		}
+	}
+
+	/**
+	 * @return the column at which text should be wrapped. By default this is 72.
+	 */
+	public int getWrapColumn() {
+		return wrapColumn;
 	}
 
 	/**
@@ -137,19 +139,17 @@ public class DocumentWriter {
 		this.wrapColumn = wrapColumn;
 	}
 
-	public void write(final Document document, final OutputStream os) throws IOException {
+	public void write(final Document document, final OutputStream out) throws IOException {
+		final PrintWriter printWriter = new PrintWriter(new OutputStreamWriter(out, "UTF-8"));
+		printWriter.println("<?xml version='1.0' encoding='UTF-8'?>");
 
-		final OutputStreamWriter osw = new OutputStreamWriter(os, "UTF-8");
-		final PrintWriter pw = new PrintWriter(osw);
-		pw.println("<?xml version='1.0'?>");
-
-		writeNode(document, pw, "");
-		pw.flush();
+		writeNode(document, printWriter, "");
+		printWriter.flush();
 	}
 
 	// ====================================================== PRIVATE
 
-	private void writeNode(final Node node, final PrintWriter pw, final String indent) {
+	private void writeNode(final Node node, final PrintWriter out, final String indent) {
 		node.accept(new BaseNodeVisitor() {
 			@Override
 			public void visit(final Document document) {
@@ -168,36 +168,36 @@ public class DocumentWriter {
 					buffer.append(" \"");
 					buffer.append(document.getSystemID());
 					buffer.append("\">");
-					pw.println(buffer.toString());
+					out.println(buffer.toString());
 				}
 
 				for (final Node child : document.getChildNodes()) {
-					writeNode(child, pw, indent);
+					writeNode(child, out, indent);
 				}
 			}
 
 			@Override
 			public void visit(final Element element) {
-				if (whitespacePolicy != null && whitespacePolicy.isPre(element)) {
-					pw.print(indent);
-					writeNodeNoWrap(node, pw);
-					pw.println();
+				if (whitespacePolicy.isPre(element)) {
+					out.print(indent);
+					writeNodeNoWrap(node, out);
+					out.println();
 					return;
 				}
 
 				boolean hasBlockChild = false;
 				final List<Element> children = element.getChildElements();
 				for (int i = 0; i < children.size(); i++) {
-					if (whitespacePolicy != null && whitespacePolicy.isBlock(children.get(i))) {
+					if (whitespacePolicy.isBlock(children.get(i))) {
 						hasBlockChild = true;
 						break;
 					}
 				}
 
 				if (hasBlockChild) {
-					pw.print(indent);
-					pw.print("<");
-					pw.print(element.getPrefixedName());
+					out.print(indent);
+					out.print("<");
+					out.print(element.getPrefixedName());
 
 					final TextWrapper wrapper = new TextWrapper();
 					wrapper.addNoSplit(getNamespaceDeclarationsString(element));
@@ -208,52 +208,51 @@ public class DocumentWriter {
 					Arrays.fill(bigIndent, ' ');
 					for (int i = 0; i < lines.length; i++) {
 						if (i > 0) {
-							pw.print(bigIndent);
+							out.print(bigIndent);
 						}
-						pw.print(lines[i]);
+						out.print(lines[i]);
 						if (i < lines.length - 1) {
-							pw.println();
+							out.println();
 						}
 					}
-					pw.println(">");
+					out.println(">");
 
 					final String childIndent = indent + DocumentWriter.this.indent;
 					for (final Node child : element.getChildNodes()) {
-						writeNode(child, pw, childIndent);
+						writeNode(child, out, childIndent);
 					}
-					pw.print(indent);
-					pw.print("</");
-					pw.print(element.getPrefixedName());
-					pw.println(">");
+					out.print(indent);
+					out.print("</");
+					out.print(element.getPrefixedName());
+					out.println(">");
 				} else {
 					final TextWrapper wrapper = new TextWrapper();
 					addNode(element, wrapper);
 					final String[] lines = wrapper.wrap(wrapColumn - indent.length());
 					for (final String line : lines) {
-						pw.print(indent);
-						pw.println(line);
+						out.print(indent);
+						out.println(line);
 					}
 				}
 			}
 
 			@Override
 			public void visit(final Comment comment) {
-				pw.print(indent);
-				pw.println("<!-- ");
+				out.print(indent);
+				out.println("<!-- ");
 
 				final String childIndent = indent + DocumentWriter.this.indent;
-				// TODO writeText(node.getText(), pw, childIndent); 
 				final TextWrapper wrapper = new TextWrapper();
 				wrapper.add(escape(node.getText()));
 				final String[] lines = wrapper.wrap(wrapColumn - childIndent.length());
 
 				for (final String line : lines) {
-					pw.print(childIndent);
-					pw.println(line);
+					out.print(childIndent);
+					out.println(line);
 				}
 
-				pw.print(indent);
-				pw.println(" -->");
+				out.print(indent);
+				out.println(" -->");
 			}
 
 			@Override
@@ -264,42 +263,42 @@ public class DocumentWriter {
 				final String[] lines = wrapper.wrap(wrapColumn - indent.length());
 
 				for (final String line : lines) {
-					pw.print(indent);
-					pw.println(line);
+					out.print(indent);
+					out.println(line);
 				}
 			}
 		});
 	}
 
-	private void writeNodeNoWrap(final Node node, final PrintWriter pw) {
+	private void writeNodeNoWrap(final Node node, final PrintWriter out) {
 		node.accept(new BaseNodeVisitor() {
 			@Override
 			public void visit(final Element element) {
-				pw.print("<");
-				pw.print(element.getPrefixedName());
-				pw.print(getNamespaceDeclarationsString(element));
-				pw.print(getAttributeString(element));
-				pw.print(">");
+				out.print("<");
+				out.print(element.getPrefixedName());
+				out.print(getNamespaceDeclarationsString(element));
+				out.print(getAttributeString(element));
+				out.print(">");
 
 				for (final Node child : element.getChildNodes()) {
-					writeNodeNoWrap(child, pw);
+					writeNodeNoWrap(child, out);
 				}
 
-				pw.print("</");
-				pw.print(element.getPrefixedName());
-				pw.print(">");
+				out.print("</");
+				out.print(element.getPrefixedName());
+				out.print(">");
 			}
 
 			@Override
 			public void visit(final Comment comment) {
-				pw.print("<!-- ");
-				pw.print(escape(node.getText()));
-				pw.print(" -->");
+				out.print("<!-- ");
+				out.print(escape(node.getText()));
+				out.print(" -->");
 			}
 
 			@Override
 			public void visit(final Text text) {
-				pw.print(escape(node.getText()));
+				out.print(escape(node.getText()));
 			}
 		});
 	}
@@ -361,7 +360,7 @@ public class DocumentWriter {
 
 		final StringBuffer result = new StringBuffer();
 		for (final Attribute attribute : element.getAttributes()) {
-			if (!attrHasDefaultValue(validator, attribute)) {
+			if (!isAttributeDefaultValueSet(validator, attribute)) {
 				result.append(" ");
 				result.append(attribute.getPrefixedName());
 				result.append("=\"");
@@ -372,7 +371,7 @@ public class DocumentWriter {
 		return result.toString();
 	}
 
-	private static boolean attrHasDefaultValue(final Validator validator, final Attribute attribute) {
+	private static boolean isAttributeDefaultValueSet(final Validator validator, final Attribute attribute) {
 		if (validator != null) {
 			final AttributeDefinition attributeDefinition = validator.getAttributeDefinition(attribute);
 			if (attributeDefinition != null) {
