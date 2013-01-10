@@ -10,6 +10,9 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.layout;
 
+import java.text.MessageFormat;
+
+import org.eclipse.core.runtime.Assert;
 import org.eclipse.vex.core.internal.core.ColorResource;
 import org.eclipse.vex.core.internal.core.FontResource;
 import org.eclipse.vex.core.internal.core.Graphics;
@@ -39,18 +42,14 @@ public class DocumentTextBox extends TextBox {
 	 */
 	public DocumentTextBox(final LayoutContext context, final Node node, final int startOffset, final int endOffset) {
 		super(node);
-
-		if (startOffset > endOffset) {
-			throw new IllegalStateException("DocumentTextBox: startOffset (" + startOffset + ") > endOffset (" + endOffset + ")");
-		}
+		Assert.isTrue(startOffset <= endOffset, MessageFormat.format("DocumentTextBox for {2}: startOffset {0} > endOffset {1}", startOffset, endOffset, node));
 
 		startRelative = startOffset - node.getStartOffset();
 		endRelative = endOffset - node.getStartOffset();
 		calculateSize(context);
 
-		if (getText().length() < endOffset - startOffset) {
-			throw new IllegalStateException();
-		}
+		Assert.isTrue(getText().length() >= endOffset - startOffset,
+				MessageFormat.format("DocumentTextBox for {2}: text shorter than range: {0} < {1}", getText().length(), endOffset - startOffset, node));
 	}
 
 	/**
