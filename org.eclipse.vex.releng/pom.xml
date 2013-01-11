@@ -8,24 +8,68 @@
 	<version>1.1.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
 	
-	<parent>
-		<artifactId>org.eclipse.vex-parent</artifactId>
-		<groupId>org.eclipse.vex</groupId>
-		<version>1.1.0-SNAPSHOT</version>
-		<relativePath>../pom.xml</relativePath>
-	</parent>
-	
-	<pluginRepositories>
-		<pluginRepository>
-			<id>snapshots</id>
-			<url>http://snapshots.repository.codehaus.org/</url>
-			<releases><enabled>false</enabled></releases>
-		</pluginRepository>
-	</pluginRepositories>
-
 	<properties>
-		<tycho-version>0.10.0</tycho-version>
+		<tycho-version>0.16.0</tycho-version>
+		<project.build.sourceEncoding>Cp1252</project.build.sourceEncoding>
 	</properties>
+
+	<repositories>
+		<repository>
+			<id>indigo</id>
+			<url>http://download.eclipse.org/releases/indigo/</url>
+			<layout>p2</layout>
+		</repository>
+		<repository>
+			<id>orbit</id>
+			<url>http://download.eclipse.org/tools/orbit/downloads/drops/R20110523182458/repository</url>
+			<layout>p2</layout>
+		</repository>
+		<!-- 
+		<repository>
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+			<id>vex-milestones</id>
+			<url>http://download.eclipse.org/vex/milestones</url>
+			<layout>default</layout>
+		</repository>
+		<repository>
+			<id>vex-releases</id>
+			<url>http://download.eclipse.org/vex/releases</url>
+			<layout>default</layout>
+		</repository>
+		 -->
+	</repositories>
+	
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-maven-plugin</artifactId>
+				<version>${tycho-version}</version>
+				<extensions>true</extensions>
+			</plugin>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>target-platform-configuration</artifactId>
+				<version>${tycho-version}</version>
+				<configuration>
+					<environments>
+						<environment>
+							<os>win32</os>
+							<ws>win32</ws>
+							<arch>x86</arch>
+						</environment>
+					</environments>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-versions-plugin</artifactId>
+				<version>${tycho-version}</version>
+			</plugin>
+		</plugins>
+	</build>
 
 	<modules>
 		<module>../org.eclipse.vex</module>
@@ -43,84 +87,20 @@
 		<module>../org.eclipse.vex.ui.tests</module>
 	</modules>
 
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.sonatype.tycho</groupId>
-				<artifactId>tycho-maven-plugin</artifactId>
-				<version>${tycho-version}</version>
-				<extensions>true</extensions>
-			</plugin>
-			<plugin>
-				<groupId>org.sonatype.tycho</groupId>
-				<artifactId>target-platform-configuration</artifactId>
-				<version>${tycho-version}</version>
-				<configuration>
-					<resolver>p2</resolver>
-				</configuration>
-			</plugin>
-			<plugin>
-				<groupId>org.sonatype.tycho</groupId>
-				<artifactId>maven-osgi-source-plugin</artifactId>
-				<version>${tycho-version}</version>
-				<configuration>
-					<encoding>UTF-8</encoding>
-				</configuration>
-				<executions>
-					<execution>
-						<id>attach-source</id>
-						<goals>
-							<goal>plugin-source</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
-		</plugins>
-		<pluginManagement>
-			<plugins>
-				<plugin>
-					<groupId>org.sonatype.tycho</groupId>
-					<artifactId>maven-osgi-compiler-plugin</artifactId>
-					<version>${tycho-version}</version>
-					<configuration>
-						<encoding>UTF-8</encoding>
-					</configuration>
-				</plugin>
-				<plugin>
-					<groupId>org.sonatype.tycho</groupId>
-					<artifactId>maven-osgi-packaging-plugin</artifactId>
-					<version>${tycho-version}</version>
-					<configuration>
-						<archiveSite>true</archiveSite>
-					</configuration>
-				</plugin>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-resources-plugin</artifactId>
-					<version>2.4.1</version>
-					<configuration>
-						<encoding>UTF-8</encoding>
-					</configuration>
-				</plugin>
-	            <plugin>
-	               <groupId>org.apache.maven.plugins</groupId>
-	               <artifactId>maven-pmd-plugin</artifactId>
-	               <version>2.5</version>
-	            </plugin>
-        	</plugins>
-		</pluginManagement>
-	</build>
-	<repositories>
-		<repository>
-			<id>indigo</id>
-			<url>http://download.eclipse.org/releases/indigo/</url>
-			<layout>p2</layout>
-		</repository>
-		<repository>
-			<id>orbit</id>
-			<url>http://download.eclipse.org/tools/orbit/downloads/drops/R20110523182458/repository</url>
-			<layout>p2</layout>
-		</repository>
-	</repositories>
+	<mailingLists>
+		<mailingList>
+			<name>Vex Mailing List</name>
+			<post>mylyn-vex-dev@eclipse.org</post>
+			<subscribe>https://dev.eclipse.org/mailman/listinfo/mylyn-vex-dev</subscribe>
+			<unsubscribe>https://dev.eclipse.org/mailman/listinfo/mylyn-vex-dev</unsubscribe>
+			<archive>http://dev.eclipse.org/mhonarc/lists/mylyn-vex-dev</archive>
+		</mailingList>
+	</mailingLists>
+	<issueManagement>
+		<url>https://bugs.eclipse.org/bugs/buglist.cgi?query_format=advanced;classification=Mylyn;product=Mylyn%20Docs%20Vex</url>
+		<system>Bugzilla</system>
+	</issueManagement>
+
+	<name>Vex Releng</name>
 </project>
 

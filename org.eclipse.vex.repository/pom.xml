@@ -2,10 +2,9 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-  <groupId>org.eclipse.vex</groupId>
-  <artifactId>org.eclipse.vex.repository</artifactId>
-  <packaging>eclipse-update-site</packaging>
-  <name>Vex Update Site</name>
+	<artifactId>org.eclipse.vex.repository</artifactId>
+	<packaging>eclipse-repository</packaging>
+	<name>Vex Update Site</name>
 
 	<parent>
 		<artifactId>org.eclipse.vex-releng</artifactId>
