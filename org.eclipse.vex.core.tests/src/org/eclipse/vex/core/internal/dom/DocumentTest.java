@@ -61,7 +61,7 @@ public class DocumentTest {
 		final ContentRange range = childElement.getRange().resizeBy(-2, 2);
 		final DocumentFragment fragment = document.getFragment(range);
 		assertEquals(11, fragment.getLength());
-		assertNodesEqual(document.getNodes(range), fragment.getNodes());
+		assertNodesEqual(document.getNodes(range), fragment.getNodes(), range.getStartOffset());
 	}
 
 	@Test
@@ -72,7 +72,7 @@ public class DocumentTest {
 		final ContentRange range = childElement.getRange();
 		final DocumentFragment fragment = document.getFragment(range);
 		assertEquals(7, fragment.getLength());
-		assertNodesEqual(document.getNodes(range), fragment.getNodes());
+		assertNodesEqual(document.getNodes(range), fragment.getNodes(), range.getStartOffset());
 	}
 
 	@Test
@@ -97,18 +97,19 @@ public class DocumentTest {
 		assertSame(childElement, commonNode);
 	}
 
-	private static void assertNodesEqual(final List<? extends Node> expected, final List<? extends Node> actual) {
+	private static void assertNodesEqual(final List<? extends Node> expected, final List<? extends Node> actual, final int rangeOffsetExpected) {
 		assertEquals(expected.size(), actual.size());
 		for (int i = 0; i < expected.size(); i++) {
-			assertNodeEquals(expected.get(i), actual.get(i));
+			assertNodeEquals(expected.get(i), actual.get(i), rangeOffsetExpected);
 		}
 	}
 
-	private static void assertNodeEquals(final Node expected, final Node actual) {
-		assertSame(expected.getClass(), actual.getClass());
-		assertEquals(expected.getText(), actual.getText());
+	private static void assertNodeEquals(final Node expected, final Node actual, final int rangeOffsetExpected) {
+		assertSame("node class", expected.getClass(), actual.getClass());
+		assertEquals("node range", expected.getRange(), actual.getRange().moveBy(rangeOffsetExpected));
+		assertEquals("node text", expected.getText(), actual.getText());
 		if (expected instanceof Parent) {
-			assertNodesEqual(((Parent) expected).getChildNodes(), ((Parent) actual).getChildNodes());
+			assertNodesEqual(((Parent) expected).getChildNodes(), ((Parent) actual).getChildNodes(), rangeOffsetExpected);
 		}
 	}
 
