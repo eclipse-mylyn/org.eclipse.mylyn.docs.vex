@@ -97,6 +97,22 @@ public class DocumentTest {
 		assertSame(childElement, commonNode);
 	}
 
+	@Test
+	public void insertFragmentWithChildGrandChildAndText() throws Exception {
+		final Document document = new Document(new QualifiedName(null, "root"));
+		final Element child = document.insertElement(2, new QualifiedName(null, "child"));
+		document.insertText(child.getEndOffset(), "Hello ");
+		final Element grandChild = document.insertElement(child.getEndOffset(), new QualifiedName(null, "grandchild"));
+		document.insertText(grandChild.getEndOffset(), "Grandchild");
+		document.insertText(child.getEndOffset(), " World");
+
+		final DocumentFragment expectedFragment = document.getFragment(child.getRange());
+		document.insertFragment(document.getRootElement().getEndOffset(), expectedFragment);
+		final DocumentFragment actualFragment = document.getFragment(new ContentRange(child.getEndOffset() + 1, document.getRootElement().getEndOffset() - 1));
+
+		assertNodeEquals(expectedFragment, actualFragment, 0);
+	}
+
 	private static void assertNodesEqual(final List<? extends Node> expected, final List<? extends Node> actual, final int rangeOffsetExpected) {
 		assertEquals(expected.size(), actual.size());
 		for (int i = 0; i < expected.size(); i++) {

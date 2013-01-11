@@ -415,11 +415,21 @@ public class Document extends Parent {
 		int index = parent.getIndexOfChildNextTo(offset);
 		for (final Node newNode : newNodes) {
 			parent.insertChild(index, newNode);
-			newNode.associate(getContent(), newNode.getRange().moveBy(offset));
+			associateDeeply(newNode, offset);
 			index++;
 		}
 
 		fireContentInserted(new DocumentEvent(this, parent, offset, fragment.getContent().length(), null));
+	}
+
+	private void associateDeeply(final Node node, final int offset) {
+		if (node instanceof Parent) {
+			final Parent parent = (Parent) node;
+			for (final Node child : parent.getChildNodes()) {
+				associateDeeply(child, offset);
+			}
+		}
+		node.associate(getContent(), node.getRange().moveBy(offset));
 	}
 
 	/**
