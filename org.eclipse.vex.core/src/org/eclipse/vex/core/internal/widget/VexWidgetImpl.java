@@ -15,6 +15,7 @@ package org.eclipse.vex.core.internal.widget;
 
 import java.io.IOException;
 import java.net.URL;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -90,6 +91,7 @@ public class VexWidgetImpl implements IVexWidget {
 	private static final int MIN_LAYOUT_WIDTH = 200;
 
 	private boolean debugging;
+	private boolean readOnly;
 
 	private final HostComponent hostComponent;
 	private int layoutWidth = 500; // something reasonable to handle a document
@@ -116,9 +118,6 @@ public class VexWidgetImpl implements IVexWidget {
 	private int mark;
 	private int selectionStart;
 	private int selectionEnd;
-
-	// TODO remove
-	// private Element currentElement;
 
 	private Node currentNode;
 
@@ -200,6 +199,9 @@ public class VexWidgetImpl implements IVexWidget {
 	}
 
 	public boolean canInsertComment() {
+		if (readOnly) {
+			return false;
+		}
 		return getDocument().canInsertComment(getCaretOffset());
 	}
 
@@ -210,6 +212,9 @@ public class VexWidgetImpl implements IVexWidget {
 	 *            DocumentFragment to be inserted.
 	 */
 	public boolean canInsertFragment(final DocumentFragment frag) {
+		if (readOnly) {
+			return false;
+		}
 
 		final Document doc = getDocument();
 		if (doc == null) {
@@ -240,6 +245,10 @@ public class VexWidgetImpl implements IVexWidget {
 	 * Returns true if text can be inserted at the current position.
 	 */
 	public boolean canInsertText() {
+		if (readOnly) {
+			return false;
+		}
+
 		final Document doc = getDocument();
 		if (doc == null) {
 			return false;
@@ -274,14 +283,24 @@ public class VexWidgetImpl implements IVexWidget {
 	}
 
 	public boolean canRedo() {
+		if (readOnly) {
+			return false;
+		}
 		return !redoList.isEmpty();
 	}
 
 	public boolean canUndo() {
+		if (readOnly) {
+			return false;
+		}
 		return !undoList.isEmpty();
 	}
 
 	public boolean canUnwrap() {
+		if (readOnly) {
+			return false;
+		}
+
 		final Document doc = getDocument();
 		if (doc == null) {
 			return false;
@@ -314,7 +333,11 @@ public class VexWidgetImpl implements IVexWidget {
 		throw new UnsupportedOperationException("Must be implemented in tookit-specific widget.");
 	}
 
-	public void deleteNextChar() throws DocumentValidationException {
+	public void deleteNextChar() throws DocumentValidationException, ReadOnlyException {
+		if (readOnly) {
+			throw new ReadOnlyException("Cannot delete, because the editor is read-only.");
+		}
+
 		if (hasSelection()) {
 			deleteSelection();
 		} else {
@@ -344,7 +367,11 @@ public class VexWidgetImpl implements IVexWidget {
 		}
 	}
 
-	public void deletePreviousChar() throws DocumentValidationException {
+	public void deletePreviousChar() throws DocumentValidationException, ReadOnlyException {
+		if (readOnly) {
+			throw new ReadOnlyException("Cannot delete, because the editor is read-only.");
+		}
+
 		if (hasSelection()) {
 			deleteSelection();
 		} else {
@@ -376,7 +403,11 @@ public class VexWidgetImpl implements IVexWidget {
 		}
 	}
 
-	public void deleteSelection() {
+	public void deleteSelection() throws ReadOnlyException {
+		if (readOnly) {
+			throw new ReadOnlyException("Cannot delete, because the editor is read-only.");
+		}
+
 		try {
 			if (hasSelection()) {
 				applyEdit(new DeleteEdit(document, getSelectedRange()), getSelectionStart());
@@ -569,6 +600,10 @@ public class VexWidgetImpl implements IVexWidget {
 	}
 
 	public ElementName[] getValidInsertElements() {
+		if (readOnly) {
+			return new ElementName[0];
+		}
+
 		final Document doc = getDocument();
 		if (doc == null) {
 			return new ElementName[0];
@@ -654,6 +689,10 @@ public class VexWidgetImpl implements IVexWidget {
 	}
 
 	public ElementName[] getValidMorphElements() {
+		if (readOnly) {
+			return new ElementName[0];
+		}
+
 		final Document doc = getDocument();
 		if (doc == null) {
 			return new ElementName[0];
@@ -743,7 +782,11 @@ public class VexWidgetImpl implements IVexWidget {
 		return getSelectionStart() != getSelectionEnd();
 	}
 
-	public Element insertElement(final QualifiedName elementName) throws DocumentValidationException {
+	public Element insertElement(final QualifiedName elementName) throws DocumentValidationException, ReadOnlyException {
+		if (readOnly) {
+			throw new ReadOnlyException(MessageFormat.format("Cannot insert element {0}, because the editor is read-only.", elementName));
+		}
+
 		boolean success = false;
 		final Element result;
 		try {
@@ -770,6 +813,10 @@ public class VexWidgetImpl implements IVexWidget {
 	}
 
 	public void insertFragment(final DocumentFragment fragment) throws DocumentValidationException {
+		if (readOnly) {
+			throw new ReadOnlyException("Cannot insert fragment, because the editor is read-only");
+		}
+
 		if (hasSelection()) {
 			deleteSelection();
 		}
@@ -777,7 +824,11 @@ public class VexWidgetImpl implements IVexWidget {
 		this.moveTo(getCaretOffset() + fragment.getLength());
 	}
 
-	public void insertText(final String text) throws DocumentValidationException {
+	public void insertText(final String text) throws DocumentValidationException, ReadOnlyException {
+		if (readOnly) {
+			throw new ReadOnlyException("Cannot insert text, because the editor is read-only.");
+		}
+
 		if (hasSelection()) {
 			deleteSelection();
 		}
@@ -807,7 +858,11 @@ public class VexWidgetImpl implements IVexWidget {
 		}
 	}
 
-	public void insertChar(final char c) throws DocumentValidationException {
+	public void insertChar(final char c) throws DocumentValidationException, ReadOnlyException {
+		if (readOnly) {
+			throw new ReadOnlyException("Cannot insert a character, because the editor is read-only.");
+		}
+
 		if (hasSelection()) {
 			deleteSelection();
 		}
@@ -815,7 +870,10 @@ public class VexWidgetImpl implements IVexWidget {
 		this.moveBy(+1);
 	}
 
-	public Comment insertComment() throws DocumentValidationException {
+	public Comment insertComment() throws DocumentValidationException, ReadOnlyException {
+		if (readOnly) {
+			throw new ReadOnlyException("Cannot insert comment, because the editor is read-only.");
+		}
 		Assert.isTrue(canInsertComment());
 
 		if (hasSelection()) {
@@ -837,7 +895,10 @@ public class VexWidgetImpl implements IVexWidget {
 		}
 	}
 
-	public void morph(final QualifiedName elementName) throws DocumentValidationException {
+	public void morph(final QualifiedName elementName) throws DocumentValidationException, ReadOnlyException {
+		if (readOnly) {
+			throw new ReadOnlyException(MessageFormat.format("Cannot morph to element {0}, because the editor is read-only.", elementName));
+		}
 
 		final Document doc = getDocument();
 		final int offset = getCaretOffset();
@@ -1114,7 +1175,10 @@ public class VexWidgetImpl implements IVexWidget {
 		throw new UnsupportedOperationException("Must be implemented in tookit-specific widget.");
 	}
 
-	public void redo() throws CannotRedoException {
+	public void redo() throws CannotRedoException, ReadOnlyException {
+		if (readOnly) {
+			throw new ReadOnlyException("Cannot redo, because the editor is read-only.");
+		}
 		if (redoList.isEmpty()) {
 			throw new CannotRedoException();
 		}
@@ -1167,7 +1231,11 @@ public class VexWidgetImpl implements IVexWidget {
 		this.antiAliased = antiAliased;
 	}
 
-	public void setAttribute(final String attributeName, final String value) {
+	public void setAttribute(final String attributeName, final String value) throws ReadOnlyException {
+		if (readOnly) {
+			throw new ReadOnlyException(MessageFormat.format("Cannot set attribute {0}, because the editor is read-only.", attributeName));
+		}
+
 		final Element element = getCurrentElement();
 		if (element == null) {
 			// TODO throw IllegalStateException("Not in element");
@@ -1183,10 +1251,13 @@ public class VexWidgetImpl implements IVexWidget {
 		}
 	}
 
-	public void removeAttribute(final String attributeName) {
+	public void removeAttribute(final String attributeName) throws ReadOnlyException {
+		if (readOnly) {
+			throw new ReadOnlyException(MessageFormat.format("Cannot remove attribute {0}, because the editor is read-only.", attributeName));
+		}
+
 		final Element element = getCurrentElement();
 		if (element == null) {
-			// TODO throw IllegalStateException("Not in element");
 			return;
 		}
 
@@ -1206,6 +1277,14 @@ public class VexWidgetImpl implements IVexWidget {
 
 	public void setDebugging(final boolean debugging) {
 		this.debugging = debugging;
+	}
+
+	public boolean isReadOnly() {
+		return readOnly;
+	}
+
+	public void setReadOnly(final boolean readOnly) {
+		this.readOnly = readOnly;
 	}
 
 	public void setDocument(final Document document, final StyleSheet styleSheet) {
@@ -1264,7 +1343,10 @@ public class VexWidgetImpl implements IVexWidget {
 		this.setStyleSheet(ss);
 	}
 
-	public void split() throws DocumentValidationException {
+	public void split() throws DocumentValidationException, ReadOnlyException {
+		if (readOnly) {
+			throw new ReadOnlyException("Cannot split, because the editor is read-only.");
+		}
 
 		final long start = System.currentTimeMillis();
 
@@ -1292,8 +1374,7 @@ public class VexWidgetImpl implements IVexWidget {
 					deleteSelection();
 				}
 
-				// either way, we are now at the end offset for the element
-				// let's move just outside
+				// either way, we are now at the end offset for the element, let's move just outside
 				this.moveBy(1);
 
 				insertElement(element.getQualifiedName());
@@ -1325,7 +1406,11 @@ public class VexWidgetImpl implements IVexWidget {
 		repaintCaret();
 	}
 
-	public void undo() throws CannotUndoException {
+	public void undo() throws CannotUndoException, ReadOnlyException {
+		if (readOnly) {
+			throw new ReadOnlyException("Cannot undo, because the editor is read-only.");
+		}
+
 		if (undoList.isEmpty()) {
 			throw new CannotUndoException();
 		}
@@ -1344,7 +1429,11 @@ public class VexWidgetImpl implements IVexWidget {
 		return offset;
 	}
 
-	public void declareNamespace(final String namespacePrefix, final String namespaceURI) {
+	public void declareNamespace(final String namespacePrefix, final String namespaceURI) throws ReadOnlyException {
+		if (readOnly) {
+			throw new ReadOnlyException(MessageFormat.format("Cannot declare namespace {0}, because the editor is read-only.", namespacePrefix));
+		}
+
 		final Element element = getCurrentElement();
 		if (element == null) {
 			// TODO throw IllegalStateException("Not in element");
@@ -1354,7 +1443,11 @@ public class VexWidgetImpl implements IVexWidget {
 		applyEdit(new ChangeNamespaceEdit(element, namespacePrefix, currentNamespaceURI, namespaceURI), getCaretOffset());
 	}
 
-	public void removeNamespace(final String namespacePrefix) {
+	public void removeNamespace(final String namespacePrefix) throws ReadOnlyException {
+		if (readOnly) {
+			throw new ReadOnlyException(MessageFormat.format("Cannot remove namespace {0}, because the editor is read-only.", namespacePrefix));
+		}
+
 		final Element element = getCurrentElement();
 		if (element == null) {
 			// TODO throw IllegalStateException("Not in element");
@@ -1364,7 +1457,11 @@ public class VexWidgetImpl implements IVexWidget {
 		applyEdit(new ChangeNamespaceEdit(element, namespacePrefix, currentNamespaceURI, null), getCaretOffset());
 	}
 
-	public void declareDefaultNamespace(final String namespaceURI) {
+	public void declareDefaultNamespace(final String namespaceURI) throws ReadOnlyException {
+		if (readOnly) {
+			throw new ReadOnlyException("Cannot declare default namespace, because the editor is read-only.");
+		}
+
 		final Element element = getCurrentElement();
 		if (element == null) {
 			// TODO throw IllegalStateException("Not in element");
@@ -1374,7 +1471,11 @@ public class VexWidgetImpl implements IVexWidget {
 		applyEdit(new ChangeNamespaceEdit(element, null, currentNamespaceURI, namespaceURI), getCaretOffset());
 	}
 
-	public void removeDefaultNamespace() {
+	public void removeDefaultNamespace() throws ReadOnlyException {
+		if (readOnly) {
+			throw new ReadOnlyException("Cannot remove default namespace, because the editor is read-only.");
+		}
+
 		final Element element = getCurrentElement();
 		if (element == null) {
 			// TODO throw IllegalStateException("Not in element");

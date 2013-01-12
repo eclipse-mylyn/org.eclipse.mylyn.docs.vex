@@ -289,6 +289,10 @@ public interface IVexWidget {
 	 */
 	public void setDebugging(boolean debugging);
 
+	public boolean isReadOnly();
+
+	public void setReadOnly(boolean readOnly);
+
 	/**
 	 * Replaces the current element with an element with the given name. The content of the element is preserved.
 	 * 

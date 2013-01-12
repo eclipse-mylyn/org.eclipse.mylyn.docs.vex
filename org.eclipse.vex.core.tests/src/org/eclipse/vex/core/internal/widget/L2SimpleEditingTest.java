@@ -21,6 +21,7 @@ import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
 import org.eclipse.vex.core.internal.css.StyleSheet;
+import org.eclipse.vex.core.internal.dom.DocumentFragment;
 import org.eclipse.vex.core.internal.dom.Element;
 import org.junit.Before;
 import org.junit.Test;
@@ -220,4 +221,46 @@ public class L2SimpleEditingTest {
 		assertEquals("A", titleElement.getText());
 	}
 
+	@Test(expected = ReadOnlyException.class)
+	public void whenReadOnly_shouldNotInsertText() throws Exception {
+		widget.insertElement(TITLE); // need an element where text would be valid
+		widget.setReadOnly(true);
+		assertFalse(widget.canInsertText());
+		widget.insertText("Hello World");
+	}
+
+	@Test(expected = ReadOnlyException.class)
+	public void whenReadOnly_shouldNotInsertChar() throws Exception {
+		widget.insertElement(TITLE); // need an element where text would be valid
+		widget.setReadOnly(true);
+		assertFalse(widget.canInsertText());
+		widget.insertChar('H');
+	}
+
+	@Test(expected = ReadOnlyException.class)
+	public void whenReadOnly_shouldNotInsertElement() throws Exception {
+		widget.setReadOnly(true);
+		assertTrue(widget.getValidInsertElements().length == 0);
+		widget.insertElement(TITLE);
+	}
+
+	@Test(expected = ReadOnlyException.class)
+	public void whenReadOnly_shouldNotInsertComment() throws Exception {
+		widget.setReadOnly(true);
+		assertFalse(widget.canInsertComment());
+		widget.insertComment();
+	}
+
+	@Test(expected = ReadOnlyException.class)
+	public void whenReadOnly_shouldNotInsertFragment() throws Exception {
+		widget.insertElement(TITLE);
+		widget.moveBy(1);
+		final Element para = widget.insertElement(PARA);
+		final DocumentFragment fragment = widget.getDocument().getFragment(para.getRange());
+		widget.moveTo(widget.getDocument().getRootElement().getEndOffset());
+
+		widget.setReadOnly(true);
+		assertFalse(widget.canInsertFragment(fragment));
+		widget.insertFragment(fragment);
+	}
 }

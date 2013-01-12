@@ -71,6 +71,7 @@ import org.eclipse.vex.core.internal.layout.BoxFactory;
 import org.eclipse.vex.core.internal.widget.HostComponent;
 import org.eclipse.vex.core.internal.widget.IBoxFilter;
 import org.eclipse.vex.core.internal.widget.IVexWidget;
+import org.eclipse.vex.core.internal.widget.ReadOnlyException;
 import org.eclipse.vex.core.internal.widget.VexWidgetImpl;
 import org.eclipse.vex.ui.internal.handlers.IVexWidgetHandler;
 
@@ -106,9 +107,7 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 	@Override
 	public void dispose() {
 		super.dispose();
-		impl.setFocus(false); // This stops the caret timer, in case the
-								// control
-		// is disposed before focus is lost.
+		impl.setFocus(false); // This stops the caret timer, in case the control is disposed before focus is lost.
 	}
 
 	public Object getInput() {
@@ -183,7 +182,11 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 		clipboard.setContents(data, transfers);
 	}
 
-	public void cutSelection() {
+	public void cutSelection() throws ReadOnlyException {
+		if (isReadOnly()) {
+			throw new ReadOnlyException("Cannot cut selection, because the editor is read-only.");
+		}
+
 		copySelection();
 		deleteSelection();
 	}
@@ -348,10 +351,11 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 		impl.moveToPreviousWord(select);
 	}
 
-	/**
-	 * @see org.eclipse.vex.core.internal.widget.IVexWidget#paste()
-	 */
-	public void paste() throws DocumentValidationException {
+	public void paste() throws DocumentValidationException, ReadOnlyException {
+		if (isReadOnly()) {
+			throw new ReadOnlyException("Cannot paste, because the editor is read-only.");
+		}
+
 		final Clipboard clipboard = new Clipboard(getDisplay());
 		final DocumentFragment frag = (DocumentFragment) clipboard.getContents(DocumentFragmentTransfer.getInstance());
 		if (frag != null) {
@@ -361,10 +365,11 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 		}
 	}
 
-	/**
-	 * @see org.eclipse.vex.core.internal.widget.IVexWidget#pasteText()
-	 */
-	public void pasteText() throws DocumentValidationException {
+	public void pasteText() throws DocumentValidationException, ReadOnlyException {
+		if (isReadOnly()) {
+			throw new ReadOnlyException("Cannot paste text, because the editor is read-only.");
+		}
+
 		final Clipboard clipboard = new Clipboard(getDisplay());
 		final String text = (String) clipboard.getContents(TextTransfer.getInstance());
 		if (text != null) {
@@ -402,6 +407,14 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 
 	public void setDebugging(final boolean debugging) {
 		impl.setDebugging(debugging);
+	}
+
+	public boolean isReadOnly() {
+		return impl.isReadOnly();
+	}
+
+	public void setReadOnly(final boolean readOnly) {
+		impl.setReadOnly(readOnly);
 	}
 
 	public void setDocument(final Document doc, final StyleSheet styleSheet) {
@@ -599,6 +612,8 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 			if (handler != null) {
 				try {
 					handler.execute(VexWidget.this);
+				} catch (final ReadOnlyException e) {
+					// TODO give feedback: the editor is read-only
 				} catch (final Exception ex) {
 					ex.printStackTrace();
 				}
@@ -606,9 +621,9 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 				try {
 					insertChar(event.character);
 				} catch (final DocumentValidationException e) {
-					// TODO give feedback: at this document position
-					//                     no character could be entered
-					// e.printStackTrace();
+					// TODO give feedback: at this document position no character can be entered
+				} catch (final ReadOnlyException e) {
+					// TODO give feedback: the editor is read-only
 				}
 			}
 		}

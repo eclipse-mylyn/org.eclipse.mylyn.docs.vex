@@ -308,19 +308,26 @@ public class VexEditor extends EditorPart {
 		try {
 			final long start = System.currentTimeMillis();
 
-			final InputSource inputSource = new InputSource();
+			final InputSource inputSource;
+			final boolean readOnly;
 			if (input instanceof IFileEditorInput) {
 				final IFile file = ((IFileEditorInput) input).getFile();
+				inputSource = new InputSource();
 				inputSource.setByteStream(file.getContents());
 				inputSource.setSystemId(file.getLocationURI().toString());
 				inputSource.setEncoding(file.getCharset());
+				readOnly = file.isReadOnly();
 			} else if (input instanceof IStorageEditorInput) {
 				final IStorage storage = ((IStorageEditorInput) input).getStorage();
+				inputSource = new InputSource();
 				inputSource.setByteStream(storage.getContents());
 				inputSource.setSystemId(storage.getFullPath().toString());
+				readOnly = storage.isReadOnly();
 			} else if (input instanceof IURIEditorInput) {
 				final URI uri = ((IURIEditorInput) input).getURI();
+				inputSource = new InputSource();
 				inputSource.setSystemId(uri.toString());
+				readOnly = true;
 			} else {
 				final String msg = MessageFormat.format(Messages.getString("VexEditor.unknownInputClass"), //$NON-NLS-1$
 						new Object[] { input.getClass() });
@@ -362,6 +369,7 @@ public class VexEditor extends EditorPart {
 
 			vexWidget.setDebugging(debugging);
 			vexWidget.setDocument(document, style.getStyleSheet());
+			vexWidget.setReadOnly(readOnly);
 
 			if (documentContentModel.shouldAssignInferredDocumentType()) {
 				document.setPublicID(doctype.getPublicId());
