@@ -16,6 +16,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.URI;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -26,6 +27,7 @@ import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IResourceChangeListener;
 import org.eclipse.core.resources.IResourceDelta;
+import org.eclipse.core.resources.IStorage;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -48,6 +50,8 @@ import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.IFileEditorInput;
+import org.eclipse.ui.IStorageEditorInput;
+import org.eclipse.ui.IURIEditorInput;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
@@ -84,6 +88,7 @@ import org.eclipse.vex.ui.internal.handlers.RemoveTagHandler;
 import org.eclipse.vex.ui.internal.outline.DocumentOutlinePage;
 import org.eclipse.vex.ui.internal.property.ElementPropertySource;
 import org.eclipse.vex.ui.internal.swt.VexWidget;
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXParseException;
 
 /**
@@ -302,10 +307,19 @@ public class VexEditor extends EditorPart {
 		try {
 			final long start = System.currentTimeMillis();
 
-			final IFile file;
-
+			final InputSource inputSource = new InputSource();
 			if (input instanceof IFileEditorInput) {
-				file = ((IFileEditorInput) input).getFile();
+				final IFile file = ((IFileEditorInput) input).getFile();
+				inputSource.setByteStream(file.getContents());
+				inputSource.setSystemId(file.getLocationURI().toString());
+				inputSource.setEncoding(file.getCharset());
+			} else if (input instanceof IStorageEditorInput) {
+				final IStorage storage = ((IStorageEditorInput) input).getStorage();
+				inputSource.setByteStream(storage.getContents());
+				inputSource.setSystemId(storage.getFullPath().toString());
+			} else if (input instanceof IURIEditorInput) {
+				final URI uri = ((IURIEditorInput) input).getURI();
+				inputSource.setSystemId(uri.toString());
 			} else {
 				final String msg = MessageFormat.format(Messages.getString("VexEditor.unknownInputClass"), //$NON-NLS-1$
 						new Object[] { input.getClass() });
@@ -317,7 +331,7 @@ public class VexEditor extends EditorPart {
 			final DocumentReader reader = new DocumentReader();
 			reader.setDebugging(debugging);
 			reader.setDocumentContentModel(documentContentModel);
-			document = reader.read(file.getLocationURI().toURL());
+			document = reader.read(inputSource);
 
 			if (debugging) {
 				final long end = System.currentTimeMillis();
@@ -327,7 +341,7 @@ public class VexEditor extends EditorPart {
 			}
 
 			if (document == null) {
-				showLabel(MessageFormat.format(Messages.getString("VexEditor.noContent"), file));
+				showLabel(MessageFormat.format(Messages.getString("VexEditor.noContent"), inputSource.getSystemId()));
 				return;
 			}
 
