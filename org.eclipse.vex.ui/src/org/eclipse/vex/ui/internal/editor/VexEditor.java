@@ -86,6 +86,7 @@ import org.eclipse.vex.ui.internal.config.Style;
 import org.eclipse.vex.ui.internal.handlers.ConvertElementHandler;
 import org.eclipse.vex.ui.internal.handlers.RemoveTagHandler;
 import org.eclipse.vex.ui.internal.outline.DocumentOutlinePage;
+import org.eclipse.vex.ui.internal.property.DocumentPropertySource;
 import org.eclipse.vex.ui.internal.property.ElementPropertySource;
 import org.eclipse.vex.ui.internal.swt.VexWidget;
 import org.xml.sax.InputSource;
@@ -750,26 +751,25 @@ public class VexEditor extends EditorPart {
 
 	@Override
 	public Object getAdapter(@SuppressWarnings("rawtypes") final Class adapter) {
-
 		if (adapter == IContentOutlinePage.class) {
 			return new DocumentOutlinePage();
 		} else if (adapter == IPropertySheetPage.class) {
-
 			final PropertySheetPage page = new PropertySheetPage();
 			page.setPropertySourceProvider(new IPropertySourceProvider() {
 				public IPropertySource getPropertySource(final Object object) {
 					if (object instanceof Element) {
-						final IStructuredSelection sel = (IStructuredSelection) vexWidget.getSelection();
-						final boolean multi = sel != null && sel.size() > 1;
+						final IStructuredSelection selection = (IStructuredSelection) vexWidget.getSelection();
+						final boolean multipleElementsSelected = selection != null && selection.size() > 1;
 						final Validator validator = vexWidget.getDocument().getValidator();
-						return new ElementPropertySource((Element) object, validator, multi);
-					} else {
-						return null;
+						return new ElementPropertySource((Element) object, validator, multipleElementsSelected);
 					}
+					if (object instanceof Document) {
+						return new DocumentPropertySource((Document) object);
+					}
+					return null;
 				}
 			});
 			return page;
-
 		} else if (adapter == IFindReplaceTarget.class) {
 			return new AbstractRegExFindReplaceTarget() {
 
