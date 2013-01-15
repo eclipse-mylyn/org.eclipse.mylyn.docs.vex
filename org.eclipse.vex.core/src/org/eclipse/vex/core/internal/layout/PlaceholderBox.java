@@ -81,7 +81,7 @@ public class PlaceholderBox extends AbstractInlineBox {
 	 */
 	@Override
 	public Caret getCaret(final LayoutContext context, final int offset) {
-		return new TextCaret(0, textTop, baseline - textTop);
+		return new TextCaret(0, 0, getHeight());
 	}
 
 	/**
