@@ -13,7 +13,6 @@ package org.eclipse.vex.tests;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
-import org.eclipse.vex.core.tests.VEXCoreTestSuite;
 import org.eclipse.vex.ui.tests.VexUiTestSuite;
 
 /**
@@ -23,7 +22,7 @@ public class AllTestsSuite extends TestSuite {
 
 	public AllTestsSuite() {
 		super("All Vex Test Suites"); //$NON-NLS-1$
-		addTest(VEXCoreTestSuite.suite());
+		//		addTest(VEXCoreTestSuite.suite());
 		addTest(VexUiTestSuite.suite());
 	}
 

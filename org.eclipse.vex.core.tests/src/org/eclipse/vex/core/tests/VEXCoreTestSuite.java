@@ -12,6 +12,11 @@
  *******************************************************************************/
 package org.eclipse.vex.core.tests;
 
+import java.io.IOException;
+
+import javax.xml.parsers.FactoryConfigurationError;
+import javax.xml.parsers.ParserConfigurationException;
+
 import junit.framework.JUnit4TestAdapter;
 import junit.framework.Test;
 import junit.framework.TestSuite;
@@ -43,6 +48,7 @@ import org.eclipse.vex.core.internal.io.NamespaceStackTest;
 import org.eclipse.vex.core.internal.io.SpaceNormalizerTest;
 import org.eclipse.vex.core.internal.io.TextWrapperTest;
 import org.eclipse.vex.core.internal.layout.ImageBoxTest;
+import org.eclipse.vex.core.internal.layout.LayoutTestSuite;
 import org.eclipse.vex.core.internal.layout.TableLayoutTest;
 import org.eclipse.vex.core.internal.layout.TestBlockElementBox;
 import org.eclipse.vex.core.internal.layout.TestBlocksInInlines;
@@ -52,13 +58,14 @@ import org.eclipse.vex.core.internal.widget.L2CommentEditingTest;
 import org.eclipse.vex.core.internal.widget.L2SelectionTest;
 import org.eclipse.vex.core.internal.widget.L2SimpleEditingTest;
 import org.eclipse.vex.core.internal.widget.VexWidgetTest;
+import org.xml.sax.SAXException;
 
 public class VEXCoreTestSuite extends TestSuite {
-	public static Test suite() {
+	public static Test suite() throws ParserConfigurationException, FactoryConfigurationError, IOException, SAXException {
 		return new VEXCoreTestSuite();
 	}
 
-	public VEXCoreTestSuite() {
+	public VEXCoreTestSuite() throws ParserConfigurationException, FactoryConfigurationError, IOException, SAXException {
 		super("Vex Core Tests");
 		addTest(new JUnit4TestAdapter(NamespaceStackTest.class));
 		addTest(new JUnit4TestAdapter(NamespaceTest.class));
@@ -92,6 +99,7 @@ public class VEXCoreTestSuite extends TestSuite {
 		addTestSuite(TestDocumentTextBox.class);
 		addTestSuite(TestStaticTextBox.class);
 		addTestSuite(TableLayoutTest.class);
+		addTest(LayoutTestSuite.suite());
 		addTestSuite(ListenerListTest.class);
 		addTest(new JUnit4TestAdapter(VexWidgetTest.class));
 		addTest(new JUnit4TestAdapter(L2SimpleEditingTest.class));

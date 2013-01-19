@@ -191,7 +191,7 @@ public class LayoutTestSuite extends TestCase {
 			final String s = new String(ch, start, length).trim();
 			if (s.length() > 0) {
 				if (inDoc) {
-					testCase.doc = new String(ch, start, length);
+					testCase.doc = testCase.doc + new String(ch, start, length);
 				} else {
 					throw new IllegalStateException();
 				}
@@ -233,6 +233,7 @@ public class LayoutTestSuite extends TestCase {
 				testCases.add(testCase);
 			} else if (qName.equals("doc")) {
 				inDoc = true;
+				testCase.doc = "";
 			} else if (qName.equals("result")) {
 			} else if (qName.equals("box")) {
 				final BoxSpec parent = boxSpec;
