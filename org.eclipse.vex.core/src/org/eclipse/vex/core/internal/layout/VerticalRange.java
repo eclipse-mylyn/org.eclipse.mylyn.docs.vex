@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2008 John Krasnay and others.
+ * Copyright (c) 2004, 2013 John Krasnay and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  * 
  * Contributors:
  *     John Krasnay - initial API and implementation
+ *     Florian Thienel - inroduce specific implementations for layout and content to separate both domains
  *******************************************************************************/
 package org.eclipse.vex.core.internal.layout;
 
@@ -15,81 +16,91 @@ import java.text.MessageFormat;
 import org.eclipse.core.runtime.Assert;
 
 /**
- * Represents a vertical range used in the layouting algorithm. Zero-length ranges (i.e. ranges where start == end) are
+ * Represents a vertical range used in the layouting algorithm. Zero-length ranges (i.e. ranges where top == bottom) are
  * permitted. This class is immutable.
  */
 public class VerticalRange {
 
-	private final int start;
-	private final int end;
+	private final int top;
+	private final int bottom;
 
 	/**
-	 * Class constuctor.
+	 * Create a new VerticalRange from top to bottom.
 	 * 
-	 * @param start
-	 *            Start of the range.
-	 * @param end
-	 *            End of the range. Must be >= start.
+	 * @param top
+	 *            top of the range
+	 * @param bottom
+	 *            bottom of the range, must be >= top
 	 */
-	public VerticalRange(final int start, final int end) {
-		Assert.isTrue(start <= end, MessageFormat.format("start {0} must not be greater than end {1}", start, end));
-		this.start = start;
-		this.end = end;
+	public VerticalRange(final int top, final int bottom) {
+		Assert.isTrue(top <= bottom, MessageFormat.format("top {0} must not be above bottom {1}", top, bottom));
+		this.top = top;
+		this.bottom = bottom;
 	}
 
-	/**
-	 * Returns the start of the range.
-	 */
-	public int getStart() {
-		return start;
+	public int getTop() {
+		return top;
 	}
 
-	/**
-	 * Returns the end of the range.
-	 */
-	public int getEnd() {
-		return end;
+	public int getBottom() {
+		return bottom;
 	}
 
 	public int getHeight() {
-		return end - start;
+		return bottom - top;
 	}
 
 	/**
-	 * Returns true if start and end are equal.
+	 * @return true if top and bottom are equal.
 	 */
 	public boolean isEmpty() {
 		return getHeight() == 0;
 	}
 
+	/**
+	 * Indicates if this range fully contains the given range.
+	 * 
+	 * @param other
+	 *            the other range
+	 * @return true if this range fully contains the other range
+	 */
 	public boolean contains(final VerticalRange other) {
-		return start <= other.start && end >= other.end;
+		return top <= other.top && bottom >= other.bottom;
 	}
 
+	/**
+	 * Indicates if this range contains the given y coordinate.
+	 * 
+	 * @param y
+	 *            the coordinate
+	 * @return true if this range contains the y coordinate
+	 */
 	public boolean contains(final int y) {
-		return start <= y && y <= end;
+		return top <= y && y <= bottom;
 	}
 
 	/**
-	 * Returns true if this range intersects the given range, even if the result would be an empty range.
+	 * Indicates if this range intersects with the given range, even if the given range is only adjacent.
 	 * 
-	 * @param range
-	 *            Range with which to intersect.
+	 * @param other
+	 *            the other range
+	 * @return true if this range intersects with the other range
 	 */
-	public boolean intersects(final VerticalRange range) {
-		return start <= range.end && end >= range.start;
+	public boolean intersects(final VerticalRange other) {
+		return top <= other.bottom && bottom >= other.top;
 	}
 
 	/**
-	 * Returns the range that represents the intersection of this range and the given range. If the ranges do not
-	 * intersect, returns null. May return an empty range.
+	 * Create a range that represents the intersection of this range and the given range. If the ranges do not
+	 * intersect, returns null. May return an empty range if this and the other range are only adjacent.
 	 * 
-	 * @param range
-	 *            Range with which to perform an intersection.
+	 * @param other
+	 *            the other range
+	 * @return the intersection of this range and the other range
 	 */
-	public VerticalRange intersection(final VerticalRange range) {
-		if (intersects(range)) {
-			return new VerticalRange(Math.max(start, range.start), Math.min(end, range.end));
+	public VerticalRange intersection(final VerticalRange other) {
+		if (intersects(other)) {
+			return new VerticalRange(Math.max(top, other.top), Math.min(bottom, other.bottom));
 		} else {
 			return null;
 		}
@@ -97,35 +108,52 @@ public class VerticalRange {
 	}
 
 	/**
-	 * Returns a range that is the union of this range and the given range. If the ranges are disjoint, the gap between
+	 * Create a range that is the union of this range and the given range. If the ranges are disjoint, the gap between
 	 * the ranges is included in the result.
 	 * 
-	 * @param range
-	 *            Rnage with which to perform the union
+	 * @param other
+	 *            the other range
+	 * @return the union of this and the other range
 	 */
-	public VerticalRange union(final VerticalRange range) {
-		return new VerticalRange(Math.min(start, range.start), Math.min(end, range.end));
+	public VerticalRange union(final VerticalRange other) {
+		return new VerticalRange(Math.min(top, other.top), Math.min(bottom, other.bottom));
 	}
 
-	public VerticalRange moveBy(final int delta) {
-		return resizeBy(delta, delta);
+	/**
+	 * Create a copy of this range moved by the given distance.
+	 * 
+	 * @param distance
+	 *            the distance to move
+	 * @return the moved range
+	 */
+	public VerticalRange moveBy(final int distance) {
+		return resizeBy(distance, distance);
 	}
 
-	public VerticalRange resizeBy(final int deltaStart, final int deltaEnd) {
-		return new VerticalRange(start + deltaStart, end + deltaEnd);
+	/**
+	 * Create a resized copy of this range.
+	 * 
+	 * @param deltaTop
+	 *            the amount by which the top of this range should be moved
+	 * @param deltaBottom
+	 *            the amount by which the bottom of this range should be moved
+	 * @return the resized range
+	 */
+	public VerticalRange resizeBy(final int deltaTop, final int deltaBottom) {
+		return new VerticalRange(top + deltaTop, bottom + deltaBottom);
 	}
 
 	@Override
 	public String toString() {
-		return "VerticalRange[" + start + ", " + end + "]";
+		return "VerticalRange[" + top + ", " + bottom + "]";
 	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + end;
-		result = prime * result + start;
+		result = prime * result + bottom;
+		result = prime * result + top;
 		return result;
 	}
 
@@ -141,10 +169,10 @@ public class VerticalRange {
 			return false;
 		}
 		final VerticalRange other = (VerticalRange) obj;
-		if (end != other.end) {
+		if (bottom != other.bottom) {
 			return false;
 		}
-		if (start != other.start) {
+		if (top != other.top) {
 			return false;
 		}
 		return true;

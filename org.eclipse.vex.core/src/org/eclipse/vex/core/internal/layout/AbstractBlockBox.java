@@ -635,13 +635,13 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 		final int childRepaintStart = positionChildren(context);
 		if (childRepaintStart != -1) {
 			repaintToBottom = true;
-			repaintRange = new VerticalRange(Math.min(repaintRange.getStart(), childRepaintStart), repaintRange.getEnd());
+			repaintRange = new VerticalRange(Math.min(repaintRange.getTop(), childRepaintStart), repaintRange.getBottom());
 		}
 
 		layoutState = LAYOUT_OK;
 
 		if (repaintToBottom) {
-			repaintRange = new VerticalRange(repaintRange.getStart(), Math.max(originalHeight, getHeight()));
+			repaintRange = new VerticalRange(repaintRange.getTop(), Math.max(originalHeight, getHeight()));
 		}
 
 		if (repaintRange == null || repaintRange.isEmpty()) {

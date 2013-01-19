@@ -1642,7 +1642,7 @@ public class VexWidgetImpl implements IVexWidget {
 		final VerticalRange viewportRange = new VerticalRange(viewport.getY(), viewport.getY() + viewport.getHeight());
 		if (repaintRange.intersects(viewportRange)) {
 			final VerticalRange intersection = repaintRange.intersection(viewportRange);
-			hostComponent.repaint(viewport.getX(), intersection.getStart(), viewport.getWidth(), intersection.getHeight());
+			hostComponent.repaint(viewport.getX(), intersection.getTop(), viewport.getWidth(), intersection.getHeight());
 		}
 	}
 
