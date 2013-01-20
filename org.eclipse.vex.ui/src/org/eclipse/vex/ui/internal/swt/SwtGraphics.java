@@ -20,6 +20,7 @@ import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.SWTException;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.ImageData;
@@ -154,6 +155,9 @@ public class SwtGraphics implements Graphics {
 			} finally {
 				in.close();
 			}
+		} catch (final SWTException e) {
+			VexPlugin.getDefault().getLog().log(new Status(IStatus.ERROR, VexPlugin.ID, MessageFormat.format("Cannot load image from url: {0}", url), e));
+			return null;
 		} catch (final IOException e) {
 			VexPlugin.getDefault().getLog().log(new Status(IStatus.ERROR, VexPlugin.ID, MessageFormat.format("Cannot load image from url: {0}", url), e));
 			return null;
