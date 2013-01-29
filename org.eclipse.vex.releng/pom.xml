@@ -12,6 +12,33 @@
 		<tycho-version>0.16.0</tycho-version>
 		<project.build.sourceEncoding>Cp1252</project.build.sourceEncoding>
 	</properties>
+	
+	<profiles>
+		<profile>
+			<id>ci-build</id>
+			<activation>
+				<property>
+					<name>build-type</name>
+					<value>ci</value>
+				</property>
+			</activation>
+			<properties>
+				<qualifier-format>yyyyMMddHHmm</qualifier-format>
+			</properties>
+		</profile>
+		<profile>
+			<id>milestone-build</id>
+			<activation>
+				<property>
+					<name>build-type</name>
+					<value>milestone</value>
+				</property>
+			</activation>
+			<properties>
+				<qualifier-format>'${milestone}_'yyyyMMddHHmm</qualifier-format>
+			</properties>
+		</profile>
+	</profiles>
 
 	<repositories>
 		<repository>
@@ -50,6 +77,7 @@
 					<jgit.ignore>
 						pom.xml
 					</jgit.ignore>
+					<format>${qualifier-format}</format>
 				</configuration>
 			</plugin>
 			<plugin>
