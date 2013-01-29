@@ -41,7 +41,7 @@ public class XhtmlOutlineProvider implements IOutlineProvider {
 
 	public Element getOutlineElement(final Element child) {
 		Element element = child;
-		while (element.getParent() != null) {
+		while (element.getParentElement() != null) {
 
 			// TODO: compare to all structural element names
 
