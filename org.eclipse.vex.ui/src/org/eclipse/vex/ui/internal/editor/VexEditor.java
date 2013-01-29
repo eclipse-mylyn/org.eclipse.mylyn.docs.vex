@@ -70,6 +70,8 @@ import org.eclipse.ui.views.properties.IPropertySourceProvider;
 import org.eclipse.ui.views.properties.PropertySheetPage;
 import org.eclipse.vex.core.internal.core.ListenerList;
 import org.eclipse.vex.core.internal.dom.Document;
+import org.eclipse.vex.core.internal.dom.DocumentEvent;
+import org.eclipse.vex.core.internal.dom.DocumentListener;
 import org.eclipse.vex.core.internal.dom.Element;
 import org.eclipse.vex.core.internal.dom.Validator;
 import org.eclipse.vex.core.internal.io.DocumentReader;
@@ -116,8 +118,7 @@ public class VexEditor extends EditorPart {
 
 	private VexWidget vexWidget;
 
-	private int savedUndoDepth;
-	private boolean wasDirty;
+	private boolean dirty;
 
 	private final ListenerList<IVexEditorListener, VexEditorEvent> vexEditorListeners = new ListenerList<IVexEditorListener, VexEditorEvent>(IVexEditorListener.class);
 
@@ -178,9 +179,7 @@ public class VexEditor extends EditorPart {
 				writer.write(document, os);
 			}
 
-			savedUndoDepth = vexWidget.getUndoDepth();
-			firePropertyChange(IEditorPart.PROP_DIRTY);
-
+			setClean();
 		} catch (final Exception ex) {
 			monitor.setCanceled(true);
 			final String title = Messages.getString("VexEditor.errorSaving.title"); //$NON-NLS-1$
@@ -226,12 +225,11 @@ public class VexEditor extends EditorPart {
 
 				final IFileEditorInput input = new FileEditorInput(file);
 				setInput(input);
-				savedUndoDepth = vexWidget.getUndoDepth();
 
-				firePropertyChange(IEditorPart.PROP_DIRTY);
+				setClean();
+
 				firePropertyChange(IEditorPart.PROP_INPUT);
 				firePropertyChange(IWorkbenchPart.PROP_TITLE);
-
 			} catch (final Exception ex) {
 				final String title = Messages.getString("VexEditor.errorSaving.title"); //$NON-NLS-1$
 				final String message = MessageFormat.format(Messages.getString("VexEditor.errorSaving.message"), //$NON-NLS-1$
@@ -367,6 +365,8 @@ public class VexEditor extends EditorPart {
 
 			showVexWidget();
 
+			document.addDocumentListener(documentListener);
+
 			vexWidget.setDebugging(debugging);
 			vexWidget.setDocument(document, style.getStyleSheet());
 			vexWidget.setReadOnly(readOnly);
@@ -378,9 +378,7 @@ public class VexEditor extends EditorPart {
 			}
 
 			loaded = true;
-			savedUndoDepth = vexWidget.getUndoDepth();
-			firePropertyChange(IEditorPart.PROP_DIRTY);
-			wasDirty = isDirty();
+			setClean();
 
 			vexEditorListeners.fireEvent("documentLoaded", new VexEditorEvent(this)); //$NON-NLS-1$
 
@@ -427,13 +425,30 @@ public class VexEditor extends EditorPart {
 		}
 	}
 
+	private void setDirty() {
+		if (dirty) {
+			return;
+		}
+		dirty = true;
+		firePropertyChange(PROP_DIRTY);
+
+		System.out.println("dirty");
+	}
+
+	private void setClean() {
+		if (!dirty) {
+			return;
+		}
+
+		dirty = false;
+		firePropertyChange(PROP_DIRTY);
+
+		System.out.println("clean");
+	}
+
 	@Override
 	public boolean isDirty() {
-		if (vexWidget != null) {
-			return savedUndoDepth != vexWidget.getUndoDepth();
-		} else {
-			return false;
-		}
+		return dirty;
 	}
 
 	/**
@@ -570,7 +585,7 @@ public class VexEditor extends EditorPart {
 		getSite().registerContextMenu("org.eclipse.vex.ui.popup", menuManager, vexWidget);
 		vexWidget.setMenu(menuManager.createContextMenu(vexWidget));
 
-		savedUndoDepth = vexWidget.getUndoDepth();
+		setClean();
 
 		// new for scopes
 		final IContextService cs = (IContextService) getSite().getService(IContextService.class);
@@ -684,10 +699,6 @@ public class VexEditor extends EditorPart {
 
 	private final ISelectionChangedListener selectionChangedListener = new ISelectionChangedListener() {
 		public void selectionChanged(final SelectionChangedEvent event) {
-			if (isDirty() != wasDirty) {
-				firePropertyChange(IEditorPart.PROP_DIRTY);
-				wasDirty = isDirty();
-			}
 			setStatus(getLocationPath());
 
 			// update dynamic UI element labels
@@ -705,6 +716,36 @@ public class VexEditor extends EditorPart {
 			final DocumentContextSourceProvider contextProvider = (DocumentContextSourceProvider) service.getSourceProvider(DocumentContextSourceProvider.IS_COLUMN);
 			contextProvider.fireUpdate(vexWidget);
 		}
+	};
+
+	private final DocumentListener documentListener = new DocumentListener() {
+
+		public void attributeChanged(final DocumentEvent e) {
+			setDirty();
+		}
+
+		public void namespaceChanged(final DocumentEvent e) {
+			setDirty();
+		}
+
+		public void beforeContentDeleted(final DocumentEvent e) {
+			// TODO Auto-generated method stub
+
+		}
+
+		public void beforeContentInserted(final DocumentEvent e) {
+			// TODO Auto-generated method stub
+
+		}
+
+		public void contentDeleted(final DocumentEvent e) {
+			setDirty();
+		}
+
+		public void contentInserted(final DocumentEvent e) {
+			setDirty();
+		}
+
 	};
 
 	private class ResourceChangeListener implements IResourceChangeListener {
