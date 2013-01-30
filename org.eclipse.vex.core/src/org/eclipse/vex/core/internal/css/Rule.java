@@ -202,7 +202,7 @@ public class Rule {
 			if (node != null && node.getParent() != null && matches(ss.getSiblingSelector(), node)) {
 
 				// find next sibling
-				final Iterator<Node> i = node.getParent().getChildIterator();
+				final Iterator<Node> i = node.getParent().children().iterator();
 				Node e = null;
 				Node f = null;
 				while (i.hasNext() && e != node) {

@@ -13,7 +13,6 @@ package org.eclipse.vex.core.internal.layout;
 
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -105,8 +104,7 @@ public class LayoutUtils {
 
 		final List<Node> nonMatching = new ArrayList<Node>();
 
-		for (final Iterator<Node> iterator = parent.getChildIterator(); iterator.hasNext();) {
-			final Node node = iterator.next();
+		for (final Node node : parent.children()) {
 			if (node.getEndOffset() <= startOffset) {
 				continue;
 			} else if (node.getStartOffset() >= endOffset) {

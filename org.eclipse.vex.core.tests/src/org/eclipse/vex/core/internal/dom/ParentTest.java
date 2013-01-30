@@ -119,7 +119,7 @@ public class ParentTest {
 		addTestChild();
 		addTestChild();
 		addTestChild();
-		final Iterator<Node> iterator = parent.getChildIterator();
+		final Iterator<Node> iterator = parent.children().iterator();
 		iterator.next();
 		iterator.remove();
 	}
@@ -497,6 +497,42 @@ public class ParentTest {
 		assertEquals(1, parent.getIndexOfChildNextTo(child2.getStartOffset()));
 		assertEquals(2, parent.getIndexOfChildNextTo(child3.getStartOffset()));
 		assertEquals(3, parent.getIndexOfChildNextTo(parent.getEndOffset()));
+	}
+
+	@Test
+	public void givenChildNodesAndText_shouldProvideChildrenAxisIncludingText() throws Exception {
+		setUpChildNodes();
+
+		final Iterator<? extends Node> iterator = parent.children().iterator();
+		assertTextNodeEquals("Hello ", 1, 6, iterator.next());
+		assertChildNodeEquals("Child1", 7, 14, iterator.next());
+		assertChildNodeEquals("Child2", 15, 22, iterator.next());
+		assertTextNodeEquals(" World", 23, 28, iterator.next());
+	}
+
+	@Test
+	public void givenOnlyChildNodesAndNoText_shouldProvideChildrenAxisWithOnlyChildNodes() throws Exception {
+		final TestChild child1 = addTestChild();
+		final TestChild child2 = addTestChild();
+		final TestChild child3 = addTestChild();
+
+		final Iterator<? extends Node> iterator = parent.children().iterator();
+		assertSame(child1, iterator.next());
+		assertSame(child2, iterator.next());
+		assertSame(child3, iterator.next());
+	}
+
+	@Test
+	public void givenOnlyText_shouldProvideTextOnChildrenAxis() throws Exception {
+		content.insertText(parent.getEndOffset(), "Hello World");
+
+		final Iterator<? extends Node> iterator = parent.children().iterator();
+		assertTextNodeEquals("Hello World", 1, 11, iterator.next());
+	}
+
+	@Test
+	public void givenEmptyParent_shouldIndicateEmptyChildrenAxis() throws Exception {
+		assertFalse(parent.children().iterator().hasNext());
 	}
 
 	private static void assertTextNodeEquals(final String text, final int startOffset, final int endOffset, final Node actualNode) {

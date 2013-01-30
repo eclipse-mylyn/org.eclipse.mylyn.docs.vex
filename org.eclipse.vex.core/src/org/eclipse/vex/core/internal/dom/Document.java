@@ -14,7 +14,6 @@ package org.eclipse.vex.core.internal.dom;
 
 import java.text.MessageFormat;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.core.runtime.Assert;
@@ -478,9 +477,7 @@ public class Document extends Parent {
 
 		fireBeforeContentDeleted(new DocumentEvent(this, parentForDeletion, range.getStartOffset(), range.length(), null));
 
-		final Iterator<Node> iter = parentForDeletion.getChildIterator();
-		while (iter.hasNext()) {
-			final Node child = iter.next();
+		for (final Node child : parentForDeletion.children()) {
 			if (child.isInRange(range)) {
 				parentForDeletion.removeChild(child);
 				child.dissociate();

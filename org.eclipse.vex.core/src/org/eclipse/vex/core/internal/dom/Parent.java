@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import org.eclipse.core.runtime.Assert;
 
@@ -63,11 +64,11 @@ public abstract class Parent extends Node {
 		final ContentRange insertionRange = getRange().resizeBy(1, 0);
 		Assert.isTrue(insertionRange.contains(offset), MessageFormat.format("The offset must be within {0}.", insertionRange));
 		int i = 0;
-		for (final Iterator<Node> iterator = children.iterator(); iterator.hasNext(); i++) {
-			final Node child = iterator.next();
+		for (final Node child : children()) {
 			if (offset <= child.getStartOffset()) {
 				return i;
 			}
+			i++;
 		}
 		return children.size();
 	}
@@ -110,50 +111,11 @@ public abstract class Parent extends Node {
 	public List<Node> getChildNodes(final ContentRange range) {
 		final List<Node> result = new ArrayList<Node>();
 
-		final ContentRange trimmedRange = range.intersection(getRange());
-		int textStart = trimmedRange.getStartOffset();
-		for (final Node child : children) {
-			if (!child.isAssociated()) {
-				result.add(child);
-			} else if (child.isInRange(trimmedRange)) {
-				mergeTextIntoResult(textStart, child.getStartOffset(), result);
-				result.add(child);
-				textStart = child.getEndOffset() + 1;
-			} else if (trimmedRange.contains(child.getStartOffset())) {
-				mergeTextIntoResult(textStart, child.getStartOffset(), result);
-				textStart = child.getEndOffset() + 1;
-				break; // we can bail out here because we are behind the trimmed range now
-			} else if (trimmedRange.contains(child.getEndOffset())) {
-				textStart = child.getEndOffset() + 1;
-			}
+		for (final Node child : children(range)) {
+			result.add(child);
 		}
 
-		mergeTextIntoResult(textStart, trimmedRange.getEndOffset(), result);
 		return Collections.unmodifiableList(result);
-	}
-
-	private void mergeTextIntoResult(final int startOffset, final int endOffset, final List<Node> result) {
-		final int textStart = findNextTextStart(startOffset, endOffset);
-		final int textEnd = findNextTextEnd(endOffset, textStart);
-		if (textStart < textEnd) {
-			result.add(new Text(this, getContent(), new ContentRange(textStart, textEnd)));
-		} else if (textStart == textEnd && !getContent().isTagMarker(textStart)) {
-			result.add(new Text(this, getContent(), new ContentRange(textStart, textEnd)));
-		}
-	}
-
-	private int findNextTextStart(int currentOffset, final int maximumOffset) {
-		while (currentOffset < maximumOffset && getContent().isTagMarker(currentOffset)) {
-			currentOffset++;
-		}
-		return currentOffset;
-	}
-
-	private int findNextTextEnd(int currentOffset, final int minimumOffset) {
-		while (currentOffset > minimumOffset && getContent().isTagMarker(currentOffset)) {
-			currentOffset--;
-		}
-		return currentOffset;
 	}
 
 	/**
@@ -177,17 +139,6 @@ public abstract class Parent extends Node {
 	}
 
 	/**
-	 * An Iterator of all child nodes including Text nodes. The underlying collection is not modifyable.
-	 * 
-	 * @see Parent#getChildNodes()
-	 * @see Iterator
-	 * @return an Iterator of all child nodes
-	 */
-	public Iterator<Node> getChildIterator() {
-		return getChildNodes().iterator();
-	}
-
-	/**
 	 * Returns the child node at the given index. This index is based on the list of children without the Text nodes, so
 	 * the child node might have a different index in the list returned by getChildNodes().
 	 * 
@@ -207,6 +158,21 @@ public abstract class Parent extends Node {
 		return children.size();
 	}
 
+	public Iterable<Node> children() {
+		if (!isAssociated()) {
+			return Collections.unmodifiableList(children);
+		}
+		return children(getRange());
+	}
+
+	public Iterable<Node> children(final ContentRange range) {
+		return new Iterable<Node>() {
+			public Iterator<Node> iterator() {
+				return new ChildrenAndText(range);
+			}
+		};
+	}
+
 	/**
 	 * Returns the child node which contains the given offset, or this node, if no child contains the offset.
 	 * 
@@ -216,8 +182,7 @@ public abstract class Parent extends Node {
 	 */
 	public Node getChildNodeAt(final int offset) {
 		Assert.isTrue(containsOffset(offset), MessageFormat.format("Offset must be within {0}.", getRange()));
-		final List<Node> childNodes = getChildNodes();
-		for (final Node child : childNodes) {
+		for (final Node child : children()) {
 			if (child.containsOffset(offset)) {
 				if (child instanceof Parent) {
 					return ((Parent) child).getChildNodeAt(offset);
@@ -238,4 +203,118 @@ public abstract class Parent extends Node {
 	public boolean hasChildren() {
 		return !children.isEmpty();
 	}
+
+	private class ChildrenAndText implements Iterator<Node> {
+
+		private final ContentRange trimmedRange;
+		private final Iterator<Node> childIterator;
+
+		private int textCursor;
+		private Node currentChild;
+		private ContentRange nextTextGap;
+
+		public ChildrenAndText(final ContentRange range) {
+			trimmedRange = range.intersection(getRange());
+			childIterator = children.iterator();
+			initialize();
+		}
+
+		private void initialize() {
+			currentChild = null;
+			nextTextGap = trimmedRange;
+			textCursor = trimmedRange.getStartOffset();
+			nextStep();
+		}
+
+		private void nextStep() {
+			while (childIterator.hasNext()) {
+				currentChild = childIterator.next();
+				if (!currentChild.isAssociated()) {
+					nextTextGap = trimmedRange;
+					return;
+				} else if (currentChild.isInRange(trimmedRange)) {
+					nextTextGap = currentChild.getRange();
+					textCursor = findNextTextStart(textCursor, nextTextGap.getStartOffset());
+					return;
+				} else if (trimmedRange.contains(currentChild.getStartOffset())) {
+					nextTextGap = trimmedRange.intersection(currentChild.getRange());
+					textCursor = findNextTextStart(textCursor, nextTextGap.getStartOffset());
+					currentChild = null; // we can bail out here because we are behind the trimmed range now
+					return;
+				} else if (trimmedRange.contains(currentChild.getEndOffset())) {
+					textCursor = currentChild.getEndOffset() + 1;
+				}
+			}
+
+			currentChild = null;
+			nextTextGap = new ContentRange(trimmedRange.getEndOffset(), trimmedRange.getEndOffset());
+			textCursor = findNextTextStart(textCursor, trimmedRange.getEndOffset());
+		}
+
+		private int findNextTextStart(int currentOffset, final int maximumOffset) {
+			while (currentOffset < maximumOffset && getContent().isTagMarker(currentOffset)) {
+				currentOffset++;
+			}
+			return currentOffset;
+		}
+
+		private int findNextTextEnd(int currentOffset, final int minimumOffset) {
+			while (currentOffset > minimumOffset && getContent().isTagMarker(currentOffset)) {
+				currentOffset--;
+			}
+			return currentOffset;
+		}
+
+		public boolean hasNext() {
+			return hasMoreChildrenInRange() || hasMoreText();
+		}
+
+		private boolean hasMoreChildrenInRange() {
+			return currentChild != null;
+		}
+
+		private boolean hasMoreText() {
+			return textCursor < nextTextGap.getStartOffset();
+		}
+
+		public Node next() {
+			if (!hasNext()) {
+				throw new NoSuchElementException();
+			}
+
+			if (currentChild != null && !currentChild.isAssociated()) {
+				return nextChild();
+			}
+
+			final int textStart = findNextTextStart(textCursor, nextTextGap.getStartOffset());
+			final int textEnd = findNextTextEnd(nextTextGap.getStartOffset(), textStart);
+			textCursor = nextTextGap.getEndOffset() + 1;
+
+			if (textStart < textEnd) {
+				return nextText(textStart, textEnd);
+			}
+			if (textStart == textEnd && !getContent().isTagMarker(textStart)) {
+				return nextText(textStart, textEnd);
+			}
+
+			Assert.isNotNull(currentChild, "No text and no child makes Homer go crazy!");
+
+			return nextChild();
+		}
+
+		private Node nextChild() {
+			final Node child = currentChild;
+			nextStep();
+			return child;
+		}
+
+		private Node nextText(final int textStart, final int textEnd) {
+			return new Text(Parent.this, getContent(), new ContentRange(textStart, textEnd));
+		}
+
+		public void remove() {
+			throw new UnsupportedOperationException("Cannot remove children.");
+		}
+	}
+
 }

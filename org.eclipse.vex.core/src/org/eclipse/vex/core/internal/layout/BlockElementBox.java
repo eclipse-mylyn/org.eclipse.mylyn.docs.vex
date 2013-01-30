@@ -13,7 +13,6 @@
 package org.eclipse.vex.core.internal.layout;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.vex.core.internal.VEXCorePlugin;
@@ -312,8 +311,7 @@ public class BlockElementBox extends AbstractBlockBox {
 		}
 
 		int item = 1;
-		for (final Iterator<Node> iterator = parent.getChildIterator(); iterator.hasNext();) {
-			final Node child = iterator.next();
+		for (final Node child : parent.children()) {
 			if (child == node) {
 				return item;
 			}
