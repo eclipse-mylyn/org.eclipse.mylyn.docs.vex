@@ -154,10 +154,8 @@ public class DocumentReaderTest {
 		final Comment comment1 = (Comment) rootChildren.next();
 		assertEquals("A comment within the root element.", comment1.getText());
 
-		// TODO implement Axis.get(int)
-		rootChildren.next();
-		//		final Comment comment2 = (Comment) ((Element) rootChildren.next()).getChildNodes().get(1);
-		//		assertEquals("A comment within text.", comment2.getText());
+		final Comment comment2 = (Comment) ((Element) rootChildren.next()).children().get(1);
+		assertEquals("A comment within text.", comment2.getText());
 
 		final Comment comment3 = (Comment) rootChildren.next();
 		assertEquals("Another comment between two child elements.", comment3.getText());

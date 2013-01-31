@@ -139,7 +139,7 @@ public abstract class Axis implements Iterable<Node> {
 		return result;
 	}
 
-	public Node at(final int index) {
+	public Node get(final int index) {
 		final Iterator<Node> iterator = iterator();
 		int i = 0;
 		while (i++ < index) {
@@ -152,6 +152,16 @@ public abstract class Axis implements Iterable<Node> {
 		for (final Node node : this) {
 			node.accept(visitor);
 		}
+	}
+
+	public int count() {
+		int result = 0;
+		final Iterator<Node> iterator = iterator();
+		while (iterator.hasNext()) {
+			result++;
+			iterator.next();
+		}
+		return result;
 	}
 
 	private static interface IteratorFactory {

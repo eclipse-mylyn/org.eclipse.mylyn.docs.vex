@@ -88,7 +88,10 @@ public class L1CommentHandlingTest {
 
 	@Test
 	public void shouldInsertCommentBeforeRootElement() throws Exception {
-		document.insertComment(rootElement.getStartOffset());
-		assertEquals(2, document.getChildCount());
+		final Comment comment = document.insertComment(rootElement.getStartOffset());
+		final Iterator<Node> actualChildren = document.children().iterator();
+		assertSame(comment, actualChildren.next());
+		assertSame(rootElement, actualChildren.next());
+		assertFalse(actualChildren.hasNext());
 	}
 }

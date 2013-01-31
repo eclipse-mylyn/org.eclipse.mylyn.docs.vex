@@ -13,7 +13,6 @@
 package org.eclipse.vex.core.internal.dom;
 
 import java.text.MessageFormat;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -478,11 +477,9 @@ public class Document extends Parent {
 
 		fireBeforeContentDeleted(new DocumentEvent(this, parentForDeletion, range.getStartOffset(), range.length(), null));
 
-		for (final Node child : parentForDeletion.children()) {
-			if (child.isInRange(range)) {
-				parentForDeletion.removeChild(child);
-				child.dissociate();
-			}
+		for (final Node child : parentForDeletion.children().in(range)) {
+			parentForDeletion.removeChild(child);
+			child.dissociate();
 		}
 
 		getContent().remove(range);
@@ -525,10 +522,7 @@ public class Document extends Parent {
 	}
 
 	private static Node findCommonNodeIn(final Parent parent, final int offset1, final int offset2) {
-		for (final Node child : parent.children()) {
-			if (child instanceof Text) {
-				continue;
-			}
+		for (final Node child : parent.children().withoutText()) {
 			if (isCommonNodeFor(child, offset1, offset2)) {
 				if (child instanceof Parent) {
 					return findCommonNodeIn((Parent) child, offset1, offset2);
@@ -647,11 +641,7 @@ public class Document extends Parent {
 	 * @return all nodes in the given range in this document
 	 */
 	public List<Node> getNodes(final ContentRange range) {
-		final List<Node> result = new ArrayList<Node>();
-		for (final Node node : getParentOfRange(range).children().in(range)) {
-			result.add(node);
-		}
-		return result;
+		return getParentOfRange(range).children().in(range).asList();
 	}
 
 	/*

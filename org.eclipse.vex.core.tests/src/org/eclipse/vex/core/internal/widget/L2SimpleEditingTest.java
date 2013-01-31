@@ -86,7 +86,7 @@ public class L2SimpleEditingTest {
 		widget.moveBy(1);
 		final Element paraElement = widget.insertElement(PARA);
 		widget.deletePreviousChar();
-		assertEquals(1, rootElement.getChildCount());
+		assertEquals(1, rootElement.children().count());
 		assertNull(paraElement.getParent());
 		assertFalse(paraElement.isAssociated());
 	}
@@ -97,7 +97,7 @@ public class L2SimpleEditingTest {
 		widget.moveBy(1);
 		final Element paraElement = widget.insertElement(PARA);
 		widget.deleteNextChar();
-		assertEquals(1, rootElement.getChildCount());
+		assertEquals(1, rootElement.children().count());
 		assertNull(paraElement.getParent());
 		assertFalse(paraElement.isAssociated());
 	}
@@ -109,7 +109,7 @@ public class L2SimpleEditingTest {
 		final Element paraElement = widget.insertElement(PARA);
 		widget.moveBy(1);
 		widget.deletePreviousChar();
-		assertEquals(1, rootElement.getChildCount());
+		assertEquals(1, rootElement.children().count());
 		assertNull(paraElement.getParent());
 		assertFalse(paraElement.isAssociated());
 	}
@@ -121,7 +121,7 @@ public class L2SimpleEditingTest {
 		final Element paraElement = widget.insertElement(PARA);
 		widget.moveBy(-1);
 		widget.deleteNextChar();
-		assertEquals(1, rootElement.getChildCount());
+		assertEquals(1, rootElement.children().count());
 		assertNull(paraElement.getParent());
 		assertFalse(paraElement.isAssociated());
 	}
@@ -139,7 +139,7 @@ public class L2SimpleEditingTest {
 		widget.moveTo(para2.getStartOffset());
 		widget.deletePreviousChar();
 
-		assertEquals(2, rootElement.getChildCount());
+		assertEquals(2, rootElement.children().count());
 		assertSame(rootElement, para1.getParent());
 		assertTrue(para1.isAssociated());
 		assertEquals("HelloWorld", para1.getText());
@@ -160,7 +160,7 @@ public class L2SimpleEditingTest {
 		widget.moveTo(para2.getStartOffset());
 		widget.deleteNextChar();
 
-		assertEquals(2, rootElement.getChildCount());
+		assertEquals(2, rootElement.children().count());
 		assertSame(rootElement, para1.getParent());
 		assertTrue(para1.isAssociated());
 		assertEquals("HelloWorld", para1.getText());
@@ -181,7 +181,7 @@ public class L2SimpleEditingTest {
 		widget.moveTo(para2.getStartOffset() + 1);
 		widget.deletePreviousChar();
 
-		assertEquals(2, rootElement.getChildCount());
+		assertEquals(2, rootElement.children().count());
 		assertSame(rootElement, para1.getParent());
 		assertTrue(para1.isAssociated());
 		assertEquals("HelloWorld", para1.getText());
@@ -202,7 +202,7 @@ public class L2SimpleEditingTest {
 		widget.moveTo(para1.getEndOffset());
 		widget.deleteNextChar();
 
-		assertEquals(2, rootElement.getChildCount());
+		assertEquals(2, rootElement.children().count());
 		assertSame(rootElement, para1.getParent());
 		assertTrue(para1.isAssociated());
 		assertEquals("HelloWorld", para1.getText());

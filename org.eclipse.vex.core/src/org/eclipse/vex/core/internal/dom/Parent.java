@@ -84,26 +84,6 @@ public abstract class Parent extends Node {
 	}
 
 	/**
-	 * Returns the child node at the given index. This index is based on the list of children without the Text nodes, so
-	 * the child node might have a different index in the list returned by getChildNodes().
-	 * 
-	 * @see Parent#getChildNodes()
-	 * @return the child node at the given index
-	 */
-	public Node getChildNode(final int index) {
-		return children.get(index);
-	}
-
-	/**
-	 * Returns the number of child nodes (<b>not</b> including Text nodes) of this parent node.
-	 * 
-	 * @return the number of child nodes
-	 */
-	public int getChildCount() {
-		return children.size();
-	}
-
-	/**
 	 * @see Axis
 	 * @return the iterable children Axis of this parent.
 	 */
@@ -114,6 +94,15 @@ public abstract class Parent extends Node {
 				return new ChildrenAndText(range, includeText);
 			}
 		};
+	}
+
+	/**
+	 * Indicates whether this parent node has child nodes, including text nodes.
+	 * 
+	 * @return true if this parent node has any child nodes
+	 */
+	public boolean hasChildren() {
+		return children().iterator().hasNext();
 	}
 
 	/**
@@ -135,15 +124,6 @@ public abstract class Parent extends Node {
 			}
 		}
 		return this;
-	}
-
-	/**
-	 * Indicates whether this parent node has child nodes, including text nodes.
-	 * 
-	 * @return true if this parent node has any child nodes
-	 */
-	public boolean hasChildren() {
-		return children().iterator().hasNext();
 	}
 
 	private class ChildrenAndText implements Iterator<Node> {

@@ -70,9 +70,9 @@ public class L1FragmentHandlingTest {
 	@Test
 	public void insertFragmentAtValidInsertionPoint() throws Exception {
 		document.insertFragment(rootElement.getEndOffset(), createFragment(VALID_CHILD, VALID_CHILD));
-		assertEquals(2, rootElement.getChildCount());
-		assertEquals(VALID_CHILD, ((Element) rootElement.getChildNode(0)).getQualifiedName());
-		assertEquals(VALID_CHILD, ((Element) rootElement.getChildNode(1)).getQualifiedName());
+		assertTrue(rootElement.hasChildren());
+		assertEquals(VALID_CHILD, ((Element) rootElement.children().get(0)).getQualifiedName());
+		assertEquals(VALID_CHILD, ((Element) rootElement.children().get(1)).getQualifiedName());
 	}
 
 	@Test(expected = DocumentValidationException.class)

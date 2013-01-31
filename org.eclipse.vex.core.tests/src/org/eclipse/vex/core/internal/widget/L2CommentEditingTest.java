@@ -60,7 +60,7 @@ public class L2CommentEditingTest {
 		final Element titleElement = widget.insertElement(TITLE);
 		final Comment comment = widget.insertComment();
 		widget.deletePreviousChar();
-		assertEquals(0, titleElement.getChildCount());
+		assertFalse(titleElement.hasChildren());
 		assertFalse(comment.isAssociated());
 		assertNull(comment.getParent());
 	}
@@ -70,7 +70,7 @@ public class L2CommentEditingTest {
 		final Element titleElement = widget.insertElement(TITLE);
 		final Comment comment = widget.insertComment();
 		widget.deleteNextChar();
-		assertEquals(0, titleElement.getChildCount());
+		assertFalse(titleElement.hasChildren());
 		assertFalse(comment.isAssociated());
 		assertNull(comment.getParent());
 	}

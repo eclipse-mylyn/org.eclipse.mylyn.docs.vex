@@ -31,34 +31,27 @@ public class ParentTest {
 	}
 
 	@Test
-	public void addChild() throws Exception {
+	public void isInitiallyEmpty() throws Exception {
 		assertFalse(parent.hasChildren());
-		assertEquals(0, parent.getChildCount());
+	}
 
+	@Test
+	public void addChild() throws Exception {
 		final TestChild child = new TestChild();
 		parent.addChild(child);
 		assertTrue(parent.hasChildren());
-		assertEquals(1, parent.getChildCount());
-		assertSame(child, parent.getChildNode(0));
-		assertSame(child, parent.children().iterator().next());
+		assertSame(child, parent.children().get(0));
+		assertSame(child, parent.children().first());
 	}
 
 	@Test
 	public void insertChild() throws Exception {
-		assertFalse(parent.hasChildren());
-		assertEquals(0, parent.getChildCount());
-
 		parent.addChild(new TestChild());
 		parent.addChild(new TestChild());
-		assertEquals(2, parent.getChildCount());
 
 		final TestChild child = new TestChild();
 		parent.insertChild(1, child);
-		assertEquals(3, parent.getChildCount());
-		assertSame(child, parent.getChildNode(1));
-		final Iterator<Node> actualChildren = parent.children().iterator();
-		actualChildren.next(); // TODO implement Axis.get(int);
-		assertSame(child, actualChildren.next());
+		assertSame(child, parent.children().get(1));
 	}
 
 	@Test
@@ -68,11 +61,9 @@ public class ParentTest {
 		parent.addChild(secondChild);
 		parent.addChild(new TestChild());
 		assertTrue(parent.hasChildren());
-		assertEquals(3, parent.getChildCount());
 
 		parent.removeChild(secondChild);
 		assertTrue(parent.hasChildren());
-		assertEquals(2, parent.getChildCount());
 		for (final Node child : parent.children()) {
 			assertTrue(child != secondChild);
 		}
@@ -178,7 +169,7 @@ public class ParentTest {
 	@Test
 	public void shouldSetParentOnTextNodes() throws Exception {
 		content.insertText(parent.getEndOffset(), "Hello World");
-		assertSame(parent, parent.children().iterator().next().getParent());
+		assertSame(parent, parent.children().first().getParent());
 	}
 
 	@Test
@@ -371,7 +362,7 @@ public class ParentTest {
 	@Test
 	public void shouldReturnTextWithinBoundaries() throws Exception {
 		content.insertText(parent.getEndOffset(), "Hello World");
-		final Node text = parent.children().iterator().next();
+		final Node text = parent.children().first();
 		assertTextNodeEquals("Hello World", text.getStartOffset(), text.getEndOffset(), parent.getChildNodeAt(text.getStartOffset()));
 		assertTextNodeEquals("Hello World", text.getStartOffset(), text.getEndOffset(), parent.getChildNodeAt(text.getStartOffset() + 1));
 		assertTextNodeEquals("Hello World", text.getStartOffset(), text.getEndOffset(), parent.getChildNodeAt(text.getEndOffset() - 1));
@@ -387,7 +378,7 @@ public class ParentTest {
 		parent.addChild(child);
 		child.associate(content, new ContentRange(offset, offset + 1));
 		content.insertText(child.getEndOffset(), "Hello World");
-		final Node text = child.children().iterator().next();
+		final Node text = child.children().first();
 		assertTextNodeEquals("Hello World", text.getStartOffset(), text.getEndOffset(), parent.getChildNodeAt(text.getStartOffset()));
 		assertTextNodeEquals("Hello World", text.getStartOffset(), text.getEndOffset(), parent.getChildNodeAt(text.getStartOffset() + 1));
 		assertTextNodeEquals("Hello World", text.getStartOffset(), text.getEndOffset(), parent.getChildNodeAt(text.getEndOffset() - 1));
@@ -518,7 +509,7 @@ public class ParentTest {
 
 	@Test
 	public void givenEmptyParent_shouldIndicateEmptyChildrenAxis() throws Exception {
-		assertFalse(parent.children().iterator().hasNext());
+		assertTrue(parent.children().isEmpty());
 	}
 
 	@Test
@@ -544,7 +535,7 @@ public class ParentTest {
 	@Test
 	public void shouldProvideNodeOnChildrenAxisByIndex() throws Exception {
 		setUpChildNodes();
-		assertEquals("Child1", parent.children().at(1).getText());
+		assertEquals("Child1", parent.children().get(1).getText());
 	}
 
 	@Test
@@ -570,6 +561,12 @@ public class ParentTest {
 		});
 		parent.children().accept(new BaseNodeVisitor());
 		assertTrue(childVisited[0]);
+	}
+
+	@Test
+	public void shouldProvideNodeCountOnChildrenAxis() throws Exception {
+		setUpChildNodes();
+		assertEquals(4, parent.children().count());
 	}
 
 	private static void assertTextNodeEquals(final String text, final int startOffset, final int endOffset, final Node actualNode) {
