@@ -872,7 +872,7 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 	 *            The offset at which to end the search.
 	 */
 	private static Node findNextBlockNode(final LayoutContext context, final Parent parent, final int startOffset, final int endOffset) {
-		for (final Node child : parent.children(new ContentRange(startOffset, endOffset))) {
+		for (final Node child : parent.children().in(new ContentRange(startOffset, endOffset))) {
 			final Node nextBlockNode = child.accept(new BaseNodeVisitorWithResult<Node>() {
 				@Override
 				public Node visit(final Element element) {

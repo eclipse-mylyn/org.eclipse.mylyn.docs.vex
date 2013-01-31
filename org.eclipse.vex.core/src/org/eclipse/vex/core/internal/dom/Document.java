@@ -208,9 +208,9 @@ public class Document extends Parent {
 					return true;
 				}
 
-				final List<QualifiedName> prefix = getNodeNames(element.getChildNodesBefore(offset));
+				final List<QualifiedName> prefix = getNodeNames(element.children().before(offset));
 				final List<QualifiedName> insertionCandidates = nodeNames;
-				final List<QualifiedName> suffix = getNodeNames(element.getChildNodesAfter(offset));
+				final List<QualifiedName> suffix = getNodeNames(element.children().after(offset));
 
 				return validator.isValidSequence(element.getQualifiedName(), prefix, insertionCandidates, suffix, true);
 			}
@@ -467,8 +467,8 @@ public class Document extends Parent {
 				if (validator == null) {
 					return true;
 				}
-				final List<QualifiedName> prefix = getNodeNames(element.getChildNodesBefore(range.getStartOffset()));
-				final List<QualifiedName> suffix = getNodeNames(element.getChildNodesAfter(range.getEndOffset()));
+				final List<QualifiedName> prefix = getNodeNames(element.children().before(range.getStartOffset()));
+				final List<QualifiedName> suffix = getNodeNames(element.children().after(range.getEndOffset()));
 				return validator.isValidSequence(element.getQualifiedName(), prefix, suffix, null, true);
 			}
 		});
@@ -648,7 +648,7 @@ public class Document extends Parent {
 	 */
 	public List<Node> getNodes(final ContentRange range) {
 		final List<Node> result = new ArrayList<Node>();
-		for (final Node node : getParentOfRange(range).children(range)) {
+		for (final Node node : getParentOfRange(range).children().in(range)) {
 			result.add(node);
 		}
 		return result;

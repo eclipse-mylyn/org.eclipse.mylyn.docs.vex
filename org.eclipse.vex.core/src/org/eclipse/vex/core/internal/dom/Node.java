@@ -115,6 +115,9 @@ public abstract class Node {
 	 * @return the range in the content to which this node is associated, eventually including tag markers
 	 */
 	public ContentRange getRange() {
+		if (!isAssociated()) {
+			return ContentRange.NULL;
+		}
 		return new ContentRange(getStartOffset(), getEndOffset());
 	}
 

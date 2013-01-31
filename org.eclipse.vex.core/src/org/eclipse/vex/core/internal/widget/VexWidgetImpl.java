@@ -234,9 +234,9 @@ public class VexWidgetImpl implements IVexWidget {
 		}
 
 		final Element parent = getDocument().getElementForInsertionAt(startOffset);
-		final List<QualifiedName> seq1 = Node.getNodeNames(parent.getChildNodesBefore(startOffset));
+		final List<QualifiedName> seq1 = Node.getNodeNames(parent.children().before(startOffset));
 		final List<QualifiedName> seq2 = frag.getNodeNames();
-		final List<QualifiedName> seq3 = Node.getNodeNames(parent.getChildNodesAfter(endOffset));
+		final List<QualifiedName> seq3 = Node.getNodeNames(parent.children().after(endOffset));
 
 		return validator.isValidSequence(parent.getQualifiedName(), seq1, seq2, seq3, true);
 	}
@@ -267,9 +267,9 @@ public class VexWidgetImpl implements IVexWidget {
 		}
 
 		final Element parent = getDocument().getElementForInsertionAt(startOffset);
-		final List<QualifiedName> seq1 = Node.getNodeNames(parent.getChildNodesBefore(startOffset));
+		final List<QualifiedName> seq1 = Node.getNodeNames(parent.children().before(startOffset));
 		final List<QualifiedName> seq2 = Collections.singletonList(Validator.PCDATA);
-		final List<QualifiedName> seq3 = Node.getNodeNames(parent.getChildNodesAfter(endOffset));
+		final List<QualifiedName> seq3 = Node.getNodeNames(parent.children().after(endOffset));
 
 		return validator.isValidSequence(parent.getQualifiedName(), seq1, seq2, seq3, true);
 	}
@@ -318,9 +318,9 @@ public class VexWidgetImpl implements IVexWidget {
 			return false;
 		}
 
-		final List<QualifiedName> seq1 = Node.getNodeNames(parent.getChildNodesBefore(element.getStartOffset()));
+		final List<QualifiedName> seq1 = Node.getNodeNames(parent.children().before(element.getStartOffset()));
 		final List<QualifiedName> seq2 = Node.getNodeNames(element.children());
-		final List<QualifiedName> seq3 = Node.getNodeNames(parent.getChildNodesAfter(element.getEndOffset()));
+		final List<QualifiedName> seq3 = Node.getNodeNames(parent.children().after(element.getEndOffset()));
 
 		return validator.isValidSequence(parent.getQualifiedName(), seq1, seq2, seq3, true);
 	}
@@ -622,9 +622,9 @@ public class VexWidgetImpl implements IVexWidget {
 			return new ElementName[0];
 		}
 
-		final List<QualifiedName> nodesBefore = Node.getNodeNames(parent.getChildNodesBefore(startOffset));
-		final List<QualifiedName> nodesAfter = Node.getNodeNames(parent.getChildNodesAfter(endOffset));
-		final List<QualifiedName> selectedNodes = Node.getNodeNames(parent.children(new ContentRange(startOffset, endOffset)));
+		final List<QualifiedName> nodesBefore = Node.getNodeNames(parent.children().before(startOffset));
+		final List<QualifiedName> nodesAfter = Node.getNodeNames(parent.children().after(endOffset));
+		final List<QualifiedName> selectedNodes = Node.getNodeNames(parent.children().in(new ContentRange(startOffset, endOffset)));
 		final List<QualifiedName> candidates = createCandidatesList(validator, parent, Validator.PCDATA);
 
 		filterInvalidSequences(validator, parent, nodesBefore, nodesAfter, candidates);

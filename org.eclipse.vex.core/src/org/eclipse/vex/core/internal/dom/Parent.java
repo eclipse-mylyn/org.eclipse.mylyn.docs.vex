@@ -12,13 +12,11 @@ package org.eclipse.vex.core.internal.dom;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.eclipse.core.runtime.Assert;
-import org.eclipse.vex.core.internal.css.IProperty.Axis;
 
 /**
  * A Parent node is a Node which can contain other nodes as children. This class defines the tree-like structure of the
@@ -86,47 +84,6 @@ public abstract class Parent extends Node {
 	}
 
 	/**
-	 * Returns a list of all child nodes (including Text nodes) in the given range. The Text nodes are cut at the edges,
-	 * all other nodes must be fully contained in the range (i.e. the start tag and the end tag). The returned list is
-	 * not modifyable.
-	 * 
-	 * @param startOffset
-	 *            the start offset of the range
-	 * @param endOffset
-	 *            the end offset of the range
-	 * @return all child nodes which are completely within the given range plus the textual content
-	 */
-	private List<Node> getChildNodes(final ContentRange range) {
-		final List<Node> result = new ArrayList<Node>();
-
-		for (final Node child : children(range)) {
-			result.add(child);
-		}
-
-		return Collections.unmodifiableList(result);
-	}
-
-	/**
-	 * @return all child nodes before the given offset, including Text nodes
-	 */
-	public List<Node> getChildNodesBefore(final int offset) {
-		if (offset <= getStartOffset()) {
-			return Collections.emptyList();
-		}
-		return getChildNodes(new ContentRange(getStartOffset() + 1, offset));
-	}
-
-	/**
-	 * @return all child nodes after the given offset, including Text nodes
-	 */
-	public List<Node> getChildNodesAfter(final int offset) {
-		if (offset >= getEndOffset()) {
-			return Collections.emptyList();
-		}
-		return getChildNodes(new ContentRange(offset, getEndOffset() - 1));
-	}
-
-	/**
 	 * Returns the child node at the given index. This index is based on the list of children without the Text nodes, so
 	 * the child node might have a different index in the list returned by getChildNodes().
 	 * 
@@ -148,19 +105,13 @@ public abstract class Parent extends Node {
 
 	/**
 	 * @see Axis
-	 * @return the iterable children Axis of this node.
+	 * @return the iterable children Axis of this parent.
 	 */
-	public Iterable<Node> children() {
-		if (!isAssociated()) {
-			return Collections.unmodifiableList(children);
-		}
-		return children(getRange());
-	}
-
-	public Iterable<Node> children(final ContentRange range) {
-		return new Iterable<Node>() {
-			public Iterator<Node> iterator() {
-				return new ChildrenAndText(range);
+	public Axis children() {
+		return new Axis(this) {
+			@Override
+			public Iterator<Node> iterator(final ContentRange range, final boolean includeText) {
+				return new ChildrenAndText(range, includeText);
 			}
 		};
 	}
@@ -198,13 +149,15 @@ public abstract class Parent extends Node {
 	private class ChildrenAndText implements Iterator<Node> {
 
 		private final ContentRange trimmedRange;
+		private final boolean includeText;
 		private final Iterator<Node> childIterator;
 
 		private int textCursor;
 		private Node currentChild;
 		private ContentRange nextTextGap;
 
-		public ChildrenAndText(final ContentRange range) {
+		public ChildrenAndText(final ContentRange range, final boolean includeText) {
+			this.includeText = includeText;
 			trimmedRange = range.intersection(getRange());
 			childIterator = children.iterator();
 			initialize();
@@ -265,7 +218,7 @@ public abstract class Parent extends Node {
 		}
 
 		private boolean hasMoreText() {
-			return textCursor < nextTextGap.getStartOffset();
+			return includeText && textCursor < nextTextGap.getStartOffset();
 		}
 
 		public Node next() {
@@ -277,15 +230,17 @@ public abstract class Parent extends Node {
 				return nextChild();
 			}
 
-			final int textStart = findNextTextStart(textCursor, nextTextGap.getStartOffset());
-			final int textEnd = findNextTextEnd(nextTextGap.getStartOffset(), textStart);
-			textCursor = nextTextGap.getEndOffset() + 1;
+			if (includeText) {
+				final int textStart = findNextTextStart(textCursor, nextTextGap.getStartOffset());
+				final int textEnd = findNextTextEnd(nextTextGap.getStartOffset(), textStart);
+				textCursor = nextTextGap.getEndOffset() + 1;
 
-			if (textStart < textEnd) {
-				return nextText(textStart, textEnd);
-			}
-			if (textStart == textEnd && !getContent().isTagMarker(textStart)) {
-				return nextText(textStart, textEnd);
+				if (textStart < textEnd) {
+					return nextText(textStart, textEnd);
+				}
+				if (textStart == textEnd && !getContent().isTagMarker(textStart)) {
+					return nextText(textStart, textEnd);
+				}
 			}
 
 			Assert.isNotNull(currentChild, "No text and no child makes Homer go crazy!");
