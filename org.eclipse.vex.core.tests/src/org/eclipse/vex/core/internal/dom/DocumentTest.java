@@ -11,11 +11,12 @@
 package org.eclipse.vex.core.internal.dom;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
-import java.util.List;
+import java.util.Iterator;
 
 import org.eclipse.core.runtime.AssertionFailedException;
 import org.eclipse.core.runtime.QualifiedName;
@@ -113,11 +114,14 @@ public class DocumentTest {
 		assertNodeEquals(expectedFragment, actualFragment, 0);
 	}
 
-	private static void assertNodesEqual(final List<? extends Node> expected, final List<? extends Node> actual, final int rangeOffsetExpected) {
-		assertEquals(expected.size(), actual.size());
-		for (int i = 0; i < expected.size(); i++) {
-			assertNodeEquals(expected.get(i), actual.get(i), rangeOffsetExpected);
+	private static void assertNodesEqual(final Iterable<Node> expected, final Iterable<Node> actual, final int rangeOffsetExpected) {
+		final Iterator<Node> expectedIterator = expected.iterator();
+		final Iterator<Node> actualIterator = actual.iterator();
+		while (expectedIterator.hasNext() && actualIterator.hasNext()) {
+			assertNodeEquals(expectedIterator.next(), actualIterator.next(), rangeOffsetExpected);
 		}
+		assertFalse("more elements expected", expectedIterator.hasNext());
+		assertFalse("less elements expected", actualIterator.hasNext());
 	}
 
 	private static void assertNodeEquals(final Node expected, final Node actual, final int rangeOffsetExpected) {
@@ -125,7 +129,7 @@ public class DocumentTest {
 		assertEquals("node range", expected.getRange(), actual.getRange().moveBy(rangeOffsetExpected));
 		assertEquals("node text", expected.getText(), actual.getText());
 		if (expected instanceof Parent) {
-			assertNodesEqual(((Parent) expected).getChildNodes(), ((Parent) actual).getChildNodes(), rangeOffsetExpected);
+			assertNodesEqual(((Parent) expected).children(), ((Parent) actual).children(), rangeOffsetExpected);
 		}
 	}
 

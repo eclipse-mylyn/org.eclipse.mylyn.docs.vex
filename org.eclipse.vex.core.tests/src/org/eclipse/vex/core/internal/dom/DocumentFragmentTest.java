@@ -11,13 +11,14 @@
 package org.eclipse.vex.core.internal.dom;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
+import java.util.Iterator;
 
 import org.eclipse.core.runtime.AssertionFailedException;
 import org.junit.Test;
@@ -47,10 +48,9 @@ public class DocumentFragmentTest {
 		final GapContent content = new GapContent(3);
 		content.insertText(0, "abc");
 		final DocumentFragment fragment = new DocumentFragment(content, Collections.<Node> emptyList());
-		final List<Node> childNodes = fragment.getChildNodes();
-		assertEquals(1, childNodes.size());
-		final Node child = childNodes.get(0);
-		assertTrue(child instanceof Text);
+		final Iterator<Node> actualChildren = fragment.children().iterator();
+		assertTrue(actualChildren.next() instanceof Text);
+		assertFalse(actualChildren.hasNext());
 	}
 
 	@Test
@@ -66,8 +66,10 @@ public class DocumentFragmentTest {
 		child2.associate(content, new ContentRange(2, 3));
 
 		final DocumentFragment fragment = new DocumentFragment(content, Arrays.<Node> asList(child1, child2));
-		assertSame(child1, fragment.getChildNodes().get(0));
-		assertSame(child2, fragment.getChildNodes().get(1));
+		final Iterator<Node> actualChildren = fragment.children().iterator();
+		assertSame(child1, actualChildren.next());
+		assertSame(child2, actualChildren.next());
+		assertFalse(actualChildren.hasNext());
 	}
 
 	@Test

@@ -254,8 +254,7 @@ public final class VexHandlerUtil {
 
 		int previousSiblingStart = -1;
 		final Element parent = vexWidget.getDocument().getElementForInsertionAt(startOffset);
-		final List<Node> children = parent.getChildNodes();
-		for (final Node child : children) {
+		for (final Node child : parent.children()) {
 			if (startOffset == child.getStartOffset()) {
 				break;
 			}

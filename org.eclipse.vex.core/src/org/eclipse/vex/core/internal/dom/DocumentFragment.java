@@ -12,6 +12,7 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.dom;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.runtime.Assert;
@@ -50,14 +51,18 @@ public class DocumentFragment extends Parent {
 	 * @return a list with the qualified names off all nodes on the root level of this fragment
 	 */
 	public List<QualifiedName> getNodeNames() {
-		return Node.getNodeNames(getChildNodes());
+		return Node.getNodeNames(children());
 	}
 
 	/**
 	 * @return all nodes on the root level of this fragment
 	 */
 	public List<Node> getNodes() {
-		return getChildNodes();
+		final List<Node> result = new ArrayList<Node>();
+		for (final Node node : children()) {
+			result.add(node);
+		}
+		return result;
 	}
 
 	/**

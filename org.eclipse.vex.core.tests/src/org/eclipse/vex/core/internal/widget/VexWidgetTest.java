@@ -16,7 +16,6 @@ import static org.eclipse.vex.core.tests.TestResources.TEST_DTD;
 import static org.junit.Assert.assertEquals;
 
 import java.util.Arrays;
-import java.util.List;
 
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.vex.core.internal.css.StyleSheet;
@@ -142,10 +141,9 @@ public class VexWidgetTest {
 		final StringBuilder result = new StringBuilder();
 		result.append("<").append(element.getQualifiedName()).append(" (").append(element.getStartOffset()).append("-").append(element.getEndOffset()).append(")");
 		result.append(" ").append(element.getText());
-		final List<Node> children = element.getChildNodes();
-		if (!children.isEmpty()) {
+		if (!element.hasChildren()) {
 			result.append(" [");
-			for (final Node child : children) {
+			for (final Node child : element.children()) {
 				if (child instanceof Element) {
 					result.append(getContentStructure((Element) child));
 				} else if (child instanceof Text) {

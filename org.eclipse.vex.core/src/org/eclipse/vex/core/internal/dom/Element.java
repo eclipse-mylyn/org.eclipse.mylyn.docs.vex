@@ -324,9 +324,8 @@ public class Element extends Parent {
 	 * @return the child elements of this element
 	 */
 	public List<Element> getChildElements() {
-		final List<Node> nodes = getChildNodes();
 		final List<Element> elements = new ArrayList<Element>();
-		for (final Node node : nodes) {
+		for (final Node node : children()) {
 			node.accept(new BaseNodeVisitor() {
 				@Override
 				public void visit(final Element element) {

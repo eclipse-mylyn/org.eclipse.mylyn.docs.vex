@@ -67,10 +67,10 @@ public class DeepCopy {
 		}
 		nodes = new ArrayList<Node>();
 
-		copyNodes(parent.getChildNodes(range), delta);
+		copyNodes(parent.children(range), delta);
 	}
 
-	private void copyNodes(final List<Node> sourceNodes, final int delta) {
+	private void copyNodes(final Iterable<Node> sourceNodes, final int delta) {
 		final DeepCopyVisitor deepCopyVisitor = new DeepCopyVisitor(nodes, content, delta);
 		for (final Node sourceNode : sourceNodes) {
 			sourceNode.accept(deepCopyVisitor);

@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.Enumeration;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -71,7 +72,6 @@ public class SpaceNormalizerTest extends TestCase {
 
 		getAndCreateProject();
 		final Bundle coreTestBundle = Platform.getBundle(VEXCoreTestPlugin.PLUGIN_ID);
-		@SuppressWarnings("unchecked")
 		final Enumeration<String> projectFilePaths = coreTestBundle.getEntryPaths("/" + PROJECT_FILES_FOLDER_NAME);
 		while (projectFilePaths.hasMoreElements()) {
 			final String absolutePath = projectFilePaths.nextElement();
@@ -272,19 +272,20 @@ public class SpaceNormalizerTest extends TestCase {
 	 * brackets, it's assume to refer to the name of an element; otherwise, it represents text content.
 	 */
 	private void assertContent(final Element element, final String... strings) {
-		final List<Node> content = element.getChildNodes();
-		assertEquals(strings.length, content.size());
-		for (int i = 0; i < strings.length; i++) {
-			if (strings[i].startsWith("<")) {
-				final String name = strings[i].substring(1, strings[i].length() - 1);
-				assertTrue(content.get(i) instanceof Element);
-				assertEquals(name, ((Element) content.get(i)).getPrefixedName());
+		final Iterator<Node> children = element.children().iterator();
+		for (final String string : strings) {
+			final Node node = children.next();
+			if (string.startsWith("<")) {
+				final String name = string.substring(1, string.length() - 1);
+				assertTrue(node instanceof Element);
+				assertEquals(name, ((Element) node).getPrefixedName());
 			} else {
-				assertTrue(content.get(i) instanceof Text);
-				final String contentText = content.get(i).getText();
-				assertEquals(strings[i], contentText);
+				assertTrue(node instanceof Text);
+				final String contentText = node.getText();
+				assertEquals(string, contentText);
 			}
 		}
+		assertFalse("more strings expected", children.hasNext());
 	}
 
 	private Document createDocument(final String s, final StyleSheet ss) throws ParserConfigurationException, SAXException, IOException {

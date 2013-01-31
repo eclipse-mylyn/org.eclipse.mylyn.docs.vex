@@ -12,7 +12,6 @@
 package org.eclipse.vex.core.internal.dom;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 
 import org.eclipse.core.runtime.Assert;
@@ -244,8 +243,8 @@ public abstract class Node {
 	/**
 	 * @return the qualified names of the given nodes
 	 */
-	public static List<QualifiedName> getNodeNames(final Collection<Node> nodes) {
-		final List<QualifiedName> names = new ArrayList<QualifiedName>(nodes.size());
+	public static List<QualifiedName> getNodeNames(final Iterable<Node> nodes) {
+		final List<QualifiedName> names = new ArrayList<QualifiedName>();
 
 		for (final Node node : nodes) {
 			node.accept(new BaseNodeVisitor() {

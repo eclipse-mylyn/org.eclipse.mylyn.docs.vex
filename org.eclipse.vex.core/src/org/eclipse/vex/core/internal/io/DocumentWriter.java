@@ -180,7 +180,7 @@ public class DocumentWriter {
 					out.println(buffer.toString());
 				}
 
-				for (final Node child : document.getChildNodes()) {
+				for (final Node child : document.children()) {
 					writeNode(child, out, indent);
 				}
 			}
@@ -188,7 +188,7 @@ public class DocumentWriter {
 			@Override
 			public void visit(final DocumentFragment fragment) {
 				out.print("<vex_fragment>");
-				for (final Node child : fragment.getChildNodes()) {
+				for (final Node child : fragment.children()) {
 					writeNodeNoWrap(child, out);
 				}
 				out.println("</vex_fragment>");
@@ -236,7 +236,7 @@ public class DocumentWriter {
 					out.println(">");
 
 					final String childIndent = indent + DocumentWriter.this.indent;
-					for (final Node child : element.getChildNodes()) {
+					for (final Node child : element.children()) {
 						writeNode(child, out, childIndent);
 					}
 					out.print(indent);
@@ -298,7 +298,7 @@ public class DocumentWriter {
 				out.print(getAttributeString(element));
 				out.print(">");
 
-				for (final Node child : element.getChildNodes()) {
+				for (final Node child : element.children()) {
 					writeNodeNoWrap(child, out);
 				}
 
@@ -337,24 +337,25 @@ public class DocumentWriter {
 		node.accept(new BaseNodeVisitor() {
 			@Override
 			public void visit(final Element element) {
-				final List<Node> content = element.getChildNodes();
+				final boolean elementHasChildren = element.hasChildren();
 
 				final StringBuilder buffer = new StringBuilder();
 				buffer.append("<").append(element.getPrefixedName());
 				buffer.append(getNamespaceDeclarationsString(element));
 				buffer.append(getAttributeString(element));
-				if (content.isEmpty()) {
-					buffer.append("/>");
-				} else {
+
+				if (elementHasChildren) {
 					buffer.append(">");
+				} else {
+					buffer.append("/>");
 				}
 				wrapper.addNoSplit(buffer.toString());
 
-				for (final Node child : content) {
+				for (final Node child : element.children()) {
 					addNode(child, wrapper);
 				}
 
-				if (!content.isEmpty()) {
+				if (elementHasChildren) {
 					wrapper.add("</" + element.getPrefixedName() + ">");
 				}
 			}

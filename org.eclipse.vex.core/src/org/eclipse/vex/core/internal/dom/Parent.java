@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.eclipse.core.runtime.Assert;
+import org.eclipse.vex.core.internal.css.IProperty.Axis;
 
 /**
  * A Parent node is a Node which can contain other nodes as children. This class defines the tree-like structure of the
@@ -85,19 +86,6 @@ public abstract class Parent extends Node {
 	}
 
 	/**
-	 * Returns a list of all child nodes of this parent node, including Text nodes for the textual content.
-	 * 
-	 * @return all child nodes including Text nodes
-	 */
-	public List<Node> getChildNodes() {
-		if (!isAssociated()) {
-			return Collections.unmodifiableList(children);
-		}
-
-		return getChildNodes(getRange());
-	}
-
-	/**
 	 * Returns a list of all child nodes (including Text nodes) in the given range. The Text nodes are cut at the edges,
 	 * all other nodes must be fully contained in the range (i.e. the start tag and the end tag). The returned list is
 	 * not modifyable.
@@ -108,7 +96,7 @@ public abstract class Parent extends Node {
 	 *            the end offset of the range
 	 * @return all child nodes which are completely within the given range plus the textual content
 	 */
-	public List<Node> getChildNodes(final ContentRange range) {
+	private List<Node> getChildNodes(final ContentRange range) {
 		final List<Node> result = new ArrayList<Node>();
 
 		for (final Node child : children(range)) {
@@ -158,6 +146,10 @@ public abstract class Parent extends Node {
 		return children.size();
 	}
 
+	/**
+	 * @see Axis
+	 * @return the iterable children Axis of this node.
+	 */
 	public Iterable<Node> children() {
 		if (!isAssociated()) {
 			return Collections.unmodifiableList(children);
@@ -195,13 +187,12 @@ public abstract class Parent extends Node {
 	}
 
 	/**
-	 * Indicates whether this parent node has child nodes. Text nodes are ignored, i.e. this method will return false if
-	 * this parent node contains only text.
+	 * Indicates whether this parent node has child nodes, including text nodes.
 	 * 
-	 * @return true if this parent node has any child nodes besides text
+	 * @return true if this parent node has any child nodes
 	 */
 	public boolean hasChildren() {
-		return !children.isEmpty();
+		return children().iterator().hasNext();
 	}
 
 	private class ChildrenAndText implements Iterator<Node> {

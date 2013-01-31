@@ -82,7 +82,7 @@ public class DeepCopyVisitor implements INodeVisitor {
 
 	private void copyChildren(final Parent source, final Parent copy) {
 		final Parent lastParent = currentParent;
-		for (final Node child : source.getChildNodes()) {
+		for (final Node child : source.children()) {
 			currentParent = copy;
 			child.accept(this);
 		}

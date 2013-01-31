@@ -319,7 +319,7 @@ public class VexWidgetImpl implements IVexWidget {
 		}
 
 		final List<QualifiedName> seq1 = Node.getNodeNames(parent.getChildNodesBefore(element.getStartOffset()));
-		final List<QualifiedName> seq2 = Node.getNodeNames(element.getChildNodes());
+		final List<QualifiedName> seq2 = Node.getNodeNames(element.children());
 		final List<QualifiedName> seq3 = Node.getNodeNames(parent.getChildNodesAfter(element.getEndOffset()));
 
 		return validator.isValidSequence(parent.getQualifiedName(), seq1, seq2, seq3, true);
@@ -624,7 +624,7 @@ public class VexWidgetImpl implements IVexWidget {
 
 		final List<QualifiedName> nodesBefore = Node.getNodeNames(parent.getChildNodesBefore(startOffset));
 		final List<QualifiedName> nodesAfter = Node.getNodeNames(parent.getChildNodesAfter(endOffset));
-		final List<QualifiedName> selectedNodes = Node.getNodeNames(parent.getChildNodes(new ContentRange(startOffset, endOffset)));
+		final List<QualifiedName> selectedNodes = Node.getNodeNames(parent.children(new ContentRange(startOffset, endOffset)));
 		final List<QualifiedName> candidates = createCandidatesList(validator, parent, Validator.PCDATA);
 
 		filterInvalidSequences(validator, parent, nodesBefore, nodesAfter, candidates);
@@ -713,7 +713,7 @@ public class VexWidgetImpl implements IVexWidget {
 		final List<QualifiedName> candidates = createCandidatesList(validator, parent, Validator.PCDATA, element.getQualifiedName());
 
 		// root out those that can't contain the current content
-		final List<QualifiedName> content = Node.getNodeNames(element.getChildNodes());
+		final List<QualifiedName> content = Node.getNodeNames(element.children());
 
 		for (final Iterator<QualifiedName> iter = candidates.iterator(); iter.hasNext();) {
 			final QualifiedName candidate = iter.next();

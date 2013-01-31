@@ -272,7 +272,7 @@ public class InlineElementBox extends CompositeInlineBox {
 		node.accept(new BaseNodeVisitor() {
 			@Override
 			public void visit(final Element element) {
-				for (final Node childNode : element.getChildNodes(range)) {
+				for (final Node childNode : element.children(range)) {
 					childNode.accept(new BaseNodeVisitor() {
 						@Override
 						public void visit(final Element element) {

@@ -11,9 +11,11 @@
 package org.eclipse.vex.core.internal.io;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.core.runtime.QualifiedName;
@@ -40,12 +42,11 @@ public class RoundTrip {
 
 	public static void assertContentEqual(final Parent expected, final Parent actual) {
 		assertContentRangeEqual(expected, actual);
-		final List<Node> expectedContent = expected.getChildNodes();
-		final List<Node> actualContent = actual.getChildNodes();
-		assertEquals("children of " + expected, expectedContent.size(), actualContent.size());
-		for (int i = 0; i < expectedContent.size(); i++) {
-			final Node expectedNode = expectedContent.get(i);
-			final Node actualNode = actualContent.get(i);
+		final Iterator<Node> expectedChildren = expected.children().iterator();
+		final Iterator<Node> actualChildren = actual.children().iterator();
+		while (expectedChildren.hasNext() && actualChildren.hasNext()) {
+			final Node expectedNode = expectedChildren.next();
+			final Node actualNode = actualChildren.next();
 			assertContentRangeEqual(expectedNode, actualNode);
 			assertEquals(expectedNode.getClass(), actualNode.getClass());
 			expectedNode.accept(new BaseNodeVisitor() {
@@ -65,6 +66,8 @@ public class RoundTrip {
 				}
 			});
 		}
+		assertFalse("more children expected", expectedChildren.hasNext());
+		assertFalse("less children expected", actualChildren.hasNext());
 	}
 
 	public static void assertContentRangeEqual(final Node expected, final Node actual) {

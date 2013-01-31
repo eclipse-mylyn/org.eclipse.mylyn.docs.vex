@@ -15,6 +15,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
+import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.core.runtime.QualifiedName;
@@ -54,9 +55,9 @@ public class L1CommentHandlingTest {
 
 		assertSame(rootElement, comment.getParent());
 		assertTrue(comment.isAssociated());
-		final List<Node> newChildNodes = rootElement.getChildNodes();
-		assertEquals(2, newChildNodes.size());
-		assertSame(newChildNodes.get(0), comment);
+		final Iterator<Node> actualChildren = rootElement.children().iterator();
+		assertSame(comment, actualChildren.next());
+		assertSame(titleElement, actualChildren.next());
 	}
 
 	@Test

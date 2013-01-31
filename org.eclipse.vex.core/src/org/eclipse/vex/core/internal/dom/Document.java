@@ -13,6 +13,7 @@
 package org.eclipse.vex.core.internal.dom;
 
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -424,7 +425,7 @@ public class Document extends Parent {
 	private void associateDeeply(final Node node, final int offset) {
 		if (node instanceof Parent) {
 			final Parent parent = (Parent) node;
-			for (final Node child : parent.getChildNodes()) {
+			for (final Node child : parent.children()) {
 				associateDeeply(child, offset);
 			}
 		}
@@ -524,8 +525,7 @@ public class Document extends Parent {
 	}
 
 	private static Node findCommonNodeIn(final Parent parent, final int offset1, final int offset2) {
-		final List<Node> children = parent.getChildNodes();
-		for (final Node child : children) {
+		for (final Node child : parent.children()) {
 			if (child instanceof Text) {
 				continue;
 			}
@@ -647,7 +647,11 @@ public class Document extends Parent {
 	 * @return all nodes in the given range in this document
 	 */
 	public List<Node> getNodes(final ContentRange range) {
-		return getParentOfRange(range).getChildNodes(range);
+		final List<Node> result = new ArrayList<Node>();
+		for (final Node node : getParentOfRange(range).children(range)) {
+			result.add(node);
+		}
+		return result;
 	}
 
 	/*
