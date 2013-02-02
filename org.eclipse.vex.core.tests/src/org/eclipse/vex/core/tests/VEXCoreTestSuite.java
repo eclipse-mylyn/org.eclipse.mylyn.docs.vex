@@ -21,7 +21,9 @@ import junit.framework.JUnit4TestAdapter;
 import junit.framework.Test;
 import junit.framework.TestSuite;
 
+import org.eclipse.vex.core.internal.core.AfterNIteratorTest;
 import org.eclipse.vex.core.internal.core.FilterIteratorTest;
+import org.eclipse.vex.core.internal.core.FirstNIteratorTest;
 import org.eclipse.vex.core.internal.css.BatikBehaviorTest;
 import org.eclipse.vex.core.internal.css.CssTest;
 import org.eclipse.vex.core.internal.css.PropertyTest;
@@ -70,6 +72,8 @@ public class VEXCoreTestSuite extends TestSuite {
 	public VEXCoreTestSuite() throws ParserConfigurationException, FactoryConfigurationError, IOException, SAXException {
 		super("Vex Core Tests");
 		addTest(new JUnit4TestAdapter(FilterIteratorTest.class));
+		addTest(new JUnit4TestAdapter(FirstNIteratorTest.class));
+		addTest(new JUnit4TestAdapter(AfterNIteratorTest.class));
 		addTest(new JUnit4TestAdapter(AxisTest.class));
 		addTest(new JUnit4TestAdapter(NamespaceStackTest.class));
 		addTest(new JUnit4TestAdapter(NamespaceTest.class));

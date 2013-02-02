@@ -16,45 +16,32 @@ import java.util.NoSuchElementException;
 /**
  * @author Florian Thienel
  */
-public class FilterIterator<T> implements Iterator<T> {
+public class FirstNIterator<T> implements Iterator<T> {
 
 	private final Iterator<T> source;
-	private final IFilter<T> filter;
-	private T current;
+	private final int n;
+	private int cursor;
 
-	public FilterIterator(final Iterator<T> source, final IFilter<T> filter) {
+	public FirstNIterator(final Iterator<T> source, final int n) {
 		this.source = source;
-		this.filter = filter;
-		current = null;
-		nextStep();
-	}
-
-	private void nextStep() {
-		while (source.hasNext()) {
-			final T next = source.next();
-			if (filter.matches(next)) {
-				current = next;
-				return;
-			}
-		}
-		current = null;
+		this.n = n;
+		cursor = 0;
 	}
 
 	public boolean hasNext() {
-		return current != null;
+		return cursor < n && source.hasNext();
 	}
 
 	public T next() {
 		if (!hasNext()) {
 			throw new NoSuchElementException();
 		}
-
-		final T result = current;
-		nextStep();
-		return result;
+		cursor++;
+		return source.next();
 	}
 
 	public void remove() {
-		throw new UnsupportedOperationException();
+		source.remove();
 	}
+
 }

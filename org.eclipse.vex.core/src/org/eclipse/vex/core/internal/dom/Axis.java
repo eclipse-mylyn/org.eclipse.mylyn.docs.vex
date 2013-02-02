@@ -17,17 +17,40 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.eclipse.core.runtime.Assert;
+import org.eclipse.vex.core.internal.core.AfterNIterator;
 import org.eclipse.vex.core.internal.core.FilterIterator;
+import org.eclipse.vex.core.internal.core.FirstNIterator;
 import org.eclipse.vex.core.internal.core.IFilter;
 
 /**
- * An Axis represents an iterable set of nodes. It is the main concept to navigate in the DOM, inspired by the XPath
- * axes.
+ * An Axis represents an iterable sequence of nodes. It is the main concept to navigate in the DOM, inspired by the
+ * XPath axes. Besides implementing the Iterable interface, Axis provides a fluent interface to limit the sequence by
+ * several criteria:
+ * <ul>
+ * <li>only nodes within a range in the content</li>
+ * <li>omit text nodes</li>
+ * <li>only nodes within a range of indices</li>
+ * <li>only nodes which match a given chain of filters</li>
+ * </ul>
+ * 
+ * Example:
+ * 
+ * <pre>
+ * Iterator&lt;Node&gt; elementsInRange = parent.children().in(new ContentRange(1, 24)).matching(new IFilter&lt;Node&gt;() {
+ * 	public boolean matches(Node node) {
+ * 		return node instanceof Element;
+ * 	}
+ * }).iterator();
+ * </pre>
+ * 
+ * The Iterable interface makes it very convenient to use the axis in a foreach loop.
  * 
  * @author Florian Thienel
  * @see <a href="http://www.w3.org/TR/xpath/#axes">http://www.w3.org/TR/xpath/#axes</a>
  */
 public abstract class Axis implements Iterable<Node> {
+
+	private static final int UNDEFINED = -1;
 
 	private final List<IteratorFactory> chain = new ArrayList<IteratorFactory>();
 
@@ -35,6 +58,9 @@ public abstract class Axis implements Iterable<Node> {
 	private boolean willBeEmpty;
 	private ContentRange contentRange;
 	private boolean includeText;
+
+	private int startIndex;
+	private int endIndex;
 
 	public Axis(final Node sourceNode) {
 		this.sourceNode = sourceNode;
@@ -45,6 +71,8 @@ public abstract class Axis implements Iterable<Node> {
 		willBeEmpty = false;
 		contentRange = sourceNode.getRange();
 		includeText = true;
+		startIndex = UNDEFINED;
+		endIndex = UNDEFINED;
 	}
 
 	protected ContentRange getContentRange() {
@@ -59,6 +87,15 @@ public abstract class Axis implements Iterable<Node> {
 
 	public Iterator<Node> iterator() {
 		Iterator<Node> result = rootIterator();
+
+		if (startIndex != UNDEFINED && endIndex != UNDEFINED) {
+			result = new AfterNIterator<Node>(result, startIndex);
+			result = new FirstNIterator<Node>(result, endIndex - startIndex + 1);
+		} else if (startIndex != UNDEFINED) {
+			result = new AfterNIterator<Node>(result, startIndex);
+		} else if (endIndex != UNDEFINED) {
+			result = new FirstNIterator<Node>(result, endIndex + 1);
+		}
 
 		for (final IteratorFactory iteratorFactory : chain) {
 			result = iteratorFactory.iterator(result);
@@ -116,6 +153,18 @@ public abstract class Axis implements Iterable<Node> {
 				return new FilterIterator<Node>(source, filter);
 			}
 		});
+		return this;
+	}
+
+	public Axis from(final int startIndex) {
+		Assert.isTrue(this.startIndex == UNDEFINED, "Can set start index only once.");
+		this.startIndex = startIndex;
+		return this;
+	}
+
+	public Axis to(final int endIndex) {
+		Assert.isTrue(this.endIndex == UNDEFINED, "Can set end index only once.");
+		this.endIndex = endIndex;
 		return this;
 	}
 

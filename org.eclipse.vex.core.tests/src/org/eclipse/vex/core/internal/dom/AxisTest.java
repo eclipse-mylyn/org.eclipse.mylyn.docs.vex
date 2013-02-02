@@ -20,6 +20,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 
+import org.eclipse.core.runtime.AssertionFailedException;
 import org.eclipse.vex.core.internal.core.IFilter;
 import org.junit.Before;
 import org.junit.Test;
@@ -114,6 +115,40 @@ public class AxisTest {
 			actualNodeCount++;
 		}
 		assertEquals(3, actualNodeCount);
+	}
+
+	@Test
+	public void givenAxisWithElements_whenEndIndexIsGiven_shouldProvideOnlyNodesUpToEndIndex() throws Exception {
+		final Iterator<Node> actualNodes = axis(source, nodes("one", "two", "three")).to(1).iterator();
+		assertEquals("one", actualNodes.next().toString());
+		assertEquals("two", actualNodes.next().toString());
+		assertFalse(actualNodes.hasNext());
+	}
+
+	@Test(expected = AssertionFailedException.class)
+	public void shouldNotAcceptMoreThanOneEndIndex() throws Exception {
+		axis(source, nodes()).to(0).to(0);
+	}
+
+	@Test
+	public void givenAxisWithElements_whenStartIndexIsGiven_shouldProvideOnlyNodesFromStartIndex() throws Exception {
+		final Iterator<Node> actualNodes = axis(source, nodes("one", "two", "three")).from(1).iterator();
+		assertEquals("two", actualNodes.next().toString());
+		assertEquals("three", actualNodes.next().toString());
+		assertFalse(actualNodes.hasNext());
+	}
+
+	@Test(expected = AssertionFailedException.class)
+	public void shouldNotAcceptMoreThanOneStartIndex() throws Exception {
+		axis(source, nodes()).from(0).from(0);
+	}
+
+	@Test
+	public void givenAxisWithElements_whenStartAndEndIndexAreGiven_shouldProvideOnlyNodesFromStartToEndIndex() throws Exception {
+		final Iterator<Node> actualNodes = axis(source, nodes("one", "two", "three", "four", "five")).from(1).to(2).iterator();
+		assertEquals("two", actualNodes.next().toString());
+		assertEquals("three", actualNodes.next().toString());
+		assertFalse(actualNodes.hasNext());
 	}
 
 	private static Axis axis(final Node sourceNode, final Iterable<Node> source) {
