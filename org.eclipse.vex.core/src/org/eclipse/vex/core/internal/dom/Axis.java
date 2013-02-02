@@ -47,7 +47,15 @@ public abstract class Axis implements Iterable<Node> {
 		includeText = true;
 	}
 
-	protected abstract Iterator<Node> iterator(final ContentRange range, final boolean includeText);
+	protected ContentRange getContentRange() {
+		return contentRange;
+	}
+
+	protected boolean shouldIncludeText() {
+		return includeText;
+	}
+
+	protected abstract Iterator<Node> iterator(final Node sourceNode, final Axis axis);
 
 	public Iterator<Node> iterator() {
 		Iterator<Node> result = rootIterator();
@@ -63,7 +71,7 @@ public abstract class Axis implements Iterable<Node> {
 		if (willBeEmpty) {
 			return Collections.<Node> emptyList().iterator();
 		}
-		return iterator(contentRange, includeText);
+		return iterator(sourceNode, this);
 	}
 
 	public Axis in(final ContentRange range) {

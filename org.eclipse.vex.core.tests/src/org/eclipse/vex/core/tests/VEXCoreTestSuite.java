@@ -26,6 +26,7 @@ import org.eclipse.vex.core.internal.css.BatikBehaviorTest;
 import org.eclipse.vex.core.internal.css.CssTest;
 import org.eclipse.vex.core.internal.css.PropertyTest;
 import org.eclipse.vex.core.internal.css.RuleTest;
+import org.eclipse.vex.core.internal.dom.AxisTest;
 import org.eclipse.vex.core.internal.dom.BasicNodeTest;
 import org.eclipse.vex.core.internal.dom.BlockElementBoxTest;
 import org.eclipse.vex.core.internal.dom.CopyVisitorTest;
@@ -69,6 +70,7 @@ public class VEXCoreTestSuite extends TestSuite {
 	public VEXCoreTestSuite() throws ParserConfigurationException, FactoryConfigurationError, IOException, SAXException {
 		super("Vex Core Tests");
 		addTest(new JUnit4TestAdapter(FilterIteratorTest.class));
+		addTest(new JUnit4TestAdapter(AxisTest.class));
 		addTest(new JUnit4TestAdapter(NamespaceStackTest.class));
 		addTest(new JUnit4TestAdapter(NamespaceTest.class));
 		addTest(new JUnit4TestAdapter(DocumentReaderTest.class));

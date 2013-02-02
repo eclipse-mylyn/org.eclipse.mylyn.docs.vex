@@ -90,8 +90,8 @@ public abstract class Parent extends Node {
 	public Axis children() {
 		return new Axis(this) {
 			@Override
-			public Iterator<Node> iterator(final ContentRange range, final boolean includeText) {
-				return new ChildrenAndText(range, includeText);
+			public Iterator<Node> iterator(final Node sourceNode, final Axis axis) {
+				return new ChildrenAndText(getContentRange(), shouldIncludeText());
 			}
 		};
 	}
