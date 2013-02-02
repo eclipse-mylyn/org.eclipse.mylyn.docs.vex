@@ -14,7 +14,6 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.NoSuchElementException;
 
 import org.eclipse.core.runtime.Assert;
 
@@ -91,7 +90,10 @@ public abstract class Parent extends Node {
 		return new Axis(this) {
 			@Override
 			public Iterator<Node> iterator(final Node sourceNode, final Axis axis) {
-				return new ChildrenAndText(getContentRange(), shouldIncludeText());
+				if (shouldIncludeText()) {
+					return new MergeNodesWithTextIterator(Parent.this, children, getContent(), getContentRange());
+				}
+				return new NodesInContentRangeIterator(children, getContentRange());
 			}
 		};
 	}
@@ -124,123 +126,6 @@ public abstract class Parent extends Node {
 			}
 		}
 		return this;
-	}
-
-	private class ChildrenAndText implements Iterator<Node> {
-
-		private final ContentRange trimmedRange;
-		private final boolean includeText;
-		private final Iterator<Node> childIterator;
-
-		private int textCursor;
-		private Node currentChild;
-		private ContentRange nextTextGap;
-
-		public ChildrenAndText(final ContentRange range, final boolean includeText) {
-			this.includeText = includeText;
-			trimmedRange = range.intersection(getRange());
-			childIterator = children.iterator();
-			initialize();
-		}
-
-		private void initialize() {
-			currentChild = null;
-			nextTextGap = trimmedRange;
-			textCursor = trimmedRange.getStartOffset();
-			nextStep();
-		}
-
-		private void nextStep() {
-			while (childIterator.hasNext()) {
-				currentChild = childIterator.next();
-				if (!currentChild.isAssociated()) {
-					nextTextGap = trimmedRange;
-					return;
-				} else if (currentChild.isInRange(trimmedRange)) {
-					nextTextGap = currentChild.getRange();
-					textCursor = findNextTextStart(textCursor, nextTextGap.getStartOffset());
-					return;
-				} else if (trimmedRange.contains(currentChild.getStartOffset())) {
-					nextTextGap = trimmedRange.intersection(currentChild.getRange());
-					textCursor = findNextTextStart(textCursor, nextTextGap.getStartOffset());
-					currentChild = null; // we can bail out here because we are behind the trimmed range now
-					return;
-				} else if (trimmedRange.contains(currentChild.getEndOffset())) {
-					textCursor = currentChild.getEndOffset() + 1;
-				}
-			}
-
-			currentChild = null;
-			nextTextGap = new ContentRange(trimmedRange.getEndOffset(), trimmedRange.getEndOffset());
-			textCursor = findNextTextStart(textCursor, trimmedRange.getEndOffset());
-		}
-
-		private int findNextTextStart(int currentOffset, final int maximumOffset) {
-			while (currentOffset < maximumOffset && getContent().isTagMarker(currentOffset)) {
-				currentOffset++;
-			}
-			return currentOffset;
-		}
-
-		private int findNextTextEnd(int currentOffset, final int minimumOffset) {
-			while (currentOffset > minimumOffset && getContent().isTagMarker(currentOffset)) {
-				currentOffset--;
-			}
-			return currentOffset;
-		}
-
-		public boolean hasNext() {
-			return hasMoreChildrenInRange() || hasMoreText();
-		}
-
-		private boolean hasMoreChildrenInRange() {
-			return currentChild != null;
-		}
-
-		private boolean hasMoreText() {
-			return includeText && textCursor < nextTextGap.getStartOffset();
-		}
-
-		public Node next() {
-			if (!hasNext()) {
-				throw new NoSuchElementException();
-			}
-
-			if (currentChild != null && !currentChild.isAssociated()) {
-				return nextChild();
-			}
-
-			if (includeText) {
-				final int textStart = findNextTextStart(textCursor, nextTextGap.getStartOffset());
-				final int textEnd = findNextTextEnd(nextTextGap.getStartOffset(), textStart);
-				textCursor = nextTextGap.getEndOffset() + 1;
-
-				if (textStart < textEnd) {
-					return nextText(textStart, textEnd);
-				}
-				if (textStart == textEnd && !getContent().isTagMarker(textStart)) {
-					return nextText(textStart, textEnd);
-				}
-			}
-
-			Assert.isNotNull(currentChild, "No text and no child makes Homer go crazy!");
-
-			return nextChild();
-		}
-
-		private Node nextChild() {
-			final Node child = currentChild;
-			nextStep();
-			return child;
-		}
-
-		private Node nextText(final int textStart, final int textEnd) {
-			return new Text(Parent.this, getContent(), new ContentRange(textStart, textEnd));
-		}
-
-		public void remove() {
-			throw new UnsupportedOperationException("Cannot remove children.");
-		}
 	}
 
 }
