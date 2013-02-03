@@ -123,9 +123,8 @@ public class DocumentBuilder implements ContentHandler, LexicalHandler {
 		document.setPublicID(dtdPublicID);
 		document.setSystemID(dtdSystemID);
 
-		int i = 0;
 		for (final Node node : nodesBeforeRoot) {
-			document.insertChild(i++, node);
+			document.insertChildBefore(document.getRootElement(), node);
 		}
 
 		for (final Node node : nodesAfterRoot) {

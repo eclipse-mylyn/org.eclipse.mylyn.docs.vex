@@ -41,24 +41,20 @@ public abstract class Parent extends Node {
 	}
 
 	/**
-	 * Insert the given child node into the list of children at the given index. The children from the child with the
-	 * given index until the last child will be moved forward by one position. The parent attribute of the child is set
-	 * to this node.
+	 * Insert the given child node into the list of children at the given offset. The parent attribute of the child is
+	 * set to this node.
 	 * 
-	 * @param index
-	 *            the index at which the child should be inserted.
+	 * @param offset
+	 *            the offset within the associated content at which the new child should be inserted
 	 * @param child
 	 *            the child node to insert
 	 */
-	public void insertChild(final int index, final Node child) {
-		children.add(index, child);
-		child.setParent(this);
+	public void insertChildAt(final int offset, final Node child) {
+		final int index = indexOfChildNextTo(offset);
+		insertChildAtIndex(index, child);
 	}
 
-	/**
-	 * @return the child node of this parent following the given offset
-	 */
-	public int getIndexOfChildNextTo(final int offset) {
+	private int indexOfChildNextTo(final int offset) {
 		final ContentRange insertionRange = getRange().resizeBy(1, 0);
 		Assert.isTrue(insertionRange.contains(offset), MessageFormat.format("The offset must be within {0}.", insertionRange));
 		int i = 0;
@@ -69,6 +65,47 @@ public abstract class Parent extends Node {
 			i++;
 		}
 		return children.size();
+	}
+
+	private void insertChildAtIndex(final int index, final Node child) {
+		children.add(index, child);
+		child.setParent(this);
+	}
+
+	/**
+	 * Returns the child node which contains the given offset, or this node, if no child contains the offset.
+	 * 
+	 * @param offset
+	 *            the offset
+	 * @return the node at the given offset
+	 */
+	public Node getChildAt(final int offset) {
+		Assert.isTrue(containsOffset(offset), MessageFormat.format("Offset must be within {0}.", getRange()));
+		for (final Node child : children()) {
+			if (child.containsOffset(offset)) {
+				if (child instanceof Parent) {
+					return ((Parent) child).getChildAt(offset);
+				} else {
+					return child;
+				}
+			}
+		}
+		return this;
+	}
+
+	/**
+	 * Insert the given child into the list of children before the given node. The parent attribute of the child is set
+	 * to this node.
+	 * 
+	 * @param beforeNode
+	 *            the node before which the new child should be inserted
+	 * @param child
+	 *            the child node to insert
+	 */
+	public void insertChildBefore(final Node beforeNode, final Node child) {
+		final int index = children.indexOf(beforeNode);
+		Assert.isTrue(index > -1, MessageFormat.format("{0} must be a child of this parent.", beforeNode));
+		insertChildAtIndex(index, child);
 	}
 
 	/**
@@ -105,27 +142,6 @@ public abstract class Parent extends Node {
 	 */
 	public boolean hasChildren() {
 		return !children().isEmpty();
-	}
-
-	/**
-	 * Returns the child node which contains the given offset, or this node, if no child contains the offset.
-	 * 
-	 * @param offset
-	 *            the offset
-	 * @return the node at the given offset
-	 */
-	public Node getChildNodeAt(final int offset) {
-		Assert.isTrue(containsOffset(offset), MessageFormat.format("Offset must be within {0}.", getRange()));
-		for (final Node child : children()) {
-			if (child.containsOffset(offset)) {
-				if (child instanceof Parent) {
-					return ((Parent) child).getChildNodeAt(offset);
-				} else {
-					return child;
-				}
-			}
-		}
-		return this;
 	}
 
 }

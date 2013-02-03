@@ -46,11 +46,21 @@ public class ParentTest {
 
 	@Test
 	public void insertChild() throws Exception {
-		parent.addChild(new TestChild());
-		parent.addChild(new TestChild());
+		addTestChild();
+		addTestChild();
 
 		final TestChild child = new TestChild();
-		parent.insertChild(1, child);
+		parent.insertChildAt(parent.children().get(1).getStartOffset(), child);
+		assertSame(child, parent.children().get(1));
+	}
+
+	@Test
+	public void insertChildBefore() throws Exception {
+		addTestChild();
+		addTestChild();
+
+		final TestChild child = new TestChild();
+		parent.insertChildBefore(parent.children().get(1), child);
 		assertSame(child, parent.children().get(1));
 	}
 
@@ -80,13 +90,25 @@ public class ParentTest {
 
 	@Test
 	public void shouldSetParentOnInsertedChild() throws Exception {
-		parent.addChild(new TestChild());
-		parent.addChild(new TestChild());
+		addTestChild();
+		addTestChild();
 
 		final TestChild child = new TestChild();
 		assertNull(child.getParent());
 
-		parent.insertChild(1, child);
+		parent.insertChildAt(parent.children().get(1).getStartOffset(), child);
+		assertSame(parent, child.getParent());
+	}
+
+	@Test
+	public void shouldSetParentOnChildInsertedBeforeNode() throws Exception {
+		addTestChild();
+		addTestChild();
+
+		final TestChild child = new TestChild();
+		assertNull(child.getParent());
+
+		parent.insertChildBefore(parent.children().get(1), child);
 		assertSame(parent, child.getParent());
 	}
 
@@ -355,18 +377,18 @@ public class ParentTest {
 
 	@Test
 	public void shouldProvideSelfOnOwnBoundaries() throws Exception {
-		assertSame(parent, parent.getChildNodeAt(parent.getStartOffset()));
-		assertSame(parent, parent.getChildNodeAt(parent.getEndOffset()));
+		assertSame(parent, parent.getChildAt(parent.getStartOffset()));
+		assertSame(parent, parent.getChildAt(parent.getEndOffset()));
 	}
 
 	@Test
 	public void shouldReturnTextWithinBoundaries() throws Exception {
 		content.insertText(parent.getEndOffset(), "Hello World");
 		final Node text = parent.children().first();
-		assertTextNodeEquals("Hello World", text.getStartOffset(), text.getEndOffset(), parent.getChildNodeAt(text.getStartOffset()));
-		assertTextNodeEquals("Hello World", text.getStartOffset(), text.getEndOffset(), parent.getChildNodeAt(text.getStartOffset() + 1));
-		assertTextNodeEquals("Hello World", text.getStartOffset(), text.getEndOffset(), parent.getChildNodeAt(text.getEndOffset() - 1));
-		assertTextNodeEquals("Hello World", text.getStartOffset(), text.getEndOffset(), parent.getChildNodeAt(text.getEndOffset()));
+		assertTextNodeEquals("Hello World", text.getStartOffset(), text.getEndOffset(), parent.getChildAt(text.getStartOffset()));
+		assertTextNodeEquals("Hello World", text.getStartOffset(), text.getEndOffset(), parent.getChildAt(text.getStartOffset() + 1));
+		assertTextNodeEquals("Hello World", text.getStartOffset(), text.getEndOffset(), parent.getChildAt(text.getEndOffset() - 1));
+		assertTextNodeEquals("Hello World", text.getStartOffset(), text.getEndOffset(), parent.getChildAt(text.getEndOffset()));
 	}
 
 	@Test
@@ -379,23 +401,23 @@ public class ParentTest {
 		child.associate(content, new ContentRange(offset, offset + 1));
 		content.insertText(child.getEndOffset(), "Hello World");
 		final Node text = child.children().first();
-		assertTextNodeEquals("Hello World", text.getStartOffset(), text.getEndOffset(), parent.getChildNodeAt(text.getStartOffset()));
-		assertTextNodeEquals("Hello World", text.getStartOffset(), text.getEndOffset(), parent.getChildNodeAt(text.getStartOffset() + 1));
-		assertTextNodeEquals("Hello World", text.getStartOffset(), text.getEndOffset(), parent.getChildNodeAt(text.getEndOffset() - 1));
-		assertTextNodeEquals("Hello World", text.getStartOffset(), text.getEndOffset(), parent.getChildNodeAt(text.getEndOffset()));
+		assertTextNodeEquals("Hello World", text.getStartOffset(), text.getEndOffset(), parent.getChildAt(text.getStartOffset()));
+		assertTextNodeEquals("Hello World", text.getStartOffset(), text.getEndOffset(), parent.getChildAt(text.getStartOffset() + 1));
+		assertTextNodeEquals("Hello World", text.getStartOffset(), text.getEndOffset(), parent.getChildAt(text.getEndOffset() - 1));
+		assertTextNodeEquals("Hello World", text.getStartOffset(), text.getEndOffset(), parent.getChildAt(text.getEndOffset()));
 	}
 
 	@Test(expected = AssertionFailedException.class)
 	public void shouldNotProvideChildNodeBeforeStartOffset() throws Exception {
 		content.insertText(parent.getStartOffset(), "prefix");
-		parent.getChildNodeAt(parent.getStartOffset() - 1);
+		parent.getChildAt(parent.getStartOffset() - 1);
 
 	}
 
 	@Test(expected = AssertionFailedException.class)
 	public void shouldNotProvideChildNodeAfterEndOffset() throws Exception {
 		content.insertText(parent.getEndOffset() + 1, "suffix");
-		parent.getChildNodeAt(parent.getEndOffset() + 1);
+		parent.getChildAt(parent.getEndOffset() + 1);
 	}
 
 	@Test
@@ -462,18 +484,6 @@ public class ParentTest {
 		assertSame(child2, childNodes23.next());
 		assertSame(child3, childNodes23.next());
 		assertFalse(childNodes23.hasNext());
-	}
-
-	@Test
-	public void shouldProvideInsertionIndexForOffset() throws Exception {
-		final TestChild child1 = addTestChild();
-		final TestChild child2 = addTestChild();
-		final TestChild child3 = addTestChild();
-
-		assertEquals(0, parent.getIndexOfChildNextTo(child1.getStartOffset()));
-		assertEquals(1, parent.getIndexOfChildNextTo(child2.getStartOffset()));
-		assertEquals(2, parent.getIndexOfChildNextTo(child3.getStartOffset()));
-		assertEquals(3, parent.getIndexOfChildNextTo(parent.getEndOffset()));
 	}
 
 	@Test

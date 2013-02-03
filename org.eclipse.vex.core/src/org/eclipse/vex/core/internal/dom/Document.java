@@ -329,7 +329,7 @@ public class Document extends Parent {
 		getContent().insertTagMarker(offset);
 		comment.associate(getContent(), new ContentRange(offset, offset + 1));
 
-		parent.insertChild(parent.getIndexOfChildNextTo(offset), comment);
+		parent.insertChildAt(offset, comment);
 
 		fireContentInserted(new DocumentEvent(this, parent, offset, 2, null));
 
@@ -372,7 +372,7 @@ public class Document extends Parent {
 		getContent().insertTagMarker(offset);
 		element.associate(getContent(), new ContentRange(offset, offset + 1));
 
-		parent.insertChild(parent.getIndexOfChildNextTo(offset), element);
+		parent.insertChildAt(offset, element);
 
 		fireContentInserted(new DocumentEvent(this, parent, offset, 2, null));
 
@@ -411,11 +411,11 @@ public class Document extends Parent {
 
 		final DeepCopy deepCopy = new DeepCopy(fragment);
 		final List<Node> newNodes = deepCopy.getNodes();
-		int index = parent.getIndexOfChildNextTo(offset);
+		int nextOffset = offset;
 		for (final Node newNode : newNodes) {
-			parent.insertChild(index, newNode);
+			parent.insertChildAt(nextOffset, newNode);
 			associateDeeply(newNode, offset);
-			index++;
+			nextOffset = newNode.getEndOffset() + 1;
 		}
 
 		fireContentInserted(new DocumentEvent(this, parent, offset, fragment.getContent().length(), null));
@@ -548,7 +548,7 @@ public class Document extends Parent {
 	 * @return the node in which an insertion at the given offset will end
 	 */
 	public Node getNodeForInsertionAt(final int offset) {
-		final Node node = getChildNodeAt(offset);
+		final Node node = getChildAt(offset);
 		if (node instanceof Text) {
 			return node.getParent();
 		}
@@ -559,7 +559,7 @@ public class Document extends Parent {
 	}
 
 	private Parent getParentForInsertionAt(final int offset) {
-		final Node node = getChildNodeAt(offset);
+		final Node node = getChildAt(offset);
 		if (!(node instanceof Parent)) {
 			return node.getParent();
 		}
@@ -574,7 +574,7 @@ public class Document extends Parent {
 	 * @return the element in which an insertion at the given offset will end
 	 */
 	public Element getElementForInsertionAt(final int offset) {
-		final Element parent = getParentElement(getChildNodeAt(offset));
+		final Element parent = getParentElement(getChildAt(offset));
 		if (parent == null) {
 			return null;
 		}
@@ -595,7 +595,7 @@ public class Document extends Parent {
 	}
 
 	private Parent getParentAt(final int offset) {
-		final Node child = getChildNodeAt(offset);
+		final Node child = getChildAt(offset);
 		if (child instanceof Parent) {
 			return (Parent) child;
 		}
@@ -628,8 +628,8 @@ public class Document extends Parent {
 	private Parent getParentOfRange(final ContentRange range) {
 		Assert.isTrue(getRange().contains(range));
 
-		final Node startNode = getChildNodeAt(range.getStartOffset());
-		final Node endNode = getChildNodeAt(range.getEndOffset());
+		final Node startNode = getChildAt(range.getStartOffset());
+		final Node endNode = getChildAt(range.getEndOffset());
 		final Parent parent = startNode.getParent();
 		Assert.isTrue(parent == endNode.getParent(), MessageFormat.format("The fragment in {0} is unbalanced.", range));
 		Assert.isNotNull(parent, MessageFormat.format("No balanced parent found for {0}", range));

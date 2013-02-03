@@ -81,7 +81,7 @@ public class VexWidgetTest {
 		widget.insertElement(new QualifiedName(CONTENT_NS, "p"));
 		widget.insertText("1text before comment1");
 		widget.insertComment();
-		final Node comment = widget.getDocument().getChildNodeAt(widget.getCaretOffset());
+		final Node comment = widget.getDocument().getChildAt(widget.getCaretOffset());
 		widget.insertText("2comment text2");
 		widget.moveBy(1);
 		widget.insertText("3text after comment3");
