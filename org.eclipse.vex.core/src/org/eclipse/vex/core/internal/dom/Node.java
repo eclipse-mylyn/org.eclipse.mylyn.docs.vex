@@ -12,6 +12,7 @@
 package org.eclipse.vex.core.internal.dom;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.core.runtime.Assert;
@@ -44,6 +45,25 @@ public abstract class Node {
 	 */
 	public void setParent(final Parent parent) {
 		this.parent = parent;
+	}
+
+	/**
+	 * The ancestors axis contains all subsequent parents of this node.
+	 * 
+	 * @return the ancestors axis of this node
+	 * @see Axis
+	 */
+	public Axis ancestors() {
+		return new Axis(this) {
+			@Override
+			protected Iterator<Node> createRootIterator(final ContentRange contentRange, final boolean includeText) {
+				return new NodesInContentRangeIterator(new Iterable<Node>() {
+					public Iterator<Node> iterator() {
+						return new AncestorsIterator(Node.this);
+					}
+				}, contentRange);
+			}
+		};
 	}
 
 	/**

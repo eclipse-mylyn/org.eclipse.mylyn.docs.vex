@@ -83,8 +83,8 @@ public abstract class Parent extends Node {
 	}
 
 	/**
+	 * @return the children axis of this parent.
 	 * @see Axis
-	 * @return the iterable children Axis of this parent.
 	 */
 	public Axis children() {
 		return new Axis(this) {

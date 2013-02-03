@@ -11,7 +11,6 @@
 package org.eclipse.vex.core.internal.dom;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -52,15 +51,13 @@ public abstract class Axis implements Iterable<Node> {
 
 	private static final int UNDEFINED = -1;
 
-	private final List<IteratorFactory> chain = new ArrayList<IteratorFactory>();
-
 	private final Node sourceNode;
-	private boolean willBeEmpty;
-	private ContentRange contentRange;
-	private boolean includeText;
 
-	private int startIndex;
-	private int endIndex;
+	private ContentRange contentRange = ContentRange.ALL;
+	private boolean includeText = true;
+	private int startIndex = UNDEFINED;
+	private int endIndex = UNDEFINED;
+	private final List<IteratorFactory> chain = new ArrayList<IteratorFactory>();
 
 	/**
 	 * @param sourceNode
@@ -68,15 +65,13 @@ public abstract class Axis implements Iterable<Node> {
 	 */
 	public Axis(final Node sourceNode) {
 		this.sourceNode = sourceNode;
-		setDefaultValues();
 	}
 
-	private void setDefaultValues() {
-		willBeEmpty = false;
-		contentRange = sourceNode.getRange();
-		includeText = true;
-		startIndex = UNDEFINED;
-		endIndex = UNDEFINED;
+	/**
+	 * @return the source node of this axis
+	 */
+	public Node getSourceNode() {
+		return sourceNode;
 	}
 
 	/**
@@ -111,9 +106,6 @@ public abstract class Axis implements Iterable<Node> {
 	}
 
 	private Iterator<Node> rootIterator() {
-		if (willBeEmpty) {
-			return Collections.<Node> emptyList().iterator();
-		}
 		return createRootIterator(contentRange, includeText);
 	}
 
@@ -128,10 +120,7 @@ public abstract class Axis implements Iterable<Node> {
 	 * @see Axis#after
 	 */
 	public Axis in(final ContentRange range) {
-		Assert.isTrue(sourceNode.getRange().equals(contentRange), "Can only use one of 'before', 'after' or 'in' in the same expression.");
-		if (!sourceNode.getRange().intersects(range)) {
-			willBeEmpty = true;
-		}
+		Assert.isTrue(ContentRange.ALL.equals(contentRange), "Can only use one of 'before', 'after' or 'in' in the same expression.");
 		contentRange = range;
 		return this;
 	}
@@ -147,13 +136,8 @@ public abstract class Axis implements Iterable<Node> {
 	 * @see Axis#after
 	 */
 	public Axis before(final int beforeOffset) {
-		Assert.isTrue(sourceNode.getRange().equals(contentRange), "Can only use one of 'before', 'after' or 'in' in the same expression.");
-		if (beforeOffset <= sourceNode.getStartOffset()) {
-			contentRange = ContentRange.NULL;
-			willBeEmpty = true;
-		} else {
-			contentRange = new ContentRange(sourceNode.getStartOffset() + 1, beforeOffset);
-		}
+		Assert.isTrue(ContentRange.ALL.equals(contentRange), "Can only use one of 'before', 'after' or 'in' in the same expression.");
+		contentRange = new ContentRange(contentRange.getStartOffset(), beforeOffset);
 		return this;
 	}
 
@@ -168,13 +152,8 @@ public abstract class Axis implements Iterable<Node> {
 	 * @see Axis#before
 	 */
 	public Axis after(final int afterOffset) {
-		Assert.isTrue(sourceNode.getRange().equals(contentRange), "Can only use one of 'before', 'after' or 'in' in the same expression.");
-		if (afterOffset >= sourceNode.getEndOffset()) {
-			contentRange = ContentRange.NULL;
-			willBeEmpty = true;
-		} else {
-			contentRange = new ContentRange(afterOffset, sourceNode.getEndOffset() - 1);
-		}
+		Assert.isTrue(ContentRange.ALL.equals(contentRange), "Can only use one of 'before', 'after' or 'in' in the same expression.");
+		contentRange = new ContentRange(afterOffset, contentRange.getEndOffset());
 		return this;
 	}
 

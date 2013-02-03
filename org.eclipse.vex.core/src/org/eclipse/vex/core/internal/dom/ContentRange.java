@@ -23,6 +23,7 @@ import org.eclipse.core.runtime.Assert;
 public class ContentRange {
 
 	public static final ContentRange NULL = new ContentRange(-1, -1);
+	public static final ContentRange ALL = new ContentRange(0, Integer.MAX_VALUE);
 
 	private final int startOffset;
 	private final int endOffset;

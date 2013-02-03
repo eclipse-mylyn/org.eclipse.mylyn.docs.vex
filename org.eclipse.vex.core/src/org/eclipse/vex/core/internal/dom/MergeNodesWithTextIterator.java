@@ -1,3 +1,13 @@
+/*******************************************************************************
+ * Copyright (c) 2013 Florian Thienel and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Contributors:
+ * 		Florian Thienel - initial API and implementation
+ *******************************************************************************/
 package org.eclipse.vex.core.internal.dom;
 
 import java.util.Iterator;
@@ -5,6 +15,9 @@ import java.util.NoSuchElementException;
 
 import org.eclipse.core.runtime.Assert;
 
+/**
+ * @author Florian Thienel
+ */
 public class MergeNodesWithTextIterator implements Iterator<Node> {
 
 	private final Parent parent;
@@ -20,7 +33,12 @@ public class MergeNodesWithTextIterator implements Iterator<Node> {
 		this.parent = parent;
 		this.nodes = nodes.iterator();
 		this.content = content;
-		this.contentRange = contentRange.intersection(parent.getRange());
+		final ContentRange maxRange = parent.getRange();
+		if (contentRange.intersects(maxRange)) {
+			this.contentRange = contentRange.intersection(maxRange);
+		} else {
+			this.contentRange = ContentRange.NULL;
+		}
 		initialize();
 	}
 
