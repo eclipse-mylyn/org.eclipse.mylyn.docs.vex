@@ -154,7 +154,7 @@ public class AxisTest {
 	private static Axis axis(final Node sourceNode, final Iterable<Node> source) {
 		return new Axis(sourceNode) {
 			@Override
-			protected Iterator<Node> iterator(final Node sourceNode, final Axis axis) {
+			protected Iterator<Node> createRootIterator(final ContentRange contentRange, final boolean includeText) {
 				return source.iterator();
 			}
 

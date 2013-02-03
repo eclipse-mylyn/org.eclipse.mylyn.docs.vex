@@ -14,7 +14,11 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 /**
+ * This iterator fiters the sequence of a given source iterator. It provides only the elements which match a given
+ * filter.
+ * 
  * @author Florian Thienel
+ * @see IFilter
  */
 public class FilterIterator<T> implements Iterator<T> {
 
@@ -22,6 +26,12 @@ public class FilterIterator<T> implements Iterator<T> {
 	private final IFilter<T> filter;
 	private T current;
 
+	/**
+	 * @param source
+	 *            the source iterator
+	 * @param filter
+	 *            the filter to apply to the elements of the original sequence
+	 */
 	public FilterIterator(final Iterator<T> source, final IFilter<T> filter) {
 		this.source = source;
 		this.filter = filter;

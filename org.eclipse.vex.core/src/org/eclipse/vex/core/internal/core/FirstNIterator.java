@@ -14,6 +14,8 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 /**
+ * This iterator provides the first n elements of the sequence of a given source iterator.
+ * 
  * @author Florian Thienel
  */
 public class FirstNIterator<T> implements Iterator<T> {
@@ -22,6 +24,12 @@ public class FirstNIterator<T> implements Iterator<T> {
 	private final int n;
 	private int cursor;
 
+	/**
+	 * @param source
+	 *            the source iterator
+	 * @param n
+	 *            the number of elements to provide
+	 */
 	public FirstNIterator(final Iterator<T> source, final int n) {
 		this.source = source;
 		this.n = n;

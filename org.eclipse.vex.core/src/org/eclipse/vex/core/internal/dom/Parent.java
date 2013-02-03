@@ -89,11 +89,11 @@ public abstract class Parent extends Node {
 	public Axis children() {
 		return new Axis(this) {
 			@Override
-			public Iterator<Node> iterator(final Node sourceNode, final Axis axis) {
-				if (shouldIncludeText()) {
-					return new MergeNodesWithTextIterator(Parent.this, children, getContent(), getContentRange());
+			public Iterator<Node> createRootIterator(final ContentRange contentRange, final boolean includeText) {
+				if (includeText) {
+					return new MergeNodesWithTextIterator(Parent.this, children, getContent(), contentRange);
 				}
-				return new NodesInContentRangeIterator(children, getContentRange());
+				return new NodesInContentRangeIterator(children, contentRange);
 			}
 		};
 	}
@@ -104,7 +104,7 @@ public abstract class Parent extends Node {
 	 * @return true if this parent node has any child nodes
 	 */
 	public boolean hasChildren() {
-		return children().iterator().hasNext();
+		return !children().isEmpty();
 	}
 
 	/**

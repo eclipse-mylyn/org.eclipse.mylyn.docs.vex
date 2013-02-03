@@ -62,6 +62,10 @@ public abstract class Axis implements Iterable<Node> {
 	private int startIndex;
 	private int endIndex;
 
+	/**
+	 * @param sourceNode
+	 *            the source node of this axis
+	 */
 	public Axis(final Node sourceNode) {
 		this.sourceNode = sourceNode;
 		setDefaultValues();
@@ -75,15 +79,17 @@ public abstract class Axis implements Iterable<Node> {
 		endIndex = UNDEFINED;
 	}
 
-	protected ContentRange getContentRange() {
-		return contentRange;
-	}
-
-	protected boolean shouldIncludeText() {
-		return includeText;
-	}
-
-	protected abstract Iterator<Node> iterator(final Node sourceNode, final Axis axis);
+	/**
+	 * Creates the root iterator which provides the original sequence of nodes of this axis. The root iterator must take
+	 * care of the content range and the inclusion of Text nodes. The other criteria (index range, filters) are applied
+	 * to the sequence by this axis.
+	 * 
+	 * @param contentRange
+	 *            the defined content range, by default the range of the source node
+	 * @param includeText
+	 *            true if Text nodes should be included in the original sequence
+	 */
+	protected abstract Iterator<Node> createRootIterator(final ContentRange contentRange, final boolean includeText);
 
 	public Iterator<Node> iterator() {
 		Iterator<Node> result = rootIterator();
@@ -108,9 +114,19 @@ public abstract class Axis implements Iterable<Node> {
 		if (willBeEmpty) {
 			return Collections.<Node> emptyList().iterator();
 		}
-		return iterator(sourceNode, this);
+		return createRootIterator(contentRange, includeText);
 	}
 
+	/**
+	 * Limit the nodes of this axis to the given content range. Cannot be combined with 'before' or 'after'. Can be
+	 * applied only once.
+	 * 
+	 * @param range
+	 *            the content range
+	 * @return a reference to this axis
+	 * @see Axis#before
+	 * @see Axis#after
+	 */
 	public Axis in(final ContentRange range) {
 		Assert.isTrue(sourceNode.getRange().equals(contentRange), "Can only use one of 'before', 'after' or 'in' in the same expression.");
 		if (!sourceNode.getRange().intersects(range)) {
@@ -120,6 +136,16 @@ public abstract class Axis implements Iterable<Node> {
 		return this;
 	}
 
+	/**
+	 * Limit the nodes of this axis to nodes before the given offset. Cannot be combined with 'in' or 'after'. Can be
+	 * applied only once.
+	 * 
+	 * @param beforeOffset
+	 *            the offset
+	 * @return a reference to this axis
+	 * @see Axis#in
+	 * @see Axis#after
+	 */
 	public Axis before(final int beforeOffset) {
 		Assert.isTrue(sourceNode.getRange().equals(contentRange), "Can only use one of 'before', 'after' or 'in' in the same expression.");
 		if (beforeOffset <= sourceNode.getStartOffset()) {
@@ -131,6 +157,16 @@ public abstract class Axis implements Iterable<Node> {
 		return this;
 	}
 
+	/**
+	 * Limit the nodes of this axis to nodes after the given offset. Cannot be combined with 'in' or 'before'. Can be
+	 * applied only once.
+	 * 
+	 * @param afterOffset
+	 *            the offset
+	 * @return a reference to this axis
+	 * @see Axis#in
+	 * @see Axis#before
+	 */
 	public Axis after(final int afterOffset) {
 		Assert.isTrue(sourceNode.getRange().equals(contentRange), "Can only use one of 'before', 'after' or 'in' in the same expression.");
 		if (afterOffset >= sourceNode.getEndOffset()) {
@@ -142,11 +178,24 @@ public abstract class Axis implements Iterable<Node> {
 		return this;
 	}
 
+	/**
+	 * Do not include Text nodes in this axis.
+	 * 
+	 * @return a reference to this axis
+	 */
 	public Axis withoutText() {
 		includeText = false;
 		return this;
 	}
 
+	/**
+	 * Limit the nodes of this axis to nodes matching the given filter. Can be applied multiple times to chain multiple
+	 * filters.
+	 * 
+	 * @param filter
+	 *            the filter
+	 * @return a reference to this axis
+	 */
 	public Axis matching(final IFilter<Node> filter) {
 		chain.add(new IteratorFactory() {
 			public Iterator<Node> iterator(final Iterator<Node> source) {
@@ -156,22 +205,47 @@ public abstract class Axis implements Iterable<Node> {
 		return this;
 	}
 
+	/**
+	 * Start the sequence of this axis at the given index. Can be applied only once.
+	 * 
+	 * @param startIndex
+	 *            the start index
+	 * @return a reference to this axis
+	 * @see Axis#to
+	 */
 	public Axis from(final int startIndex) {
 		Assert.isTrue(this.startIndex == UNDEFINED, "Can set start index only once.");
 		this.startIndex = startIndex;
 		return this;
 	}
 
+	/**
+	 * End the sequence of this axis at the given index. Can be applied only once.
+	 * 
+	 * @param endIndex
+	 *            the end index
+	 * @return a reference to this axis
+	 * @see Axis#from
+	 */
 	public Axis to(final int endIndex) {
 		Assert.isTrue(this.endIndex == UNDEFINED, "Can set end index only once.");
 		this.endIndex = endIndex;
 		return this;
 	}
 
+	/**
+	 * @return true if this sequence of this axis with all given criteria applied is empty
+	 */
 	public boolean isEmpty() {
 		return !iterator().hasNext();
 	}
 
+	/**
+	 * Create a list with all nodes of this axis that satisfy all given criteria. Be aware that this method goes through
+	 * the whole sequence to collect all matching nodes.
+	 * 
+	 * @return all nodes to which the given criteria apply as list
+	 */
 	public List<Node> asList() {
 		final ArrayList<Node> result = new ArrayList<Node>();
 		for (final Node node : this) {
@@ -180,10 +254,19 @@ public abstract class Axis implements Iterable<Node> {
 		return result;
 	}
 
+	/**
+	 * @return the first node of this axis that satisfies all given critera
+	 */
 	public Node first() {
 		return iterator().next();
 	}
 
+	/**
+	 * Find the last node of this axis which satisfies all given criteria. Be aware that this method goes through the
+	 * whole sequence to find the last matching node.
+	 * 
+	 * @return the last node of this axis that satisfies all given criteria
+	 */
 	public Node last() {
 		Node result = null;
 		final Iterator<Node> iterator = iterator();
@@ -196,6 +279,11 @@ public abstract class Axis implements Iterable<Node> {
 		return result;
 	}
 
+	/**
+	 * @param index
+	 *            the index
+	 * @return the node with the given index in the resulting sequence of nodes
+	 */
 	public Node get(final int index) {
 		final Iterator<Node> iterator = iterator();
 		int i = 0;
@@ -205,12 +293,24 @@ public abstract class Axis implements Iterable<Node> {
 		return iterator.next();
 	}
 
+	/**
+	 * Visit all nodes of this axis that satisfy all given criteria.
+	 * 
+	 * @param visitor
+	 *            the visitor
+	 */
 	public void accept(final INodeVisitor visitor) {
 		for (final Node node : this) {
 			node.accept(visitor);
 		}
 	}
 
+	/**
+	 * Count all nodes of this axis that satisfy all given criteria. Be aware that this method goes through the whole
+	 * sequence to count all matching nodes.
+	 * 
+	 * @return the number of nodes of this axis that satisfy all given criteria
+	 */
 	public int count() {
 		int result = 0;
 		final Iterator<Node> iterator = iterator();
