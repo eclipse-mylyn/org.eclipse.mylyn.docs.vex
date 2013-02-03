@@ -306,18 +306,12 @@ public class Element extends Parent {
 	 * @return the parent element of this element
 	 */
 	public Element getParentElement() {
-		return getParentElement(this);
-	}
-
-	private static Element getParentElement(final Node node) {
-		final Node parent = node.getParent();
-		if (parent == null) {
-			return null;
+		for (final Node ancestor : ancestors()) {
+			if (ancestor instanceof Element) {
+				return (Element) ancestor;
+			}
 		}
-		if (parent instanceof Element) {
-			return (Element) parent;
-		}
-		return getParentElement(parent);
+		return null;
 	}
 
 	/**

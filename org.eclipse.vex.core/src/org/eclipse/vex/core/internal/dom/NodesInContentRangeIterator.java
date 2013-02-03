@@ -21,7 +21,7 @@ public class NodesInContentRangeIterator extends FilterIterator<Node> {
 	public NodesInContentRangeIterator(final Iterable<Node> nodes, final ContentRange contentRange) {
 		super(nodes.iterator(), new IFilter<Node>() {
 			public boolean matches(final Node node) {
-				return contentRange.contains(node.getRange());
+				return !node.isAssociated() || contentRange.contains(node.getRange());
 			}
 		});
 	}

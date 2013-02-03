@@ -207,21 +207,15 @@ public abstract class Node {
 	 * @return the document to which this node belongs, or null if this node does not belong to any document
 	 */
 	public Document getDocument() {
-		return getDocument(this);
-	}
-
-	private static Document getDocument(final Node node) {
-		if (node instanceof Document) {
-			return (Document) node;
+		if (this instanceof Document) {
+			return (Document) this;
 		}
-		final Parent parent = node.getParent();
-		if (parent == null) {
-			return null;
+		for (final Node ancestor : ancestors()) {
+			if (ancestor instanceof Document) {
+				return (Document) ancestor;
+			}
 		}
-		if (parent instanceof Document) {
-			return (Document) parent;
-		}
-		return getDocument(parent);
+		return null;
 	}
 
 	/**

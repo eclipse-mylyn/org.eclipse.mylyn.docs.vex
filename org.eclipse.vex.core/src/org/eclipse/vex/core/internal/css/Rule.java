@@ -188,7 +188,7 @@ public class Rule {
 
 		case Selector.SAC_DESCENDANT_SELECTOR:
 			final DescendantSelector ds = (DescendantSelector) selector;
-			return matches(ds.getSimpleSelector(), node) && matchesAncestor(ds.getAncestorSelector(), node.getParent());
+			return matches(ds.getSimpleSelector(), node) && matchesAncestor(ds.getAncestorSelector(), node);
 
 		case Selector.SAC_CHILD_SELECTOR:
 			final DescendantSelector ds2 = (DescendantSelector) selector;
@@ -236,12 +236,10 @@ public class Rule {
 	 * Returns true if some ancestor of the given element matches the given selector.
 	 */
 	private static boolean matchesAncestor(final Selector selector, final Node node) {
-		Node n = node;
-		while (n != null) {
-			if (matches(selector, n)) {
+		for (final Node ancestor : node.ancestors()) {
+			if (matches(selector, ancestor)) {
 				return true;
 			}
-			n = n.getParent();
 		}
 		return false;
 	}
