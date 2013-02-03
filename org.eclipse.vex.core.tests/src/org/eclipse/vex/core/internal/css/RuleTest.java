@@ -10,20 +10,23 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.css;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import java.net.URL;
 import java.util.List;
-
-import junit.framework.TestCase;
 
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.vex.core.internal.dom.Document;
 import org.eclipse.vex.core.internal.dom.Element;
+import org.junit.Test;
 
 /**
  * Test rule matching.
  */
-public class RuleTest extends TestCase {
+public class RuleTest {
 
+	@Test
 	public void testRuleMatching() throws Exception {
 		final URL url = RuleTest.class.getResource("testRules.css");
 		final StyleSheetReader reader = new StyleSheetReader();
@@ -260,6 +263,7 @@ public class RuleTest extends TestCase {
 		assertFalse(rule.matches(d));
 	}
 
+	@Test
 	public void testWithNamespace() throws Exception {
 		final URL url = RuleTest.class.getResource("testRules.css");
 		final StyleSheetReader reader = new StyleSheetReader();

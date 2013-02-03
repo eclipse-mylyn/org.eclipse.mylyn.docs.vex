@@ -10,15 +10,20 @@
  *******************************************************************************/
 package org.eclipse.vex.ui.internal.editor.tests;
 
-import java.util.regex.PatternSyntaxException;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
-import junit.framework.TestCase;
+import java.util.regex.PatternSyntaxException;
 
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.vex.ui.internal.editor.AbstractRegExFindReplaceTarget;
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Test;
 
-@SuppressWarnings("restriction")
-public class FindReplaceTargetTest extends TestCase {
+public class FindReplaceTargetTest {
 
 	private static enum Direction {
 		FORWARD, BACKWARD
@@ -75,8 +80,8 @@ public class FindReplaceTargetTest extends TestCase {
 
 	}
 
-	@Override
-	protected void tearDown() throws Exception {
+	@After
+	public void tearDown() throws Exception {
 		finder = null;
 		findString = null;
 		content = null;
@@ -114,9 +119,9 @@ public class FindReplaceTargetTest extends TestCase {
 	 *            content with the expected selection which is market by square brackets; example: {code
 	 *            "xyz [selected] ..."}
 	 */
-	private void findAndAssertEquals(final String expected) {
+	private void findAndAssertSelectedTextEquals(final String expected) {
 		find();
-		assertEquals(expected);
+		assertSelectedTextEquals(expected);
 	}
 
 	/**
@@ -124,7 +129,7 @@ public class FindReplaceTargetTest extends TestCase {
 	 *            content with the expected selection which is market by square brackets; example: {code
 	 *            "xyz [selected] ..."}
 	 */
-	private void assertEquals(final String expected) {
+	private void assertSelectedTextEquals(final String expected) {
 		final int start = expected.indexOf('[');
 		final int end = expected.indexOf(']') - 1;
 		assertTrue("selection must marked by square brackets: [...]", start >= 0 && end >= 0 && end >= start);
@@ -146,6 +151,7 @@ public class FindReplaceTargetTest extends TestCase {
 		return result >= 0;
 	}
 
+	@Test
 	public void testSelection() throws Exception {
 		Point selection = null;
 
@@ -164,145 +170,154 @@ public class FindReplaceTargetTest extends TestCase {
 		assertEquals("BB", finder.getSelectionText());
 	}
 
+	@Test
 	public void testEnablement() throws Exception {
 		setUp("abc");
 		assertTrue(finder.canPerformFind());
 		assertTrue(finder.isEditable());
 	}
 
+	@Test
 	public void testFind() throws Exception {
 		setUp("aAa.bBb.cCc");
 		setFindOptions("a", Direction.FORWARD, Case.SENSITVE, WholeWord.OFF);
 
-		findAndAssertEquals("[a]Aa.bBb.cCc");
-		findAndAssertEquals("aA[a].bBb.cCc");
+		findAndAssertSelectedTextEquals("[a]Aa.bBb.cCc");
+		findAndAssertSelectedTextEquals("aA[a].bBb.cCc");
 		assertFalse(find());
 		direction = Direction.BACKWARD;
-		findAndAssertEquals("[a]Aa.bBb.cCc");
+		findAndAssertSelectedTextEquals("[a]Aa.bBb.cCc");
 		assertFalse(find());
 
 		// in 'Wrap search' offset may be -1 ...
 		setUp("abba", -1, -1);
 		setFindOptions("a", Direction.FORWARD, Case.SENSITVE, WholeWord.OFF);
-		findAndAssertEquals("[a]bba");
-		findAndAssertEquals("abb[a]");
+		findAndAssertSelectedTextEquals("[a]bba");
+		findAndAssertSelectedTextEquals("abb[a]");
 		assertFalse(find());
 
 		// ... and in backward -1 means find from the end
 		setUp("abba", -1, -1);
 		setFindOptions("a", Direction.BACKWARD, Case.SENSITVE, WholeWord.OFF);
-		findAndAssertEquals("abb[a]");
-		findAndAssertEquals("[a]bba");
+		findAndAssertSelectedTextEquals("abb[a]");
+		findAndAssertSelectedTextEquals("[a]bba");
 		assertFalse(find());
 	}
 
+	@Test
 	public void testFindWithSpecialChars() throws Exception {
 		// '.' (in regular expression a special char):
 		setUp("aAa.bBb.cCc");
 		setFindOptions(".", Direction.FORWARD, Case.SENSITVE, WholeWord.OFF);
-		findAndAssertEquals("aAa[.]bBb.cCc");
-		findAndAssertEquals("aAa.bBb[.]cCc");
+		findAndAssertSelectedTextEquals("aAa[.]bBb.cCc");
+		findAndAssertSelectedTextEquals("aAa.bBb[.]cCc");
 		assertFalse(find());
 		direction = Direction.BACKWARD;
-		findAndAssertEquals("aAa[.]bBb.cCc");
+		findAndAssertSelectedTextEquals("aAa[.]bBb.cCc");
 		assertFalse(find());
 	}
 
+	@Test
 	public void testFindCaseInsensitive() throws Exception {
 		setUp("ab1 AB1 xxx Ab1 aB1 yyy");
 		setFindOptions("Ab1", Direction.FORWARD, Case.INSENSITVE, WholeWord.OFF);
-		findAndAssertEquals("[ab1] AB1 xxx Ab1 aB1 yyy");
-		findAndAssertEquals("ab1 [AB1] xxx Ab1 aB1 yyy");
-		findAndAssertEquals("ab1 AB1 xxx [Ab1] aB1 yyy");
-		findAndAssertEquals("ab1 AB1 xxx Ab1 [aB1] yyy");
+		findAndAssertSelectedTextEquals("[ab1] AB1 xxx Ab1 aB1 yyy");
+		findAndAssertSelectedTextEquals("ab1 [AB1] xxx Ab1 aB1 yyy");
+		findAndAssertSelectedTextEquals("ab1 AB1 xxx [Ab1] aB1 yyy");
+		findAndAssertSelectedTextEquals("ab1 AB1 xxx Ab1 [aB1] yyy");
 		assertFalse(find());
 
 		// crosscheck: case-sensitive
 		setFindOptions("Ab1", Direction.BACKWARD, Case.SENSITVE, WholeWord.OFF);
-		findAndAssertEquals("ab1 AB1 xxx [Ab1] aB1 yyy");
+		findAndAssertSelectedTextEquals("ab1 AB1 xxx [Ab1] aB1 yyy");
 		assertFalse(find());
 	}
 
+	@Test
 	public void testFindWholeWord() throws Exception {
 
 		// including special chars and German umlauts: sharp s = \u00df
 		//                                             ae      = \u00e4
 		setUp("xx aa xx xyx xx-cc a-xx%c \u00e4xx xx\u00df xx");
 		setFindOptions("xx", Direction.FORWARD, Case.SENSITVE, WholeWord.ON);
-		findAndAssertEquals("[xx] aa xx xyx xx-cc a-xx%c \u00e4xx xx\u00df xx");
-		findAndAssertEquals("xx aa [xx] xyx xx-cc a-xx%c \u00e4xx xx\u00df xx");
-		findAndAssertEquals("xx aa xx xyx [xx]-cc a-xx%c \u00e4xx xx\u00df xx");
-		findAndAssertEquals("xx aa xx xyx xx-cc a-[xx]%c \u00e4xx xx\u00df xx");
-		findAndAssertEquals("xx aa xx xyx xx-cc a-xx%c \u00e4xx xx\u00df [xx]");
+		findAndAssertSelectedTextEquals("[xx] aa xx xyx xx-cc a-xx%c \u00e4xx xx\u00df xx");
+		findAndAssertSelectedTextEquals("xx aa [xx] xyx xx-cc a-xx%c \u00e4xx xx\u00df xx");
+		findAndAssertSelectedTextEquals("xx aa xx xyx [xx]-cc a-xx%c \u00e4xx xx\u00df xx");
+		findAndAssertSelectedTextEquals("xx aa xx xyx xx-cc a-[xx]%c \u00e4xx xx\u00df xx");
+		findAndAssertSelectedTextEquals("xx aa xx xyx xx-cc a-xx%c \u00e4xx xx\u00df [xx]");
 		assertFalse(find());
 
 		// crosscheck: backward; 'Whole word' disabled
 		setFindOptions("xx", Direction.BACKWARD, Case.SENSITVE, WholeWord.OFF);
-		findAndAssertEquals("xx aa xx xyx xx-cc a-xx%c \u00e4xx [xx]\u00df xx");
-		findAndAssertEquals("xx aa xx xyx xx-cc a-xx%c \u00e4[xx] xx\u00df xx");
-		findAndAssertEquals("xx aa xx xyx xx-cc a-[xx]%c \u00e4xx xx\u00df xx");
-		findAndAssertEquals("xx aa xx xyx [xx]-cc a-xx%c \u00e4xx xx\u00df xx");
-		findAndAssertEquals("xx aa [xx] xyx xx-cc a-xx%c \u00e4xx xx\u00df xx");
+		findAndAssertSelectedTextEquals("xx aa xx xyx xx-cc a-xx%c \u00e4xx [xx]\u00df xx");
+		findAndAssertSelectedTextEquals("xx aa xx xyx xx-cc a-xx%c \u00e4[xx] xx\u00df xx");
+		findAndAssertSelectedTextEquals("xx aa xx xyx xx-cc a-[xx]%c \u00e4xx xx\u00df xx");
+		findAndAssertSelectedTextEquals("xx aa xx xyx [xx]-cc a-xx%c \u00e4xx xx\u00df xx");
+		findAndAssertSelectedTextEquals("xx aa [xx] xyx xx-cc a-xx%c \u00e4xx xx\u00df xx");
 	}
 
+	@Test
 	public void testFindRegEx() throws Exception {
 		setUp("h2o h5o h42o hoo h234o h3O");
 		setRegExOptions("h[2-4]{1,2}o", Direction.FORWARD, Case.SENSITVE);
-		findAndAssertEquals("[h2o] h5o h42o hoo h234o h3O");
-		findAndAssertEquals("h2o h5o [h42o] hoo h234o h3O");
+		findAndAssertSelectedTextEquals("[h2o] h5o h42o hoo h234o h3O");
+		findAndAssertSelectedTextEquals("h2o h5o [h42o] hoo h234o h3O");
 		assertFalse(find());
 
 		// case-insensitive
 		caseSensitiveness = Case.INSENSITVE;
-		findAndAssertEquals("h2o h5o h42o hoo h234o [h3O]");
+		findAndAssertSelectedTextEquals("h2o h5o h42o hoo h234o [h3O]");
 		assertFalse(find());
 
 		// backward
 		direction = Direction.BACKWARD;
 		caseSensitiveness = Case.SENSITVE;
-		findAndAssertEquals("h2o h5o [h42o] hoo h234o h3O");
-		findAndAssertEquals("[h2o] h5o h42o hoo h234o h3O");
+		findAndAssertSelectedTextEquals("h2o h5o [h42o] hoo h234o h3O");
+		findAndAssertSelectedTextEquals("[h2o] h5o h42o hoo h234o h3O");
 		assertFalse(find());
 	}
 
+	@Test
 	public void testReplace() throws Exception {
 		setUp("He__o W____!");
 		setFindOptions("__", Direction.FORWARD, Case.SENSITVE, WholeWord.OFF);
 
 		// a) replacement of same length than selection
-		findAndAssertEquals("He[__]o W____!");
+		findAndAssertSelectedTextEquals("He[__]o W____!");
 		finder.replaceSelection("ll");
-		assertEquals("He[ll]o W____!");
+		assertSelectedTextEquals("He[ll]o W____!");
 
 		// b) replacement shorter than selection
-		findAndAssertEquals("Hello W[__]__!");
+		findAndAssertSelectedTextEquals("Hello W[__]__!");
 		finder.replaceSelection("o");
-		assertEquals("Hello W[o]__!");
+		assertSelectedTextEquals("Hello W[o]__!");
 
 		// c) replacement longer than selection
-		findAndAssertEquals("Hello Wo[__]!");
+		findAndAssertSelectedTextEquals("Hello Wo[__]!");
 		finder.replaceSelection("rld");
-		assertEquals("Hello Wo[rld]!");
+		assertSelectedTextEquals("Hello Wo[rld]!");
 
 		// nothing selected: nothing must be happen
 		setUp("abc", -1, -1);
 		finder.replaceSelection("x");
-		assertEquals(-1, selectionStart);
-		assertEquals(-1, selectionEnd);
-		assertEquals("abc", content);
+		Assert.assertEquals(-1, selectionStart);
+		Assert.assertEquals(-1, selectionEnd);
+		Assert.assertEquals("abc", content);
 	}
 
+	@Test
 	public void testRegExReplace() throws Exception {
 		setUp("Hello World!", 0, 1);
 		setRegExOptions("(.)(l+)", Direction.FORWARD, Case.SENSITVE);
 
-		findAndAssertEquals("H[ell]o World!");
+		findAndAssertSelectedTextEquals("H[ell]o World!");
 		finder.replaceSelection("$1_$2", true);
-		assertEquals("H[e_ll]o World!");
-		findAndAssertEquals("He_llo Wo[rl]d!");
+		assertSelectedTextEquals("H[e_ll]o World!");
+		findAndAssertSelectedTextEquals("He_llo Wo[rl]d!");
 		finder.replaceSelection("$2$1", true);
 	}
 
+	@Test
 	public void testRegExReplaceThrowsIllegalStateException() throws Exception {
 		setUp("Hello World!", 0, 1);
 		setRegExOptions("(.)(l+)", Direction.FORWARD, Case.SENSITVE);
@@ -337,6 +352,7 @@ public class FindReplaceTargetTest extends TestCase {
 		}
 	}
 
+	@Test
 	public void testRegExReplaceThrowsPatternSyntaxException() throws Exception {
 		setUp("abcde", 0, 1);
 		setRegExOptions("(.)", Direction.FORWARD, Case.SENSITVE);

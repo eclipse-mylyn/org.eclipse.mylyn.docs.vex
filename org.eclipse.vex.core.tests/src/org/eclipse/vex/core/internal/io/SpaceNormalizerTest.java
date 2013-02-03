@@ -11,6 +11,10 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.io;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -21,8 +25,6 @@ import java.util.List;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParserFactory;
-
-import junit.framework.TestCase;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
@@ -50,21 +52,22 @@ import org.eclipse.vex.core.internal.dom.Node;
 import org.eclipse.vex.core.internal.dom.Text;
 import org.eclipse.vex.core.internal.widget.CssWhitespacePolicy;
 import org.eclipse.vex.core.tests.VEXCoreTestPlugin;
+import org.junit.Before;
+import org.junit.Test;
 import org.osgi.framework.Bundle;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 
-public class SpaceNormalizerTest extends TestCase {
+public class SpaceNormalizerTest {
 
 	protected static IProject fTestProject;
 	private static boolean fTestProjectInitialized;
 	private static final String TEST_PROJECT_NAME = "testproject";
 	private static final String PROJECT_FILES_FOLDER_NAME = "testResources";
 
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
+	@Before
+	public void setUp() throws Exception {
 		DisplayDevice.setCurrent(new MockDisplayDevice(90, 90));
 		if (fTestProjectInitialized) {
 			return;
@@ -171,6 +174,7 @@ public class SpaceNormalizerTest extends TestCase {
 	 * <li>no extraneous spaces before or after elements added</li>
 	 * </ul>
 	 */
+	@Test
 	public void testNormalize() throws Exception {
 
 		final String input = "<doc>\n\t  " + "<block>\n\t foo\n\t <inline>foo\n\t bar</inline>\n\t baz\n\t </block>\n\t " + "<block>\n\t foo\n\t <block>bar</block>\n\t baz</block>"
@@ -212,6 +216,7 @@ public class SpaceNormalizerTest extends TestCase {
 
 	}
 
+	@Test
 	public void testPreNormalize1() throws ParserConfigurationException, SAXException, IOException {
 		// ========= Now test with a PRE element =========
 
@@ -226,6 +231,7 @@ public class SpaceNormalizerTest extends TestCase {
 		assertContent(pre, "\n foo\n");
 	}
 
+	@Test
 	public void testPreNormalize2() throws Exception {
 		// ========= Now test with a PRE element =========
 
@@ -239,6 +245,7 @@ public class SpaceNormalizerTest extends TestCase {
 		assertContent(inline, "\n foo\n bar\n ");
 	}
 
+	@Test
 	public void testPreElementNormalize() throws ParserConfigurationException, SAXException, IOException {
 		// ========= Now test with a PRE element =========
 

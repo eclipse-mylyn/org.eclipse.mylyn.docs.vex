@@ -12,27 +12,26 @@ package org.eclipse.vex.core.internal.layout;
 
 import java.net.URL;
 
-import junit.framework.TestCase;
-
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.vex.core.internal.core.DisplayDevice;
 import org.eclipse.vex.core.internal.css.MockDisplayDevice;
 import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.css.StyleSheetReader;
 import org.eclipse.vex.core.internal.dom.Document;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * Tests proper function of a block-level element within an inline element. These must be layed out as a block child of
  * the containing block element.
  */
-public class TestBlocksInInlines extends TestCase {
+public class TestBlocksInInlines {
 
 	FakeGraphics g;
 	LayoutContext context;
 
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
+	@Before
+	public void setUp() throws Exception {
 		DisplayDevice.setCurrent(new MockDisplayDevice(90, 90));
 	}
 
@@ -49,6 +48,7 @@ public class TestBlocksInInlines extends TestCase {
 		context.setStyleSheet(ss);
 	}
 
+	@Test
 	public void testBlockInInline() throws Exception {
 		final Document doc = new Document(new QualifiedName(null, "root"));
 		context.setDocument(doc);
@@ -61,6 +61,5 @@ public class TestBlocksInInlines extends TestCase {
 
 		final RootBox rootBox = new RootBox(context, doc, 500);
 		rootBox.layout(context, 0, Integer.MAX_VALUE);
-
 	}
 }

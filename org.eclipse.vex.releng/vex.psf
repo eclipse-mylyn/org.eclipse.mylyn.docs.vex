@@ -12,7 +12,6 @@
 <project reference="1.0,http://git.eclipse.org/gitroot/mylyn/org.eclipse.mylyn.docs.vex.git,master,org.eclipse.vex.releng"/>
 <project reference="1.0,http://git.eclipse.org/gitroot/mylyn/org.eclipse.mylyn.docs.vex.git,master,org.eclipse.vex.repository"/>
 <project reference="1.0,http://git.eclipse.org/gitroot/mylyn/org.eclipse.mylyn.docs.vex.git,master,org.eclipse.vex.sdk.feature"/>
-<project reference="1.0,http://git.eclipse.org/gitroot/mylyn/org.eclipse.mylyn.docs.vex.git,master,org.eclipse.vex.tests"/>
 <project reference="1.0,http://git.eclipse.org/gitroot/mylyn/org.eclipse.mylyn.docs.vex.git,master,org.eclipse.vex.ui"/>
 <project reference="1.0,http://git.eclipse.org/gitroot/mylyn/org.eclipse.mylyn.docs.vex.git,master,org.eclipse.vex.ui.tests"/>
 <project reference="1.0,http://git.eclipse.org/gitroot/mylyn/org.eclipse.mylyn.docs.vex.git,master,org.eclipse.vex.xhtml"/>

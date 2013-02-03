@@ -11,22 +11,25 @@
  *******************************************************************************/
 package org.eclipse.vex.core.tests;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 import java.lang.reflect.InvocationTargetException;
 import java.util.EventListener;
 import java.util.EventObject;
 
-import junit.framework.TestCase;
-
 import org.eclipse.vex.core.internal.core.ListenerList;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
-public class ListenerListTest extends TestCase {
+public class ListenerListTest {
 
 	private ListenerList<MockEventListener, EventObject> listenerList;
 	private Exception handledException;
 
-	@Override
-	protected void setUp() throws Exception {
-		super.setUp();
+	@Before
+	public void setUp() throws Exception {
 		listenerList = new ListenerList<MockEventListener, EventObject>(MockEventListener.class) {
 			@Override
 			public void handleException(final Exception e) {
@@ -35,11 +38,10 @@ public class ListenerListTest extends TestCase {
 		};
 	}
 
-	@Override
-	protected void tearDown() throws Exception {
+	@After
+	public void tearDown() throws Exception {
 		listenerList = null;
 		handledException = null;
-		super.tearDown();
 	}
 
 	public static class MockEventListener implements EventListener {
@@ -63,6 +65,7 @@ public class ListenerListTest extends TestCase {
 
 	}
 
+	@Test
 	public void testListenerInvocation() throws Exception {
 		final MockEventListener eventListener = new MockEventListener();
 
@@ -84,6 +87,7 @@ public class ListenerListTest extends TestCase {
 		}
 	}
 
+	@Test
 	public void testAddRemove() throws Exception {
 		final MockEventListener listener = new MockEventListener();
 		final MockEventListener anotherListener = new MockEventListener();
@@ -105,12 +109,14 @@ public class ListenerListTest extends TestCase {
 		}
 	}
 
+	@Test
 	public void testNoSuchMethod() throws Exception {
 		listenerList.add(new MockEventListener());
 		listenerList.fireEvent("unknownMethod", new EventObject(""));
 		assertTrue(handledException instanceof NoSuchMethodException);
 	}
 
+	@Test
 	public void testExceptionWhileFireEvent() throws Exception {
 		final MockEventListener eventListener = new MockEventListener();
 

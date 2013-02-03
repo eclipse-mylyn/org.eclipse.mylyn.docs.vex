@@ -15,7 +15,6 @@ Require-Bundle: org.eclipse.ui,
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Export-Package: org.eclipse.vex.ui.internal.config.tests;x-internal:=true,
  org.eclipse.vex.ui.internal.editor.tests;x-internal:=true,
- org.eclipse.vex.ui.internal.tests;x-internal:=true,
  org.eclipse.vex.ui.tests
 Bundle-Localization: plugin
 Bundle-ClassPath: .

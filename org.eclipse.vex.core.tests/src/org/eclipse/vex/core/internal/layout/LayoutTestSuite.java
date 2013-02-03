@@ -35,6 +35,8 @@ import org.eclipse.vex.core.internal.dom.IWhitespacePolicy;
 import org.eclipse.vex.core.internal.dom.Node;
 import org.eclipse.vex.core.internal.io.DocumentReader;
 import org.eclipse.vex.core.internal.widget.CssWhitespacePolicy;
+import org.junit.runner.RunWith;
+import org.junit.runners.AllTests;
 import org.xml.sax.Attributes;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -45,6 +47,7 @@ import org.xml.sax.helpers.DefaultHandler;
  * Runs several suites of layout tests. Each suite is defined in an XML file. The XML files to run are registered in the
  * suite() method.
  */
+@RunWith(AllTests.class)
 public class LayoutTestSuite extends TestCase {
 
 	public String id;
@@ -71,7 +74,7 @@ public class LayoutTestSuite extends TestCase {
 		xmlReader.parse(new InputSource(url.toString()));
 
 		final TestSuite suite = new TestSuite(filename);
-		for (final TestCase test : builder.testCases) {
+		for (final LayoutTestSuite test : builder.testCases) {
 			suite.addTest(test);
 		}
 		return suite;
@@ -87,7 +90,6 @@ public class LayoutTestSuite extends TestCase {
 	}
 
 	public void testLayout() throws Exception {
-
 		final URL url = LayoutTestSuite.class.getResource(css);
 		final StyleSheetReader reader = new StyleSheetReader();
 		final StyleSheet ss = reader.read(url);
@@ -178,7 +180,7 @@ public class LayoutTestSuite extends TestCase {
 
 	private static class TestCaseBuilder extends DefaultHandler {
 
-		private List<TestCase> testCases;
+		private List<LayoutTestSuite> testCases;
 		private String css;
 		private LayoutTestSuite testCase;
 		private BoxSpec boxSpec;
@@ -215,7 +217,7 @@ public class LayoutTestSuite extends TestCase {
 		public void startElement(final String uri, final String localName, final String qName, final Attributes attributes) throws SAXException {
 
 			if (qName.equals("testcases")) {
-				testCases = new ArrayList<TestCase>();
+				testCases = new ArrayList<LayoutTestSuite>();
 				css = attributes.getValue("css");
 				if (css == null) {
 					css = "test.css";

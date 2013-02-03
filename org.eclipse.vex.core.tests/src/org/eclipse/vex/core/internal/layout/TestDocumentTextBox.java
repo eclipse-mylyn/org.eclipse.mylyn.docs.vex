@@ -10,9 +10,11 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.layout;
 
-import java.net.URL;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
-import junit.framework.TestCase;
+import java.net.URL;
 
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.vex.core.internal.css.StyleSheet;
@@ -21,18 +23,18 @@ import org.eclipse.vex.core.internal.css.Styles;
 import org.eclipse.vex.core.internal.dom.ContentRange;
 import org.eclipse.vex.core.internal.dom.Document;
 import org.eclipse.vex.core.internal.dom.Element;
+import org.junit.Test;
 
 /**
  * Tests the DocumentTestBox class. We focus here on proper offsets, since text splitting is tested thoroughly in
  * TestStaticTextBox.
  */
-public class TestDocumentTextBox extends TestCase {
+public class TestDocumentTextBox {
 
 	FakeGraphics g;
 	LayoutContext context;
 
 	public TestDocumentTextBox() throws Exception {
-
 		final URL url = this.getClass().getResource("test.css");
 		final StyleSheetReader reader = new StyleSheetReader();
 		final StyleSheet ss = reader.read(url);
@@ -45,6 +47,7 @@ public class TestDocumentTextBox extends TestCase {
 		context.setStyleSheet(ss);
 	}
 
+	@Test
 	public void testSplit() throws Exception {
 		final Document doc = new Document(new QualifiedName(null, "root"));
 		final Element root = doc.getRootElement();

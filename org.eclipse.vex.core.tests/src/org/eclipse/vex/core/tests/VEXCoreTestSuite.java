@@ -12,15 +12,6 @@
  *******************************************************************************/
 package org.eclipse.vex.core.tests;
 
-import java.io.IOException;
-
-import javax.xml.parsers.FactoryConfigurationError;
-import javax.xml.parsers.ParserConfigurationException;
-
-import junit.framework.JUnit4TestAdapter;
-import junit.framework.Test;
-import junit.framework.TestSuite;
-
 import org.eclipse.vex.core.internal.core.AfterNIteratorTest;
 import org.eclipse.vex.core.internal.core.FilterIteratorTest;
 import org.eclipse.vex.core.internal.core.FirstNIteratorTest;
@@ -62,56 +53,17 @@ import org.eclipse.vex.core.internal.widget.L2CommentEditingTest;
 import org.eclipse.vex.core.internal.widget.L2SelectionTest;
 import org.eclipse.vex.core.internal.widget.L2SimpleEditingTest;
 import org.eclipse.vex.core.internal.widget.VexWidgetTest;
-import org.xml.sax.SAXException;
+import org.junit.runner.RunWith;
+import org.junit.runners.Suite;
 
-public class VEXCoreTestSuite extends TestSuite {
-	public static Test suite() throws ParserConfigurationException, FactoryConfigurationError, IOException, SAXException {
-		return new VEXCoreTestSuite();
-	}
+@RunWith(Suite.class)
+@Suite.SuiteClasses({ FilterIteratorTest.class, FirstNIteratorTest.class, AfterNIteratorTest.class, AxisTest.class, NamespaceStackTest.class, NamespaceTest.class, DocumentReaderTest.class,
+		DocumentContentModelTest.class, SchemaValidatorTest.class, CssTest.class, BatikBehaviorTest.class, RangeTest.class, BasicNodeTest.class, ParentTest.class, DocumentTest.class,
+		L1TextHandlingTest.class, L1CommentHandlingTest.class, L1ElementHandlingTest.class, L1FragmentHandlingTest.class, DocumentFragmentTest.class, CopyVisitorTest.class, DeepCopyTest.class,
+		PropertyTest.class, RuleTest.class, BlockElementBoxTest.class, ImageBoxTest.class, DocumentWriterTest.class, DTDValidatorTest.class, GapContentTest.class, SpaceNormalizerTest.class,
+		TextWrapperTest.class, TestBlockElementBox.class, TestBlocksInInlines.class, TestDocumentTextBox.class, TestStaticTextBox.class, TableLayoutTest.class, LayoutTestSuite.class,
+		ListenerListTest.class, VexWidgetTest.class, L2SimpleEditingTest.class, L2SelectionTest.class, L2CommentEditingTest.class
 
-	public VEXCoreTestSuite() throws ParserConfigurationException, FactoryConfigurationError, IOException, SAXException {
-		super("Vex Core Tests");
-		addTest(new JUnit4TestAdapter(FilterIteratorTest.class));
-		addTest(new JUnit4TestAdapter(FirstNIteratorTest.class));
-		addTest(new JUnit4TestAdapter(AfterNIteratorTest.class));
-		addTest(new JUnit4TestAdapter(AxisTest.class));
-		addTest(new JUnit4TestAdapter(NamespaceStackTest.class));
-		addTest(new JUnit4TestAdapter(NamespaceTest.class));
-		addTest(new JUnit4TestAdapter(DocumentReaderTest.class));
-		addTest(new JUnit4TestAdapter(DocumentContentModelTest.class));
-		addTest(new JUnit4TestAdapter(SchemaValidatorTest.class));
-		addTest(new JUnit4TestAdapter(CssTest.class));
-		addTest(new JUnit4TestAdapter(BatikBehaviorTest.class));
-		addTest(new JUnit4TestAdapter(RangeTest.class));
-		addTest(new JUnit4TestAdapter(BasicNodeTest.class));
-		addTest(new JUnit4TestAdapter(ParentTest.class));
-		addTest(new JUnit4TestAdapter(DocumentTest.class));
-		addTest(new JUnit4TestAdapter(L1TextHandlingTest.class));
-		addTest(new JUnit4TestAdapter(L1CommentHandlingTest.class));
-		addTest(new JUnit4TestAdapter(L1ElementHandlingTest.class));
-		addTest(new JUnit4TestAdapter(L1FragmentHandlingTest.class));
-		addTest(new JUnit4TestAdapter(DocumentFragmentTest.class));
-		addTest(new JUnit4TestAdapter(CopyVisitorTest.class));
-		addTest(new JUnit4TestAdapter(DeepCopyTest.class));
-		addTestSuite(PropertyTest.class);
-		addTestSuite(RuleTest.class);
-		addTestSuite(BlockElementBoxTest.class);
-		addTest(new JUnit4TestAdapter(ImageBoxTest.class));
-		addTest(new JUnit4TestAdapter(DocumentWriterTest.class));
-		addTestSuite(DTDValidatorTest.class);
-		addTest(new JUnit4TestAdapter(GapContentTest.class));
-		addTestSuite(SpaceNormalizerTest.class);
-		addTest(new JUnit4TestAdapter(TextWrapperTest.class));
-		addTestSuite(TestBlockElementBox.class);
-		addTestSuite(TestBlocksInInlines.class);
-		addTestSuite(TestDocumentTextBox.class);
-		addTestSuite(TestStaticTextBox.class);
-		addTestSuite(TableLayoutTest.class);
-		addTest(LayoutTestSuite.suite());
-		addTestSuite(ListenerListTest.class);
-		addTest(new JUnit4TestAdapter(VexWidgetTest.class));
-		addTest(new JUnit4TestAdapter(L2SimpleEditingTest.class));
-		addTest(new JUnit4TestAdapter(L2SelectionTest.class));
-		addTest(new JUnit4TestAdapter(L2CommentEditingTest.class));
-	}
+})
+public class VEXCoreTestSuite {
 }

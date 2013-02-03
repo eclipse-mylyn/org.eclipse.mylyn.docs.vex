@@ -10,11 +10,12 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.dom;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
-
-import junit.framework.TestCase;
 
 import org.eclipse.vex.core.internal.core.Graphics;
 import org.eclipse.vex.core.internal.css.StyleSheet;
@@ -27,8 +28,9 @@ import org.eclipse.vex.core.internal.layout.FakeGraphics;
 import org.eclipse.vex.core.internal.layout.LayoutContext;
 import org.eclipse.vex.core.internal.layout.RootBox;
 import org.eclipse.vex.core.tests.TestResources;
+import org.junit.Test;
 
-public class BlockElementBoxTest extends TestCase {
+public class BlockElementBoxTest {
 
 	private final Graphics g;
 	private final LayoutContext context;
@@ -47,6 +49,7 @@ public class BlockElementBoxTest extends TestCase {
 
 	}
 
+	@Test
 	public void testPositioning() throws Exception {
 
 		final String docString = "<root><small/><medium/><large/></root>";

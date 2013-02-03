@@ -11,10 +11,10 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.layout;
 
+import static org.junit.Assert.assertEquals;
+
 import java.util.Arrays;
 import java.util.Stack;
-
-import junit.framework.TestCase;
 
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.vex.core.internal.core.DisplayDevice;
@@ -22,8 +22,11 @@ import org.eclipse.vex.core.internal.css.MockDisplayDevice;
 import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.css.StyleSheetReader;
 import org.eclipse.vex.core.internal.dom.Document;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
-public class TableLayoutTest extends TestCase {
+public class TableLayoutTest {
 
 	private static interface StackVisitor {
 		void visit(StackElement element);
@@ -44,8 +47,8 @@ public class TableLayoutTest extends TestCase {
 	private RootBox rootBox;
 	private int caretPosition;
 
-	@Override
-	protected void setUp() throws Exception {
+	@Before
+	public void setUp() throws Exception {
 
 		// display dummy
 		DisplayDevice.setCurrent(new MockDisplayDevice(90, 90));
@@ -65,8 +68,8 @@ public class TableLayoutTest extends TestCase {
 		resetDocument();
 	}
 
-	@Override
-	protected void tearDown() throws Exception {
+	@After
+	public void tearDown() throws Exception {
 		rootBox = null;
 		document = null;
 		context = null;
@@ -90,6 +93,7 @@ public class TableLayoutTest extends TestCase {
 		caretPosition += text.length();
 	}
 
+	@Test
 	public void testValidTable() throws Exception {
 
 		// single cell Table
@@ -129,73 +133,89 @@ public class TableLayoutTest extends TestCase {
 
 	// table elements outside table (separately tested to improve tracing if
 	// StackOverflowError will be thrown)
+	@Test
 	public void testCaptionOutsideTable() {
 		test("tcap");
 	}
 
+	@Test
 	public void testCellOutsideTable() {
 		test("td");
 	}
 
+	@Test
 	public void testColumnOutsideTable() {
 		test("tc");
 	}
 
+	@Test
 	public void testColumnGroupOutsideTable() {
 		test("tcg");
 	}
 
+	@Test
 	public void testFooterGroupOutsideTable() {
 		test("tfg");
 	}
 
+	@Test
 	public void testHeaderGroupOutsideTable() {
 		test("thg");
 	}
 
+	@Test
 	public void testRowOutsideTable() {
 		test("tr");
 	}
 
+	@Test
 	public void testRowGroupOutsideTable() {
 		test("trg");
 	}
 
 	// invalid nested table elements (separately tested to improve tracing if
 	// StackOverflowError will be thrown)
+	@Test
 	public void testInvalidNesting1() {
 		test("inline", "tcap");
 	}
 
+	@Test
 	public void testInvalidNesting2() {
 		test("table", "td");
 	}
 
+	@Test
 	public void testInvalidNesting3() {
 		test("td", "tr");
 	}
 
+	@Test
 	public void testInvalidNesting4() {
 		test("trg", "trg");
 	}
 
+	@Test
 	public void testInvalidNesting5() {
 		test("tr", "tfg");
 	}
 
+	@Test
 	public void testInvalidNesting6() {
 		test("td", "thg");
 	}
 
+	@Test
 	public void testInvalidNesting7() {
 		test("table", "tc");
 	}
 
+	@Test
 	public void testInvalidNesting8() {
 		test("thg", "tcg");
 	}
 
-	public void test(final String... elements) {
+	private void test(final String... elements) {
 		resetDocument();
 		insertElement("inline");
 		for (final String element : elements) {

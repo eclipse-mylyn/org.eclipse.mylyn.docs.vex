@@ -10,9 +10,11 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.layout;
 
-import java.net.URL;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
 
-import junit.framework.TestCase;
+import java.net.URL;
 
 import org.eclipse.vex.core.internal.core.DisplayDevice;
 import org.eclipse.vex.core.internal.css.MockDisplayDevice;
@@ -20,18 +22,18 @@ import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.css.StyleSheetReader;
 import org.eclipse.vex.core.internal.css.Styles;
 import org.eclipse.vex.core.internal.dom.Element;
+import org.junit.Before;
+import org.junit.Test;
 
-public class TestStaticTextBox extends TestCase {
+public class TestStaticTextBox {
 
 	FakeGraphics g;
 	LayoutContext context;
 	Element root = new Element("root");
 	Styles styles;
 
-	@Override
-	protected void setUp() throws Exception {
-		// TODO Auto-generated method stub
-		super.setUp();
+	@Before
+	public void setUp() throws Exception {
 		DisplayDevice.setCurrent(new MockDisplayDevice(90, 90));
 		final URL url = this.getClass().getResource("test.css");
 		final StyleSheetReader reader = new StyleSheetReader();
@@ -48,12 +50,8 @@ public class TestStaticTextBox extends TestCase {
 
 	}
 
-	public TestStaticTextBox() throws Exception {
-
-	}
-
+	@Test
 	public void testSplit() throws Exception {
-
 		final int width = g.getCharWidth();
 
 		final StaticTextBox box = new StaticTextBox(context, root, "baggy orange trousers");

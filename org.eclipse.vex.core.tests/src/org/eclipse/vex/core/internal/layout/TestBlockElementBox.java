@@ -10,17 +10,18 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.layout;
 
-import java.net.URL;
+import static org.junit.Assert.assertEquals;
 
-import junit.framework.TestCase;
+import java.net.URL;
 
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.css.StyleSheetReader;
 import org.eclipse.vex.core.internal.dom.Document;
 import org.eclipse.vex.core.internal.dom.Element;
+import org.junit.Test;
 
-public class TestBlockElementBox extends TestCase {
+public class TestBlockElementBox {
 
 	FakeGraphics g;
 	LayoutContext context;
@@ -38,6 +39,7 @@ public class TestBlockElementBox extends TestCase {
 		context.setStyleSheet(ss);
 	}
 
+	@Test
 	public void testBeforeAfter() throws Exception {
 		final Document doc = new Document(new QualifiedName(null, "root"));
 		final Element root = doc.getRootElement();

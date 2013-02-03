@@ -10,23 +10,26 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.css;
 
-import java.io.StringReader;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
-import junit.framework.TestCase;
+import java.io.StringReader;
 
 import org.eclipse.vex.core.internal.core.DisplayDevice;
 import org.eclipse.vex.core.internal.dom.Document;
 import org.eclipse.vex.core.internal.dom.Element;
 import org.eclipse.vex.core.internal.io.DocumentReader;
+import org.junit.Test;
 import org.w3c.css.sac.InputSource;
 import org.w3c.css.sac.LexicalUnit;
 import org.w3c.css.sac.Parser;
 
-public class PropertyTest extends TestCase {
+public class PropertyTest {
 
 	/**
 	 * From CSS2.1 section 8.5.3
 	 */
+	@Test
 	public void testBorderStyleProperty() throws Exception {
 		final Styles styles = new Styles();
 		final Styles parentStyles = new Styles();
@@ -59,6 +62,7 @@ public class PropertyTest extends TestCase {
 	/**
 	 * From CSS2.1 section 8.5.1
 	 */
+	@Test
 	public void testBorderWidthProperty() throws Exception {
 
 		final Styles styles = new Styles();
@@ -95,12 +99,7 @@ public class PropertyTest extends TestCase {
 		assertEquals(Integer.valueOf(10), prop.calculate(MockLU.createFloat(LexicalUnit.SAC_INCH, 0.2f), parentStyles, styles, null));
 	}
 
-	/**
-	 * From CSS2.1 section 8.5.2 (border-XXX-color), section 14.1 (color), and section 14.2.1 (background-color)
-	 */
-	public void testColorProperty() throws Exception {
-	}
-
+	@Test
 	public void testStringBackgroundImage() throws Exception {
 		final Styles styles = new Styles();
 		final Styles parentStyles = new Styles();
@@ -108,6 +107,7 @@ public class PropertyTest extends TestCase {
 		assertEquals("http://www.eclipse.org", property.calculate(MockLU.createString("http://www.eclipse.org"), parentStyles, styles, null));
 	}
 
+	@Test
 	public void testAttrBackgroundImage() throws Exception {
 		final LexicalUnit attrSrc = MockLU.createAttr("src");
 		final Styles styles = new Styles();
@@ -123,12 +123,13 @@ public class PropertyTest extends TestCase {
 		assertNull(property.calculate(attrSrc, parentStyles, styles, emptyAttribute));
 	}
 
+	@Test
 	public void testParsePropertyValue() throws Exception {
 		final Parser parser = StyleSheetReader.createParser();
 		final InputSource source = new InputSource(new StringReader("300px"));
 		final LexicalUnit lexicalUnit = parser.parsePropertyValue(source);
 		assertEquals(LexicalUnit.SAC_PIXEL, lexicalUnit.getLexicalUnitType());
-		assertEquals(300f, lexicalUnit.getFloatValue());
+		assertEquals(300f, lexicalUnit.getFloatValue(), 0f);
 	}
 
 	private static class DummyDisplayDevice extends DisplayDevice {

@@ -12,25 +12,29 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.dom;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.fail;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import junit.framework.TestCase;
-
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.vex.core.internal.validator.AttributeDefinition;
 import org.eclipse.vex.core.internal.validator.WTPVEXValidator;
 import org.eclipse.vex.core.tests.TestResources;
+import org.junit.Before;
+import org.junit.Test;
 
-public class DTDValidatorTest extends TestCase {
+public class DTDValidatorTest {
 
 	private Validator validator = null;
 
-	@Override
-	protected void setUp() {
+	@Before
+	public void setUp() {
 		try {
 			validator = new WTPVEXValidator(TestResources.TEST_DTD);
 		} catch (final Exception ex) {
@@ -38,6 +42,7 @@ public class DTDValidatorTest extends TestCase {
 		}
 	}
 
+	@Test
 	public void testAttributeDefinition() throws Exception {
 		final Document doc = new Document(new QualifiedName(null, "section"));
 		doc.setValidator(validator);
@@ -48,6 +53,7 @@ public class DTDValidatorTest extends TestCase {
 		assertSame(adType, adType2);
 	}
 
+	@Test
 	public void testEnumAttribute() throws Exception {
 		final Document doc = new Document(new QualifiedName(null, "section"));
 		doc.setValidator(validator);
@@ -86,6 +92,7 @@ public class DTDValidatorTest extends TestCase {
 	//		
 	// }
 
+	@Test
 	public void testSectionElement() {
 		// <section> <title> a b </title> <para> </para> </section>
 		// 1 2 3 4 5 6 7
@@ -106,6 +113,7 @@ public class DTDValidatorTest extends TestCase {
 		assertValidItemsAt(doc, 8, "title", "para");
 	}
 
+	@Test
 	public void testOneKindOfChild() {
 		final Document doc = new Document(new QualifiedName(null, "one-kind-of-child"));
 		doc.setValidator(validator);
@@ -132,6 +140,7 @@ public class DTDValidatorTest extends TestCase {
 		assertEquals(expected, validItems);
 	}
 
+	@Test
 	public void testSequences() {
 		assertFullyValidSequence("title", "#PCDATA");
 		assertFullyValidSequence("para", "#PCDATA");
@@ -161,6 +170,7 @@ public class DTDValidatorTest extends TestCase {
 		assertInvalidSequence("document", "preface", "index");
 	}
 
+	@Test
 	public void testValidateDocumentWithDTDAndNamespaces() throws Exception {
 		final Document doc = new Document(new QualifiedName("http://namespace/uri/is/not/registered", "section"));
 		doc.setValidator(validator);
