@@ -11,7 +11,7 @@
 package org.eclipse.vex.ui.internal.handlers;
 
 import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.vex.core.internal.dom.ContentRange;
+import org.eclipse.vex.core.dom.ContentRange;
 import org.eclipse.vex.ui.internal.handlers.VexHandlerUtil.SelectedRows;
 import org.eclipse.vex.ui.internal.swt.VexWidget;
 

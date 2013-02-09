@@ -17,12 +17,13 @@ import static org.junit.Assert.assertNull;
 import java.net.URL;
 
 import org.eclipse.core.runtime.QualifiedName;
+import org.eclipse.vex.core.dom.ContentRange;
+import org.eclipse.vex.core.dom.IDocument;
+import org.eclipse.vex.core.dom.IElement;
 import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.css.StyleSheetReader;
 import org.eclipse.vex.core.internal.css.Styles;
-import org.eclipse.vex.core.internal.dom.ContentRange;
 import org.eclipse.vex.core.internal.dom.Document;
-import org.eclipse.vex.core.internal.dom.Element;
 import org.junit.Test;
 
 /**
@@ -49,8 +50,8 @@ public class TestDocumentTextBox {
 
 	@Test
 	public void testSplit() throws Exception {
-		final Document doc = new Document(new QualifiedName(null, "root"));
-		final Element root = doc.getRootElement();
+		final IDocument doc = new Document(new QualifiedName(null, "root"));
+		final IElement root = doc.getRootElement();
 
 		final Styles styles = context.getStyleSheet().getStyles(root);
 

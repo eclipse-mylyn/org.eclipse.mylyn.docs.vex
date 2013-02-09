@@ -16,12 +16,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.eclipse.vex.core.dom.IElement;
+import org.eclipse.vex.core.dom.INode;
+import org.eclipse.vex.core.dom.IParent;
 import org.eclipse.vex.core.internal.core.Insets;
 import org.eclipse.vex.core.internal.css.CSS;
 import org.eclipse.vex.core.internal.css.Styles;
-import org.eclipse.vex.core.internal.dom.Element;
-import org.eclipse.vex.core.internal.dom.Node;
-import org.eclipse.vex.core.internal.dom.Parent;
 
 /**
  * Container for TableRowBox objects. May correspond to an element with display:table-row-group,
@@ -39,7 +39,7 @@ public class TableRowGroupBox extends AbstractBlockBox {
 	 * @param node
 	 *            Node that generated this box.
 	 */
-	public TableRowGroupBox(final LayoutContext context, final BlockBox parent, final Node node) {
+	public TableRowGroupBox(final LayoutContext context, final BlockBox parent, final INode node) {
 		super(context, parent, node);
 	}
 
@@ -71,11 +71,11 @@ public class TableRowGroupBox extends AbstractBlockBox {
 		final List<Box> children = new ArrayList<Box>();
 
 		iterateChildrenByDisplayStyle(context.getStyleSheet(), childDisplayStyles, new ElementOrRangeCallback() {
-			public void onElement(final Element child, final String displayStyle) {
+			public void onElement(final IElement child, final String displayStyle) {
 				children.add(new TableRowBox(context, TableRowGroupBox.this, child));
 			}
 
-			public void onRange(final Parent parent, final int startOffset, final int endOffset) {
+			public void onRange(final IParent parent, final int startOffset, final int endOffset) {
 				children.add(new TableRowBox(context, TableRowGroupBox.this, startOffset, endOffset));
 			}
 		});

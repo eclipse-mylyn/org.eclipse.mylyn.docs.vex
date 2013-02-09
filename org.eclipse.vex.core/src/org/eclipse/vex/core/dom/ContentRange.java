@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 Florian Thienel and others.
+ * Copyright (c) 2012,2013 Florian Thienel and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,16 +8,16 @@
  * Contributors:
  * 		Florian Thienel - initial API and implementation
  *******************************************************************************/
-package org.eclipse.vex.core.internal.dom;
+package org.eclipse.vex.core.dom;
 
 import java.text.MessageFormat;
 
 import org.eclipse.core.runtime.Assert;
 
 /**
- * An immutable representation of a range within Content.
+ * An immutable representation of a range within <code>IContent</code>.
  * 
- * @see Content
+ * @see IContent
  * @author Florian Thienel
  */
 public class ContentRange {

@@ -20,7 +20,7 @@ import java.util.NoSuchElementException;
  */
 public class FirstNIterator<T> implements Iterator<T> {
 
-	private final Iterator<T> source;
+	private final Iterator<? extends T> source;
 	private final int n;
 	private int cursor;
 
@@ -30,7 +30,7 @@ public class FirstNIterator<T> implements Iterator<T> {
 	 * @param n
 	 *            the number of elements to provide
 	 */
-	public FirstNIterator(final Iterator<T> source, final int n) {
+	public FirstNIterator(final Iterator<? extends T> source, final int n) {
 		this.source = source;
 		this.n = n;
 		cursor = 0;

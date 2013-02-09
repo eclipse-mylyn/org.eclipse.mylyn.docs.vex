@@ -10,8 +10,8 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.css;
 
+import org.eclipse.vex.core.dom.INode;
 import org.eclipse.vex.core.internal.core.DisplayDevice;
-import org.eclipse.vex.core.internal.dom.Node;
 import org.w3c.css.sac.LexicalUnit;
 
 /**
@@ -57,7 +57,7 @@ public class BorderSpacingProperty extends AbstractProperty {
 		super(CSS.BORDER_SPACING);
 	}
 
-	public Object calculate(LexicalUnit lu, final Styles parentStyles, final Styles styles, final Node node) {
+	public Object calculate(LexicalUnit lu, final Styles parentStyles, final Styles styles, final INode node) {
 
 		int horizontal = 0;
 		int vertical = 0;

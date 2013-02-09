@@ -10,6 +10,10 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.dom;
 
+import org.eclipse.vex.core.dom.INode;
+import org.eclipse.vex.core.dom.INodeVisitor;
+import org.eclipse.vex.core.dom.INodeVisitorWithResult;
+
 /**
  * @author Florian Thienel
  */
@@ -18,18 +22,15 @@ public class BasicNodeTest extends NodeTest {
 	@Override
 	protected Node createNode() {
 		return new Node() {
-			@Override
 			public void accept(final INodeVisitor visitor) {
 				throw new UnsupportedOperationException();
 			}
 
-			@Override
 			public <T> T accept(final INodeVisitorWithResult<T> visitor) {
 				throw new UnsupportedOperationException();
 			}
 
-			@Override
-			public boolean isKindOf(final Node node) {
+			public boolean isKindOf(final INode node) {
 				return false;
 			}
 		};

@@ -25,7 +25,7 @@ import org.eclipse.ui.texteditor.FindNextAction;
 import org.eclipse.ui.texteditor.FindReplaceAction;
 import org.eclipse.ui.texteditor.ITextEditorActionConstants;
 import org.eclipse.ui.texteditor.IWorkbenchActionDefinitionIds;
-import org.eclipse.vex.core.internal.dom.DocumentValidationException;
+import org.eclipse.vex.core.dom.DocumentValidationException;
 import org.eclipse.vex.ui.internal.swt.VexWidget;
 import org.eclipse.wst.xml.ui.internal.tabletree.XMLMultiPageEditorActionBarContributor;
 

@@ -19,12 +19,12 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
 
-import org.eclipse.vex.core.internal.dom.BaseNodeVisitorWithResult;
-import org.eclipse.vex.core.internal.dom.Comment;
-import org.eclipse.vex.core.internal.dom.Document;
-import org.eclipse.vex.core.internal.dom.Element;
-import org.eclipse.vex.core.internal.dom.Node;
-import org.eclipse.vex.core.internal.dom.Parent;
+import org.eclipse.vex.core.dom.BaseNodeVisitorWithResult;
+import org.eclipse.vex.core.dom.IComment;
+import org.eclipse.vex.core.dom.IDocument;
+import org.eclipse.vex.core.dom.IElement;
+import org.eclipse.vex.core.dom.INode;
+import org.eclipse.vex.core.dom.IParent;
 import org.w3c.css.sac.AttributeCondition;
 import org.w3c.css.sac.CombinatorCondition;
 import org.w3c.css.sac.Condition;
@@ -101,7 +101,7 @@ public class Rule {
 	 * @param node
 	 *            Node to check.
 	 */
-	public boolean matches(final Node node) {
+	public boolean matches(final INode node) {
 		return matches(selector, node);
 	}
 
@@ -110,7 +110,7 @@ public class Rule {
 	/**
 	 * Returns true if the given element matches the given selector.
 	 */
-	private static boolean matches(final Selector selector, final Node node) {
+	private static boolean matches(final Selector selector, final INode node) {
 
 		if (node == null) {
 			// This can happen when, e.g., with the rule "foo > *".
@@ -133,7 +133,7 @@ public class Rule {
 				if (node instanceof PseudoElement) {
 					final AttributeCondition ac = (AttributeCondition) cs.getCondition();
 					return ac.getValue().equals(getLocalNameOfElement(node)) && matches(cs.getSimpleSelector(), node.getParent());
-				} else if (node instanceof Comment) {
+				} else if (node instanceof IComment) {
 					final AttributeCondition ac = (AttributeCondition) cs.getCondition();
 					return COMMENT_RULE_NAME.equals(ac.getValue()) && matches(cs.getSimpleSelector(), node.getParent());
 				} else {
@@ -150,7 +150,7 @@ public class Rule {
 			return true;
 
 		case Selector.SAC_ROOT_NODE_SELECTOR:
-			return node.getParent() instanceof Document;
+			return node.getParent() instanceof IDocument;
 
 		case Selector.SAC_NEGATIVE_SELECTOR:
 			break; // not yet supported
@@ -192,7 +192,7 @@ public class Rule {
 
 		case Selector.SAC_CHILD_SELECTOR:
 			final DescendantSelector ds2 = (DescendantSelector) selector;
-			final Parent parent = node.getParent();
+			final IParent parent = node.getParent();
 			return matches(ds2.getSimpleSelector(), node) && matches(ds2.getAncestorSelector(), parent);
 
 		case Selector.SAC_DIRECT_ADJACENT_SELECTOR:
@@ -202,9 +202,9 @@ public class Rule {
 			if (node != null && node.getParent() != null && matches(ss.getSiblingSelector(), node)) {
 
 				// find next sibling
-				final Iterator<Node> i = node.getParent().children().iterator();
-				Node e = null;
-				Node f = null;
+				final Iterator<INode> i = node.getParent().children().iterator();
+				INode e = null;
+				INode f = null;
 				while (i.hasNext() && e != node) {
 					f = e;
 					e = i.next();
@@ -223,10 +223,10 @@ public class Rule {
 		return false;
 	}
 
-	private static String getLocalNameOfElement(final Node node) {
+	private static String getLocalNameOfElement(final INode node) {
 		return node.accept(new BaseNodeVisitorWithResult<String>("") {
 			@Override
-			public String visit(final Element element) {
+			public String visit(final IElement element) {
 				return element.getLocalName();
 			}
 		});
@@ -235,8 +235,8 @@ public class Rule {
 	/**
 	 * Returns true if some ancestor of the given element matches the given selector.
 	 */
-	private static boolean matchesAncestor(final Selector selector, final Node node) {
-		for (final Node ancestor : node.ancestors()) {
+	private static boolean matchesAncestor(final Selector selector, final INode node) {
+		for (final INode ancestor : node.ancestors()) {
 			if (matches(selector, ancestor)) {
 				return true;
 			}
@@ -244,7 +244,7 @@ public class Rule {
 		return false;
 	}
 
-	private static boolean matchesCondition(final Condition condition, final Node node) {
+	private static boolean matchesCondition(final Condition condition, final INode node) {
 
 		AttributeCondition attributeCondition;
 		String attributeName;
@@ -297,10 +297,10 @@ public class Rule {
 		return false;
 	}
 
-	private static String getAttributeValue(final Node node, final String localName) {
+	private static String getAttributeValue(final INode node, final String localName) {
 		return node.accept(new BaseNodeVisitorWithResult<String>() {
 			@Override
-			public String visit(final Element element) {
+			public String visit(final IElement element) {
 				return element.getAttributeValue(localName);
 			}
 		});

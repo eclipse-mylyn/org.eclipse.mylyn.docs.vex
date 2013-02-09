@@ -19,6 +19,9 @@ import java.util.List;
 
 import org.eclipse.core.runtime.AssertionFailedException;
 import org.eclipse.core.runtime.QualifiedName;
+import org.eclipse.vex.core.dom.DocumentValidationException;
+import org.eclipse.vex.core.dom.IContent;
+import org.eclipse.vex.core.dom.ContentRange;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -59,7 +62,7 @@ public class L1ElementHandlingTest {
 
 	@Test
 	public void insertElementAtValidInsertionPoint() throws Exception {
-		final Content content = document.getContent();
+		final IContent content = document.getContent();
 		final int contentLengthBefore = content.length();
 		final Element newElement = document.insertElement(rootElement.getEndOffset(), VALID_CHILD);
 		assertEquals("validChild", newElement.getLocalName());

@@ -10,26 +10,28 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.dom;
 
+import org.eclipse.vex.core.dom.IComment;
+import org.eclipse.vex.core.dom.INode;
+import org.eclipse.vex.core.dom.INodeVisitor;
+import org.eclipse.vex.core.dom.INodeVisitorWithResult;
+
 /**
  * A representation of an XML comment in the DOM. Comments have textual content, a start and an end tag.
  * 
  * @author Florian Thienel
  */
-public class Comment extends Node {
+public class Comment extends Node implements IComment {
 
-	@Override
 	public void accept(final INodeVisitor visitor) {
 		visitor.visit(this);
 	}
 
-	@Override
 	public <T> T accept(final INodeVisitorWithResult<T> visitor) {
 		return visitor.visit(this);
 	}
 
-	@Override
-	public boolean isKindOf(final Node node) {
-		if (!(node instanceof Comment)) {
+	public boolean isKindOf(final INode node) {
+		if (!(node instanceof IComment)) {
 			return false;
 		}
 		return true;

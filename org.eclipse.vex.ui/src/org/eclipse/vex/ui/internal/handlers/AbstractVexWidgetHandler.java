@@ -19,7 +19,7 @@ import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.menus.UIElement;
 import org.eclipse.ui.services.IServiceScopes;
-import org.eclipse.vex.core.internal.dom.Element;
+import org.eclipse.vex.core.dom.IElement;
 import org.eclipse.vex.ui.internal.editor.Messages;
 import org.eclipse.vex.ui.internal.swt.VexWidget;
 
@@ -60,7 +60,7 @@ public abstract class AbstractVexWidgetHandler extends AbstractHandler implement
 			return;
 		}
 
-		final Element currentElement = widget.getCurrentElement();
+		final IElement currentElement = widget.getCurrentElement();
 		final String name;
 		if (currentElement != null) {
 			name = currentElement.getPrefixedName();

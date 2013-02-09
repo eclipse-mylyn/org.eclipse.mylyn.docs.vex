@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 Florian Thienel and others.
+ * Copyright (c) 2012, 2013 Florian Thienel and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,7 +8,7 @@
  * Contributors:
  * 		Florian Thienel - initial API and implementation
  *******************************************************************************/
-package org.eclipse.vex.core.internal.dom;
+package org.eclipse.vex.core.dom;
 
 /**
  * This class provides default implementations for the methods defined by the <code>INodeVisitorWithResult</code>
@@ -30,23 +30,23 @@ public class BaseNodeVisitorWithResult<T> implements INodeVisitorWithResult<T> {
 		this.defaultValue = defaultValue;
 	}
 
-	public T visit(final Document document) {
+	public T visit(final IDocument document) {
 		return defaultValue;
 	}
 
-	public T visit(final DocumentFragment fragment) {
+	public T visit(final IDocumentFragment fragment) {
 		return defaultValue;
 	}
 
-	public T visit(final Element element) {
+	public T visit(final IElement element) {
 		return defaultValue;
 	}
 
-	public T visit(final Text text) {
+	public T visit(final IText text) {
 		return defaultValue;
 	}
 
-	public T visit(final Comment comment) {
+	public T visit(final IComment comment) {
 		return defaultValue;
 	}
 }

@@ -10,19 +10,19 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.layout;
 
+import org.eclipse.vex.core.dom.IDocument;
+import org.eclipse.vex.core.dom.INode;
 import org.eclipse.vex.core.internal.VEXCorePlugin;
 import org.eclipse.vex.core.internal.core.Caret;
 import org.eclipse.vex.core.internal.core.Insets;
 import org.eclipse.vex.core.internal.core.Rectangle;
-import org.eclipse.vex.core.internal.dom.Document;
-import org.eclipse.vex.core.internal.dom.Node;
 
 /**
  * A wrapper for the top level <code>BlockElementBox</code> that applies its margins.
  */
 public class RootBox extends AbstractBox implements BlockBox {
 
-	private final Document document;
+	private final IDocument document;
 	private final BlockElementBox childBox;
 	private final Box[] children = new Box[1];
 
@@ -36,7 +36,7 @@ public class RootBox extends AbstractBox implements BlockBox {
 	 * @param width
 	 *            width of this box
 	 */
-	public RootBox(final LayoutContext context, final Document document, final int width) {
+	public RootBox(final LayoutContext context, final IDocument document, final int width) {
 		this.document = document;
 		setWidth(width);
 
@@ -68,7 +68,7 @@ public class RootBox extends AbstractBox implements BlockBox {
 	 * @see org.eclipse.vex.core.internal.layout.Box#getNode()
 	 */
 	@Override
-	public Node getNode() {
+	public INode getNode() {
 		return document;
 	}
 

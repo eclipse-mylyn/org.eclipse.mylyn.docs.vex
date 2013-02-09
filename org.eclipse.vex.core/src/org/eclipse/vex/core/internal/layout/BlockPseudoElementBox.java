@@ -13,23 +13,25 @@ package org.eclipse.vex.core.internal.layout;
 
 import java.util.List;
 
+import org.eclipse.vex.core.dom.INode;
+import org.eclipse.vex.core.internal.css.PseudoElement;
 import org.eclipse.vex.core.internal.css.Styles;
-import org.eclipse.vex.core.internal.dom.Element;
-import org.eclipse.vex.core.internal.dom.Node;
 
 /**
  * Implements a Block
+ * 
+ * XXX REMOVE THIS HACK!!!
  */
 public class BlockPseudoElementBox extends AbstractBox implements BlockBox {
 
-	private final Element pseudoElement;
+	private final PseudoElement pseudoElement;
 	private final BlockBox parent;
 	private final ParagraphBox para;
 
 	private final int marginTop;
 	private final int marginBottom;
 
-	public BlockPseudoElementBox(final LayoutContext context, final Element pseudoElement, final BlockBox parent, final int width) {
+	public BlockPseudoElementBox(final LayoutContext context, final PseudoElement pseudoElement, final BlockBox parent, final int width) {
 
 		this.pseudoElement = pseudoElement;
 		this.parent = parent;
@@ -66,7 +68,7 @@ public class BlockPseudoElementBox extends AbstractBox implements BlockBox {
 	 * @see org.eclipse.vex.core.internal.layout.Box#getNode()
 	 */
 	@Override
-	public Node getNode() {
+	public INode getNode() {
 		return pseudoElement;
 	}
 

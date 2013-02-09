@@ -9,7 +9,7 @@
  *     John Krasnay - initial API and implementation
  *     Florian Thienel - a NULL object
  *******************************************************************************/
-package org.eclipse.vex.core.internal.dom;
+package org.eclipse.vex.core.internal.io;
 
 /**
  * Factory for returning a WhitespacePolicy object given a document type public ID. This is required by DocumentBuilder,

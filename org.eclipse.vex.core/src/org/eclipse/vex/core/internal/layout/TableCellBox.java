@@ -13,8 +13,8 @@ package org.eclipse.vex.core.internal.layout;
 
 import java.util.List;
 
+import org.eclipse.vex.core.dom.IElement;
 import org.eclipse.vex.core.internal.css.Styles;
-import org.eclipse.vex.core.internal.dom.Element;
 
 /**
  * Represents an element with display:table-cell, or a generated, anonymous table cell.
@@ -31,7 +31,7 @@ public class TableCellBox extends AbstractBlockBox {
 	 * @param element
 	 *            Element with which this box is associated.
 	 */
-	public TableCellBox(final LayoutContext context, final BlockBox parent, final Element element, final int width) {
+	public TableCellBox(final LayoutContext context, final BlockBox parent, final IElement element, final int width) {
 		super(context, parent, element);
 		final Styles styles = context.getStyleSheet().getStyles(element);
 		setWidth(width - styles.getBorderLeftWidth() - styles.getPaddingLeft().get(parent.getWidth()) - styles.getPaddingRight().get(parent.getWidth()) - styles.getBorderRightWidth());

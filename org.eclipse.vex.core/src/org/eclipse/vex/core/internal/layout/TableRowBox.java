@@ -14,17 +14,17 @@ package org.eclipse.vex.core.internal.layout;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.vex.core.dom.IElement;
+import org.eclipse.vex.core.dom.IParent;
 import org.eclipse.vex.core.internal.core.Caret;
 import org.eclipse.vex.core.internal.core.Insets;
-import org.eclipse.vex.core.internal.dom.Element;
-import org.eclipse.vex.core.internal.dom.Parent;
 
 /**
  * Box representing a row in a table.
  */
 public class TableRowBox extends AbstractBlockBox {
 
-	public TableRowBox(final LayoutContext context, final TableRowGroupBox parent, final Element element) {
+	public TableRowBox(final LayoutContext context, final TableRowGroupBox parent, final IElement element) {
 		super(context, parent, element);
 	}
 
@@ -37,17 +37,17 @@ public class TableRowBox extends AbstractBlockBox {
 
 		final List<Box> children = new ArrayList<Box>();
 
-		final Parent parent = findContainingParent();
+		final IParent parent = findContainingParent();
 		final int[] widths = getTableBox().getColumnWidths();
 
 		LayoutUtils.iterateTableCells(context.getStyleSheet(), parent, getStartOffset(), getEndOffset(), new ElementOrRangeCallback() {
 			private int column = 0;
 
-			public void onElement(final Element child, final String displayStyle) {
+			public void onElement(final IElement child, final String displayStyle) {
 				children.add(new TableCellBox(context, TableRowBox.this, child, widths[column++]));
 			}
 
-			public void onRange(final Parent parent, final int startOffset, final int endOffset) {
+			public void onRange(final IParent parent, final int startOffset, final int endOffset) {
 				children.add(new TableCellBox(context, TableRowBox.this, startOffset, endOffset, widths[column++]));
 			}
 		});

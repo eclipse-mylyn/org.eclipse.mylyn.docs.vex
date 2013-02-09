@@ -25,7 +25,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.vex.core.internal.dom.Validator;
+import org.eclipse.vex.core.dom.IValidator;
 import org.eclipse.vex.ui.internal.VexPlugin;
 import org.eclipse.vex.ui.internal.config.DocumentType;
 
@@ -180,7 +180,7 @@ public class DocumentTypeSelectionPage extends WizardPage {
 	}
 
 	private static String[] getPossibleRootElements(final DocumentType documentType) {
-		final Validator validator = documentType.getValidator();
+		final IValidator validator = documentType.getValidator();
 		if (validator == null) {
 			return new String[0];
 		}

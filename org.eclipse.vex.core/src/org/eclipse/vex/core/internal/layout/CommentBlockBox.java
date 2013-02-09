@@ -13,8 +13,8 @@ package org.eclipse.vex.core.internal.layout;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.vex.core.dom.INode;
 import org.eclipse.vex.core.internal.VEXCorePlugin;
-import org.eclipse.vex.core.internal.dom.Node;
 
 /**
  * @author Florian Thienel
@@ -24,7 +24,7 @@ public class CommentBlockBox extends BlockElementBox {
 	private static final String AFTER_TEXT = "-->";
 	private static final String BEFORE_TEXT = "<!--";
 
-	public CommentBlockBox(final LayoutContext context, final BlockBox parent, final Node node) {
+	public CommentBlockBox(final LayoutContext context, final BlockBox parent, final INode node) {
 		super(context, parent, node);
 	}
 
@@ -40,7 +40,7 @@ public class CommentBlockBox extends BlockElementBox {
 			start = System.currentTimeMillis();
 		}
 
-		final Node node = getNode();
+		final INode node = getNode();
 		final int width = getWidth();
 
 		final List<Box> result = new ArrayList<Box>();

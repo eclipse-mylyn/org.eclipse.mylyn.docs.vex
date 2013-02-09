@@ -10,10 +10,10 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.widget;
 
+import org.eclipse.vex.core.dom.INode;
 import org.eclipse.vex.core.internal.css.CSS;
 import org.eclipse.vex.core.internal.css.StyleSheet;
-import org.eclipse.vex.core.internal.dom.IWhitespacePolicy;
-import org.eclipse.vex.core.internal.dom.Node;
+import org.eclipse.vex.core.internal.io.IWhitespacePolicy;
 
 /**
  * Implementation of WhitespacePolicy using a CSS stylesheet.
@@ -30,11 +30,11 @@ public class CssWhitespacePolicy implements IWhitespacePolicy {
 		this.styleSheet = styleSheet;
 	}
 
-	public boolean isBlock(final Node node) {
+	public boolean isBlock(final INode node) {
 		return styleSheet.getStyles(node).isBlock();
 	}
 
-	public boolean isPre(final Node node) {
+	public boolean isPre(final INode node) {
 		return CSS.PRE.equals(styleSheet.getStyles(node).getWhiteSpace());
 	}
 

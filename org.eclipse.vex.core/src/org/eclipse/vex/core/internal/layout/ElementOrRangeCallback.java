@@ -10,11 +10,11 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.layout;
 
-import org.eclipse.vex.core.internal.dom.Element;
-import org.eclipse.vex.core.internal.dom.Parent;
+import org.eclipse.vex.core.dom.IElement;
+import org.eclipse.vex.core.dom.IParent;
 
 public interface ElementOrRangeCallback {
-	public void onElement(Element child, String displayStyle);
+	public void onElement(IElement child, String displayStyle);
 
-	public void onRange(Parent parent, int startOffset, int endOffset);
+	public void onRange(IParent parent, int startOffset, int endOffset);
 }

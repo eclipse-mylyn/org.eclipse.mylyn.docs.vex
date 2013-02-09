@@ -10,11 +10,11 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.layout;
 
+import org.eclipse.vex.core.dom.INode;
 import org.eclipse.vex.core.internal.core.ColorResource;
 import org.eclipse.vex.core.internal.core.FontResource;
 import org.eclipse.vex.core.internal.core.Graphics;
 import org.eclipse.vex.core.internal.css.Styles;
-import org.eclipse.vex.core.internal.dom.Node;
 
 /**
  * A TextBox representing a static string. Represents text which is not editable within the VexWidget, such as
@@ -39,7 +39,7 @@ public class StaticTextBox extends TextBox {
 	 * @param text
 	 *            Static text to display
 	 */
-	public StaticTextBox(final LayoutContext context, final Node node, final String text) {
+	public StaticTextBox(final LayoutContext context, final INode node, final String text) {
 		this(context, node, text, NO_MARKER);
 		if (text.length() == 0) {
 			throw new IllegalArgumentException("StaticTextBox cannot have an empty text string.");
@@ -61,7 +61,7 @@ public class StaticTextBox extends TextBox {
 	 *            START_MARKER or END_MARKER, depending on whether the text represents the start sentinel or the end
 	 *            sentinel of the element
 	 */
-	public StaticTextBox(final LayoutContext context, final Node node, final String text, final byte marker) {
+	public StaticTextBox(final LayoutContext context, final INode node, final String text, final byte marker) {
 		super(node);
 		this.text = text;
 		this.marker = marker;

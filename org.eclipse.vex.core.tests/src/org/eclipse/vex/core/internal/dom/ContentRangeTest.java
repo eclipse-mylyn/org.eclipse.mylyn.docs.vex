@@ -15,12 +15,10 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import org.eclipse.core.runtime.AssertionFailedException;
+import org.eclipse.vex.core.dom.ContentRange;
 import org.junit.Test;
 
-/**
- * @author Florian Thienel
- */
-public class RangeTest {
+public class ContentRangeTest {
 
 	@Test
 	public void hasStartAndEndOffset() throws Exception {

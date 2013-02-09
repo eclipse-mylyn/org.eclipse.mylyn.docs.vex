@@ -9,12 +9,12 @@
  *     John Krasnay - initial API and implementation
  *     Florian Thienel - refactoring to full fledged DOM
  *******************************************************************************/
-package org.eclipse.vex.core.internal.dom;
+package org.eclipse.vex.core.dom;
 
 /**
  * Interface for classes that manage a string of characters representing the textual content of a document.
  */
-public interface Content extends CharSequence {
+public interface IContent extends CharSequence {
 
 	/**
 	 * Create a new Position object at the given initial offset.
@@ -22,7 +22,7 @@ public interface Content extends CharSequence {
 	 * @param offset
 	 *            initial offset of the position
 	 */
-	public Position createPosition(int offset);
+	IPosition createPosition(int offset);
 
 	/**
 	 * Remove the given Position from the list of positions. A removed position is not updated anymore when this content
@@ -31,7 +31,7 @@ public interface Content extends CharSequence {
 	 * @param position
 	 *            the position to remove
 	 */
-	public void removePosition(Position position);
+	void removePosition(IPosition position);
 
 	/**
 	 * Insert the given text at the given offset into this content.
@@ -41,7 +41,7 @@ public interface Content extends CharSequence {
 	 * @param text
 	 *            the text to insert
 	 */
-	public void insertText(int offset, String text);
+	void insertText(int offset, String text);
 
 	/**
 	 * Get the plain text of a range in this content. The plain text does not contain any tag markers in this content.
@@ -52,14 +52,14 @@ public interface Content extends CharSequence {
 	 *            the range of the text to return
 	 * @return the plain text of the given range, not including tag markers
 	 */
-	public String getText(final ContentRange range);
+	String getText(final ContentRange range);
 
 	/**
 	 * Get the whole plain text of this content. The plain text does not contain any tag markers.
 	 * 
 	 * @return the whole plain text, not including tag markers
 	 */
-	public String getText();
+	String getText();
 
 	/**
 	 * Get the raw text of a range in this content. The plain text does also contain the tag markers in this content.
@@ -68,14 +68,14 @@ public interface Content extends CharSequence {
 	 *            the range of the text to return
 	 * @return the text of the given range, including element markers
 	 */
-	public String getRawText(final ContentRange range);
+	String getRawText(final ContentRange range);
 
 	/**
 	 * Get the whole raw text of this content. The raw text does also contain the tag markers in this content.
 	 * 
 	 * @return the whole text, including tag markers
 	 */
-	public String getRawText();
+	String getRawText();
 
 	/**
 	 * Insert the given content into this content at the given offset.
@@ -85,7 +85,7 @@ public interface Content extends CharSequence {
 	 * @param content
 	 *            content to insert
 	 */
-	public void insertContent(final int offset, final Content content);
+	void insertContent(final int offset, final IContent content);
 
 	/**
 	 * Get a copy of a range in this content.
@@ -94,12 +94,12 @@ public interface Content extends CharSequence {
 	 *            the range to copy
 	 * @return the copy of the given range
 	 */
-	public Content getContent(final ContentRange range);
+	IContent getContent(final ContentRange range);
 
 	/**
 	 * @return a full copy of this content
 	 */
-	public Content getContent();
+	IContent getContent();
 
 	/**
 	 * Insert a tag marker at the given offset into this content.
@@ -107,7 +107,7 @@ public interface Content extends CharSequence {
 	 * @param offset
 	 *            offset at which to insert the tag marker.
 	 */
-	public void insertTagMarker(int offset);
+	void insertTagMarker(int offset);
 
 	/**
 	 * Indicate if there is a tag marker at the given offset.
@@ -115,7 +115,7 @@ public interface Content extends CharSequence {
 	 * @param offset
 	 *            offset at which to check if a tag marker is present.
 	 */
-	public boolean isTagMarker(int offset);
+	boolean isTagMarker(int offset);
 
 	/**
 	 * Delete the given range of characters.
@@ -123,15 +123,15 @@ public interface Content extends CharSequence {
 	 * @param range
 	 *            the range to delete from this content
 	 */
-	public void remove(ContentRange range);
+	void remove(ContentRange range);
 
 	/**
 	 * @return the length of the content including tag markers
 	 */
-	public int length();
+	int length();
 
 	/**
 	 * @return the range of this content = [0, length - 1].
 	 */
-	public ContentRange getRange();
+	ContentRange getRange();
 }

@@ -16,6 +16,9 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 import org.eclipse.core.runtime.Assert;
+import org.eclipse.vex.core.dom.IContent;
+import org.eclipse.vex.core.dom.ContentRange;
+import org.eclipse.vex.core.dom.IPosition;
 
 /**
  * Implementation of the <code>Content</code> interface that manages changes efficiently. Implements a buffer that keeps
@@ -23,7 +26,7 @@ import org.eclipse.core.runtime.Assert;
  * chars to be moved so long as the insertion is smaller than the gap. Deletions that end of the gap are also very
  * efficent. Furthermore, changes near the gap require relatively few characters to be moved.
  */
-public class GapContent implements Content {
+public class GapContent implements IContent {
 
 	private static final int GROWTH_SLOWDOWN_SIZE = 100000;
 	private static final int GROWTH_RATE_FAST = 2;
@@ -50,7 +53,7 @@ public class GapContent implements Content {
 		gapEnd = initialCapacity;
 	}
 
-	public Position createPosition(final int offset) {
+	public IPosition createPosition(final int offset) {
 
 		assertOffset(offset, 0, length());
 
@@ -65,7 +68,7 @@ public class GapContent implements Content {
 		return newPosition;
 	}
 
-	public void removePosition(final Position position) {
+	public void removePosition(final IPosition position) {
 		if (positions.contains(position)) {
 			/*
 			 * This cast is save: if the position can be removed, this instance must have created it, hence it is a
@@ -211,17 +214,17 @@ public class GapContent implements Content {
 		stringBuilder.append(content, range.getStartOffset(), range.length());
 	}
 
-	public void insertContent(final int offset, final Content content) {
+	public void insertContent(final int offset, final IContent content) {
 		assertOffset(offset, 0, length());
 
 		copyContent(content, this, content.getRange(), offset);
 	}
 
-	public Content getContent() {
+	public IContent getContent() {
 		return getContent(getRange());
 	}
 
-	public Content getContent(final ContentRange range) {
+	public IContent getContent(final ContentRange range) {
 		Assert.isTrue(getRange().contains(range));
 
 		final GapContent result = new GapContent(range.length());
@@ -229,7 +232,7 @@ public class GapContent implements Content {
 		return result;
 	}
 
-	private static void copyContent(final Content source, final Content destination, final ContentRange sourceRange, final int destinationStartOffset) {
+	private static void copyContent(final IContent source, final IContent destination, final ContentRange sourceRange, final int destinationStartOffset) {
 		for (int i = 0; i < sourceRange.length(); i++) {
 			final int sourceOffset = sourceRange.getStartOffset() + i;
 			final int destinationOffset = destinationStartOffset + i;
@@ -284,7 +287,7 @@ public class GapContent implements Content {
 	/*
 	 * Implementation of the Position interface.
 	 */
-	private static class GapContentPosition implements Position, Comparable<Position> {
+	private static class GapContentPosition implements IPosition, Comparable<IPosition> {
 
 		private int offset;
 
@@ -345,7 +348,7 @@ public class GapContent implements Content {
 			return Integer.toString(offset);
 		}
 
-		public int compareTo(final Position other) {
+		public int compareTo(final IPosition other) {
 			return offset - other.getOffset();
 		}
 	}

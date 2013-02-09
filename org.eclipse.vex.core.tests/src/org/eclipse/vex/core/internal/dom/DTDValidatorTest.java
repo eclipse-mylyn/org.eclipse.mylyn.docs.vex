@@ -23,6 +23,9 @@ import java.util.List;
 import java.util.Set;
 
 import org.eclipse.core.runtime.QualifiedName;
+import org.eclipse.vex.core.dom.IDocument;
+import org.eclipse.vex.core.dom.IElement;
+import org.eclipse.vex.core.dom.IValidator;
 import org.eclipse.vex.core.internal.validator.AttributeDefinition;
 import org.eclipse.vex.core.internal.validator.WTPVEXValidator;
 import org.eclipse.vex.core.tests.TestResources;
@@ -31,7 +34,7 @@ import org.junit.Test;
 
 public class DTDValidatorTest {
 
-	private Validator validator = null;
+	private IValidator validator = null;
 
 	@Before
 	public void setUp() {
@@ -44,9 +47,9 @@ public class DTDValidatorTest {
 
 	@Test
 	public void testAttributeDefinition() throws Exception {
-		final Document doc = new Document(new QualifiedName(null, "section"));
+		final IDocument doc = new Document(new QualifiedName(null, "section"));
 		doc.setValidator(validator);
-		final Element sectionElement = doc.getRootElement();
+		final IElement sectionElement = doc.getRootElement();
 		final AttributeDefinition.Type adType = validator.getAttributeDefinitions(sectionElement).get(0).getType();
 		final AttributeDefinition.Type adType2 = validator.getAttributeDefinitions(sectionElement).get(0).getType();
 
@@ -55,9 +58,9 @@ public class DTDValidatorTest {
 
 	@Test
 	public void testEnumAttribute() throws Exception {
-		final Document doc = new Document(new QualifiedName(null, "section"));
+		final IDocument doc = new Document(new QualifiedName(null, "section"));
 		doc.setValidator(validator);
-		final Element sectionElement = doc.getRootElement();
+		final IElement sectionElement = doc.getRootElement();
 		final AttributeDefinition attributeDefinition = validator.getAttributeDefinitions(sectionElement).get(0);
 		assertEquals("enatt", attributeDefinition.getName());
 
@@ -96,7 +99,7 @@ public class DTDValidatorTest {
 	public void testSectionElement() {
 		// <section> <title> a b </title> <para> </para> </section>
 		// 1 2 3 4 5 6 7
-		final Document doc = new Document(new QualifiedName(null, "section"));
+		final IDocument doc = new Document(new QualifiedName(null, "section"));
 		doc.setValidator(validator);
 		doc.insertElement(2, new QualifiedName(null, "title"));
 		doc.insertText(3, "ab");
@@ -115,18 +118,18 @@ public class DTDValidatorTest {
 
 	@Test
 	public void testOneKindOfChild() {
-		final Document doc = new Document(new QualifiedName(null, "one-kind-of-child"));
+		final IDocument doc = new Document(new QualifiedName(null, "one-kind-of-child"));
 		doc.setValidator(validator);
 		assertValidItemsAt(doc, 2, "section");
 	}
 
-	private static void assertValidItemsAt(final Document doc, final int offset, final String... expectedItems) {
+	private static void assertValidItemsAt(final IDocument doc, final int offset, final String... expectedItems) {
 		final Set<QualifiedName> expected = new HashSet<QualifiedName>(expectedItems.length);
 		for (final String expectedItem : expectedItems) {
 			expected.add(new QualifiedName(null, expectedItem));
 		}
 
-		Element element = doc.getElementForInsertionAt(offset);
+		IElement element = doc.getElementForInsertionAt(offset);
 		if (element == null) {
 			assertEquals(0, expectedItems.length);
 			return;
@@ -172,7 +175,7 @@ public class DTDValidatorTest {
 
 	@Test
 	public void testValidateDocumentWithDTDAndNamespaces() throws Exception {
-		final Document doc = new Document(new QualifiedName("http://namespace/uri/is/not/registered", "section"));
+		final IDocument doc = new Document(new QualifiedName("http://namespace/uri/is/not/registered", "section"));
 		doc.setValidator(validator);
 		doc.insertElement(2, new QualifiedName(null, "title"));
 		doc.insertText(3, "ab");

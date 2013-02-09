@@ -15,11 +15,11 @@ import java.io.StringReader;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.vex.core.dom.BaseNodeVisitorWithResult;
+import org.eclipse.vex.core.dom.IElement;
+import org.eclipse.vex.core.dom.INode;
 import org.eclipse.vex.core.internal.VEXCorePlugin;
 import org.eclipse.vex.core.internal.core.DisplayDevice;
-import org.eclipse.vex.core.internal.dom.BaseNodeVisitorWithResult;
-import org.eclipse.vex.core.internal.dom.Element;
-import org.eclipse.vex.core.internal.dom.Node;
 import org.w3c.css.sac.CSSException;
 import org.w3c.css.sac.InputSource;
 import org.w3c.css.sac.LexicalUnit;
@@ -37,12 +37,12 @@ public class LengthProperty extends AbstractProperty {
 		this.axis = axis;
 	}
 
-	public Object calculate(final LexicalUnit lu, final Styles parentStyles, final Styles styles, final Node node) {
+	public Object calculate(final LexicalUnit lu, final Styles parentStyles, final Styles styles, final INode node) {
 		final int ppi = getPpi();
 		if (isAttr(lu)) {
 			return node.accept(new BaseNodeVisitorWithResult<Object>(RelativeLength.createAbsolute(0)) {
 				@Override
-				public Object visit(final Element element) {
+				public Object visit(final IElement element) {
 					return calculate(parseAttribute(lu, element), parentStyles, styles, element);
 				}
 			});
@@ -64,7 +64,7 @@ public class LengthProperty extends AbstractProperty {
 		return lexicalUnit != null && lexicalUnit.getLexicalUnitType() == LexicalUnit.SAC_ATTR;
 	}
 
-	private static LexicalUnit parseAttribute(final LexicalUnit lexicalUnit, final Element element) {
+	private static LexicalUnit parseAttribute(final LexicalUnit lexicalUnit, final IElement element) {
 		final String attributeName = lexicalUnit.getStringValue();
 		final String attributeValue = element.getAttributeValue(attributeName);
 		if (attributeValue == null) {

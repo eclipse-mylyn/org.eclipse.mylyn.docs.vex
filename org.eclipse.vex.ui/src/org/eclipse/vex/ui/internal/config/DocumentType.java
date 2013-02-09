@@ -11,7 +11,7 @@
  *******************************************************************************/
 package org.eclipse.vex.ui.internal.config;
 
-import org.eclipse.vex.core.internal.dom.Validator;
+import org.eclipse.vex.core.dom.IValidator;
 
 /**
  * A registered document type.
@@ -83,8 +83,8 @@ public class DocumentType extends ConfigItem {
 		this.systemId = systemId;
 	}
 
-	public Validator getValidator() {
-		return (Validator) getConfig().getParsedResource(getResourceUri());
+	public IValidator getValidator() {
+		return (IValidator) getConfig().getParsedResource(getResourceUri());
 	}
 
 	@Override

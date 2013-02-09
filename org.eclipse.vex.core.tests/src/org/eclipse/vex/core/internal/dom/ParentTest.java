@@ -11,6 +11,12 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.core.runtime.AssertionFailedException;
+import org.eclipse.vex.core.dom.BaseNodeVisitor;
+import org.eclipse.vex.core.dom.ContentRange;
+import org.eclipse.vex.core.dom.INode;
+import org.eclipse.vex.core.dom.INodeVisitor;
+import org.eclipse.vex.core.dom.INodeVisitorWithResult;
+import org.eclipse.vex.core.dom.IText;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -74,7 +80,7 @@ public class ParentTest {
 
 		parent.removeChild(secondChild);
 		assertTrue(parent.hasChildren());
-		for (final Node child : parent.children()) {
+		for (final INode child : parent.children()) {
 			assertTrue(child != secondChild);
 		}
 	}
@@ -127,7 +133,7 @@ public class ParentTest {
 		addTestChild();
 		addTestChild();
 		addTestChild();
-		final Iterator<Node> iterator = parent.children().iterator();
+		final Iterator<INode> iterator = parent.children().iterator();
 		iterator.next();
 		iterator.remove();
 	}
@@ -139,10 +145,10 @@ public class ParentTest {
 		content.insertText(child.getStartOffset(), "Hello ");
 		content.insertText(parent.getEndOffset(), "World");
 
-		final Iterator<Node> children = parent.children().iterator();
-		assertTrue(children.next() instanceof Text);
+		final Iterator<INode> children = parent.children().iterator();
+		assertTrue(children.next() instanceof IText);
 		assertSame(child, children.next());
-		assertTrue(children.next() instanceof Text);
+		assertTrue(children.next() instanceof IText);
 		assertFalse(children.hasNext());
 	}
 
@@ -155,7 +161,7 @@ public class ParentTest {
 		assertEquals(1, child.getStartOffset());
 		assertEquals(2, child.getEndOffset());
 
-		final Iterator<Node> children = parent.children().iterator();
+		final Iterator<INode> children = parent.children().iterator();
 		assertSame(child, children.next());
 		assertFalse(children.hasNext());
 	}
@@ -167,7 +173,7 @@ public class ParentTest {
 		final TestChild child3 = addTestChild();
 		addTestChild();
 
-		final Iterator<Node> children = parent.children().in(new ContentRange(child2.getStartOffset(), child3.getEndOffset())).iterator();
+		final Iterator<? extends INode> children = parent.children().in(new ContentRange(child2.getStartOffset(), child3.getEndOffset())).iterator();
 		assertSame(child2, children.next());
 		assertSame(child3, children.next());
 		assertFalse(children.hasNext());
@@ -181,7 +187,7 @@ public class ParentTest {
 		content.insertText(child1.getStartOffset(), "Hello");
 		content.insertText(child2.getStartOffset(), "World!");
 
-		final Iterator<Node> children = parent.children().in(child1.getRange().resizeBy(-2, 2)).iterator();
+		final Iterator<? extends INode> children = parent.children().in(child1.getRange().resizeBy(-2, 2)).iterator();
 		assertTextNodeEquals("lo", 4, 5, children.next());
 		assertChildNodeEquals("", 6, 7, children.next());
 		assertTextNodeEquals("Wo", 8, 9, children.next());
@@ -207,7 +213,7 @@ public class ParentTest {
 		}
 
 		int i = 0;
-		for (final Node actualChild : parent.children()) {
+		for (final INode actualChild : parent.children()) {
 			assertTrue(i < expectedChildren.size());
 			assertSame(expectedChildren.get(i++), actualChild);
 		}
@@ -220,7 +226,7 @@ public class ParentTest {
 			expectedChildren.add(addTestChild());
 		}
 
-		final Iterator<Node> actualChildren = parent.children().in(new ContentRange(expectedChildren.get(1).getStartOffset(), expectedChildren.get(3).getEndOffset())).iterator();
+		final Iterator<? extends INode> actualChildren = parent.children().in(new ContentRange(expectedChildren.get(1).getStartOffset(), expectedChildren.get(3).getEndOffset())).iterator();
 		assertSame(expectedChildren.get(1), actualChildren.next());
 		assertSame(expectedChildren.get(2), actualChildren.next());
 		assertSame(expectedChildren.get(3), actualChildren.next());
@@ -234,7 +240,7 @@ public class ParentTest {
 			expectedChildren.add(addTestChild());
 		}
 
-		final Iterator<Node> actualChildren = parent.children().in(new ContentRange(expectedChildren.get(1).getStartOffset(), expectedChildren.get(3).getStartOffset())).iterator();
+		final Iterator<? extends INode> actualChildren = parent.children().in(new ContentRange(expectedChildren.get(1).getStartOffset(), expectedChildren.get(3).getStartOffset())).iterator();
 		assertSame(expectedChildren.get(1), actualChildren.next());
 		assertSame(expectedChildren.get(2), actualChildren.next());
 		assertFalse(actualChildren.hasNext());
@@ -247,7 +253,7 @@ public class ParentTest {
 			expectedChildren.add(addTestChild());
 		}
 
-		final Iterator<Node> actualChildren = parent.children().in(new ContentRange(expectedChildren.get(1).getEndOffset(), expectedChildren.get(3).getStartOffset())).iterator();
+		final Iterator<? extends INode> actualChildren = parent.children().in(new ContentRange(expectedChildren.get(1).getEndOffset(), expectedChildren.get(3).getStartOffset())).iterator();
 		assertSame(expectedChildren.get(2), actualChildren.next());
 		assertFalse(actualChildren.hasNext());
 	}
@@ -259,7 +265,7 @@ public class ParentTest {
 			expectedChildren.add(addTestChild());
 		}
 
-		final Iterator<Node> actualChildren = parent.children().in(new ContentRange(expectedChildren.get(1).getEndOffset(), expectedChildren.get(3).getEndOffset())).iterator();
+		final Iterator<? extends INode> actualChildren = parent.children().in(new ContentRange(expectedChildren.get(1).getEndOffset(), expectedChildren.get(3).getEndOffset())).iterator();
 		assertSame(expectedChildren.get(2), actualChildren.next());
 		assertSame(expectedChildren.get(3), actualChildren.next());
 		assertFalse(actualChildren.hasNext());
@@ -275,7 +281,7 @@ public class ParentTest {
 		}
 
 		int i = 0;
-		for (final Node actualChild : parent.children()) {
+		for (final INode actualChild : parent.children()) {
 			assertSame(expectedChildren.get(i++), actualChild);
 		}
 	}
@@ -284,7 +290,7 @@ public class ParentTest {
 	public void shouldProvideSingleText() throws Exception {
 		content.insertText(parent.getEndOffset(), "Hello World");
 
-		final Iterator<Node> actualChildren = parent.children().iterator();
+		final Iterator<INode> actualChildren = parent.children().iterator();
 		assertTextNodeEquals("Hello World", 1, 11, actualChildren.next());
 		assertFalse(actualChildren.hasNext());
 	}
@@ -293,7 +299,7 @@ public class ParentTest {
 	public void shouldProvideSingleCharacterText() throws Exception {
 		content.insertText(parent.getEndOffset(), "x");
 
-		final Iterator<Node> actualChildren = parent.children().iterator();
+		final Iterator<INode> actualChildren = parent.children().iterator();
 		assertTextNodeEquals("x", 1, 1, actualChildren.next());
 		assertFalse(actualChildren.hasNext());
 	}
@@ -303,7 +309,7 @@ public class ParentTest {
 		content.insertText(parent.getEndOffset(), "Hello World");
 		addTestChild();
 
-		final Iterator<Node> actualChildren = parent.children().iterator();
+		final Iterator<INode> actualChildren = parent.children().iterator();
 		assertTextNodeEquals("Hello World", 1, 11, actualChildren.next());
 		assertChildNodeEquals("", 12, 13, actualChildren.next());
 		assertFalse(actualChildren.hasNext());
@@ -314,7 +320,7 @@ public class ParentTest {
 		content.insertText(parent.getEndOffset(), "x");
 		addTestChild();
 
-		final Iterator<Node> actualChildren = parent.children().iterator();
+		final Iterator<INode> actualChildren = parent.children().iterator();
 		assertTextNodeEquals("x", 1, 1, actualChildren.next());
 		assertChildNodeEquals("", 2, 3, actualChildren.next());
 		assertFalse(actualChildren.hasNext());
@@ -325,7 +331,7 @@ public class ParentTest {
 		addTestChild();
 		content.insertText(parent.getEndOffset(), "Hello World");
 
-		final Iterator<Node> actualChildren = parent.children().iterator();
+		final Iterator<INode> actualChildren = parent.children().iterator();
 		assertChildNodeEquals("", 1, 2, actualChildren.next());
 		assertTextNodeEquals("Hello World", 3, 13, actualChildren.next());
 		assertFalse(actualChildren.hasNext());
@@ -336,7 +342,7 @@ public class ParentTest {
 		addTestChild();
 		content.insertText(parent.getEndOffset(), "x");
 
-		final Iterator<Node> actualChildren = parent.children().iterator();
+		final Iterator<INode> actualChildren = parent.children().iterator();
 		assertChildNodeEquals("", 1, 2, actualChildren.next());
 		assertTextNodeEquals("x", 3, 3, actualChildren.next());
 		assertFalse(actualChildren.hasNext());
@@ -345,7 +351,7 @@ public class ParentTest {
 	@Test
 	public void shouldProvideAllChildNodesIncludingText() throws Exception {
 		setUpChildNodes();
-		final Iterator<Node> actualChildren = parent.children().iterator();
+		final Iterator<INode> actualChildren = parent.children().iterator();
 		assertTextNodeEquals("Hello ", 1, 6, actualChildren.next());
 		assertChildNodeEquals("Child1", 7, 14, actualChildren.next());
 		assertChildNodeEquals("Child2", 15, 22, actualChildren.next());
@@ -357,7 +363,7 @@ public class ParentTest {
 	public void shouldHandleSmallerStartOffset() throws Exception {
 		setUpChildNodes();
 		content.insertText(parent.getStartOffset(), "prefix");
-		final Iterator<Node> actualChildren = parent.children().in(parent.getRange().resizeBy(-2, 0)).iterator();
+		final Iterator<? extends INode> actualChildren = parent.children().in(parent.getRange().resizeBy(-2, 0)).iterator();
 		assertTextNodeEquals("Hello ", 7, 12, actualChildren.next());
 		assertChildNodeEquals("Child1", 13, 20, actualChildren.next());
 		assertChildNodeEquals("Child2", 21, 28, actualChildren.next());
@@ -368,7 +374,7 @@ public class ParentTest {
 	public void shouldHandleBiggerEndOffset() throws Exception {
 		setUpChildNodes();
 		content.insertText(parent.getEndOffset() + 1, "suffix");
-		final Iterator<Node> actualChildren = parent.children().iterator();
+		final Iterator<INode> actualChildren = parent.children().iterator();
 		assertTextNodeEquals("Hello ", 1, 6, actualChildren.next());
 		assertChildNodeEquals("Child1", 7, 14, actualChildren.next());
 		assertChildNodeEquals("Child2", 15, 22, actualChildren.next());
@@ -384,7 +390,7 @@ public class ParentTest {
 	@Test
 	public void shouldReturnTextWithinBoundaries() throws Exception {
 		content.insertText(parent.getEndOffset(), "Hello World");
-		final Node text = parent.children().first();
+		final INode text = parent.children().first();
 		assertTextNodeEquals("Hello World", text.getStartOffset(), text.getEndOffset(), parent.getChildAt(text.getStartOffset()));
 		assertTextNodeEquals("Hello World", text.getStartOffset(), text.getEndOffset(), parent.getChildAt(text.getStartOffset() + 1));
 		assertTextNodeEquals("Hello World", text.getStartOffset(), text.getEndOffset(), parent.getChildAt(text.getEndOffset() - 1));
@@ -400,7 +406,7 @@ public class ParentTest {
 		parent.addChild(child);
 		child.associate(content, new ContentRange(offset, offset + 1));
 		content.insertText(child.getEndOffset(), "Hello World");
-		final Node text = child.children().first();
+		final INode text = child.children().first();
 		assertTextNodeEquals("Hello World", text.getStartOffset(), text.getEndOffset(), parent.getChildAt(text.getStartOffset()));
 		assertTextNodeEquals("Hello World", text.getStartOffset(), text.getEndOffset(), parent.getChildAt(text.getStartOffset() + 1));
 		assertTextNodeEquals("Hello World", text.getStartOffset(), text.getEndOffset(), parent.getChildAt(text.getEndOffset() - 1));
@@ -426,12 +432,12 @@ public class ParentTest {
 		final TestChild child2 = addTestChild();
 		final TestChild child3 = addTestChild();
 
-		final Iterator<Node> childNodes12 = parent.children().before(child3.getStartOffset()).iterator();
+		final Iterator<? extends INode> childNodes12 = parent.children().before(child3.getStartOffset()).iterator();
 		assertSame(child1, childNodes12.next());
 		assertSame(child2, childNodes12.next());
 		assertFalse(childNodes12.hasNext());
 
-		final Iterator<Node> childNodes123 = parent.children().before(parent.getEndOffset()).iterator();
+		final Iterator<? extends INode> childNodes123 = parent.children().before(parent.getEndOffset()).iterator();
 		assertSame(child1, childNodes123.next());
 		assertSame(child2, childNodes123.next());
 		assertSame(child3, childNodes123.next());
@@ -447,7 +453,7 @@ public class ParentTest {
 		final TestChild child3 = addTestChild();
 		content.insertText(child3.getEndOffset(), "Hello World");
 
-		final Iterator<Node> childNodes12 = parent.children().before(child3.getStartOffset() + 5).iterator();
+		final Iterator<? extends INode> childNodes12 = parent.children().before(child3.getStartOffset() + 5).iterator();
 		assertSame(child1, childNodes12.next());
 		assertSame(child2, childNodes12.next());
 		assertFalse(childNodes12.hasNext());
@@ -459,12 +465,12 @@ public class ParentTest {
 		final TestChild child2 = addTestChild();
 		final TestChild child3 = addTestChild();
 
-		final Iterator<Node> childNodes23 = parent.children().after(child1.getEndOffset()).iterator();
+		final Iterator<? extends INode> childNodes23 = parent.children().after(child1.getEndOffset()).iterator();
 		assertSame(child2, childNodes23.next());
 		assertSame(child3, childNodes23.next());
 		assertFalse(childNodes23.hasNext());
 
-		final Iterator<Node> childNodes123 = parent.children().after(parent.getStartOffset()).iterator();
+		final Iterator<? extends INode> childNodes123 = parent.children().after(parent.getStartOffset()).iterator();
 		assertSame(child1, childNodes123.next());
 		assertSame(child2, childNodes123.next());
 		assertSame(child3, childNodes123.next());
@@ -480,7 +486,7 @@ public class ParentTest {
 		final TestChild child2 = addTestChild();
 		final TestChild child3 = addTestChild();
 
-		final Iterator<Node> childNodes23 = parent.children().after(child1.getEndOffset() - 5).iterator();
+		final Iterator<? extends INode> childNodes23 = parent.children().after(child1.getEndOffset() - 5).iterator();
 		assertSame(child2, childNodes23.next());
 		assertSame(child3, childNodes23.next());
 		assertFalse(childNodes23.hasNext());
@@ -490,7 +496,7 @@ public class ParentTest {
 	public void givenChildNodesAndText_shouldProvideChildrenAxisIncludingText() throws Exception {
 		setUpChildNodes();
 
-		final Iterator<? extends Node> actualChildren = parent.children().iterator();
+		final Iterator<INode> actualChildren = parent.children().iterator();
 		assertTextNodeEquals("Hello ", 1, 6, actualChildren.next());
 		assertChildNodeEquals("Child1", 7, 14, actualChildren.next());
 		assertChildNodeEquals("Child2", 15, 22, actualChildren.next());
@@ -503,7 +509,7 @@ public class ParentTest {
 		final TestChild child2 = addTestChild();
 		final TestChild child3 = addTestChild();
 
-		final Iterator<? extends Node> actualChildren = parent.children().iterator();
+		final Iterator<INode> actualChildren = parent.children().iterator();
 		assertSame(child1, actualChildren.next());
 		assertSame(child2, actualChildren.next());
 		assertSame(child3, actualChildren.next());
@@ -513,7 +519,7 @@ public class ParentTest {
 	public void givenOnlyText_shouldProvideTextOnChildrenAxis() throws Exception {
 		content.insertText(parent.getEndOffset(), "Hello World");
 
-		final Iterator<? extends Node> actualChildren = parent.children().iterator();
+		final Iterator<INode> actualChildren = parent.children().iterator();
 		assertTextNodeEquals("Hello World", 1, 11, actualChildren.next());
 	}
 
@@ -525,7 +531,7 @@ public class ParentTest {
 	@Test
 	public void whenTextExcludedOnAxis_shouldNotProvideTextOnChildrenAxis() throws Exception {
 		setUpChildNodes();
-		final Iterator<Node> actualChildren = parent.children().withoutText().iterator();
+		final Iterator<? extends INode> actualChildren = parent.children().withoutText().iterator();
 		assertEquals("Child1", actualChildren.next().getText());
 		assertEquals("Child2", actualChildren.next().getText());
 		assertFalse(actualChildren.hasNext());
@@ -534,7 +540,7 @@ public class ParentTest {
 	@Test
 	public void shouldProvideChildrenAxisAsList() throws Exception {
 		setUpChildNodes();
-		final List<Node> actualList = parent.children().asList();
+		final List<? extends INode> actualList = parent.children().asList();
 		assertEquals(4, actualList.size());
 		assertTextNodeEquals("Hello ", 1, 6, actualList.get(0));
 		assertChildNodeEquals("Child1", 7, 14, actualList.get(1));
@@ -579,14 +585,14 @@ public class ParentTest {
 		assertEquals(4, parent.children().count());
 	}
 
-	private static void assertTextNodeEquals(final String text, final int startOffset, final int endOffset, final Node actualNode) {
-		assertTrue(actualNode instanceof Text);
+	private static void assertTextNodeEquals(final String text, final int startOffset, final int endOffset, final INode actualNode) {
+		assertTrue(actualNode instanceof IText);
 		assertEquals(text, actualNode.getText());
 		assertEquals(startOffset, actualNode.getStartOffset());
 		assertEquals(endOffset, actualNode.getEndOffset());
 	}
 
-	private static void assertChildNodeEquals(final String text, final int startOffset, final int endOffset, final Node actualNode) {
+	private static void assertChildNodeEquals(final String text, final int startOffset, final int endOffset, final INode actualNode) {
 		assertTrue(actualNode instanceof TestChild);
 		assertEquals(text, actualNode.getText());
 		assertEquals(startOffset, actualNode.getStartOffset());
@@ -613,35 +619,29 @@ public class ParentTest {
 	}
 
 	private static class TestParent extends Parent {
-		@Override
 		public void accept(final INodeVisitor visitor) {
 			throw new UnsupportedOperationException();
 		}
 
-		@Override
 		public <T> T accept(final INodeVisitorWithResult<T> visitor) {
 			throw new UnsupportedOperationException();
 		}
 
-		@Override
-		public boolean isKindOf(final Node node) {
+		public boolean isKindOf(final INode node) {
 			return false;
 		}
 	}
 
 	private static class TestChild extends Node {
-		@Override
 		public void accept(final INodeVisitor visitor) {
 			throw new UnsupportedOperationException();
 		}
 
-		@Override
 		public <T> T accept(final INodeVisitorWithResult<T> visitor) {
 			throw new UnsupportedOperationException();
 		}
 
-		@Override
-		public boolean isKindOf(final Node node) {
+		public boolean isKindOf(final INode node) {
 			return false;
 		}
 	}

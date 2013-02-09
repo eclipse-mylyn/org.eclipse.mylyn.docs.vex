@@ -19,6 +19,11 @@ import static org.junit.Assert.assertTrue;
 import java.util.Iterator;
 import java.util.List;
 
+import org.eclipse.vex.core.dom.ContentRange;
+import org.eclipse.vex.core.dom.IContent;
+import org.eclipse.vex.core.dom.IElement;
+import org.eclipse.vex.core.dom.INode;
+import org.eclipse.vex.core.dom.IText;
 import org.junit.Test;
 
 /**
@@ -48,7 +53,7 @@ public class DeepCopyTest {
 		content.insertText(1, "Hello World");
 
 		final DeepCopy deepCopy = new DeepCopy(element);
-		final Content copiedContent = deepCopy.getContent();
+		final IContent copiedContent = deepCopy.getContent();
 
 		assertNotNull(copiedContent);
 		assertNotSame(content, copiedContent);
@@ -68,7 +73,7 @@ public class DeepCopyTest {
 		content.insertText(0, "Hello");
 
 		final DeepCopy deepCopy = new DeepCopy(element);
-		final Content copiedContent = deepCopy.getContent();
+		final IContent copiedContent = deepCopy.getContent();
 
 		assertEquals(7, copiedContent.length());
 		assertEquals(" New ", copiedContent.getText());
@@ -104,16 +109,16 @@ public class DeepCopyTest {
 
 		final DeepCopy deepCopy = new DeepCopy(parent);
 		final Element copiedParent = (Element) deepCopy.getNodes().get(0);
-		final Iterator<Node> copiedChildren = copiedParent.children().iterator();
+		final Iterator<INode> copiedChildren = copiedParent.children().iterator();
 
-		assertEquals("1", ((Element) copiedChildren.next()).getAttribute("order").getValue());
-		assertEquals("2", ((Element) copiedChildren.next()).getAttribute("order").getValue());
+		assertEquals("1", ((IElement) copiedChildren.next()).getAttribute("order").getValue());
+		assertEquals("2", ((IElement) copiedChildren.next()).getAttribute("order").getValue());
 		assertFalse(copiedChildren.hasNext());
 	}
 
 	@Test
 	public void givenOneParentWithTwoChildrenAndContent_shouldCopyParentChildrenAndContent() throws Exception {
-		final Content content = new GapContent(10);
+		final IContent content = new GapContent(10);
 		content.insertTagMarker(0);
 		content.insertTagMarker(0);
 		content.insertTagMarker(0);
@@ -134,7 +139,7 @@ public class DeepCopyTest {
 
 		final DeepCopy deepCopy = new DeepCopy(parent);
 		final Element copiedParent = (Element) deepCopy.getNodes().get(0);
-		final Iterator<Node> copiedChildren = copiedParent.children().iterator();
+		final Iterator<INode> copiedChildren = copiedParent.children().iterator();
 
 		assertNodeIsAssociatedElementWithText("Hello", copiedChildren.next());
 		assertNodeIsAssociatedText(" New ", copiedChildren.next());
@@ -144,7 +149,7 @@ public class DeepCopyTest {
 
 	@Test
 	public void givenOneParentWithTwoChildrenInHugeContent_shouldCopyOnlyRelevantContent() throws Exception {
-		final Content content = new GapContent(10);
+		final IContent content = new GapContent(10);
 		content.insertTagMarker(0);
 		content.insertTagMarker(0);
 		content.insertTagMarker(0);
@@ -172,7 +177,7 @@ public class DeepCopyTest {
 
 	@Test
 	public void givenOneParentWithTwoChildrenAndContent_whenGivenRange_shouldOnlyCopyChildrenAndContentWithinRange() throws Exception {
-		final Content content = new GapContent(10);
+		final IContent content = new GapContent(10);
 		content.insertTagMarker(0);
 		content.insertTagMarker(0);
 		content.insertTagMarker(0);
@@ -202,7 +207,7 @@ public class DeepCopyTest {
 
 	@Test
 	public void givenOneParentWithTwoCommentChildren_shouldCopyParentAndChildren() throws Exception {
-		final Content content = new GapContent(10);
+		final IContent content = new GapContent(10);
 		content.insertTagMarker(0);
 		content.insertTagMarker(0);
 		content.insertTagMarker(0);
@@ -222,22 +227,22 @@ public class DeepCopyTest {
 
 		final DeepCopy deepCopy = new DeepCopy(parent);
 		final Element copiedParent = (Element) deepCopy.getNodes().get(0);
-		final Iterator<Node> copiedChildren = copiedParent.children().iterator();
+		final Iterator<INode> copiedChildren = copiedParent.children().iterator();
 
 		assertEquals("Hello", copiedChildren.next().getText());
 		assertEquals("World", copiedChildren.next().getText());
 		assertFalse(copiedChildren.hasNext());
 	}
 
-	private static void assertNodeIsAssociatedElementWithText(final String expectedText, final Node actualNode) {
+	private static void assertNodeIsAssociatedElementWithText(final String expectedText, final INode actualNode) {
 		assertTrue(actualNode.isAssociated());
 		assertTrue(actualNode instanceof Element);
 		assertEquals(expectedText, actualNode.getText());
 	}
 
-	private static void assertNodeIsAssociatedText(final String expectedText, final Node actualNode) {
+	private static void assertNodeIsAssociatedText(final String expectedText, final INode actualNode) {
 		assertTrue(actualNode.isAssociated());
-		assertTrue(actualNode instanceof Text);
+		assertTrue(actualNode instanceof IText);
 		assertEquals(expectedText, actualNode.getText());
 	}
 }

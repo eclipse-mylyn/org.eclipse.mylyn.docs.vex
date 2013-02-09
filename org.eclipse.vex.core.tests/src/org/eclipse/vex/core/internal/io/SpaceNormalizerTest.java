@@ -40,16 +40,14 @@ import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.vex.core.dom.IDocument;
+import org.eclipse.vex.core.dom.IElement;
+import org.eclipse.vex.core.dom.INode;
+import org.eclipse.vex.core.dom.IText;
 import org.eclipse.vex.core.internal.core.DisplayDevice;
 import org.eclipse.vex.core.internal.css.MockDisplayDevice;
 import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.css.StyleSheetReader;
-import org.eclipse.vex.core.internal.dom.Document;
-import org.eclipse.vex.core.internal.dom.DocumentContentModel;
-import org.eclipse.vex.core.internal.dom.Element;
-import org.eclipse.vex.core.internal.dom.IWhitespacePolicy;
-import org.eclipse.vex.core.internal.dom.Node;
-import org.eclipse.vex.core.internal.dom.Text;
 import org.eclipse.vex.core.internal.widget.CssWhitespacePolicy;
 import org.eclipse.vex.core.tests.VEXCoreTestPlugin;
 import org.junit.Before;
@@ -182,36 +180,36 @@ public class SpaceNormalizerTest {
 
 		final StyleSheet ss = getStyleSheet();
 
-		final Document doc = createDocument(input, ss);
-		Element element;
+		final IDocument doc = createDocument(input, ss);
+		IElement element;
 
 		element = doc.getRootElement();
 		assertContent(element, "<block>", "<block>", "<block>", "<block>");
 
-		final List<Element> children = element.getChildElements();
+		final List<? extends IElement> children = element.childElements().asList();
 
 		// --- Block 0 ---
 
 		assertContent(children.get(0), "foo ", "<inline>", " baz");
-		List<Element> c2 = children.get(0).getChildElements();
+		List<? extends IElement> c2 = children.get(0).childElements().asList();
 		assertContent(c2.get(0), "foo bar");
 
 		// --- Block 1 ---
 
 		assertContent(children.get(1), "foo", "<block>", "baz");
-		c2 = children.get(1).getChildElements();
+		c2 = children.get(1).childElements().asList();
 		assertContent(c2.get(0), "bar");
 
 		// --- Block 2 ---
 
 		assertContent(children.get(2), "foo", "<inline>", "baz");
-		c2 = children.get(2).getChildElements();
+		c2 = children.get(2).childElements().asList();
 		assertContent(c2.get(0), "foo bar");
 
 		// --- Block 3 ---
 
 		assertContent(children.get(3), "foo", "<block>", "baz");
-		c2 = children.get(3).getChildElements();
+		c2 = children.get(3).childElements().asList();
 		assertContent(c2.get(0), "bar");
 
 	}
@@ -222,12 +220,12 @@ public class SpaceNormalizerTest {
 
 		final String input = "<doc>\n " + "<pre>\n foo\n</pre>\n " + "\n </doc>";
 
-		final Document doc = createDocument(input, getStyleSheet());
+		final IDocument doc = createDocument(input, getStyleSheet());
 
-		final Element element = doc.getRootElement();
+		final IElement element = doc.getRootElement();
 		assertContent(element, "<pre>");
 
-		final Element pre = element.getChildElements().get(0);
+		final IElement pre = element.childElements().first();
 		assertContent(pre, "\n foo\n");
 	}
 
@@ -237,11 +235,11 @@ public class SpaceNormalizerTest {
 
 		final String input = "<doc>\n " + "<pre>\n foo\n <inline>\n foo\n bar\n </inline></pre>\n " + "\n </doc>";
 
-		final Document doc = createDocument(input, getStyleSheet());
+		final IDocument doc = createDocument(input, getStyleSheet());
 
-		final Element element = doc.getRootElement();
-		final Element pre = element.getChildElements().get(0);
-		final Element inline = pre.getChildElements().get(0);
+		final IElement element = doc.getRootElement();
+		final IElement pre = element.childElements().first();
+		final IElement inline = pre.childElements().first();
 		assertContent(inline, "\n foo\n bar\n ");
 	}
 
@@ -251,15 +249,15 @@ public class SpaceNormalizerTest {
 
 		final String input = "<doc>\n  " + "<pre>\n\t foo\n\t <inline>\n\t foo\n\t bar\n\t </inline>\n\t baz\n\t </pre>\n " + "\n </doc>";
 
-		final Document doc = createDocument(input, getStyleSheet());
+		final IDocument doc = createDocument(input, getStyleSheet());
 
-		final Element element = doc.getRootElement();
+		final IElement element = doc.getRootElement();
 		assertContent(element, "<pre>");
 
-		final Element pre = element.getChildElements().get(0);
+		final IElement pre = element.childElements().first();
 		assertContent(pre, "\n\t foo\n\t ", "<inline>", "\n\t baz\n\t ");
 
-		final Element inline = pre.getChildElements().get(0);
+		final IElement inline = pre.childElements().first();
 		assertContent(inline, "\n\t foo\n\t bar\n\t ");
 	}
 
@@ -278,16 +276,16 @@ public class SpaceNormalizerTest {
 	 * Asserts the content of the given element matches the given list. If a string in content is enclosed in angle
 	 * brackets, it's assume to refer to the name of an element; otherwise, it represents text content.
 	 */
-	private void assertContent(final Element element, final String... strings) {
-		final Iterator<Node> children = element.children().iterator();
+	private void assertContent(final IElement element, final String... strings) {
+		final Iterator<INode> children = element.children().iterator();
 		for (final String string : strings) {
-			final Node node = children.next();
+			final INode node = children.next();
 			if (string.startsWith("<")) {
 				final String name = string.substring(1, string.length() - 1);
-				assertTrue(node instanceof Element);
-				assertEquals(name, ((Element) node).getPrefixedName());
+				assertTrue(node instanceof IElement);
+				assertEquals(name, ((IElement) node).getPrefixedName());
 			} else {
-				assertTrue(node instanceof Text);
+				assertTrue(node instanceof IText);
 				final String contentText = node.getText();
 				assertEquals(string, contentText);
 			}
@@ -295,7 +293,7 @@ public class SpaceNormalizerTest {
 		assertFalse("more strings expected", children.hasNext());
 	}
 
-	private Document createDocument(final String s, final StyleSheet ss) throws ParserConfigurationException, SAXException, IOException {
+	private IDocument createDocument(final String s, final StyleSheet ss) throws ParserConfigurationException, SAXException, IOException {
 		final SAXParserFactory factory = SAXParserFactory.newInstance();
 		final XMLReader xmlReader = factory.newSAXParser().getXMLReader();
 		final StyleSheet mySS = ss;

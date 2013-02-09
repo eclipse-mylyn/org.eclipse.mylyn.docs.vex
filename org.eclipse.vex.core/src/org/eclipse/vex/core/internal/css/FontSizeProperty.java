@@ -10,8 +10,8 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.css;
 
+import org.eclipse.vex.core.dom.INode;
 import org.eclipse.vex.core.internal.core.DisplayDevice;
-import org.eclipse.vex.core.internal.dom.Node;
 import org.w3c.css.sac.LexicalUnit;
 
 /**
@@ -27,7 +27,7 @@ public class FontSizeProperty extends AbstractProperty {
 		super(CSS.FONT_SIZE);
 	}
 
-	public Object calculate(final LexicalUnit lu, final Styles parentStyles, final Styles styles, final Node node) {
+	public Object calculate(final LexicalUnit lu, final Styles parentStyles, final Styles styles, final INode node) {
 		return new Float(calculateInternal(lu, parentStyles, styles));
 	}
 

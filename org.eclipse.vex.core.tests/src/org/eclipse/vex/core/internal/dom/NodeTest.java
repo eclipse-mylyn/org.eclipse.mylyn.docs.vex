@@ -18,6 +18,7 @@ import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
 import org.eclipse.core.runtime.AssertionFailedException;
+import org.eclipse.vex.core.dom.ContentRange;
 import org.junit.Before;
 import org.junit.Test;
 

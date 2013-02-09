@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.layout;
 
+import org.eclipse.vex.core.dom.INode;
 import org.eclipse.vex.core.internal.core.Caret;
 import org.eclipse.vex.core.internal.core.ColorResource;
 import org.eclipse.vex.core.internal.core.FontMetrics;
@@ -17,7 +18,6 @@ import org.eclipse.vex.core.internal.core.FontResource;
 import org.eclipse.vex.core.internal.core.FontSpec;
 import org.eclipse.vex.core.internal.core.Graphics;
 import org.eclipse.vex.core.internal.css.Styles;
-import org.eclipse.vex.core.internal.dom.Node;
 
 /**
  * An inline box containing text. The <code>getText</code> and <code>splitAt</code> methods are abstract and must be
@@ -25,7 +25,7 @@ import org.eclipse.vex.core.internal.dom.Node;
  */
 public abstract class TextBox extends AbstractInlineBox implements InlineBox {
 
-	private final Node node;
+	private final INode node;
 	private int baseline;
 
 	public static final char NEWLINE_CHAR = 0xa;
@@ -37,7 +37,7 @@ public abstract class TextBox extends AbstractInlineBox implements InlineBox {
 	 * @param node
 	 *            Node containing the text. This is used for styling information.
 	 */
-	public TextBox(final Node node) {
+	public TextBox(final INode node) {
 		this.node = node;
 	}
 
@@ -95,7 +95,7 @@ public abstract class TextBox extends AbstractInlineBox implements InlineBox {
 	 * Returns the node that controls the styling for this text box.
 	 */
 	@Override
-	public Node getNode() {
+	public INode getNode() {
 		return node;
 	}
 
@@ -137,7 +137,7 @@ public abstract class TextBox extends AbstractInlineBox implements InlineBox {
 		final Graphics g = context.getGraphics();
 
 		boolean inSelectedBlock = false;
-		Node e = getNode();
+		INode e = getNode();
 		while (e != null) {
 			final Styles styles = context.getStyleSheet().getStyles(e);
 			if (styles.isBlock()) {

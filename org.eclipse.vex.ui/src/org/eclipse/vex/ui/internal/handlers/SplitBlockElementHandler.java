@@ -15,14 +15,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.vex.core.dom.IDocument;
+import org.eclipse.vex.core.dom.IDocumentFragment;
+import org.eclipse.vex.core.dom.IElement;
+import org.eclipse.vex.core.dom.INode;
 import org.eclipse.vex.core.internal.VEXCorePlugin;
 import org.eclipse.vex.core.internal.css.CSS;
 import org.eclipse.vex.core.internal.css.Styles;
 import org.eclipse.vex.core.internal.dom.CopyOfElement;
-import org.eclipse.vex.core.internal.dom.Document;
-import org.eclipse.vex.core.internal.dom.DocumentFragment;
-import org.eclipse.vex.core.internal.dom.Element;
-import org.eclipse.vex.core.internal.dom.Node;
 import org.eclipse.vex.core.internal.widget.IVexWidget;
 import org.eclipse.vex.ui.internal.swt.VexWidget;
 
@@ -36,14 +36,14 @@ public class SplitBlockElementHandler extends AbstractVexWidgetHandler {
 
 	@Override
 	public void execute(final VexWidget widget) throws ExecutionException {
-		Element element = widget.getCurrentElement();
+		IElement element = widget.getCurrentElement();
 		if (element == null) {
 			return; // we are not in an element, so we bail out here
 		}
 		Styles styles = widget.getStyleSheet().getStyles(element);
 		while (!styles.isBlock()) {
 			element = element.getParentElement();
-			if (element == null || element.getParent() instanceof Document) {
+			if (element == null || element.getParent() instanceof IDocument) {
 				return; // we reached the root element which cannot be split 
 			}
 			styles = widget.getStyleSheet().getStyles(element);
@@ -59,7 +59,7 @@ public class SplitBlockElementHandler extends AbstractVexWidgetHandler {
 	 * @param node
 	 *            Node to be split.
 	 */
-	protected void splitElement(final IVexWidget vexWidget, final Node node) {
+	protected void splitElement(final IVexWidget vexWidget, final INode node) {
 
 		vexWidget.doWork(new Runnable() {
 			public void run() {
@@ -80,13 +80,13 @@ public class SplitBlockElementHandler extends AbstractVexWidgetHandler {
 					// and put them in a list of fragments to be reconstructed
 					// when
 					// we clone the element.
-					final List<Element> children = new ArrayList<Element>();
-					final List<DocumentFragment> frags = new ArrayList<DocumentFragment>();
-					Element child = vexWidget.getCurrentElement();
+					final List<IElement> children = new ArrayList<IElement>();
+					final List<IDocumentFragment> fragments = new ArrayList<IDocumentFragment>();
+					IElement child = vexWidget.getCurrentElement();
 					while (true) {
 						children.add(child);
 						vexWidget.moveTo(child.getEndOffset(), true);
-						frags.add(vexWidget.getSelectedFragment());
+						fragments.add(vexWidget.getSelectedFragment());
 						vexWidget.deleteSelection();
 						vexWidget.moveTo(child.getEndOffset() + 1);
 						if (child == node) {
@@ -97,12 +97,12 @@ public class SplitBlockElementHandler extends AbstractVexWidgetHandler {
 
 					for (int i = children.size() - 1; i >= 0; i--) {
 						child = children.get(i);
-						final DocumentFragment frag = frags.get(i);
-						final Element newChild = vexWidget.insertElement(child.getQualifiedName());
+						final IDocumentFragment fragment = fragments.get(i);
+						final IElement newChild = vexWidget.insertElement(child.getQualifiedName());
 						newChild.accept(new CopyOfElement(child));
 						final int offset = vexWidget.getCaretOffset();
-						if (frag != null) {
-							vexWidget.insertFragment(frag);
+						if (fragment != null) {
+							vexWidget.insertFragment(fragment);
 						}
 						vexWidget.moveTo(offset);
 					}

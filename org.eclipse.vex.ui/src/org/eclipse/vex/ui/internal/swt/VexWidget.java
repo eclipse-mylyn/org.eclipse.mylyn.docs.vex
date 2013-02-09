@@ -51,6 +51,13 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.ScrollBar;
+import org.eclipse.vex.core.dom.ContentRange;
+import org.eclipse.vex.core.dom.DocumentValidationException;
+import org.eclipse.vex.core.dom.IComment;
+import org.eclipse.vex.core.dom.IDocument;
+import org.eclipse.vex.core.dom.IDocumentFragment;
+import org.eclipse.vex.core.dom.IElement;
+import org.eclipse.vex.core.dom.INode;
 import org.eclipse.vex.core.internal.core.Caret;
 import org.eclipse.vex.core.internal.core.Color;
 import org.eclipse.vex.core.internal.core.ColorResource;
@@ -59,13 +66,6 @@ import org.eclipse.vex.core.internal.core.ElementName;
 import org.eclipse.vex.core.internal.core.Graphics;
 import org.eclipse.vex.core.internal.core.Rectangle;
 import org.eclipse.vex.core.internal.css.StyleSheet;
-import org.eclipse.vex.core.internal.dom.Comment;
-import org.eclipse.vex.core.internal.dom.ContentRange;
-import org.eclipse.vex.core.internal.dom.Document;
-import org.eclipse.vex.core.internal.dom.DocumentFragment;
-import org.eclipse.vex.core.internal.dom.DocumentValidationException;
-import org.eclipse.vex.core.internal.dom.Element;
-import org.eclipse.vex.core.internal.dom.Node;
 import org.eclipse.vex.core.internal.layout.Box;
 import org.eclipse.vex.core.internal.layout.BoxFactory;
 import org.eclipse.vex.core.internal.widget.HostComponent;
@@ -227,15 +227,15 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 		return impl.getCaretOffset();
 	}
 
-	public Element getCurrentElement() {
+	public IElement getCurrentElement() {
 		return impl.getCurrentElement();
 	}
 
-	public Node getCurrentNode() {
+	public INode getCurrentNode() {
 		return impl.getCurrentNode();
 	}
 
-	public Document getDocument() {
+	public IDocument getDocument() {
 		return impl.getDocument();
 	}
 
@@ -247,7 +247,7 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 		return impl.getSelectedRange();
 	}
 
-	public DocumentFragment getSelectedFragment() {
+	public IDocumentFragment getSelectedFragment() {
 		return impl.getSelectedFragment();
 	}
 
@@ -279,11 +279,11 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 		impl.insertChar(c);
 	}
 
-	public void insertFragment(final DocumentFragment frag) throws DocumentValidationException {
-		impl.insertFragment(frag);
+	public void insertFragment(final IDocumentFragment fragment) throws DocumentValidationException {
+		impl.insertFragment(fragment);
 	}
 
-	public Element insertElement(final QualifiedName elementName) throws DocumentValidationException {
+	public IElement insertElement(final QualifiedName elementName) throws DocumentValidationException {
 		return impl.insertElement(elementName);
 	}
 
@@ -291,7 +291,7 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 		impl.insertText(text);
 	}
 
-	public Comment insertComment() throws DocumentValidationException {
+	public IComment insertComment() throws DocumentValidationException {
 		return impl.insertComment();
 	}
 
@@ -357,9 +357,9 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 		}
 
 		final Clipboard clipboard = new Clipboard(getDisplay());
-		final DocumentFragment frag = (DocumentFragment) clipboard.getContents(DocumentFragmentTransfer.getInstance());
-		if (frag != null) {
-			insertFragment(frag);
+		final IDocumentFragment fragment = (IDocumentFragment) clipboard.getContents(DocumentFragmentTransfer.getInstance());
+		if (fragment != null) {
+			insertFragment(fragment);
 		} else {
 			pasteText();
 		}
@@ -417,7 +417,7 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 		impl.setReadOnly(readOnly);
 	}
 
-	public void setDocument(final Document doc, final StyleSheet styleSheet) {
+	public void setDocument(final IDocument doc, final StyleSheet styleSheet) {
 		impl.setDocument(doc, styleSheet);
 	}
 
@@ -543,7 +543,7 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 		public void fireSelectionChanged() {
 
 			if (hasSelection()) {
-				final List<Node> nodes = getDocument().getNodes(getSelectedRange());
+				final List<? extends INode> nodes = getDocument().getNodes(getSelectedRange());
 				selection = new StructuredSelection(nodes);
 			} else {
 				selection = new StructuredSelection(getCurrentNode());

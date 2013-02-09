@@ -10,17 +10,26 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.dom;
 
+import java.util.Iterator;
+
+import org.eclipse.vex.core.IFilter;
+import org.eclipse.vex.core.dom.ContentRange;
+import org.eclipse.vex.core.dom.INode;
 import org.eclipse.vex.core.internal.core.FilterIterator;
-import org.eclipse.vex.core.internal.core.IFilter;
 
 /**
  * @author Florian Thienel
  */
-public class NodesInContentRangeIterator extends FilterIterator<Node> {
+public class NodesInContentRangeIterator extends FilterIterator<INode> {
 
-	public NodesInContentRangeIterator(final Iterable<Node> nodes, final ContentRange contentRange) {
-		super(nodes.iterator(), new IFilter<Node>() {
-			public boolean matches(final Node node) {
+	@SuppressWarnings("unchecked")
+	public static <T extends INode> Iterator<T> iterator(final Iterable<T> nodes, final ContentRange contentRange) {
+		return (Iterator<T>) new NodesInContentRangeIterator(nodes, contentRange);
+	}
+
+	private NodesInContentRangeIterator(final Iterable<? extends INode> nodes, final ContentRange contentRange) {
+		super(nodes.iterator(), new IFilter<INode>() {
+			public boolean matches(final INode node) {
 				return !node.isAssociated() || contentRange.contains(node.getRange());
 			}
 		});

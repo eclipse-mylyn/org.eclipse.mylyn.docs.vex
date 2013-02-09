@@ -21,8 +21,8 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.eclipse.swt.dnd.ByteArrayTransfer;
 import org.eclipse.swt.dnd.TransferData;
-import org.eclipse.vex.core.internal.dom.Document;
-import org.eclipse.vex.core.internal.dom.DocumentFragment;
+import org.eclipse.vex.core.dom.IDocument;
+import org.eclipse.vex.core.dom.IDocumentFragment;
 import org.eclipse.vex.core.internal.io.DocumentReader;
 import org.eclipse.vex.core.internal.io.DocumentWriter;
 import org.xml.sax.InputSource;
@@ -64,7 +64,7 @@ public class DocumentFragmentTransfer extends ByteArrayTransfer {
 
 	@Override
 	public void javaToNative(final Object object, final TransferData transferData) {
-		if (object == null || !(object instanceof DocumentFragment)) {
+		if (object == null || !(object instanceof IDocumentFragment)) {
 			return;
 		}
 
@@ -72,7 +72,7 @@ public class DocumentFragmentTransfer extends ByteArrayTransfer {
 			return;
 		}
 
-		final DocumentFragment fragment = (DocumentFragment) object;
+		final IDocumentFragment fragment = (IDocumentFragment) object;
 		final ByteArrayOutputStream out = new ByteArrayOutputStream();
 		try {
 			writeFragmentToStream(fragment, out);
@@ -81,7 +81,7 @@ public class DocumentFragmentTransfer extends ByteArrayTransfer {
 		super.javaToNative(out.toByteArray(), transferData);
 	}
 
-	public void writeFragmentToStream(final DocumentFragment fragment, final OutputStream out) throws IOException {
+	public void writeFragmentToStream(final IDocumentFragment fragment, final OutputStream out) throws IOException {
 		new DocumentWriter().write(fragment, out);
 	}
 
@@ -106,9 +106,9 @@ public class DocumentFragmentTransfer extends ByteArrayTransfer {
 		return null;
 	}
 
-	public DocumentFragment readFragmentFromStream(final InputStream in) throws IOException {
+	public IDocumentFragment readFragmentFromStream(final InputStream in) throws IOException {
 		try {
-			final Document document = new DocumentReader().read(new InputSource(in));
+			final IDocument document = new DocumentReader().read(new InputSource(in));
 			return document.getFragment(document.getRootElement().getRange().resizeBy(1, -1));
 		} catch (final ParserConfigurationException e) {
 			// TODO shoult never happen - log this exception?

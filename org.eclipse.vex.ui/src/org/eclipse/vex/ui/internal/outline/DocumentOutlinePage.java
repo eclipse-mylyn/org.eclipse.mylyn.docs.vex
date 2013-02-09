@@ -31,7 +31,7 @@ import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.part.IPageSite;
 import org.eclipse.ui.part.Page;
 import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
-import org.eclipse.vex.core.internal.dom.Element;
+import org.eclipse.vex.core.dom.IElement;
 import org.eclipse.vex.ui.internal.VexPlugin;
 import org.eclipse.vex.ui.internal.config.DocumentType;
 import org.eclipse.vex.ui.internal.editor.IVexEditorListener;
@@ -209,9 +209,9 @@ public class DocumentOutlinePage extends Page implements IContentOutlinePage {
 			if (event.getSource() instanceof VexWidget) {
 				final VexWidget vexWidget = (VexWidget) event.getSource();
 				if (vexWidget.isFocusControl() && getTreeViewer() != null) {
-					final Element element = vexWidget.getCurrentElement();
+					final IElement element = vexWidget.getCurrentElement();
 					if (element != null) {
-						final Element outlineElement = outlineProvider.getOutlineElement(element);
+						final IElement outlineElement = outlineProvider.getOutlineElement(element);
 						getTreeViewer().refresh(outlineElement);
 						getTreeViewer().setSelection(new StructuredSelection(outlineElement), true);
 					} else {
@@ -225,7 +225,7 @@ public class DocumentOutlinePage extends Page implements IContentOutlinePage {
 					final TreeItem[] selected = treeViewer.getTree().getSelection();
 					if (selected.length > 0) {
 
-						final Element element = (Element) selected[0].getData();
+						final IElement element = (IElement) selected[0].getData();
 						final VexWidget vexWidget = vexEditor.getVexWidget();
 
 						// Moving to the end of the element first is a cheap

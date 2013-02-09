@@ -11,8 +11,8 @@
 package org.eclipse.vex.ui.internal.handlers;
 
 import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.vex.core.internal.dom.ContentRange;
-import org.eclipse.vex.core.internal.dom.Node;
+import org.eclipse.vex.core.dom.ContentRange;
+import org.eclipse.vex.core.dom.INode;
 import org.eclipse.vex.core.internal.layout.BlockBox;
 import org.eclipse.vex.core.internal.layout.Box;
 import org.eclipse.vex.core.internal.widget.IBoxFilter;
@@ -52,7 +52,7 @@ public class MoveSelectionUpHandler extends AbstractVexWidgetHandler {
 			// box.getStartPosition() + 1, but this would be a VERY large
 			// change.)
 			System.out.println("Box is " + box);
-			final Node node = box.getNode();
+			final INode node = box.getNode();
 			if (node != null) {
 				widget.moveTo(node.getEndOffset() + 1);
 				widget.moveTo(node.getStartOffset(), true);

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013 Florian Thienel and others.
+ * Copyright (c) 2012 Florian Thienel and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,19 +8,24 @@
  * Contributors:
  * 		Florian Thienel - initial API and implementation
  *******************************************************************************/
-package org.eclipse.vex.core.internal.core;
+package org.eclipse.vex.core.dom;
 
 /**
- * A simple filtering facility.
+ * An incarantion of the <a href="http://en.wikipedia.org/wiki/Visitor_pattern">Visitor pattern</a> which handles the
+ * nodes of the structural part of the DOM and is able to return a value of a certain type.
  * 
  * @author Florian Thienel
  */
-public interface IFilter<T> {
+public interface INodeVisitorWithResult<T> {
 
-	/**
-	 * @param t
-	 *            the object to evaluate
-	 * @return true if the given object matches this filter
-	 */
-	boolean matches(T t);
+	T visit(IDocument document);
+
+	T visit(IDocumentFragment fragment);
+
+	T visit(IElement element);
+
+	T visit(IText text);
+
+	T visit(IComment comment);
+
 }

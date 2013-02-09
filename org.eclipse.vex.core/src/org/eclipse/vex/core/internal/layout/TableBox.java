@@ -16,13 +16,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.eclipse.vex.core.dom.IElement;
+import org.eclipse.vex.core.dom.INode;
+import org.eclipse.vex.core.dom.IParent;
 import org.eclipse.vex.core.internal.core.Insets;
 import org.eclipse.vex.core.internal.css.CSS;
 import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.css.Styles;
-import org.eclipse.vex.core.internal.dom.Element;
-import org.eclipse.vex.core.internal.dom.Node;
-import org.eclipse.vex.core.internal.dom.Parent;
 
 /**
  * Box that lays out a table.
@@ -35,7 +35,7 @@ public class TableBox extends AbstractBlockBox {
 	 * @param node
 	 *            Element represented by this box.
 	 */
-	public TableBox(final LayoutContext context, final BlockBox parent, final Node node) {
+	public TableBox(final LayoutContext context, final BlockBox parent, final INode node) {
 		super(context, parent, node);
 	}
 
@@ -55,11 +55,11 @@ public class TableBox extends AbstractBlockBox {
 		final List<Box> children = new ArrayList<Box>();
 
 		iterateChildrenByDisplayStyle(context.getStyleSheet(), captionOrColumnStyles, new ElementOrRangeCallback() {
-			public void onElement(final Element child, final String displayStyle) {
+			public void onElement(final IElement child, final String displayStyle) {
 				children.add(new BlockElementBox(context, TableBox.this, child));
 			}
 
-			public void onRange(final Parent parent, final int startOffset, final int endOffset) {
+			public void onRange(final IParent parent, final int startOffset, final int endOffset) {
 				children.add(new TableBodyBox(context, TableBox.this, startOffset, endOffset));
 			}
 		});
@@ -143,11 +143,11 @@ public class TableBox extends AbstractBlockBox {
 			count = 0;
 		}
 
-		public void onElement(final Element child, final String displayStyle) {
+		public void onElement(final IElement child, final String displayStyle) {
 			count++;
 		}
 
-		public void onRange(final Parent parent, final int startOffset, final int endOffset) {
+		public void onRange(final IParent parent, final int startOffset, final int endOffset) {
 			count++;
 		}
 
@@ -159,20 +159,20 @@ public class TableBox extends AbstractBlockBox {
 	 */
 	private int computeColumnCount(final LayoutContext context) {
 
-		final Parent tableElement = findContainingParent();
+		final IParent tableElement = findContainingParent();
 		final int[] columnCounts = new int[1]; // work around Java's insistence
 												// on final
 		columnCounts[0] = 0;
 		final StyleSheet styleSheet = context.getStyleSheet();
 		final CountingCallback callback = new CountingCallback();
 		LayoutUtils.iterateTableRows(styleSheet, tableElement, getStartOffset(), getEndOffset(), new ElementOrRangeCallback() {
-			public void onElement(final Element child, final String displayStyle) {
+			public void onElement(final IElement child, final String displayStyle) {
 				LayoutUtils.iterateTableCells(styleSheet, child, callback);
 				columnCounts[0] = Math.max(columnCounts[0], callback.getCount());
 				callback.reset();
 			}
 
-			public void onRange(final Parent parent, final int startOffset, final int endOffset) {
+			public void onRange(final IParent parent, final int startOffset, final int endOffset) {
 				LayoutUtils.iterateTableCells(styleSheet, parent, startOffset, endOffset, callback);
 				columnCounts[0] = Math.max(columnCounts[0], callback.getCount());
 				callback.reset();

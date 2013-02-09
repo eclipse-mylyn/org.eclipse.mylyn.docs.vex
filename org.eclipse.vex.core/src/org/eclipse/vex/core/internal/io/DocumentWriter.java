@@ -16,18 +16,16 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.util.Arrays;
-import java.util.List;
 
-import org.eclipse.vex.core.internal.dom.Attribute;
-import org.eclipse.vex.core.internal.dom.BaseNodeVisitor;
-import org.eclipse.vex.core.internal.dom.Comment;
-import org.eclipse.vex.core.internal.dom.Document;
-import org.eclipse.vex.core.internal.dom.DocumentFragment;
-import org.eclipse.vex.core.internal.dom.Element;
-import org.eclipse.vex.core.internal.dom.IWhitespacePolicy;
-import org.eclipse.vex.core.internal.dom.Node;
-import org.eclipse.vex.core.internal.dom.Text;
-import org.eclipse.vex.core.internal.dom.Validator;
+import org.eclipse.vex.core.dom.BaseNodeVisitor;
+import org.eclipse.vex.core.dom.IAttribute;
+import org.eclipse.vex.core.dom.IComment;
+import org.eclipse.vex.core.dom.IDocument;
+import org.eclipse.vex.core.dom.IDocumentFragment;
+import org.eclipse.vex.core.dom.IElement;
+import org.eclipse.vex.core.dom.INode;
+import org.eclipse.vex.core.dom.IText;
+import org.eclipse.vex.core.dom.IValidator;
 import org.eclipse.vex.core.internal.validator.AttributeDefinition;
 
 /**
@@ -140,7 +138,7 @@ public class DocumentWriter {
 		this.wrapColumn = wrapColumn;
 	}
 
-	public void write(final Document document, final OutputStream out) throws IOException {
+	public void write(final IDocument document, final OutputStream out) throws IOException {
 		final PrintWriter printWriter = new PrintWriter(new OutputStreamWriter(out, "UTF-8"));
 		printWriter.println("<?xml version='1.0' encoding='UTF-8'?>");
 
@@ -148,7 +146,7 @@ public class DocumentWriter {
 		printWriter.flush();
 	}
 
-	public void write(final DocumentFragment fragment, final OutputStream out) throws IOException {
+	public void write(final IDocumentFragment fragment, final OutputStream out) throws IOException {
 		final PrintWriter printWriter = new PrintWriter(new OutputStreamWriter(out, "UTF-8"));
 		printWriter.println("<?xml version='1.0' encoding='UTF-8'?>");
 
@@ -158,10 +156,10 @@ public class DocumentWriter {
 
 	// ====================================================== PRIVATE
 
-	private void writeNode(final Node node, final PrintWriter out, final String indent) {
+	private void writeNode(final INode node, final PrintWriter out, final String indent) {
 		node.accept(new BaseNodeVisitor() {
 			@Override
-			public void visit(final Document document) {
+			public void visit(final IDocument document) {
 				if (document.getSystemID() != null) {
 					final StringBuilder buffer = new StringBuilder();
 					buffer.append("<!DOCTYPE ");
@@ -180,22 +178,22 @@ public class DocumentWriter {
 					out.println(buffer.toString());
 				}
 
-				for (final Node child : document.children()) {
+				for (final INode child : document.children()) {
 					writeNode(child, out, indent);
 				}
 			}
 
 			@Override
-			public void visit(final DocumentFragment fragment) {
+			public void visit(final IDocumentFragment fragment) {
 				out.print("<vex_fragment>");
-				for (final Node child : fragment.children()) {
+				for (final INode child : fragment.children()) {
 					writeNodeNoWrap(child, out);
 				}
 				out.println("</vex_fragment>");
 			}
 
 			@Override
-			public void visit(final Element element) {
+			public void visit(final IElement element) {
 				if (whitespacePolicy.isPre(element)) {
 					out.print(indent);
 					writeNodeNoWrap(node, out);
@@ -204,9 +202,8 @@ public class DocumentWriter {
 				}
 
 				boolean hasBlockChild = false;
-				final List<Element> children = element.getChildElements();
-				for (int i = 0; i < children.size(); i++) {
-					if (whitespacePolicy.isBlock(children.get(i))) {
+				for (final INode child : element.childElements()) {
+					if (whitespacePolicy.isBlock(child)) {
 						hasBlockChild = true;
 						break;
 					}
@@ -236,7 +233,7 @@ public class DocumentWriter {
 					out.println(">");
 
 					final String childIndent = indent + DocumentWriter.this.indent;
-					for (final Node child : element.children()) {
+					for (final INode child : element.children()) {
 						writeNode(child, out, childIndent);
 					}
 					out.print(indent);
@@ -255,7 +252,7 @@ public class DocumentWriter {
 			}
 
 			@Override
-			public void visit(final Comment comment) {
+			public void visit(final IComment comment) {
 				out.print(indent);
 				out.println("<!-- ");
 
@@ -274,7 +271,7 @@ public class DocumentWriter {
 			}
 
 			@Override
-			public void visit(final Text text) {
+			public void visit(final IText text) {
 				final TextWrapper wrapper = new TextWrapper();
 				wrapper.add(escape(node.getText()));
 
@@ -288,17 +285,17 @@ public class DocumentWriter {
 		});
 	}
 
-	private void writeNodeNoWrap(final Node node, final PrintWriter out) {
+	private void writeNodeNoWrap(final INode node, final PrintWriter out) {
 		node.accept(new BaseNodeVisitor() {
 			@Override
-			public void visit(final Element element) {
+			public void visit(final IElement element) {
 				out.print("<");
 				out.print(element.getPrefixedName());
 				out.print(getNamespaceDeclarationsString(element));
 				out.print(getAttributeString(element));
 				out.print(">");
 
-				for (final Node child : element.children()) {
+				for (final INode child : element.children()) {
 					writeNodeNoWrap(child, out);
 				}
 
@@ -308,20 +305,20 @@ public class DocumentWriter {
 			}
 
 			@Override
-			public void visit(final Comment comment) {
+			public void visit(final IComment comment) {
 				out.print("<!-- ");
 				out.print(escape(node.getText()));
 				out.print(" -->");
 			}
 
 			@Override
-			public void visit(final Text text) {
+			public void visit(final IText text) {
 				out.print(escape(node.getText()));
 			}
 		});
 	}
 
-	private static String getNamespaceDeclarationsString(final Element element) {
+	private static String getNamespaceDeclarationsString(final IElement element) {
 		final StringBuilder result = new StringBuilder();
 		final String declaredNamespaceURI = element.getDeclaredDefaultNamespaceURI();
 		if (declaredNamespaceURI != null) {
@@ -333,10 +330,10 @@ public class DocumentWriter {
 		return result.toString();
 	}
 
-	private static void addNode(final Node node, final TextWrapper wrapper) {
+	private static void addNode(final INode node, final TextWrapper wrapper) {
 		node.accept(new BaseNodeVisitor() {
 			@Override
-			public void visit(final Element element) {
+			public void visit(final IElement element) {
 				final boolean elementHasChildren = element.hasChildren();
 
 				final StringBuilder buffer = new StringBuilder();
@@ -351,7 +348,7 @@ public class DocumentWriter {
 				}
 				wrapper.addNoSplit(buffer.toString());
 
-				for (final Node child : element.children()) {
+				for (final INode child : element.children()) {
 					addNode(child, wrapper);
 				}
 
@@ -361,25 +358,25 @@ public class DocumentWriter {
 			}
 
 			@Override
-			public void visit(final Comment comment) {
+			public void visit(final IComment comment) {
 				wrapper.addNoSplit("<!-- ");
 				wrapper.add(escape(node.getText()));
 				wrapper.addNoSplit(" -->");
 			}
 
 			@Override
-			public void visit(final Text text) {
+			public void visit(final IText text) {
 				wrapper.add(escape(node.getText()));
 			}
 		});
 	}
 
-	private static String getAttributeString(final Element element) {
-		final Document document = element.getDocument();
-		final Validator validator = document != null ? document.getValidator() : null;
+	private static String getAttributeString(final IElement element) {
+		final IDocument document = element.getDocument();
+		final IValidator validator = document != null ? document.getValidator() : null;
 
 		final StringBuffer result = new StringBuffer();
-		for (final Attribute attribute : element.getAttributes()) {
+		for (final IAttribute attribute : element.getAttributes()) {
 			if (!isAttributeDefaultValueSet(validator, attribute)) {
 				result.append(" ");
 				result.append(attribute.getPrefixedName());
@@ -391,7 +388,7 @@ public class DocumentWriter {
 		return result.toString();
 	}
 
-	private static boolean isAttributeDefaultValueSet(final Validator validator, final Attribute attribute) {
+	private static boolean isAttributeDefaultValueSet(final IValidator validator, final IAttribute attribute) {
 		if (validator != null) {
 			final AttributeDefinition attributeDefinition = validator.getAttributeDefinition(attribute);
 			if (attributeDefinition != null) {

@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.layout;
 
-import org.eclipse.vex.core.internal.dom.Element;
+import org.eclipse.vex.core.dom.IElement;
 
 /**
  * A box factory that, for an element named &lt;space&gt;, returns a SpaceBox with height and width given by attributes
@@ -20,7 +20,7 @@ public class MockBoxFactory extends CssBoxFactory {
 
 	private static final long serialVersionUID = 1L;
 
-	public Box createBox(final LayoutContext context, final Element element, final BlockElementBox parent, final int width) {
+	public Box createBox(final LayoutContext context, final IElement element, final BlockElementBox parent, final int width) {
 		if (element.getPrefixedName().equals("space")) {
 			int w = 0;
 			int h = 0;

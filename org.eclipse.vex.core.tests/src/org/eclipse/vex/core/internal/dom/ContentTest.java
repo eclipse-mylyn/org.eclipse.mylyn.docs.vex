@@ -14,19 +14,22 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import org.eclipse.vex.core.dom.IContent;
+import org.eclipse.vex.core.dom.ContentRange;
+import org.eclipse.vex.core.dom.IPosition;
 import org.junit.Before;
 import org.junit.Test;
 
 public abstract class ContentTest {
 
-	private Content content;
+	private IContent content;
 
 	@Before
 	public void setUp() throws Exception {
 		content = createContent();
 	}
 
-	protected abstract Content createContent();
+	protected abstract IContent createContent();
 
 	@Test
 	public void insertText() throws Exception {
@@ -64,7 +67,7 @@ public abstract class ContentTest {
 	public void shouldReturnAPartialCopy() throws Exception {
 		final String text = "Hello World";
 		content.insertText(0, text);
-		final Content partialCopy = content.getContent(new ContentRange(3, 7));
+		final IContent partialCopy = content.getContent(new ContentRange(3, 7));
 		assertEquals("lo Wo", partialCopy.getText());
 
 		// make shure, it is a copy
@@ -77,7 +80,7 @@ public abstract class ContentTest {
 	public void shouldReturnAFullCopy() throws Exception {
 		final String text = "Hello World";
 		content.insertText(0, text);
-		final Content fullCopy = content.getContent();
+		final IContent fullCopy = content.getContent();
 		assertEquals(text, fullCopy.getText());
 
 		// make shure, it is a copy
@@ -89,7 +92,7 @@ public abstract class ContentTest {
 	@Test
 	public void insertContent() throws Exception {
 		content.insertText(0, "Hello World");
-		final Content other = createContent();
+		final IContent other = createContent();
 		other.insertTagMarker(0);
 		other.insertText(1, "New");
 		other.insertTagMarker(4);
@@ -121,8 +124,8 @@ public abstract class ContentTest {
 	@Test
 	public void shouldIncreasePositionsOnInsertText() throws Exception {
 		content.insertText(0, "Hello World");
-		final Position helloPosition = content.createPosition(0);
-		final Position worldPosition = content.createPosition(6);
+		final IPosition helloPosition = content.createPosition(0);
+		final IPosition worldPosition = content.createPosition(6);
 		assertEquals("Hello", content.getText(new ContentRange(helloPosition.getOffset(), helloPosition.getOffset() + 4)));
 		assertEquals("World", content.getText(new ContentRange(worldPosition.getOffset(), worldPosition.getOffset() + 4)));
 
@@ -136,8 +139,8 @@ public abstract class ContentTest {
 	@Test
 	public void shouldIncreasePositionsOnInsertTagMarker() throws Exception {
 		content.insertText(0, "Hello World");
-		final Position worldStartPosition = content.createPosition(6);
-		final Position worldEndPosition = content.createPosition(10);
+		final IPosition worldStartPosition = content.createPosition(6);
+		final IPosition worldEndPosition = content.createPosition(10);
 		assertEquals("d", content.getText(new ContentRange(worldEndPosition.getOffset(), worldEndPosition.getOffset())));
 		assertEquals("World", content.getText(new ContentRange(worldStartPosition.getOffset(), worldEndPosition.getOffset())));
 
@@ -156,8 +159,8 @@ public abstract class ContentTest {
 		content.insertText(0, "Hello New World");
 		content.insertTagMarker(8);
 		content.insertTagMarker(6);
-		final Position worldStartPosition = content.createPosition(12);
-		final Position worldEndPosition = content.createPosition(16);
+		final IPosition worldStartPosition = content.createPosition(12);
+		final IPosition worldEndPosition = content.createPosition(16);
 		assertEquals("d", content.getText(new ContentRange(worldEndPosition.getOffset(), worldEndPosition.getOffset())));
 		assertEquals("World", content.getText(new ContentRange(worldStartPosition.getOffset(), worldEndPosition.getOffset())));
 
@@ -171,9 +174,9 @@ public abstract class ContentTest {
 	@Test
 	public void shouldMovePositionsWithinRemovedRangeToRangeStart() throws Exception {
 		content.insertText(0, "Hello New World");
-		final Position nPosition = content.createPosition(6);
-		final Position ePosition = content.createPosition(7);
-		final Position wPosition = content.createPosition(8);
+		final IPosition nPosition = content.createPosition(6);
+		final IPosition ePosition = content.createPosition(7);
+		final IPosition wPosition = content.createPosition(8);
 
 		content.remove(new ContentRange(6, 8));
 
@@ -186,7 +189,7 @@ public abstract class ContentTest {
 	public void canRemovePosition() throws Exception {
 		content.insertTagMarker(0);
 		content.insertTagMarker(0);
-		final Position position = content.createPosition(1);
+		final IPosition position = content.createPosition(1);
 		assertEquals(1, position.getOffset());
 
 		content.removePosition(position);
@@ -198,7 +201,7 @@ public abstract class ContentTest {
 	public void invalidatesPositionsOnRemoval() throws Exception {
 		content.insertTagMarker(0);
 		content.insertTagMarker(0);
-		final Position position = content.createPosition(1);
+		final IPosition position = content.createPosition(1);
 		assertTrue(position.isValid());
 		content.removePosition(position);
 		assertFalse(position.isValid());

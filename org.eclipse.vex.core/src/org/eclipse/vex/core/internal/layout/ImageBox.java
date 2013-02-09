@@ -2,16 +2,16 @@ package org.eclipse.vex.core.internal.layout;
 
 import java.net.URL;
 
+import org.eclipse.vex.core.dom.INode;
 import org.eclipse.vex.core.internal.core.Image;
 import org.eclipse.vex.core.internal.core.Point;
 import org.eclipse.vex.core.internal.css.Styles;
-import org.eclipse.vex.core.internal.dom.Node;
 
 public class ImageBox extends AbstractInlineBox {
 
 	private final Image image;
 
-	public static ImageBox create(final Node node, final LayoutContext context, final int maxWidth) {
+	public static ImageBox create(final INode node, final LayoutContext context, final int maxWidth) {
 		if (node == null) {
 			return null;
 		}
@@ -51,7 +51,7 @@ public class ImageBox extends AbstractInlineBox {
 		return Math.round(1f * scaled / current * opposite);
 	}
 
-	public static ImageBox createWithHeight(final Node node, final LayoutContext context, final int maxHeight) {
+	public static ImageBox createWithHeight(final INode node, final LayoutContext context, final int maxHeight) {
 		if (node == null) {
 			return null;
 		}

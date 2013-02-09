@@ -18,22 +18,39 @@ import java.util.List;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.QualifiedName;
+import org.eclipse.vex.core.dom.BaseNodeVisitorWithResult;
+import org.eclipse.vex.core.dom.ContentRange;
+import org.eclipse.vex.core.dom.DocumentEvent;
+import org.eclipse.vex.core.dom.DocumentValidationException;
+import org.eclipse.vex.core.dom.IComment;
+import org.eclipse.vex.core.dom.IContent;
+import org.eclipse.vex.core.dom.IDocument;
+import org.eclipse.vex.core.dom.IDocumentFragment;
+import org.eclipse.vex.core.dom.IDocumentListener;
+import org.eclipse.vex.core.dom.IElement;
+import org.eclipse.vex.core.dom.INode;
+import org.eclipse.vex.core.dom.INodeVisitor;
+import org.eclipse.vex.core.dom.INodeVisitorWithResult;
+import org.eclipse.vex.core.dom.IParent;
+import org.eclipse.vex.core.dom.IPosition;
+import org.eclipse.vex.core.dom.IText;
+import org.eclipse.vex.core.dom.IValidator;
 import org.eclipse.vex.core.internal.core.ListenerList;
 
 /**
  * A representation of an XML document in the DOM.
  */
-public class Document extends Parent {
+public class Document extends Parent implements IDocument {
 
 	private final Element rootElement;
-	private final ListenerList<DocumentListener, DocumentEvent> listeners = new ListenerList<DocumentListener, DocumentEvent>(DocumentListener.class);
+	private final ListenerList<IDocumentListener, DocumentEvent> listeners = new ListenerList<IDocumentListener, DocumentEvent>(IDocumentListener.class);
 
 	private String publicID;
 	protected String systemID;
 	private String documentURI;
 
 	private String encoding;
-	private Validator validator;
+	private IValidator validator;
 
 	/**
 	 * Create a new document with the given root element. This constructor creates a Content object and associates both
@@ -65,7 +82,7 @@ public class Document extends Parent {
 	 *            root element of the document
 	 * 
 	 */
-	public Document(final Content content, final Element rootElement) {
+	public Document(final IContent content, final Element rootElement) {
 		Assert.isTrue(content == rootElement.getContent(), "The given root element must already be associated with the given content.");
 		content.insertTagMarker(0);
 		content.insertTagMarker(content.length());
@@ -89,12 +106,10 @@ public class Document extends Parent {
 		return getContent().length() - 1;
 	}
 
-	@Override
 	public void accept(final INodeVisitor visitor) {
 		visitor.visit(this);
 	}
 
-	@Override
 	public <T> T accept(final INodeVisitorWithResult<T> visitor) {
 		return visitor.visit(this);
 	}
@@ -104,8 +119,7 @@ public class Document extends Parent {
 		return getDocumentURI();
 	}
 
-	@Override
-	public boolean isKindOf(final Node node) {
+	public boolean isKindOf(final INode node) {
 		return false;
 	}
 
@@ -145,11 +159,11 @@ public class Document extends Parent {
 		this.systemID = systemID;
 	}
 
-	public Validator getValidator() {
+	public IValidator getValidator() {
 		return validator;
 	}
 
-	public void setValidator(final Validator validator) {
+	public void setValidator(final IValidator validator) {
 		this.validator = validator;
 	}
 
@@ -157,34 +171,15 @@ public class Document extends Parent {
 		return rootElement;
 	}
 
-	/**
-	 * @return the length of the textual content of this document plus 1 for each opening or closing XML tag (element
-	 *         tags, comment tags, PI tags and entity references).
-	 */
 	public int getLength() {
 		return getContent().length();
 	}
 
-	/**
-	 * Create a Position for the given offset. A position is automatically updated if it "moves" due to content
-	 * modifications.
-	 * 
-	 * <p>
-	 * All created positions are referenced by this document. <b>Make sure to remove positions you don't need
-	 * anymore.</b>
-	 * 
-	 * @see Position
-	 * @see Document#removePosition(Position)
-	 * @return the Position for the given offset
-	 */
-	public Position createPosition(final int offset) {
+	public IPosition createPosition(final int offset) {
 		return getContent().createPosition(offset);
 	}
 
-	/**
-	 * Remove the given Position. A removed position is not updated anymore.
-	 */
-	public void removePosition(final Position position) {
+	public void removePosition(final IPosition position) {
 		getContent().removePosition(position);
 	}
 
@@ -192,17 +187,17 @@ public class Document extends Parent {
 	 * L1 Operations
 	 */
 
-	private boolean canInsertAt(final Node insertionNode, final int offset, final QualifiedName... nodeNames) {
+	private boolean canInsertAt(final INode insertionNode, final int offset, final QualifiedName... nodeNames) {
 		return canInsertAt(insertionNode, offset, Arrays.asList(nodeNames));
 	}
 
-	private boolean canInsertAt(final Node insertionNode, final int offset, final List<QualifiedName> nodeNames) {
+	private boolean canInsertAt(final INode insertionNode, final int offset, final List<QualifiedName> nodeNames) {
 		if (insertionNode == null) {
 			return false;
 		}
 		return insertionNode.accept(new BaseNodeVisitorWithResult<Boolean>(false) {
 			@Override
-			public Boolean visit(final Element element) {
+			public Boolean visit(final IElement element) {
 				if (validator == null) {
 					return true;
 				}
@@ -215,68 +210,55 @@ public class Document extends Parent {
 			}
 
 			@Override
-			public Boolean visit(final Comment comment) {
+			public Boolean visit(final IComment comment) {
 				return true;
 			}
 
 			@Override
-			public Boolean visit(final Text text) {
+			public Boolean visit(final IText text) {
 				return true;
 			}
 		});
 	}
 
-	/**
-	 * @return true if text can be inserted at the given offset
-	 */
 	public boolean canInsertText(final int offset) {
-		return canInsertAt(getNodeForInsertionAt(offset), offset, Validator.PCDATA);
+		return canInsertAt(getNodeForInsertionAt(offset), offset, IValidator.PCDATA);
 	}
 
-	/**
-	 * Insert the given text at the given offset.
-	 * 
-	 * @param offset
-	 *            the offset at which the text should be inserted
-	 * @param text
-	 *            The text to insert. Control characters are automatically converted to \s (except for \n).
-	 * @throws DocumentValidationException
-	 *             if text is not allowed at the given offset
-	 */
 	public void insertText(final int offset, final String text) throws DocumentValidationException {
 		Assert.isTrue(offset > getStartOffset() && offset <= getEndOffset(), MessageFormat.format("Offset must be in [{0}, {1}]", getStartOffset() + 1, getEndOffset()));
 
 		final String adjustedText = convertControlCharactersToSpaces(text);
-		final Node insertionNode = getNodeForInsertionAt(offset);
+		final INode insertionNode = getNodeForInsertionAt(offset);
 		insertionNode.accept(new INodeVisitor() {
-			public void visit(final Document document) {
+			public void visit(final IDocument document) {
 				Assert.isTrue(false, "Cannot insert text directly into Document.");
 			}
 
-			public void visit(final DocumentFragment fragment) {
+			public void visit(final IDocumentFragment fragment) {
 				Assert.isTrue(false, "DocumentFragment is never a child of Document.");
 			}
 
-			public void visit(final Element element) {
-				if (!canInsertAt(element, offset, Validator.PCDATA)) {
+			public void visit(final IElement element) {
+				if (!canInsertAt(element, offset, IValidator.PCDATA)) {
 					throw new DocumentValidationException(MessageFormat.format("Cannot insert text ''{0}'' at offset {1}.", text, offset));
 				}
 
-				fireBeforeContentInserted(new DocumentEvent(Document.this, element, offset, adjustedText.length(), null));
+				fireBeforeContentInserted(new DocumentEvent(Document.this, element, new ContentRange(offset, offset + adjustedText.length() - 1)));
 				getContent().insertText(offset, adjustedText);
-				fireContentInserted(new DocumentEvent(Document.this, element, offset, adjustedText.length(), null));
+				fireContentInserted(new DocumentEvent(Document.this, element, new ContentRange(offset, offset + adjustedText.length() - 1)));
 			}
 
-			public void visit(final Text text) {
-				fireBeforeContentInserted(new DocumentEvent(Document.this, text.getParent(), offset, adjustedText.length(), null));
+			public void visit(final IText text) {
+				fireBeforeContentInserted(new DocumentEvent(Document.this, text.getParent(), new ContentRange(offset, offset + adjustedText.length() - 1)));
 				getContent().insertText(offset, adjustedText);
-				fireContentInserted(new DocumentEvent(Document.this, text.getParent(), offset, adjustedText.length(), null));
+				fireContentInserted(new DocumentEvent(Document.this, text.getParent(), new ContentRange(offset, offset + adjustedText.length() - 1)));
 			}
 
-			public void visit(final Comment comment) {
-				fireBeforeContentInserted(new DocumentEvent(Document.this, comment.getParent(), offset, adjustedText.length(), null));
+			public void visit(final IComment comment) {
+				fireBeforeContentInserted(new DocumentEvent(Document.this, comment.getParent(), new ContentRange(offset, offset + adjustedText.length() - 1)));
 				getContent().insertText(offset, adjustedText);
-				fireContentInserted(new DocumentEvent(Document.this, comment.getParent(), offset, adjustedText.length(), null));
+				fireContentInserted(new DocumentEvent(Document.this, comment.getParent(), new ContentRange(offset, offset + adjustedText.length() - 1)));
 			}
 		});
 	}
@@ -291,38 +273,25 @@ public class Document extends Parent {
 		return new String(characters);
 	}
 
-	/**
-	 * @return true if a comment can be inserted a the given offset
-	 */
 	public boolean canInsertComment(final int offset) {
 		if (!(offset > getStartOffset() && offset <= getEndOffset())) {
 			return false;
 		}
-		final Node node = getNodeForInsertionAt(offset);
-		if (node instanceof Comment) {
+		final INode node = getNodeForInsertionAt(offset);
+		if (node instanceof IComment) {
 			return false;
 		}
 		return true;
 	}
 
-	/**
-	 * Insert a new comment at the given offset.
-	 * 
-	 * @see Comment
-	 * @param offset
-	 *            the offset at which the comment should be inserted
-	 * @return the new comment
-	 * @throws DocumentValidationException
-	 *             if a comment is not allowed a the given offset (e.g. within an existing comment)
-	 */
-	public Comment insertComment(final int offset) throws DocumentValidationException {
+	public IComment insertComment(final int offset) throws DocumentValidationException {
 		if (!canInsertComment(offset)) {
 			throw new DocumentValidationException(MessageFormat.format("Cannot insert a comment at offset {0}.", offset));
 		}
 
 		final Parent parent = getParentForInsertionAt(offset);
 
-		fireBeforeContentInserted(new DocumentEvent(this, parent, offset, 2, null));
+		fireBeforeContentInserted(new DocumentEvent(this, parent, new ContentRange(offset, offset + 1)));
 
 		final Comment comment = new Comment();
 		getContent().insertTagMarker(offset);
@@ -331,31 +300,15 @@ public class Document extends Parent {
 
 		parent.insertChildAt(offset, comment);
 
-		fireContentInserted(new DocumentEvent(this, parent, offset, 2, null));
+		fireContentInserted(new DocumentEvent(this, parent, comment.getRange()));
 
 		return comment;
 	}
 
-	/**
-	 * @return true if a new element with the given qualified name can be inserted at the given offset
-	 */
 	public boolean canInsertElement(final int offset, final QualifiedName elementName) {
 		return canInsertAt(getElementForInsertionAt(offset), offset, elementName);
 	}
 
-	/**
-	 * Insert a new element with the given qualified name a the given offset.
-	 * 
-	 * @see Element
-	 * @see QualifiedName
-	 * @param offset
-	 *            the offset at which the element should be inserted
-	 * @param elementName
-	 *            the qualified name of the new element
-	 * @return the new element
-	 * @throws DocumentValidationException
-	 *             if an element with the given qualified name is not allowed a the given offset
-	 */
 	public Element insertElement(final int offset, final QualifiedName elementName) throws DocumentValidationException {
 		Assert.isTrue(offset > rootElement.getStartOffset() && offset <= rootElement.getEndOffset(),
 				MessageFormat.format("Offset must be in [{0}, {1}]", rootElement.getStartOffset() + 1, rootElement.getEndOffset()));
@@ -365,7 +318,7 @@ public class Document extends Parent {
 			throw new DocumentValidationException(MessageFormat.format("Cannot insert element {0} at offset {1}.", elementName, offset));
 		}
 
-		fireBeforeContentInserted(new DocumentEvent(this, parent, offset, 2, null));
+		fireBeforeContentInserted(new DocumentEvent(this, parent, new ContentRange(offset, offset + 1)));
 
 		final Element element = new Element(elementName);
 		getContent().insertTagMarker(offset);
@@ -374,30 +327,16 @@ public class Document extends Parent {
 
 		parent.insertChildAt(offset, element);
 
-		fireContentInserted(new DocumentEvent(this, parent, offset, 2, null));
+		fireContentInserted(new DocumentEvent(this, parent, element.getRange()));
 
 		return element;
 	}
 
-	/**
-	 * @return true if the given DocumentFragment can be inserted at the given offset
-	 */
-	public boolean canInsertFragment(final int offset, final DocumentFragment fragment) {
+	public boolean canInsertFragment(final int offset, final IDocumentFragment fragment) {
 		return canInsertAt(getElementForInsertionAt(offset), offset, fragment.getNodeNames());
 	}
 
-	/**
-	 * Insert the given DocumentFragment at the given offset.
-	 * 
-	 * @see DocumentFragment
-	 * @param offset
-	 *            the offset at which the fragment should be inserted
-	 * @param fragment
-	 *            the fragment to insert
-	 * @throws DocumentValidationException
-	 *             if the given fragment may not be inserted at the given offset
-	 */
-	public void insertFragment(final int offset, final DocumentFragment fragment) throws DocumentValidationException {
+	public void insertFragment(final int offset, final IDocumentFragment fragment) throws DocumentValidationException {
 		Assert.isTrue(isInsertionPointIn(this, offset), "Cannot insert fragment outside of the document range.");
 
 		final Element parent = getElementForInsertionAt(offset);
@@ -405,7 +344,7 @@ public class Document extends Parent {
 			throw new DocumentValidationException(MessageFormat.format("Cannot insert document fragment at offset {0}.", offset));
 		}
 
-		fireBeforeContentInserted(new DocumentEvent(this, parent, offset, 2, null));
+		fireBeforeContentInserted(new DocumentEvent(this, parent, new ContentRange(offset, offset + 1)));
 
 		getContent().insertContent(offset, fragment.getContent());
 
@@ -418,42 +357,34 @@ public class Document extends Parent {
 			nextOffset = newNode.getEndOffset() + 1;
 		}
 
-		fireContentInserted(new DocumentEvent(this, parent, offset, fragment.getContent().length(), null));
+		fireContentInserted(new DocumentEvent(this, parent, new ContentRange(offset, offset + fragment.getContent().length() - 1)));
 	}
 
 	private void associateDeeply(final Node node, final int offset) {
 		if (node instanceof Parent) {
 			final Parent parent = (Parent) node;
-			for (final Node child : parent.children()) {
-				associateDeeply(child, offset);
+			for (final INode child : parent.children()) {
+				associateDeeply((Node) child, offset);
 			}
 		}
 		node.associate(getContent(), node.getRange().moveBy(offset));
 	}
 
-	/**
-	 * Delete everything in the given range. The range must be balanced i.e. it must start in the same node as it ends.
-	 * 
-	 * @param range
-	 *            the range to delete
-	 * @throws DocumentValidationException
-	 *             if the deletion would lead to an invalid document
-	 */
 	public void delete(final ContentRange range) throws DocumentValidationException {
-		final Parent surroundingParent = getParentAt(range.getStartOffset());
-		final Parent parentAtEndOffset = getParentAt(range.getEndOffset());
+		final IParent surroundingParent = getParentAt(range.getStartOffset());
+		final IParent parentAtEndOffset = getParentAt(range.getEndOffset());
 		Assert.isTrue(surroundingParent == parentAtEndOffset, MessageFormat.format("Range {0} for deletion is unbalanced: {1} -> {2}", range, surroundingParent, parentAtEndOffset));
 
 		final Parent parentForDeletion;
 		if (range.equals(surroundingParent.getRange())) {
-			parentForDeletion = surroundingParent.getParent();
+			parentForDeletion = (Parent) surroundingParent.getParent();
 		} else {
-			parentForDeletion = surroundingParent;
+			parentForDeletion = (Parent) surroundingParent;
 		}
 
 		final boolean deletionIsValid = parentForDeletion.accept(new BaseNodeVisitorWithResult<Boolean>(true) {
 			@Override
-			public Boolean visit(final Document document) {
+			public Boolean visit(final IDocument document) {
 				if (range.intersects(document.getRootElement().getRange())) {
 					return false;
 				}
@@ -461,8 +392,8 @@ public class Document extends Parent {
 			}
 
 			@Override
-			public Boolean visit(final Element element) {
-				final Validator validator = getValidator();
+			public Boolean visit(final IElement element) {
+				final IValidator validator = getValidator();
 				if (validator == null) {
 					return true;
 				}
@@ -475,25 +406,22 @@ public class Document extends Parent {
 			throw new DocumentValidationException(MessageFormat.format("Cannot delete {0}", range));
 		}
 
-		fireBeforeContentDeleted(new DocumentEvent(this, parentForDeletion, range.getStartOffset(), range.length(), null));
+		fireBeforeContentDeleted(new DocumentEvent(this, parentForDeletion, range));
 
-		for (final Node child : parentForDeletion.children().in(range)) {
-			parentForDeletion.removeChild(child);
-			child.dissociate();
+		for (final INode child : parentForDeletion.children().in(range)) {
+			parentForDeletion.removeChild((Node) child);
+			((Node) child).dissociate();
 		}
 
 		getContent().remove(range);
 
-		fireContentDeleted(new DocumentEvent(this, parentForDeletion, range.getStartOffset(), range.length(), null));
+		fireContentDeleted(new DocumentEvent(this, parentForDeletion, range));
 	}
 
 	/*
 	 * Miscellaneous
 	 */
 
-	/**
-	 * @return the character at the given offset. If there is an XML tag at the given offset \0 is returned.
-	 */
 	public char getCharacterAt(final int offset) {
 		final String text = getContent().getText(new ContentRange(offset, offset));
 		if (text.length() == 0) {
@@ -507,25 +435,16 @@ public class Document extends Parent {
 		return text.charAt(0);
 	}
 
-	/**
-	 * Find the nearest common node of the given offsets going from each offset to the root element.
-	 * 
-	 * @param offset1
-	 *            the first offset
-	 * @param offset2
-	 *            the second offset
-	 * @return the nearest common node for both offsets
-	 */
-	public Node findCommonNode(final int offset1, final int offset2) {
+	public INode findCommonNode(final int offset1, final int offset2) {
 		Assert.isTrue(containsOffset(offset1) && containsOffset(offset2));
 		return findCommonNodeIn(this, offset1, offset2);
 	}
 
-	private static Node findCommonNodeIn(final Parent parent, final int offset1, final int offset2) {
-		for (final Node child : parent.children().withoutText()) {
+	private static INode findCommonNodeIn(final IParent parent, final int offset1, final int offset2) {
+		for (final INode child : parent.children().withoutText()) {
 			if (isCommonNodeFor(child, offset1, offset2)) {
-				if (child instanceof Parent) {
-					return findCommonNodeIn((Parent) child, offset1, offset2);
+				if (child instanceof IParent) {
+					return findCommonNodeIn((IParent) child, offset1, offset2);
 				}
 				return child;
 			}
@@ -533,23 +452,17 @@ public class Document extends Parent {
 		return parent;
 	}
 
-	private static boolean isCommonNodeFor(final Node node, final int offset1, final int offset2) {
+	private static boolean isCommonNodeFor(final INode node, final int offset1, final int offset2) {
 		return isInsertionPointIn(node, offset1) && isInsertionPointIn(node, offset2);
 	}
 
-	/**
-	 * @return true if the given node would contain an insertion at the given offset
-	 */
-	public static boolean isInsertionPointIn(final Node node, final int offset) {
+	public static boolean isInsertionPointIn(final INode node, final int offset) {
 		return node.getRange().resizeBy(1, 0).contains(offset);
 	}
 
-	/**
-	 * @return the node in which an insertion at the given offset will end
-	 */
-	public Node getNodeForInsertionAt(final int offset) {
-		final Node node = getChildAt(offset);
-		if (node instanceof Text) {
+	public INode getNodeForInsertionAt(final int offset) {
+		final INode node = getChildAt(offset);
+		if (node instanceof IText) {
 			return node.getParent();
 		}
 		if (offset == node.getStartOffset()) {
@@ -559,20 +472,17 @@ public class Document extends Parent {
 	}
 
 	private Parent getParentForInsertionAt(final int offset) {
-		final Node node = getChildAt(offset);
+		final INode node = getChildAt(offset);
 		if (!(node instanceof Parent)) {
-			return node.getParent();
+			return (Parent) node.getParent();
 		}
 		if (offset == node.getStartOffset()) {
-			return node.getParent();
+			return (Parent) node.getParent();
 		}
 		// this cast is save because if we got here node is a Parent
 		return (Parent) node;
 	}
 
-	/**
-	 * @return the element in which an insertion at the given offset will end
-	 */
 	public Element getElementForInsertionAt(final int offset) {
 		final Element parent = getParentElement(getChildAt(offset));
 		if (parent == null) {
@@ -584,7 +494,7 @@ public class Document extends Parent {
 		return parent;
 	}
 
-	private static Element getParentElement(final Node node) {
+	private static Element getParentElement(final INode node) {
 		if (node == null) {
 			return null;
 		}
@@ -594,53 +504,37 @@ public class Document extends Parent {
 		return getParentElement(node.getParent());
 	}
 
-	private Parent getParentAt(final int offset) {
-		final Node child = getChildAt(offset);
-		if (child instanceof Parent) {
-			return (Parent) child;
+	private IParent getParentAt(final int offset) {
+		final INode child = getChildAt(offset);
+		if (child instanceof IParent) {
+			return (IParent) child;
 		}
 		return child.getParent();
 	}
 
-	/**
-	 * @return true if there is an XML tag at the given offset (element tags, comment tags, PI tags and entity
-	 *         references)
-	 */
 	public boolean isTagAt(final int offset) {
 		return getContent().isTagMarker(offset);
 	}
 
-	/**
-	 * Create a new DocumentFragment with a deep copy of the given range in this document. The range must be balanced
-	 * i.e. it must start in the same node as it ends.
-	 * 
-	 * @see DocumentFragment
-	 * @param range
-	 *            the range to copy into the fragment
-	 * @return a new fragment with a deep copy of the given range
-	 */
 	public DocumentFragment getFragment(final ContentRange range) {
-		final Parent parent = getParentOfRange(range);
+		final IParent parent = getParentOfRange(range);
 		final DeepCopy deepCopy = new DeepCopy(parent, range);
 		return new DocumentFragment(deepCopy.getContent(), deepCopy.getNodes());
 	}
 
-	private Parent getParentOfRange(final ContentRange range) {
+	private IParent getParentOfRange(final ContentRange range) {
 		Assert.isTrue(getRange().contains(range));
 
-		final Node startNode = getChildAt(range.getStartOffset());
-		final Node endNode = getChildAt(range.getEndOffset());
-		final Parent parent = startNode.getParent();
+		final INode startNode = getChildAt(range.getStartOffset());
+		final INode endNode = getChildAt(range.getEndOffset());
+		final IParent parent = startNode.getParent();
 		Assert.isTrue(parent == endNode.getParent(), MessageFormat.format("The fragment in {0} is unbalanced.", range));
 		Assert.isNotNull(parent, MessageFormat.format("No balanced parent found for {0}", range));
 
 		return parent;
 	}
 
-	/**
-	 * @return all nodes in the given range in this document
-	 */
-	public List<Node> getNodes(final ContentRange range) {
+	public List<? extends INode> getNodes(final ContentRange range) {
 		return getParentOfRange(range).children().in(range).asList();
 	}
 
@@ -648,11 +542,11 @@ public class Document extends Parent {
 	 * Events
 	 */
 
-	public void addDocumentListener(final DocumentListener listener) {
+	public void addDocumentListener(final IDocumentListener listener) {
 		listeners.add(listener);
 	}
 
-	public void removeDocumentListener(final DocumentListener listener) {
+	public void removeDocumentListener(final IDocumentListener listener) {
 		listeners.remove(listener);
 	}
 

@@ -27,10 +27,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
 
+import org.eclipse.vex.core.dom.BaseNodeVisitor;
+import org.eclipse.vex.core.dom.IElement;
+import org.eclipse.vex.core.dom.INode;
 import org.eclipse.vex.core.internal.core.FontSpec;
-import org.eclipse.vex.core.internal.dom.BaseNodeVisitor;
-import org.eclipse.vex.core.internal.dom.Element;
-import org.eclipse.vex.core.internal.dom.Node;
 import org.w3c.css.sac.LexicalUnit;
 
 /**
@@ -87,7 +87,7 @@ public class StyleSheet {
 	 * 
 	 * This must be transient to prevent it from being serialized, as WeakHashMaps are not serializable.
 	 */
-	private transient Map<Node, WeakReference<Styles>> styleMap;
+	private transient Map<INode, WeakReference<Styles>> styleMap;
 
 	/**
 	 * Class constructor.
@@ -105,7 +105,7 @@ public class StyleSheet {
 	 * @param element
 	 *            IVEXElement for which styles are to be flushed.
 	 */
-	public void flushStyles(final Element element) {
+	public void flushStyles(final IElement element) {
 		getStyleMap().remove(element);
 	}
 
@@ -116,7 +116,7 @@ public class StyleSheet {
 	 * @param element
 	 *            Parent element of the pseudo-element.
 	 */
-	public Element getAfterElement(final Element element) {
+	public PseudoElement getAfterElement(final IElement element) {
 		final PseudoElement pe = new PseudoElement(element, PseudoElement.AFTER);
 		final Styles styles = getStyles(pe);
 		if (styles == null) {
@@ -133,7 +133,7 @@ public class StyleSheet {
 	 * @param element
 	 *            Parent element of the pseudo-element.
 	 */
-	public Element getBeforeElement(final Element element) {
+	public PseudoElement getBeforeElement(final IElement element) {
 		final PseudoElement pe = new PseudoElement(element, PseudoElement.BEFORE);
 		final Styles styles = getStyles(pe);
 		if (styles == null) {
@@ -149,7 +149,7 @@ public class StyleSheet {
 	 * @param node
 	 *            Node for which to calculate the styles.
 	 */
-	public Styles getStyles(final Node node) {
+	public Styles getStyles(final INode node) {
 
 		Styles styles;
 		final WeakReference<Styles> ref = getStyleMap().get(node);
@@ -180,7 +180,7 @@ public class StyleSheet {
 		return styles;
 	}
 
-	private Styles calculateStyles(final Node node) {
+	private Styles calculateStyles(final INode node) {
 
 		final Styles styles = new Styles();
 		Styles parentStyles = null;
@@ -212,7 +212,7 @@ public class StyleSheet {
 					final LexicalUnit currentLexicalUnit = lexicalUnit;
 					node.accept(new BaseNodeVisitor() {
 						@Override
-						public void visit(final Element element) {
+						public void visit(final IElement element) {
 							final String attributeValue = element.getParentElement().getAttributeValue(currentLexicalUnit.getStringValue());
 							if (attributeValue != null) {
 								content.add(attributeValue);
@@ -268,7 +268,7 @@ public class StyleSheet {
 	/**
 	 * Returns all the declarations that apply to the given element.
 	 */
-	private Map<String, LexicalUnit> getApplicableDeclarations(final Node node) {
+	private Map<String, LexicalUnit> getApplicableDeclarations(final INode node) {
 		final List<PropertyDecl> rawDeclarationsForElement = findAllDeclarationsFor(node);
 
 		// Sort in cascade order. We can then just stuff them into a
@@ -289,7 +289,7 @@ public class StyleSheet {
 		return values;
 	}
 
-	private List<PropertyDecl> findAllDeclarationsFor(final Node node) {
+	private List<PropertyDecl> findAllDeclarationsFor(final INode node) {
 		final List<PropertyDecl> rawDeclarations = new ArrayList<PropertyDecl>();
 		for (final Rule rule : rules) {
 			if (rule.matches(node)) {
@@ -302,9 +302,9 @@ public class StyleSheet {
 		return rawDeclarations;
 	}
 
-	private Map<Node, WeakReference<Styles>> getStyleMap() {
+	private Map<INode, WeakReference<Styles>> getStyleMap() {
 		if (styleMap == null) {
-			styleMap = new WeakHashMap<Node, WeakReference<Styles>>();
+			styleMap = new WeakHashMap<INode, WeakReference<Styles>>();
 		}
 		return styleMap;
 	}

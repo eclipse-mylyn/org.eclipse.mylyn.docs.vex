@@ -13,12 +13,12 @@ package org.eclipse.vex.core.internal.layout;
 import java.text.MessageFormat;
 
 import org.eclipse.core.runtime.Assert;
+import org.eclipse.vex.core.dom.ContentRange;
+import org.eclipse.vex.core.dom.INode;
 import org.eclipse.vex.core.internal.core.ColorResource;
 import org.eclipse.vex.core.internal.core.FontResource;
 import org.eclipse.vex.core.internal.core.Graphics;
 import org.eclipse.vex.core.internal.css.Styles;
-import org.eclipse.vex.core.internal.dom.ContentRange;
-import org.eclipse.vex.core.internal.dom.Node;
 
 /**
  * A TextBox that gets its text from the document. Represents text which is editable within the VexWidget.
@@ -40,7 +40,7 @@ public class DocumentTextBox extends TextBox {
 	 * @param endOffset
 	 *            end offset of the text
 	 */
-	public DocumentTextBox(final LayoutContext context, final Node node, final int startOffset, final int endOffset) {
+	public DocumentTextBox(final LayoutContext context, final INode node, final int startOffset, final int endOffset) {
 		super(node);
 		Assert.isTrue(startOffset <= endOffset, MessageFormat.format("DocumentTextBox for {2}: startOffset {0} > endOffset {1}", startOffset, endOffset, node));
 

@@ -22,8 +22,7 @@ import java.net.URL;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParserFactory;
 
-import org.eclipse.vex.core.internal.dom.Document;
-import org.eclipse.vex.core.internal.dom.DocumentContentModel;
+import org.eclipse.vex.core.dom.IDocument;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
@@ -77,7 +76,7 @@ public class DocumentReader {
 	 * @param url
 	 *            URL from which to load the document.
 	 */
-	public Document read(final URL url) throws IOException, ParserConfigurationException, SAXException {
+	public IDocument read(final URL url) throws IOException, ParserConfigurationException, SAXException {
 		return read(new InputSource(url.toString()));
 	}
 
@@ -87,7 +86,7 @@ public class DocumentReader {
 	 * @param s
 	 *            String containing the document to be read.
 	 */
-	public Document read(final String s) throws IOException, ParserConfigurationException, SAXException {
+	public IDocument read(final String s) throws IOException, ParserConfigurationException, SAXException {
 		final Reader reader = new CharArrayReader(s.toCharArray());
 		return this.read(new InputSource(reader));
 	}
@@ -98,7 +97,7 @@ public class DocumentReader {
 	 * @param is
 	 *            SAX InputSource from which to load the document.
 	 */
-	public Document read(final InputSource is) throws IOException, ParserConfigurationException, SAXException {
+	public IDocument read(final InputSource is) throws IOException, ParserConfigurationException, SAXException {
 		final SAXParserFactory factory = SAXParserFactory.newInstance();
 		factory.setValidating(false);
 		factory.setNamespaceAware(true);
@@ -129,7 +128,7 @@ public class DocumentReader {
 		xmlReader.setProperty("http://xml.org/sax/properties/lexical-handler", lexicalHandler);
 		xmlReader.setEntityResolver(combinedEntityResolver);
 		xmlReader.parse(is);
-		final Document result = builder.getDocument();
+		final IDocument result = builder.getDocument();
 		if (result != null) {
 			result.setDocumentURI(is.getSystemId());
 		}

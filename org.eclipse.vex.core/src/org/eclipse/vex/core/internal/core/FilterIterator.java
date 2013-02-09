@@ -13,6 +13,8 @@ package org.eclipse.vex.core.internal.core;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
+import org.eclipse.vex.core.IFilter;
+
 /**
  * This iterator fiters the sequence of a given source iterator. It provides only the elements which match a given
  * filter.
@@ -22,7 +24,7 @@ import java.util.NoSuchElementException;
  */
 public class FilterIterator<T> implements Iterator<T> {
 
-	private final Iterator<T> source;
+	private final Iterator<? extends T> source;
 	private final IFilter<T> filter;
 	private T current;
 
@@ -32,7 +34,7 @@ public class FilterIterator<T> implements Iterator<T> {
 	 * @param filter
 	 *            the filter to apply to the elements of the original sequence
 	 */
-	public FilterIterator(final Iterator<T> source, final IFilter<T> filter) {
+	public FilterIterator(final Iterator<? extends T> source, final IFilter<T> filter) {
 		this.source = source;
 		this.filter = filter;
 		current = null;

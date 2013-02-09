@@ -68,12 +68,12 @@ import org.eclipse.ui.views.properties.IPropertySheetPage;
 import org.eclipse.ui.views.properties.IPropertySource;
 import org.eclipse.ui.views.properties.IPropertySourceProvider;
 import org.eclipse.ui.views.properties.PropertySheetPage;
+import org.eclipse.vex.core.dom.DocumentEvent;
+import org.eclipse.vex.core.dom.IDocument;
+import org.eclipse.vex.core.dom.IDocumentListener;
+import org.eclipse.vex.core.dom.IElement;
+import org.eclipse.vex.core.dom.IValidator;
 import org.eclipse.vex.core.internal.core.ListenerList;
-import org.eclipse.vex.core.internal.dom.Document;
-import org.eclipse.vex.core.internal.dom.DocumentEvent;
-import org.eclipse.vex.core.internal.dom.DocumentListener;
-import org.eclipse.vex.core.internal.dom.Element;
-import org.eclipse.vex.core.internal.dom.Validator;
 import org.eclipse.vex.core.internal.io.DocumentReader;
 import org.eclipse.vex.core.internal.io.DocumentWriter;
 import org.eclipse.vex.core.internal.validator.WTPVEXValidator;
@@ -113,7 +113,7 @@ public class VexEditor extends EditorPart {
 
 	private boolean loaded;
 	private DocumentType doctype;
-	private Document document;
+	private IDocument document;
 	private Style style;
 
 	private VexWidget vexWidget;
@@ -354,7 +354,7 @@ public class VexEditor extends EditorPart {
 			doctype = documentContentModel.getDocumentType();
 			style = documentContentModel.getStyle();
 
-			final Validator validator = new WTPVEXValidator(documentContentModel);
+			final IValidator validator = new WTPVEXValidator(documentContentModel);
 			if (validator != null) {
 				document.setValidator(validator);
 				if (debugging) {
@@ -718,7 +718,7 @@ public class VexEditor extends EditorPart {
 		}
 	};
 
-	private final DocumentListener documentListener = new DocumentListener() {
+	private final IDocumentListener documentListener = new IDocumentListener() {
 
 		public void attributeChanged(final DocumentEvent e) {
 			setDirty();
@@ -779,7 +779,7 @@ public class VexEditor extends EditorPart {
 
 	private String getLocationPath() {
 		final List<String> path = new ArrayList<String>();
-		Element element = vexWidget.getCurrentElement();
+		IElement element = vexWidget.getCurrentElement();
 		while (element != null) {
 			path.add(element.getPrefixedName());
 			element = element.getParentElement();
@@ -806,14 +806,14 @@ public class VexEditor extends EditorPart {
 			final PropertySheetPage page = new PropertySheetPage();
 			page.setPropertySourceProvider(new IPropertySourceProvider() {
 				public IPropertySource getPropertySource(final Object object) {
-					if (object instanceof Element) {
+					if (object instanceof IElement) {
 						final IStructuredSelection selection = (IStructuredSelection) vexWidget.getSelection();
 						final boolean multipleElementsSelected = selection != null && selection.size() > 1;
-						final Validator validator = vexWidget.getDocument().getValidator();
-						return new ElementPropertySource((Element) object, validator, multipleElementsSelected);
+						final IValidator validator = vexWidget.getDocument().getValidator();
+						return new ElementPropertySource((IElement) object, validator, multipleElementsSelected);
 					}
-					if (object instanceof Document) {
-						return new DocumentPropertySource((Document) object);
+					if (object instanceof IDocument) {
+						return new DocumentPropertySource((IDocument) object);
 					}
 					return null;
 				}

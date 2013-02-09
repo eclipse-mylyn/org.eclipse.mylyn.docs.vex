@@ -8,33 +8,24 @@
  * Contributors:
  * 		Florian Thienel - initial API and implementation
  *******************************************************************************/
-package org.eclipse.vex.core.internal.dom;
+package org.eclipse.vex.core.dom;
 
 /**
- * This class provides default implementations for the methods defined by the <code>INodeVisitor</code> interface.
+ * An incarantion of the <a href="http://en.wikipedia.org/wiki/Visitor_pattern">Visitor pattern</a> which handles the
+ * nodes of the structural part of the DOM.
  * 
- * @see INodeVisitor
  * @author Florian Thienel
  */
-public class BaseNodeVisitor implements INodeVisitor {
+public interface INodeVisitor {
 
-	public void visit(final Document document) {
-		// ignore
-	}
+	void visit(IDocument document);
 
-	public void visit(final DocumentFragment fragment) {
-		// ignore
-	}
+	void visit(IDocumentFragment fragment);
 
-	public void visit(final Element element) {
-		// ignore
-	}
+	void visit(IElement element);
 
-	public void visit(final Text text) {
-		// ignore
-	}
+	void visit(IText text);
 
-	public void visit(final Comment comment) {
-		// ignore
-	}
+	void visit(IComment comment);
+
 }

@@ -16,16 +16,15 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
 
 import org.eclipse.core.runtime.QualifiedName;
-import org.eclipse.vex.core.internal.dom.BaseNodeVisitor;
-import org.eclipse.vex.core.internal.dom.Comment;
-import org.eclipse.vex.core.internal.dom.Document;
-import org.eclipse.vex.core.internal.dom.Element;
-import org.eclipse.vex.core.internal.dom.Node;
-import org.eclipse.vex.core.internal.dom.Parent;
-import org.eclipse.vex.core.internal.dom.Text;
+import org.eclipse.vex.core.dom.BaseNodeVisitor;
+import org.eclipse.vex.core.dom.IComment;
+import org.eclipse.vex.core.dom.IDocument;
+import org.eclipse.vex.core.dom.IElement;
+import org.eclipse.vex.core.dom.INode;
+import org.eclipse.vex.core.dom.IParent;
+import org.eclipse.vex.core.dom.IText;
 
 /**
  * This class provides some special assertions for round trip tests.
@@ -34,34 +33,34 @@ import org.eclipse.vex.core.internal.dom.Text;
  */
 public class RoundTrip {
 
-	public static void assertDocumentsEqual(final Document expected, final Document actual) {
+	public static void assertDocumentsEqual(final IDocument expected, final IDocument actual) {
 		assertEquals(expected.getPublicID(), actual.getPublicID());
 		assertEquals(expected.getSystemID(), actual.getSystemID());
 		assertContentEqual(expected, actual);
 	}
 
-	public static void assertContentEqual(final Parent expected, final Parent actual) {
+	public static void assertContentEqual(final IParent expected, final IParent actual) {
 		assertContentRangeEqual(expected, actual);
-		final Iterator<Node> expectedChildren = expected.children().iterator();
-		final Iterator<Node> actualChildren = actual.children().iterator();
+		final Iterator<INode> expectedChildren = expected.children().iterator();
+		final Iterator<INode> actualChildren = actual.children().iterator();
 		while (expectedChildren.hasNext() && actualChildren.hasNext()) {
-			final Node expectedNode = expectedChildren.next();
-			final Node actualNode = actualChildren.next();
+			final INode expectedNode = expectedChildren.next();
+			final INode actualNode = actualChildren.next();
 			assertContentRangeEqual(expectedNode, actualNode);
 			assertEquals(expectedNode.getClass(), actualNode.getClass());
 			expectedNode.accept(new BaseNodeVisitor() {
 				@Override
-				public void visit(final Element element) {
-					assertElementsEqual((Element) expectedNode, (Element) actualNode);
+				public void visit(final IElement element) {
+					assertElementsEqual((IElement) expectedNode, (IElement) actualNode);
 				}
 
 				@Override
-				public void visit(final Comment comment) {
+				public void visit(final IComment comment) {
 					assertEquals(expectedNode.getText(), actualNode.getText());
 				}
 
 				@Override
-				public void visit(final Text text) {
+				public void visit(final IText text) {
 					assertEquals(expectedNode.getText(), actualNode.getText());
 				}
 			});
@@ -70,28 +69,29 @@ public class RoundTrip {
 		assertFalse("less children expected", actualChildren.hasNext());
 	}
 
-	public static void assertContentRangeEqual(final Node expected, final Node actual) {
+	public static void assertContentRangeEqual(final INode expected, final INode actual) {
 		assertEquals("content range of " + expected, expected.getRange(), actual.getRange());
 	}
 
-	public static void assertElementsEqual(final Element expected, final Element actual) {
+	public static void assertElementsEqual(final IElement expected, final IElement actual) {
 		assertEquals("qualified name of " + expected, expected.getQualifiedName(), actual.getQualifiedName());
 		assertAttributesEqual(expected, actual);
 		assertNamespacesEqual(expected, actual);
 		assertContentEqual(expected, actual);
 	}
 
-	public static void assertAttributesEqual(final Element expected, final Element actual) {
-		final List<QualifiedName> expectedAttrs = expected.getAttributeNames();
-		final List<QualifiedName> actualAttrs = actual.getAttributeNames();
+	public static void assertAttributesEqual(final IElement expected, final IElement actual) {
+		final Iterator<QualifiedName> expectedAttrs = expected.getAttributeNames().iterator();
+		final Iterator<QualifiedName> actualAttrs = actual.getAttributeNames().iterator();
 
-		assertEquals("attributes of " + expected, expectedAttrs.size(), actualAttrs.size());
-		for (int i = 0; i < expectedAttrs.size(); i++) {
-			assertEquals(expectedAttrs.get(i), actualAttrs.get(i));
+		while (expectedAttrs.hasNext() && actualAttrs.hasNext()) {
+			assertEquals("attributes of " + expected, expectedAttrs.next(), actualAttrs.next());
 		}
+		assertFalse(expected + ": expected more attributes", expectedAttrs.hasNext());
+		assertFalse(expected + ": expected less attributes", actualAttrs.hasNext());
 	}
 
-	public static void assertNamespacesEqual(final Element expected, final Element actual) {
+	public static void assertNamespacesEqual(final IElement expected, final IElement actual) {
 		assertEquals("declared default namespace of " + expected, expected.getDeclaredDefaultNamespaceURI(), actual.getDeclaredDefaultNamespaceURI());
 
 		final Collection<String> expectedNamespacePrefixes = expected.getDeclaredNamespacePrefixes();

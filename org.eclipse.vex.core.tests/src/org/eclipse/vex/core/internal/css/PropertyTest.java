@@ -14,10 +14,11 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 
 import java.io.StringReader;
+import java.util.Iterator;
 
+import org.eclipse.vex.core.dom.IDocument;
+import org.eclipse.vex.core.dom.IElement;
 import org.eclipse.vex.core.internal.core.DisplayDevice;
-import org.eclipse.vex.core.internal.dom.Document;
-import org.eclipse.vex.core.internal.dom.Element;
 import org.eclipse.vex.core.internal.io.DocumentReader;
 import org.junit.Test;
 import org.w3c.css.sac.InputSource;
@@ -112,10 +113,11 @@ public class PropertyTest {
 		final LexicalUnit attrSrc = MockLU.createAttr("src");
 		final Styles styles = new Styles();
 		final Styles parentStyles = new Styles();
-		final Document document = new DocumentReader().read("<root><image/><image src=\"image.jpg\"/><image src=\"\"/></root>");
-		final Element noAttribute = document.getRootElement().getChildElements().get(0);
-		final Element setAttribute = document.getRootElement().getChildElements().get(1);
-		final Element emptyAttribute = document.getRootElement().getChildElements().get(2);
+		final IDocument document = new DocumentReader().read("<root><image/><image src=\"image.jpg\"/><image src=\"\"/></root>");
+		final Iterator<? extends IElement> childElements = document.getRootElement().childElements().iterator();
+		final IElement noAttribute = childElements.next();
+		final IElement setAttribute = childElements.next();
+		final IElement emptyAttribute = childElements.next();
 		final BackgroundImageProperty property = new BackgroundImageProperty();
 
 		assertNull(property.calculate(attrSrc, parentStyles, styles, noAttribute));

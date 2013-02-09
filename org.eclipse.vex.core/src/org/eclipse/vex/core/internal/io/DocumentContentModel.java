@@ -8,13 +8,14 @@
  * Contributors:
  * 		Florian Thienel - initial API and implementation
  *******************************************************************************/
-package org.eclipse.vex.core.internal.dom;
+package org.eclipse.vex.core.internal.io;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.MessageFormat;
 
+import org.eclipse.vex.core.dom.IElement;
 import org.eclipse.wst.common.uriresolver.internal.provisional.URIResolver;
 import org.eclipse.wst.common.uriresolver.internal.provisional.URIResolverPlugin;
 import org.eclipse.wst.xml.core.internal.contentmodel.CMDocument;
@@ -38,11 +39,11 @@ public class DocumentContentModel implements EntityResolver {
 	public DocumentContentModel() {
 	}
 
-	public DocumentContentModel(final String baseUri, final String publicId, final String systemId, final Element rootElement) {
+	public DocumentContentModel(final String baseUri, final String publicId, final String systemId, final IElement rootElement) {
 		initialize(baseUri, publicId, systemId, rootElement);
 	}
 
-	public void initialize(final String baseUri, final String publicId, final String systemId, final Element rootElement) {
+	public void initialize(final String baseUri, final String publicId, final String systemId, final IElement rootElement) {
 		this.baseUri = baseUri;
 		this.publicId = publicId;
 		this.systemId = systemId;

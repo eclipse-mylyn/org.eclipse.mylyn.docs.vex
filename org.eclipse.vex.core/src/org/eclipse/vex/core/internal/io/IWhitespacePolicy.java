@@ -9,7 +9,10 @@
  *     John Krasnay - initial API and implementation
  *     Florian Thienel - a NULL object
  *******************************************************************************/
-package org.eclipse.vex.core.internal.dom;
+package org.eclipse.vex.core.internal.io;
+
+import org.eclipse.vex.core.dom.INode;
+
 
 /**
  * Determines whitespace policy for document elements. For example, a CSS stylesheet implements a whitespace policy via
@@ -21,11 +24,11 @@ public interface IWhitespacePolicy {
 	 * A NULL object of this type. No blocks and no pre elements.
 	 */
 	IWhitespacePolicy NULL = new IWhitespacePolicy() {
-		public boolean isBlock(final Node node) {
+		public boolean isBlock(final INode node) {
 			return false;
 		}
 
-		public boolean isPre(final Node node) {
+		public boolean isPre(final INode node) {
 			return false;
 		}
 	};
@@ -36,7 +39,7 @@ public interface IWhitespacePolicy {
 	 * @param element
 	 *            Element to test.
 	 */
-	boolean isBlock(Node node);
+	boolean isBlock(INode node);
 
 	/**
 	 * Returns true if the given element is pre-formatted, that is, all of its contained whitespace should be preserved.
@@ -44,5 +47,5 @@ public interface IWhitespacePolicy {
 	 * @param element
 	 *            Element to test.
 	 */
-	boolean isPre(Node node);
+	boolean isPre(INode node);
 }

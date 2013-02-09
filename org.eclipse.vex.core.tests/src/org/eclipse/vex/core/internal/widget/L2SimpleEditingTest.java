@@ -20,9 +20,9 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
+import org.eclipse.vex.core.dom.IDocumentFragment;
+import org.eclipse.vex.core.dom.IElement;
 import org.eclipse.vex.core.internal.css.StyleSheet;
-import org.eclipse.vex.core.internal.dom.DocumentFragment;
-import org.eclipse.vex.core.internal.dom.Element;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -32,7 +32,7 @@ import org.junit.Test;
 public class L2SimpleEditingTest {
 
 	private VexWidgetImpl widget;
-	private Element rootElement;
+	private IElement rootElement;
 
 	@Before
 	public void setUp() throws Exception {
@@ -49,13 +49,13 @@ public class L2SimpleEditingTest {
 
 	@Test
 	public void shouldMoveCaretIntoInsertedElement() throws Exception {
-		final Element titleElement = widget.insertElement(TITLE);
+		final IElement titleElement = widget.insertElement(TITLE);
 		assertEquals(titleElement.getEndOffset(), widget.getCaretOffset());
 	}
 
 	@Test
 	public void shouldProvideInsertionElementAsCurrentElement() throws Exception {
-		final Element titleElement = widget.insertElement(TITLE);
+		final IElement titleElement = widget.insertElement(TITLE);
 		widget.moveBy(-1);
 		assertEquals(titleElement.getStartOffset(), widget.getCaretOffset());
 		assertSame(rootElement, widget.getCurrentElement());
@@ -63,7 +63,7 @@ public class L2SimpleEditingTest {
 
 	@Test
 	public void givenAnElementWithText_whenAtEndOfTextAndHittingBackspace_shouldDeleteLastCharacter() throws Exception {
-		final Element titleElement = widget.insertElement(TITLE);
+		final IElement titleElement = widget.insertElement(TITLE);
 		widget.insertText("Hello");
 		widget.deletePreviousChar();
 		assertEquals("Hell", titleElement.getText());
@@ -72,7 +72,7 @@ public class L2SimpleEditingTest {
 
 	@Test
 	public void givenAnElementWithText_whenAtBeginningOfTextAndHittingDelete_shouldDeleteFirstCharacter() throws Exception {
-		final Element titleElement = widget.insertElement(TITLE);
+		final IElement titleElement = widget.insertElement(TITLE);
 		widget.insertText("Hello");
 		widget.moveBy(-5);
 		widget.deleteNextChar();
@@ -84,7 +84,7 @@ public class L2SimpleEditingTest {
 	public void givenAnEmptyElement_whenCaretBetweenStartAndEndTagAndHittingBackspace_shouldDeleteEmptyElement() throws Exception {
 		widget.insertElement(TITLE);
 		widget.moveBy(1);
-		final Element paraElement = widget.insertElement(PARA);
+		final IElement paraElement = widget.insertElement(PARA);
 		widget.deletePreviousChar();
 		assertEquals(1, rootElement.children().count());
 		assertNull(paraElement.getParent());
@@ -95,7 +95,7 @@ public class L2SimpleEditingTest {
 	public void givenAnEmptyElement_whenCaretBetweenStartAndEndTagAndHittingDelete_shouldDeleteEmptyElement() throws Exception {
 		widget.insertElement(TITLE);
 		widget.moveBy(1);
-		final Element paraElement = widget.insertElement(PARA);
+		final IElement paraElement = widget.insertElement(PARA);
 		widget.deleteNextChar();
 		assertEquals(1, rootElement.children().count());
 		assertNull(paraElement.getParent());
@@ -106,7 +106,7 @@ public class L2SimpleEditingTest {
 	public void givenAnEmptyElement_whenCaretAfterEndTagAndHittingDelete_shouldDeleteEmptyElement() throws Exception {
 		widget.insertElement(TITLE);
 		widget.moveBy(1);
-		final Element paraElement = widget.insertElement(PARA);
+		final IElement paraElement = widget.insertElement(PARA);
 		widget.moveBy(1);
 		widget.deletePreviousChar();
 		assertEquals(1, rootElement.children().count());
@@ -118,7 +118,7 @@ public class L2SimpleEditingTest {
 	public void givenAnEmptyElement_whenCaretBeforeStartTagAndHittingDelete_shouldDeleteEmptyElement() throws Exception {
 		widget.insertElement(TITLE);
 		widget.moveBy(1);
-		final Element paraElement = widget.insertElement(PARA);
+		final IElement paraElement = widget.insertElement(PARA);
 		widget.moveBy(-1);
 		widget.deleteNextChar();
 		assertEquals(1, rootElement.children().count());
@@ -130,10 +130,10 @@ public class L2SimpleEditingTest {
 	public void givenTwoMatchingElements_whenCaretBetweenEndAndStartTagAndHittingBackspace_shouldJoinElements() throws Exception {
 		widget.insertElement(TITLE);
 		widget.moveBy(1);
-		final Element para1 = widget.insertElement(PARA);
+		final IElement para1 = widget.insertElement(PARA);
 		widget.insertText("Hello");
 		widget.moveBy(1);
-		final Element para2 = widget.insertElement(PARA);
+		final IElement para2 = widget.insertElement(PARA);
 		widget.insertText("World");
 
 		widget.moveTo(para2.getStartOffset());
@@ -151,10 +151,10 @@ public class L2SimpleEditingTest {
 	public void givenTwoMatchingElements_whenCaretBetweenEndAndStartTagAndHittingDelete_shouldJoinElements() throws Exception {
 		widget.insertElement(TITLE);
 		widget.moveBy(1);
-		final Element para1 = widget.insertElement(PARA);
+		final IElement para1 = widget.insertElement(PARA);
 		widget.insertText("Hello");
 		widget.moveBy(1);
-		final Element para2 = widget.insertElement(PARA);
+		final IElement para2 = widget.insertElement(PARA);
 		widget.insertText("World");
 
 		widget.moveTo(para2.getStartOffset());
@@ -172,10 +172,10 @@ public class L2SimpleEditingTest {
 	public void givenTwoMatchingElements_whenCaretAfterStartTagOfSecondElementAndHittingBackspace_shouldJoinElements() throws Exception {
 		widget.insertElement(TITLE);
 		widget.moveBy(1);
-		final Element para1 = widget.insertElement(PARA);
+		final IElement para1 = widget.insertElement(PARA);
 		widget.insertText("Hello");
 		widget.moveBy(1);
-		final Element para2 = widget.insertElement(PARA);
+		final IElement para2 = widget.insertElement(PARA);
 		widget.insertText("World");
 
 		widget.moveTo(para2.getStartOffset() + 1);
@@ -193,10 +193,10 @@ public class L2SimpleEditingTest {
 	public void givenTwoMatchingElements_whenCaretBeforeEndTagOfFirstElementAndHittingDelete_shouldJoinElements() throws Exception {
 		widget.insertElement(TITLE);
 		widget.moveBy(1);
-		final Element para1 = widget.insertElement(PARA);
+		final IElement para1 = widget.insertElement(PARA);
 		widget.insertText("Hello");
 		widget.moveBy(1);
-		final Element para2 = widget.insertElement(PARA);
+		final IElement para2 = widget.insertElement(PARA);
 		widget.insertText("World");
 
 		widget.moveTo(para1.getEndOffset());
@@ -212,7 +212,7 @@ public class L2SimpleEditingTest {
 
 	@Test
 	public void givenElementWithText_whenAllTextSelectedAndInsertingACharacter_shouldReplaceAllTextWithNewCharacter() throws Exception {
-		final Element titleElement = widget.insertElement(TITLE);
+		final IElement titleElement = widget.insertElement(TITLE);
 		widget.insertText("Hello World");
 
 		widget.moveTo(titleElement.getStartOffset() + 1, true);
@@ -255,8 +255,8 @@ public class L2SimpleEditingTest {
 	public void whenReadOnly_shouldNotInsertFragment() throws Exception {
 		widget.insertElement(TITLE);
 		widget.moveBy(1);
-		final Element para = widget.insertElement(PARA);
-		final DocumentFragment fragment = widget.getDocument().getFragment(para.getRange());
+		final IElement para = widget.insertElement(PARA);
+		final IDocumentFragment fragment = widget.getDocument().getFragment(para.getRange());
 		widget.moveTo(widget.getDocument().getRootElement().getEndOffset());
 
 		widget.setReadOnly(true);

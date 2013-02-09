@@ -14,6 +14,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import org.eclipse.vex.core.dom.ContentRange;
+import org.eclipse.vex.core.dom.IContent;
+import org.eclipse.vex.core.dom.INode;
+import org.eclipse.vex.core.dom.IParent;
+
 /**
  * This class creates a deep copy of a single Node or the child nodes of a Parent within a given Range. The copy is made
  * instantly when the constructor of DeepCopy is called.
@@ -24,7 +29,7 @@ import java.util.List;
  */
 public class DeepCopy {
 
-	private final Content content;
+	private final IContent content;
 	private final List<Node> nodes;
 
 	/**
@@ -33,7 +38,7 @@ public class DeepCopy {
 	 * @param node
 	 *            the node to copy
 	 */
-	public DeepCopy(final Node node) {
+	public DeepCopy(final INode node) {
 		final int delta;
 		if (node.isAssociated()) {
 			final ContentRange range = node.getRange();
@@ -56,7 +61,7 @@ public class DeepCopy {
 	 * @param range
 	 *            the range to copy
 	 */
-	public DeepCopy(final Parent parent, final ContentRange range) {
+	public DeepCopy(final IParent parent, final ContentRange range) {
 		final int delta;
 		if (parent.isAssociated()) {
 			delta = -range.getStartOffset();
@@ -70,9 +75,9 @@ public class DeepCopy {
 		copyNodes(parent.children().in(range), delta);
 	}
 
-	private void copyNodes(final Iterable<Node> sourceNodes, final int delta) {
+	private void copyNodes(final Iterable<? extends INode> sourceNodes, final int delta) {
 		final DeepCopyVisitor deepCopyVisitor = new DeepCopyVisitor(nodes, content, delta);
-		for (final Node sourceNode : sourceNodes) {
+		for (final INode sourceNode : sourceNodes) {
 			sourceNode.accept(deepCopyVisitor);
 		}
 	}
@@ -87,7 +92,7 @@ public class DeepCopy {
 	/**
 	 * @return the copied content.
 	 */
-	public Content getContent() {
+	public IContent getContent() {
 		return content;
 	}
 

@@ -24,10 +24,10 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.runtime.QualifiedName;
-import org.eclipse.vex.core.internal.dom.Attribute;
-import org.eclipse.vex.core.internal.dom.DocumentContentModel;
-import org.eclipse.vex.core.internal.dom.Element;
-import org.eclipse.vex.core.internal.dom.Validator;
+import org.eclipse.vex.core.dom.IAttribute;
+import org.eclipse.vex.core.dom.IElement;
+import org.eclipse.vex.core.dom.IValidator;
+import org.eclipse.vex.core.internal.io.DocumentContentModel;
 import org.eclipse.vex.core.internal.validator.AttributeDefinition.Type;
 import org.eclipse.wst.xml.core.internal.contentmodel.CMAnyElement;
 import org.eclipse.wst.xml.core.internal.contentmodel.CMAttributeDeclaration;
@@ -44,7 +44,7 @@ import org.eclipse.wst.xml.core.internal.contentmodel.internal.util.CMValidator.
 import org.eclipse.wst.xml.core.internal.contentmodel.internal.util.CMValidator.ElementPathRecordingResult;
 import org.eclipse.wst.xml.core.internal.contentmodel.internal.util.CMValidator.StringElementContentComparator;
 
-public class WTPVEXValidator implements Validator {
+public class WTPVEXValidator implements IValidator {
 
 	private static final ElementContentComparator ELEMENT_CONTENT_COMPARATOR = new StringElementContentComparator() {
 		@Override
@@ -124,7 +124,7 @@ public class WTPVEXValidator implements Validator {
 		return dtd;
 	}
 
-	public AttributeDefinition getAttributeDefinition(final Attribute attribute) {
+	public AttributeDefinition getAttributeDefinition(final IAttribute attribute) {
 		final String attributeName = attribute.getLocalName();
 		final CMElementDeclaration cmElement = getElementDeclaration(attribute.getParent());
 		/*
@@ -150,7 +150,7 @@ public class WTPVEXValidator implements Validator {
 		return new AttributeDefinition(attributeName, Type.CDATA, /* default value */"", /* values */new String[0], /* required */false, /* fixed */true);
 	}
 
-	public List<AttributeDefinition> getAttributeDefinitions(final Element element) {
+	public List<AttributeDefinition> getAttributeDefinitions(final IElement element) {
 		final CMElementDeclaration cmElement = getElementDeclaration(element);
 		/*
 		 * #342320: If we do not find the element, it is acutally not valid. But we are benevolent here since we do not
@@ -170,7 +170,7 @@ public class WTPVEXValidator implements Validator {
 		return attributeList;
 	}
 
-	private CMElementDeclaration getElementDeclaration(final Element element) {
+	private CMElementDeclaration getElementDeclaration(final IElement element) {
 		if (element == null) {
 			return null;
 		}
@@ -204,7 +204,7 @@ public class WTPVEXValidator implements Validator {
 		return vexAttr;
 	}
 
-	public Set<QualifiedName> getValidItems(final Element element) {
+	public Set<QualifiedName> getValidItems(final IElement element) {
 		return getValidItems(getElementDeclaration(element));
 	}
 

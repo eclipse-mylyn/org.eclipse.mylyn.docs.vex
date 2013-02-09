@@ -1,16 +1,16 @@
 package org.eclipse.vex.core.internal.undo;
 
-import org.eclipse.vex.core.internal.dom.Document;
-import org.eclipse.vex.core.internal.dom.DocumentFragment;
-import org.eclipse.vex.core.internal.dom.DocumentValidationException;
+import org.eclipse.vex.core.dom.DocumentValidationException;
+import org.eclipse.vex.core.dom.IDocument;
+import org.eclipse.vex.core.dom.IDocumentFragment;
 
 public class InsertFragmentEdit implements IUndoableEdit {
 
-	private final Document document;
+	private final IDocument document;
 	private final int offset;
-	private final DocumentFragment fragment;
+	private final IDocumentFragment fragment;
 
-	public InsertFragmentEdit(final Document document, final int offset, final DocumentFragment fragment) {
+	public InsertFragmentEdit(final IDocument document, final int offset, final IDocumentFragment fragment) {
 		this.document = document;
 		this.offset = offset;
 		this.fragment = fragment;

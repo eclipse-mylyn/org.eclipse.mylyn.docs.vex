@@ -16,11 +16,11 @@ import java.text.MessageFormat;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.vex.core.dom.IDocument;
+import org.eclipse.vex.core.dom.INode;
 import org.eclipse.vex.core.internal.VEXCorePlugin;
 import org.eclipse.vex.core.internal.core.Graphics;
 import org.eclipse.vex.core.internal.css.StyleSheet;
-import org.eclipse.vex.core.internal.dom.Document;
-import org.eclipse.vex.core.internal.dom.Node;
 
 /**
  * Encapsulation of all the resources needed to create a box tree. Most operations on a box tree, such as creating the
@@ -29,7 +29,7 @@ import org.eclipse.vex.core.internal.dom.Node;
 public class LayoutContext {
 
 	private BoxFactory boxFactory;
-	private Document document;
+	private IDocument document;
 	private Graphics graphics;
 	private StyleSheet styleSheet;
 	private int selectionStart;
@@ -52,7 +52,7 @@ public class LayoutContext {
 	/**
 	 * Returns the document being layed out.
 	 */
-	public Document getDocument() {
+	public IDocument getDocument() {
 		return document;
 	}
 
@@ -84,7 +84,7 @@ public class LayoutContext {
 	 * @param node
 	 *            Node to test. May be null, in which case this method returns false.
 	 */
-	public boolean isNodeSelected(final Node node) {
+	public boolean isNodeSelected(final INode node) {
 		return node != null && node.getStartOffset() >= getSelectionStart() && node.getEndOffset() + 1 <= getSelectionEnd();
 	}
 
@@ -105,7 +105,7 @@ public class LayoutContext {
 	/**
 	 * Sets the document being layed out.
 	 */
-	public void setDocument(final Document document) {
+	public void setDocument(final IDocument document) {
 		this.document = document;
 	}
 

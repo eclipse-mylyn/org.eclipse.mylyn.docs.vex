@@ -19,7 +19,7 @@ import java.util.Iterator;
  */
 public class AfterNIterator<T> implements Iterator<T> {
 
-	private final Iterator<T> source;
+	private final Iterator<? extends T> source;
 
 	/**
 	 * @param source
@@ -27,7 +27,7 @@ public class AfterNIterator<T> implements Iterator<T> {
 	 * @param n
 	 *            the number of the element to start with
 	 */
-	public AfterNIterator(final Iterator<T> source, final int n) {
+	public AfterNIterator(final Iterator<? extends T> source, final int n) {
 		this.source = source;
 		forward(source, n);
 	}

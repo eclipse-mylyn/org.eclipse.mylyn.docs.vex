@@ -19,9 +19,9 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
+import org.eclipse.vex.core.dom.IComment;
+import org.eclipse.vex.core.dom.IElement;
 import org.eclipse.vex.core.internal.css.StyleSheet;
-import org.eclipse.vex.core.internal.dom.Comment;
-import org.eclipse.vex.core.internal.dom.Element;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -30,8 +30,8 @@ import org.junit.Test;
  */
 public class L2CommentEditingTest {
 
-	private VexWidgetImpl widget;
-	private Element rootElement;
+	private IVexWidget widget;
+	private IElement rootElement;
 
 	@Before
 	public void setUp() throws Exception {
@@ -42,7 +42,7 @@ public class L2CommentEditingTest {
 
 	@Test
 	public void givenAnElement_whenInsertingAComment_elementShouldContainComment() throws Exception {
-		final Comment comment = widget.insertComment();
+		final IComment comment = widget.insertComment();
 		assertTrue(rootElement.getRange().contains(comment.getRange()));
 		assertSame(rootElement, comment.getParent());
 		assertEquals(comment.getEndOffset(), widget.getCaretOffset());
@@ -50,15 +50,15 @@ public class L2CommentEditingTest {
 
 	@Test
 	public void givenAnElementWithComment_whenInsertingTextWithinComment_shouldAddTextToComment() throws Exception {
-		final Comment comment = widget.insertComment();
+		final IComment comment = widget.insertComment();
 		widget.insertText("Hello World");
 		assertEquals("Hello World", comment.getText());
 	}
 
 	@Test
 	public void givenAnEmptyComment_whenCaretInCommentAndHittingBackspace_shouldDeleteComment() throws Exception {
-		final Element titleElement = widget.insertElement(TITLE);
-		final Comment comment = widget.insertComment();
+		final IElement titleElement = widget.insertElement(TITLE);
+		final IComment comment = widget.insertComment();
 		widget.deletePreviousChar();
 		assertFalse(titleElement.hasChildren());
 		assertFalse(comment.isAssociated());
@@ -67,8 +67,8 @@ public class L2CommentEditingTest {
 
 	@Test
 	public void givenAnEmptyComment_whenCaretInCommentAndHittingDelete_shouldDeleteComment() throws Exception {
-		final Element titleElement = widget.insertElement(TITLE);
-		final Comment comment = widget.insertComment();
+		final IElement titleElement = widget.insertElement(TITLE);
+		final IComment comment = widget.insertComment();
 		widget.deleteNextChar();
 		assertFalse(titleElement.hasChildren());
 		assertFalse(comment.isAssociated());

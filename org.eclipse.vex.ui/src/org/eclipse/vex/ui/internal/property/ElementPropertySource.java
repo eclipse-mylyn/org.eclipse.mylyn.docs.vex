@@ -20,11 +20,11 @@ import org.eclipse.ui.views.properties.IPropertySheetEntry;
 import org.eclipse.ui.views.properties.IPropertySource2;
 import org.eclipse.ui.views.properties.PropertyDescriptor;
 import org.eclipse.ui.views.properties.TextPropertyDescriptor;
-import org.eclipse.vex.core.internal.dom.Attribute;
-import org.eclipse.vex.core.internal.dom.DocumentValidationException;
-import org.eclipse.vex.core.internal.dom.Element;
+import org.eclipse.vex.core.dom.DocumentValidationException;
+import org.eclipse.vex.core.dom.IAttribute;
+import org.eclipse.vex.core.dom.IElement;
+import org.eclipse.vex.core.dom.IValidator;
 import org.eclipse.vex.core.internal.dom.Namespace;
-import org.eclipse.vex.core.internal.dom.Validator;
 import org.eclipse.vex.core.internal.validator.AttributeDefinition;
 import org.eclipse.vex.ui.internal.editor.Messages;
 
@@ -40,11 +40,11 @@ public class ElementPropertySource implements IPropertySource2 {
 	private static final String ATTRIBUTES_CATEGORY = "Attributes";
 	private static final String NAMESPACES_CATEGORY = "Namespaces";
 
-	private final Element element;
-	private final Validator validator;
+	private final IElement element;
+	private final IValidator validator;
 	private final boolean multipleElementsSelected;
 
-	public ElementPropertySource(final Element element, final Validator validator, final boolean multipleElementsSelected) {
+	public ElementPropertySource(final IElement element, final IValidator validator, final boolean multipleElementsSelected) {
 		this.element = element;
 		this.validator = validator;
 		this.multipleElementsSelected = multipleElementsSelected;
@@ -123,7 +123,7 @@ public class ElementPropertySource implements IPropertySource2 {
 				return Messages.getString("ElementPropertySource.multiple"); //$NON-NLS-1$
 			}
 
-			final Attribute attribute = element.getAttribute(attributeDefinition.getName());
+			final IAttribute attribute = element.getAttribute(attributeDefinition.getName());
 			final String value;
 			if (attribute != null) {
 				value = attribute.getValue();
@@ -171,7 +171,7 @@ public class ElementPropertySource implements IPropertySource2 {
 
 		if (id instanceof AttributeDefinition) {
 			final AttributeDefinition attributeDefinition = (AttributeDefinition) id;
-			final Attribute attribute = element.getAttribute(attributeDefinition.getName());
+			final IAttribute attribute = element.getAttribute(attributeDefinition.getName());
 			if (attribute == null) {
 				return false;
 			}

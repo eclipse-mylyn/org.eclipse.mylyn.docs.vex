@@ -14,15 +14,15 @@ import java.io.IOException;
 import java.net.URL;
 
 import org.eclipse.core.runtime.QualifiedName;
+import org.eclipse.vex.core.dom.ContentRange;
+import org.eclipse.vex.core.dom.DocumentValidationException;
+import org.eclipse.vex.core.dom.IComment;
+import org.eclipse.vex.core.dom.IDocument;
+import org.eclipse.vex.core.dom.IDocumentFragment;
+import org.eclipse.vex.core.dom.IElement;
+import org.eclipse.vex.core.dom.INode;
 import org.eclipse.vex.core.internal.core.ElementName;
 import org.eclipse.vex.core.internal.css.StyleSheet;
-import org.eclipse.vex.core.internal.dom.Comment;
-import org.eclipse.vex.core.internal.dom.ContentRange;
-import org.eclipse.vex.core.internal.dom.Document;
-import org.eclipse.vex.core.internal.dom.DocumentFragment;
-import org.eclipse.vex.core.internal.dom.DocumentValidationException;
-import org.eclipse.vex.core.internal.dom.Element;
-import org.eclipse.vex.core.internal.dom.Node;
 import org.eclipse.vex.core.internal.layout.Box;
 import org.eclipse.vex.core.internal.layout.BoxFactory;
 import org.eclipse.vex.core.internal.undo.CannotRedoException;
@@ -174,17 +174,17 @@ public interface IVexWidget {
 	/**
 	 * Returns the element at the current caret offset.
 	 */
-	public Element getCurrentElement();
+	public IElement getCurrentElement();
 
 	/**
 	 * Returns the node a the current caret offset.
 	 */
-	public Node getCurrentNode();
+	public INode getCurrentNode();
 
 	/**
 	 * Returns the document associated with this component.
 	 */
-	public Document getDocument();
+	public IDocument getDocument();
 
 	/**
 	 * Returns the width to which the document was layed out.
@@ -199,7 +199,7 @@ public interface IVexWidget {
 	/**
 	 * Returns the currently selected document fragment, or null if there is no current selection.
 	 */
-	public DocumentFragment getSelectedFragment();
+	public IDocumentFragment getSelectedFragment();
 
 	/**
 	 * Returns the currently selected string, or an empty string if there is no current selection.
@@ -249,7 +249,7 @@ public interface IVexWidget {
 	 * @param frag
 	 *            DocumentFragment to insert.
 	 */
-	public void insertFragment(DocumentFragment frag) throws DocumentValidationException;
+	public void insertFragment(IDocumentFragment frag) throws DocumentValidationException;
 
 	/**
 	 * Inserts the given element at the current caret position. Any selected content becomes the new contents of the
@@ -259,7 +259,7 @@ public interface IVexWidget {
 	 *            Qualified name of the element to insert.
 	 * @return the newly inserted element
 	 */
-	public Element insertElement(QualifiedName elementName) throws DocumentValidationException;
+	public IElement insertElement(QualifiedName elementName) throws DocumentValidationException;
 
 	/**
 	 * Inserts the given text at the current caret position. Any selected content is first deleted.
@@ -274,7 +274,7 @@ public interface IVexWidget {
 	 * 
 	 * @return the new comment
 	 */
-	public Comment insertComment() throws DocumentValidationException;
+	public IComment insertComment() throws DocumentValidationException;
 
 	/**
 	 * Returns the value of the debugging flag.
@@ -477,7 +477,7 @@ public interface IVexWidget {
 	 * @param styleSheet
 	 *            StyleSheet to use for formatting
 	 */
-	public void setDocument(Document document, StyleSheet styleSheet);
+	public void setDocument(IDocument document, StyleSheet styleSheet);
 
 	/**
 	 * Sets the width to which the document should be layed out. The actual resulting width may be different due to

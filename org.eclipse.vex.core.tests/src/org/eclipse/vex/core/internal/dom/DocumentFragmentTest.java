@@ -21,6 +21,9 @@ import java.util.Collections;
 import java.util.Iterator;
 
 import org.eclipse.core.runtime.AssertionFailedException;
+import org.eclipse.vex.core.dom.ContentRange;
+import org.eclipse.vex.core.dom.INode;
+import org.eclipse.vex.core.dom.IText;
 import org.junit.Test;
 
 /**
@@ -48,8 +51,8 @@ public class DocumentFragmentTest {
 		final GapContent content = new GapContent(3);
 		content.insertText(0, "abc");
 		final DocumentFragment fragment = new DocumentFragment(content, Collections.<Node> emptyList());
-		final Iterator<Node> actualChildren = fragment.children().iterator();
-		assertTrue(actualChildren.next() instanceof Text);
+		final Iterator<INode> actualChildren = fragment.children().iterator();
+		assertTrue(actualChildren.next() instanceof IText);
 		assertFalse(actualChildren.hasNext());
 	}
 
@@ -66,7 +69,7 @@ public class DocumentFragmentTest {
 		child2.associate(content, new ContentRange(2, 3));
 
 		final DocumentFragment fragment = new DocumentFragment(content, Arrays.<Node> asList(child1, child2));
-		final Iterator<Node> actualChildren = fragment.children().iterator();
+		final Iterator<INode> actualChildren = fragment.children().iterator();
 		assertSame(child1, actualChildren.next());
 		assertSame(child2, actualChildren.next());
 		assertFalse(actualChildren.hasNext());

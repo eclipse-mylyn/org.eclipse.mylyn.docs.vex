@@ -17,8 +17,9 @@ import java.net.URL;
 import java.util.List;
 
 import org.eclipse.core.runtime.QualifiedName;
+import org.eclipse.vex.core.dom.IDocument;
+import org.eclipse.vex.core.dom.IElement;
 import org.eclipse.vex.core.internal.dom.Document;
-import org.eclipse.vex.core.internal.dom.Element;
 import org.junit.Test;
 
 /**
@@ -33,13 +34,13 @@ public class RuleTest {
 		final StyleSheet ss = reader.read(url);
 		final List<Rule> rules = ss.getRules();
 
-		final Document doc = new Document(new QualifiedName(null, "a"));
-		final Element a = doc.getRootElement();
-		final Element b = doc.insertElement(2, new QualifiedName(null, "b"));
-		final Element c = doc.insertElement(3, new QualifiedName(null, "c"));
-		final Element d = doc.insertElement(4, new QualifiedName(null, "d"));
-		final Element e = doc.insertElement(5, new QualifiedName(null, "e"));
-		final Element f = doc.insertElement(6, new QualifiedName(null, "f"));
+		final IDocument doc = new Document(new QualifiedName(null, "a"));
+		final IElement a = doc.getRootElement();
+		final IElement b = doc.insertElement(2, new QualifiedName(null, "b"));
+		final IElement c = doc.insertElement(3, new QualifiedName(null, "c"));
+		final IElement d = doc.insertElement(4, new QualifiedName(null, "d"));
+		final IElement e = doc.insertElement(5, new QualifiedName(null, "e"));
+		final IElement f = doc.insertElement(6, new QualifiedName(null, "f"));
 
 		b.setAttribute("color", "blue");
 		c.setAttribute("color", "blue red");
@@ -270,9 +271,9 @@ public class RuleTest {
 		final StyleSheet ss = reader.read(url);
 		final List<Rule> rules = ss.getRules();
 
-		final Document doc = new Document(new QualifiedName(null, "a"));
-		final Element a = doc.getRootElement();
-		final Element ns = doc.insertElement(2, new QualifiedName("http://namespace/uri", "b"));
+		final IDocument doc = new Document(new QualifiedName(null, "a"));
+		final IElement a = doc.getRootElement();
+		final IElement ns = doc.insertElement(2, new QualifiedName("http://namespace/uri", "b"));
 
 		ns.setAttribute("color", "blue");
 

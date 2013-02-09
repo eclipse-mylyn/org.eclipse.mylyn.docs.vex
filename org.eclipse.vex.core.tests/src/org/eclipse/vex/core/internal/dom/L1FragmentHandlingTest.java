@@ -18,6 +18,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.runtime.QualifiedName;
+import org.eclipse.vex.core.dom.ContentRange;
+import org.eclipse.vex.core.dom.DocumentValidationException;
+import org.eclipse.vex.core.dom.IContent;
+import org.eclipse.vex.core.dom.IDocument;
+import org.eclipse.vex.core.dom.IElement;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -29,8 +34,8 @@ public class L1FragmentHandlingTest {
 	private static final QualifiedName VALID_CHILD = new QualifiedName(null, "validChild");
 	private static final QualifiedName INVALID_CHILD = new QualifiedName(null, "invalidChild");
 
-	private Document document;
-	private Element rootElement;
+	private IDocument document;
+	private IElement rootElement;
 
 	@Before
 	public void setUp() throws Exception {
@@ -71,8 +76,8 @@ public class L1FragmentHandlingTest {
 	public void insertFragmentAtValidInsertionPoint() throws Exception {
 		document.insertFragment(rootElement.getEndOffset(), createFragment(VALID_CHILD, VALID_CHILD));
 		assertTrue(rootElement.hasChildren());
-		assertEquals(VALID_CHILD, ((Element) rootElement.children().get(0)).getQualifiedName());
-		assertEquals(VALID_CHILD, ((Element) rootElement.children().get(1)).getQualifiedName());
+		assertEquals(VALID_CHILD, ((IElement) rootElement.children().get(0)).getQualifiedName());
+		assertEquals(VALID_CHILD, ((IElement) rootElement.children().get(1)).getQualifiedName());
 	}
 
 	@Test(expected = DocumentValidationException.class)
@@ -81,7 +86,7 @@ public class L1FragmentHandlingTest {
 	}
 
 	private static DocumentFragment createFragment(final QualifiedName... elementNames) {
-		final Content content = new GapContent(10);
+		final IContent content = new GapContent(10);
 		final List<Node> nodes = new ArrayList<Node>();
 		for (final QualifiedName elementName : elementNames) {
 			final int insertOffset = content.length();

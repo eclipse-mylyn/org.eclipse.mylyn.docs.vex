@@ -18,13 +18,13 @@ import static org.junit.Assert.assertEquals;
 import java.util.Arrays;
 
 import org.eclipse.core.runtime.QualifiedName;
+import org.eclipse.vex.core.dom.IDocumentFragment;
+import org.eclipse.vex.core.dom.IElement;
+import org.eclipse.vex.core.dom.INode;
+import org.eclipse.vex.core.dom.IText;
+import org.eclipse.vex.core.dom.IValidator;
 import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.dom.Document;
-import org.eclipse.vex.core.internal.dom.DocumentFragment;
-import org.eclipse.vex.core.internal.dom.Element;
-import org.eclipse.vex.core.internal.dom.Node;
-import org.eclipse.vex.core.internal.dom.Text;
-import org.eclipse.vex.core.internal.dom.Validator;
 import org.eclipse.vex.core.internal.validator.WTPVEXValidator;
 import org.junit.Test;
 
@@ -81,7 +81,7 @@ public class VexWidgetTest {
 		widget.insertElement(new QualifiedName(CONTENT_NS, "p"));
 		widget.insertText("1text before comment1");
 		widget.insertComment();
-		final Node comment = widget.getDocument().getChildAt(widget.getCaretOffset());
+		final INode comment = widget.getDocument().getChildAt(widget.getCaretOffset());
 		widget.insertText("2comment text2");
 		widget.moveBy(1);
 		widget.insertText("3text after comment3");
@@ -92,7 +92,7 @@ public class VexWidgetTest {
 			public void run() {
 				widget.moveTo(comment.getStartOffset() + 1, false);
 				widget.moveTo(comment.getEndOffset() - 1, true);
-				final DocumentFragment fragment = widget.getSelectedFragment();
+				final IDocumentFragment fragment = widget.getSelectedFragment();
 				widget.deleteSelection();
 
 				widget.moveBy(-1, false);
@@ -109,14 +109,14 @@ public class VexWidgetTest {
 	}
 
 	public static Document createDocumentWithDTD(final String dtdIdentifier, final String rootElementName) {
-		final Validator validator = new WTPVEXValidator(dtdIdentifier);
+		final IValidator validator = new WTPVEXValidator(dtdIdentifier);
 		final Document document = new Document(new QualifiedName(null, rootElementName));
 		document.setValidator(validator);
 		return document;
 	}
 
 	public static Document createDocument(final String rootSchemaIdentifier, final String rootElementName) {
-		final Validator validator = new WTPVEXValidator();
+		final IValidator validator = new WTPVEXValidator();
 		final Document document = new Document(new QualifiedName(rootSchemaIdentifier, rootElementName));
 		document.setValidator(validator);
 		return document;
@@ -137,17 +137,17 @@ public class VexWidgetTest {
 		return result;
 	}
 
-	public static String getContentStructure(final Element element) {
+	public static String getContentStructure(final IElement element) {
 		final StringBuilder result = new StringBuilder();
 		result.append("<").append(element.getQualifiedName()).append(" (").append(element.getStartOffset()).append("-").append(element.getEndOffset()).append(")");
 		result.append(" ").append(element.getText());
 		if (!element.hasChildren()) {
 			result.append(" [");
-			for (final Node child : element.children()) {
-				if (child instanceof Element) {
-					result.append(getContentStructure((Element) child));
-				} else if (child instanceof Text) {
-					result.append(getContentStructure((Text) child));
+			for (final INode child : element.children()) {
+				if (child instanceof IElement) {
+					result.append(getContentStructure((IElement) child));
+				} else if (child instanceof IText) {
+					result.append(getContentStructure((IText) child));
 				}
 			}
 			result.append("]");
@@ -156,7 +156,7 @@ public class VexWidgetTest {
 		return result.toString();
 	}
 
-	public static String getContentStructure(final Text text) {
+	public static String getContentStructure(final IText text) {
 		final StringBuilder result = new StringBuilder();
 		result.append("'(").append(text.getStartOffset()).append("-").append(text.getEndOffset()).append(") ").append(text.getText()).append("'");
 		return result.toString();

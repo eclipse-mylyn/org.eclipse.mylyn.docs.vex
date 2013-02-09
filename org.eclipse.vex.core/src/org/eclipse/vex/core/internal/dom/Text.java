@@ -11,13 +11,14 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.dom;
 
-/**
- * A representation of textual content of an XML document within the DOM. Text objects are not used in the internal
- * document structure; they are dynamically created as needed by the <code>Element.getChildNodes()</code> method.
- * 
- * @see Element#getChildNodes()
- */
-public class Text extends Node {
+import org.eclipse.vex.core.dom.ContentRange;
+import org.eclipse.vex.core.dom.IContent;
+import org.eclipse.vex.core.dom.INode;
+import org.eclipse.vex.core.dom.INodeVisitor;
+import org.eclipse.vex.core.dom.INodeVisitorWithResult;
+import org.eclipse.vex.core.dom.IText;
+
+public class Text extends Node implements IText {
 
 	/**
 	 * Create a new Text node for the given range in the given content. This constructor automatically associates the
@@ -32,23 +33,20 @@ public class Text extends Node {
 	 * @param endOffset
 	 *            character offset of the end of the run
 	 */
-	public Text(final Parent parent, final Content content, final ContentRange range) {
+	public Text(final Parent parent, final IContent content, final ContentRange range) {
 		setParent(parent);
 		associate(content, range);
 	}
 
-	@Override
 	public void accept(final INodeVisitor visitor) {
 		visitor.visit(this);
 	}
 
-	@Override
 	public <T> T accept(final INodeVisitorWithResult<T> visitor) {
 		return visitor.visit(this);
 	}
 
-	@Override
-	public boolean isKindOf(final Node node) {
+	public boolean isKindOf(final INode node) {
 		return false;
 	}
 

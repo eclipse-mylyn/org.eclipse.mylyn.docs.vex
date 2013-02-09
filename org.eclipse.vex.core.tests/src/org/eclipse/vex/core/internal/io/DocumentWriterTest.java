@@ -20,9 +20,9 @@ import java.net.URL;
 
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.eclipse.vex.core.dom.IDocument;
 import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.css.StyleSheetReader;
-import org.eclipse.vex.core.internal.dom.Document;
 import org.eclipse.vex.core.internal.widget.CssWhitespacePolicy;
 import org.eclipse.vex.core.tests.TestResources;
 import org.junit.Test;
@@ -60,7 +60,7 @@ public class DocumentWriterTest {
 		final StyleSheetReader reader = new StyleSheetReader();
 		final StyleSheet styleSheet = reader.read(TestResources.get("test.css"));
 
-		final Document expectedDocument = readDocument(new InputSource(documentUrl.toString()));
+		final IDocument expectedDocument = readDocument(new InputSource(documentUrl.toString()));
 
 		final DocumentWriter documentWriter = new DocumentWriter();
 		documentWriter.setWhitespacePolicy(new CssWhitespacePolicy(styleSheet));
@@ -70,12 +70,12 @@ public class DocumentWriterTest {
 		final InputStream inputStream = new ByteArrayInputStream(buffer.toByteArray());
 		final InputSource inputSource = new InputSource(inputStream);
 		inputSource.setSystemId(documentUrl.toString());
-		final Document actualDocument = readDocument(inputSource);
+		final IDocument actualDocument = readDocument(inputSource);
 
 		assertDocumentsEqual(expectedDocument, actualDocument);
 	}
 
-	private static Document readDocument(final InputSource inputSource) throws IOException, ParserConfigurationException, SAXException {
+	private static IDocument readDocument(final InputSource inputSource) throws IOException, ParserConfigurationException, SAXException {
 		final DocumentReader documentReader = new DocumentReader();
 		return documentReader.read(inputSource);
 	}

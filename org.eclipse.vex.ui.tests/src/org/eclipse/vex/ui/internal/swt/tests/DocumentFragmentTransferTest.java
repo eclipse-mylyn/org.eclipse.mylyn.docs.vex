@@ -16,17 +16,18 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 
 import org.eclipse.core.runtime.QualifiedName;
-import org.eclipse.vex.core.internal.dom.Comment;
+import org.eclipse.vex.core.dom.IComment;
+import org.eclipse.vex.core.dom.IDocument;
+import org.eclipse.vex.core.dom.IDocumentFragment;
+import org.eclipse.vex.core.dom.IElement;
 import org.eclipse.vex.core.internal.dom.Document;
-import org.eclipse.vex.core.internal.dom.DocumentFragment;
-import org.eclipse.vex.core.internal.dom.Element;
 import org.eclipse.vex.ui.internal.swt.DocumentFragmentTransfer;
 import org.junit.Before;
 import org.junit.Test;
 
 public class DocumentFragmentTransferTest {
 
-	private Document document;
+	private IDocument document;
 
 	@Before
 	public void setUp() throws Exception {
@@ -43,7 +44,7 @@ public class DocumentFragmentTransferTest {
 	@Test
 	public void shouldTransferElementAndText() throws Exception {
 		document.insertText(document.getRootElement().getEndOffset(), "Hello");
-		final Element child = addChild();
+		final IElement child = addChild();
 		document.insertText(child.getEndOffset(), "New");
 		document.insertText(document.getRootElement().getEndOffset(), "World");
 
@@ -52,7 +53,7 @@ public class DocumentFragmentTransferTest {
 
 	@Test
 	public void shouldTransferElementWithNamespace() throws Exception {
-		final Element child = addChild();
+		final IElement child = addChild();
 		child.declareNamespace("ns1", "http://namespaceUri/1");
 
 		assertRoundTripWorks(getExpectedFragment());
@@ -60,7 +61,7 @@ public class DocumentFragmentTransferTest {
 
 	@Test
 	public void shouldTransferElementWithDefaultNamespace() throws Exception {
-		final Element child = addChild(new QualifiedName("http://namespaceUri/default", "child"));
+		final IElement child = addChild(new QualifiedName("http://namespaceUri/default", "child"));
 		child.declareDefaultNamespace("http://namespaceUri/default");
 
 		assertRoundTripWorks(getExpectedFragment());
@@ -68,28 +69,28 @@ public class DocumentFragmentTransferTest {
 
 	@Test
 	public void shouldTransferComment() throws Exception {
-		final Comment comment = document.insertComment(document.getRootElement().getEndOffset());
+		final IComment comment = document.insertComment(document.getRootElement().getEndOffset());
 		document.insertText(comment.getEndOffset(), "Hello World");
 		assertRoundTripWorks(getExpectedFragment());
 	}
 
-	private Element addChild() {
+	private IElement addChild() {
 		return addChild(new QualifiedName(null, "child"));
 	}
 
-	private Element addChild(final QualifiedName elementName) {
+	private IElement addChild(final QualifiedName elementName) {
 		return document.insertElement(document.getRootElement().getEndOffset(), elementName);
 	}
 
-	private DocumentFragment getExpectedFragment() {
+	private IDocumentFragment getExpectedFragment() {
 		return document.getFragment(document.getRootElement().getRange().resizeBy(1, -1));
 	}
 
-	private static void assertRoundTripWorks(final DocumentFragment expectedFragment) throws Exception {
+	private static void assertRoundTripWorks(final IDocumentFragment expectedFragment) throws Exception {
 		final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
 		final DocumentFragmentTransfer transfer = new DocumentFragmentTransfer();
 		transfer.writeFragmentToStream(expectedFragment, buffer);
-		final DocumentFragment actualFragment = transfer.readFragmentFromStream(new ByteArrayInputStream(buffer.toByteArray()));
+		final IDocumentFragment actualFragment = transfer.readFragmentFromStream(new ByteArrayInputStream(buffer.toByteArray()));
 		assertContentEqual(expectedFragment, actualFragment);
 	}
 

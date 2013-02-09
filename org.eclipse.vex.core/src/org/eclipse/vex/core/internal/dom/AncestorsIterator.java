@@ -13,14 +13,17 @@ package org.eclipse.vex.core.internal.dom;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
+import org.eclipse.vex.core.dom.INode;
+import org.eclipse.vex.core.dom.IParent;
+
 /**
  * @author Florian Thienel
  */
-public class AncestorsIterator implements Iterator<Node> {
+public class AncestorsIterator implements Iterator<IParent> {
 
-	private Node current;
+	private INode current;
 
-	public AncestorsIterator(final Node startNode) {
+	public AncestorsIterator(final INode startNode) {
 		current = startNode;
 	}
 
@@ -28,12 +31,12 @@ public class AncestorsIterator implements Iterator<Node> {
 		return current.getParent() != null;
 	}
 
-	public Node next() {
+	public IParent next() {
 		if (!hasNext()) {
 			throw new NoSuchElementException();
 		}
 		current = current.getParent();
-		return current;
+		return (IParent) current;
 	}
 
 	public void remove() {

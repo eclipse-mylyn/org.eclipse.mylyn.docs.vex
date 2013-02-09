@@ -1,16 +1,16 @@
 package org.eclipse.vex.core.internal.undo;
 
-import org.eclipse.vex.core.internal.dom.ContentRange;
-import org.eclipse.vex.core.internal.dom.Document;
-import org.eclipse.vex.core.internal.dom.DocumentValidationException;
+import org.eclipse.vex.core.dom.ContentRange;
+import org.eclipse.vex.core.dom.DocumentValidationException;
+import org.eclipse.vex.core.dom.IDocument;
 
 public class InsertTextEdit implements IUndoableEdit {
 
-	private final Document document;
+	private final IDocument document;
 	private final int offset;
 	private String text;
 
-	public InsertTextEdit(final Document document, final int offset, final String text) {
+	public InsertTextEdit(final IDocument document, final int offset, final String text) {
 		this.document = document;
 		this.offset = offset;
 		this.text = text;

@@ -11,6 +11,8 @@
 package org.eclipse.vex.core.internal.dom;
 
 import org.eclipse.core.runtime.QualifiedName;
+import org.eclipse.vex.core.dom.IAttribute;
+import org.eclipse.vex.core.dom.IElement;
 
 /**
  * An immutable representation of an attribute within the start tag of an element. An attribute consists of a qualified
@@ -18,46 +20,25 @@ import org.eclipse.core.runtime.QualifiedName;
  * 
  * @author Florian Thienel
  */
-public class Attribute implements Comparable<Attribute> {
+public class Attribute implements IAttribute {
 
-	private final Element parent;
+	private final IElement parent;
 
 	private final QualifiedName name;
 
 	private final String value;
 
-	/**
-	 * Create an attribute within the namespace of the parent element, i.e. only the local name without a qualifier is
-	 * given.
-	 * 
-	 * @param parent
-	 *            the element containing the attribute
-	 * @param localName
-	 *            the local name of the attribute
-	 * @param value
-	 *            the value of the attribute
-	 */
-	public Attribute(final Element parent, final String localName, final String value) {
+	public Attribute(final IElement parent, final String localName, final String value) {
 		this(parent, new QualifiedName(null, localName), value);
 	}
 
-	/**
-	 * Create an attribute within an arbitrary namespace.
-	 * 
-	 * @param parent
-	 *            the element containing the attribute
-	 * @param name
-	 *            the qualified name of the attribute
-	 * @param value
-	 *            the value of the attribute
-	 */
-	public Attribute(final Element parent, final QualifiedName name, final String value) {
+	public Attribute(final IElement parent, final QualifiedName name, final String value) {
 		this.parent = parent;
 		this.name = name;
 		this.value = value;
 	}
 
-	public Element getParent() {
+	public IElement getParent() {
 		return parent;
 	}
 
@@ -73,10 +54,6 @@ public class Attribute implements Comparable<Attribute> {
 		return name;
 	}
 
-	/**
-	 * @return prefix:localName, or localName if prefix is null or this attribute is in the same namespace as the parent
-	 *         element.
-	 */
 	public String getPrefixedName() {
 		final String attributeQualifier = name.getQualifier();
 		if (parent == null || attributeQualifier == null) {
@@ -90,14 +67,7 @@ public class Attribute implements Comparable<Attribute> {
 		return (prefix == null ? "" : prefix + ":") + getLocalName();
 	}
 
-	/**
-	 * Compares two attributes by their qualified name.
-	 * 
-	 * @param otherAttribute
-	 *            the other attribute
-	 * @see Comparable
-	 */
-	public int compareTo(final Attribute otherAttribute) {
-		return name.toString().compareTo(otherAttribute.name.toString());
+	public int compareTo(final IAttribute otherAttribute) {
+		return name.toString().compareTo(otherAttribute.getQualifiedName().toString());
 	}
 }

@@ -9,7 +9,7 @@
  *     John Krasnay - initial API and implementation
  *     Florian Thienel - NULL object
  *******************************************************************************/
-package org.eclipse.vex.core.internal.dom;
+package org.eclipse.vex.core.dom;
 
 /**
  * Represents a logical location in a document. As the document is modified, existing <code>Position</code> objects are
@@ -18,9 +18,9 @@ package org.eclipse.vex.core.internal.dom;
  * Positions can be invalid if they were removed from their associated Content instance. Invalid positions do not get
  * updated on content modifications. They must not be used for anything anymore.
  */
-public interface Position {
+public interface IPosition {
 
-	static Position NULL = new Position() {
+	static IPosition NULL = new IPosition() {
 		public int getOffset() {
 			return -1;
 		}

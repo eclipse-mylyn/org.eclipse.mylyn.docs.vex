@@ -15,10 +15,10 @@ import static org.junit.Assert.assertEquals;
 import java.net.URL;
 
 import org.eclipse.core.runtime.QualifiedName;
+import org.eclipse.vex.core.dom.IElement;
 import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.css.StyleSheetReader;
 import org.eclipse.vex.core.internal.dom.Document;
-import org.eclipse.vex.core.internal.dom.Element;
 import org.junit.Test;
 
 public class TestBlockElementBox {
@@ -42,7 +42,7 @@ public class TestBlockElementBox {
 	@Test
 	public void testBeforeAfter() throws Exception {
 		final Document doc = new Document(new QualifiedName(null, "root"));
-		final Element root = doc.getRootElement();
+		final IElement root = doc.getRootElement();
 		doc.insertElement(2, new QualifiedName(null, "beforeBlock"));
 		context.setDocument(doc);
 
@@ -68,7 +68,7 @@ public class TestBlockElementBox {
 		assertEquals(1, children.length);
 		assertEquals(BlockElementBox.class, children[0].getClass());
 		beb = (BlockElementBox) children[0];
-		assertEquals("beforeBlock", ((Element) beb.getNode()).getPrefixedName());
+		assertEquals("beforeBlock", ((IElement) beb.getNode()).getPrefixedName());
 	}
 
 }

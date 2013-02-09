@@ -2,6 +2,17 @@ package org.eclipse.vex.core.internal.dom;
 
 import java.util.List;
 
+import org.eclipse.vex.core.dom.ContentRange;
+import org.eclipse.vex.core.dom.IComment;
+import org.eclipse.vex.core.dom.IContent;
+import org.eclipse.vex.core.dom.IDocument;
+import org.eclipse.vex.core.dom.IDocumentFragment;
+import org.eclipse.vex.core.dom.IElement;
+import org.eclipse.vex.core.dom.INode;
+import org.eclipse.vex.core.dom.INodeVisitor;
+import org.eclipse.vex.core.dom.IParent;
+import org.eclipse.vex.core.dom.IText;
+
 /**
  * This visitor creates a deep copy of the visited nodes. Deep copy means a full copy of each visited node and its
  * children down to the leaf level. All copied nodes are associated with a given content. The copied nodes on the root
@@ -14,7 +25,7 @@ public class DeepCopyVisitor implements INodeVisitor {
 	private final CopyVisitor copyVisitor = new CopyVisitor();
 
 	private final List<Node> rootNodes;
-	private final Content content;
+	private final IContent content;
 	private final int delta;
 
 	private Parent currentParent = null;
@@ -28,40 +39,40 @@ public class DeepCopyVisitor implements INodeVisitor {
 	 *            the shift for the content association, relative to the beginning of the first node in the source
 	 *            content
 	 */
-	public DeepCopyVisitor(final List<Node> rootNodes, final Content content, final int delta) {
+	public DeepCopyVisitor(final List<Node> rootNodes, final IContent content, final int delta) {
 		this.rootNodes = rootNodes;
 		this.content = content;
 		this.delta = delta;
 	}
 
-	public void visit(final Document document) {
+	public void visit(final IDocument document) {
 		throw new UnsupportedOperationException("Document cannot be deep copied");
 	}
 
-	public void visit(final DocumentFragment fragment) {
+	public void visit(final IDocumentFragment fragment) {
 		copyChildren(fragment, null);
 	}
 
-	public void visit(final Element element) {
-		final Element copy = copy(element);
+	public void visit(final IElement element) {
+		final Element copy = (Element) copy(element);
 		addToParent(copy);
 		associate(element, copy);
 
 		copyChildren(element, copy);
 	}
 
-	public void visit(final Text text) {
+	public void visit(final IText text) {
 		// ignore Text nodes because they are created dynamically in Element.getChildNodes()
 	}
 
-	public void visit(final Comment comment) {
-		final Comment copy = copy(comment);
+	public void visit(final IComment comment) {
+		final Comment copy = (Comment) copy(comment);
 		addToParent(copy);
 		associate(comment, copy);
 	}
 
 	@SuppressWarnings("unchecked")
-	private <T extends Node> T copy(final T node) {
+	private <T extends INode> T copy(final T node) {
 		return (T) node.accept(copyVisitor);
 	}
 
@@ -73,16 +84,16 @@ public class DeepCopyVisitor implements INodeVisitor {
 		}
 	}
 
-	private void associate(final Node source, final Node copy) {
+	private void associate(final INode source, final Node copy) {
 		if (source.isAssociated()) {
 			final ContentRange range = source.getRange();
 			copy.associate(content, range.moveBy(delta));
 		}
 	}
 
-	private void copyChildren(final Parent source, final Parent copy) {
+	private void copyChildren(final IParent source, final Parent copy) {
 		final Parent lastParent = currentParent;
-		for (final Node child : source.children()) {
+		for (final INode child : source.children()) {
 			currentParent = copy;
 			child.accept(this);
 		}

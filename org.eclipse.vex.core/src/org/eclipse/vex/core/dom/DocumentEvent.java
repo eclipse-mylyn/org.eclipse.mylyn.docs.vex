@@ -9,54 +9,48 @@
  *     John Krasnay - initial API and implementation
  *     Florian Thienel - support for attribute changes
  *******************************************************************************/
-package org.eclipse.vex.core.internal.dom;
+package org.eclipse.vex.core.dom;
 
 import java.util.EventObject;
 
 import org.eclipse.core.runtime.QualifiedName;
-import org.eclipse.vex.core.internal.undo.IUndoableEdit;
 
 /**
- * Encapsulation of the details of a document change
+ * Encapsulation of the details of a document change.
  */
 public class DocumentEvent extends EventObject {
 
 	private static final long serialVersionUID = -9028980559838712720L;
 
-	private final Document document;
-	private final Parent parent;
-	private int offset;
-	private int length;
-	private QualifiedName attributeName;
-	private String oldAttributeValue;
-	private String newAttributeValue;
-	private final IUndoableEdit undoableEdit;
+	private final IDocument document;
+	private final IParent parent;
+	private final ContentRange range;
+	private final QualifiedName attributeName;
+	private final String oldAttributeValue;
+	private final String newAttributeValue;
 
 	/**
-	 * Class constructor.
+	 * Create an event.
 	 * 
 	 * @param document
-	 *            Document that changed.
+	 *            the document that changed
 	 * @param parent
-	 *            Parent containing the change.
-	 * @param offset
-	 *            offset at which the change occurred.
-	 * @param length
-	 *            length of the change.
-	 * @param undoableEdit
-	 *            IUndoableEdit that can be used to undo the change.
+	 *            the parent node containing the change
+	 * @param range
+	 *            the range which was changed
 	 */
-	public DocumentEvent(final Document document, final Parent parent, final int offset, final int length, final IUndoableEdit undoableEdit) {
+	public DocumentEvent(final IDocument document, final IParent parent, final ContentRange range) {
 		super(document);
 		this.document = document;
 		this.parent = parent;
-		this.offset = offset;
-		this.length = length;
-		this.undoableEdit = undoableEdit;
+		this.range = range;
+		attributeName = null;
+		oldAttributeValue = null;
+		newAttributeValue = null;
 	}
 
 	/**
-	 * Class constructor used when firing an attributeChanged event.
+	 * Create an event with attribute information.
 	 * 
 	 * @param document
 	 *            Document that changed.
@@ -68,38 +62,28 @@ public class DocumentEvent extends EventObject {
 	 *            value of the attribute before the change.
 	 * @param newAttributeValue
 	 *            value of the attribute after the change.
-	 * @param undoableEdit
-	 *            IUndoableEdit that can be used to undo the change.
 	 */
-	public DocumentEvent(final Document document, final Parent parent, final QualifiedName attributeName, final String oldAttributeValue, final String newAttributeValue,
-			final IUndoableEdit undoableEdit) {
+	public DocumentEvent(final IDocument document, final IParent parent, final QualifiedName attributeName, final String oldAttributeValue, final String newAttributeValue) {
 		super(document);
 		this.document = document;
 		this.parent = parent;
+		range = parent.getRange();
 		this.attributeName = attributeName;
 		this.oldAttributeValue = oldAttributeValue;
 		this.newAttributeValue = newAttributeValue;
-		this.undoableEdit = undoableEdit;
 	}
 
 	/**
-	 * @return the length of the change
+	 * @return the range which was changed
 	 */
-	public int getLength() {
-		return length;
-	}
-
-	/**
-	 * @return the offset at which the change occurred
-	 */
-	public int getOffset() {
-		return offset;
+	public ContentRange getRange() {
+		return range;
 	}
 
 	/**
 	 * @return the Parent containing the change
 	 */
-	public Parent getParent() {
+	public IParent getParent() {
 		return parent;
 	}
 
@@ -128,15 +112,8 @@ public class DocumentEvent extends EventObject {
 	/**
 	 * @return the document for which this event was generated
 	 */
-	public Document getDocument() {
+	public IDocument getDocument() {
 		return document;
 	}
 
-	/**
-	 * @return the undoable edit that can be used to undo the action. May be null, in which case the action cannot be
-	 *         undone.
-	 */
-	public IUndoableEdit getUndoableEdit() {
-		return undoableEdit;
-	}
 }

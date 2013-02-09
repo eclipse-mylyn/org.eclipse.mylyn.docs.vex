@@ -16,6 +16,15 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import org.eclipse.vex.core.dom.BaseNodeVisitorWithResult;
+import org.eclipse.vex.core.dom.ContentRange;
+import org.eclipse.vex.core.dom.IComment;
+import org.eclipse.vex.core.dom.IDocument;
+import org.eclipse.vex.core.dom.IElement;
+import org.eclipse.vex.core.dom.INode;
+import org.eclipse.vex.core.dom.IParent;
+import org.eclipse.vex.core.dom.IPosition;
+import org.eclipse.vex.core.dom.IText;
 import org.eclipse.vex.core.internal.core.Caret;
 import org.eclipse.vex.core.internal.core.Color;
 import org.eclipse.vex.core.internal.core.ColorResource;
@@ -25,15 +34,6 @@ import org.eclipse.vex.core.internal.core.Insets;
 import org.eclipse.vex.core.internal.css.CSS;
 import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.css.Styles;
-import org.eclipse.vex.core.internal.dom.BaseNodeVisitorWithResult;
-import org.eclipse.vex.core.internal.dom.Comment;
-import org.eclipse.vex.core.internal.dom.ContentRange;
-import org.eclipse.vex.core.internal.dom.Document;
-import org.eclipse.vex.core.internal.dom.Element;
-import org.eclipse.vex.core.internal.dom.Node;
-import org.eclipse.vex.core.internal.dom.Parent;
-import org.eclipse.vex.core.internal.dom.Position;
-import org.eclipse.vex.core.internal.dom.Text;
 
 /**
  * Base class of block boxes that can contain other block boxes. This class implements the layout method and various
@@ -55,7 +55,7 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 	/**
 	 * Element with which we are associated. For anonymous boxes, this is null.
 	 */
-	private final Node node;
+	private final INode node;
 
 	/*
 	 * We cache the top and bottom margins, since they may be affected by our children.
@@ -66,12 +66,12 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 	/**
 	 * Start position of an anonymous box. For non-anonymous boxes, this is null.
 	 */
-	private Position startPosition;
+	private IPosition startPosition;
 
 	/**
 	 * End position of an anonymous box. For non-anonymous boxes, this is null.
 	 */
-	private Position endPosition;
+	private IPosition endPosition;
 
 	/**
 	 * Class constructor for non-anonymous boxes.
@@ -83,7 +83,7 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 	 * @param node
 	 *            Node associated with this box. anonymous box.
 	 */
-	public AbstractBlockBox(final LayoutContext context, final BlockBox parent, final Node node) {
+	public AbstractBlockBox(final LayoutContext context, final BlockBox parent, final INode node) {
 		this.parent = parent;
 		this.node = node;
 
@@ -112,7 +112,7 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 		marginTop = 0;
 		marginBottom = 0;
 
-		final Document doc = context.getDocument();
+		final IDocument doc = context.getDocument();
 		startPosition = doc.createPosition(startOffset);
 		endPosition = doc.createPosition(endOffset);
 	}
@@ -120,14 +120,14 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 	/**
 	 * Walks the box tree and returns the nearest enclosing element.
 	 */
-	protected Parent findContainingParent() {
+	protected IParent findContainingParent() {
 		BlockBox box = this;
-		Node node = box.getNode();
-		while (!(node instanceof Parent)) {
+		INode node = box.getNode();
+		while (!(node instanceof IParent)) {
 			box = box.getParent();
 			node = box.getNode();
 		}
-		return (Parent) node;
+		return (IParent) node;
 	}
 
 	/**
@@ -202,13 +202,13 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 	}
 
 	@Override
-	public Node getNode() {
+	public INode getNode() {
 		return node;
 	}
 
 	@Override
 	public int getEndOffset() {
-		final Node element = getNode();
+		final INode element = getNode();
 		if (element != null) {
 			return element.getEndOffset();
 		} else if (getEndPosition() != null) {
@@ -228,7 +228,7 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 	 */
 	protected int getEstimatedHeight(final LayoutContext context) {
 
-		final Node node = findContainingParent();
+		final INode node = findContainingParent();
 		final Styles styles = context.getStyleSheet().getStyles(node);
 		final int charCount = getEndOffset() - getStartOffset();
 
@@ -390,7 +390,7 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 
 	@Override
 	public int getStartOffset() {
-		final Node node = getNode();
+		final INode node = getNode();
 		if (node != null) {
 			return node.getStartOffset() + 1;
 		} else if (getStartPosition() != null) {
@@ -519,8 +519,8 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 	 */
 	protected void paintSelectionFrame(final LayoutContext context, final int x, final int y, final boolean selected) {
 
-		final Node node = getNode();
-		final Parent parent = node == null ? null : node.getParent();
+		final INode node = getNode();
+		final IParent parent = node == null ? null : node.getParent();
 
 		final boolean paintFrame = context.isNodeSelected(node) && !context.isNodeSelected(parent);
 
@@ -561,15 +561,15 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 		}
 	}
 
-	protected String getSelectionFrameName(final Node node) {
+	protected String getSelectionFrameName(final INode node) {
 		return node.accept(new BaseNodeVisitorWithResult<String>() {
 			@Override
-			public String visit(final Element element) {
+			public String visit(final IElement element) {
 				return element.getPrefixedName();
 			}
 
 			@Override
-			public String visit(final Comment comment) {
+			public String visit(final IComment comment) {
 				return "Comment";
 			}
 		});
@@ -666,14 +666,14 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 			pendingInlines.addAll(beforeInlines);
 		}
 
-		final Document document = context.getDocument();
-		final Node node = document.findCommonNode(startOffset, endOffset);
+		final IDocument document = context.getDocument();
+		final INode node = document.findCommonNode(startOffset, endOffset);
 
 		if (startOffset == endOffset) {
 			final int relOffset = startOffset - node.getStartOffset();
 			pendingInlines.add(new PlaceholderBox(context, node, relOffset));
-		} else if (node instanceof Parent) {
-			final BlockInlineIterator iter = new BlockInlineIterator(context, (Parent) node, startOffset, endOffset);
+		} else if (node instanceof IParent) {
+			final BlockInlineIterator iter = new BlockInlineIterator(context, (IParent) node, startOffset, endOffset);
 			while (true) {
 				Object next = iter.next();
 				if (next == null) {
@@ -694,10 +694,10 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 					if (isTableChild(context, next)) {
 						// Consume continguous table children and create an
 						// anonymous table.
-						final int tableStartOffset = ((Element) next).getStartOffset();
+						final int tableStartOffset = ((IElement) next).getStartOffset();
 						int tableEndOffset = -1; // dummy to hide warning
 						while (isTableChild(context, next)) {
-							tableEndOffset = ((Element) next).getEndOffset() + 1;
+							tableEndOffset = ((IElement) next).getEndOffset() + 1;
 							next = iter.next();
 						}
 
@@ -709,7 +709,7 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 							iter.push(next);
 						}
 					} else { // next is a block box element
-						final Node blockNode = (Node) next;
+						final INode blockNode = (INode) next;
 						blockBoxes.add(context.getBoxFactory().createBox(context, blockNode, this, width));
 					}
 				}
@@ -736,12 +736,12 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 	private static class BlockInlineIterator {
 
 		private final LayoutContext context;
-		private final Parent parent;
+		private final IParent parent;
 		private int startOffset;
 		private final int endOffset;
 		private final LinkedList<Object> pushStack = new LinkedList<Object>();
 
-		public BlockInlineIterator(final LayoutContext context, final Parent parent, final int startOffset, final int endOffset) {
+		public BlockInlineIterator(final LayoutContext context, final IParent parent, final int startOffset, final int endOffset) {
 			this.context = context;
 			this.parent = parent;
 			this.startOffset = startOffset;
@@ -757,7 +757,7 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 			} else if (startOffset == endOffset) {
 				return null;
 			} else {
-				final Node blockNode = findNextBlockNode(context, parent, startOffset, endOffset);
+				final INode blockNode = findNextBlockNode(context, parent, startOffset, endOffset);
 				if (blockNode == null) {
 					if (startOffset < endOffset) {
 						final ContentRange result = new ContentRange(startOffset, endOffset);
@@ -871,18 +871,18 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 	 * @param endOffset
 	 *            The offset at which to end the search.
 	 */
-	private static Node findNextBlockNode(final LayoutContext context, final Parent parent, final int startOffset, final int endOffset) {
-		for (final Node child : parent.children().in(new ContentRange(startOffset, endOffset)).withoutText()) {
-			final Node nextBlockNode = child.accept(new BaseNodeVisitorWithResult<Node>() {
+	private static INode findNextBlockNode(final LayoutContext context, final IParent parent, final int startOffset, final int endOffset) {
+		for (final INode child : parent.children().in(new ContentRange(startOffset, endOffset)).withoutText()) {
+			final INode nextBlockNode = child.accept(new BaseNodeVisitorWithResult<INode>() {
 				@Override
-				public Node visit(final Element element) {
+				public INode visit(final IElement element) {
 					// found?
 					if (!isInline(context, element, parent)) {
 						return element;
 					}
 
 					// recursion
-					final Node fromChild = findNextBlockNode(context, element, startOffset, endOffset);
+					final INode fromChild = findNextBlockNode(context, element, startOffset, endOffset);
 					if (fromChild != null) {
 						return fromChild;
 					}
@@ -891,7 +891,7 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 				}
 
 				@Override
-				public Node visit(final Comment comment) {
+				public INode visit(final IComment comment) {
 					if (!isInline(context, comment, parent)) {
 						return comment;
 					}
@@ -906,13 +906,13 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 		return null;
 	}
 
-	private static boolean isInline(final LayoutContext context, final Node child, final Node parent) {
+	private static boolean isInline(final LayoutContext context, final INode child, final INode parent) {
 		final String style = displayStyleOf(child, context);
 		final String parentStyle = displayStyleOf(parent, context);
 
 		return child.accept(new BaseNodeVisitorWithResult<Boolean>(false) {
 			@Override
-			public Boolean visit(final Element element) {
+			public Boolean visit(final IElement element) {
 				if (style.equals(CSS.INLINE)) {
 					return true;
 				}
@@ -956,10 +956,10 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 			}
 
 			@Override
-			public Boolean visit(final Comment comment) {
+			public Boolean visit(final IComment comment) {
 				final boolean parentIsInline = parent.accept(new BaseNodeVisitorWithResult<Boolean>(false) {
 					@Override
-					public Boolean visit(final Element element) {
+					public Boolean visit(final IElement element) {
 						return parentStyle.equals(CSS.INLINE);
 					};
 				});
@@ -967,33 +967,33 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 			}
 
 			@Override
-			public Boolean visit(final Text text) {
+			public Boolean visit(final IText text) {
 				return true;
 			}
 		});
 	}
 
-	private static String displayStyleOf(final Node node, final LayoutContext context) {
+	private static String displayStyleOf(final INode node, final LayoutContext context) {
 		return context.getStyleSheet().getStyles(node).getDisplay();
 	}
 
 	/**
 	 * Return the end position of an anonymous box. The default implementation returns null.
 	 */
-	private Position getEndPosition() {
+	private IPosition getEndPosition() {
 		return endPosition;
 	}
 
 	/**
 	 * Return the start position of an anonymous box. The default implementation returns null.
 	 */
-	private Position getStartPosition() {
+	private IPosition getStartPosition() {
 		return startPosition;
 	}
 
 	private boolean isTableChild(final LayoutContext context, final Object rangeOrElement) {
-		if (rangeOrElement != null && rangeOrElement instanceof Element) {
-			return LayoutUtils.isTableChild(context.getStyleSheet(), (Element) rangeOrElement);
+		if (rangeOrElement != null && rangeOrElement instanceof IElement) {
+			return LayoutUtils.isTableChild(context.getStyleSheet(), (IElement) rangeOrElement);
 		} else {
 			return false;
 		}

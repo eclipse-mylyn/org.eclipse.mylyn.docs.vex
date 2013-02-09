@@ -21,6 +21,7 @@ import static org.junit.Assert.fail;
 import java.util.List;
 
 import org.eclipse.core.runtime.QualifiedName;
+import org.eclipse.vex.core.dom.IElement;
 import org.eclipse.vex.core.internal.dom.Element;
 import org.eclipse.vex.core.internal.widget.MockHostComponent;
 import org.eclipse.vex.core.internal.widget.VexWidgetImpl;
@@ -49,10 +50,10 @@ public class EditNamespacesControllerTest {
 		assertContainsNamespaceDefinition(new EditableNamespaceDefinition("ns2", "http://namespace/uri/2"), namespaces);
 	}
 
-	private EditNamespacesController createController(final Element element) {
+	private EditNamespacesController createController(final IElement element) {
 		final VexWidgetImpl widget = new VexWidgetImpl(new MockHostComponent()) {
 			@Override
-			public Element getCurrentElement() {
+			public IElement getCurrentElement() {
 				return element;
 			}
 		};

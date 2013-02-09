@@ -25,15 +25,15 @@ import junit.framework.Test;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
+import org.eclipse.vex.core.dom.BaseNodeVisitorWithResult;
+import org.eclipse.vex.core.dom.IDocument;
+import org.eclipse.vex.core.dom.IElement;
+import org.eclipse.vex.core.dom.INode;
 import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.css.StyleSheetReader;
-import org.eclipse.vex.core.internal.dom.BaseNodeVisitorWithResult;
-import org.eclipse.vex.core.internal.dom.Document;
-import org.eclipse.vex.core.internal.dom.DocumentContentModel;
-import org.eclipse.vex.core.internal.dom.Element;
-import org.eclipse.vex.core.internal.dom.IWhitespacePolicy;
-import org.eclipse.vex.core.internal.dom.Node;
+import org.eclipse.vex.core.internal.io.DocumentContentModel;
 import org.eclipse.vex.core.internal.io.DocumentReader;
+import org.eclipse.vex.core.internal.io.IWhitespacePolicy;
 import org.eclipse.vex.core.internal.widget.CssWhitespacePolicy;
 import org.junit.runner.RunWith;
 import org.junit.runners.AllTests;
@@ -109,7 +109,7 @@ public class LayoutTestSuite extends TestCase {
 				return policy;
 			}
 		});
-		final Document doc = docReader.read(this.doc);
+		final IDocument doc = docReader.read(this.doc);
 		context.setDocument(doc);
 
 		final RootBox rootBox = new RootBox(context, doc, layoutWidth);
@@ -169,10 +169,10 @@ public class LayoutTestSuite extends TestCase {
 
 	}
 
-	private static String getPrefixedNameOfElement(final Node node) {
+	private static String getPrefixedNameOfElement(final INode node) {
 		return node.accept(new BaseNodeVisitorWithResult<String>("") {
 			@Override
-			public String visit(final Element element) {
+			public String visit(final IElement element) {
 				return element.getPrefixedName();
 			}
 		});

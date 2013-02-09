@@ -11,7 +11,7 @@
 package org.eclipse.vex.ui.internal.handlers;
 
 import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.vex.core.internal.dom.Node;
+import org.eclipse.vex.core.dom.INode;
 import org.eclipse.vex.ui.internal.swt.VexWidget;
 
 /**
@@ -24,7 +24,7 @@ public class DuplicateSelectionHandler extends AbstractVexWidgetHandler {
 		widget.doWork(new Runnable() {
 			public void run() {
 				if (!widget.hasSelection()) {
-					final Node node = widget.getCurrentNode();
+					final INode node = widget.getCurrentNode();
 
 					// Can't duplicate the document
 					if (node.getParent() == null) {

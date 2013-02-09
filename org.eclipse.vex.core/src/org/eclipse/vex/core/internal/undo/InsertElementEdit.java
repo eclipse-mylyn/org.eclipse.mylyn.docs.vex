@@ -1,18 +1,18 @@
 package org.eclipse.vex.core.internal.undo;
 
 import org.eclipse.core.runtime.QualifiedName;
-import org.eclipse.vex.core.internal.dom.Document;
-import org.eclipse.vex.core.internal.dom.DocumentValidationException;
-import org.eclipse.vex.core.internal.dom.Element;
+import org.eclipse.vex.core.dom.DocumentValidationException;
+import org.eclipse.vex.core.dom.IDocument;
+import org.eclipse.vex.core.dom.IElement;
 
 public class InsertElementEdit implements IUndoableEdit {
 
-	private final Document document;
+	private final IDocument document;
 	private final int offset;
 	private final QualifiedName elementName;
-	private Element element;
+	private IElement element;
 
-	public InsertElementEdit(final Document document, final int offset, final QualifiedName elementName) {
+	public InsertElementEdit(final IDocument document, final int offset, final QualifiedName elementName) {
 		this.document = document;
 		this.offset = offset;
 		this.elementName = elementName;
@@ -40,7 +40,7 @@ public class InsertElementEdit implements IUndoableEdit {
 		}
 	}
 
-	public Element getElement() {
+	public IElement getElement() {
 		return element;
 	}
 

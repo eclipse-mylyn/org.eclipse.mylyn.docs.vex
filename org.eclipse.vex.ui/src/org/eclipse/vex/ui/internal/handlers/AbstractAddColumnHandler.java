@@ -17,8 +17,8 @@ import java.util.List;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.vex.core.dom.IElement;
 import org.eclipse.vex.core.internal.dom.CopyOfElement;
-import org.eclipse.vex.core.internal.dom.Element;
 import org.eclipse.vex.ui.internal.swt.VexWidget;
 
 /**
@@ -51,18 +51,18 @@ public abstract class AbstractAddColumnHandler extends AbstractHandler {
 			return;
 		}
 
-		final List<Element> cellsToDup = new ArrayList<Element>();
+		final List<IElement> cellsToDup = new ArrayList<IElement>();
 		VexHandlerUtil.iterateTableCells(widget, new TableCellCallbackAdapter() {
 			@Override
 			public void onCell(final Object row, final Object cell, final int rowIndex, final int cellIndex) {
-				if (cellIndex == indexToDup && cell instanceof Element) {
-					cellsToDup.add((Element) cell);
+				if (cellIndex == indexToDup && cell instanceof IElement) {
+					cellsToDup.add((IElement) cell);
 				}
 			}
 		});
 
 		int finalOffset = -1;
-		for (final Element element : cellsToDup) {
+		for (final IElement element : cellsToDup) {
 			if (finalOffset == -1) {
 				finalOffset = element.getStartOffset() + 1;
 			}

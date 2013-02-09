@@ -17,6 +17,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
 
+import org.eclipse.vex.core.dom.IDocument;
 import org.eclipse.vex.core.internal.core.Graphics;
 import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.css.StyleSheetReader;
@@ -55,7 +56,7 @@ public class BlockElementBoxTest {
 		final String docString = "<root><small/><medium/><large/></root>";
 		final DocumentReader docReader = new DocumentReader();
 		docReader.setDebugging(true);
-		final Document doc = docReader.read(docString);
+		final IDocument doc = docReader.read(docString);
 		context.setDocument(doc);
 
 		final RootBox parentBox = new RootBox(context, doc, 500);

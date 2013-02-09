@@ -10,6 +10,10 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.dom;
 
+import org.eclipse.vex.core.dom.BaseNodeVisitor;
+import org.eclipse.vex.core.dom.IAttribute;
+import org.eclipse.vex.core.dom.IElement;
+
 /**
  * This visitor copies the properties of a source element into the visited elements:
  * <ul>
@@ -21,19 +25,19 @@ package org.eclipse.vex.core.internal.dom;
  */
 public class CopyOfElement extends BaseNodeVisitor {
 
-	private final Element source;
+	private final IElement source;
 
 	/**
 	 * @param source
 	 *            the source element
 	 */
-	public CopyOfElement(final Element source) {
+	public CopyOfElement(final IElement source) {
 		this.source = source;
 	}
 
 	@Override
-	public void visit(final Element element) {
-		for (final Attribute attribute : source.getAttributes()) {
+	public void visit(final IElement element) {
+		for (final IAttribute attribute : source.getAttributes()) {
 			element.setAttribute(attribute.getQualifiedName(), attribute.getValue());
 		}
 

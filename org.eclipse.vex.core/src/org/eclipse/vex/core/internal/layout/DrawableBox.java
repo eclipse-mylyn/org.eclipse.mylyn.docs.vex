@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.layout;
 
+import org.eclipse.vex.core.dom.INode;
 import org.eclipse.vex.core.internal.core.ColorResource;
 import org.eclipse.vex.core.internal.core.Drawable;
 import org.eclipse.vex.core.internal.core.FontMetrics;
@@ -17,7 +18,6 @@ import org.eclipse.vex.core.internal.core.FontResource;
 import org.eclipse.vex.core.internal.core.Graphics;
 import org.eclipse.vex.core.internal.core.Rectangle;
 import org.eclipse.vex.core.internal.css.Styles;
-import org.eclipse.vex.core.internal.dom.Node;
 
 /**
  * An inline box that draws a Drawable object. The drawable is drawn relative to the text baseline, therefore it should
@@ -30,7 +30,7 @@ public class DrawableBox extends AbstractInlineBox {
 	public static final byte END_MARKER = 2;
 
 	private final Drawable drawable;
-	private final Node node;
+	private final INode node;
 	private final byte marker;
 
 	/**
@@ -41,7 +41,7 @@ public class DrawableBox extends AbstractInlineBox {
 	 * @param node
 	 *            Node whose styles determine the color of the drawable.
 	 */
-	public DrawableBox(final Drawable drawable, final Node node) {
+	public DrawableBox(final Drawable drawable, final INode node) {
 		this(drawable, node, NO_MARKER);
 	}
 
@@ -56,7 +56,7 @@ public class DrawableBox extends AbstractInlineBox {
 	 * @param marker
 	 *            which marker should be drawn. Must be one of NO_MARKER, START_MARKER, or END_MARKER.
 	 */
-	public DrawableBox(final Drawable drawable, final Node node, final byte marker) {
+	public DrawableBox(final Drawable drawable, final INode node, final byte marker) {
 		this.drawable = drawable;
 		this.node = node;
 		this.marker = marker;
@@ -76,7 +76,7 @@ public class DrawableBox extends AbstractInlineBox {
 	 * Returns the node that controls the styling for this text box.
 	 */
 	@Override
-	public Node getNode() {
+	public INode getNode() {
 		return node;
 	}
 

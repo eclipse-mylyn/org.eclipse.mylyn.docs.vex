@@ -15,18 +15,21 @@ import java.util.List;
 import java.util.Set;
 
 import org.eclipse.core.runtime.QualifiedName;
+import org.eclipse.vex.core.dom.IAttribute;
+import org.eclipse.vex.core.dom.IElement;
+import org.eclipse.vex.core.dom.IValidator;
 import org.eclipse.vex.core.internal.validator.AttributeDefinition;
 
 /**
  * @author Florian Thienel
  */
-public class DummyValidator implements Validator {
+public class DummyValidator implements IValidator {
 
-	public AttributeDefinition getAttributeDefinition(final Attribute attribute) {
+	public AttributeDefinition getAttributeDefinition(final IAttribute attribute) {
 		return null;
 	}
 
-	public List<AttributeDefinition> getAttributeDefinitions(final Element element) {
+	public List<AttributeDefinition> getAttributeDefinitions(final IElement element) {
 		return Collections.emptyList();
 	}
 
@@ -34,7 +37,7 @@ public class DummyValidator implements Validator {
 		return Collections.emptySet();
 	}
 
-	public Set<QualifiedName> getValidItems(final Element element) {
+	public Set<QualifiedName> getValidItems(final IElement element) {
 		return Collections.emptySet();
 	}
 

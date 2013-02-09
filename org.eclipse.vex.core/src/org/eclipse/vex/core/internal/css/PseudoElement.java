@@ -10,10 +10,13 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.css;
 
+import org.eclipse.vex.core.dom.IElement;
 import org.eclipse.vex.core.internal.dom.Element;
 
 /**
  * Represents a :before or :after pseudo-element.
+ * 
+ * XXX REMOVE THIS HACK!!!
  */
 public class PseudoElement extends Element {
 
@@ -28,9 +31,9 @@ public class PseudoElement extends Element {
 	 * @param name
 	 *            Name of this pseudo-element, e.g. PseudoElement.BEFORE.
 	 */
-	public PseudoElement(final Element parent, final String name) {
+	public PseudoElement(final IElement parent, final String name) {
 		super(name);
-		setParent(parent);
+		setParent((Element) parent);
 	}
 
 	/**

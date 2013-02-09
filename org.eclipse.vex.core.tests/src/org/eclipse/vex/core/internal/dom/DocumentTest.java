@@ -20,6 +20,12 @@ import java.util.Iterator;
 
 import org.eclipse.core.runtime.AssertionFailedException;
 import org.eclipse.core.runtime.QualifiedName;
+import org.eclipse.vex.core.dom.ContentRange;
+import org.eclipse.vex.core.dom.IDocument;
+import org.eclipse.vex.core.dom.IDocumentFragment;
+import org.eclipse.vex.core.dom.IElement;
+import org.eclipse.vex.core.dom.INode;
+import org.eclipse.vex.core.dom.IParent;
 import org.junit.Test;
 
 /**
@@ -54,69 +60,69 @@ public class DocumentTest {
 
 	@Test
 	public void createFragmentWithTextAndChild() throws Exception {
-		final Document document = new Document(new QualifiedName(null, "root"));
-		final Element childElement = document.insertElement(2, new QualifiedName(null, "child"));
+		final IDocument document = new Document(new QualifiedName(null, "root"));
+		final IElement childElement = document.insertElement(2, new QualifiedName(null, "child"));
 		document.insertText(childElement.getStartOffset(), "Hello ");
 		document.insertText(childElement.getEndOffset(), "Child");
 		document.insertText(childElement.getEndOffset() + 1, " World");
 		final ContentRange range = childElement.getRange().resizeBy(-2, 2);
-		final DocumentFragment fragment = document.getFragment(range);
+		final IDocumentFragment fragment = document.getFragment(range);
 		assertEquals(11, fragment.getLength());
 		assertNodesEqual(document.getNodes(range), fragment.getNodes(), range.getStartOffset());
 	}
 
 	@Test
 	public void createFragmentWithExactlyOneChild() throws Exception {
-		final Document document = new Document(new QualifiedName(null, "root"));
-		final Element childElement = document.insertElement(2, new QualifiedName(null, "child"));
+		final IDocument document = new Document(new QualifiedName(null, "root"));
+		final IElement childElement = document.insertElement(2, new QualifiedName(null, "child"));
 		document.insertText(childElement.getEndOffset(), "Child");
 		final ContentRange range = childElement.getRange();
-		final DocumentFragment fragment = document.getFragment(range);
+		final IDocumentFragment fragment = document.getFragment(range);
 		assertEquals(7, fragment.getLength());
 		assertNodesEqual(document.getNodes(range), fragment.getNodes(), range.getStartOffset());
 	}
 
 	@Test
 	public void givenElementWithText_whenRangeBeginsFromStartOffset_shouldProvideParentAsCommenNode() throws Exception {
-		final Document document = new Document(new QualifiedName(null, "root"));
-		final Element childElement = document.insertElement(2, new QualifiedName(null, "child"));
+		final IDocument document = new Document(new QualifiedName(null, "root"));
+		final IElement childElement = document.insertElement(2, new QualifiedName(null, "child"));
 		document.insertText(childElement.getEndOffset(), "Hello World");
 
-		final Node commonNode = document.findCommonNode(childElement.getStartOffset(), childElement.getEndOffset() - 5);
+		final INode commonNode = document.findCommonNode(childElement.getStartOffset(), childElement.getEndOffset() - 5);
 
 		assertSame(document.getRootElement(), commonNode);
 	}
 
 	@Test
 	public void givenElementWithText_whenRangeWithinText_shouldProvideElementAsCommonNode() throws Exception {
-		final Document document = new Document(new QualifiedName(null, "root"));
-		final Element childElement = document.insertElement(2, new QualifiedName(null, "child"));
+		final IDocument document = new Document(new QualifiedName(null, "root"));
+		final IElement childElement = document.insertElement(2, new QualifiedName(null, "child"));
 		document.insertText(childElement.getEndOffset(), "Hello World");
 
-		final Node commonNode = document.findCommonNode(childElement.getStartOffset() + 2, childElement.getEndOffset() - 5);
+		final INode commonNode = document.findCommonNode(childElement.getStartOffset() + 2, childElement.getEndOffset() - 5);
 
 		assertSame(childElement, commonNode);
 	}
 
 	@Test
 	public void insertFragmentWithChildGrandChildAndText() throws Exception {
-		final Document document = new Document(new QualifiedName(null, "root"));
-		final Element child = document.insertElement(2, new QualifiedName(null, "child"));
+		final IDocument document = new Document(new QualifiedName(null, "root"));
+		final IElement child = document.insertElement(2, new QualifiedName(null, "child"));
 		document.insertText(child.getEndOffset(), "Hello ");
-		final Element grandChild = document.insertElement(child.getEndOffset(), new QualifiedName(null, "grandchild"));
+		final IElement grandChild = document.insertElement(child.getEndOffset(), new QualifiedName(null, "grandchild"));
 		document.insertText(grandChild.getEndOffset(), "Grandchild");
 		document.insertText(child.getEndOffset(), " World");
 
-		final DocumentFragment expectedFragment = document.getFragment(child.getRange());
+		final IDocumentFragment expectedFragment = document.getFragment(child.getRange());
 		document.insertFragment(document.getRootElement().getEndOffset(), expectedFragment);
-		final DocumentFragment actualFragment = document.getFragment(new ContentRange(child.getEndOffset() + 1, document.getRootElement().getEndOffset() - 1));
+		final IDocumentFragment actualFragment = document.getFragment(new ContentRange(child.getEndOffset() + 1, document.getRootElement().getEndOffset() - 1));
 
 		assertNodeEquals(expectedFragment, actualFragment, 0);
 	}
 
-	private static void assertNodesEqual(final Iterable<Node> expected, final Iterable<Node> actual, final int rangeOffsetExpected) {
-		final Iterator<Node> expectedIterator = expected.iterator();
-		final Iterator<Node> actualIterator = actual.iterator();
+	private static void assertNodesEqual(final Iterable<? extends INode> expected, final Iterable<? extends INode> actual, final int rangeOffsetExpected) {
+		final Iterator<? extends INode> expectedIterator = expected.iterator();
+		final Iterator<? extends INode> actualIterator = actual.iterator();
 		while (expectedIterator.hasNext() && actualIterator.hasNext()) {
 			assertNodeEquals(expectedIterator.next(), actualIterator.next(), rangeOffsetExpected);
 		}
@@ -124,16 +130,16 @@ public class DocumentTest {
 		assertFalse("less elements expected", actualIterator.hasNext());
 	}
 
-	private static void assertNodeEquals(final Node expected, final Node actual, final int rangeOffsetExpected) {
+	private static void assertNodeEquals(final INode expected, final INode actual, final int rangeOffsetExpected) {
 		assertSame("node class", expected.getClass(), actual.getClass());
 		assertEquals("node range", expected.getRange(), actual.getRange().moveBy(rangeOffsetExpected));
 		assertEquals("node text", expected.getText(), actual.getText());
-		if (expected instanceof Parent) {
-			assertNodesEqual(((Parent) expected).children(), ((Parent) actual).children(), rangeOffsetExpected);
+		if (expected instanceof IParent) {
+			assertNodesEqual(((IParent) expected).children(), ((IParent) actual).children(), rangeOffsetExpected);
 		}
 	}
 
-	private static void assertDocumentConnectedToRootElement(final Element rootElement, final Document document) {
+	private static void assertDocumentConnectedToRootElement(final IElement rootElement, final Document document) {
 		assertNotNull(document.getContent());
 		assertTrue(document.isAssociated());
 		assertTrue(rootElement.isAssociated());

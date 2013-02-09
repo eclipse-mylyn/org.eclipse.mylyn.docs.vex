@@ -14,22 +14,25 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 import org.eclipse.core.runtime.Assert;
+import org.eclipse.vex.core.dom.ContentRange;
+import org.eclipse.vex.core.dom.IContent;
+import org.eclipse.vex.core.dom.INode;
 
 /**
  * @author Florian Thienel
  */
-public class MergeNodesWithTextIterator implements Iterator<Node> {
+public class MergeNodesWithTextIterator implements Iterator<INode> {
 
 	private final Parent parent;
-	private final Iterator<Node> nodes;
-	private final Content content;
+	private final Iterator<? extends INode> nodes;
+	private final IContent content;
 	private final ContentRange contentRange;
 
 	private int textCursor;
-	private Node currentChild;
+	private INode currentChild;
 	private ContentRange nextTextGap;
 
-	public MergeNodesWithTextIterator(final Parent parent, final Iterable<Node> nodes, final Content content, final ContentRange contentRange) {
+	public MergeNodesWithTextIterator(final Parent parent, final Iterable<? extends INode> nodes, final IContent content, final ContentRange contentRange) {
 		this.parent = parent;
 		this.nodes = nodes.iterator();
 		this.content = content;
@@ -100,7 +103,7 @@ public class MergeNodesWithTextIterator implements Iterator<Node> {
 		return textCursor < nextTextGap.getStartOffset();
 	}
 
-	public Node next() {
+	public INode next() {
 		if (!hasNext()) {
 			throw new NoSuchElementException();
 		}
@@ -125,13 +128,13 @@ public class MergeNodesWithTextIterator implements Iterator<Node> {
 		return nextChild();
 	}
 
-	private Node nextChild() {
-		final Node child = currentChild;
+	private INode nextChild() {
+		final INode child = currentChild;
 		nextStep();
 		return child;
 	}
 
-	private Node nextText(final int textStart, final int textEnd) {
+	private Text nextText(final int textStart, final int textEnd) {
 		return new Text(parent, content, new ContentRange(textStart, textEnd));
 	}
 

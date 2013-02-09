@@ -14,19 +14,20 @@ package org.eclipse.vex.core.internal.layout;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.vex.core.dom.BaseNodeVisitor;
+import org.eclipse.vex.core.dom.ContentRange;
+import org.eclipse.vex.core.dom.IComment;
+import org.eclipse.vex.core.dom.IElement;
+import org.eclipse.vex.core.dom.INode;
+import org.eclipse.vex.core.dom.IText;
 import org.eclipse.vex.core.internal.core.Drawable;
 import org.eclipse.vex.core.internal.core.FontMetrics;
 import org.eclipse.vex.core.internal.core.FontResource;
 import org.eclipse.vex.core.internal.core.Graphics;
 import org.eclipse.vex.core.internal.core.Rectangle;
 import org.eclipse.vex.core.internal.css.CSS;
+import org.eclipse.vex.core.internal.css.PseudoElement;
 import org.eclipse.vex.core.internal.css.Styles;
-import org.eclipse.vex.core.internal.dom.BaseNodeVisitor;
-import org.eclipse.vex.core.internal.dom.Comment;
-import org.eclipse.vex.core.internal.dom.ContentRange;
-import org.eclipse.vex.core.internal.dom.Element;
-import org.eclipse.vex.core.internal.dom.Node;
-import org.eclipse.vex.core.internal.dom.Text;
 
 /**
  * An inline box that represents an inline element. This box is responsible for creating and laying out its child boxes.
@@ -35,7 +36,7 @@ public class InlineElementBox extends CompositeInlineBox {
 
 	private static final String COMMENT_AFTER_TEXT = "-->";
 	private static final String COMMENT_BEFORE_TEXT = "<!--";
-	private final Node node;
+	private final INode node;
 	private final InlineBox[] children;
 	private InlineBox firstContentChild = null;
 	private InlineBox lastContentChild = null;
@@ -54,7 +55,7 @@ public class InlineElementBox extends CompositeInlineBox {
 	 * @param endOffset
 	 *            End offset of the range being rendered, which may be arbitrarily after or inside the element.
 	 */
-	private InlineElementBox(final LayoutContext context, final Node node, final int startOffset, final int endOffset) {
+	private InlineElementBox(final LayoutContext context, final INode node, final int startOffset, final int endOffset) {
 
 		this.node = node;
 
@@ -71,8 +72,7 @@ public class InlineElementBox extends CompositeInlineBox {
 			}
 
 			// :before content
-			final Element beforeElement;
-			beforeElement = context.getStyleSheet().getBeforeElement((Element) node);
+			final PseudoElement beforeElement = context.getStyleSheet().getBeforeElement((IElement) node);
 			if (beforeElement != null) {
 				childList.addAll(LayoutUtils.createGeneratedInlines(context, beforeElement));
 			}
@@ -100,7 +100,7 @@ public class InlineElementBox extends CompositeInlineBox {
 			childList.add(createRightMarker(node, styles));
 
 			// :after content
-			final Element afterElement = context.getStyleSheet().getAfterElement((Element) node);
+			final PseudoElement afterElement = context.getStyleSheet().getAfterElement((IElement) node);
 			if (afterElement != null) {
 				childList.addAll(LayoutUtils.createGeneratedInlines(context, afterElement));
 			}
@@ -127,7 +127,7 @@ public class InlineElementBox extends CompositeInlineBox {
 	 * @param children
 	 *            Child boxes.
 	 */
-	private InlineElementBox(final LayoutContext context, final Node node, final InlineBox[] children) {
+	private InlineElementBox(final LayoutContext context, final INode node, final InlineBox[] children) {
 		this.node = node;
 		this.children = children;
 		layout(context);
@@ -160,7 +160,7 @@ public class InlineElementBox extends CompositeInlineBox {
 	 * Returns the element associated with this box.
 	 */
 	@Override
-	public Node getNode() {
+	public INode getNode() {
 		return node;
 	}
 
@@ -266,16 +266,16 @@ public class InlineElementBox extends CompositeInlineBox {
 	 *            The end of the range to convert to inline boxes.
 	 * @return
 	 */
-	static InlineBoxes createInlineBoxes(final LayoutContext context, final Node node, final ContentRange range) {
+	static InlineBoxes createInlineBoxes(final LayoutContext context, final INode node, final ContentRange range) {
 		final InlineBoxes result = new InlineBoxes();
 
 		node.accept(new BaseNodeVisitor() {
 			@Override
-			public void visit(final Element element) {
-				for (final Node childNode : element.children().in(range)) {
+			public void visit(final IElement element) {
+				for (final INode childNode : element.children().in(range)) {
 					childNode.accept(new BaseNodeVisitor() {
 						@Override
-						public void visit(final Element element) {
+						public void visit(final IElement element) {
 							final InlineBox placeholder = new PlaceholderBox(context, node, element.getStartOffset() - node.getStartOffset());
 							result.boxes.add(placeholder);
 							if (result.firstContentBox == null) {
@@ -286,7 +286,7 @@ public class InlineElementBox extends CompositeInlineBox {
 						}
 
 						@Override
-						public void visit(final Comment comment) {
+						public void visit(final IComment comment) {
 							final PlaceholderBox placeholder = new PlaceholderBox(context, node, comment.getStartOffset() - node.getStartOffset());
 							result.boxes.add(placeholder);
 							if (result.firstContentBox == null) {
@@ -304,7 +304,7 @@ public class InlineElementBox extends CompositeInlineBox {
 						};
 
 						@Override
-						public void visit(final Text text) {
+						public void visit(final IText text) {
 							final ContentRange boxRange = range.intersection(text.getRange());
 							final InlineBox child = new DocumentTextBox(context, node, boxRange.getStartOffset(), boxRange.getEndOffset());
 							addChildInlineBox(result, child);
@@ -329,7 +329,7 @@ public class InlineElementBox extends CompositeInlineBox {
 
 	// ========================================================== PRIVATE
 
-	private static InlineBox createLeftMarker(final Node node, final Styles styles) {
+	private static InlineBox createLeftMarker(final INode node, final Styles styles) {
 		final int size = Math.round(0.5f * styles.getFontSize());
 		final int lift = Math.round(0.1f * styles.getFontSize());
 		final Drawable drawable = new Drawable() {
@@ -349,7 +349,7 @@ public class InlineElementBox extends CompositeInlineBox {
 		return new DrawableBox(drawable, node, DrawableBox.START_MARKER);
 	}
 
-	private static InlineBox createRightMarker(final Node node, final Styles styles) {
+	private static InlineBox createRightMarker(final INode node, final Styles styles) {
 		final int size = Math.round(0.5f * styles.getFontSize());
 		final int lift = Math.round(0.1f * styles.getFontSize());
 		final Drawable drawable = new Drawable() {

@@ -16,6 +16,8 @@ import static org.junit.Assert.assertNull;
 import java.util.Collections;
 
 import org.eclipse.core.runtime.QualifiedName;
+import org.eclipse.vex.core.dom.ContentRange;
+import org.eclipse.vex.core.dom.IElement;
 import org.junit.Test;
 
 /**
@@ -50,7 +52,7 @@ public class CopyVisitorTest {
 		element.declareNamespace("ns1", "additionalNamespaceUri1");
 		element.declareNamespace("ns2", "additionalNamespaceUri2");
 
-		final Element copy = (Element) element.accept(new CopyVisitor());
+		final IElement copy = (IElement) element.accept(new CopyVisitor());
 
 		assertEquals(new QualifiedName(null, "element"), copy.getQualifiedName());
 		assertEquals(2, copy.getAttributes().size());

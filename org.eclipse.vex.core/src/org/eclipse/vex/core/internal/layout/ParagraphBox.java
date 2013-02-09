@@ -14,10 +14,10 @@ package org.eclipse.vex.core.internal.layout;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.vex.core.dom.INode;
 import org.eclipse.vex.core.internal.core.Caret;
 import org.eclipse.vex.core.internal.css.CSS;
 import org.eclipse.vex.core.internal.css.Styles;
-import org.eclipse.vex.core.internal.dom.Node;
 
 /**
  * A box that wraps inline content into a paragraph.
@@ -58,7 +58,7 @@ public class ParagraphBox extends AbstractBox implements BlockBox {
 	 * @param width
 	 *            width to which the paragraph is to be wrapped
 	 */
-	public static ParagraphBox create(final LayoutContext context, final Node node, final List<InlineBox> inlines, final int width) {
+	public static ParagraphBox create(final LayoutContext context, final INode node, final List<InlineBox> inlines, final int width) {
 		final InlineBox[] array = inlines.toArray(new InlineBox[inlines.size()]);
 		return create(context, node, array, width);
 	}
@@ -75,7 +75,7 @@ public class ParagraphBox extends AbstractBox implements BlockBox {
 	 * @param width
 	 *            width to which the paragraph is to be wrapped.
 	 */
-	public static ParagraphBox create(final LayoutContext context, final Node node, final InlineBox[] inlines, final int width) {
+	public static ParagraphBox create(final LayoutContext context, final INode node, final InlineBox[] inlines, final int width) {
 
 		// lines is the list of LineBoxes we are creating
 		final List<Box> lines = new ArrayList<Box>();

@@ -8,9 +8,9 @@
  * Contributors:
  * 		Florian Thienel - initial API and implementation
  *******************************************************************************/
-package org.eclipse.vex.core.internal.dom;
+package org.eclipse.vex.core.internal.validator;
 
-import static org.eclipse.vex.core.internal.dom.Validator.PCDATA;
+import static org.eclipse.vex.core.dom.IValidator.PCDATA;
 import static org.eclipse.vex.core.tests.TestResources.CONTENT_NS;
 import static org.eclipse.vex.core.tests.TestResources.STRUCTURE_NS;
 import static org.eclipse.vex.core.tests.TestResources.TEST_DTD;
@@ -27,8 +27,13 @@ import java.util.List;
 import java.util.Set;
 
 import org.eclipse.core.runtime.QualifiedName;
+import org.eclipse.vex.core.dom.IDocument;
+import org.eclipse.vex.core.dom.IElement;
+import org.eclipse.vex.core.dom.IValidator;
+import org.eclipse.vex.core.internal.dom.Document;
+import org.eclipse.vex.core.internal.dom.Element;
+import org.eclipse.vex.core.internal.io.DocumentContentModel;
 import org.eclipse.vex.core.internal.io.DocumentReader;
-import org.eclipse.vex.core.internal.validator.WTPVEXValidator;
 import org.eclipse.wst.common.uriresolver.internal.provisional.URIResolver;
 import org.eclipse.wst.common.uriresolver.internal.provisional.URIResolverPlugin;
 import org.eclipse.wst.xml.core.internal.contentmodel.CMDocument;
@@ -56,10 +61,10 @@ public class SchemaValidatorTest {
 
 		final DocumentReader reader = new DocumentReader();
 		reader.setDebugging(true);
-		final Document document = reader.read(documentInputSource);
+		final IDocument document = reader.read(documentInputSource);
 		assertNotNull(document);
 
-		final Element rootElement = document.getRootElement();
+		final IElement rootElement = document.getRootElement();
 		assertNotNull(rootElement);
 		assertEquals("chapter", rootElement.getLocalName());
 		assertEquals("chapter", rootElement.getPrefixedName());
@@ -67,11 +72,11 @@ public class SchemaValidatorTest {
 		assertEquals(STRUCTURE_NS, rootElement.getDefaultNamespaceURI());
 		assertEquals(CONTENT_NS, rootElement.getNamespaceURI("c"));
 
-		final Element subChapterElement = rootElement.getChildElements().get(1);
+		final IElement subChapterElement = rootElement.childElements().get(1);
 		assertEquals("chapter", subChapterElement.getPrefixedName());
 		assertEquals(CHAPTER, subChapterElement.getQualifiedName());
 
-		final Element paragraphElement = subChapterElement.getChildElements().get(1);
+		final IElement paragraphElement = subChapterElement.childElements().get(1);
 		assertEquals("p", paragraphElement.getLocalName());
 		assertEquals("c:p", paragraphElement.getPrefixedName());
 		assertEquals(P, paragraphElement.getQualifiedName());
@@ -111,20 +116,20 @@ public class SchemaValidatorTest {
 
 	@Test
 	public void createValidatorWithNamespaceUri() throws Exception {
-		final Validator validator = new WTPVEXValidator(CONTENT_NS);
+		final IValidator validator = new WTPVEXValidator(CONTENT_NS);
 		assertEquals(1, validator.getValidRootElements().size());
 		assertTrue(validator.getValidRootElements().contains(P));
 	}
 
 	@Test
 	public void createValidatorWithDTDPublicId() throws Exception {
-		final Validator validator = new WTPVEXValidator(TEST_DTD);
+		final IValidator validator = new WTPVEXValidator(TEST_DTD);
 		assertEquals(10, validator.getValidRootElements().size());
 	}
 
 	@Test
 	public void validateSimpleSchema() throws Exception {
-		final Validator validator = new WTPVEXValidator(CONTENT_NS);
+		final IValidator validator = new WTPVEXValidator(CONTENT_NS);
 		assertIsValidSequence(validator, P, PCDATA);
 		assertIsValidSequence(validator, P, B, I);
 		assertIsValidSequence(validator, B, B, I);
@@ -137,8 +142,8 @@ public class SchemaValidatorTest {
 
 	@Test
 	public void validItemsFromSimpleSchema() throws Exception {
-		final Validator validator = new WTPVEXValidator();
-		final Document doc = new Document(P);
+		final IValidator validator = new WTPVEXValidator();
+		final IDocument doc = new Document(P);
 		doc.setValidator(validator);
 		doc.insertElement(2, B);
 		doc.insertElement(3, I);
@@ -150,7 +155,7 @@ public class SchemaValidatorTest {
 
 	@Test
 	public void validateComplexSchema() throws Exception {
-		final Validator validator = new WTPVEXValidator(STRUCTURE_NS);
+		final IValidator validator = new WTPVEXValidator(STRUCTURE_NS);
 		assertIsValidSequence(validator, CHAPTER, TITLE, P);
 		assertIsValidSequence(validator, CHAPTER, P);
 		assertIsValidSequence(validator, P, PCDATA, B, I);
@@ -162,8 +167,8 @@ public class SchemaValidatorTest {
 		 * We have to check this using a document, because B and I are not defined as standalone elements. The Validator
 		 * needs their parent to find the definition of their content model.
 		 */
-		final Validator validator = new WTPVEXValidator();
-		final Document doc = new Document(CHAPTER);
+		final IValidator validator = new WTPVEXValidator();
+		final IDocument doc = new Document(CHAPTER);
 		doc.setValidator(validator);
 		doc.insertElement(2, TITLE);
 		doc.insertElement(4, P);
@@ -179,21 +184,21 @@ public class SchemaValidatorTest {
 
 	@Test
 	public void getAllRequiredNamespacesForSimpleSchema() throws Exception {
-		final Validator validator = new WTPVEXValidator(new DocumentContentModel(null, null, null, new Element(P)));
+		final IValidator validator = new WTPVEXValidator(new DocumentContentModel(null, null, null, new Element(P)));
 		final Set<String> requiredNamespaces = validator.getRequiredNamespaces();
 		assertEquals(1, requiredNamespaces.size());
 	}
 
 	@Test
 	public void getAllRequiredNamespacesForComplexSchema() throws Exception {
-		final Validator validator = new WTPVEXValidator(new DocumentContentModel(null, null, null, new Element(CHAPTER)));
+		final IValidator validator = new WTPVEXValidator(new DocumentContentModel(null, null, null, new Element(CHAPTER)));
 		final Set<String> requiredNamespaces = validator.getRequiredNamespaces();
 		assertEquals(2, requiredNamespaces.size());
 		assertTrue(requiredNamespaces.contains(CONTENT_NS));
 		assertTrue(requiredNamespaces.contains(STRUCTURE_NS));
 	}
 
-	private void assertIsValidSequence(final Validator validator, final QualifiedName parentElement, final QualifiedName... sequence) {
+	private void assertIsValidSequence(final IValidator validator, final QualifiedName parentElement, final QualifiedName... sequence) {
 		for (int i = 0; i < sequence.length; i++) {
 			final List<QualifiedName> prefix = createPrefix(i, sequence);
 			final List<QualifiedName> toInsert = Collections.singletonList(sequence[i]);
@@ -219,7 +224,7 @@ public class SchemaValidatorTest {
 		return suffix;
 	}
 
-	private static void assertValidItems(final Validator validator, final Element element, final QualifiedName... expectedItems) {
+	private static void assertValidItems(final IValidator validator, final IElement element, final QualifiedName... expectedItems) {
 		final Set<QualifiedName> expected = new HashSet<QualifiedName>(expectedItems.length);
 		for (final QualifiedName expectedItem : expectedItems) {
 			expected.add(expectedItem);

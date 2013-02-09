@@ -35,7 +35,7 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.dialogs.PropertyPage;
-import org.eclipse.vex.core.internal.dom.Validator;
+import org.eclipse.vex.core.dom.IValidator;
 import org.eclipse.vex.ui.internal.VexPlugin;
 
 /**
@@ -194,7 +194,7 @@ public class DoctypePropertyPage extends PropertyPage {
 	}
 
 	private void populateRootElements() {
-		final Validator validator = (Validator) pluginProject.getParsedResource(((IFile) getElement()).getLocationURI());
+		final IValidator validator = (IValidator) pluginProject.getParsedResource(((IFile) getElement()).getLocationURI());
 		if (validator != null) {
 			final List<String> list = Arrays.asList(doctype.getRootElements());
 			final Set<String> selectedRootElements = new TreeSet<String>(list);

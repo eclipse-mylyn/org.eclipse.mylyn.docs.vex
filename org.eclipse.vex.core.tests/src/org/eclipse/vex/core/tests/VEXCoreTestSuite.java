@@ -25,7 +25,6 @@ import org.eclipse.vex.core.internal.dom.BlockElementBoxTest;
 import org.eclipse.vex.core.internal.dom.CopyVisitorTest;
 import org.eclipse.vex.core.internal.dom.DTDValidatorTest;
 import org.eclipse.vex.core.internal.dom.DeepCopyTest;
-import org.eclipse.vex.core.internal.dom.DocumentContentModelTest;
 import org.eclipse.vex.core.internal.dom.DocumentFragmentTest;
 import org.eclipse.vex.core.internal.dom.DocumentTest;
 import org.eclipse.vex.core.internal.dom.GapContentTest;
@@ -35,8 +34,8 @@ import org.eclipse.vex.core.internal.dom.L1FragmentHandlingTest;
 import org.eclipse.vex.core.internal.dom.L1TextHandlingTest;
 import org.eclipse.vex.core.internal.dom.NamespaceTest;
 import org.eclipse.vex.core.internal.dom.ParentTest;
-import org.eclipse.vex.core.internal.dom.RangeTest;
-import org.eclipse.vex.core.internal.dom.SchemaValidatorTest;
+import org.eclipse.vex.core.internal.dom.ContentRangeTest;
+import org.eclipse.vex.core.internal.io.DocumentContentModelTest;
 import org.eclipse.vex.core.internal.io.DocumentReaderTest;
 import org.eclipse.vex.core.internal.io.DocumentWriterTest;
 import org.eclipse.vex.core.internal.io.NamespaceStackTest;
@@ -49,6 +48,7 @@ import org.eclipse.vex.core.internal.layout.TestBlockElementBox;
 import org.eclipse.vex.core.internal.layout.TestBlocksInInlines;
 import org.eclipse.vex.core.internal.layout.TestDocumentTextBox;
 import org.eclipse.vex.core.internal.layout.TestStaticTextBox;
+import org.eclipse.vex.core.internal.validator.SchemaValidatorTest;
 import org.eclipse.vex.core.internal.widget.L2CommentEditingTest;
 import org.eclipse.vex.core.internal.widget.L2SelectionTest;
 import org.eclipse.vex.core.internal.widget.L2SimpleEditingTest;
@@ -58,7 +58,7 @@ import org.junit.runners.Suite;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({ FilterIteratorTest.class, FirstNIteratorTest.class, AfterNIteratorTest.class, AxisTest.class, NamespaceStackTest.class, NamespaceTest.class, DocumentReaderTest.class,
-		DocumentContentModelTest.class, SchemaValidatorTest.class, CssTest.class, BatikBehaviorTest.class, RangeTest.class, BasicNodeTest.class, ParentTest.class, DocumentTest.class,
+		DocumentContentModelTest.class, SchemaValidatorTest.class, CssTest.class, BatikBehaviorTest.class, ContentRangeTest.class, BasicNodeTest.class, ParentTest.class, DocumentTest.class,
 		L1TextHandlingTest.class, L1CommentHandlingTest.class, L1ElementHandlingTest.class, L1FragmentHandlingTest.class, DocumentFragmentTest.class, CopyVisitorTest.class, DeepCopyTest.class,
 		PropertyTest.class, RuleTest.class, BlockElementBoxTest.class, ImageBoxTest.class, DocumentWriterTest.class, DTDValidatorTest.class, GapContentTest.class, SpaceNormalizerTest.class,
 		TextWrapperTest.class, TestBlockElementBox.class, TestBlocksInInlines.class, TestDocumentTextBox.class, TestStaticTextBox.class, TableLayoutTest.class, LayoutTestSuite.class,

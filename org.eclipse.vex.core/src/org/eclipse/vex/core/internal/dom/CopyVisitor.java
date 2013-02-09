@@ -10,6 +10,13 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.dom;
 
+import org.eclipse.vex.core.dom.IComment;
+import org.eclipse.vex.core.dom.IDocument;
+import org.eclipse.vex.core.dom.IDocumentFragment;
+import org.eclipse.vex.core.dom.IElement;
+import org.eclipse.vex.core.dom.INodeVisitorWithResult;
+import org.eclipse.vex.core.dom.IText;
+
 /**
  * This visitor creates a simple copy of the visited node. I.e. only the node itself, not its content neither its
  * children are copied. The copy is provided through the getCopy() method.
@@ -18,26 +25,26 @@ package org.eclipse.vex.core.internal.dom;
  */
 public class CopyVisitor implements INodeVisitorWithResult<Node> {
 
-	public Document visit(final Document document) {
+	public Document visit(final IDocument document) {
 		throw new UnsupportedOperationException("Document cannot be copied");
 	}
 
-	public DocumentFragment visit(final DocumentFragment fragment) {
+	public DocumentFragment visit(final IDocumentFragment fragment) {
 		throw new UnsupportedOperationException("DocumentFragment cannot be copied");
 	}
 
-	public Element visit(final Element element) {
+	public Element visit(final IElement element) {
 		final Element copyElement = new Element(element.getQualifiedName());
 		copyElement.accept(new CopyOfElement(element));
 		return copyElement;
 	}
 
-	public Text visit(final Text text) {
+	public Text visit(final IText text) {
 		// ignore Text nodes because they are created dynamically in Element.getChildNodes()
 		return null;
 	}
 
-	public Comment visit(final Comment comment) {
+	public Comment visit(final IComment comment) {
 		return new Comment();
 	}
 

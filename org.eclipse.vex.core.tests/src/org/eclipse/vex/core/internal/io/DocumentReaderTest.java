@@ -21,11 +21,10 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.Iterator;
 
-import org.eclipse.vex.core.internal.dom.Comment;
-import org.eclipse.vex.core.internal.dom.Document;
-import org.eclipse.vex.core.internal.dom.DocumentContentModel;
-import org.eclipse.vex.core.internal.dom.Element;
-import org.eclipse.vex.core.internal.dom.Node;
+import org.eclipse.vex.core.dom.IComment;
+import org.eclipse.vex.core.dom.IDocument;
+import org.eclipse.vex.core.dom.IElement;
+import org.eclipse.vex.core.dom.INode;
 import org.eclipse.vex.core.tests.TestResources;
 import org.eclipse.wst.xml.core.internal.contentmodel.CMDocument;
 import org.eclipse.wst.xml.core.internal.contentmodel.ContentModelManager;
@@ -39,7 +38,7 @@ public class DocumentReaderTest {
 	@Test
 	public void readDocumentWithDtdPublic() throws Exception {
 		final DocumentReader reader = new DocumentReader();
-		final Document document = reader.read(TestResources.get("documentWithDtdPublic.xml"));
+		final IDocument document = reader.read(TestResources.get("documentWithDtdPublic.xml"));
 		assertEquals("-//Eclipse Foundation//DTD Vex Test//EN", document.getPublicID());
 		assertEquals("test1.dtd", document.getSystemID());
 	}
@@ -48,7 +47,7 @@ public class DocumentReaderTest {
 	public void readDocumentWithDtdSystem() throws Exception {
 		final DocumentReader reader = new DocumentReader();
 		final URL documentUrl = TestResources.get("documentWithDtdSystem.xml");
-		final Document document = reader.read(documentUrl);
+		final IDocument document = reader.read(documentUrl);
 		assertNull(document.getPublicID());
 		assertEquals("test1.dtd", document.getSystemID());
 	}
@@ -138,26 +137,26 @@ public class DocumentReaderTest {
 	public void readDocumentWithComments() throws Exception {
 		final DocumentReader reader = new DocumentReader();
 
-		final Document document = reader.read(TestResources.get("documentWithComments.xml"));
-		final Iterator<Node> documentChildren = document.children().iterator();
+		final IDocument document = reader.read(TestResources.get("documentWithComments.xml"));
+		final Iterator<INode> documentChildren = document.children().iterator();
 
-		final Comment documentComment1 = (Comment) documentChildren.next();
+		final IComment documentComment1 = (IComment) documentChildren.next();
 		assertEquals("A comment before the root element.", documentComment1.getText());
 		assertSame(document.getRootElement(), documentChildren.next());
-		final Comment documentComment2 = (Comment) documentChildren.next();
+		final IComment documentComment2 = (IComment) documentChildren.next();
 		assertEquals("A final comment after the root element.", documentComment2.getText());
 		assertFalse(documentChildren.hasNext());
 
-		final Element rootElement = document.getRootElement();
-		final Iterator<Node> rootChildren = rootElement.children().iterator();
+		final IElement rootElement = document.getRootElement();
+		final Iterator<INode> rootChildren = rootElement.children().iterator();
 
-		final Comment comment1 = (Comment) rootChildren.next();
+		final IComment comment1 = (IComment) rootChildren.next();
 		assertEquals("A comment within the root element.", comment1.getText());
 
-		final Comment comment2 = (Comment) ((Element) rootChildren.next()).children().get(1);
+		final IComment comment2 = (IComment) ((IElement) rootChildren.next()).children().get(1);
 		assertEquals("A comment within text.", comment2.getText());
 
-		final Comment comment3 = (Comment) rootChildren.next();
+		final IComment comment3 = (IComment) rootChildren.next();
 		assertEquals("Another comment between two child elements.", comment3.getText());
 
 		rootChildren.next();

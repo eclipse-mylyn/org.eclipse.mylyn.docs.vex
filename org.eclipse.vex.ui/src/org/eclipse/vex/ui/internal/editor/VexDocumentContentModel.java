@@ -11,9 +11,9 @@
 package org.eclipse.vex.ui.internal.editor;
 
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.vex.core.internal.dom.DocumentContentModel;
-import org.eclipse.vex.core.internal.dom.Element;
-import org.eclipse.vex.core.internal.dom.IWhitespacePolicy;
+import org.eclipse.vex.core.dom.IElement;
+import org.eclipse.vex.core.internal.io.DocumentContentModel;
+import org.eclipse.vex.core.internal.io.IWhitespacePolicy;
 import org.eclipse.vex.core.internal.widget.CssWhitespacePolicy;
 import org.eclipse.vex.ui.internal.VexPlugin;
 import org.eclipse.vex.ui.internal.config.DocumentType;
@@ -37,7 +37,7 @@ public class VexDocumentContentModel extends DocumentContentModel {
 	}
 
 	@Override
-	public void initialize(final String baseUri, final String publicId, final String systemId, final Element rootElement) {
+	public void initialize(final String baseUri, final String publicId, final String systemId, final IElement rootElement) {
 		super.initialize(baseUri, publicId, systemId, rootElement);
 		final String mainDocumentTypeIdentifier = getMainDocumentTypeIdentifier();
 		documentType = getRegisteredDocumentType();

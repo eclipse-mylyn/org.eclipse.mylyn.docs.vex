@@ -18,6 +18,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 
+import org.eclipse.vex.core.IFilter;
 import org.junit.Test;
 
 public class FilterIteratorTest {

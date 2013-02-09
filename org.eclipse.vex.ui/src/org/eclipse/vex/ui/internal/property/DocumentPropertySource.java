@@ -13,7 +13,7 @@ package org.eclipse.vex.ui.internal.property;
 import org.eclipse.ui.views.properties.IPropertyDescriptor;
 import org.eclipse.ui.views.properties.IPropertySource2;
 import org.eclipse.ui.views.properties.PropertyDescriptor;
-import org.eclipse.vex.core.internal.dom.Document;
+import org.eclipse.vex.core.dom.IDocument;
 
 /**
  * @author Florian Thienel
@@ -25,9 +25,9 @@ public class DocumentPropertySource implements IPropertySource2 {
 	private static final String DOCUMENT_URI = "documentUri";
 	private static final String ENCODING = "encoding";
 
-	private final Document document;
+	private final IDocument document;
 
-	public DocumentPropertySource(final Document document) {
+	public DocumentPropertySource(final IDocument document) {
 		this.document = document;
 	}
 

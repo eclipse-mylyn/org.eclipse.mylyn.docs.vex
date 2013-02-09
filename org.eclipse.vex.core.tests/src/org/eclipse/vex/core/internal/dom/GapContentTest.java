@@ -15,6 +15,9 @@ import static org.junit.Assert.assertSame;
 import static org.junit.Assert.fail;
 
 import org.eclipse.core.runtime.AssertionFailedException;
+import org.eclipse.vex.core.dom.IContent;
+import org.eclipse.vex.core.dom.ContentRange;
+import org.eclipse.vex.core.dom.IPosition;
 import org.junit.Test;
 
 /**
@@ -23,7 +26,7 @@ import org.junit.Test;
 public class GapContentTest extends ContentTest {
 
 	@Override
-	protected Content createContent() {
+	protected IContent createContent() {
 		return new GapContent(100);
 	}
 
@@ -44,9 +47,9 @@ public class GapContentTest extends ContentTest {
 	public void givenAnOffset_whenInvokedMultipleTimes_shouldNotCreateMultiplePositionInstances() throws Exception {
 		final GapContent gapContent = new GapContent(4);
 		gapContent.insertTagMarker(0);
-		final Position firstPosition = gapContent.createPosition(0);
+		final IPosition firstPosition = gapContent.createPosition(0);
 		assertEquals(1, gapContent.getPositionCount());
-		final Position secondPosition = gapContent.createPosition(0);
+		final IPosition secondPosition = gapContent.createPosition(0);
 		assertEquals(1, gapContent.getPositionCount());
 		assertSame(firstPosition, secondPosition);
 	}
@@ -70,11 +73,11 @@ public class GapContentTest extends ContentTest {
 		content.insertText(1, "b");
 		assertEquals(4, content.length());
 
-		final Position pa = content.createPosition(0);
-		final Position pb = content.createPosition(1);
-		final Position pc = content.createPosition(2);
-		final Position pd = content.createPosition(3);
-		final Position pe = content.createPosition(4);
+		final IPosition pa = content.createPosition(0);
+		final IPosition pb = content.createPosition(1);
+		final IPosition pc = content.createPosition(2);
+		final IPosition pd = content.createPosition(3);
+		final IPosition pe = content.createPosition(4);
 
 		try {
 			content.getText(new ContentRange(-1, 0));
@@ -142,8 +145,8 @@ public class GapContentTest extends ContentTest {
 		assertEquals(5, pd.getOffset());
 		assertEquals(6, pe.getOffset());
 
-		final Position px = content.createPosition(2);
-		final Position py = content.createPosition(3);
+		final IPosition px = content.createPosition(2);
+		final IPosition py = content.createPosition(3);
 
 		assertEquals("xy", content.getText(new ContentRange(2, 3)));
 

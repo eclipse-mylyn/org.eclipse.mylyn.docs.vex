@@ -16,6 +16,10 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.core.runtime.Assert;
+import org.eclipse.vex.core.dom.ContentRange;
+import org.eclipse.vex.core.dom.IAxis;
+import org.eclipse.vex.core.dom.INode;
+import org.eclipse.vex.core.dom.IParent;
 
 /**
  * A Parent node is a Node which can contain other nodes as children. This class defines the tree-like structure of the
@@ -24,7 +28,7 @@ import org.eclipse.core.runtime.Assert;
  * 
  * @author Florian Thienel
  */
-public abstract class Parent extends Node {
+public abstract class Parent extends Node implements IParent {
 
 	private final List<Node> children = new ArrayList<Node>();
 
@@ -58,7 +62,7 @@ public abstract class Parent extends Node {
 		final ContentRange insertionRange = getRange().resizeBy(1, 0);
 		Assert.isTrue(insertionRange.contains(offset), MessageFormat.format("The offset must be within {0}.", insertionRange));
 		int i = 0;
-		for (final Node child : children()) {
+		for (final INode child : children()) {
 			if (offset <= child.getStartOffset()) {
 				return i;
 			}
@@ -79,12 +83,12 @@ public abstract class Parent extends Node {
 	 *            the offset
 	 * @return the node at the given offset
 	 */
-	public Node getChildAt(final int offset) {
+	public INode getChildAt(final int offset) {
 		Assert.isTrue(containsOffset(offset), MessageFormat.format("Offset must be within {0}.", getRange()));
-		for (final Node child : children()) {
+		for (final INode child : children()) {
 			if (child.containsOffset(offset)) {
-				if (child instanceof Parent) {
-					return ((Parent) child).getChildAt(offset);
+				if (child instanceof IParent) {
+					return ((IParent) child).getChildAt(offset);
 				} else {
 					return child;
 				}
@@ -102,7 +106,7 @@ public abstract class Parent extends Node {
 	 * @param child
 	 *            the child node to insert
 	 */
-	public void insertChildBefore(final Node beforeNode, final Node child) {
+	public void insertChildBefore(final INode beforeNode, final Node child) {
 		final int index = children.indexOf(beforeNode);
 		Assert.isTrue(index > -1, MessageFormat.format("{0} must be a child of this parent.", beforeNode));
 		insertChildAtIndex(index, child);
@@ -121,16 +125,16 @@ public abstract class Parent extends Node {
 
 	/**
 	 * @return the children axis of this parent.
-	 * @see Axis
+	 * @see IAxis
 	 */
-	public Axis children() {
-		return new Axis(this) {
+	public IAxis<INode> children() {
+		return new Axis<INode>(this) {
 			@Override
-			public Iterator<Node> createRootIterator(final ContentRange contentRange, final boolean includeText) {
+			public Iterator<? extends INode> createRootIterator(final ContentRange contentRange, final boolean includeText) {
 				if (includeText) {
 					return new MergeNodesWithTextIterator(Parent.this, children, getContent(), contentRange);
 				}
-				return new NodesInContentRangeIterator(children, contentRange);
+				return NodesInContentRangeIterator.iterator(children, contentRange);
 			}
 		};
 	}

@@ -16,6 +16,8 @@ import static org.junit.Assert.assertNull;
 import java.net.URL;
 
 import org.eclipse.core.runtime.QualifiedName;
+import org.eclipse.vex.core.dom.IDocument;
+import org.eclipse.vex.core.dom.IElement;
 import org.eclipse.vex.core.internal.core.Color;
 import org.eclipse.vex.core.internal.core.DisplayDevice;
 import org.eclipse.vex.core.internal.dom.Document;
@@ -168,8 +170,8 @@ public class CssTest {
 
 	@Test
 	public void testDefaultInheritance() throws Exception {
-		final Document doc = new Document(new QualifiedName(null, "simple"));
-		final Element defaults = doc.insertElement(2, new QualifiedName(null, "defaults"));
+		final IDocument doc = new Document(new QualifiedName(null, "simple"));
+		final IElement defaults = doc.insertElement(2, new QualifiedName(null, "defaults"));
 
 		final StyleSheet ss = parseStyleSheetResource("test2.css");
 		final Styles styles = ss.getStyles(defaults);
@@ -429,8 +431,8 @@ public class CssTest {
 
 	@Test
 	public void testForcedInheritance() throws Exception {
-		final Document doc = new Document(new QualifiedName(null, "simple"));
-		final Element inherit = doc.insertElement(2, new QualifiedName(null, "inherit"));
+		final IDocument doc = new Document(new QualifiedName(null, "simple"));
+		final IElement inherit = doc.insertElement(2, new QualifiedName(null, "inherit"));
 
 		final StyleSheet ss = parseStyleSheetResource("test2.css");
 		final Styles styles = ss.getStyles(inherit);

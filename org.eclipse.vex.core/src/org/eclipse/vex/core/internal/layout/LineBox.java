@@ -10,14 +10,14 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.layout;
 
-import org.eclipse.vex.core.internal.dom.Node;
+import org.eclipse.vex.core.dom.INode;
 
 /**
  * Represents a line of text and inline images.
  */
 public class LineBox extends CompositeInlineBox {
 
-	private final Node node;
+	private final INode node;
 	private final InlineBox[] children;
 	private InlineBox firstContentChild = null;
 	private InlineBox lastContentChild = null;
@@ -31,7 +31,7 @@ public class LineBox extends CompositeInlineBox {
 	 * @param children
 	 *            InlineBoxes that make up this line.
 	 */
-	public LineBox(final LayoutContext context, final Node node, final InlineBox[] children) {
+	public LineBox(final LayoutContext context, final INode node, final InlineBox[] children) {
 
 		this.node = node;
 		this.children = children;
@@ -73,7 +73,7 @@ public class LineBox extends CompositeInlineBox {
 	 * @see org.eclipse.vex.core.internal.layout.Box#getNode()
 	 */
 	@Override
-	public Node getNode() {
+	public INode getNode() {
 		return node;
 	}
 

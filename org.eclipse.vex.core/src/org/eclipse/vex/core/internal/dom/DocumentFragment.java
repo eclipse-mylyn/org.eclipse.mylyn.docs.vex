@@ -16,21 +16,15 @@ import java.util.List;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.QualifiedName;
+import org.eclipse.vex.core.dom.IContent;
+import org.eclipse.vex.core.dom.IDocumentFragment;
+import org.eclipse.vex.core.dom.INode;
+import org.eclipse.vex.core.dom.INodeVisitor;
+import org.eclipse.vex.core.dom.INodeVisitorWithResult;
 
-/**
- * Represents a wellformed fragment of an XML document.
- */
-public class DocumentFragment extends Parent {
+public class DocumentFragment extends Parent implements IDocumentFragment {
 
-	/**
-	 * Create a new fragment with based on the given content and nodes.
-	 * 
-	 * @param content
-	 *            the Content holding the fragment's content
-	 * @param nodes
-	 *            the nodes that make up the structure of this fragment
-	 */
-	public DocumentFragment(final Content content, final List<Node> nodes) {
+	public DocumentFragment(final IContent content, final List<Node> nodes) {
 		Assert.isTrue(content.length() > 0);
 		associate(content, content.getRange());
 		for (final Node node : nodes) {
@@ -38,51 +32,32 @@ public class DocumentFragment extends Parent {
 		}
 	}
 
-	/**
-	 * @return the length of the textual content of this fragment plus 1 for each opening or closing XML tag (element
-	 *         tags, comment tags, PI tags and entity references)
-	 */
 	public int getLength() {
 		return getContent().length();
 	}
 
-	/**
-	 * @return a list with the qualified names off all nodes on the root level of this fragment
-	 */
 	public List<QualifiedName> getNodeNames() {
 		return Node.getNodeNames(children());
 	}
 
-	/**
-	 * @return all nodes on the root level of this fragment
-	 */
-	public List<Node> getNodes() {
+	public List<? extends INode> getNodes() {
 		return children().asList();
 	}
 
-	/**
-	 * The base URI of a fragment is always null because a fragment has no persistent representation.
-	 * 
-	 * @see Node#getBaseURI()
-	 * @return null
-	 */
 	@Override
 	public String getBaseURI() {
 		return null;
 	}
 
-	@Override
 	public void accept(final INodeVisitor visitor) {
 		visitor.visit(this);
 	}
 
-	@Override
 	public <T> T accept(final INodeVisitorWithResult<T> visitor) {
 		return visitor.visit(this);
 	}
 
-	@Override
-	public boolean isKindOf(final Node node) {
+	public boolean isKindOf(final INode node) {
 		return false;
 	}
 }

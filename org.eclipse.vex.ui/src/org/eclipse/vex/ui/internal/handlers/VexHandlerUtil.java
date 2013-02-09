@@ -19,14 +19,14 @@ import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.handlers.HandlerUtil;
+import org.eclipse.vex.core.dom.ContentRange;
+import org.eclipse.vex.core.dom.IDocument;
+import org.eclipse.vex.core.dom.IElement;
+import org.eclipse.vex.core.dom.INode;
+import org.eclipse.vex.core.dom.IParent;
 import org.eclipse.vex.core.internal.css.CSS;
 import org.eclipse.vex.core.internal.css.StyleSheet;
-import org.eclipse.vex.core.internal.dom.ContentRange;
 import org.eclipse.vex.core.internal.dom.CopyOfElement;
-import org.eclipse.vex.core.internal.dom.Document;
-import org.eclipse.vex.core.internal.dom.Element;
-import org.eclipse.vex.core.internal.dom.Node;
-import org.eclipse.vex.core.internal.dom.Parent;
 import org.eclipse.vex.core.internal.layout.BlockBox;
 import org.eclipse.vex.core.internal.layout.Box;
 import org.eclipse.vex.core.internal.layout.ElementOrRangeCallback;
@@ -116,8 +116,8 @@ public final class VexHandlerUtil {
 							firstCellIsAnonymous = true;
 						}
 					} else {
-						final Element element = (Element) cells[i].getNode();
-						final Element newElement = vexWidget.insertElement(element.getQualifiedName());
+						final IElement element = (IElement) cells[i].getNode();
+						final IElement newElement = vexWidget.insertElement(element.getQualifiedName());
 						newElement.accept(new CopyOfElement(element));
 						vexWidget.moveBy(+1);
 					}
@@ -150,8 +150,8 @@ public final class VexHandlerUtil {
 
 				if (!tr.isAnonymous()) {
 					vexWidget.moveBy(+1); // Move past sentinel in current row
-					final Element element = (Element) tr.getNode();
-					final Element newElement = vexWidget.insertElement(element.getQualifiedName());
+					final IElement element = (IElement) tr.getNode();
+					final IElement newElement = vexWidget.insertElement(element.getQualifiedName());
 					newElement.accept(new CopyOfElement(element));
 				}
 
@@ -180,7 +180,7 @@ public final class VexHandlerUtil {
 	 */
 	public static int getCurrentColumnIndex(final IVexWidget vexWidget) {
 
-		final Element row = getCurrentTableRow(vexWidget);
+		final IElement row = getCurrentTableRow(vexWidget);
 
 		if (row == null) {
 			return -1;
@@ -191,14 +191,14 @@ public final class VexHandlerUtil {
 		LayoutUtils.iterateTableCells(vexWidget.getStyleSheet(), row, new ElementOrRangeCallback() {
 			private int i = 0;
 
-			public void onElement(final Element child, final String displayStyle) {
+			public void onElement(final IElement child, final String displayStyle) {
 				if (offset > child.getStartOffset() && offset <= child.getEndOffset()) {
 					column[0] = i;
 				}
 				i++;
 			}
 
-			public void onRange(final Parent parent, final int startOffset, final int endOffset) {
+			public void onRange(final IParent parent, final int startOffset, final int endOffset) {
 				i++;
 			}
 		});
@@ -212,9 +212,9 @@ public final class VexHandlerUtil {
 	 * @param vexWidget
 	 *            IVexWidget to use.
 	 */
-	public static Element getCurrentTableRow(final IVexWidget vexWidget) {
+	public static IElement getCurrentTableRow(final IVexWidget vexWidget) {
 		final StyleSheet styleSheet = vexWidget.getStyleSheet();
-		Element element = vexWidget.getCurrentElement();
+		IElement element = vexWidget.getCurrentElement();
 
 		while (element != null) {
 			if (styleSheet.getStyles(element).getDisplay().equals(CSS.TABLE_ROW)) {
@@ -253,8 +253,8 @@ public final class VexHandlerUtil {
 		}
 
 		int previousSiblingStart = -1;
-		final Element parent = vexWidget.getDocument().getElementForInsertionAt(startOffset);
-		for (final Node child : parent.children()) {
+		final IElement parent = vexWidget.getDocument().getElementForInsertionAt(startOffset);
+		for (final INode child : parent.children()) {
 			if (startOffset == child.getStartOffset()) {
 				break;
 			}
@@ -343,19 +343,19 @@ public final class VexHandlerUtil {
 
 			final private int[] rowIndex = { 0 };
 
-			public void onElement(final Element row, final String displayStyle) {
+			public void onElement(final IElement row, final String displayStyle) {
 
 				callback.startRow(row, rowIndex[0]);
 
 				LayoutUtils.iterateTableCells(ss, row, new ElementOrRangeCallback() {
 					private int cellIndex = 0;
 
-					public void onElement(final Element cell, final String displayStyle) {
+					public void onElement(final IElement cell, final String displayStyle) {
 						callback.onCell(row, cell, rowIndex[0], cellIndex);
 						cellIndex++;
 					}
 
-					public void onRange(final Parent parent, final int startOffset, final int endOffset) {
+					public void onRange(final IParent parent, final int startOffset, final int endOffset) {
 						callback.onCell(row, new ContentRange(startOffset, endOffset), rowIndex[0], cellIndex);
 						cellIndex++;
 					}
@@ -366,7 +366,7 @@ public final class VexHandlerUtil {
 				rowIndex[0]++;
 			}
 
-			public void onRange(final Parent parent, final int startOffset, final int endOffset) {
+			public void onRange(final IParent parent, final int startOffset, final int endOffset) {
 
 				final ContentRange row = new ContentRange(startOffset, endOffset);
 				callback.startRow(row, rowIndex[0]);
@@ -374,12 +374,12 @@ public final class VexHandlerUtil {
 				LayoutUtils.iterateTableCells(ss, parent, startOffset, endOffset, new ElementOrRangeCallback() {
 					private int cellIndex = 0;
 
-					public void onElement(final Element cell, final String displayStyle) {
+					public void onElement(final IElement cell, final String displayStyle) {
 						callback.onCell(row, cell, rowIndex[0], cellIndex);
 						cellIndex++;
 					}
 
-					public void onRange(final Parent parent, final int startOffset, final int endOffset) {
+					public void onRange(final IParent parent, final int startOffset, final int endOffset) {
 						callback.onCell(row, new ContentRange(startOffset, endOffset), rowIndex[0], cellIndex);
 						cellIndex++;
 					}
@@ -456,13 +456,13 @@ public final class VexHandlerUtil {
 	public static void iterateTableRows(final IVexWidget vexWidget, final ElementOrRangeCallback callback) {
 
 		final StyleSheet ss = vexWidget.getStyleSheet();
-		final Document doc = vexWidget.getDocument();
+		final IDocument doc = vexWidget.getDocument();
 		final int offset = vexWidget.getCaretOffset();
 
 		// This may or may not be a table
 		// In any case, it's the element that contains the top-level table
 		// children
-		Element table = doc.getElementForInsertionAt(offset);
+		IElement table = doc.getElementForInsertionAt(offset);
 
 		while (table != null && !LayoutUtils.isTableChild(ss, table)) {
 			table = table.getParentElement();
@@ -476,17 +476,17 @@ public final class VexHandlerUtil {
 			return;
 		}
 
-		final List<Element> tableChildren = new ArrayList<Element>();
+		final List<IElement> tableChildren = new ArrayList<IElement>();
 		final boolean[] found = new boolean[] { false };
 		LayoutUtils.iterateChildrenByDisplayStyle(ss, LayoutUtils.TABLE_CHILD_STYLES, table, new ElementOrRangeCallback() {
-			public void onElement(final Element child, final String displayStyle) {
+			public void onElement(final IElement child, final String displayStyle) {
 				if (offset >= child.getStartOffset() && offset <= child.getEndOffset()) {
 					found[0] = true;
 				}
 				tableChildren.add(child);
 			}
 
-			public void onRange(final Parent parent, final int startOffset, final int endOffset) {
+			public void onRange(final IParent parent, final int startOffset, final int endOffset) {
 				if (!found[0]) {
 					tableChildren.clear();
 				}
@@ -510,8 +510,8 @@ public final class VexHandlerUtil {
 	 *            Element or IntRange to be inspected.
 	 */
 	public static ContentRange getInnerRange(final Object elementOrRange) {
-		if (elementOrRange instanceof Element) {
-			final Element element = (Element) elementOrRange;
+		if (elementOrRange instanceof IElement) {
+			final IElement element = (IElement) elementOrRange;
 			return new ContentRange(element.getStartOffset() + 1, element.getEndOffset());
 		} else {
 			return (ContentRange) elementOrRange;
@@ -526,8 +526,8 @@ public final class VexHandlerUtil {
 	 *            Element or IntRange to be inspected.
 	 */
 	public static ContentRange getOuterRange(final Object elementOrRange) {
-		if (elementOrRange instanceof Element) {
-			final Element element = (Element) elementOrRange;
+		if (elementOrRange instanceof IElement) {
+			final IElement element = (IElement) elementOrRange;
 			return new ContentRange(element.getStartOffset(), element.getEndOffset() + 1);
 		} else {
 			return (ContentRange) elementOrRange;

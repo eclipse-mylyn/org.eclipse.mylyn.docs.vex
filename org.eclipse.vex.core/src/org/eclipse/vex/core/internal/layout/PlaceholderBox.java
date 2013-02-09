@@ -10,19 +10,19 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.layout;
 
+import org.eclipse.vex.core.dom.INode;
 import org.eclipse.vex.core.internal.core.Caret;
 import org.eclipse.vex.core.internal.core.FontMetrics;
 import org.eclipse.vex.core.internal.core.FontResource;
 import org.eclipse.vex.core.internal.core.Graphics;
 import org.eclipse.vex.core.internal.css.Styles;
-import org.eclipse.vex.core.internal.dom.Node;
 
 /**
  * A zero-width box that represents a single offset in the document.
  */
 public class PlaceholderBox extends AbstractInlineBox {
 
-	private final Node node;
+	private final INode node;
 	private final int relOffset;
 	private final int textTop;
 	private final int baseline;
@@ -38,7 +38,7 @@ public class PlaceholderBox extends AbstractInlineBox {
 	 * @param relOffset
 	 *            Offset of the placeholder, relative to the start of the element.
 	 */
-	public PlaceholderBox(final LayoutContext context, final Node node, final int relOffset) {
+	public PlaceholderBox(final LayoutContext context, final INode node, final int relOffset) {
 
 		this.node = node;
 		this.relOffset = relOffset;
@@ -88,7 +88,7 @@ public class PlaceholderBox extends AbstractInlineBox {
 	 * @see org.eclipse.vex.core.internal.layout.Box#getNode()
 	 */
 	@Override
-	public Node getNode() {
+	public INode getNode() {
 		return node;
 	}
 

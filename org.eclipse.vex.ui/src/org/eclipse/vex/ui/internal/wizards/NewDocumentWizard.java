@@ -31,9 +31,10 @@ import org.eclipse.ui.internal.registry.EditorDescriptor;
 import org.eclipse.ui.internal.registry.EditorRegistry;
 import org.eclipse.ui.internal.registry.FileEditorMapping;
 import org.eclipse.ui.wizards.newresource.BasicNewResourceWizard;
+import org.eclipse.vex.core.dom.IDocument;
+import org.eclipse.vex.core.dom.IElement;
 import org.eclipse.vex.core.internal.dom.Document;
-import org.eclipse.vex.core.internal.dom.DocumentContentModel;
-import org.eclipse.vex.core.internal.dom.Element;
+import org.eclipse.vex.core.internal.io.DocumentContentModel;
 import org.eclipse.vex.core.internal.io.DocumentWriter;
 import org.eclipse.vex.core.internal.validator.WTPVEXValidator;
 import org.eclipse.vex.core.internal.widget.CssWhitespacePolicy;
@@ -71,7 +72,7 @@ public class NewDocumentWizard extends BasicNewResourceWizard {
 	@Override
 	public boolean performFinish() {
 		try {
-			final Document doc = createDocument(typePage.getDocumentType(), typePage.getRootElementName());
+			final IDocument doc = createDocument(typePage.getDocumentType(), typePage.getRootElementName());
 
 			final Style style = VexPlugin.getDefault().getPreferences().getPreferredStyle(typePage.getDocumentType().getPublicId());
 			if (style == null) {
@@ -115,7 +116,7 @@ public class NewDocumentWizard extends BasicNewResourceWizard {
 		}
 	}
 
-	private static Document createDocument(final DocumentType documentType, final String rootElementName) {
+	private static IDocument createDocument(final DocumentType documentType, final String rootElementName) {
 		if (isDTD(documentType)) {
 			return createDocumentWithDTD(documentType, rootElementName);
 		}
@@ -127,18 +128,18 @@ public class NewDocumentWizard extends BasicNewResourceWizard {
 		return systemId != null && systemId.toLowerCase().endsWith(".dtd");
 	}
 
-	private static Document createDocumentWithDTD(final DocumentType documentType, final String rootElementName) {
-		final Document result = new Document(new QualifiedName(null, rootElementName));
+	private static IDocument createDocumentWithDTD(final DocumentType documentType, final String rootElementName) {
+		final IDocument result = new Document(new QualifiedName(null, rootElementName));
 		result.setPublicID(documentType.getPublicId());
 		result.setSystemID(documentType.getSystemId());
 		return result;
 	}
 
-	private static Document createDocumentWithSchema(final DocumentType documentType, final String rootElementName) {
+	private static IDocument createDocumentWithSchema(final DocumentType documentType, final String rootElementName) {
 		final String defaultNamespaceUri = documentType.getPublicId();
 		final Document document = new Document(new QualifiedName(defaultNamespaceUri, rootElementName));
 
-		final Element root = document.getRootElement();
+		final IElement root = document.getRootElement();
 		root.declareDefaultNamespace(defaultNamespaceUri);
 
 		final WTPVEXValidator validator = new WTPVEXValidator(new DocumentContentModel(null, null, null, root));

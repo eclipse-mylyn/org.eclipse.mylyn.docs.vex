@@ -1,16 +1,16 @@
 package org.eclipse.vex.core.internal.undo;
 
-import org.eclipse.vex.core.internal.dom.Comment;
-import org.eclipse.vex.core.internal.dom.Document;
-import org.eclipse.vex.core.internal.dom.DocumentValidationException;
+import org.eclipse.vex.core.dom.DocumentValidationException;
+import org.eclipse.vex.core.dom.IComment;
+import org.eclipse.vex.core.dom.IDocument;
 
 public class InsertCommentEdit implements IUndoableEdit {
 
-	private final Document document;
+	private final IDocument document;
 	private final int offset;
-	private Comment comment;
+	private IComment comment;
 
-	public InsertCommentEdit(final Document document, final int offset) {
+	public InsertCommentEdit(final IDocument document, final int offset) {
 		this.document = document;
 		this.offset = offset;
 		comment = null;
@@ -37,7 +37,7 @@ public class InsertCommentEdit implements IUndoableEdit {
 		}
 	}
 
-	public Comment getComment() {
+	public IComment getComment() {
 		return comment;
 	}
 

@@ -15,7 +15,7 @@ import java.util.HashSet;
 import java.util.List;
 
 import org.eclipse.core.runtime.Assert;
-import org.eclipse.vex.core.internal.dom.Element;
+import org.eclipse.vex.core.dom.IElement;
 import org.eclipse.vex.core.internal.widget.IVexWidget;
 
 /**
@@ -24,7 +24,7 @@ import org.eclipse.vex.core.internal.widget.IVexWidget;
 public class EditNamespacesController {
 
 	private final IVexWidget widget;
-	private final Element element;
+	private final IElement element;
 
 	private String defaultNamespaceURI;
 
@@ -38,7 +38,7 @@ public class EditNamespacesController {
 		namespaceDefinitions = getNamespaceDefinitions(element);
 	}
 
-	private static String getDefaultNamespaceURI(final Element element) {
+	private static String getDefaultNamespaceURI(final IElement element) {
 		final String result = element.getDeclaredDefaultNamespaceURI();
 		if (result == null) {
 			return "";
@@ -46,7 +46,7 @@ public class EditNamespacesController {
 		return result;
 	}
 
-	private static List<EditableNamespaceDefinition> getNamespaceDefinitions(final Element element) {
+	private static List<EditableNamespaceDefinition> getNamespaceDefinitions(final IElement element) {
 		final ArrayList<EditableNamespaceDefinition> result = new ArrayList<EditableNamespaceDefinition>();
 		for (final String prefix : element.getDeclaredNamespacePrefixes()) {
 			result.add(new EditableNamespaceDefinition(prefix, element.getNamespaceURI(prefix)));

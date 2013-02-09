@@ -53,8 +53,8 @@ import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
+import org.eclipse.vex.core.dom.IElement;
 import org.eclipse.vex.core.internal.core.ElementName;
-import org.eclipse.vex.core.internal.dom.Element;
 import org.eclipse.vex.ui.internal.Icon;
 import org.eclipse.vex.ui.internal.VexPlugin;
 import org.eclipse.vex.ui.internal.editor.Messages;
@@ -354,7 +354,7 @@ public class ContentAssist extends PopupDialog {
 		final ElementName[] names = widget.getValidMorphElements();
 		final AbstractVexAction[] actions = new AbstractVexAction[names.length];
 		final int caretOffset = widget.getCaretOffset();
-		final Element element = widget.getDocument().getElementForInsertionAt(caretOffset);
+		final IElement element = widget.getDocument().getElementForInsertionAt(caretOffset);
 		final String sourceName = element.getPrefixedName();
 		for (int i = 0; i < names.length; i++) {
 			final QualifiedName qualifiedName = names[i].getQualifiedName();

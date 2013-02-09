@@ -17,48 +17,43 @@ import java.util.List;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.QualifiedName;
+import org.eclipse.vex.core.dom.BaseNodeVisitor;
+import org.eclipse.vex.core.dom.ContentRange;
+import org.eclipse.vex.core.dom.IAxis;
+import org.eclipse.vex.core.dom.IContent;
+import org.eclipse.vex.core.dom.IElement;
+import org.eclipse.vex.core.dom.INode;
+import org.eclipse.vex.core.dom.IParent;
+import org.eclipse.vex.core.dom.IPosition;
+import org.eclipse.vex.core.dom.IText;
+import org.eclipse.vex.core.dom.IValidator;
 
 /**
  * A representation of one node in the XML structure. A node is associated to a range of the textual content.
  * <p>
  * This is the base class for all representatives of the XML structure in the document object model (DOM).
  */
-public abstract class Node {
+public abstract class Node implements INode {
 
 	private Parent parent;
-	private Content content;
-	private Position startPosition = Position.NULL;
-	private Position endPosition = Position.NULL;
+	private IContent content;
+	private IPosition startPosition = IPosition.NULL;
+	private IPosition endPosition = IPosition.NULL;
 
-	/**
-	 * @see Parent
-	 * @return the parent of this node, maybe null if this node has no parent
-	 */
 	public Parent getParent() {
 		return parent;
 	}
 
-	/**
-	 * @see Parent
-	 * @param parent
-	 *            the parent of this node, maybe null if this node should not have a parent
-	 */
 	public void setParent(final Parent parent) {
 		this.parent = parent;
 	}
 
-	/**
-	 * The ancestors axis contains all subsequent parents of this node.
-	 * 
-	 * @return the ancestors axis of this node
-	 * @see Axis
-	 */
-	public Axis ancestors() {
-		return new Axis(this) {
+	public IAxis<IParent> ancestors() {
+		return new Axis<IParent>(this) {
 			@Override
-			protected Iterator<Node> createRootIterator(final ContentRange contentRange, final boolean includeText) {
-				return new NodesInContentRangeIterator(new Iterable<Node>() {
-					public Iterator<Node> iterator() {
+			protected Iterator<IParent> createRootIterator(final ContentRange contentRange, final boolean includeText) {
+				return NodesInContentRangeIterator.iterator(new Iterable<IParent>() {
+					public Iterator<IParent> iterator() {
 						return new AncestorsIterator(Node.this);
 					}
 				}, contentRange);
@@ -66,15 +61,7 @@ public abstract class Node {
 		};
 	}
 
-	/**
-	 * Associate this node to a range within the given content.
-	 * 
-	 * @param content
-	 *            Content object holding the node's content
-	 * @param range
-	 *            the range of this node's content
-	 */
-	public void associate(final Content content, final ContentRange range) {
+	public void associate(final IContent content, final ContentRange range) {
 		if (isAssociated()) {
 			dissociate();
 		}
@@ -84,56 +71,34 @@ public abstract class Node {
 		endPosition = content.createPosition(range.getEndOffset());
 	}
 
-	/**
-	 * Dissociates this node from its associated content range.
-	 */
 	public void dissociate() {
 		Assert.isTrue(isAssociated(), "This node must be associated to a ContentRange before it can be dissociated.");
 
 		content.removePosition(startPosition);
 		content.removePosition(endPosition);
-		startPosition = Position.NULL;
-		endPosition = Position.NULL;
+		startPosition = IPosition.NULL;
+		endPosition = IPosition.NULL;
 		content = null;
 	}
 
-	/**
-	 * @return if this node is associated to content
-	 */
 	public boolean isAssociated() {
 		return content != null;
 	}
 
-	/**
-	 * @return the content to which this node is associated or null if this node is not associated to any content yet
-	 */
-	public Content getContent() {
+	public IContent getContent() {
 		return content;
 	}
 
-	/**
-	 * The start offset of this node, which eventually also includes the position of a tag marker.
-	 * 
-	 * @return the start offset of this node within the textual content
-	 */
 	public int getStartOffset() {
 		Assert.isTrue(isAssociated(), "Node must be associated to a ContentRange to have a start offset.");
 		return startPosition.getOffset();
 	}
 
-	/**
-	 * The end offset of this node, which eventually also includes the position of a tag marker.
-	 * 
-	 * @return the end offset of this node within the textual content
-	 */
 	public int getEndOffset() {
 		Assert.isTrue(isAssociated(), "Node must be associated to a ContentRange to have an end offset.");
 		return endPosition.getOffset();
 	}
 
-	/**
-	 * @return the range in the content to which this node is associated, eventually including tag markers
-	 */
 	public ContentRange getRange() {
 		if (!isAssociated()) {
 			return ContentRange.NULL;
@@ -141,12 +106,6 @@ public abstract class Node {
 		return new ContentRange(getStartOffset(), getEndOffset());
 	}
 
-	/**
-	 * Indicate whether this node has no content beside its tag markers. If this node is not associated with textual
-	 * content, this method returns false.
-	 * 
-	 * @return true if this node has no content beside its tag markers
-	 */
 	public boolean isEmpty() {
 		if (!isAssociated()) {
 			return false;
@@ -154,14 +113,6 @@ public abstract class Node {
 		return getEndOffset() - getStartOffset() == 1;
 	}
 
-	/**
-	 * Indicate whether the given offset is within the boundaries of this node. If this node is not associated with
-	 * textual content, this method returns false.
-	 * 
-	 * @param offset
-	 *            the offset
-	 * @return true if the given offset is withing [startOffset; endOffset], or false if not associated
-	 */
 	public boolean containsOffset(final int offset) {
 		if (!isAssociated()) {
 			return false;
@@ -169,14 +120,6 @@ public abstract class Node {
 		return getRange().contains(offset);
 	}
 
-	/**
-	 * Indicate whether this node is fully within the given range. If this node is not associated with textual content,
-	 * this method returns false.
-	 * 
-	 * @param range
-	 *            the range
-	 * @return true if this node is fully within the given range
-	 */
 	public boolean isInRange(final ContentRange range) {
 		if (!isAssociated()) {
 			return false;
@@ -184,33 +127,20 @@ public abstract class Node {
 		return range.contains(getRange());
 	}
 
-	/**
-	 * @return the textual content of this node, not including any tag markers
-	 */
 	public String getText() {
 		return getText(getRange());
 	}
 
-	/**
-	 * The textual content in the given range, not including any element markers.
-	 * 
-	 * @param range
-	 *            the range of the textual content
-	 * @return the textual content in the given range
-	 */
 	public String getText(final ContentRange range) {
 		Assert.isTrue(isAssociated(), "Node must be associated to a Content region to have textual content.");
 		return content.getText(range.intersection(getRange()));
 	}
 
-	/**
-	 * @return the document to which this node belongs, or null if this node does not belong to any document
-	 */
 	public Document getDocument() {
 		if (this instanceof Document) {
 			return (Document) this;
 		}
-		for (final Node ancestor : ancestors()) {
+		for (final INode ancestor : ancestors()) {
 			if (ancestor instanceof Document) {
 				return (Document) ancestor;
 			}
@@ -218,17 +148,6 @@ public abstract class Node {
 		return null;
 	}
 
-	/**
-	 * Indicate whether this and the given node are of the same kind (e.g. elements with the same qualified name).
-	 * 
-	 * @return true if this and the given node are of the same kind
-	 */
-	public abstract boolean isKindOf(final Node node);
-
-	/**
-	 * @see Element#setBaseURI(String)
-	 * @return the base URI of this node
-	 */
 	public String getBaseURI() {
 		if (getParent() != null) {
 			return getParent().getBaseURI();
@@ -239,39 +158,18 @@ public abstract class Node {
 		return null;
 	}
 
-	/**
-	 * Accept the given visitor.
-	 * 
-	 * @see INodeVisitor
-	 * @param visitor
-	 *            the visitor
-	 */
-	public abstract void accept(final INodeVisitor visitor);
-
-	/**
-	 * Accept the given visitor.
-	 * 
-	 * @see INodeVisitorWithResult
-	 * @param visitor
-	 *            the visitor
-	 */
-	public abstract <T> T accept(final INodeVisitorWithResult<T> visitor);
-
-	/**
-	 * @return the qualified names of the given nodes
-	 */
-	public static List<QualifiedName> getNodeNames(final Iterable<Node> nodes) {
+	public static List<QualifiedName> getNodeNames(final Iterable<? extends INode> nodes) {
 		final List<QualifiedName> names = new ArrayList<QualifiedName>();
 
-		for (final Node node : nodes) {
+		for (final INode node : nodes) {
 			node.accept(new BaseNodeVisitor() {
 				@Override
-				public void visit(final Text text) {
-					names.add(Validator.PCDATA);
+				public void visit(final IText text) {
+					names.add(IValidator.PCDATA);
 				}
 
 				@Override
-				public void visit(final Element element) {
+				public void visit(final IElement element) {
 					names.add(element.getQualifiedName());
 				}
 			});

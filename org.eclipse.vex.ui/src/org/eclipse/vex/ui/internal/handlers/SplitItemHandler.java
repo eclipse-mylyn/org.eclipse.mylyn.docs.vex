@@ -11,9 +11,9 @@
 package org.eclipse.vex.ui.internal.handlers;
 
 import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.vex.core.dom.INode;
 import org.eclipse.vex.core.internal.css.CSS;
 import org.eclipse.vex.core.internal.css.StyleSheet;
-import org.eclipse.vex.core.internal.dom.Node;
 import org.eclipse.vex.core.internal.layout.Box;
 import org.eclipse.vex.core.internal.layout.TableRowBox;
 import org.eclipse.vex.core.internal.widget.IBoxFilter;
@@ -38,7 +38,7 @@ public class SplitItemHandler extends SplitBlockElementHandler {
 				if (box instanceof TableRowBox) {
 					return true;
 				} else {
-					final Node node = box.getNode();
+					final INode node = box.getNode();
 					return node != null && ss.getStyles(node).getDisplay().equals(CSS.LIST_ITEM);
 				}
 			}

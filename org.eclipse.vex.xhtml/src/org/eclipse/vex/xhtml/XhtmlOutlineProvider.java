@@ -18,8 +18,9 @@ import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.Viewer;
-import org.eclipse.vex.core.internal.dom.Document;
-import org.eclipse.vex.core.internal.dom.Element;
+import org.eclipse.vex.core.dom.Filters;
+import org.eclipse.vex.core.dom.IDocument;
+import org.eclipse.vex.core.dom.IElement;
 import org.eclipse.vex.ui.internal.editor.VexEditor;
 import org.eclipse.vex.ui.internal.outline.IOutlineProvider;
 
@@ -39,8 +40,8 @@ public class XhtmlOutlineProvider implements IOutlineProvider {
 		return labelProvider;
 	}
 
-	public Element getOutlineElement(final Element child) {
-		Element element = child;
+	public IElement getOutlineElement(final IElement child) {
+		IElement element = child;
 		while (element.getParentElement() != null) {
 
 			// TODO: compare to all structural element names
@@ -66,11 +67,11 @@ public class XhtmlOutlineProvider implements IOutlineProvider {
 		}
 
 		public Object[] getChildren(final Object parentElement) {
-			return getOutlineChildren((Element) parentElement);
+			return getOutlineChildren((IElement) parentElement);
 		}
 
 		public Object getParent(final Object element) {
-			final Element parent = ((Element) element).getParentElement();
+			final IElement parent = ((IElement) element).getParentElement();
 			if (parent == null) {
 				return element;
 			} else {
@@ -79,11 +80,11 @@ public class XhtmlOutlineProvider implements IOutlineProvider {
 		}
 
 		public boolean hasChildren(final Object element) {
-			return getOutlineChildren((Element) element).length > 0;
+			return getOutlineChildren((IElement) element).length > 0;
 		}
 
 		public Object[] getElements(final Object inputElement) {
-			final Document document = (Document) inputElement;
+			final IDocument document = (IDocument) inputElement;
 			return new Object[] { document.getRootElement() };
 		}
 
@@ -96,23 +97,23 @@ public class XhtmlOutlineProvider implements IOutlineProvider {
 	 * @param element
 	 * @return
 	 */
-	private Element[] getOutlineChildren(final Element element) {
-		final List children = new ArrayList();
+	private IElement[] getOutlineChildren(final IElement element) {
+		final List<IElement> children = new ArrayList<IElement>();
 		if (element.getParent() == null) {
-			final Element body = findChild(element, "body");
+			final IElement body = findChild(element, "body");
 			if (body != null) {
-				final List<Element> childElements = body.getChildElements();
+				final List<? extends IElement> childElements = body.childElements().asList();
 
 				// First, find the lowest numbered h tag available
 				String lowH = "h6";
-				for (final Element child : childElements) {
+				for (final IElement child : childElements) {
 					if (isHTag(child) && child.getLocalName().compareTo(lowH) < 0) {
 						lowH = child.getLocalName();
 					}
 				}
 
 				// Now, get all body children at that level
-				for (final Element child : childElements) {
+				for (final IElement child : childElements) {
 					if (child.getLocalName().equals(lowH)) {
 						children.add(child);
 					}
@@ -123,9 +124,8 @@ public class XhtmlOutlineProvider implements IOutlineProvider {
 			// between this element and the next element at the same level
 			final int level = Integer.parseInt(element.getLocalName().substring(1));
 			final String childName = "h" + (level + 1);
-			final List<Element> childElements = element.getParentElement().getChildElements();
 			boolean foundSelf = false;
-			for (final Element child : childElements) {
+			for (final IElement child : element.getParentElement().childElements()) {
 				if (child == element) {
 					foundSelf = true;
 				} else if (!foundSelf) {
@@ -138,19 +138,19 @@ public class XhtmlOutlineProvider implements IOutlineProvider {
 				}
 			}
 		}
-		return (Element[]) children.toArray(new Element[children.size()]);
+		return children.toArray(new IElement[children.size()]);
 	}
 
 	private final ILabelProvider labelProvider = new LabelProvider() {
 		@Override
 		public String getText(final Object o) {
 			String text;
-			final Element element = (Element) o;
+			final IElement element = (IElement) o;
 			if (element.getParent() == null) {
 				text = "html";
-				final Element head = findChild(element, "head");
+				final IElement head = findChild(element, "head");
 				if (head != null) {
-					final Element title = findChild(head, "title");
+					final IElement title = findChild(head, "title");
 					if (title != null) {
 						text = title.getText();
 					}
@@ -162,16 +162,14 @@ public class XhtmlOutlineProvider implements IOutlineProvider {
 		}
 	};
 
-	private Element findChild(final Element parent, final String childName) {
-		for (final Element child : parent.getChildElements()) {
-			if (child.getLocalName().equals(childName)) {
-				return child;
-			}
+	private IElement findChild(final IElement parent, final String childName) {
+		for (final IElement child : parent.childElements().matching(Filters.elementsNamed(childName))) {
+			return child;
 		}
 		return null;
 	}
 
-	private boolean isHTag(final Element element) {
+	private boolean isHTag(final IElement element) {
 		final String name = element.getLocalName();
 		return name.equals("h1") || name.equals("h2") || name.equals("h3") || name.equals("h4") || name.equals("h5") || name.equals("h6");
 	}

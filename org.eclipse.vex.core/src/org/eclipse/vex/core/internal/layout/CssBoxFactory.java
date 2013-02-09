@@ -10,10 +10,10 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.layout;
 
+import org.eclipse.vex.core.dom.IComment;
+import org.eclipse.vex.core.dom.INode;
 import org.eclipse.vex.core.internal.css.CSS;
 import org.eclipse.vex.core.internal.css.Styles;
-import org.eclipse.vex.core.internal.dom.Comment;
-import org.eclipse.vex.core.internal.dom.Node;
 
 /**
  * Implementation of the BoxFactory interface that returns boxes that represent CSS semantics.
@@ -22,9 +22,9 @@ public class CssBoxFactory implements BoxFactory {
 
 	private static final long serialVersionUID = -6882526795866485074L;
 
-	public Box createBox(final LayoutContext context, final Node node, final BlockBox parentBox, final int containerWidth) {
+	public Box createBox(final LayoutContext context, final INode node, final BlockBox parentBox, final int containerWidth) {
 		final Styles styles = context.getStyleSheet().getStyles(node);
-		if (node instanceof Comment) {
+		if (node instanceof IComment) {
 			return new CommentBlockBox(context, parentBox, node);
 		} else if (styles.getDisplay().equals(CSS.TABLE)) {
 			return new TableBox(context, parentBox, node);

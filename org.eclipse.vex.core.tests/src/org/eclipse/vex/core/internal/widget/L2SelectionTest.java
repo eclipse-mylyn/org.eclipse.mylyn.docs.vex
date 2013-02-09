@@ -17,9 +17,9 @@ import static org.eclipse.vex.core.tests.TestResources.TEST_DTD;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import org.eclipse.vex.core.dom.IComment;
+import org.eclipse.vex.core.dom.IElement;
 import org.eclipse.vex.core.internal.css.StyleSheet;
-import org.eclipse.vex.core.internal.dom.Comment;
-import org.eclipse.vex.core.internal.dom.Element;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -28,19 +28,17 @@ import org.junit.Test;
  */
 public class L2SelectionTest {
 
-	private VexWidgetImpl widget;
-	private Element rootElement;
+	private IVexWidget widget;
 
 	@Before
 	public void setUp() throws Exception {
 		widget = new VexWidgetImpl(new MockHostComponent());
 		widget.setDocument(createDocumentWithDTD(TEST_DTD, "section"), StyleSheet.NULL);
-		rootElement = widget.getDocument().getRootElement();
 	}
 
 	@Test
 	public void givenCaretInElement_whenSelectionIncludesStartOffset_shouldExpandSelectionToEndOffset() throws Exception {
-		final Element titleElement = widget.insertElement(TITLE);
+		final IElement titleElement = widget.insertElement(TITLE);
 		widget.moveBy(-1, true);
 		assertTrue(widget.hasSelection());
 		assertEquals(titleElement.getRange(), widget.getSelectedRange());
@@ -49,7 +47,7 @@ public class L2SelectionTest {
 
 	@Test
 	public void givenCaretInElementWith_whenSelectionIncludesStartOffset_shouldExpandSelectionToEndOffset() throws Exception {
-		final Element titleElement = widget.insertElement(TITLE);
+		final IElement titleElement = widget.insertElement(TITLE);
 		widget.insertText("Hello World");
 		widget.moveBy(-5, false);
 		widget.moveTo(titleElement.getStartOffset(), true);
@@ -60,7 +58,7 @@ public class L2SelectionTest {
 
 	@Test
 	public void givenCaretInElementAtEndOffset_whenMovedByOneBehindEndOffset_shouldExpandSelectionToStartOffset() throws Exception {
-		final Element titleElement = widget.insertElement(TITLE);
+		final IElement titleElement = widget.insertElement(TITLE);
 		widget.insertText("Hello World");
 		widget.moveBy(1, true);
 		assertTrue(widget.hasSelection());
@@ -70,7 +68,7 @@ public class L2SelectionTest {
 
 	@Test
 	public void givenCaretInElementAtEndOffset_whenMovedOneBehindStartOffset_shouldNotIncludeEndOffsetInSelectedRange() throws Exception {
-		final Element titleElement = widget.insertElement(TITLE);
+		final IElement titleElement = widget.insertElement(TITLE);
 		widget.insertText("Hello World");
 		widget.moveTo(titleElement.getStartOffset() + 1, true);
 		assertEquals(titleElement.getRange().resizeBy(1, -1), widget.getSelectedRange());
@@ -79,7 +77,7 @@ public class L2SelectionTest {
 
 	@Test
 	public void givenCaretAtStartOffsetOfElementWithText_whenMovedByOneForward_shouldExpandSelectionBehindEndOffset() throws Exception {
-		final Element titleElement = widget.insertElement(TITLE);
+		final IElement titleElement = widget.insertElement(TITLE);
 		widget.insertText("Hello World");
 		widget.moveTo(titleElement.getStartOffset(), false);
 		widget.moveBy(1, true);
@@ -89,7 +87,7 @@ public class L2SelectionTest {
 
 	@Test
 	public void givenCaretAtStartOffsetOfElementWithText_whenMovedOneForwardAndOneBackward_shouldSelectNothing() throws Exception {
-		final Element titleElement = widget.insertElement(TITLE);
+		final IElement titleElement = widget.insertElement(TITLE);
 		widget.insertText("Hello World");
 		widget.moveTo(titleElement.getStartOffset(), false);
 		widget.moveBy(1, true);
@@ -99,10 +97,10 @@ public class L2SelectionTest {
 
 	@Test
 	public void givenCaretInElementWithText_whenMovedBehindFollowingElementAndMovedBackOnce_shouldSelectOnlyFirstElement() throws Exception {
-		final Element titleElement = widget.insertElement(TITLE);
+		final IElement titleElement = widget.insertElement(TITLE);
 		widget.insertText("Hello World");
 		widget.moveBy(1);
-		final Element paraElement = widget.insertElement(PARA);
+		final IElement paraElement = widget.insertElement(PARA);
 		widget.insertText("Hello Again");
 		widget.moveTo(titleElement.getStartOffset() + 3);
 		widget.moveTo(paraElement.getEndOffset() + 1, true);
@@ -113,10 +111,10 @@ public class L2SelectionTest {
 
 	@Test
 	public void givenCaretInElementWithText_whenMovedBehindFollowingElementAndMovedBackTwice_shouldSelectOnlyTextFragementOfFirstElement() throws Exception {
-		final Element titleElement = widget.insertElement(TITLE);
+		final IElement titleElement = widget.insertElement(TITLE);
 		widget.insertText("Hello World");
 		widget.moveBy(1);
-		final Element paraElement = widget.insertElement(PARA);
+		final IElement paraElement = widget.insertElement(PARA);
 		widget.insertText("Hello Again");
 		widget.moveTo(titleElement.getStartOffset() + 3);
 		widget.moveTo(paraElement.getEndOffset() + 1, true);
@@ -128,10 +126,10 @@ public class L2SelectionTest {
 
 	@Test
 	public void givenCaretInElementWithText_whenMovedBeforePrecedingElementAndMovedForwardOnce_shouldSelectOnlySecondElement() throws Exception {
-		final Element titleElement = widget.insertElement(TITLE);
+		final IElement titleElement = widget.insertElement(TITLE);
 		widget.insertText("Hello World");
 		widget.moveBy(1);
-		final Element paraElement = widget.insertElement(PARA);
+		final IElement paraElement = widget.insertElement(PARA);
 		widget.insertText("Hello Again");
 		widget.moveTo(paraElement.getEndOffset() - 3);
 		widget.moveTo(titleElement.getStartOffset(), true);
@@ -142,10 +140,10 @@ public class L2SelectionTest {
 
 	@Test
 	public void givenCaretInElementWithText_whenMovedBeforePrecedingElementAndMovedForwardTwice_shouldSelectOnlyTextFragementOfSecondElement() throws Exception {
-		final Element titleElement = widget.insertElement(TITLE);
+		final IElement titleElement = widget.insertElement(TITLE);
 		widget.insertText("Hello World");
 		widget.moveBy(1);
-		final Element paraElement = widget.insertElement(PARA);
+		final IElement paraElement = widget.insertElement(PARA);
 		widget.insertText("Hello Again");
 		widget.moveTo(paraElement.getEndOffset() - 3);
 		widget.moveTo(titleElement.getStartOffset(), true);
@@ -157,7 +155,7 @@ public class L2SelectionTest {
 
 	@Test
 	public void givenCarentInEmptyComment_whenMovedBeforeComment_shouldExpandSelectionToIncludeEndOffset() throws Exception {
-		final Comment comment = widget.insertComment();
+		final IComment comment = widget.insertComment();
 		widget.moveBy(-1, true);
 		assertTrue(widget.hasSelection());
 		assertEquals(comment.getRange(), widget.getSelectedRange());

@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.css;
 
-import org.eclipse.vex.core.internal.dom.Node;
+import org.eclipse.vex.core.dom.INode;
 import org.w3c.css.sac.LexicalUnit;
 
 /**
@@ -22,7 +22,7 @@ public class ListStyleTypeProperty extends AbstractProperty {
 		super(CSS.LIST_STYLE_TYPE);
 	}
 
-	public Object calculate(final LexicalUnit lu, final Styles parentStyles, final Styles styles, final Node node) {
+	public Object calculate(final LexicalUnit lu, final Styles parentStyles, final Styles styles, final INode node) {
 		if (isListStyleType(lu)) {
 			return lu.getStringValue();
 		} else {

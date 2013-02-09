@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.css;
 
-import org.eclipse.vex.core.internal.dom.Node;
+import org.eclipse.vex.core.dom.INode;
 import org.w3c.css.sac.LexicalUnit;
 
 /**
@@ -40,6 +40,6 @@ public interface IProperty {
 	 * @param node
 	 *            The current node for which this property is calculated. May be null.
 	 */
-	public Object calculate(LexicalUnit lu, Styles parentStyles, Styles styles, Node node);
+	public Object calculate(LexicalUnit lu, Styles parentStyles, Styles styles, INode node);
 
 }

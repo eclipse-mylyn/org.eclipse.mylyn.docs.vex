@@ -21,7 +21,13 @@ import java.util.List;
 import java.util.NoSuchElementException;
 
 import org.eclipse.core.runtime.AssertionFailedException;
-import org.eclipse.vex.core.internal.core.IFilter;
+import org.eclipse.vex.core.IFilter;
+import org.eclipse.vex.core.dom.BaseNodeVisitor;
+import org.eclipse.vex.core.dom.ContentRange;
+import org.eclipse.vex.core.dom.IAxis;
+import org.eclipse.vex.core.dom.INode;
+import org.eclipse.vex.core.dom.INodeVisitor;
+import org.eclipse.vex.core.dom.INodeVisitorWithResult;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -76,8 +82,8 @@ public class AxisTest {
 
 	@Test
 	public void givenAxis_whenNotEmpty_shouldProvideNodesAsList() throws Exception {
-		final List<Node> expectedNodes = Arrays.<Node> asList(new TestNode("one"), new TestNode("two"), new TestNode("three"));
-		final List<Node> actualNodes = axis(source, expectedNodes).asList();
+		final List<INode> expectedNodes = Arrays.<INode> asList(new TestNode("one"), new TestNode("two"), new TestNode("three"));
+		final List<? extends INode> actualNodes = axis(source, expectedNodes).asList();
 		assertTrue(Arrays.equals(expectedNodes.toArray(), actualNodes.toArray()));
 	}
 
@@ -106,8 +112,8 @@ public class AxisTest {
 	@Test
 	public void givenAxisWithElements_whenFilterIsGiven_shouldProvideOnlyMatchingNodes() throws Exception {
 		int actualNodeCount = 0;
-		for (final Node actualNode : axis(source, nodes("matching", "matching", "not", "not", "matching")).matching(new IFilter<Node>() {
-			public boolean matches(final Node node) {
+		for (final INode actualNode : axis(source, nodes("matching", "matching", "not", "not", "matching")).matching(new IFilter<INode>() {
+			public boolean matches(final INode node) {
 				return "matching".equals(((TestNode) node).getName());
 			}
 		})) {
@@ -119,7 +125,7 @@ public class AxisTest {
 
 	@Test
 	public void givenAxisWithElements_whenEndIndexIsGiven_shouldProvideOnlyNodesUpToEndIndex() throws Exception {
-		final Iterator<Node> actualNodes = axis(source, nodes("one", "two", "three")).to(1).iterator();
+		final Iterator<? extends INode> actualNodes = axis(source, nodes("one", "two", "three")).to(1).iterator();
 		assertEquals("one", actualNodes.next().toString());
 		assertEquals("two", actualNodes.next().toString());
 		assertFalse(actualNodes.hasNext());
@@ -132,7 +138,7 @@ public class AxisTest {
 
 	@Test
 	public void givenAxisWithElements_whenStartIndexIsGiven_shouldProvideOnlyNodesFromStartIndex() throws Exception {
-		final Iterator<Node> actualNodes = axis(source, nodes("one", "two", "three")).from(1).iterator();
+		final Iterator<? extends INode> actualNodes = axis(source, nodes("one", "two", "three")).from(1).iterator();
 		assertEquals("two", actualNodes.next().toString());
 		assertEquals("three", actualNodes.next().toString());
 		assertFalse(actualNodes.hasNext());
@@ -145,28 +151,28 @@ public class AxisTest {
 
 	@Test
 	public void givenAxisWithElements_whenStartAndEndIndexAreGiven_shouldProvideOnlyNodesFromStartToEndIndex() throws Exception {
-		final Iterator<Node> actualNodes = axis(source, nodes("one", "two", "three", "four", "five")).from(1).to(2).iterator();
+		final Iterator<?> actualNodes = axis(source, nodes("one", "two", "three", "four", "five")).from(1).to(2).iterator();
 		assertEquals("two", actualNodes.next().toString());
 		assertEquals("three", actualNodes.next().toString());
 		assertFalse(actualNodes.hasNext());
 	}
 
-	private static Axis axis(final Node sourceNode, final Iterable<Node> source) {
-		return new Axis(sourceNode) {
+	private static IAxis<INode> axis(final INode sourceNode, final Iterable<INode> source) {
+		return new Axis<INode>(sourceNode) {
 			@Override
-			protected Iterator<Node> createRootIterator(final ContentRange contentRange, final boolean includeText) {
+			protected Iterator<INode> createRootIterator(final ContentRange contentRange, final boolean includeText) {
 				return source.iterator();
 			}
 
 		};
 	}
 
-	private static Iterable<Node> nodes(final String... nodeNames) {
+	private static Iterable<INode> nodes(final String... nodeNames) {
 		return nodes(null, nodeNames);
 	}
 
-	private static Iterable<Node> nodes(final int[] visits, final String... nodeNames) {
-		final ArrayList<Node> result = new ArrayList<Node>();
+	private static Iterable<INode> nodes(final int[] visits, final String... nodeNames) {
+		final ArrayList<INode> result = new ArrayList<INode>();
 		for (final String nodeName : nodeNames) {
 			result.add(new TestNode(nodeName, visits));
 		}
@@ -196,12 +202,10 @@ public class AxisTest {
 			return name;
 		}
 
-		@Override
-		public boolean isKindOf(final Node node) {
+		public boolean isKindOf(final INode node) {
 			return false;
 		}
 
-		@Override
 		public void accept(final INodeVisitor visitor) {
 			if (visits == null) {
 				throw new IllegalStateException();
@@ -209,7 +213,6 @@ public class AxisTest {
 			visits[0]++;
 		}
 
-		@Override
 		public <T> T accept(final INodeVisitorWithResult<T> visitor) {
 			throw new UnsupportedOperationException();
 		}

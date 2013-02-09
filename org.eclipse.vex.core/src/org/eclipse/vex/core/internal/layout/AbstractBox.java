@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.layout;
 
+import org.eclipse.vex.core.dom.INode;
 import org.eclipse.vex.core.internal.core.Caret;
 import org.eclipse.vex.core.internal.core.Color;
 import org.eclipse.vex.core.internal.core.ColorResource;
@@ -18,7 +19,6 @@ import org.eclipse.vex.core.internal.core.Insets;
 import org.eclipse.vex.core.internal.core.Rectangle;
 import org.eclipse.vex.core.internal.css.CSS;
 import org.eclipse.vex.core.internal.css.Styles;
-import org.eclipse.vex.core.internal.dom.Node;
 
 /**
  * Base implementation of the <code>Box</code> interface, implementing some common methods.
@@ -70,7 +70,7 @@ public abstract class AbstractBox implements Box {
 	 * 
 	 * @see org.eclipse.vex.core.internal.layout.Box#getNode()
 	 */
-	public Node getNode() {
+	public INode getNode() {
 		return null;
 	}
 
@@ -106,7 +106,7 @@ public abstract class AbstractBox implements Box {
 	 * is associated with this box returns all zeros.
 	 */
 	public Insets getInsets(final LayoutContext context, final int containerWidth) {
-		final Node node = getNode();
+		final INode node = getNode();
 		if (node == null) {
 			return Insets.ZERO_INSETS;
 		} else {
@@ -274,7 +274,7 @@ public abstract class AbstractBox implements Box {
 	 *            If true, the background is filled and the borders are drawn; otherwise, just the background is filled.
 	 *            This is handy when removing the borders when drawing the selection frame.
 	 */
-	protected void drawBox(final LayoutContext context, final Node node, final int x, final int y, final int containerWidth, final boolean drawBorders) {
+	protected void drawBox(final LayoutContext context, final INode node, final int x, final int y, final int containerWidth, final boolean drawBorders) {
 
 		if (node == null) {
 			return;

@@ -19,6 +19,9 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.core.runtime.QualifiedName;
+import org.eclipse.vex.core.dom.DocumentValidationException;
+import org.eclipse.vex.core.dom.IComment;
+import org.eclipse.vex.core.dom.INode;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -51,11 +54,11 @@ public class L1CommentHandlingTest {
 
 	@Test
 	public void shouldInsertCommentAtValidInsertionPoint() throws Exception {
-		final Comment comment = document.insertComment(titleElement.getStartOffset());
+		final IComment comment = document.insertComment(titleElement.getStartOffset());
 
 		assertSame(rootElement, comment.getParent());
 		assertTrue(comment.isAssociated());
-		final Iterator<Node> actualChildren = rootElement.children().iterator();
+		final Iterator<INode> actualChildren = rootElement.children().iterator();
 		assertSame(comment, actualChildren.next());
 		assertSame(titleElement, actualChildren.next());
 	}
@@ -75,7 +78,7 @@ public class L1CommentHandlingTest {
 				return "title".equals(element.getLocalName());
 			}
 		});
-		final Comment comment = document.insertComment(titleElement.getStartOffset());
+		final IComment comment = document.insertComment(titleElement.getStartOffset());
 		document.insertText(comment.getEndOffset(), "Hello World");
 
 		assertEquals("Hello World", comment.getText());
@@ -88,8 +91,8 @@ public class L1CommentHandlingTest {
 
 	@Test
 	public void shouldInsertCommentBeforeRootElement() throws Exception {
-		final Comment comment = document.insertComment(rootElement.getStartOffset());
-		final Iterator<Node> actualChildren = document.children().iterator();
+		final IComment comment = document.insertComment(rootElement.getStartOffset());
+		final Iterator<INode> actualChildren = document.children().iterator();
 		assertSame(comment, actualChildren.next());
 		assertSame(rootElement, actualChildren.next());
 		assertFalse(actualChildren.hasNext());

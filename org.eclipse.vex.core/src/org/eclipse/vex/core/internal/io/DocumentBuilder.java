@@ -17,15 +17,14 @@ import java.util.List;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.QualifiedName;
+import org.eclipse.vex.core.dom.ContentRange;
+import org.eclipse.vex.core.dom.DocumentValidationException;
+import org.eclipse.vex.core.dom.IContent;
+import org.eclipse.vex.core.dom.IDocument;
 import org.eclipse.vex.core.internal.dom.Comment;
-import org.eclipse.vex.core.internal.dom.Content;
-import org.eclipse.vex.core.internal.dom.ContentRange;
 import org.eclipse.vex.core.internal.dom.Document;
-import org.eclipse.vex.core.internal.dom.DocumentContentModel;
-import org.eclipse.vex.core.internal.dom.DocumentValidationException;
 import org.eclipse.vex.core.internal.dom.Element;
 import org.eclipse.vex.core.internal.dom.GapContent;
-import org.eclipse.vex.core.internal.dom.IWhitespacePolicy;
 import org.eclipse.vex.core.internal.dom.Node;
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
@@ -61,7 +60,7 @@ public class DocumentBuilder implements ContentHandler, LexicalHandler {
 	private boolean trimLeading = false;
 
 	// Content object to hold document content
-	private final Content content = new GapContent(100);
+	private final IContent content = new GapContent(100);
 
 	// Stack of StackElement objects
 	private final LinkedList<StackEntry> stack = new LinkedList<StackEntry>();
@@ -78,7 +77,7 @@ public class DocumentBuilder implements ContentHandler, LexicalHandler {
 	private final String baseUri;
 	private String dtdPublicID;
 	private String dtdSystemID;
-	private Document document;
+	private IDocument document;
 	private Locator locator;
 
 	public DocumentBuilder(final String baseUri, final DocumentContentModel documentContentModel) {
@@ -89,7 +88,7 @@ public class DocumentBuilder implements ContentHandler, LexicalHandler {
 	/**
 	 * Returns the newly built <code>Document</code> object.
 	 */
-	public Document getDocument() {
+	public IDocument getDocument() {
 		return document;
 	}
 
@@ -124,11 +123,11 @@ public class DocumentBuilder implements ContentHandler, LexicalHandler {
 		document.setSystemID(dtdSystemID);
 
 		for (final Node node : nodesBeforeRoot) {
-			document.insertChildBefore(document.getRootElement(), node);
+			((Document) document).insertChildBefore(document.getRootElement(), node);
 		}
 
 		for (final Node node : nodesAfterRoot) {
-			document.addChild(node);
+			((Document) document).addChild(node);
 		}
 	}
 

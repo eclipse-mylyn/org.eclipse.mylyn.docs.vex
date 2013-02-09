@@ -20,8 +20,9 @@ import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.Viewer;
-import org.eclipse.vex.core.internal.dom.Document;
-import org.eclipse.vex.core.internal.dom.Element;
+import org.eclipse.vex.core.dom.Filters;
+import org.eclipse.vex.core.dom.IDocument;
+import org.eclipse.vex.core.dom.IElement;
 import org.eclipse.vex.ui.internal.editor.VexEditor;
 import org.eclipse.vex.ui.internal.outline.IOutlineProvider;
 
@@ -41,8 +42,8 @@ public class DocBookOutlineProvider implements IOutlineProvider {
 		return labelProvider;
 	}
 
-	public Element getOutlineElement(final Element child) {
-		Element element = child;
+	public IElement getOutlineElement(final IElement child) {
+		IElement element = child;
 		while (element.getParentElement() != null && !isTitledElement(element)) {
 			element = element.getParentElement();
 		}
@@ -59,11 +60,11 @@ public class DocBookOutlineProvider implements IOutlineProvider {
 		}
 
 		public Object[] getChildren(final Object parentElement) {
-			return getOutlineChildren((Element) parentElement);
+			return getOutlineChildren((IElement) parentElement);
 		}
 
 		public Object getParent(final Object element) {
-			final Element parent = ((Element) element).getParentElement();
+			final IElement parent = ((IElement) element).getParentElement();
 			if (parent == null) {
 				return element;
 			} else {
@@ -72,11 +73,11 @@ public class DocBookOutlineProvider implements IOutlineProvider {
 		}
 
 		public boolean hasChildren(final Object element) {
-			return getOutlineChildren((Element) element).length > 0;
+			return getOutlineChildren((IElement) element).length > 0;
 		}
 
 		public Object[] getElements(final Object inputElement) {
-			final Document document = (Document) inputElement;
+			final IDocument document = (IDocument) inputElement;
 			return new Object[] { document.getRootElement() };
 		}
 
@@ -89,25 +90,25 @@ public class DocBookOutlineProvider implements IOutlineProvider {
 	 * @param element
 	 * @return
 	 */
-	private Element[] getOutlineChildren(final Element element) {
-		final List<Element> children = new ArrayList<Element>();
-		for (final Element child : element.getChildElements()) {
+	private IElement[] getOutlineChildren(final IElement element) {
+		final List<IElement> children = new ArrayList<IElement>();
+		for (final IElement child : element.childElements()) {
 			if (titledElements.contains(child.getLocalName())) {
 				children.add(child);
 			}
 		}
-		return children.toArray(new Element[children.size()]);
+		return children.toArray(new IElement[children.size()]);
 	}
 
 	private final ILabelProvider labelProvider = new LabelProvider() {
 		@Override
 		public String getText(final Object o) {
-			final Element e = (Element) o;
-			Element titleChild = findChild(e, "title");
+			final IElement e = (IElement) o;
+			IElement titleChild = findChild(e, "title");
 			if (titleChild != null) {
 				return titleChild.getText();
 			} else {
-				final Element infoChild = findChild(e, e.getLocalName() + "info");
+				final IElement infoChild = findChild(e, e.getLocalName() + "info");
 				if (infoChild != null) {
 					titleChild = findChild(infoChild, "title");
 					if (titleChild != null) {
@@ -129,13 +130,9 @@ public class DocBookOutlineProvider implements IOutlineProvider {
 	 * @param element
 	 * @return
 	 */
-	private boolean isTitledElement(final Element e) {
-
-		if (titledElements.contains(e.getLocalName()) || e.getParent() == null) {
-			final List<Element> children = e.getChildElements();
-			if (children.size() > 0 && children.get(0).getLocalName().equals("title") || children.size() > 1 && children.get(1).getLocalName().equals("title")) {
-				return true;
-			}
+	private boolean isTitledElement(final IElement element) {
+		if (titledElements.contains(element.getLocalName()) || element.getParent() == null) {
+			return !element.childElements().to(1).matching(Filters.elementsNamed("title")).isEmpty();
 		}
 		return false;
 	}
@@ -144,11 +141,9 @@ public class DocBookOutlineProvider implements IOutlineProvider {
 	 * Finds the first child of the given element with the given name. Returns null if none found. We should move this
 	 * to XPath when we gain that facility.
 	 */
-	private Element findChild(final Element parent, final String childName) {
-		for (final Element child : parent.getChildElements()) {
-			if (child.getLocalName().equals(childName)) {
-				return child;
-			}
+	private IElement findChild(final IElement parent, final String childName) {
+		for (final IElement child : parent.childElements().matching(Filters.elementsNamed(childName))) {
+			return child;
 		}
 		return null;
 	}
