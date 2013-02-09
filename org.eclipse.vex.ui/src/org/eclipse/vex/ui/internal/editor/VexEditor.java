@@ -68,11 +68,13 @@ import org.eclipse.ui.views.properties.IPropertySheetPage;
 import org.eclipse.ui.views.properties.IPropertySource;
 import org.eclipse.ui.views.properties.IPropertySourceProvider;
 import org.eclipse.ui.views.properties.PropertySheetPage;
-import org.eclipse.vex.core.dom.DocumentEvent;
+import org.eclipse.vex.core.dom.AttributeChangeEvent;
+import org.eclipse.vex.core.dom.ContentChangeEvent;
 import org.eclipse.vex.core.dom.IDocument;
 import org.eclipse.vex.core.dom.IDocumentListener;
 import org.eclipse.vex.core.dom.IElement;
 import org.eclipse.vex.core.dom.IValidator;
+import org.eclipse.vex.core.dom.NamespaceDeclarationChangeEvent;
 import org.eclipse.vex.core.internal.core.ListenerList;
 import org.eclipse.vex.core.internal.io.DocumentReader;
 import org.eclipse.vex.core.internal.io.DocumentWriter;
@@ -720,29 +722,29 @@ public class VexEditor extends EditorPart {
 
 	private final IDocumentListener documentListener = new IDocumentListener() {
 
-		public void attributeChanged(final DocumentEvent e) {
+		public void attributeChanged(final AttributeChangeEvent e) {
 			setDirty();
 		}
 
-		public void namespaceChanged(final DocumentEvent e) {
+		public void namespaceChanged(final NamespaceDeclarationChangeEvent e) {
 			setDirty();
 		}
 
-		public void beforeContentDeleted(final DocumentEvent e) {
+		public void beforeContentDeleted(final ContentChangeEvent e) {
 			// TODO Auto-generated method stub
 
 		}
 
-		public void beforeContentInserted(final DocumentEvent e) {
+		public void beforeContentInserted(final ContentChangeEvent e) {
 			// TODO Auto-generated method stub
 
 		}
 
-		public void contentDeleted(final DocumentEvent e) {
+		public void contentDeleted(final ContentChangeEvent e) {
 			setDirty();
 		}
 
-		public void contentInserted(final DocumentEvent e) {
+		public void contentInserted(final ContentChangeEvent e) {
 			setDirty();
 		}
 

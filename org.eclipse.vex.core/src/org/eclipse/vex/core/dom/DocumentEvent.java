@@ -13,21 +13,15 @@ package org.eclipse.vex.core.dom;
 
 import java.util.EventObject;
 
-import org.eclipse.core.runtime.QualifiedName;
-
 /**
- * Encapsulation of the details of a document change.
+ * This is the base class for notifications about a document change.
  */
-public class DocumentEvent extends EventObject {
+public abstract class DocumentEvent extends EventObject {
 
 	private static final long serialVersionUID = -9028980559838712720L;
 
 	private final IDocument document;
 	private final IParent parent;
-	private final ContentRange range;
-	private final QualifiedName attributeName;
-	private final String oldAttributeValue;
-	private final String newAttributeValue;
 
 	/**
 	 * Create an event.
@@ -36,48 +30,11 @@ public class DocumentEvent extends EventObject {
 	 *            the document that changed
 	 * @param parent
 	 *            the parent node containing the change
-	 * @param range
-	 *            the range which was changed
 	 */
-	public DocumentEvent(final IDocument document, final IParent parent, final ContentRange range) {
+	public DocumentEvent(final IDocument document, final IParent parent) {
 		super(document);
 		this.document = document;
 		this.parent = parent;
-		this.range = range;
-		attributeName = null;
-		oldAttributeValue = null;
-		newAttributeValue = null;
-	}
-
-	/**
-	 * Create an event with attribute information.
-	 * 
-	 * @param document
-	 *            Document that changed.
-	 * @param parent
-	 *            Parent containing the attribute that changed
-	 * @param attributeName
-	 *            name of the attribute that changed
-	 * @param oldAttributeValue
-	 *            value of the attribute before the change.
-	 * @param newAttributeValue
-	 *            value of the attribute after the change.
-	 */
-	public DocumentEvent(final IDocument document, final IParent parent, final QualifiedName attributeName, final String oldAttributeValue, final String newAttributeValue) {
-		super(document);
-		this.document = document;
-		this.parent = parent;
-		range = parent.getRange();
-		this.attributeName = attributeName;
-		this.oldAttributeValue = oldAttributeValue;
-		this.newAttributeValue = newAttributeValue;
-	}
-
-	/**
-	 * @return the range which was changed
-	 */
-	public ContentRange getRange() {
-		return range;
 	}
 
 	/**
@@ -85,28 +42,6 @@ public class DocumentEvent extends EventObject {
 	 */
 	public IParent getParent() {
 		return parent;
-	}
-
-	/**
-	 * @return the value of the attribute before the change. If null, indicates that the attribute was removed
-	 */
-	public String getNewAttributeValue() {
-		return newAttributeValue;
-	}
-
-	/**
-	 * @return the value of the attribute after the change. If null, indicates the attribute did not exist before the
-	 *         change
-	 */
-	public String getOldAttributeValue() {
-		return oldAttributeValue;
-	}
-
-	/**
-	 * @return the qualified name of the attribute that was changed
-	 */
-	public QualifiedName getAttributeName() {
-		return attributeName;
 	}
 
 	/**

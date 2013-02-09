@@ -26,9 +26,10 @@ import java.util.Set;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.QualifiedName;
+import org.eclipse.vex.core.dom.AttributeChangeEvent;
 import org.eclipse.vex.core.dom.BaseNodeVisitorWithResult;
+import org.eclipse.vex.core.dom.ContentChangeEvent;
 import org.eclipse.vex.core.dom.ContentRange;
-import org.eclipse.vex.core.dom.DocumentEvent;
 import org.eclipse.vex.core.dom.DocumentValidationException;
 import org.eclipse.vex.core.dom.IComment;
 import org.eclipse.vex.core.dom.IDocument;
@@ -39,6 +40,7 @@ import org.eclipse.vex.core.dom.INode;
 import org.eclipse.vex.core.dom.IPosition;
 import org.eclipse.vex.core.dom.IText;
 import org.eclipse.vex.core.dom.IValidator;
+import org.eclipse.vex.core.dom.NamespaceDeclarationChangeEvent;
 import org.eclipse.vex.core.internal.core.Caret;
 import org.eclipse.vex.core.internal.core.Color;
 import org.eclipse.vex.core.internal.core.ElementName;
@@ -134,7 +136,7 @@ public class VexWidgetImpl implements IVexWidget {
 
 	private final IDocumentListener documentListener = new IDocumentListener() {
 
-		public void attributeChanged(final DocumentEvent e) {
+		public void attributeChanged(final AttributeChangeEvent e) {
 			invalidateElementBox(e.getParent());
 
 			/*
@@ -151,13 +153,13 @@ public class VexWidgetImpl implements IVexWidget {
 			hostComponent.fireSelectionChanged();
 		}
 
-		public void beforeContentDeleted(final DocumentEvent e) {
+		public void beforeContentDeleted(final ContentChangeEvent e) {
 		}
 
-		public void beforeContentInserted(final DocumentEvent e) {
+		public void beforeContentInserted(final ContentChangeEvent e) {
 		}
 
-		public void contentDeleted(final DocumentEvent e) {
+		public void contentDeleted(final ContentChangeEvent e) {
 			invalidateElementBox(e.getParent());
 
 			if (beginWorkCount == 0) {
@@ -165,7 +167,7 @@ public class VexWidgetImpl implements IVexWidget {
 			}
 		}
 
-		public void contentInserted(final DocumentEvent e) {
+		public void contentInserted(final ContentChangeEvent e) {
 			invalidateElementBox(e.getParent());
 
 			if (beginWorkCount == 0) {
@@ -173,7 +175,7 @@ public class VexWidgetImpl implements IVexWidget {
 			}
 		}
 
-		public void namespaceChanged(final DocumentEvent e) {
+		public void namespaceChanged(final NamespaceDeclarationChangeEvent e) {
 			invalidateElementBox(e.getParent());
 
 			if (beginWorkCount == 0) {

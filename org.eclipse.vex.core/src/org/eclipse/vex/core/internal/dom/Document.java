@@ -19,6 +19,7 @@ import java.util.List;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.vex.core.dom.BaseNodeVisitorWithResult;
+import org.eclipse.vex.core.dom.ContentChangeEvent;
 import org.eclipse.vex.core.dom.ContentRange;
 import org.eclipse.vex.core.dom.DocumentEvent;
 import org.eclipse.vex.core.dom.DocumentValidationException;
@@ -244,21 +245,21 @@ public class Document extends Parent implements IDocument {
 					throw new DocumentValidationException(MessageFormat.format("Cannot insert text ''{0}'' at offset {1}.", text, offset));
 				}
 
-				fireBeforeContentInserted(new DocumentEvent(Document.this, element, new ContentRange(offset, offset + adjustedText.length() - 1)));
+				fireBeforeContentInserted(new ContentChangeEvent(Document.this, element, new ContentRange(offset, offset + adjustedText.length() - 1)));
 				getContent().insertText(offset, adjustedText);
-				fireContentInserted(new DocumentEvent(Document.this, element, new ContentRange(offset, offset + adjustedText.length() - 1)));
+				fireContentInserted(new ContentChangeEvent(Document.this, element, new ContentRange(offset, offset + adjustedText.length() - 1)));
 			}
 
 			public void visit(final IText text) {
-				fireBeforeContentInserted(new DocumentEvent(Document.this, text.getParent(), new ContentRange(offset, offset + adjustedText.length() - 1)));
+				fireBeforeContentInserted(new ContentChangeEvent(Document.this, text.getParent(), new ContentRange(offset, offset + adjustedText.length() - 1)));
 				getContent().insertText(offset, adjustedText);
-				fireContentInserted(new DocumentEvent(Document.this, text.getParent(), new ContentRange(offset, offset + adjustedText.length() - 1)));
+				fireContentInserted(new ContentChangeEvent(Document.this, text.getParent(), new ContentRange(offset, offset + adjustedText.length() - 1)));
 			}
 
 			public void visit(final IComment comment) {
-				fireBeforeContentInserted(new DocumentEvent(Document.this, comment.getParent(), new ContentRange(offset, offset + adjustedText.length() - 1)));
+				fireBeforeContentInserted(new ContentChangeEvent(Document.this, comment.getParent(), new ContentRange(offset, offset + adjustedText.length() - 1)));
 				getContent().insertText(offset, adjustedText);
-				fireContentInserted(new DocumentEvent(Document.this, comment.getParent(), new ContentRange(offset, offset + adjustedText.length() - 1)));
+				fireContentInserted(new ContentChangeEvent(Document.this, comment.getParent(), new ContentRange(offset, offset + adjustedText.length() - 1)));
 			}
 		});
 	}
@@ -291,7 +292,7 @@ public class Document extends Parent implements IDocument {
 
 		final Parent parent = getParentForInsertionAt(offset);
 
-		fireBeforeContentInserted(new DocumentEvent(this, parent, new ContentRange(offset, offset + 1)));
+		fireBeforeContentInserted(new ContentChangeEvent(this, parent, new ContentRange(offset, offset + 1)));
 
 		final Comment comment = new Comment();
 		getContent().insertTagMarker(offset);
@@ -300,7 +301,7 @@ public class Document extends Parent implements IDocument {
 
 		parent.insertChildAt(offset, comment);
 
-		fireContentInserted(new DocumentEvent(this, parent, comment.getRange()));
+		fireContentInserted(new ContentChangeEvent(this, parent, comment.getRange()));
 
 		return comment;
 	}
@@ -318,7 +319,7 @@ public class Document extends Parent implements IDocument {
 			throw new DocumentValidationException(MessageFormat.format("Cannot insert element {0} at offset {1}.", elementName, offset));
 		}
 
-		fireBeforeContentInserted(new DocumentEvent(this, parent, new ContentRange(offset, offset + 1)));
+		fireBeforeContentInserted(new ContentChangeEvent(this, parent, new ContentRange(offset, offset + 1)));
 
 		final Element element = new Element(elementName);
 		getContent().insertTagMarker(offset);
@@ -327,7 +328,7 @@ public class Document extends Parent implements IDocument {
 
 		parent.insertChildAt(offset, element);
 
-		fireContentInserted(new DocumentEvent(this, parent, element.getRange()));
+		fireContentInserted(new ContentChangeEvent(this, parent, element.getRange()));
 
 		return element;
 	}
@@ -344,7 +345,7 @@ public class Document extends Parent implements IDocument {
 			throw new DocumentValidationException(MessageFormat.format("Cannot insert document fragment at offset {0}.", offset));
 		}
 
-		fireBeforeContentInserted(new DocumentEvent(this, parent, new ContentRange(offset, offset + 1)));
+		fireBeforeContentInserted(new ContentChangeEvent(this, parent, new ContentRange(offset, offset + 1)));
 
 		getContent().insertContent(offset, fragment.getContent());
 
@@ -357,7 +358,7 @@ public class Document extends Parent implements IDocument {
 			nextOffset = newNode.getEndOffset() + 1;
 		}
 
-		fireContentInserted(new DocumentEvent(this, parent, new ContentRange(offset, offset + fragment.getContent().length() - 1)));
+		fireContentInserted(new ContentChangeEvent(this, parent, new ContentRange(offset, offset + fragment.getContent().length() - 1)));
 	}
 
 	private void associateDeeply(final Node node, final int offset) {
@@ -406,7 +407,7 @@ public class Document extends Parent implements IDocument {
 			throw new DocumentValidationException(MessageFormat.format("Cannot delete {0}", range));
 		}
 
-		fireBeforeContentDeleted(new DocumentEvent(this, parentForDeletion, range));
+		fireBeforeContentDeleted(new ContentChangeEvent(this, parentForDeletion, range));
 
 		for (final INode child : parentForDeletion.children().in(range)) {
 			parentForDeletion.removeChild((Node) child);
@@ -415,7 +416,7 @@ public class Document extends Parent implements IDocument {
 
 		getContent().remove(range);
 
-		fireContentDeleted(new DocumentEvent(this, parentForDeletion, range));
+		fireContentDeleted(new ContentChangeEvent(this, parentForDeletion, range));
 	}
 
 	/*

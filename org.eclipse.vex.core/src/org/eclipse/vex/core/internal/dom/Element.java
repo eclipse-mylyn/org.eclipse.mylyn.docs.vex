@@ -21,8 +21,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.eclipse.core.runtime.QualifiedName;
-import org.eclipse.vex.core.dom.ContentRange;
-import org.eclipse.vex.core.dom.DocumentEvent;
+import org.eclipse.vex.core.dom.AttributeChangeEvent;
 import org.eclipse.vex.core.dom.DocumentValidationException;
 import org.eclipse.vex.core.dom.Filters;
 import org.eclipse.vex.core.dom.IAttribute;
@@ -31,6 +30,7 @@ import org.eclipse.vex.core.dom.IElement;
 import org.eclipse.vex.core.dom.INode;
 import org.eclipse.vex.core.dom.INodeVisitor;
 import org.eclipse.vex.core.dom.INodeVisitorWithResult;
+import org.eclipse.vex.core.dom.NamespaceDeclarationChangeEvent;
 import org.eclipse.vex.core.internal.core.QualifiedNameComparator;
 
 public class Element extends Parent implements IElement {
@@ -160,7 +160,7 @@ public class Element extends Parent implements IElement {
 			return;
 		}
 
-		document.fireAttributeChanged(new DocumentEvent(document, this, name, oldValue, newValue));
+		document.fireAttributeChanged(new AttributeChangeEvent(document, this, name, oldValue, newValue));
 	}
 
 	public void setAttribute(final String localName, final String value) throws DocumentValidationException {
@@ -189,7 +189,7 @@ public class Element extends Parent implements IElement {
 					return;
 				}
 
-				document.fireAttributeChanged(new DocumentEvent(document, this, name, oldValue, value));
+				document.fireAttributeChanged(new AttributeChangeEvent(document, this, name, oldValue, value));
 			}
 		}
 	}
@@ -310,7 +310,7 @@ public class Element extends Parent implements IElement {
 			return;
 		}
 
-		document.fireNamespaceChanged(new DocumentEvent(document, this, new ContentRange(getStartOffset(), getStartOffset())));
+		document.fireNamespaceChanged(new NamespaceDeclarationChangeEvent(document, this));
 	}
 
 	public void removeNamespace(final String namespacePrefix) {
@@ -324,7 +324,7 @@ public class Element extends Parent implements IElement {
 			return; // we have actually removed nothing, so we should not tell anybody about it
 		}
 
-		document.fireNamespaceChanged(new DocumentEvent(document, this, new ContentRange(getStartOffset(), getStartOffset())));
+		document.fireNamespaceChanged(new NamespaceDeclarationChangeEvent(document, this));
 	}
 
 	public void declareDefaultNamespace(final String namespaceURI) {

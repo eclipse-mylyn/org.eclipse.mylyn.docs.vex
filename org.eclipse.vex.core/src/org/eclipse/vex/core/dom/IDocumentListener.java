@@ -22,7 +22,7 @@ public interface IDocumentListener extends java.util.EventListener {
 	 * @param event
 	 *            the document event.
 	 */
-	void attributeChanged(DocumentEvent event);
+	void attributeChanged(AttributeChangeEvent event);
 
 	/**
 	 * Called when a namespace delcaration is changed in one of the document's elements.
@@ -30,7 +30,7 @@ public interface IDocumentListener extends java.util.EventListener {
 	 * @param event
 	 *            the document event.
 	 */
-	void namespaceChanged(DocumentEvent event);
+	void namespaceChanged(NamespaceDeclarationChangeEvent event);
 
 	/**
 	 * Called before content is deleted from a document.
@@ -38,7 +38,7 @@ public interface IDocumentListener extends java.util.EventListener {
 	 * @param event
 	 *            the document event
 	 */
-	void beforeContentDeleted(DocumentEvent event);
+	void beforeContentDeleted(ContentChangeEvent event);
 
 	/**
 	 * Called before content is inserted into a document.
@@ -46,7 +46,7 @@ public interface IDocumentListener extends java.util.EventListener {
 	 * @param event
 	 *            the document event
 	 */
-	void beforeContentInserted(DocumentEvent event);
+	void beforeContentInserted(ContentChangeEvent event);
 
 	/**
 	 * Called when content is deleted from a document.
@@ -54,7 +54,7 @@ public interface IDocumentListener extends java.util.EventListener {
 	 * @param event
 	 *            the document event
 	 */
-	void contentDeleted(DocumentEvent event);
+	void contentDeleted(ContentChangeEvent event);
 
 	/**
 	 * Called when content is inserted into a document.
@@ -62,6 +62,6 @@ public interface IDocumentListener extends java.util.EventListener {
 	 * @param event
 	 *            the document event
 	 */
-	void contentInserted(DocumentEvent event);
+	void contentInserted(ContentChangeEvent event);
 
 }
