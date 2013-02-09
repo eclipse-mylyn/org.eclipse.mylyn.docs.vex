@@ -23,10 +23,10 @@ import java.util.List;
 import java.util.Set;
 
 import org.eclipse.core.runtime.QualifiedName;
+import org.eclipse.vex.core.dom.AttributeDefinition;
 import org.eclipse.vex.core.dom.IDocument;
 import org.eclipse.vex.core.dom.IElement;
 import org.eclipse.vex.core.dom.IValidator;
-import org.eclipse.vex.core.internal.validator.AttributeDefinition;
 import org.eclipse.vex.core.internal.validator.WTPVEXValidator;
 import org.eclipse.vex.core.tests.TestResources;
 import org.junit.Before;

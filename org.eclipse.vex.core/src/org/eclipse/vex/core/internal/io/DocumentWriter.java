@@ -17,6 +17,7 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.util.Arrays;
 
+import org.eclipse.vex.core.dom.AttributeDefinition;
 import org.eclipse.vex.core.dom.BaseNodeVisitor;
 import org.eclipse.vex.core.dom.IAttribute;
 import org.eclipse.vex.core.dom.IComment;
@@ -26,7 +27,6 @@ import org.eclipse.vex.core.dom.IElement;
 import org.eclipse.vex.core.dom.INode;
 import org.eclipse.vex.core.dom.IText;
 import org.eclipse.vex.core.dom.IValidator;
-import org.eclipse.vex.core.internal.validator.AttributeDefinition;
 
 /**
  * Writes a document to an output stream, using a stylesheet to provide formatting hints.

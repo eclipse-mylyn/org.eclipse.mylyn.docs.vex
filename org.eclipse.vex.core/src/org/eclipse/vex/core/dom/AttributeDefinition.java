@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2008 John Krasnay and others.
+ * Copyright (c) 2004, 2013 John Krasnay and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,15 +8,17 @@
  * Contributors:
  *     John Krasnay - initial API and implementation
  *     Igor Jacy Lino Campista - Java 5 warnings fixed (bug 311325)
+ *     Florian Thienel - promotion to public API
  *******************************************************************************/
-package org.eclipse.vex.core.internal.validator;
+package org.eclipse.vex.core.dom;
 
 import java.io.ObjectStreamException;
 
 import org.eclipse.wst.xml.core.internal.contentmodel.CMDataType;
 
 /**
- * <code>AttributeDefinition</code> represents an attribute definition in a Grammar.
+ * An immuatable representation of an attribute definition in a grammar. Attribute definitions are comparable by the
+ * name of the attribute they define.
  */
 public class AttributeDefinition implements Comparable<AttributeDefinition> {
 
@@ -29,11 +31,10 @@ public class AttributeDefinition implements Comparable<AttributeDefinition> {
 
 	/**
 	 * Enumeration of attribute types.
-	 * 
 	 */
 	public static final class Type {
 
-		private final String s;
+		private final String token;
 
 		public static final Type CDATA = new Type("CDATA");
 		public static final Type ID = new Type("ID");
@@ -46,40 +47,40 @@ public class AttributeDefinition implements Comparable<AttributeDefinition> {
 		public static final Type NOTATION = new Type("NOTATION");
 		public static final Type ENUMERATION = new Type("ENUMERATION");
 
-		private Type(final String s) {
-			this.s = s;
+		private Type(final String token) {
+			this.token = token;
 		}
 
-		public static Type get(final String s) {
-			if (s.equals(CDATA.toString())) {
+		public static Type get(final String token) {
+			if (token.equals(CDATA.toString())) {
 				return CDATA;
-			} else if (s.equals(ID.toString())) {
+			} else if (token.equals(ID.toString())) {
 				return ID;
-			} else if (s.equals(IDREF.toString())) {
+			} else if (token.equals(IDREF.toString())) {
 				return IDREF;
-			} else if (s.equals(IDREFS.toString())) {
+			} else if (token.equals(IDREFS.toString())) {
 				return IDREFS;
-			} else if (s.equals(NMTOKEN.toString())) {
+			} else if (token.equals(NMTOKEN.toString())) {
 				return NMTOKEN;
-			} else if (s.equals(NMTOKENS.toString())) {
+			} else if (token.equals(NMTOKENS.toString())) {
 				return NMTOKENS;
-			} else if (s.equals(ENTITY.toString())) {
+			} else if (token.equals(ENTITY.toString())) {
 				return ENTITY;
-			} else if (s.equals(ENTITIES.toString())) {
+			} else if (token.equals(ENTITIES.toString())) {
 				return ENTITIES;
-			} else if (s.equals(NOTATION.toString())) {
+			} else if (token.equals(NOTATION.toString())) {
 				return NOTATION;
-			} else if (s.equals(ENUMERATION.toString()) || s.equals(CMDataType.ENUM)) {
+			} else if (token.equals(ENUMERATION.toString()) || token.equals(CMDataType.ENUM)) {
 				return ENUMERATION;
 			} else {
-				System.out.println("Found unknown attribute type '" + s + "'.");
+				System.out.println("Found unknown attribute type '" + token + "'.");
 				return CDATA;
 			}
 		}
 
 		@Override
 		public String toString() {
-			return s;
+			return token;
 		}
 
 		/**
@@ -90,11 +91,7 @@ public class AttributeDefinition implements Comparable<AttributeDefinition> {
 		}
 	}
 
-	/**
-	 * Class constructor.
-	 */
 	public AttributeDefinition(final String name, final Type type, final String defaultValue, final String[] values, final boolean required, final boolean fixed) {
-
 		this.name = name;
 		this.type = type;
 		this.defaultValue = defaultValue;
@@ -108,62 +105,50 @@ public class AttributeDefinition implements Comparable<AttributeDefinition> {
 	 * 
 	 * @param other
 	 *            The attribute to which this one is to be compared.
-	 * 
+	 * @see Comparable
 	 */
 	public int compareTo(final AttributeDefinition other) {
 		return name.compareTo(other.name);
 	}
 
 	/**
-	 * Returns the attribute's type.
-	 * 
-	 * @model
+	 * @return the attribute's type.
 	 */
 	public Type getType() {
 		return type;
 	}
 
 	/**
-	 * Returns the default value of the attribute.
-	 * 
-	 * @model
+	 * @return the default value of the attribute, or null if the attribute has no default value
 	 */
 	public String getDefaultValue() {
 		return defaultValue;
 	}
 
 	/**
-	 * Returns true if the attribute value is fixed.
-	 * 
-	 * @model
+	 * @return true if the attribute value is fixed
 	 */
 	public boolean isFixed() {
 		return fixed;
 	}
 
 	/**
-	 * Returns the name of the attribute.
-	 * 
-	 * @model
+	 * @return the (local) name of the attribute
 	 */
 	public String getName() {
 		return name;
 	}
 
 	/**
-	 * Returns true if the attribute is required.
-	 * 
-	 * @model
+	 * @return true if the attribute is required
 	 */
 	public boolean isRequired() {
 		return required;
 	}
 
 	/**
-	 * Returns an array of acceptable values for the attribute. If null is returned, any value is acceptable for the
-	 * attribute.
-	 * 
-	 * @model type="String" containment="true"
+	 * @return an array of acceptable values for the attribute. If null is returned, any value is acceptable for the
+	 *         attribute
 	 */
 	public String[] getValues() {
 		return values;

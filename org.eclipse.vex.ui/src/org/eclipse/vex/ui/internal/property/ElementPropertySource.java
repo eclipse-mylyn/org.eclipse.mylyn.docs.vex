@@ -20,12 +20,12 @@ import org.eclipse.ui.views.properties.IPropertySheetEntry;
 import org.eclipse.ui.views.properties.IPropertySource2;
 import org.eclipse.ui.views.properties.PropertyDescriptor;
 import org.eclipse.ui.views.properties.TextPropertyDescriptor;
+import org.eclipse.vex.core.dom.AttributeDefinition;
 import org.eclipse.vex.core.dom.DocumentValidationException;
 import org.eclipse.vex.core.dom.IAttribute;
 import org.eclipse.vex.core.dom.IElement;
 import org.eclipse.vex.core.dom.IValidator;
 import org.eclipse.vex.core.internal.dom.Namespace;
-import org.eclipse.vex.core.internal.validator.AttributeDefinition;
 import org.eclipse.vex.ui.internal.editor.Messages;
 
 public class ElementPropertySource implements IPropertySource2 {

@@ -15,10 +15,10 @@ import java.util.List;
 import java.util.Set;
 
 import org.eclipse.core.runtime.QualifiedName;
+import org.eclipse.vex.core.dom.AttributeDefinition;
 import org.eclipse.vex.core.dom.IAttribute;
 import org.eclipse.vex.core.dom.IElement;
 import org.eclipse.vex.core.dom.IValidator;
-import org.eclipse.vex.core.internal.validator.AttributeDefinition;
 
 /**
  * @author Florian Thienel

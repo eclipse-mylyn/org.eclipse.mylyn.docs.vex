@@ -16,7 +16,6 @@ import java.util.List;
 import java.util.Set;
 
 import org.eclipse.core.runtime.QualifiedName;
-import org.eclipse.vex.core.internal.validator.AttributeDefinition;
 
 /**
  * Represents an object that can validate the structure of a document.
@@ -46,11 +45,6 @@ public interface IValidator {
 	 *            the element to check.
 	 */
 	List<AttributeDefinition> getAttributeDefinitions(IElement element);
-
-	/**
-	 * Returns a set of QualifiedNames representing valid root elements for the given document type.
-	 */
-	Set<QualifiedName> getValidRootElements();
 
 	/**
 	 * Returns a set of QualifiedNames representing items that are valid at point in the child nodes of a given element.
@@ -90,6 +84,11 @@ public interface IValidator {
 	 *            If true, an valid but incomplete sequence is acceptable.
 	 */
 	boolean isValidSequence(QualifiedName element, List<QualifiedName> seq1, List<QualifiedName> seq2, List<QualifiedName> seq3, boolean partial);
+
+	/**
+	 * Returns a set of QualifiedNames representing valid root elements for the given document type.
+	 */
+	Set<QualifiedName> getValidRootElements();
 
 	/**
 	 * @return the namespaces which are used and hence required in the document type represented by this validator
