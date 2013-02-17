@@ -963,13 +963,11 @@
                </command>
             </menu>
             <command
-                  commandId="org.eclipse.vex.ui.DuplicateSelectionCommand">
+                  commandId="org.eclipse.vex.ui.DuplicateSelectionCommand"
+                  label="%menu.DuplicateSelection.name">
             </command>
             <command
                   commandId="org.eclipse.vex.ui.ConvertElementCommand">
-            </command>
-            <command
-                  commandId="org.eclipse.vex.ui.EditNamespacesCommand">
             </command>
             <menu
                   label="%menu.Move.name">
@@ -1004,6 +1002,10 @@
                      label="%menu.Remove.Column.name">
                </command>
             </menu>
+            <command
+                  commandId="org.eclipse.vex.ui.EditNamespacesCommand"
+                  label="%menu.EditNamespaces.name">
+            </command>
             <separator
                   name="org.eclipse.vex.ui.popup.style"
                   visible="true">
@@ -1040,7 +1042,8 @@
                commandId="org.eclipse.vex.ui.AddElementCommand">
          </command>
          <command
-               commandId="org.eclipse.vex.ui.DuplicateSelectionCommand">
+               commandId="org.eclipse.vex.ui.DuplicateSelectionCommand"
+               label="%menu.DuplicateSelection.name">
          </command>
          <command
                commandId="org.eclipse.vex.ui.ConvertElementCommand"
@@ -1048,6 +1051,10 @@
          </command>
          <command
                commandId="org.eclipse.vex.ui.RemoveTagCommand">
+         </command>
+         <command
+               commandId="org.eclipse.vex.ui.EditNamespacesCommand"
+               label="%menu.EditNamespaces.name">
          </command>
          <separator
                name="org.eclipse.vex.ui.popup.vexTableItems"
