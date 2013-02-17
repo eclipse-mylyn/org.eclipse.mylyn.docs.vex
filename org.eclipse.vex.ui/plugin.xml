@@ -5,7 +5,7 @@
    <extension-point id="doctypes" name="%extensionPoint.doctypes" schema="schema/doctype.exsd"/>
    <extension-point id="styles" name="%extensionPoint.styles" schema="schema/style.exsd"/>
 
- 
+
 	<extension point="org.eclipse.core.contenttype.contentTypes">
 		<content-type
         base-type="org.eclipse.core.runtime.xml"
@@ -14,7 +14,7 @@
         name="%contentType.XmlDocument.name">
 		</content-type>
 	</extension>
-	
+
    <extension
          point="org.eclipse.ui.editors">
       <editor
@@ -30,7 +30,7 @@
       </editor>
    </extension>
 
-    
+
    <extension
          point="org.eclipse.ui.newWizards">
       <category
@@ -172,7 +172,7 @@
             id="org.eclipse.vex.ui.AddCommentCommand"
             name="%command.addComment.name">
       </command>
-      
+
    </extension>
    <extension
          point="org.eclipse.ui.bindings">
@@ -188,7 +188,7 @@
             sequence="M1+M3+ARROW_DOWN"
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration">
       </key>
-         
+
       <key
             commandId="org.eclipse.vex.ui.ConvertElementCommand"
             contextId="org.eclipse.vex.ui.VexEditorContext"
@@ -473,6 +473,268 @@
             class="org.eclipse.vex.ui.internal.handlers.SplitItemHandler"
             commandId="org.eclipse.vex.ui.SplitItemCommand">
       </handler>
+
+      <!-- Go to: Previous/Next Column; Line Up/Down; Previous/Next Word;
+                  Line Start/End; Page Up/Down; Text Start/End -->
+      <handler
+            class="org.eclipse.vex.ui.internal.handlers.TextEditingHandlerFactory:PreviousColumn"
+            commandId="org.eclipse.ui.edit.text.goto.columnPrevious">
+         <activeWhen>
+            <reference definitionId="org.eclipse.vex.ui.activeVexEditor"/>
+         </activeWhen>
+      </handler>
+      <handler
+            class="org.eclipse.vex.ui.internal.handlers.TextEditingHandlerFactory:NextColumn"
+            commandId="org.eclipse.ui.edit.text.goto.columnNext">
+         <activeWhen>
+            <reference definitionId="org.eclipse.vex.ui.activeVexEditor"/>
+         </activeWhen>
+      </handler>
+      <handler
+            class="org.eclipse.vex.ui.internal.handlers.TextEditingHandlerFactory:LineUp"
+            commandId="org.eclipse.ui.edit.text.goto.lineUp">
+         <activeWhen>
+            <reference definitionId="org.eclipse.vex.ui.activeVexEditor"/>
+         </activeWhen>
+      </handler>
+      <handler
+            class="org.eclipse.vex.ui.internal.handlers.TextEditingHandlerFactory:LineDown"
+            commandId="org.eclipse.ui.edit.text.goto.lineDown">
+         <activeWhen>
+            <reference definitionId="org.eclipse.vex.ui.activeVexEditor"/>
+         </activeWhen>
+      </handler>
+      <handler
+            class="org.eclipse.vex.ui.internal.handlers.TextEditingHandlerFactory:PreviousWord"
+            commandId="org.eclipse.ui.edit.text.goto.wordPrevious">
+         <activeWhen>
+            <reference definitionId="org.eclipse.vex.ui.activeVexEditor"/>
+         </activeWhen>
+      </handler>
+      <handler
+            class="org.eclipse.vex.ui.internal.handlers.TextEditingHandlerFactory:NextWord"
+            commandId="org.eclipse.ui.edit.text.goto.wordNext">
+         <activeWhen>
+            <reference definitionId="org.eclipse.vex.ui.activeVexEditor"/>
+         </activeWhen>
+      </handler>
+      <handler
+            class="org.eclipse.vex.ui.internal.handlers.TextEditingHandlerFactory:LineStart"
+            commandId="org.eclipse.ui.edit.text.goto.lineStart">
+         <activeWhen>
+            <reference definitionId="org.eclipse.vex.ui.activeVexEditor"/>
+         </activeWhen>
+      </handler>
+      <handler
+            class="org.eclipse.vex.ui.internal.handlers.TextEditingHandlerFactory:LineEnd"
+            commandId="org.eclipse.ui.edit.text.goto.lineEnd">
+         <activeWhen>
+            <reference definitionId="org.eclipse.vex.ui.activeVexEditor"/>
+         </activeWhen>
+      </handler>
+      <handler
+            class="org.eclipse.vex.ui.internal.handlers.TextEditingHandlerFactory:PageUp"
+            commandId="org.eclipse.ui.edit.text.goto.pageUp">
+         <activeWhen>
+            <reference definitionId="org.eclipse.vex.ui.activeVexEditor"/>
+         </activeWhen>
+      </handler>
+      <handler
+            class="org.eclipse.vex.ui.internal.handlers.TextEditingHandlerFactory:PageDown"
+            commandId="org.eclipse.ui.edit.text.goto.pageDown">
+         <activeWhen>
+            <reference definitionId="org.eclipse.vex.ui.activeVexEditor"/>
+         </activeWhen>
+      </handler>
+      <handler
+            class="org.eclipse.vex.ui.internal.handlers.TextEditingHandlerFactory:TextStart"
+            commandId="org.eclipse.ui.edit.text.goto.textStart">
+         <activeWhen>
+            <reference definitionId="org.eclipse.vex.ui.activeVexEditor"/>
+         </activeWhen>
+      </handler>
+      <handler
+            class="org.eclipse.vex.ui.internal.handlers.TextEditingHandlerFactory:TextEnd"
+            commandId="org.eclipse.ui.edit.text.goto.textEnd">
+         <activeWhen>
+            <reference definitionId="org.eclipse.vex.ui.activeVexEditor"/>
+         </activeWhen>
+      </handler>
+
+      <!-- Select: Previous/Next Column; Line Up/Down; Previous/Next Word;
+                   Line Start/End; Page Up/Down; Text Start/End -->
+      <handler
+            class="org.eclipse.vex.ui.internal.handlers.TextEditingHandlerFactory:SelectPreviousColumn"
+            commandId="org.eclipse.ui.edit.text.select.columnPrevious">
+         <activeWhen>
+            <reference definitionId="org.eclipse.vex.ui.activeVexEditor"/>
+         </activeWhen>
+      </handler>
+      <handler
+            class="org.eclipse.vex.ui.internal.handlers.TextEditingHandlerFactory:SelectNextColumn"
+            commandId="org.eclipse.ui.edit.text.select.columnNext">
+         <activeWhen>
+            <reference definitionId="org.eclipse.vex.ui.activeVexEditor"/>
+         </activeWhen>
+      </handler>
+      <handler
+            class="org.eclipse.vex.ui.internal.handlers.TextEditingHandlerFactory:SelectLineUp"
+            commandId="org.eclipse.ui.edit.text.select.lineUp">
+         <activeWhen>
+            <reference definitionId="org.eclipse.vex.ui.activeVexEditor"/>
+         </activeWhen>
+      </handler>
+      <handler
+            class="org.eclipse.vex.ui.internal.handlers.TextEditingHandlerFactory:SelectLineDown"
+            commandId="org.eclipse.ui.edit.text.select.lineDown">
+         <activeWhen>
+            <reference definitionId="org.eclipse.vex.ui.activeVexEditor"/>
+         </activeWhen>
+      </handler>
+      <handler
+            class="org.eclipse.vex.ui.internal.handlers.TextEditingHandlerFactory:SelectPreviousWord"
+            commandId="org.eclipse.ui.edit.text.select.wordPrevious">
+         <activeWhen>
+            <reference definitionId="org.eclipse.vex.ui.activeVexEditor"/>
+         </activeWhen>
+      </handler>
+      <handler
+            class="org.eclipse.vex.ui.internal.handlers.TextEditingHandlerFactory:SelectNextWord"
+            commandId="org.eclipse.ui.edit.text.select.wordNext">
+         <activeWhen>
+            <reference definitionId="org.eclipse.vex.ui.activeVexEditor"/>
+         </activeWhen>
+      </handler>
+      <handler
+            class="org.eclipse.vex.ui.internal.handlers.TextEditingHandlerFactory:SelectLineStart"
+            commandId="org.eclipse.ui.edit.text.select.lineStart">
+         <activeWhen>
+            <reference definitionId="org.eclipse.vex.ui.activeVexEditor"/>
+         </activeWhen>
+      </handler>
+      <handler
+            class="org.eclipse.vex.ui.internal.handlers.TextEditingHandlerFactory:SelectLineEnd"
+            commandId="org.eclipse.ui.edit.text.select.lineEnd">
+         <activeWhen>
+            <reference definitionId="org.eclipse.vex.ui.activeVexEditor"/>
+         </activeWhen>
+      </handler>
+      <handler
+            class="org.eclipse.vex.ui.internal.handlers.TextEditingHandlerFactory:SelectPageUp"
+            commandId="org.eclipse.ui.edit.text.select.pageUp">
+         <activeWhen>
+            <reference definitionId="org.eclipse.vex.ui.activeVexEditor"/>
+         </activeWhen>
+      </handler>
+      <handler
+            class="org.eclipse.vex.ui.internal.handlers.TextEditingHandlerFactory:SelectPageDown"
+            commandId="org.eclipse.ui.edit.text.select.pageDown">
+         <activeWhen>
+            <reference definitionId="org.eclipse.vex.ui.activeVexEditor"/>
+         </activeWhen>
+      </handler>
+      <handler
+            class="org.eclipse.vex.ui.internal.handlers.TextEditingHandlerFactory:SelectTextStart"
+            commandId="org.eclipse.ui.edit.text.select.textStart">
+         <activeWhen>
+            <reference definitionId="org.eclipse.vex.ui.activeVexEditor"/>
+         </activeWhen>
+      </handler>
+      <handler
+            class="org.eclipse.vex.ui.internal.handlers.TextEditingHandlerFactory:SelectTextEnd"
+            commandId="org.eclipse.ui.edit.text.select.textEnd">
+         <activeWhen>
+            <reference definitionId="org.eclipse.vex.ui.activeVexEditor"/>
+         </activeWhen>
+      </handler>
+
+      <!-- Delete: Previous/Next; Previous/Next Word;
+                   Line; To Beginning/End of Line -->
+      <handler
+            class="org.eclipse.vex.ui.internal.handlers.TextEditingHandlerFactory:DeletePrevious"
+            commandId="org.eclipse.ui.edit.text.deletePrevious">
+         <activeWhen>
+            <reference definitionId="org.eclipse.vex.ui.activeVexEditor"/>
+         </activeWhen>
+      </handler>
+      <handler
+            class="org.eclipse.vex.ui.internal.handlers.TextEditingHandlerFactory:DeleteNext"
+            commandId="org.eclipse.ui.edit.text.deleteNext">
+         <activeWhen>
+            <reference definitionId="org.eclipse.vex.ui.activeVexEditor"/>
+         </activeWhen>
+      </handler>
+      <handler
+            class="org.eclipse.vex.ui.internal.handlers.TextEditingHandlerFactory:DeletePreviousWord"
+            commandId="org.eclipse.ui.edit.text.deletePreviousWord">
+         <activeWhen>
+            <reference definitionId="org.eclipse.vex.ui.activeVexEditor"/>
+         </activeWhen>
+      </handler>
+      <handler
+            class="org.eclipse.vex.ui.internal.handlers.TextEditingHandlerFactory:DeleteNextWord"
+            commandId="org.eclipse.ui.edit.text.deleteNextWord">
+         <activeWhen>
+            <reference definitionId="org.eclipse.vex.ui.activeVexEditor"/>
+         </activeWhen>
+      </handler>
+      <handler
+            class="org.eclipse.vex.ui.internal.handlers.TextEditingHandlerFactory:DeleteLine"
+            commandId="org.eclipse.ui.edit.text.delete.line">
+         <activeWhen>
+            <reference definitionId="org.eclipse.vex.ui.activeVexEditor"/>
+         </activeWhen>
+      </handler>
+      <handler
+            class="org.eclipse.vex.ui.internal.handlers.TextEditingHandlerFactory:DeleteToBeginningOfLine"
+            commandId="org.eclipse.ui.edit.text.delete.line.to.beginning">
+         <activeWhen>
+            <reference definitionId="org.eclipse.vex.ui.activeVexEditor"/>
+         </activeWhen>
+      </handler>
+      <handler
+            class="org.eclipse.vex.ui.internal.handlers.TextEditingHandlerFactory:DeleteToEndOfLine"
+            commandId="org.eclipse.ui.edit.text.delete.line.to.end">
+         <activeWhen>
+            <reference definitionId="org.eclipse.vex.ui.activeVexEditor"/>
+         </activeWhen>
+      </handler>
+
+      <!-- Cut: Line; To Beginning/End of Line -->
+      <handler
+            class="org.eclipse.vex.ui.internal.handlers.TextEditingHandlerFactory:CutLine"
+            commandId="org.eclipse.ui.edit.text.cut.line">
+         <activeWhen>
+            <reference definitionId="org.eclipse.vex.ui.activeVexEditor"/>
+         </activeWhen>
+      </handler>
+      <handler
+            class="org.eclipse.vex.ui.internal.handlers.TextEditingHandlerFactory:CutLineToBeginning"
+            commandId="org.eclipse.ui.edit.text.cut.line.to.beginning">
+         <activeWhen>
+            <reference definitionId="org.eclipse.vex.ui.activeVexEditor"/>
+         </activeWhen>
+      </handler>
+      <handler
+            class="org.eclipse.vex.ui.internal.handlers.TextEditingHandlerFactory:CutLineToEnd"
+            commandId="org.eclipse.ui.edit.text.cut.line.to.end">
+         <activeWhen>
+            <reference definitionId="org.eclipse.vex.ui.activeVexEditor"/>
+         </activeWhen>
+      </handler>
+
+      <!-- TODO:
+		   - org.eclipse.ui.edit.text.join.lines
+
+		   - org.eclipse.ui.edit.text.set.mark
+		   - org.eclipse.ui.edit.text.clear.mark
+		   - org.eclipse.ui.edit.text.swap.mark
+
+		   - org.eclipse.ui.edit.findNext
+		   - org.eclipse.ui.edit.findPrevious
+
+		   etc. -->
+
    </extension>
    <extension
          point="org.eclipse.ui.views">
