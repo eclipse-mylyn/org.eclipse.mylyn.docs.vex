@@ -25,10 +25,10 @@ import java.util.Set;
 
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.vex.core.dom.AttributeDefinition;
+import org.eclipse.vex.core.dom.AttributeDefinition.Type;
 import org.eclipse.vex.core.dom.IAttribute;
 import org.eclipse.vex.core.dom.IElement;
 import org.eclipse.vex.core.dom.IValidator;
-import org.eclipse.vex.core.dom.AttributeDefinition.Type;
 import org.eclipse.vex.core.internal.io.DocumentContentModel;
 import org.eclipse.wst.xml.core.internal.contentmodel.CMAnyElement;
 import org.eclipse.wst.xml.core.internal.contentmodel.CMAttributeDeclaration;
@@ -197,12 +197,39 @@ public class WTPVEXValidator implements IValidator {
 		} else if (attribute.getAttrType().getDataTypeName().equals(CMDataType.NOTATION)) {
 			type = AttributeDefinition.Type.ENUMERATION;
 		} else {
-			type = AttributeDefinition.Type.get(attribute.getAttrType().getDataTypeName());
+			type = toAttributeType(attribute.getAttrType());
 		}
 		final boolean required = attribute.getUsage() == CMAttributeDeclaration.REQUIRED;
 		final boolean fixed = attribute.getUsage() == CMAttributeDeclaration.FIXED;
 		final AttributeDefinition vexAttr = new AttributeDefinition(attribute.getAttrName(), type, defaultValue, values, required, fixed);
 		return vexAttr;
+	}
+
+	private static AttributeDefinition.Type toAttributeType(final CMDataType cmDataType) {
+		if (cmDataType.equals(CMDataType.CDATA)) {
+			return AttributeDefinition.Type.CDATA;
+		} else if (cmDataType.equals(CMDataType.ID)) {
+			return AttributeDefinition.Type.ID;
+		} else if (cmDataType.equals(CMDataType.IDREF)) {
+			return AttributeDefinition.Type.IDREF;
+		} else if (cmDataType.equals(CMDataType.IDREFS)) {
+			return AttributeDefinition.Type.IDREFS;
+		} else if (cmDataType.equals(CMDataType.NMTOKEN)) {
+			return AttributeDefinition.Type.NMTOKEN;
+		} else if (cmDataType.equals(CMDataType.NMTOKENS)) {
+			return AttributeDefinition.Type.NMTOKENS;
+		} else if (cmDataType.equals(CMDataType.ENTITY)) {
+			return AttributeDefinition.Type.ENTITY;
+		} else if (cmDataType.equals(CMDataType.ENTITIES)) {
+			return AttributeDefinition.Type.ENTITIES;
+		} else if (cmDataType.equals(CMDataType.NOTATION)) {
+			return AttributeDefinition.Type.NOTATION;
+		} else if (cmDataType.equals(CMDataType.ENUM)) {
+			return AttributeDefinition.Type.ENUMERATION;
+		} else {
+			System.out.println("Found unknown attribute type '" + cmDataType + "'.");
+			return AttributeDefinition.Type.CDATA;
+		}
 	}
 
 	public Set<QualifiedName> getValidItems(final IElement element) {

@@ -12,10 +12,6 @@
  *******************************************************************************/
 package org.eclipse.vex.core.dom;
 
-import java.io.ObjectStreamException;
-
-import org.eclipse.wst.xml.core.internal.contentmodel.CMDataType;
-
 /**
  * An immuatable representation of an attribute definition in a grammar. Attribute definitions are comparable by the
  * name of the attribute they define.
@@ -30,67 +26,30 @@ public class AttributeDefinition implements Comparable<AttributeDefinition> {
 	private final boolean fixed;
 
 	/**
-	 * Enumeration of attribute types.
+	 * The attribute's type.
+	 * 
+	 * @see <a
+	 *      href="http://www.w3.org/TR/REC-xml/#sec-attribute-types">http://www.w3.org/TR/REC-xml/#sec-attribute-types</a>
 	 */
-	public static final class Type {
-
-		private final String token;
-
-		public static final Type CDATA = new Type("CDATA");
-		public static final Type ID = new Type("ID");
-		public static final Type IDREF = new Type("IDREF");
-		public static final Type IDREFS = new Type("IDREFS");
-		public static final Type NMTOKEN = new Type("NMTOKEN");
-		public static final Type NMTOKENS = new Type("NMTOKENS");
-		public static final Type ENTITY = new Type("ENTITY");
-		public static final Type ENTITIES = new Type("ENTITIES");
-		public static final Type NOTATION = new Type("NOTATION");
-		public static final Type ENUMERATION = new Type("ENUMERATION");
-
-		private Type(final String token) {
-			this.token = token;
-		}
-
-		public static Type get(final String token) {
-			if (token.equals(CDATA.toString())) {
-				return CDATA;
-			} else if (token.equals(ID.toString())) {
-				return ID;
-			} else if (token.equals(IDREF.toString())) {
-				return IDREF;
-			} else if (token.equals(IDREFS.toString())) {
-				return IDREFS;
-			} else if (token.equals(NMTOKEN.toString())) {
-				return NMTOKEN;
-			} else if (token.equals(NMTOKENS.toString())) {
-				return NMTOKENS;
-			} else if (token.equals(ENTITY.toString())) {
-				return ENTITY;
-			} else if (token.equals(ENTITIES.toString())) {
-				return ENTITIES;
-			} else if (token.equals(NOTATION.toString())) {
-				return NOTATION;
-			} else if (token.equals(ENUMERATION.toString()) || token.equals(CMDataType.ENUM)) {
-				return ENUMERATION;
-			} else {
-				System.out.println("Found unknown attribute type '" + token + "'.");
-				return CDATA;
-			}
-		}
-
-		@Override
-		public String toString() {
-			return token;
-		}
-
-		/**
-		 * Serialization method, to ensure that we do not introduce new instances.
-		 */
-		private Object readResolve() throws ObjectStreamException {
-			return get(toString());
-		}
+	public static enum Type {
+		CDATA, ID, IDREF, IDREFS, NMTOKEN, NMTOKENS, ENTITY, ENTITIES, NOTATION, ENUMERATION;
 	}
 
+	/**
+	 * @param name
+	 *            the local name of the attribute. An attribute name is qualified by its parent element's namespace
+	 *            qualifier.
+	 * @param type
+	 *            the attribute's type
+	 * @param defaultValue
+	 *            the default value, or null
+	 * @param values
+	 *            the list of allowed values (for enumerations) or null if any value is allowed
+	 * @param required
+	 *            if true this attribute is required to have a value
+	 * @param fixed
+	 *            if true the value of this attribute is fixed and may not be changed
+	 */
 	public AttributeDefinition(final String name, final Type type, final String defaultValue, final String[] values, final boolean required, final boolean fixed) {
 		this.name = name;
 		this.type = type;
