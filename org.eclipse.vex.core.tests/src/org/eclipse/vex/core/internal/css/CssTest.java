@@ -16,12 +16,12 @@ import static org.junit.Assert.assertNull;
 import java.net.URL;
 
 import org.eclipse.core.runtime.QualifiedName;
-import org.eclipse.vex.core.dom.IDocument;
-import org.eclipse.vex.core.dom.IElement;
 import org.eclipse.vex.core.internal.core.Color;
 import org.eclipse.vex.core.internal.core.DisplayDevice;
 import org.eclipse.vex.core.internal.dom.Document;
 import org.eclipse.vex.core.internal.dom.Element;
+import org.eclipse.vex.core.provisional.dom.IDocument;
+import org.eclipse.vex.core.provisional.dom.IElement;
 import org.junit.Before;
 import org.junit.Test;
 

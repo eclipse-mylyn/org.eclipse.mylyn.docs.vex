@@ -10,12 +10,12 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.layout;
 
-import org.eclipse.vex.core.dom.IDocument;
-import org.eclipse.vex.core.dom.INode;
 import org.eclipse.vex.core.internal.VEXCorePlugin;
 import org.eclipse.vex.core.internal.core.Caret;
 import org.eclipse.vex.core.internal.core.Insets;
 import org.eclipse.vex.core.internal.core.Rectangle;
+import org.eclipse.vex.core.provisional.dom.IDocument;
+import org.eclipse.vex.core.provisional.dom.INode;
 
 /**
  * A wrapper for the top level <code>BlockElementBox</code> that applies its margins.

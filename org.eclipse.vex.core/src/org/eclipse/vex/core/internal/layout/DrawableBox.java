@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.layout;
 
-import org.eclipse.vex.core.dom.INode;
 import org.eclipse.vex.core.internal.core.ColorResource;
 import org.eclipse.vex.core.internal.core.Drawable;
 import org.eclipse.vex.core.internal.core.FontMetrics;
@@ -18,6 +17,7 @@ import org.eclipse.vex.core.internal.core.FontResource;
 import org.eclipse.vex.core.internal.core.Graphics;
 import org.eclipse.vex.core.internal.core.Rectangle;
 import org.eclipse.vex.core.internal.css.Styles;
+import org.eclipse.vex.core.provisional.dom.INode;
 
 /**
  * An inline box that draws a Drawable object. The drawable is drawn relative to the text baseline, therefore it should

@@ -19,11 +19,11 @@ import static org.junit.Assert.assertTrue;
 import java.util.Iterator;
 import java.util.List;
 
-import org.eclipse.vex.core.dom.ContentRange;
-import org.eclipse.vex.core.dom.IContent;
-import org.eclipse.vex.core.dom.IElement;
-import org.eclipse.vex.core.dom.INode;
-import org.eclipse.vex.core.dom.IText;
+import org.eclipse.vex.core.provisional.dom.ContentRange;
+import org.eclipse.vex.core.provisional.dom.IContent;
+import org.eclipse.vex.core.provisional.dom.IElement;
+import org.eclipse.vex.core.provisional.dom.INode;
+import org.eclipse.vex.core.provisional.dom.IText;
 import org.junit.Test;
 
 /**

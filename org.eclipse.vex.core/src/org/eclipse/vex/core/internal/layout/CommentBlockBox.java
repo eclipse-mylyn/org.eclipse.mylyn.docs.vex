@@ -13,8 +13,8 @@ package org.eclipse.vex.core.internal.layout;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.vex.core.dom.INode;
 import org.eclipse.vex.core.internal.VEXCorePlugin;
+import org.eclipse.vex.core.provisional.dom.INode;
 
 /**
  * @author Florian Thienel

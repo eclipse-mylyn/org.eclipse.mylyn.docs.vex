@@ -20,10 +20,10 @@ import java.net.URL;
 
 import javax.xml.parsers.ParserConfigurationException;
 
-import org.eclipse.vex.core.dom.IDocument;
 import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.css.StyleSheetReader;
 import org.eclipse.vex.core.internal.widget.CssWhitespacePolicy;
+import org.eclipse.vex.core.provisional.dom.IDocument;
 import org.eclipse.vex.core.tests.TestResources;
 import org.junit.Test;
 import org.xml.sax.InputSource;

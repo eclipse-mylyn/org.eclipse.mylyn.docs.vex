@@ -31,7 +31,7 @@ import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.part.IPageSite;
 import org.eclipse.ui.part.Page;
 import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
-import org.eclipse.vex.core.dom.IElement;
+import org.eclipse.vex.core.provisional.dom.IElement;
 import org.eclipse.vex.ui.internal.VexPlugin;
 import org.eclipse.vex.ui.internal.config.DocumentType;
 import org.eclipse.vex.ui.internal.editor.IVexEditorListener;

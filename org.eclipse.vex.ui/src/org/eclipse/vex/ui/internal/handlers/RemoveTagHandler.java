@@ -15,8 +15,8 @@ import java.util.Map;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.ui.commands.IElementUpdater;
 import org.eclipse.ui.menus.UIElement;
-import org.eclipse.vex.core.dom.IDocumentFragment;
-import org.eclipse.vex.core.dom.IElement;
+import org.eclipse.vex.core.provisional.dom.IDocumentFragment;
+import org.eclipse.vex.core.provisional.dom.IElement;
 import org.eclipse.vex.ui.internal.swt.VexWidget;
 
 /**

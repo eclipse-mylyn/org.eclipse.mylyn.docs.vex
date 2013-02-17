@@ -8,7 +8,7 @@
  * Contributors:
  * 		Florian Thienel - initial API and implementation
  *******************************************************************************/
-package org.eclipse.vex.core.dom;
+package org.eclipse.vex.core.provisional.dom;
 
 /**
  * A parent node is a node which can contain other nodes as children. This interface defines the tree-like structure of

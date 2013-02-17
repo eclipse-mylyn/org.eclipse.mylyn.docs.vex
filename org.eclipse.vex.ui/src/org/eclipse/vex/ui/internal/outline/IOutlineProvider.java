@@ -12,7 +12,7 @@ package org.eclipse.vex.ui.internal.outline;
 
 import org.eclipse.jface.viewers.IBaseLabelProvider;
 import org.eclipse.jface.viewers.ITreeContentProvider;
-import org.eclipse.vex.core.dom.IElement;
+import org.eclipse.vex.core.provisional.dom.IElement;
 import org.eclipse.vex.ui.internal.editor.VexEditor;
 
 /**

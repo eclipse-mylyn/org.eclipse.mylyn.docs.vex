@@ -8,7 +8,7 @@
  * Contributors:
  * 		Florian Thienel - initial API and implementation
  *******************************************************************************/
-package org.eclipse.vex.core.dom;
+package org.eclipse.vex.core.provisional.dom;
 
 /**
  * This class provides default implementations for the methods defined by the <code>INodeVisitorWithResult</code>

@@ -10,8 +10,8 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.css;
 
-import org.eclipse.vex.core.dom.INode;
 import org.eclipse.vex.core.internal.core.DisplayDevice;
+import org.eclipse.vex.core.provisional.dom.INode;
 import org.w3c.css.sac.LexicalUnit;
 
 /**

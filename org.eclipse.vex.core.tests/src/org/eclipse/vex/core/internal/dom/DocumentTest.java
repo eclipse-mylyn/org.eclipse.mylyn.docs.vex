@@ -20,12 +20,12 @@ import java.util.Iterator;
 
 import org.eclipse.core.runtime.AssertionFailedException;
 import org.eclipse.core.runtime.QualifiedName;
-import org.eclipse.vex.core.dom.ContentRange;
-import org.eclipse.vex.core.dom.IDocument;
-import org.eclipse.vex.core.dom.IDocumentFragment;
-import org.eclipse.vex.core.dom.IElement;
-import org.eclipse.vex.core.dom.INode;
-import org.eclipse.vex.core.dom.IParent;
+import org.eclipse.vex.core.provisional.dom.ContentRange;
+import org.eclipse.vex.core.provisional.dom.IDocument;
+import org.eclipse.vex.core.provisional.dom.IDocumentFragment;
+import org.eclipse.vex.core.provisional.dom.IElement;
+import org.eclipse.vex.core.provisional.dom.INode;
+import org.eclipse.vex.core.provisional.dom.IParent;
 import org.junit.Test;
 
 /**

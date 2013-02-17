@@ -16,8 +16,8 @@ import static org.junit.Assert.assertNull;
 import java.util.Collections;
 
 import org.eclipse.core.runtime.QualifiedName;
-import org.eclipse.vex.core.dom.ContentRange;
-import org.eclipse.vex.core.dom.IElement;
+import org.eclipse.vex.core.provisional.dom.ContentRange;
+import org.eclipse.vex.core.provisional.dom.IElement;
 import org.junit.Test;
 
 /**

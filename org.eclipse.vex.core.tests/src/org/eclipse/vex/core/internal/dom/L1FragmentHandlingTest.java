@@ -18,11 +18,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.core.runtime.QualifiedName;
-import org.eclipse.vex.core.dom.ContentRange;
-import org.eclipse.vex.core.dom.DocumentValidationException;
-import org.eclipse.vex.core.dom.IContent;
-import org.eclipse.vex.core.dom.IDocument;
-import org.eclipse.vex.core.dom.IElement;
+import org.eclipse.vex.core.provisional.dom.ContentRange;
+import org.eclipse.vex.core.provisional.dom.DocumentValidationException;
+import org.eclipse.vex.core.provisional.dom.IContent;
+import org.eclipse.vex.core.provisional.dom.IDocument;
+import org.eclipse.vex.core.provisional.dom.IElement;
 import org.junit.Before;
 import org.junit.Test;
 

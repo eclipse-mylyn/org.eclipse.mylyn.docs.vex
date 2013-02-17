@@ -21,10 +21,10 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.eclipse.swt.dnd.ByteArrayTransfer;
 import org.eclipse.swt.dnd.TransferData;
-import org.eclipse.vex.core.dom.IDocument;
-import org.eclipse.vex.core.dom.IDocumentFragment;
 import org.eclipse.vex.core.internal.io.DocumentReader;
 import org.eclipse.vex.core.internal.io.DocumentWriter;
+import org.eclipse.vex.core.provisional.dom.IDocument;
+import org.eclipse.vex.core.provisional.dom.IDocumentFragment;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 

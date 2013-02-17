@@ -25,7 +25,7 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.vex.core.dom.IValidator;
+import org.eclipse.vex.core.provisional.dom.IValidator;
 import org.eclipse.vex.ui.internal.VexPlugin;
 import org.eclipse.vex.ui.internal.config.DocumentType;
 

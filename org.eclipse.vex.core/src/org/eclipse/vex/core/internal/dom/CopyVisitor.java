@@ -10,12 +10,12 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.dom;
 
-import org.eclipse.vex.core.dom.IComment;
-import org.eclipse.vex.core.dom.IDocument;
-import org.eclipse.vex.core.dom.IDocumentFragment;
-import org.eclipse.vex.core.dom.IElement;
-import org.eclipse.vex.core.dom.INodeVisitorWithResult;
-import org.eclipse.vex.core.dom.IText;
+import org.eclipse.vex.core.provisional.dom.IComment;
+import org.eclipse.vex.core.provisional.dom.IDocument;
+import org.eclipse.vex.core.provisional.dom.IDocumentFragment;
+import org.eclipse.vex.core.provisional.dom.IElement;
+import org.eclipse.vex.core.provisional.dom.INodeVisitorWithResult;
+import org.eclipse.vex.core.provisional.dom.IText;
 
 /**
  * This visitor creates a simple copy of the visited node. I.e. only the node itself, not its content neither its

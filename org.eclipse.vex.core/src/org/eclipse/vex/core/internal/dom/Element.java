@@ -21,17 +21,17 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.eclipse.core.runtime.QualifiedName;
-import org.eclipse.vex.core.dom.AttributeChangeEvent;
-import org.eclipse.vex.core.dom.DocumentValidationException;
-import org.eclipse.vex.core.dom.Filters;
-import org.eclipse.vex.core.dom.IAttribute;
-import org.eclipse.vex.core.dom.IAxis;
-import org.eclipse.vex.core.dom.IElement;
-import org.eclipse.vex.core.dom.INode;
-import org.eclipse.vex.core.dom.INodeVisitor;
-import org.eclipse.vex.core.dom.INodeVisitorWithResult;
-import org.eclipse.vex.core.dom.NamespaceDeclarationChangeEvent;
 import org.eclipse.vex.core.internal.core.QualifiedNameComparator;
+import org.eclipse.vex.core.provisional.dom.AttributeChangeEvent;
+import org.eclipse.vex.core.provisional.dom.DocumentValidationException;
+import org.eclipse.vex.core.provisional.dom.Filters;
+import org.eclipse.vex.core.provisional.dom.IAttribute;
+import org.eclipse.vex.core.provisional.dom.IAxis;
+import org.eclipse.vex.core.provisional.dom.IElement;
+import org.eclipse.vex.core.provisional.dom.INode;
+import org.eclipse.vex.core.provisional.dom.INodeVisitor;
+import org.eclipse.vex.core.provisional.dom.INodeVisitorWithResult;
+import org.eclipse.vex.core.provisional.dom.NamespaceDeclarationChangeEvent;
 
 public class Element extends Parent implements IElement {
 

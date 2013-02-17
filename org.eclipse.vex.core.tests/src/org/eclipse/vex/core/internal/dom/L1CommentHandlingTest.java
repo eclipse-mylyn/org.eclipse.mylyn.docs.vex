@@ -19,9 +19,9 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.core.runtime.QualifiedName;
-import org.eclipse.vex.core.dom.DocumentValidationException;
-import org.eclipse.vex.core.dom.IComment;
-import org.eclipse.vex.core.dom.INode;
+import org.eclipse.vex.core.provisional.dom.DocumentValidationException;
+import org.eclipse.vex.core.provisional.dom.IComment;
+import org.eclipse.vex.core.provisional.dom.INode;
 import org.junit.Before;
 import org.junit.Test;
 

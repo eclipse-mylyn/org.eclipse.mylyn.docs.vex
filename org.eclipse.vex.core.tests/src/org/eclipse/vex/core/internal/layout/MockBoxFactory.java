@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.layout;
 
-import org.eclipse.vex.core.dom.IElement;
+import org.eclipse.vex.core.provisional.dom.IElement;
 
 /**
  * A box factory that, for an element named &lt;space&gt;, returns a SpaceBox with height and width given by attributes

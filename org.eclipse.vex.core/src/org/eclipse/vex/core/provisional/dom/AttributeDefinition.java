@@ -10,7 +10,7 @@
  *     Igor Jacy Lino Campista - Java 5 warnings fixed (bug 311325)
  *     Florian Thienel - promotion to public API
  *******************************************************************************/
-package org.eclipse.vex.core.dom;
+package org.eclipse.vex.core.provisional.dom;
 
 /**
  * An immuatable representation of an attribute definition in a grammar. Attribute definitions are comparable by the

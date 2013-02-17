@@ -17,16 +17,16 @@ import java.util.List;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.QualifiedName;
-import org.eclipse.vex.core.dom.BaseNodeVisitor;
-import org.eclipse.vex.core.dom.ContentRange;
-import org.eclipse.vex.core.dom.IAxis;
-import org.eclipse.vex.core.dom.IContent;
-import org.eclipse.vex.core.dom.IElement;
-import org.eclipse.vex.core.dom.INode;
-import org.eclipse.vex.core.dom.IParent;
-import org.eclipse.vex.core.dom.IPosition;
-import org.eclipse.vex.core.dom.IText;
-import org.eclipse.vex.core.dom.IValidator;
+import org.eclipse.vex.core.provisional.dom.BaseNodeVisitor;
+import org.eclipse.vex.core.provisional.dom.ContentRange;
+import org.eclipse.vex.core.provisional.dom.IAxis;
+import org.eclipse.vex.core.provisional.dom.IContent;
+import org.eclipse.vex.core.provisional.dom.IElement;
+import org.eclipse.vex.core.provisional.dom.INode;
+import org.eclipse.vex.core.provisional.dom.IParent;
+import org.eclipse.vex.core.provisional.dom.IPosition;
+import org.eclipse.vex.core.provisional.dom.IText;
+import org.eclipse.vex.core.provisional.dom.IValidator;
 
 /**
  * A representation of one node in the XML structure. A node is associated to a range of the textual content.

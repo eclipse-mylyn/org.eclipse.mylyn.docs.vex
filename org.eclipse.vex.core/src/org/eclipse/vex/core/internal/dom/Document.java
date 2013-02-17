@@ -18,25 +18,25 @@ import java.util.List;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.QualifiedName;
-import org.eclipse.vex.core.dom.BaseNodeVisitorWithResult;
-import org.eclipse.vex.core.dom.ContentChangeEvent;
-import org.eclipse.vex.core.dom.ContentRange;
-import org.eclipse.vex.core.dom.DocumentEvent;
-import org.eclipse.vex.core.dom.DocumentValidationException;
-import org.eclipse.vex.core.dom.IComment;
-import org.eclipse.vex.core.dom.IContent;
-import org.eclipse.vex.core.dom.IDocument;
-import org.eclipse.vex.core.dom.IDocumentFragment;
-import org.eclipse.vex.core.dom.IDocumentListener;
-import org.eclipse.vex.core.dom.IElement;
-import org.eclipse.vex.core.dom.INode;
-import org.eclipse.vex.core.dom.INodeVisitor;
-import org.eclipse.vex.core.dom.INodeVisitorWithResult;
-import org.eclipse.vex.core.dom.IParent;
-import org.eclipse.vex.core.dom.IPosition;
-import org.eclipse.vex.core.dom.IText;
-import org.eclipse.vex.core.dom.IValidator;
 import org.eclipse.vex.core.internal.core.ListenerList;
+import org.eclipse.vex.core.provisional.dom.BaseNodeVisitorWithResult;
+import org.eclipse.vex.core.provisional.dom.ContentChangeEvent;
+import org.eclipse.vex.core.provisional.dom.ContentRange;
+import org.eclipse.vex.core.provisional.dom.DocumentEvent;
+import org.eclipse.vex.core.provisional.dom.DocumentValidationException;
+import org.eclipse.vex.core.provisional.dom.IComment;
+import org.eclipse.vex.core.provisional.dom.IContent;
+import org.eclipse.vex.core.provisional.dom.IDocument;
+import org.eclipse.vex.core.provisional.dom.IDocumentFragment;
+import org.eclipse.vex.core.provisional.dom.IDocumentListener;
+import org.eclipse.vex.core.provisional.dom.IElement;
+import org.eclipse.vex.core.provisional.dom.INode;
+import org.eclipse.vex.core.provisional.dom.INodeVisitor;
+import org.eclipse.vex.core.provisional.dom.INodeVisitorWithResult;
+import org.eclipse.vex.core.provisional.dom.IParent;
+import org.eclipse.vex.core.provisional.dom.IPosition;
+import org.eclipse.vex.core.provisional.dom.IText;
+import org.eclipse.vex.core.provisional.dom.IValidator;
 
 /**
  * A representation of an XML document in the DOM.

@@ -10,10 +10,10 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.dom;
 
-import org.eclipse.vex.core.dom.IComment;
-import org.eclipse.vex.core.dom.INode;
-import org.eclipse.vex.core.dom.INodeVisitor;
-import org.eclipse.vex.core.dom.INodeVisitorWithResult;
+import org.eclipse.vex.core.provisional.dom.IComment;
+import org.eclipse.vex.core.provisional.dom.INode;
+import org.eclipse.vex.core.provisional.dom.INodeVisitor;
+import org.eclipse.vex.core.provisional.dom.INodeVisitorWithResult;
 
 /**
  * A representation of an XML comment in the DOM. Comments have textual content, a start and an end tag.

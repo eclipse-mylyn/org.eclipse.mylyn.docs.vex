@@ -11,7 +11,7 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.io;
 
-import org.eclipse.vex.core.dom.INode;
+import org.eclipse.vex.core.provisional.dom.INode;
 
 
 /**

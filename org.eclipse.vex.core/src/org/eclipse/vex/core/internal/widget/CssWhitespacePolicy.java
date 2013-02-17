@@ -10,10 +10,10 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.widget;
 
-import org.eclipse.vex.core.dom.INode;
 import org.eclipse.vex.core.internal.css.CSS;
 import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.io.IWhitespacePolicy;
+import org.eclipse.vex.core.provisional.dom.INode;
 
 /**
  * Implementation of WhitespacePolicy using a CSS stylesheet.

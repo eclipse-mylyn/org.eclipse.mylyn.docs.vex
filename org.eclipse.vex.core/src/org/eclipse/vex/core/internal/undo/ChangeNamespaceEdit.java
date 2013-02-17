@@ -1,7 +1,7 @@
 package org.eclipse.vex.core.internal.undo;
 
-import org.eclipse.vex.core.dom.DocumentValidationException;
-import org.eclipse.vex.core.dom.IElement;
+import org.eclipse.vex.core.provisional.dom.DocumentValidationException;
+import org.eclipse.vex.core.provisional.dom.IElement;
 
 public class ChangeNamespaceEdit implements IUndoableEdit {
 

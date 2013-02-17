@@ -9,7 +9,7 @@
  *     John Krasnay - initial API and implementation
  *     Florian Thienel - refactoring to full fledged DOM
  *******************************************************************************/
-package org.eclipse.vex.core.dom;
+package org.eclipse.vex.core.provisional.dom;
 
 /**
  * Interface for classes that manage a string of characters representing the textual content of a document.

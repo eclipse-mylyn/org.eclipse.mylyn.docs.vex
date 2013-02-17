@@ -16,9 +16,9 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 import org.eclipse.core.runtime.Assert;
-import org.eclipse.vex.core.dom.IContent;
-import org.eclipse.vex.core.dom.ContentRange;
-import org.eclipse.vex.core.dom.IPosition;
+import org.eclipse.vex.core.provisional.dom.ContentRange;
+import org.eclipse.vex.core.provisional.dom.IContent;
+import org.eclipse.vex.core.provisional.dom.IPosition;
 
 /**
  * Implementation of the <code>Content</code> interface that manages changes efficiently. Implements a buffer that keeps

@@ -17,9 +17,9 @@ import java.net.URL;
 import java.util.List;
 
 import org.eclipse.core.runtime.QualifiedName;
-import org.eclipse.vex.core.dom.IDocument;
-import org.eclipse.vex.core.dom.IElement;
 import org.eclipse.vex.core.internal.dom.Document;
+import org.eclipse.vex.core.provisional.dom.IDocument;
+import org.eclipse.vex.core.provisional.dom.IElement;
 import org.junit.Test;
 
 /**

@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.validator;
 
-import static org.eclipse.vex.core.dom.IValidator.PCDATA;
+import static org.eclipse.vex.core.provisional.dom.IValidator.PCDATA;
 import static org.eclipse.vex.core.tests.TestResources.CONTENT_NS;
 import static org.eclipse.vex.core.tests.TestResources.STRUCTURE_NS;
 import static org.eclipse.vex.core.tests.TestResources.TEST_DTD;
@@ -27,13 +27,13 @@ import java.util.List;
 import java.util.Set;
 
 import org.eclipse.core.runtime.QualifiedName;
-import org.eclipse.vex.core.dom.IDocument;
-import org.eclipse.vex.core.dom.IElement;
-import org.eclipse.vex.core.dom.IValidator;
 import org.eclipse.vex.core.internal.dom.Document;
 import org.eclipse.vex.core.internal.dom.Element;
 import org.eclipse.vex.core.internal.io.DocumentContentModel;
 import org.eclipse.vex.core.internal.io.DocumentReader;
+import org.eclipse.vex.core.provisional.dom.IDocument;
+import org.eclipse.vex.core.provisional.dom.IElement;
+import org.eclipse.vex.core.provisional.dom.IValidator;
 import org.eclipse.wst.common.uriresolver.internal.provisional.URIResolver;
 import org.eclipse.wst.common.uriresolver.internal.provisional.URIResolverPlugin;
 import org.eclipse.wst.xml.core.internal.contentmodel.CMDocument;

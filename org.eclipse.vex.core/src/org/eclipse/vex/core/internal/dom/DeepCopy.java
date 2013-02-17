@@ -14,10 +14,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import org.eclipse.vex.core.dom.ContentRange;
-import org.eclipse.vex.core.dom.IContent;
-import org.eclipse.vex.core.dom.INode;
-import org.eclipse.vex.core.dom.IParent;
+import org.eclipse.vex.core.provisional.dom.ContentRange;
+import org.eclipse.vex.core.provisional.dom.IContent;
+import org.eclipse.vex.core.provisional.dom.INode;
+import org.eclipse.vex.core.provisional.dom.IParent;
 
 /**
  * This class creates a deep copy of a single Node or the child nodes of a Parent within a given Range. The copy is made

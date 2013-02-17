@@ -16,10 +16,10 @@ import static org.junit.Assert.assertNull;
 import java.io.StringReader;
 import java.util.Iterator;
 
-import org.eclipse.vex.core.dom.IDocument;
-import org.eclipse.vex.core.dom.IElement;
 import org.eclipse.vex.core.internal.core.DisplayDevice;
 import org.eclipse.vex.core.internal.io.DocumentReader;
+import org.eclipse.vex.core.provisional.dom.IDocument;
+import org.eclipse.vex.core.provisional.dom.IElement;
 import org.junit.Test;
 import org.w3c.css.sac.InputSource;
 import org.w3c.css.sac.LexicalUnit;

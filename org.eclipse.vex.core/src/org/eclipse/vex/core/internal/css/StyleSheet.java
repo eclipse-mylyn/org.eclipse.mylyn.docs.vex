@@ -27,10 +27,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
 
-import org.eclipse.vex.core.dom.BaseNodeVisitor;
-import org.eclipse.vex.core.dom.IElement;
-import org.eclipse.vex.core.dom.INode;
 import org.eclipse.vex.core.internal.core.FontSpec;
+import org.eclipse.vex.core.provisional.dom.BaseNodeVisitor;
+import org.eclipse.vex.core.provisional.dom.IElement;
+import org.eclipse.vex.core.provisional.dom.INode;
 import org.w3c.css.sac.LexicalUnit;
 
 /**

@@ -8,7 +8,7 @@
  * Contributors:
  *     John Krasnay - initial API and implementation
  *******************************************************************************/
-package org.eclipse.vex.core.dom;
+package org.eclipse.vex.core.provisional.dom;
 
 /**
  * Exception thrown when an change would have compromised document validity.

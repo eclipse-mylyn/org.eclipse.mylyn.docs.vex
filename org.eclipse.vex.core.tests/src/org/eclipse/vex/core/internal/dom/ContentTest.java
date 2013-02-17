@@ -14,9 +14,9 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import org.eclipse.vex.core.dom.IContent;
-import org.eclipse.vex.core.dom.ContentRange;
-import org.eclipse.vex.core.dom.IPosition;
+import org.eclipse.vex.core.provisional.dom.ContentRange;
+import org.eclipse.vex.core.provisional.dom.IContent;
+import org.eclipse.vex.core.provisional.dom.IPosition;
 import org.junit.Before;
 import org.junit.Test;
 

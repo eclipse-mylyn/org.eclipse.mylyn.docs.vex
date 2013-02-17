@@ -9,7 +9,7 @@
  *     John Krasnay - initial API and implementation
  *     Florian Thienel - NULL object
  *******************************************************************************/
-package org.eclipse.vex.core.dom;
+package org.eclipse.vex.core.provisional.dom;
 
 /**
  * Represents a logical location in a document. As the document is modified, existing <code>Position</code> objects are

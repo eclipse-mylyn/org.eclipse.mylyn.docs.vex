@@ -14,10 +14,10 @@ package org.eclipse.vex.core.internal.layout;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.vex.core.dom.INode;
 import org.eclipse.vex.core.internal.core.Caret;
 import org.eclipse.vex.core.internal.css.CSS;
 import org.eclipse.vex.core.internal.css.Styles;
+import org.eclipse.vex.core.provisional.dom.INode;
 
 /**
  * A box that wraps inline content into a paragraph.

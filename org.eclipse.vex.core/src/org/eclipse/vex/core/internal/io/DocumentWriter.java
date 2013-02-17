@@ -17,16 +17,16 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.util.Arrays;
 
-import org.eclipse.vex.core.dom.AttributeDefinition;
-import org.eclipse.vex.core.dom.BaseNodeVisitor;
-import org.eclipse.vex.core.dom.IAttribute;
-import org.eclipse.vex.core.dom.IComment;
-import org.eclipse.vex.core.dom.IDocument;
-import org.eclipse.vex.core.dom.IDocumentFragment;
-import org.eclipse.vex.core.dom.IElement;
-import org.eclipse.vex.core.dom.INode;
-import org.eclipse.vex.core.dom.IText;
-import org.eclipse.vex.core.dom.IValidator;
+import org.eclipse.vex.core.provisional.dom.AttributeDefinition;
+import org.eclipse.vex.core.provisional.dom.BaseNodeVisitor;
+import org.eclipse.vex.core.provisional.dom.IAttribute;
+import org.eclipse.vex.core.provisional.dom.IComment;
+import org.eclipse.vex.core.provisional.dom.IDocument;
+import org.eclipse.vex.core.provisional.dom.IDocumentFragment;
+import org.eclipse.vex.core.provisional.dom.IElement;
+import org.eclipse.vex.core.provisional.dom.INode;
+import org.eclipse.vex.core.provisional.dom.IText;
+import org.eclipse.vex.core.provisional.dom.IValidator;
 
 /**
  * Writes a document to an output stream, using a stylesheet to provide formatting hints.

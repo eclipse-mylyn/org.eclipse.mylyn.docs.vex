@@ -10,10 +10,10 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.layout;
 
-import org.eclipse.vex.core.dom.IComment;
-import org.eclipse.vex.core.dom.INode;
 import org.eclipse.vex.core.internal.css.CSS;
 import org.eclipse.vex.core.internal.css.Styles;
+import org.eclipse.vex.core.provisional.dom.IComment;
+import org.eclipse.vex.core.provisional.dom.INode;
 
 /**
  * Implementation of the BoxFactory interface that returns boxes that represent CSS semantics.

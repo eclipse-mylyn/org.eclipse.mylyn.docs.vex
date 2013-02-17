@@ -9,7 +9,7 @@
  *     John Krasnay - initial API and implementation
  *     Florian Thienel - support for attribute changes
  *******************************************************************************/
-package org.eclipse.vex.core.dom;
+package org.eclipse.vex.core.provisional.dom;
 
 import java.util.EventObject;
 

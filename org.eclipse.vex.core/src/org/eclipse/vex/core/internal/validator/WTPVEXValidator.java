@@ -24,12 +24,12 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.runtime.QualifiedName;
-import org.eclipse.vex.core.dom.AttributeDefinition;
-import org.eclipse.vex.core.dom.AttributeDefinition.Type;
-import org.eclipse.vex.core.dom.IAttribute;
-import org.eclipse.vex.core.dom.IElement;
-import org.eclipse.vex.core.dom.IValidator;
 import org.eclipse.vex.core.internal.io.DocumentContentModel;
+import org.eclipse.vex.core.provisional.dom.AttributeDefinition;
+import org.eclipse.vex.core.provisional.dom.IAttribute;
+import org.eclipse.vex.core.provisional.dom.IElement;
+import org.eclipse.vex.core.provisional.dom.IValidator;
+import org.eclipse.vex.core.provisional.dom.AttributeDefinition.Type;
 import org.eclipse.wst.xml.core.internal.contentmodel.CMAnyElement;
 import org.eclipse.wst.xml.core.internal.contentmodel.CMAttributeDeclaration;
 import org.eclipse.wst.xml.core.internal.contentmodel.CMContent;

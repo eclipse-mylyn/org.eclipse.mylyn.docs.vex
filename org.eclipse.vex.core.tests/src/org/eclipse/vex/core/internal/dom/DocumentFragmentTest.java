@@ -21,9 +21,9 @@ import java.util.Collections;
 import java.util.Iterator;
 
 import org.eclipse.core.runtime.AssertionFailedException;
-import org.eclipse.vex.core.dom.ContentRange;
-import org.eclipse.vex.core.dom.INode;
-import org.eclipse.vex.core.dom.IText;
+import org.eclipse.vex.core.provisional.dom.ContentRange;
+import org.eclipse.vex.core.provisional.dom.INode;
+import org.eclipse.vex.core.provisional.dom.IText;
 import org.junit.Test;
 
 /**

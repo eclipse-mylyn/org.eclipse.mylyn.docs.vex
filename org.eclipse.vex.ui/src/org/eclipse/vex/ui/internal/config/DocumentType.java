@@ -11,7 +11,7 @@
  *******************************************************************************/
 package org.eclipse.vex.ui.internal.config;
 
-import org.eclipse.vex.core.dom.IValidator;
+import org.eclipse.vex.core.provisional.dom.IValidator;
 
 /**
  * A registered document type.

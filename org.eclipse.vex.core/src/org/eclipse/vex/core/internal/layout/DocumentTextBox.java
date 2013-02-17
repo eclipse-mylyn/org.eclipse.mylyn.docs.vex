@@ -13,12 +13,12 @@ package org.eclipse.vex.core.internal.layout;
 import java.text.MessageFormat;
 
 import org.eclipse.core.runtime.Assert;
-import org.eclipse.vex.core.dom.ContentRange;
-import org.eclipse.vex.core.dom.INode;
 import org.eclipse.vex.core.internal.core.ColorResource;
 import org.eclipse.vex.core.internal.core.FontResource;
 import org.eclipse.vex.core.internal.core.Graphics;
 import org.eclipse.vex.core.internal.css.Styles;
+import org.eclipse.vex.core.provisional.dom.ContentRange;
+import org.eclipse.vex.core.provisional.dom.INode;
 
 /**
  * A TextBox that gets its text from the document. Represents text which is editable within the VexWidget.

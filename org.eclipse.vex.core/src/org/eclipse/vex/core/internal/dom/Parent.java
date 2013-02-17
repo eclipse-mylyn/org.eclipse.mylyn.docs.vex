@@ -16,10 +16,10 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.core.runtime.Assert;
-import org.eclipse.vex.core.dom.ContentRange;
-import org.eclipse.vex.core.dom.IAxis;
-import org.eclipse.vex.core.dom.INode;
-import org.eclipse.vex.core.dom.IParent;
+import org.eclipse.vex.core.provisional.dom.ContentRange;
+import org.eclipse.vex.core.provisional.dom.IAxis;
+import org.eclipse.vex.core.provisional.dom.INode;
+import org.eclipse.vex.core.provisional.dom.IParent;
 
 /**
  * A Parent node is a Node which can contain other nodes as children. This class defines the tree-like structure of the

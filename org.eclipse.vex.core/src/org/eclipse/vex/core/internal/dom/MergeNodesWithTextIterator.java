@@ -14,9 +14,9 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 import org.eclipse.core.runtime.Assert;
-import org.eclipse.vex.core.dom.ContentRange;
-import org.eclipse.vex.core.dom.IContent;
-import org.eclipse.vex.core.dom.INode;
+import org.eclipse.vex.core.provisional.dom.ContentRange;
+import org.eclipse.vex.core.provisional.dom.IContent;
+import org.eclipse.vex.core.provisional.dom.INode;
 
 /**
  * @author Florian Thienel

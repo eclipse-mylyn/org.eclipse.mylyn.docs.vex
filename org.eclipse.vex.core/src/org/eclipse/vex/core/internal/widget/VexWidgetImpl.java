@@ -26,21 +26,6 @@ import java.util.Set;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.QualifiedName;
-import org.eclipse.vex.core.dom.AttributeChangeEvent;
-import org.eclipse.vex.core.dom.BaseNodeVisitorWithResult;
-import org.eclipse.vex.core.dom.ContentChangeEvent;
-import org.eclipse.vex.core.dom.ContentRange;
-import org.eclipse.vex.core.dom.DocumentValidationException;
-import org.eclipse.vex.core.dom.IComment;
-import org.eclipse.vex.core.dom.IDocument;
-import org.eclipse.vex.core.dom.IDocumentFragment;
-import org.eclipse.vex.core.dom.IDocumentListener;
-import org.eclipse.vex.core.dom.IElement;
-import org.eclipse.vex.core.dom.INode;
-import org.eclipse.vex.core.dom.IPosition;
-import org.eclipse.vex.core.dom.IText;
-import org.eclipse.vex.core.dom.IValidator;
-import org.eclipse.vex.core.dom.NamespaceDeclarationChangeEvent;
 import org.eclipse.vex.core.internal.core.Caret;
 import org.eclipse.vex.core.internal.core.Color;
 import org.eclipse.vex.core.internal.core.ElementName;
@@ -71,6 +56,21 @@ import org.eclipse.vex.core.internal.undo.InsertCommentEdit;
 import org.eclipse.vex.core.internal.undo.InsertElementEdit;
 import org.eclipse.vex.core.internal.undo.InsertFragmentEdit;
 import org.eclipse.vex.core.internal.undo.InsertTextEdit;
+import org.eclipse.vex.core.provisional.dom.AttributeChangeEvent;
+import org.eclipse.vex.core.provisional.dom.BaseNodeVisitorWithResult;
+import org.eclipse.vex.core.provisional.dom.ContentChangeEvent;
+import org.eclipse.vex.core.provisional.dom.ContentRange;
+import org.eclipse.vex.core.provisional.dom.DocumentValidationException;
+import org.eclipse.vex.core.provisional.dom.IComment;
+import org.eclipse.vex.core.provisional.dom.IDocument;
+import org.eclipse.vex.core.provisional.dom.IDocumentFragment;
+import org.eclipse.vex.core.provisional.dom.IDocumentListener;
+import org.eclipse.vex.core.provisional.dom.IElement;
+import org.eclipse.vex.core.provisional.dom.INode;
+import org.eclipse.vex.core.provisional.dom.IPosition;
+import org.eclipse.vex.core.provisional.dom.IText;
+import org.eclipse.vex.core.provisional.dom.IValidator;
+import org.eclipse.vex.core.provisional.dom.NamespaceDeclarationChangeEvent;
 
 /**
  * A component that allows the display and edit of an XML document with an associated CSS stylesheet.

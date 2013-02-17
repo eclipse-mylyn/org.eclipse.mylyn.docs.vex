@@ -13,9 +13,9 @@ package org.eclipse.vex.core.internal.dom;
 import java.util.Iterator;
 
 import org.eclipse.vex.core.IFilter;
-import org.eclipse.vex.core.dom.ContentRange;
-import org.eclipse.vex.core.dom.INode;
 import org.eclipse.vex.core.internal.core.FilterIterator;
+import org.eclipse.vex.core.provisional.dom.ContentRange;
+import org.eclipse.vex.core.provisional.dom.INode;
 
 /**
  * @author Florian Thienel

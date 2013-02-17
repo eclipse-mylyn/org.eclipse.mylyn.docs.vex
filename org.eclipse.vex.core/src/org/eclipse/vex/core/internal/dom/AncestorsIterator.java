@@ -13,8 +13,8 @@ package org.eclipse.vex.core.internal.dom;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-import org.eclipse.vex.core.dom.INode;
-import org.eclipse.vex.core.dom.IParent;
+import org.eclipse.vex.core.provisional.dom.INode;
+import org.eclipse.vex.core.provisional.dom.IParent;
 
 /**
  * @author Florian Thienel

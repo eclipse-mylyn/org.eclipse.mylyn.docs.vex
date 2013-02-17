@@ -17,7 +17,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
 
-import org.eclipse.vex.core.dom.IDocument;
 import org.eclipse.vex.core.internal.core.Graphics;
 import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.css.StyleSheetReader;
@@ -28,6 +27,7 @@ import org.eclipse.vex.core.internal.layout.CssBoxFactory;
 import org.eclipse.vex.core.internal.layout.FakeGraphics;
 import org.eclipse.vex.core.internal.layout.LayoutContext;
 import org.eclipse.vex.core.internal.layout.RootBox;
+import org.eclipse.vex.core.provisional.dom.IDocument;
 import org.eclipse.vex.core.tests.TestResources;
 import org.junit.Test;
 

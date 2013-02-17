@@ -16,11 +16,11 @@ import java.util.List;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.QualifiedName;
-import org.eclipse.vex.core.dom.IContent;
-import org.eclipse.vex.core.dom.IDocumentFragment;
-import org.eclipse.vex.core.dom.INode;
-import org.eclipse.vex.core.dom.INodeVisitor;
-import org.eclipse.vex.core.dom.INodeVisitorWithResult;
+import org.eclipse.vex.core.provisional.dom.IContent;
+import org.eclipse.vex.core.provisional.dom.IDocumentFragment;
+import org.eclipse.vex.core.provisional.dom.INode;
+import org.eclipse.vex.core.provisional.dom.INodeVisitor;
+import org.eclipse.vex.core.provisional.dom.INodeVisitorWithResult;
 
 public class DocumentFragment extends Parent implements IDocumentFragment {
 

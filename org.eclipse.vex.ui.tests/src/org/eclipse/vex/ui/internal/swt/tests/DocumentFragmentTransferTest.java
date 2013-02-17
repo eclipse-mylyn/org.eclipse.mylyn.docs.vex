@@ -16,11 +16,11 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 
 import org.eclipse.core.runtime.QualifiedName;
-import org.eclipse.vex.core.dom.IComment;
-import org.eclipse.vex.core.dom.IDocument;
-import org.eclipse.vex.core.dom.IDocumentFragment;
-import org.eclipse.vex.core.dom.IElement;
 import org.eclipse.vex.core.internal.dom.Document;
+import org.eclipse.vex.core.provisional.dom.IComment;
+import org.eclipse.vex.core.provisional.dom.IDocument;
+import org.eclipse.vex.core.provisional.dom.IDocumentFragment;
+import org.eclipse.vex.core.provisional.dom.IElement;
 import org.eclipse.vex.ui.internal.swt.DocumentFragmentTransfer;
 import org.junit.Before;
 import org.junit.Test;

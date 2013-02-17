@@ -15,10 +15,10 @@ import static org.junit.Assert.assertEquals;
 import java.net.URL;
 
 import org.eclipse.core.runtime.QualifiedName;
-import org.eclipse.vex.core.dom.IElement;
 import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.css.StyleSheetReader;
 import org.eclipse.vex.core.internal.dom.Document;
+import org.eclipse.vex.core.provisional.dom.IElement;
 import org.junit.Test;
 
 public class TestBlockElementBox {

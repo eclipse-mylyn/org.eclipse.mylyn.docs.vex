@@ -22,12 +22,12 @@ import java.util.NoSuchElementException;
 
 import org.eclipse.core.runtime.AssertionFailedException;
 import org.eclipse.vex.core.IFilter;
-import org.eclipse.vex.core.dom.BaseNodeVisitor;
-import org.eclipse.vex.core.dom.ContentRange;
-import org.eclipse.vex.core.dom.IAxis;
-import org.eclipse.vex.core.dom.INode;
-import org.eclipse.vex.core.dom.INodeVisitor;
-import org.eclipse.vex.core.dom.INodeVisitorWithResult;
+import org.eclipse.vex.core.provisional.dom.BaseNodeVisitor;
+import org.eclipse.vex.core.provisional.dom.ContentRange;
+import org.eclipse.vex.core.provisional.dom.IAxis;
+import org.eclipse.vex.core.provisional.dom.INode;
+import org.eclipse.vex.core.provisional.dom.INodeVisitor;
+import org.eclipse.vex.core.provisional.dom.INodeVisitorWithResult;
 import org.junit.Before;
 import org.junit.Test;
 

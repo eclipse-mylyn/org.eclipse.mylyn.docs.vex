@@ -9,7 +9,7 @@
  *     John Krasnay - initial API and implementation
  *     Florian Thienel - promoted to the public API
  *******************************************************************************/
-package org.eclipse.vex.core.dom;
+package org.eclipse.vex.core.provisional.dom;
 
 /**
  * Receives notifications of document changes.

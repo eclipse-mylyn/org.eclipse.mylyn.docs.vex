@@ -13,9 +13,9 @@ package org.eclipse.vex.core.internal.layout;
 
 import java.util.List;
 
-import org.eclipse.vex.core.dom.INode;
 import org.eclipse.vex.core.internal.css.PseudoElement;
 import org.eclipse.vex.core.internal.css.Styles;
+import org.eclipse.vex.core.provisional.dom.INode;
 
 /**
  * Implements a Block

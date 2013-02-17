@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.layout;
 
-import org.eclipse.vex.core.dom.INode;
+import org.eclipse.vex.core.provisional.dom.INode;
 
 /**
  * Represents a line of text and inline images.

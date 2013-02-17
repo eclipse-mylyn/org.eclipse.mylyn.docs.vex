@@ -15,9 +15,6 @@ package org.eclipse.vex.core.internal.layout;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.vex.core.dom.IElement;
-import org.eclipse.vex.core.dom.INode;
-import org.eclipse.vex.core.dom.IParent;
 import org.eclipse.vex.core.internal.VEXCorePlugin;
 import org.eclipse.vex.core.internal.core.Drawable;
 import org.eclipse.vex.core.internal.core.Graphics;
@@ -26,6 +23,9 @@ import org.eclipse.vex.core.internal.css.CSS;
 import org.eclipse.vex.core.internal.css.PseudoElement;
 import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.css.Styles;
+import org.eclipse.vex.core.provisional.dom.IElement;
+import org.eclipse.vex.core.provisional.dom.INode;
+import org.eclipse.vex.core.provisional.dom.IParent;
 
 /**
  * A block box corresponding to a DOM Element. Block boxes lay their children out stacked top to bottom. Block boxes

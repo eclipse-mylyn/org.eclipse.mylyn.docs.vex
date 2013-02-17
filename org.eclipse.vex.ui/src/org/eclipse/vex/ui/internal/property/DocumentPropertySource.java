@@ -13,7 +13,7 @@ package org.eclipse.vex.ui.internal.property;
 import org.eclipse.ui.views.properties.IPropertyDescriptor;
 import org.eclipse.ui.views.properties.IPropertySource2;
 import org.eclipse.ui.views.properties.PropertyDescriptor;
-import org.eclipse.vex.core.dom.IDocument;
+import org.eclipse.vex.core.provisional.dom.IDocument;
 
 /**
  * @author Florian Thienel

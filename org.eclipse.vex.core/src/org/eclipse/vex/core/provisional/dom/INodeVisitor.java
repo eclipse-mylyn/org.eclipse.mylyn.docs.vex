@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013 Florian Thienel and others.
+ * Copyright (c) 2012 Florian Thienel and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,19 +8,24 @@
  * Contributors:
  * 		Florian Thienel - initial API and implementation
  *******************************************************************************/
-package org.eclipse.vex.core.dom;
+package org.eclipse.vex.core.provisional.dom;
 
 /**
- * Notification about a change of the namespace delclarations of an element.
+ * An incarantion of the <a href="http://en.wikipedia.org/wiki/Visitor_pattern">Visitor pattern</a> which handles the
+ * nodes of the structural part of the DOM.
  * 
  * @author Florian Thienel
  */
-public class NamespaceDeclarationChangeEvent extends DocumentEvent {
+public interface INodeVisitor {
 
-	private static final long serialVersionUID = 1L;
+	void visit(IDocument document);
 
-	public NamespaceDeclarationChangeEvent(final IDocument document, final IParent parent) {
-		super(document, parent);
-	}
+	void visit(IDocumentFragment fragment);
+
+	void visit(IElement element);
+
+	void visit(IText text);
+
+	void visit(IComment comment);
 
 }

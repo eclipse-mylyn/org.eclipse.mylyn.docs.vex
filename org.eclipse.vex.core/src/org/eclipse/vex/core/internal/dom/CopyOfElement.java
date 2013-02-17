@@ -10,9 +10,9 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.dom;
 
-import org.eclipse.vex.core.dom.BaseNodeVisitor;
-import org.eclipse.vex.core.dom.IAttribute;
-import org.eclipse.vex.core.dom.IElement;
+import org.eclipse.vex.core.provisional.dom.BaseNodeVisitor;
+import org.eclipse.vex.core.provisional.dom.IAttribute;
+import org.eclipse.vex.core.provisional.dom.IElement;
 
 /**
  * This visitor copies the properties of a source element into the visited elements:

@@ -2,16 +2,16 @@ package org.eclipse.vex.core.internal.dom;
 
 import java.util.List;
 
-import org.eclipse.vex.core.dom.ContentRange;
-import org.eclipse.vex.core.dom.IComment;
-import org.eclipse.vex.core.dom.IContent;
-import org.eclipse.vex.core.dom.IDocument;
-import org.eclipse.vex.core.dom.IDocumentFragment;
-import org.eclipse.vex.core.dom.IElement;
-import org.eclipse.vex.core.dom.INode;
-import org.eclipse.vex.core.dom.INodeVisitor;
-import org.eclipse.vex.core.dom.IParent;
-import org.eclipse.vex.core.dom.IText;
+import org.eclipse.vex.core.provisional.dom.ContentRange;
+import org.eclipse.vex.core.provisional.dom.IComment;
+import org.eclipse.vex.core.provisional.dom.IContent;
+import org.eclipse.vex.core.provisional.dom.IDocument;
+import org.eclipse.vex.core.provisional.dom.IDocumentFragment;
+import org.eclipse.vex.core.provisional.dom.IElement;
+import org.eclipse.vex.core.provisional.dom.INode;
+import org.eclipse.vex.core.provisional.dom.INodeVisitor;
+import org.eclipse.vex.core.provisional.dom.IParent;
+import org.eclipse.vex.core.provisional.dom.IText;
 
 /**
  * This visitor creates a deep copy of the visited nodes. Deep copy means a full copy of each visited node and its

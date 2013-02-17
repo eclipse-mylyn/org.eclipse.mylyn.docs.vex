@@ -15,9 +15,9 @@ import static org.junit.Assert.assertSame;
 import static org.junit.Assert.fail;
 
 import org.eclipse.core.runtime.AssertionFailedException;
-import org.eclipse.vex.core.dom.IContent;
-import org.eclipse.vex.core.dom.ContentRange;
-import org.eclipse.vex.core.dom.IPosition;
+import org.eclipse.vex.core.provisional.dom.ContentRange;
+import org.eclipse.vex.core.provisional.dom.IContent;
+import org.eclipse.vex.core.provisional.dom.IPosition;
 import org.junit.Test;
 
 /**

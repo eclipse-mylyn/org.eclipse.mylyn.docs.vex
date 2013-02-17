@@ -12,7 +12,7 @@ package org.eclipse.vex.core.internal.layout;
 
 import java.io.Serializable;
 
-import org.eclipse.vex.core.dom.INode;
+import org.eclipse.vex.core.provisional.dom.INode;
 
 /**
  * Interface to an object that creates boxes from elements. Implementations of this interface must be serializable.

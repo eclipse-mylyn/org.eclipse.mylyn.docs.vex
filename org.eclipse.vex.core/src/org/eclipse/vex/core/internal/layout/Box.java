@@ -10,9 +10,9 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.layout;
 
-import org.eclipse.vex.core.dom.INode;
 import org.eclipse.vex.core.internal.core.Caret;
 import org.eclipse.vex.core.internal.core.Insets;
+import org.eclipse.vex.core.provisional.dom.INode;
 
 /**
  * Represents a rectangular area in the layout. The height and width of the box are measured from the inner edges of the

@@ -17,8 +17,8 @@ import java.util.List;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.vex.core.dom.IElement;
 import org.eclipse.vex.core.internal.dom.CopyOfElement;
+import org.eclipse.vex.core.provisional.dom.IElement;
 import org.eclipse.vex.ui.internal.swt.VexWidget;
 
 /**

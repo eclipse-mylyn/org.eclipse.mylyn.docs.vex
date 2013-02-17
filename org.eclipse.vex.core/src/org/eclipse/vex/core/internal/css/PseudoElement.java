@@ -10,8 +10,8 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.css;
 
-import org.eclipse.vex.core.dom.IElement;
 import org.eclipse.vex.core.internal.dom.Element;
+import org.eclipse.vex.core.provisional.dom.IElement;
 
 /**
  * Represents a :before or :after pseudo-element.

@@ -10,7 +10,7 @@
  *     Igor Jacy Lino Campista - Java 5 warnings fixed (bug 311325)
  *     Florian Thienel - support for XML namespaces (bug 253753)
  *******************************************************************************/
-package org.eclipse.vex.core.dom;
+package org.eclipse.vex.core.provisional.dom;
 
 import java.util.List;
 import java.util.Set;

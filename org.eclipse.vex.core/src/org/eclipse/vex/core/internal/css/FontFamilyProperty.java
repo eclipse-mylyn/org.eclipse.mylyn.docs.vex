@@ -15,7 +15,7 @@ package org.eclipse.vex.core.internal.css;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.vex.core.dom.INode;
+import org.eclipse.vex.core.provisional.dom.INode;
 import org.w3c.css.sac.LexicalUnit;
 
 /**

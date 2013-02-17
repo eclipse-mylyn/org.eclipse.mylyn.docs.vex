@@ -35,7 +35,7 @@ import org.eclipse.swt.widgets.Table;
 import org.eclipse.swt.widgets.TableItem;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.dialogs.PropertyPage;
-import org.eclipse.vex.core.dom.IValidator;
+import org.eclipse.vex.core.provisional.dom.IValidator;
 import org.eclipse.vex.ui.internal.VexPlugin;
 
 /**

@@ -1,9 +1,9 @@
 package org.eclipse.vex.core.internal.undo;
 
-import org.eclipse.vex.core.dom.ContentRange;
-import org.eclipse.vex.core.dom.DocumentValidationException;
-import org.eclipse.vex.core.dom.IDocument;
-import org.eclipse.vex.core.dom.IDocumentFragment;
+import org.eclipse.vex.core.provisional.dom.ContentRange;
+import org.eclipse.vex.core.provisional.dom.DocumentValidationException;
+import org.eclipse.vex.core.provisional.dom.IDocument;
+import org.eclipse.vex.core.provisional.dom.IDocumentFragment;
 
 public class DeleteEdit implements IUndoableEdit {
 

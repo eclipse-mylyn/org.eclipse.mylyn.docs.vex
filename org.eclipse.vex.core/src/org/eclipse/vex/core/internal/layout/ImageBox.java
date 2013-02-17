@@ -2,10 +2,10 @@ package org.eclipse.vex.core.internal.layout;
 
 import java.net.URL;
 
-import org.eclipse.vex.core.dom.INode;
 import org.eclipse.vex.core.internal.core.Image;
 import org.eclipse.vex.core.internal.core.Point;
 import org.eclipse.vex.core.internal.css.Styles;
+import org.eclipse.vex.core.provisional.dom.INode;
 
 public class ImageBox extends AbstractInlineBox {
 

@@ -15,8 +15,8 @@ import java.util.HashSet;
 import java.util.List;
 
 import org.eclipse.core.runtime.Assert;
-import org.eclipse.vex.core.dom.IElement;
 import org.eclipse.vex.core.internal.widget.IVexWidget;
+import org.eclipse.vex.core.provisional.dom.IElement;
 
 /**
  * @author Florian Thienel

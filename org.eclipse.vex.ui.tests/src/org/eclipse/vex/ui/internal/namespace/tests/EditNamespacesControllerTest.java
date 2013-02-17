@@ -21,10 +21,10 @@ import static org.junit.Assert.fail;
 import java.util.List;
 
 import org.eclipse.core.runtime.QualifiedName;
-import org.eclipse.vex.core.dom.IElement;
 import org.eclipse.vex.core.internal.dom.Element;
 import org.eclipse.vex.core.internal.widget.MockHostComponent;
 import org.eclipse.vex.core.internal.widget.VexWidgetImpl;
+import org.eclipse.vex.core.provisional.dom.IElement;
 import org.eclipse.vex.ui.internal.namespace.EditNamespacesController;
 import org.eclipse.vex.ui.internal.namespace.EditableNamespaceDefinition;
 import org.junit.Test;

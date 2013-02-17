@@ -11,8 +11,8 @@
 package org.eclipse.vex.core.internal.dom;
 
 import org.eclipse.core.runtime.QualifiedName;
-import org.eclipse.vex.core.dom.IAttribute;
-import org.eclipse.vex.core.dom.IElement;
+import org.eclipse.vex.core.provisional.dom.IAttribute;
+import org.eclipse.vex.core.provisional.dom.IElement;
 
 /**
  * An immutable representation of an attribute within the start tag of an element. An attribute consists of a qualified

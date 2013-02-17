@@ -14,10 +14,10 @@ package org.eclipse.vex.core.internal.layout;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.vex.core.dom.IElement;
-import org.eclipse.vex.core.dom.IParent;
 import org.eclipse.vex.core.internal.core.Caret;
 import org.eclipse.vex.core.internal.core.Insets;
+import org.eclipse.vex.core.provisional.dom.IElement;
+import org.eclipse.vex.core.provisional.dom.IParent;
 
 /**
  * Box representing a row in a table.

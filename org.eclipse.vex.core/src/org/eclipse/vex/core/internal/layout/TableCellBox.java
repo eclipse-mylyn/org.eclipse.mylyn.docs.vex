@@ -13,8 +13,8 @@ package org.eclipse.vex.core.internal.layout;
 
 import java.util.List;
 
-import org.eclipse.vex.core.dom.IElement;
 import org.eclipse.vex.core.internal.css.Styles;
+import org.eclipse.vex.core.provisional.dom.IElement;
 
 /**
  * Represents an element with display:table-cell, or a generated, anonymous table cell.

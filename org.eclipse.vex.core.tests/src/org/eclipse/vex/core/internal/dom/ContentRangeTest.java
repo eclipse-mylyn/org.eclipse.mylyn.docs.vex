@@ -15,7 +15,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import org.eclipse.core.runtime.AssertionFailedException;
-import org.eclipse.vex.core.dom.ContentRange;
+import org.eclipse.vex.core.provisional.dom.ContentRange;
 import org.junit.Test;
 
 public class ContentRangeTest {

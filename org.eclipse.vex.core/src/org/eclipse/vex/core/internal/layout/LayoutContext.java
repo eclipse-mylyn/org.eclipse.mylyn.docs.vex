@@ -16,11 +16,11 @@ import java.text.MessageFormat;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.vex.core.dom.IDocument;
-import org.eclipse.vex.core.dom.INode;
 import org.eclipse.vex.core.internal.VEXCorePlugin;
 import org.eclipse.vex.core.internal.core.Graphics;
 import org.eclipse.vex.core.internal.css.StyleSheet;
+import org.eclipse.vex.core.provisional.dom.IDocument;
+import org.eclipse.vex.core.provisional.dom.INode;
 
 /**
  * Encapsulation of all the resources needed to create a box tree. Most operations on a box tree, such as creating the
