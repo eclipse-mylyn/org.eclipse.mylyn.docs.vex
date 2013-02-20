@@ -8,23 +8,25 @@
  * Contributors:
  *     John Krasnay - initial API and implementation
  *******************************************************************************/
-package org.eclipse.vex.core.internal.widget;
+package org.eclipse.vex.core.internal.css;
 
-import org.eclipse.vex.core.internal.css.CSS;
-import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.io.IWhitespacePolicy;
 import org.eclipse.vex.core.provisional.dom.INode;
 
 /**
- * Implementation of WhitespacePolicy using a CSS stylesheet.
+ * Implementation of IWhitespacePolicy using a CSS stylesheet.
+ * 
+ * @see IWhitespacePolicy
  */
 public class CssWhitespacePolicy implements IWhitespacePolicy {
 
+	private final StyleSheet styleSheet;
+
 	/**
-	 * Class constructor.
+	 * Create a whitespace policy based on the given stylesheet.
 	 * 
 	 * @param styleSheet
-	 *            The stylesheet used for the policy.
+	 *            the stylesheet used for the policy
 	 */
 	public CssWhitespacePolicy(final StyleSheet styleSheet) {
 		this.styleSheet = styleSheet;
@@ -38,7 +40,4 @@ public class CssWhitespacePolicy implements IWhitespacePolicy {
 		return CSS.PRE.equals(styleSheet.getStyles(node).getWhiteSpace());
 	}
 
-	// ===================================================== PRIVATE
-
-	private final StyleSheet styleSheet;
 }
