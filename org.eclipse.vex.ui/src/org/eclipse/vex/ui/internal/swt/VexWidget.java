@@ -61,7 +61,7 @@ import org.eclipse.vex.core.internal.core.Rectangle;
 import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.layout.Box;
 import org.eclipse.vex.core.internal.layout.BoxFactory;
-import org.eclipse.vex.core.internal.widget.HostComponent;
+import org.eclipse.vex.core.internal.widget.IHostComponent;
 import org.eclipse.vex.core.internal.widget.IBoxFilter;
 import org.eclipse.vex.core.internal.widget.IVexWidget;
 import org.eclipse.vex.core.internal.widget.ReadOnlyException;
@@ -531,7 +531,7 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 		}
 	};
 
-	private final HostComponent hostComponent = new HostComponent() {
+	private final IHostComponent hostComponent = new IHostComponent() {
 
 		public Graphics createDefaultGraphics() {
 			if (VexWidget.this.isDisposed()) {

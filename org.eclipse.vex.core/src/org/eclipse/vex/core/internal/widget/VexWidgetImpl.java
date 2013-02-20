@@ -97,7 +97,7 @@ public class VexWidgetImpl implements IVexWidget {
 	private boolean debugging;
 	private boolean readOnly;
 
-	private final HostComponent hostComponent;
+	private final IHostComponent hostComponent;
 	private int layoutWidth = 500; // something reasonable to handle a document
 	// being set before the widget is sized
 
@@ -190,7 +190,7 @@ public class VexWidgetImpl implements IVexWidget {
 	/**
 	 * Class constructor.
 	 */
-	public VexWidgetImpl(final HostComponent hostComponent) {
+	public VexWidgetImpl(final IHostComponent hostComponent) {
 		this.hostComponent = hostComponent;
 	}
 

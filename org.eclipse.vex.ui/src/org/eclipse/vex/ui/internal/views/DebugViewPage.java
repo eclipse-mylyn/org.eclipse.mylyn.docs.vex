@@ -41,7 +41,7 @@ import org.eclipse.ui.part.IPageSite;
 import org.eclipse.vex.core.internal.core.Caret;
 import org.eclipse.vex.core.internal.core.Rectangle;
 import org.eclipse.vex.core.internal.layout.Box;
-import org.eclipse.vex.core.internal.widget.HostComponent;
+import org.eclipse.vex.core.internal.widget.IHostComponent;
 import org.eclipse.vex.core.internal.widget.IBoxFilter;
 import org.eclipse.vex.core.internal.widget.VexWidgetImpl;
 import org.eclipse.vex.ui.internal.editor.VexEditor;
@@ -273,7 +273,7 @@ class DebugViewPage implements IPageBookViewPage {
 	}
 
 	private Rectangle getViewport() {
-		final HostComponent hc = (HostComponent) getFieldValue(hostComponentField, impl);
+		final IHostComponent hc = (IHostComponent) getFieldValue(hostComponentField, impl);
 		return hc.getViewport();
 	}
 

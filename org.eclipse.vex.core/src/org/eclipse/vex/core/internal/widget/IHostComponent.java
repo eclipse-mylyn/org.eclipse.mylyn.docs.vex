@@ -16,7 +16,7 @@ import org.eclipse.vex.core.internal.core.Rectangle;
 /**
  * Callback interface through which VexComponentImpl accesses its host component.
  */
-public interface HostComponent {
+public interface IHostComponent {
 
 	/**
 	 * Creates a Graphics object for the default system display. The returned object must be disposed after use.

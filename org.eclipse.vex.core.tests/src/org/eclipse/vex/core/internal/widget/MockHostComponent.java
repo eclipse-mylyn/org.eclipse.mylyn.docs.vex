@@ -14,7 +14,7 @@ import org.eclipse.vex.core.internal.core.Graphics;
 import org.eclipse.vex.core.internal.core.Rectangle;
 import org.eclipse.vex.core.internal.layout.FakeGraphics;
 
-public class MockHostComponent implements HostComponent {
+public class MockHostComponent implements IHostComponent {
 
 	public Graphics createDefaultGraphics() {
 		return new FakeGraphics();
