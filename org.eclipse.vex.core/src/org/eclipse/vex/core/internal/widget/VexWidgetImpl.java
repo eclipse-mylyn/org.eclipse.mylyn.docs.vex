@@ -111,7 +111,7 @@ public class VexWidgetImpl implements IVexWidget {
 	private StyleSheet styleSheet;
 	private IWhitespacePolicy whitespacePolicy = IWhitespacePolicy.NULL;
 
-	private BoxFactory boxFactory = new CssBoxFactory();
+	private final BoxFactory boxFactory = new CssBoxFactory();
 
 	private RootBox rootBox;
 
@@ -546,10 +546,6 @@ public class VexWidgetImpl implements IVexWidget {
 	 */
 	public Color getBackgroundColor() {
 		return styleSheet.getStyles(document.getRootElement()).getBackgroundColor();
-	}
-
-	public BoxFactory getBoxFactory() {
-		return boxFactory;
 	}
 
 	/**
@@ -1393,13 +1389,6 @@ public class VexWidgetImpl implements IVexWidget {
 		}
 	}
 
-	public void setBoxFactory(final BoxFactory boxFactory) {
-		this.boxFactory = boxFactory;
-		if (document != null) {
-			relayout();
-		}
-	}
-
 	public void setDebugging(final boolean debugging) {
 		this.debugging = debugging;
 	}
@@ -1676,7 +1665,7 @@ public class VexWidgetImpl implements IVexWidget {
 	 */
 	private LayoutContext createLayoutContext(final Graphics g) {
 		final LayoutContext context = new LayoutContext();
-		context.setBoxFactory(getBoxFactory());
+		context.setBoxFactory(boxFactory);
 		context.setDocument(getDocument());
 		context.setGraphics(g);
 		context.setStyleSheet(getStyleSheet());

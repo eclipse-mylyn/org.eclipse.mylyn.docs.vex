@@ -64,7 +64,6 @@ import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.dom.DocumentFragment;
 import org.eclipse.vex.core.internal.io.XMLFragment;
 import org.eclipse.vex.core.internal.layout.Box;
-import org.eclipse.vex.core.internal.layout.BoxFactory;
 import org.eclipse.vex.core.internal.widget.IBoxFilter;
 import org.eclipse.vex.core.internal.widget.IHostComponent;
 import org.eclipse.vex.core.internal.widget.IVexWidget;
@@ -221,10 +220,6 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 
 	public Box findInnermostBox(final IBoxFilter filter) {
 		return impl.findInnermostBox(filter);
-	}
-
-	public BoxFactory getBoxFactory() {
-		return impl.getBoxFactory();
 	}
 
 	public int getCaretOffset() {
@@ -407,10 +402,6 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 
 	public void setAttribute(final String attributeName, final String value) {
 		impl.setAttribute(attributeName, value);
-	}
-
-	public void setBoxFactory(final BoxFactory boxFactory) {
-		impl.setBoxFactory(boxFactory);
 	}
 
 	public void setDebugging(final boolean debugging) {
