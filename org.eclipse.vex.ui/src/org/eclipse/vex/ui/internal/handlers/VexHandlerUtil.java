@@ -22,17 +22,14 @@ import org.eclipse.ui.handlers.HandlerUtil;
 import org.eclipse.vex.core.internal.css.CSS;
 import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.dom.CopyOfElement;
-import org.eclipse.vex.core.internal.layout.BlockBox;
 import org.eclipse.vex.core.internal.layout.Box;
 import org.eclipse.vex.core.internal.layout.ElementOrRangeCallback;
 import org.eclipse.vex.core.internal.layout.LayoutUtils;
 import org.eclipse.vex.core.internal.layout.TableRowBox;
-import org.eclipse.vex.core.internal.widget.IBoxFilter;
 import org.eclipse.vex.core.internal.widget.IVexWidget;
 import org.eclipse.vex.core.provisional.dom.ContentRange;
 import org.eclipse.vex.core.provisional.dom.IDocument;
 import org.eclipse.vex.core.provisional.dom.IElement;
-import org.eclipse.vex.core.provisional.dom.INode;
 import org.eclipse.vex.core.provisional.dom.IParent;
 import org.eclipse.vex.ui.internal.editor.VexEditor;
 import org.eclipse.vex.ui.internal.swt.VexWidget;
@@ -224,82 +221,6 @@ public final class VexHandlerUtil {
 		}
 
 		return null;
-	}
-
-	/**
-	 * Returns the start offset of the next sibling of the parent element. Returns -1 if there is no previous sibling in
-	 * the parent.
-	 * 
-	 * @param vexWidget
-	 *            VexWidget to use.
-	 */
-	public static int getPreviousSiblingStart(final IVexWidget vexWidget) {
-		int startOffset;
-
-		if (vexWidget.hasSelection()) {
-			startOffset = vexWidget.getSelectedRange().getStartOffset();
-		} else {
-			final Box box = vexWidget.findInnermostBox(new IBoxFilter() {
-				public boolean matches(final Box box) {
-					return box instanceof BlockBox && box.getNode() != null;
-				}
-			});
-
-			if (box.getNode() == vexWidget.getDocument().getRootElement()) {
-				return -1;
-			}
-
-			startOffset = box.getNode().getStartOffset();
-		}
-
-		int previousSiblingStart = -1;
-		final IElement parent = vexWidget.getDocument().getElementForInsertionAt(startOffset);
-		for (final INode child : parent.children()) {
-			if (startOffset == child.getStartOffset()) {
-				break;
-			}
-			previousSiblingStart = child.getStartOffset();
-		}
-		return previousSiblingStart;
-	}
-
-	/**
-	 * Returns an array of the selected block boxes. Text nodes between boxes are not returned. If the selection does
-	 * not enclose any block boxes, returns an empty array.
-	 * 
-	 * @param vexWidget
-	 *            VexWidget to use.
-	 */
-	public static BlockBox[] getSelectedBlockBoxes(final IVexWidget vexWidget) {
-
-		if (!vexWidget.hasSelection()) {
-			return new BlockBox[0];
-		}
-
-		final Box parent = vexWidget.findInnermostBox(new IBoxFilter() {
-			public boolean matches(final Box box) {
-				System.out.println("Matching " + box);
-				final ContentRange selectedRange = vexWidget.getSelectedRange();
-				return box instanceof BlockBox && new ContentRange(box.getStartOffset(), box.getEndOffset()).contains(selectedRange);
-			}
-		});
-
-		System.out.println("Matched " + parent);
-
-		final List<BlockBox> blockList = new ArrayList<BlockBox>();
-
-		final Box[] children = parent.getChildren();
-		System.out.println("Parent has " + children.length + " children");
-		final ContentRange selectedRange = vexWidget.getSelectedRange();
-		for (final Box child : children) {
-			if (child instanceof BlockBox && selectedRange.contains(new ContentRange(child.getStartOffset(), child.getEndOffset()))) {
-				System.out.println("  adding " + child);
-				blockList.add((BlockBox) child);
-			} else {
-				System.out.println("  skipping " + child);
-			}
-		}
-		return blockList.toArray(new BlockBox[blockList.size()]);
 	}
 
 	/**
