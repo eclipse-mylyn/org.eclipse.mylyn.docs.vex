@@ -46,13 +46,13 @@ public class L2XmlInsertionTest {
 	private static final QualifiedName PRE = new QualifiedName(null, "pre");
 	private static final QualifiedName EMPHASIS = new QualifiedName(null, "emphasis");
 
-	private VexWidgetImpl widget;
+	private BaseVexWidget widget;
 	private IElement para1;
 	private IElement pre;
 
 	@Before
 	public void setUp() throws Exception {
-		widget = new VexWidgetImpl(new MockHostComponent());
+		widget = new BaseVexWidget(new MockHostComponent());
 		final StyleSheet styleSheet = new StyleSheetReader().read(TestResources.get("test.css"));
 		widget.setDocument(createDocumentWithDTD(TEST_DTD, "section"), styleSheet);
 		widget.setWhitespacePolicy(new CssWhitespacePolicy(styleSheet));

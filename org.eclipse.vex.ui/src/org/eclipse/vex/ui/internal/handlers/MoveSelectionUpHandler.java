@@ -13,11 +13,11 @@ package org.eclipse.vex.ui.internal.handlers;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.vex.core.IFilter;
 import org.eclipse.vex.core.internal.css.StyleSheet;
+import org.eclipse.vex.core.internal.widget.swt.VexWidget;
 import org.eclipse.vex.core.provisional.dom.ContentRange;
 import org.eclipse.vex.core.provisional.dom.IAxis;
 import org.eclipse.vex.core.provisional.dom.INode;
 import org.eclipse.vex.core.provisional.dom.IParent;
-import org.eclipse.vex.ui.internal.swt.VexWidget;
 
 /**
  * Moves the current selection or block element above the previous sibling.

@@ -16,11 +16,11 @@ import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.vex.core.IFilter;
 import org.eclipse.vex.core.internal.css.CSS;
 import org.eclipse.vex.core.internal.css.StyleSheet;
+import org.eclipse.vex.core.internal.widget.swt.VexWidget;
 import org.eclipse.vex.core.provisional.dom.IAxis;
 import org.eclipse.vex.core.provisional.dom.IElement;
 import org.eclipse.vex.core.provisional.dom.INode;
 import org.eclipse.vex.core.provisional.dom.IParent;
-import org.eclipse.vex.ui.internal.swt.VexWidget;
 
 /**
  * Navigates either to the next or previous table cell (usual shortcut: {@code Tab} or {@code Shift+Tab}).

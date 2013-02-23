@@ -25,12 +25,12 @@ import org.eclipse.vex.core.internal.dom.CopyOfElement;
 import org.eclipse.vex.core.internal.layout.ElementOrRangeCallback;
 import org.eclipse.vex.core.internal.layout.LayoutUtils;
 import org.eclipse.vex.core.internal.widget.IVexWidget;
+import org.eclipse.vex.core.internal.widget.swt.VexWidget;
 import org.eclipse.vex.core.provisional.dom.ContentRange;
 import org.eclipse.vex.core.provisional.dom.IDocument;
 import org.eclipse.vex.core.provisional.dom.IElement;
 import org.eclipse.vex.core.provisional.dom.IParent;
 import org.eclipse.vex.ui.internal.editor.VexEditor;
-import org.eclipse.vex.ui.internal.swt.VexWidget;
 
 /**
  * Static helper methods used across handlers.

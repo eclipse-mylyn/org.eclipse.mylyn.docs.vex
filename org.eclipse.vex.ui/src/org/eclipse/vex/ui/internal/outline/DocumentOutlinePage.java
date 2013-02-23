@@ -31,6 +31,7 @@ import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.part.IPageSite;
 import org.eclipse.ui.part.Page;
 import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
+import org.eclipse.vex.core.internal.widget.swt.VexWidget;
 import org.eclipse.vex.core.provisional.dom.IElement;
 import org.eclipse.vex.ui.internal.VexPlugin;
 import org.eclipse.vex.ui.internal.config.DocumentType;
@@ -39,7 +40,6 @@ import org.eclipse.vex.ui.internal.editor.Messages;
 import org.eclipse.vex.ui.internal.editor.SelectionProvider;
 import org.eclipse.vex.ui.internal.editor.VexEditor;
 import org.eclipse.vex.ui.internal.editor.VexEditorEvent;
-import org.eclipse.vex.ui.internal.swt.VexWidget;
 import org.osgi.framework.Bundle;
 
 /**

@@ -16,8 +16,8 @@ import java.util.List;
 
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.vex.core.internal.dom.CopyOfElement;
+import org.eclipse.vex.core.internal.widget.swt.VexWidget;
 import org.eclipse.vex.core.provisional.dom.IElement;
-import org.eclipse.vex.ui.internal.swt.VexWidget;
 
 /**
  * Inserts one or more table rows either above or below the currently selected one(s). If more than one row is selected

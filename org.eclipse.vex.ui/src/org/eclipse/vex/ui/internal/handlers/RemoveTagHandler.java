@@ -15,9 +15,9 @@ import java.util.Map;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.ui.commands.IElementUpdater;
 import org.eclipse.ui.menus.UIElement;
+import org.eclipse.vex.core.internal.widget.swt.VexWidget;
 import org.eclipse.vex.core.provisional.dom.IDocumentFragment;
 import org.eclipse.vex.core.provisional.dom.IElement;
-import org.eclipse.vex.ui.internal.swt.VexWidget;
 
 /**
  * Removes the current tag: deletes the element but adds its content to the parent element.

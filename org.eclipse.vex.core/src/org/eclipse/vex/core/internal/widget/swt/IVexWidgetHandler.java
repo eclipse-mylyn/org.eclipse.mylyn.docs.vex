@@ -8,10 +8,9 @@
  * Contributors:
  *     John Krasnay - initial API and implementation
  *******************************************************************************/
-package org.eclipse.vex.ui.internal.handlers;
+package org.eclipse.vex.core.internal.widget.swt;
 
 import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.vex.ui.internal.swt.VexWidget;
 
 /**
  * Interface implemented by handler objects that can act on a {@link VexWidget}.

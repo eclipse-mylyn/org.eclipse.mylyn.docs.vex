@@ -10,7 +10,7 @@
  *     Florian Thienel - use XML reader/writer for serialization
  *     Carsten Hiesserich - moved serialization to XMLFragment
  *******************************************************************************/
-package org.eclipse.vex.ui.internal.swt;
+package org.eclipse.vex.core.internal.widget.swt;
 
 import java.io.UnsupportedEncodingException;
 
@@ -65,10 +65,10 @@ public class DocumentFragmentTransfer extends ByteArrayTransfer {
 
 		final IDocumentFragment fragment = (IDocumentFragment) object;
 
-		super.javaToNative(writeFragmentToStream(fragment), transferData);
+		super.javaToNative(writeFragmentToBytes(fragment), transferData);
 	}
 
-	public byte[] writeFragmentToStream(final IDocumentFragment fragment) {
+	public byte[] writeFragmentToBytes(final IDocumentFragment fragment) {
 		final XMLFragment wrapper = new XMLFragment(fragment);
 		try {
 			return wrapper.getXML().getBytes("UTF-8");
@@ -88,13 +88,13 @@ public class DocumentFragmentTransfer extends ByteArrayTransfer {
 				return null;
 			}
 
-			return readFragmentFromStream(buffer);
+			return readFragmentFromBytes(buffer);
 		}
 
 		return null;
 	}
 
-	public IDocumentFragment readFragmentFromStream(final byte[] in) {
+	public IDocumentFragment readFragmentFromBytes(final byte[] in) {
 		try {
 			final XMLFragment xmlFragment = new XMLFragment(new String(in, "UTF-8"));
 			return xmlFragment.getDocumentFragment();
@@ -103,5 +103,4 @@ public class DocumentFragmentTransfer extends ByteArrayTransfer {
 			return null;
 		}
 	}
-
 }

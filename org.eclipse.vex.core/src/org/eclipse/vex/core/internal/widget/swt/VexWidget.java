@@ -10,7 +10,7 @@
  *     Igor Jacy Lino Campista - Java 5 warnings fixed (bug 311325)
  *     Carsten Hiesserich - changed fragment pasting to allow XML content
  *******************************************************************************/
-package org.eclipse.vex.ui.internal.swt;
+package org.eclipse.vex.core.internal.widget.swt;
 
 import java.io.IOException;
 import java.net.URL;
@@ -73,7 +73,6 @@ import org.eclipse.vex.core.provisional.dom.IDocument;
 import org.eclipse.vex.core.provisional.dom.IDocumentFragment;
 import org.eclipse.vex.core.provisional.dom.IElement;
 import org.eclipse.vex.core.provisional.dom.INode;
-import org.eclipse.vex.ui.internal.handlers.IVexWidgetHandler;
 
 /**
  * An implementation of the Vex widget based on SWT.

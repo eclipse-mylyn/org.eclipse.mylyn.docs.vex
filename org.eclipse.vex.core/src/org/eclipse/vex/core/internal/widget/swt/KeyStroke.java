@@ -8,7 +8,7 @@
  * Contributors:
  *     John Krasnay - initial API and implementation
  *******************************************************************************/
-package org.eclipse.vex.ui.internal.swt;
+package org.eclipse.vex.core.internal.widget.swt;
 
 import org.eclipse.swt.events.KeyEvent;
 

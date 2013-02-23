@@ -8,26 +8,26 @@
  * Contributors:
  *     John Krasnay - initial API and implementation
  *******************************************************************************/
-package org.eclipse.vex.ui.internal.swt;
+package org.eclipse.vex.core.internal.widget.swt;
 
-import org.eclipse.vex.core.internal.core.FontResource;
+import org.eclipse.vex.core.internal.core.ColorResource;
 
 /**
- * Wrapper for the SWT Font class.
+ * Wrapper for the SWT Color class.
  */
-public class SwtFont implements FontResource {
+public class SwtColor implements ColorResource {
 
-	private final org.eclipse.swt.graphics.Font swtFont;
+	private final org.eclipse.swt.graphics.Color swtColor;
 
-	public SwtFont(final org.eclipse.swt.graphics.Font swtFont) {
-		this.swtFont = swtFont;
+	public SwtColor(final org.eclipse.swt.graphics.Color swtColor) {
+		this.swtColor = swtColor;
 	}
 
-	org.eclipse.swt.graphics.Font getSwtFont() {
-		return swtFont;
+	org.eclipse.swt.graphics.Color getSwtColor() {
+		return swtColor;
 	}
 
 	public void dispose() {
-		swtFont.dispose();
+		swtColor.dispose();
 	}
 }

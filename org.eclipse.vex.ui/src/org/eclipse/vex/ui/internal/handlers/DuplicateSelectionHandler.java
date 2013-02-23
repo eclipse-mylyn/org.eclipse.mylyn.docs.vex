@@ -11,8 +11,8 @@
 package org.eclipse.vex.ui.internal.handlers;
 
 import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.vex.core.internal.widget.swt.VexWidget;
 import org.eclipse.vex.core.provisional.dom.INode;
-import org.eclipse.vex.ui.internal.swt.VexWidget;
 
 /**
  * Duplicates current element or current selection.

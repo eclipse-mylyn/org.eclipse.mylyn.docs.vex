@@ -17,8 +17,8 @@ import org.eclipse.core.runtime.IExecutableExtension;
 import org.eclipse.core.runtime.IExecutableExtensionFactory;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
+import org.eclipse.vex.core.internal.widget.swt.VexWidget;
 import org.eclipse.vex.ui.internal.VexPlugin;
-import org.eclipse.vex.ui.internal.swt.VexWidget;
 
 /**
  * Factory for following command handlers:

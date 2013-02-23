@@ -15,10 +15,10 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.eclipse.vex.core.internal.core.DisplayDevice;
+import org.eclipse.vex.core.internal.widget.swt.SwtDisplayDevice;
 import org.eclipse.vex.ui.internal.config.ConfigLoaderJob;
 import org.eclipse.vex.ui.internal.config.ConfigurationRegistry;
 import org.eclipse.vex.ui.internal.config.ConfigurationRegistryImpl;
-import org.eclipse.vex.ui.internal.swt.SwtDisplayDevice;
 import org.osgi.framework.BundleContext;
 
 /**

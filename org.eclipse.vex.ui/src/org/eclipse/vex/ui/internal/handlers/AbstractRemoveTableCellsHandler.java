@@ -13,8 +13,8 @@ package org.eclipse.vex.ui.internal.handlers;
 import java.util.List;
 
 import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.vex.core.internal.widget.swt.VexWidget;
 import org.eclipse.vex.core.provisional.dom.ContentRange;
-import org.eclipse.vex.ui.internal.swt.VexWidget;
 
 /**
  * Deletes a given list of table cells (see

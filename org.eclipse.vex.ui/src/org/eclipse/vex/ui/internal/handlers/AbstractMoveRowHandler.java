@@ -11,9 +11,9 @@
 package org.eclipse.vex.ui.internal.handlers;
 
 import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.vex.core.internal.widget.swt.VexWidget;
 import org.eclipse.vex.core.provisional.dom.ContentRange;
 import org.eclipse.vex.ui.internal.handlers.VexHandlerUtil.SelectedRows;
-import org.eclipse.vex.ui.internal.swt.VexWidget;
 
 /**
  * Moves the current table row either down below its next sibling or up above its previous sibling.

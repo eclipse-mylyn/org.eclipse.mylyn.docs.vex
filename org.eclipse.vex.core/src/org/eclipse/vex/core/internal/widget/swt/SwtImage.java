@@ -8,7 +8,7 @@
  * Contributors:
  * 		Florian Thienel - initial API and implementation
  *******************************************************************************/
-package org.eclipse.vex.ui.internal.swt;
+package org.eclipse.vex.core.internal.widget.swt;
 
 import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.vex.core.internal.core.Image;

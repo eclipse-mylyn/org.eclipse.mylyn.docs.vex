@@ -19,11 +19,11 @@ import org.eclipse.vex.core.internal.VEXCorePlugin;
 import org.eclipse.vex.core.internal.css.Styles;
 import org.eclipse.vex.core.internal.dom.CopyOfElement;
 import org.eclipse.vex.core.internal.widget.IVexWidget;
+import org.eclipse.vex.core.internal.widget.swt.VexWidget;
 import org.eclipse.vex.core.provisional.dom.IDocument;
 import org.eclipse.vex.core.provisional.dom.IDocumentFragment;
 import org.eclipse.vex.core.provisional.dom.IElement;
 import org.eclipse.vex.core.provisional.dom.INode;
-import org.eclipse.vex.ui.internal.swt.VexWidget;
 
 /**
  * Splits the current block element, for instance to create new block/paragraph or table cell (usually by hitting the

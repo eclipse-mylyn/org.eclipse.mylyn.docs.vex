@@ -9,7 +9,7 @@
  *     John Krasnay - initial API and implementation
  *     Mohamadou Nassourou - Bug 298912 - rudimentary support for images 
  *******************************************************************************/
-package org.eclipse.vex.ui.internal.swt;
+package org.eclipse.vex.core.internal.widget.swt;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -26,6 +26,7 @@ import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.ImageData;
 import org.eclipse.swt.graphics.ImageLoader;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.vex.core.internal.VEXCorePlugin;
 import org.eclipse.vex.core.internal.core.Color;
 import org.eclipse.vex.core.internal.core.ColorResource;
 import org.eclipse.vex.core.internal.core.FontMetrics;
@@ -34,7 +35,6 @@ import org.eclipse.vex.core.internal.core.FontSpec;
 import org.eclipse.vex.core.internal.core.Graphics;
 import org.eclipse.vex.core.internal.core.Image;
 import org.eclipse.vex.core.internal.core.Rectangle;
-import org.eclipse.vex.ui.internal.VexPlugin;
 
 /**
  * Implementation of the Vex Graphics interface, mapping it to a org.eclipse.swt.graphics.GC object.
@@ -156,10 +156,10 @@ public class SwtGraphics implements Graphics {
 				in.close();
 			}
 		} catch (final SWTException e) {
-			VexPlugin.getDefault().getLog().log(new Status(IStatus.ERROR, VexPlugin.ID, MessageFormat.format("Cannot load image from url: {0}", url), e));
+			VEXCorePlugin.getInstance().getLog().log(new Status(IStatus.ERROR, VEXCorePlugin.ID, MessageFormat.format("Cannot load image from url: {0}", url), e));
 			return null;
 		} catch (final IOException e) {
-			VexPlugin.getDefault().getLog().log(new Status(IStatus.ERROR, VexPlugin.ID, MessageFormat.format("Cannot load image from url: {0}", url), e));
+			VEXCorePlugin.getInstance().getLog().log(new Status(IStatus.ERROR, VEXCorePlugin.ID, MessageFormat.format("Cannot load image from url: {0}", url), e));
 			return null;
 		}
 	}

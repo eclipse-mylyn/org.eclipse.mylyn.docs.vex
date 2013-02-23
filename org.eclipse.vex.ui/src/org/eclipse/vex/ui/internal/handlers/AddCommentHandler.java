@@ -11,7 +11,7 @@
 package org.eclipse.vex.ui.internal.handlers;
 
 import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.vex.ui.internal.swt.VexWidget;
+import org.eclipse.vex.core.internal.widget.swt.VexWidget;
 
 /**
  * @author Florian Thienel

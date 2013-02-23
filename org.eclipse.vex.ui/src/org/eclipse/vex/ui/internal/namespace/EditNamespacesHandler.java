@@ -12,8 +12,8 @@ package org.eclipse.vex.ui.internal.namespace;
 
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.jface.window.Window;
+import org.eclipse.vex.core.internal.widget.swt.VexWidget;
 import org.eclipse.vex.ui.internal.handlers.AbstractVexWidgetHandler;
-import org.eclipse.vex.ui.internal.swt.VexWidget;
 
 /**
  * @author Florian Thienel

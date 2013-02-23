@@ -8,7 +8,7 @@
  * Contributors:
  * 		Florian Thienel - initial API and implementation
  *******************************************************************************/
-package org.eclipse.vex.ui.internal.swt.tests;
+package org.eclipse.vex.core.internal.widget.swt;
 
 import static org.eclipse.vex.core.internal.io.RoundTrip.assertContentEqual;
 
@@ -18,7 +18,6 @@ import org.eclipse.vex.core.provisional.dom.IComment;
 import org.eclipse.vex.core.provisional.dom.IDocument;
 import org.eclipse.vex.core.provisional.dom.IDocumentFragment;
 import org.eclipse.vex.core.provisional.dom.IElement;
-import org.eclipse.vex.ui.internal.swt.DocumentFragmentTransfer;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -84,9 +83,9 @@ public class DocumentFragmentTransferTest {
 	}
 
 	private static void assertRoundTripWorks(final IDocumentFragment expectedFragment) throws Exception {
-		final DocumentFragmentTransfer transfer = DocumentFragmentTransfer.getInstance();
-		final byte[] buffer = transfer.writeFragmentToStream(expectedFragment);
-		final IDocumentFragment actualFragment = transfer.readFragmentFromStream(buffer);
+		final DocumentFragmentTransfer transfer = new DocumentFragmentTransfer();
+		final byte[] buffer = transfer.writeFragmentToBytes(expectedFragment);
+		final IDocumentFragment actualFragment = transfer.readFragmentFromBytes(buffer);
 		assertContentEqual(expectedFragment, actualFragment);
 	}
 

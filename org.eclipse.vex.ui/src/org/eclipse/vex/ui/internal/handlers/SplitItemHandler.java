@@ -16,10 +16,10 @@ import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.vex.core.IFilter;
 import org.eclipse.vex.core.internal.css.CSS;
 import org.eclipse.vex.core.internal.css.StyleSheet;
+import org.eclipse.vex.core.internal.widget.swt.VexWidget;
 import org.eclipse.vex.core.provisional.dom.IAxis;
 import org.eclipse.vex.core.provisional.dom.INode;
 import org.eclipse.vex.core.provisional.dom.IParent;
-import org.eclipse.vex.ui.internal.swt.VexWidget;
 
 /**
  * Splits the nearest enclosing table row or list item (usually by hitting {@code Shift+Return}). If a table row is

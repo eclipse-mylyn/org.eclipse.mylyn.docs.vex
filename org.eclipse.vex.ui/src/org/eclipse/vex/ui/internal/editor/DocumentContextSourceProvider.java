@@ -15,9 +15,9 @@ import java.util.Map;
 
 import org.eclipse.ui.AbstractSourceProvider;
 import org.eclipse.ui.ISources;
+import org.eclipse.vex.core.internal.widget.swt.VexWidget;
 import org.eclipse.vex.ui.internal.handlers.VexHandlerUtil;
 import org.eclipse.vex.ui.internal.handlers.VexHandlerUtil.RowColumnInfo;
-import org.eclipse.vex.ui.internal.swt.VexWidget;
 
 /**
  * If this class is declared in {@code org.eclipse.ui.services} extension then state information about {@link VexWidget}

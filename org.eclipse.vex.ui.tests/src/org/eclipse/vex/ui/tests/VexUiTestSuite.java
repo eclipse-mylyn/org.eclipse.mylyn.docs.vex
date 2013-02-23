@@ -14,11 +14,10 @@ import org.eclipse.vex.ui.internal.config.tests.ConfigLoaderJobTest;
 import org.eclipse.vex.ui.internal.config.tests.ConfigurationRegistryTest;
 import org.eclipse.vex.ui.internal.editor.tests.FindReplaceTargetTest;
 import org.eclipse.vex.ui.internal.namespace.tests.EditNamespacesControllerTest;
-import org.eclipse.vex.ui.internal.swt.tests.DocumentFragmentTransferTest;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
 @RunWith(Suite.class)
-@Suite.SuiteClasses({ ConfigLoaderJobTest.class, ConfigurationRegistryTest.class, EditNamespacesControllerTest.class, DocumentFragmentTransferTest.class, FindReplaceTargetTest.class })
+@Suite.SuiteClasses({ ConfigLoaderJobTest.class, ConfigurationRegistryTest.class, EditNamespacesControllerTest.class, FindReplaceTargetTest.class })
 public class VexUiTestSuite {
 }

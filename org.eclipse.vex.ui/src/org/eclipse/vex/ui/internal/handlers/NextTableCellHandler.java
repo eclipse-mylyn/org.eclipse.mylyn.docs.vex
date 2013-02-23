@@ -13,8 +13,8 @@ package org.eclipse.vex.ui.internal.handlers;
 
 import java.util.NoSuchElementException;
 
+import org.eclipse.vex.core.internal.widget.swt.VexWidget;
 import org.eclipse.vex.core.provisional.dom.IElement;
-import org.eclipse.vex.ui.internal.swt.VexWidget;
 
 /**
  * Navigates to the next table cell (usual shortcut: {@code Tab}).

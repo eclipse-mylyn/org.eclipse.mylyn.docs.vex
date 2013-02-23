@@ -15,8 +15,8 @@ import java.util.Map;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.ui.commands.IElementUpdater;
 import org.eclipse.ui.menus.UIElement;
+import org.eclipse.vex.core.internal.widget.swt.VexWidget;
 import org.eclipse.vex.ui.internal.swt.ContentAssist;
-import org.eclipse.vex.ui.internal.swt.VexWidget;
 
 /**
  * Shows the content assist to convert current element ({@link MorphAssistant}).

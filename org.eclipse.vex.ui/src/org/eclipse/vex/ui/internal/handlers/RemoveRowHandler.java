@@ -12,7 +12,7 @@ package org.eclipse.vex.ui.internal.handlers;
 
 import java.util.List;
 
-import org.eclipse.vex.ui.internal.swt.VexWidget;
+import org.eclipse.vex.core.internal.widget.swt.VexWidget;
 
 /**
  * Deletes selected row(s).

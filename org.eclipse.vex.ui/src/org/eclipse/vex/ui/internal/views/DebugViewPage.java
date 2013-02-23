@@ -44,8 +44,8 @@ import org.eclipse.vex.core.internal.layout.Box;
 import org.eclipse.vex.core.internal.widget.IHostComponent;
 import org.eclipse.vex.core.internal.widget.IBoxFilter;
 import org.eclipse.vex.core.internal.widget.BaseVexWidget;
+import org.eclipse.vex.core.internal.widget.swt.VexWidget;
 import org.eclipse.vex.ui.internal.editor.VexEditor;
-import org.eclipse.vex.ui.internal.swt.VexWidget;
 
 /**
  * Page in the debug view.

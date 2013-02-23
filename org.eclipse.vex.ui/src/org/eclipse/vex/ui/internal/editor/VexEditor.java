@@ -73,6 +73,7 @@ import org.eclipse.vex.core.internal.css.CssWhitespacePolicy;
 import org.eclipse.vex.core.internal.io.DocumentReader;
 import org.eclipse.vex.core.internal.io.DocumentWriter;
 import org.eclipse.vex.core.internal.validator.WTPVEXValidator;
+import org.eclipse.vex.core.internal.widget.swt.VexWidget;
 import org.eclipse.vex.core.provisional.dom.AttributeChangeEvent;
 import org.eclipse.vex.core.provisional.dom.ContentChangeEvent;
 import org.eclipse.vex.core.provisional.dom.IDocument;
@@ -92,7 +93,6 @@ import org.eclipse.vex.ui.internal.handlers.RemoveTagHandler;
 import org.eclipse.vex.ui.internal.outline.DocumentOutlinePage;
 import org.eclipse.vex.ui.internal.property.DocumentPropertySource;
 import org.eclipse.vex.ui.internal.property.ElementPropertySource;
-import org.eclipse.vex.ui.internal.swt.VexWidget;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXParseException;
 

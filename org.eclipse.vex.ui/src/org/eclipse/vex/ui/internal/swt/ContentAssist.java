@@ -54,6 +54,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.vex.core.internal.core.ElementName;
+import org.eclipse.vex.core.internal.widget.swt.VexWidget;
 import org.eclipse.vex.core.provisional.dom.IElement;
 import org.eclipse.vex.ui.internal.Icon;
 import org.eclipse.vex.ui.internal.VexPlugin;
