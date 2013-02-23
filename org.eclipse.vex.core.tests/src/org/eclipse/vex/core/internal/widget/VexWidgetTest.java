@@ -35,7 +35,7 @@ public class VexWidgetTest {
 
 	@Test
 	public void provideOnlyAllowedElementsFromDtd() throws Exception {
-		final VexWidgetImpl widget = new VexWidgetImpl(new MockHostComponent());
+		final BaseVexWidget widget = new BaseVexWidget(new MockHostComponent());
 		widget.setDocument(createDocumentWithDTD(TEST_DTD, "section"), StyleSheet.NULL);
 		assertCanInsertOnly(widget, "title", "para");
 		widget.insertElement(new QualifiedName(null, "title"));
@@ -49,7 +49,7 @@ public class VexWidgetTest {
 
 	@Test
 	public void provideOnlyAllowedElementsFromSimpleSchema() throws Exception {
-		final VexWidgetImpl widget = new VexWidgetImpl(new MockHostComponent());
+		final BaseVexWidget widget = new BaseVexWidget(new MockHostComponent());
 		widget.setDocument(createDocument(CONTENT_NS, "p"), StyleSheet.NULL);
 		assertCanInsertOnly(widget, "b", "i");
 		widget.insertElement(new QualifiedName(CONTENT_NS, "b"));
@@ -60,7 +60,7 @@ public class VexWidgetTest {
 
 	@Test
 	public void provideOnlyAllowedElementFromComplexSchema() throws Exception {
-		final VexWidgetImpl widget = new VexWidgetImpl(new MockHostComponent());
+		final BaseVexWidget widget = new BaseVexWidget(new MockHostComponent());
 		widget.setDocument(createDocument(STRUCTURE_NS, "chapter"), StyleSheet.NULL);
 		assertCanInsertOnly(widget, "title", "chapter", "p");
 		widget.insertElement(new QualifiedName(STRUCTURE_NS, "title"));
@@ -76,7 +76,7 @@ public class VexWidgetTest {
 
 	@Test
 	public void provideNoAllowedElementsForInsertionInComment() throws Exception {
-		final VexWidgetImpl widget = new VexWidgetImpl(new MockHostComponent());
+		final BaseVexWidget widget = new BaseVexWidget(new MockHostComponent());
 		final Document document = createDocument(STRUCTURE_NS, "chapter");
 		widget.setDocument(document, StyleSheet.NULL);
 		widget.insertElement(new QualifiedName(STRUCTURE_NS, "title"));
@@ -89,7 +89,7 @@ public class VexWidgetTest {
 
 	@Test
 	public void undoRemoveCommentTag() throws Exception {
-		final VexWidgetImpl widget = new VexWidgetImpl(new MockHostComponent());
+		final BaseVexWidget widget = new BaseVexWidget(new MockHostComponent());
 		widget.setDocument(createDocument(STRUCTURE_NS, "chapter"), StyleSheet.NULL);
 		widget.insertElement(new QualifiedName(CONTENT_NS, "p"));
 		widget.insertText("1text before comment1");

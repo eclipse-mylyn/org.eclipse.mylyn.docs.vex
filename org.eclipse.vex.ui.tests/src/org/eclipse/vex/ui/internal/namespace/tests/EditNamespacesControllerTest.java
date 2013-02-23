@@ -23,7 +23,7 @@ import java.util.List;
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.vex.core.internal.dom.Element;
 import org.eclipse.vex.core.internal.widget.MockHostComponent;
-import org.eclipse.vex.core.internal.widget.VexWidgetImpl;
+import org.eclipse.vex.core.internal.widget.BaseVexWidget;
 import org.eclipse.vex.core.provisional.dom.IElement;
 import org.eclipse.vex.ui.internal.namespace.EditNamespacesController;
 import org.eclipse.vex.ui.internal.namespace.EditableNamespaceDefinition;
@@ -51,7 +51,7 @@ public class EditNamespacesControllerTest {
 	}
 
 	private EditNamespacesController createController(final IElement element) {
-		final VexWidgetImpl widget = new VexWidgetImpl(new MockHostComponent()) {
+		final BaseVexWidget widget = new BaseVexWidget(new MockHostComponent()) {
 			@Override
 			public IElement getCurrentElement() {
 				return element;

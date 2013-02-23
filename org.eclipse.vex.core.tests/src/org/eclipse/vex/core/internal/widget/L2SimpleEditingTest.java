@@ -42,12 +42,12 @@ import org.junit.Test;
  */
 public class L2SimpleEditingTest {
 
-	private VexWidgetImpl widget;
+	private BaseVexWidget widget;
 	private IElement rootElement;
 
 	@Before
 	public void setUp() throws Exception {
-		widget = new VexWidgetImpl(new MockHostComponent());
+		widget = new BaseVexWidget(new MockHostComponent());
 		widget.setDocument(createDocumentWithDTD(TEST_DTD, "section"), StyleSheet.NULL);
 		rootElement = widget.getDocument().getRootElement();
 	}

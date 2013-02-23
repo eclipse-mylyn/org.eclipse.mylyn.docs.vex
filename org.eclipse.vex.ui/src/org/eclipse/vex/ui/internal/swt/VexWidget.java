@@ -65,7 +65,7 @@ import org.eclipse.vex.core.internal.io.XMLFragment;
 import org.eclipse.vex.core.internal.widget.IHostComponent;
 import org.eclipse.vex.core.internal.widget.IVexWidget;
 import org.eclipse.vex.core.internal.widget.ReadOnlyException;
-import org.eclipse.vex.core.internal.widget.VexWidgetImpl;
+import org.eclipse.vex.core.internal.widget.BaseVexWidget;
 import org.eclipse.vex.core.provisional.dom.ContentRange;
 import org.eclipse.vex.core.provisional.dom.DocumentValidationException;
 import org.eclipse.vex.core.provisional.dom.IComment;
@@ -87,7 +87,7 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 			DisplayDevice.setCurrent(new SwtDisplayDevice());
 		}
 
-		impl = new VexWidgetImpl(hostComponent);
+		impl = new BaseVexWidget(hostComponent);
 		setBackground(getDisplay().getSystemColor(SWT.COLOR_WHITE));
 
 		final ScrollBar vbar = getVerticalBar();
@@ -481,7 +481,7 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 		buildKeyMap();
 	}
 
-	private final VexWidgetImpl impl;
+	private final BaseVexWidget impl;
 
 	// Fields controlling scrolling
 	int originX = 0;

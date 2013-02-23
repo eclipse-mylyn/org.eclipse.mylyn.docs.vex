@@ -11,6 +11,7 @@
  *     Holger Voormann - bug 315914: content assist should only show elements 
  *			valid in the current context
  *     Carsten Hiesserich - handling of elements within comments (bug 407801)
+ *     Carsten Hiesserich - allow insertion of newline into pre elements (bug 407827)
  *     Carsten Hiesserich - handling of preformatted elements, XML insertion(bug 407827, bug 408501 )
  *******************************************************************************/
 package org.eclipse.vex.core.internal.widget;
@@ -81,7 +82,7 @@ import org.eclipse.vex.core.provisional.dom.NamespaceDeclarationChangeEvent;
 /**
  * A component that allows the display and edit of an XML document with an associated CSS stylesheet.
  */
-public class VexWidgetImpl implements IVexWidget {
+public class BaseVexWidget implements IVexWidget {
 
 	/**
 	 * Number of pixel rows above and below the caret that are rendered at a time.
@@ -155,7 +156,7 @@ public class VexWidgetImpl implements IVexWidget {
 			getStyleSheet().flushStyles((IElement) e.getParent());
 
 			if (beginWorkCount == 0) {
-				VexWidgetImpl.this.relayout();
+				BaseVexWidget.this.relayout();
 			}
 
 			hostComponent.fireSelectionChanged();
@@ -171,7 +172,7 @@ public class VexWidgetImpl implements IVexWidget {
 			invalidateElementBox(e.getParent());
 
 			if (beginWorkCount == 0) {
-				VexWidgetImpl.this.relayout();
+				BaseVexWidget.this.relayout();
 			}
 		}
 
@@ -179,7 +180,7 @@ public class VexWidgetImpl implements IVexWidget {
 			invalidateElementBox(e.getParent());
 
 			if (beginWorkCount == 0) {
-				VexWidgetImpl.this.relayout();
+				BaseVexWidget.this.relayout();
 			}
 		}
 
@@ -187,7 +188,7 @@ public class VexWidgetImpl implements IVexWidget {
 			invalidateElementBox(e.getParent());
 
 			if (beginWorkCount == 0) {
-				VexWidgetImpl.this.relayout();
+				BaseVexWidget.this.relayout();
 			}
 
 			hostComponent.fireSelectionChanged();
@@ -198,7 +199,7 @@ public class VexWidgetImpl implements IVexWidget {
 	/**
 	 * Class constructor.
 	 */
-	public VexWidgetImpl(final IHostComponent hostComponent) {
+	public BaseVexWidget(final IHostComponent hostComponent) {
 		this.hostComponent = hostComponent;
 	}
 

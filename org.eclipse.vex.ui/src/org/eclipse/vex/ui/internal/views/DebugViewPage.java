@@ -43,7 +43,7 @@ import org.eclipse.vex.core.internal.core.Rectangle;
 import org.eclipse.vex.core.internal.layout.Box;
 import org.eclipse.vex.core.internal.widget.IHostComponent;
 import org.eclipse.vex.core.internal.widget.IBoxFilter;
-import org.eclipse.vex.core.internal.widget.VexWidgetImpl;
+import org.eclipse.vex.core.internal.widget.BaseVexWidget;
 import org.eclipse.vex.ui.internal.editor.VexEditor;
 import org.eclipse.vex.ui.internal.swt.VexWidget;
 
@@ -113,13 +113,13 @@ class DebugViewPage implements IPageBookViewPage {
 		try {
 			implField = VexWidget.class.getDeclaredField("impl");
 			implField.setAccessible(true);
-			rootBoxField = VexWidgetImpl.class.getDeclaredField("rootBox");
+			rootBoxField = BaseVexWidget.class.getDeclaredField("rootBox");
 			rootBoxField.setAccessible(true);
-			caretField = VexWidgetImpl.class.getDeclaredField("caret");
+			caretField = BaseVexWidget.class.getDeclaredField("caret");
 			caretField.setAccessible(true);
-			hostComponentField = VexWidgetImpl.class.getDeclaredField("hostComponent");
+			hostComponentField = BaseVexWidget.class.getDeclaredField("hostComponent");
 			hostComponentField.setAccessible(true);
-			findInnermostBoxMethod = VexWidgetImpl.class.getMethod("findInnermostBox", IBoxFilter.class);
+			findInnermostBoxMethod = BaseVexWidget.class.getMethod("findInnermostBox", IBoxFilter.class);
 		} catch (final Exception e) {
 			// TODO: handle exception
 		}
@@ -128,7 +128,7 @@ class DebugViewPage implements IPageBookViewPage {
 	private IPageSite site;
 	private final VexEditor vexEditor;
 	private VexWidget vexWidget;
-	private VexWidgetImpl impl;
+	private BaseVexWidget impl;
 	private Composite composite;
 
 	private Label loadingLabel;
@@ -152,7 +152,7 @@ class DebugViewPage implements IPageBookViewPage {
 
 		vexWidget = vexEditor.getVexWidget();
 		try {
-			impl = (VexWidgetImpl) implField.get(vexWidget);
+			impl = (BaseVexWidget) implField.get(vexWidget);
 		} catch (final IllegalArgumentException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
