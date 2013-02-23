@@ -266,12 +266,20 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 		impl.insertChar(c);
 	}
 
+	public boolean canInsertFragment(final IDocumentFragment fragment) {
+		return impl.canInsertFragment(fragment);
+	}
+
 	public void insertFragment(final IDocumentFragment fragment) throws DocumentValidationException {
 		impl.insertFragment(fragment);
 	}
 
 	public IElement insertElement(final QualifiedName elementName) throws DocumentValidationException {
 		return impl.insertElement(elementName);
+	}
+
+	public boolean canInsertText() {
+		return impl.canInsertText();
 	}
 
 	public void insertText(final String text) throws DocumentValidationException {

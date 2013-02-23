@@ -42,7 +42,7 @@ import org.junit.Test;
  */
 public class L2SimpleEditingTest {
 
-	private BaseVexWidget widget;
+	private IVexWidget widget;
 	private IElement rootElement;
 
 	@Before

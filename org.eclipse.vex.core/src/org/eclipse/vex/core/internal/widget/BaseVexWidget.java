@@ -217,13 +217,7 @@ public class BaseVexWidget implements IVexWidget {
 		return getDocument().canInsertComment(getCaretOffset());
 	}
 
-	/**
-	 * Returns true if the given fragment can be inserted at the current caret position.
-	 * 
-	 * @param frag
-	 *            DocumentFragment to be inserted.
-	 */
-	public boolean canInsertFragment(final IDocumentFragment frag) {
+	public boolean canInsertFragment(final IDocumentFragment fragment) {
 		if (readOnly) {
 			return false;
 		}
@@ -247,15 +241,12 @@ public class BaseVexWidget implements IVexWidget {
 
 		final IElement parent = getDocument().getElementForInsertionAt(startOffset);
 		final List<QualifiedName> seq1 = Node.getNodeNames(parent.children().before(startOffset));
-		final List<QualifiedName> seq2 = frag.getNodeNames();
+		final List<QualifiedName> seq2 = fragment.getNodeNames();
 		final List<QualifiedName> seq3 = Node.getNodeNames(parent.children().after(endOffset));
 
 		return validator.isValidSequence(parent.getQualifiedName(), seq1, seq2, seq3, true);
 	}
 
-	/**
-	 * Returns true if text can be inserted at the current position.
-	 */
 	public boolean canInsertText() {
 		if (readOnly) {
 			return false;

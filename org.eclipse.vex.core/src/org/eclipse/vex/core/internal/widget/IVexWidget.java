@@ -197,6 +197,7 @@ public interface IVexWidget {
 	 * Perform the runnable's run method within a beginWork/endWork pair. All operations in the runnable are treated as
 	 * a single unit of work, and can be undone in one operation by the user. Also, if a later operation fails, all
 	 * earlier operations are also undone.
+	 * 
 	 * @param runnable
 	 *            Runnable implementing the work to be done.
 	 * @param savePosition
@@ -473,6 +474,11 @@ public interface IVexWidget {
 	 */
 
 	/**
+	 * Returns true if text can be inserted at the current position.
+	 */
+	boolean canInsertText();
+
+	/**
 	 * Inserts the given character at the current caret position. Any selected content is deleted. The main difference
 	 * between this method and insertText is that this method does not use beginWork/endWork, so consecutive calls to
 	 * insertChar are collapsed into a single IUndoableEdit. This method should normally only be called in response to a
@@ -532,6 +538,14 @@ public interface IVexWidget {
 	 * @return the new comment
 	 */
 	IComment insertComment() throws DocumentValidationException;
+
+	/**
+	 * Returns true if the given fragment can be inserted at the current caret position.
+	 * 
+	 * @param fragment
+	 *            DocumentFragment to be inserted.
+	 */
+	boolean canInsertFragment(final IDocumentFragment fragment);
 
 	/**
 	 * Inserts the given document fragment at the current caret position. Any selected content is deleted.
