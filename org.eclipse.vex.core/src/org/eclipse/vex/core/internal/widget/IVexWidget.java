@@ -15,7 +15,6 @@ import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.vex.core.internal.core.ElementName;
 import org.eclipse.vex.core.internal.css.IWhitespacePolicy;
 import org.eclipse.vex.core.internal.css.StyleSheet;
-import org.eclipse.vex.core.internal.layout.Box;
 import org.eclipse.vex.core.internal.undo.CannotRedoException;
 import org.eclipse.vex.core.internal.undo.CannotUndoException;
 import org.eclipse.vex.core.provisional.dom.ContentRange;
@@ -31,20 +30,6 @@ import org.eclipse.vex.core.provisional.dom.INode;
  * place to gather common Javadoc than as a way to enforce a contract.
  */
 public interface IVexWidget {
-
-	/*
-	 * Suspect
-	 */
-
-	/**
-	 * Returns the innermost box containing the current caret offset that matches the given filter.
-	 * 
-	 * TODO remove, the box model should not be leaked
-	 * 
-	 * @param filter
-	 *            IBoxFilter that determines which box to return
-	 */
-	Box findInnermostBox(IBoxFilter filter);
 
 	/*
 	 * Configuration

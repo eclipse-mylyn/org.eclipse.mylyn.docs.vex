@@ -61,10 +61,7 @@ import org.eclipse.vex.core.internal.core.Graphics;
 import org.eclipse.vex.core.internal.core.Rectangle;
 import org.eclipse.vex.core.internal.css.IWhitespacePolicy;
 import org.eclipse.vex.core.internal.css.StyleSheet;
-import org.eclipse.vex.core.internal.dom.DocumentFragment;
 import org.eclipse.vex.core.internal.io.XMLFragment;
-import org.eclipse.vex.core.internal.layout.Box;
-import org.eclipse.vex.core.internal.widget.IBoxFilter;
 import org.eclipse.vex.core.internal.widget.IHostComponent;
 import org.eclipse.vex.core.internal.widget.IVexWidget;
 import org.eclipse.vex.core.internal.widget.ReadOnlyException;
@@ -218,10 +215,6 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 		impl.endWork(success);
 	}
 
-	public Box findInnermostBox(final IBoxFilter filter) {
-		return impl.findInnermostBox(filter);
-	}
-
 	public int getCaretOffset() {
 		return impl.getCaretOffset();
 	}
@@ -360,7 +353,7 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 		}
 
 		final Clipboard clipboard = new Clipboard(getDisplay());
-		final DocumentFragment fragment = (DocumentFragment) clipboard.getContents(DocumentFragmentTransfer.getInstance());
+		final IDocumentFragment fragment = (IDocumentFragment) clipboard.getContents(DocumentFragmentTransfer.getInstance());
 		if (fragment != null) {
 			insertXML(new XMLFragment(fragment).getXML());
 		} else {

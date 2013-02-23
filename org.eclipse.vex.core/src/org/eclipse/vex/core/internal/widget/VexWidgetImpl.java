@@ -501,7 +501,7 @@ public class VexWidgetImpl implements IVexWidget {
 		}
 	}
 
-	public Box findInnermostBox(final IBoxFilter filter) {
+	private Box findInnermostBox(final IBoxFilter filter) {
 		return this.findInnermostBox(filter, getCaretOffset());
 	}
 
