@@ -22,10 +22,8 @@ import org.eclipse.ui.handlers.HandlerUtil;
 import org.eclipse.vex.core.internal.css.CSS;
 import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.dom.CopyOfElement;
-import org.eclipse.vex.core.internal.layout.Box;
 import org.eclipse.vex.core.internal.layout.ElementOrRangeCallback;
 import org.eclipse.vex.core.internal.layout.LayoutUtils;
-import org.eclipse.vex.core.internal.layout.TableRowBox;
 import org.eclipse.vex.core.internal.widget.IVexWidget;
 import org.eclipse.vex.core.provisional.dom.ContentRange;
 import org.eclipse.vex.core.provisional.dom.IDocument;
@@ -93,38 +91,25 @@ public final class VexHandlerUtil {
 	 * 
 	 * @param vexWidget
 	 *            IVexWidget to modify.
-	 * @param tr
+	 * @param tableRow
 	 *            TableRowBox whose cells are to be cloned.
 	 * @param moveToFirstCell
 	 *            TODO
 	 */
-	public static void cloneTableCells(final IVexWidget vexWidget, final TableRowBox tr, final boolean moveToFirstCell) {
+	public static void cloneTableCells(final IVexWidget vexWidget, final IElement tableRow, final boolean moveToFirstCell) {
 		vexWidget.doWork(new Runnable() {
 			public void run() {
-
-				final int offset = vexWidget.getCaretOffset();
-
-				boolean firstCellIsAnonymous = false;
-				final Box[] cells = tr.getChildren();
-				for (int i = 0; i < cells.length; i++) {
-					if (cells[i].isAnonymous()) {
-						vexWidget.insertText(" ");
-						if (i == 0) {
-							firstCellIsAnonymous = true;
-						}
-					} else {
-						final IElement element = (IElement) cells[i].getNode();
-						final IElement newElement = vexWidget.insertElement(element.getQualifiedName());
-						newElement.accept(new CopyOfElement(element));
-						vexWidget.moveBy(+1);
+				int firstCellOffset = -1;
+				for (final IElement cell : tableRow.childElements()) {
+					final IElement newElement = vexWidget.insertElement(cell.getQualifiedName());
+					newElement.accept(new CopyOfElement(cell));
+					if (firstCellOffset == -1) {
+						firstCellOffset = newElement.getEndOffset();
 					}
 				}
 
-				if (moveToFirstCell) {
-					vexWidget.moveTo(offset + 1);
-					if (firstCellIsAnonymous) {
-						vexWidget.moveBy(-1, true);
-					}
+				if (moveToFirstCell && firstCellOffset != -1) {
+					vexWidget.moveTo(firstCellOffset);
 				}
 			}
 		});
@@ -136,23 +121,17 @@ public final class VexHandlerUtil {
 	 * 
 	 * @param vexWidget
 	 *            IVexWidget with which we're working
-	 * @param tr
+	 * @param tableRow
 	 *            TableRowBox to be duplicated.
 	 */
-	public static void duplicateTableRow(final IVexWidget vexWidget, final TableRowBox tr) {
+	public static void duplicateTableRow(final IVexWidget vexWidget, final IElement tableRow) {
 		vexWidget.doWork(new Runnable() {
 			public void run() {
-
-				vexWidget.moveTo(tr.getEndOffset());
-
-				if (!tr.isAnonymous()) {
-					vexWidget.moveBy(+1); // Move past sentinel in current row
-					final IElement element = (IElement) tr.getNode();
-					final IElement newElement = vexWidget.insertElement(element.getQualifiedName());
-					newElement.accept(new CopyOfElement(element));
-				}
-
-				cloneTableCells(vexWidget, tr, true);
+				vexWidget.moveTo(tableRow.getEndOffset());
+				vexWidget.moveBy(+1); // Move past sentinel in current row
+				final IElement newElement = vexWidget.insertElement(tableRow.getQualifiedName());
+				newElement.accept(new CopyOfElement(tableRow));
+				cloneTableCells(vexWidget, tableRow, true);
 			}
 		});
 	}

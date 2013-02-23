@@ -11,8 +11,9 @@
  *******************************************************************************/
 package org.eclipse.vex.ui.internal.handlers;
 
-import org.eclipse.vex.core.internal.layout.Box;
-import org.eclipse.vex.core.internal.layout.TableRowBox;
+import java.util.NoSuchElementException;
+
+import org.eclipse.vex.core.provisional.dom.IElement;
 import org.eclipse.vex.ui.internal.swt.VexWidget;
 
 /**
@@ -23,11 +24,9 @@ import org.eclipse.vex.ui.internal.swt.VexWidget;
 public class NextTableCellHandler extends AbstractNavigateTableCellHandler {
 
 	@Override
-	protected void navigate(final VexWidget widget, final TableRowBox row, final int offset) {
-		final Box[] cells = row.getChildren();
-
+	protected void navigate(final VexWidget widget, final IElement tableRow, final int offset) {
 		// in this row
-		for (final Box cell : cells) {
+		for (final IElement cell : tableRow.childElements()) {
 			if (cell.getStartOffset() > offset) {
 				widget.moveTo(cell.getStartOffset());
 				widget.moveTo(cell.getEndOffset(), true);
@@ -36,14 +35,13 @@ public class NextTableCellHandler extends AbstractNavigateTableCellHandler {
 		}
 
 		// in other row
-		final Box[] rows = row.getParent().getChildren();
-		for (final Box boxRow : rows) {
-			if (boxRow.getStartOffset() > offset) {
-				final Box[] rowCells = boxRow.getChildren();
-				if (rowCells.length > 0) {
-					final Box cell = rowCells[0];
-					widget.moveTo(cell.getStartOffset());
-					widget.moveTo(cell.getEndOffset(), true);
+		for (final IElement siblingRow : tableRow.getParentElement().childElements()) {
+			if (siblingRow.getStartOffset() > offset) {
+				final IElement firstCell = firstCellOf(siblingRow);
+
+				if (firstCell != null) {
+					widget.moveTo(firstCell.getStartOffset());
+					widget.moveTo(firstCell.getEndOffset(), true);
 				} else {
 					System.out.println("TODO - dup row into new empty row");
 				}
@@ -52,8 +50,15 @@ public class NextTableCellHandler extends AbstractNavigateTableCellHandler {
 		}
 
 		// We didn't find a "next row", so let's dup the current one
-		VexHandlerUtil.duplicateTableRow(widget, row);
+		VexHandlerUtil.duplicateTableRow(widget, tableRow);
+	}
 
+	private static IElement firstCellOf(final IElement tableRow) {
+		try {
+			return tableRow.childElements().first();
+		} catch (final NoSuchElementException e) {
+			return null;
+		}
 	}
 
 }

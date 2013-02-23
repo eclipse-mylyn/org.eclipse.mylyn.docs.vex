@@ -10,13 +10,15 @@
  *******************************************************************************/
 package org.eclipse.vex.ui.internal.handlers;
 
+import java.util.NoSuchElementException;
+
 import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.vex.core.IFilter;
 import org.eclipse.vex.core.internal.css.CSS;
 import org.eclipse.vex.core.internal.css.StyleSheet;
-import org.eclipse.vex.core.internal.layout.Box;
-import org.eclipse.vex.core.internal.layout.TableRowBox;
-import org.eclipse.vex.core.internal.widget.IBoxFilter;
+import org.eclipse.vex.core.provisional.dom.IAxis;
 import org.eclipse.vex.core.provisional.dom.INode;
+import org.eclipse.vex.core.provisional.dom.IParent;
 import org.eclipse.vex.ui.internal.swt.VexWidget;
 
 /**
@@ -29,27 +31,36 @@ public class SplitItemHandler extends SplitBlockElementHandler {
 
 	@Override
 	public void execute(final VexWidget widget) throws ExecutionException {
-		final StyleSheet ss = widget.getStyleSheet();
+		final StyleSheet stylesheet = widget.getStyleSheet();
+		final IAxis<? extends IParent> parentTableRowOrListItems = widget.getCurrentElement().ancestors().matching(displayedAsTableRowOrListItem(stylesheet));
 
-		// Item is either a TableRowBox or a BlockElementBox representing
-		// a list item
-		final Box item = widget.findInnermostBox(new IBoxFilter() {
-			public boolean matches(final Box box) {
-				if (box instanceof TableRowBox) {
-					return true;
-				} else {
-					final INode node = box.getNode();
-					return node != null && ss.getStyles(node).getDisplay().equals(CSS.LIST_ITEM);
-				}
-			}
-		});
+		final IParent firstTableRowOrListItem;
+		try {
+			firstTableRowOrListItem = parentTableRowOrListItems.first();
+		} catch (final NoSuchElementException e) {
+			return;
+		}
 
-		if (item instanceof TableRowBox) {
+		final String displayStyle = stylesheet.getStyles(firstTableRowOrListItem).getDisplay();
+		if (displayStyle.equals(CSS.TABLE_ROW)) {
 			new AddRowBelowHandler().execute(widget);
-			// VexHandlerUtil.duplicateTableRow(vexWidget, (TableRowBox) item);
-		} else if (item != null) {
-			splitElement(widget, item.getNode());
+		} else if (displayStyle.equals(CSS.LIST_ITEM)) {
+			splitElement(widget, firstTableRowOrListItem);
 		}
 	}
 
+	private final IFilter<INode> displayedAsTableRowOrListItem(final StyleSheet stylesheet) {
+		return new IFilter<INode>() {
+			public boolean matches(final INode node) {
+				final String displayStyle = stylesheet.getStyles(node).getDisplay();
+				if (displayStyle.equals(CSS.TABLE_ROW)) {
+					return true;
+				}
+				if (displayStyle.equals(CSS.LIST_ITEM)) {
+					return true;
+				}
+				return false;
+			}
+		};
+	}
 }

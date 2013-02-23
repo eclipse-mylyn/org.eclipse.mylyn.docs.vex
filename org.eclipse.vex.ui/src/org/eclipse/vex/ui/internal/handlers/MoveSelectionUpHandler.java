@@ -11,11 +11,12 @@
 package org.eclipse.vex.ui.internal.handlers;
 
 import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.vex.core.internal.layout.BlockBox;
-import org.eclipse.vex.core.internal.layout.Box;
-import org.eclipse.vex.core.internal.widget.IBoxFilter;
+import org.eclipse.vex.core.IFilter;
+import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.provisional.dom.ContentRange;
+import org.eclipse.vex.core.provisional.dom.IAxis;
 import org.eclipse.vex.core.provisional.dom.INode;
+import org.eclipse.vex.core.provisional.dom.IParent;
 import org.eclipse.vex.ui.internal.swt.VexWidget;
 
 /**
@@ -27,39 +28,18 @@ public class MoveSelectionUpHandler extends AbstractVexWidgetHandler {
 
 	@Override
 	public void execute(final VexWidget widget) throws ExecutionException {
-		// First we determine whether we should expand the selection
-		// to contain an entire block box.
+		final ContentRange selectedRange = widget.getSelectedRange();
+		final IAxis<? extends IParent> parentsContainingSelection = widget.getCurrentElement().ancestors().matching(containingRange(selectedRange));
 
-		// Find the lowest block box that completely contains the selection
-		final Box box = widget.findInnermostBox(new IBoxFilter() {
-			public boolean matches(final Box box) {
-				final ContentRange selectedRange = widget.getSelectedRange();
-				return box instanceof BlockBox && box.getNode() != null && new ContentRange(box.getStartOffset(), box.getEndOffset()).contains(selectedRange);
-			}
-		});
-
-		final Box[] children = box.getChildren();
-		if (children.length > 0 && children[0] instanceof BlockBox) {
-			// The found box contains other block children, so we do NOT have to
-			// expand the selection
-		} else {
-			// Expand selection to the containing box
-
-			// (Note: This "if" is caused by the fact that getStartOffset is
-			// treated differently between elements and boxes. Boxes own their
-			// startOffset, while elements don't own theirs. Perhaps we should
-			// fix this by having box.getStartOffset() return
-			// box.getStartPosition() + 1, but this would be a VERY large
-			// change.)
-			System.out.println("Box is " + box);
-			final INode node = box.getNode();
-			if (node != null) {
-				widget.moveTo(node.getEndOffset() + 1);
-				widget.moveTo(node.getStartOffset(), true);
-
+		// expand the selection until a parent has other block-children
+		final StyleSheet stylesheet = widget.getStyleSheet();
+		for (final IParent parent : parentsContainingSelection) {
+			final IAxis<? extends INode> blockChildren = parent.children().matching(displayedAsBlock(stylesheet));
+			if (blockChildren.isEmpty()) {
+				widget.moveTo(parent.getStartOffset(), false);
+				widget.moveTo(parent.getEndOffset(), true);
 			} else {
-				widget.moveTo(box.getEndOffset() + 1);
-				widget.moveTo(box.getStartOffset(), true);
+				break;
 			}
 		}
 
@@ -76,4 +56,19 @@ public class MoveSelectionUpHandler extends AbstractVexWidgetHandler {
 		// });
 	}
 
+	private static IFilter<INode> containingRange(final ContentRange range) {
+		return new IFilter<INode>() {
+			public boolean matches(final INode node) {
+				return node.getRange().contains(range);
+			}
+		};
+	}
+
+	private static IFilter<INode> displayedAsBlock(final StyleSheet stylesheet) {
+		return new IFilter<INode>() {
+			public boolean matches(final INode node) {
+				return stylesheet.getStyles(node).isBlock();
+			}
+		};
+	}
 }

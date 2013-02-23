@@ -10,10 +10,16 @@
  *******************************************************************************/
 package org.eclipse.vex.ui.internal.handlers;
 
+import java.util.NoSuchElementException;
+
 import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.vex.core.internal.layout.Box;
-import org.eclipse.vex.core.internal.layout.TableRowBox;
-import org.eclipse.vex.core.internal.widget.IBoxFilter;
+import org.eclipse.vex.core.IFilter;
+import org.eclipse.vex.core.internal.css.CSS;
+import org.eclipse.vex.core.internal.css.StyleSheet;
+import org.eclipse.vex.core.provisional.dom.IAxis;
+import org.eclipse.vex.core.provisional.dom.IElement;
+import org.eclipse.vex.core.provisional.dom.INode;
+import org.eclipse.vex.core.provisional.dom.IParent;
 import org.eclipse.vex.ui.internal.swt.VexWidget;
 
 /**
@@ -25,20 +31,16 @@ public abstract class AbstractNavigateTableCellHandler extends AbstractVexWidget
 
 	@Override
 	public void execute(final VexWidget widget) throws ExecutionException {
-		final IBoxFilter filter = new IBoxFilter() {
-			public boolean matches(final Box box) {
-				return box instanceof TableRowBox;
-			}
-		};
-		final TableRowBox row = (TableRowBox) widget.findInnermostBox(filter);
-
-		// not in a table row?
-		if (row == null) {
+		final IAxis<? extends IParent> parentTableRows = widget.getCurrentElement().ancestors().matching(displayedAsTableRow(widget.getStyleSheet()));
+		final IElement tableRow;
+		try {
+			tableRow = (IElement) parentTableRows.first();
+		} catch (final NoSuchElementException e) {
 			return;
 		}
 
 		final int offset = widget.getCaretOffset();
-		navigate(widget, row, offset);
+		navigate(widget, tableRow, offset);
 	}
 
 	/**
@@ -46,11 +48,19 @@ public abstract class AbstractNavigateTableCellHandler extends AbstractVexWidget
 	 * 
 	 * @param widget
 	 *            the Vex widget containing the document
-	 * @param row
+	 * @param tableRow
 	 *            the current row
 	 * @param offset
 	 *            the current offset
 	 */
-	protected abstract void navigate(VexWidget widget, TableRowBox row, int offset);
+	protected abstract void navigate(VexWidget widget, IElement tableRow, int offset);
+
+	private static IFilter<INode> displayedAsTableRow(final StyleSheet stylesheet) {
+		return new IFilter<INode>() {
+			public boolean matches(final INode node) {
+				return stylesheet.getStyles(node).getDisplay().equals(CSS.TABLE_ROW);
+			}
+		};
+	}
 
 }

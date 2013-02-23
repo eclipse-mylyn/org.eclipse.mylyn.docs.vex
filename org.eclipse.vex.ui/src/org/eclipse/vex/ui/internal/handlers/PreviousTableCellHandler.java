@@ -10,8 +10,9 @@
  *******************************************************************************/
 package org.eclipse.vex.ui.internal.handlers;
 
-import org.eclipse.vex.core.internal.layout.Box;
-import org.eclipse.vex.core.internal.layout.TableRowBox;
+import java.util.NoSuchElementException;
+
+import org.eclipse.vex.core.provisional.dom.IElement;
 import org.eclipse.vex.ui.internal.swt.VexWidget;
 
 /**
@@ -22,31 +23,45 @@ import org.eclipse.vex.ui.internal.swt.VexWidget;
 public class PreviousTableCellHandler extends AbstractNavigateTableCellHandler {
 
 	@Override
-	protected void navigate(final VexWidget widget, final TableRowBox row, final int offset) {
-		Box[] cells = row.getChildren();
+	protected void navigate(final VexWidget widget, final IElement tableRow, final int offset) {
+		IElement siblingCell = null;
+		for (final IElement cell : tableRow.childElements()) {
+			if (cell.getStartOffset() >= offset) {
+				break;
+			}
+			siblingCell = cell;
+		}
 
 		// in this row
-		for (int i = cells.length - 1; i >= 0; i--) {
-			if (cells[i].getEndOffset() < offset) {
-				widget.moveTo(cells[i].getStartOffset());
-				widget.moveTo(cells[i].getEndOffset(), true);
-				return;
+		if (siblingCell != null) {
+			widget.moveTo(siblingCell.getStartOffset());
+			widget.moveTo(siblingCell.getEndOffset(), true);
+			return;
+		}
+
+		IElement siblingRow = null;
+		for (final IElement row : tableRow.getParentElement().childElements()) {
+			if (row.getStartOffset() >= offset) {
+				break;
 			}
+			siblingRow = row;
 		}
 
 		// in other row
-		final Box[] rows = row.getParent().getChildren();
-		for (int i = rows.length - 1; i >= 0; i--) {
-			if (rows[i].getEndOffset() < offset) {
-				cells = rows[i].getChildren();
-				if (cells.length > 0) {
-					final Box cell = cells[cells.length - 1];
-					widget.moveTo(cell.getStartOffset());
-					widget.moveTo(cell.getEndOffset(), true);
-				}
-				return;
+		if (siblingRow != null) {
+			final IElement lastCell = lastCellOf(siblingRow);
+			if (lastCell != null) {
+				widget.moveTo(lastCell.getStartOffset());
+				widget.moveTo(lastCell.getEndOffset(), true);
 			}
 		}
 	}
 
+	private static IElement lastCellOf(final IElement tableRow) {
+		try {
+			return tableRow.childElements().last();
+		} catch (final NoSuchElementException e) {
+			return null;
+		}
+	}
 }
