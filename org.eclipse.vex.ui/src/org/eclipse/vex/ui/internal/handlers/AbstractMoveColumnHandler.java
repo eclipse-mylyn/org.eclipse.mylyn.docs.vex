@@ -35,14 +35,14 @@ public abstract class AbstractMoveColumnHandler extends AbstractHandler {
 			return null;
 		}
 
-		widget.doWork(true, new Runnable() {
+		widget.doWork(new Runnable() {
 			public void run() {
 				final List<Object> sourceCells = new ArrayList<Object>();
 				final List<Object> targetCells = new ArrayList<Object>();
 				computeCells(widget, rcInfo, sourceCells, targetCells);
 				swapCells(widget, sourceCells, targetCells);
 			}
-		});
+		}, true);
 		return null;
 	}
 

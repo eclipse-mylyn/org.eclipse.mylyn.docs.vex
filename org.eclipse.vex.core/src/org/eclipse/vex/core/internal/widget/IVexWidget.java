@@ -146,12 +146,6 @@ public interface IVexWidget {
 	 */
 	void undo() throws CannotUndoException;
 
-	/**
-	 * Returns the number of undoable edits that have occurred on this document since editing has started, not including
-	 * limitations due to maximum undo depth.
-	 */
-	int getUndoDepth();
-
 	/*
 	 * Transaction Handling
 	 */
@@ -203,13 +197,12 @@ public interface IVexWidget {
 	 * Perform the runnable's run method within a beginWork/endWork pair. All operations in the runnable are treated as
 	 * a single unit of work, and can be undone in one operation by the user. Also, if a later operation fails, all
 	 * earlier operations are also undone.
-	 * 
-	 * @param savePosition
-	 *            If true, the current caret position is saved and restored once the operation is complete.
 	 * @param runnable
 	 *            Runnable implementing the work to be done.
+	 * @param savePosition
+	 *            If true, the current caret position is saved and restored once the operation is complete.
 	 */
-	void doWork(boolean savePosition, Runnable runnable);
+	void doWork(Runnable runnable, boolean savePosition);
 
 	/**
 	 * Signals the end of a set of operations that should be treated as a single unit for undo/redo purposes.

@@ -206,8 +206,8 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 		impl.doWork(runnable);
 	}
 
-	public void doWork(final boolean savePosition, final Runnable runnable) {
-		impl.doWork(savePosition, runnable);
+	public void doWork(final Runnable runnable, final boolean savePosition) {
+		impl.doWork(runnable, savePosition);
 	}
 
 	public void endWork(final boolean success) {
@@ -248,10 +248,6 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 
 	public StyleSheet getStyleSheet() {
 		return impl.getStyleSheet();
-	}
-
-	public int getUndoDepth() {
-		return impl.getUndoDepth();
 	}
 
 	public ElementName[] getValidInsertElements() {

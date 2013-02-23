@@ -31,7 +31,7 @@ public abstract class AbstractMoveRowHandler extends AbstractVexWidgetHandler {
 			return;
 		}
 
-		widget.doWork(true, new Runnable() {
+		widget.doWork(new Runnable() {
 			public void run() {
 				final ContentRange range = VexHandlerUtil.getOuterRange(targetRow(selected));
 				widget.moveTo(range.getStartOffset());
@@ -42,7 +42,7 @@ public abstract class AbstractMoveRowHandler extends AbstractVexWidgetHandler {
 				widget.paste();
 			}
 
-		});
+		}, true);
 	}
 
 	/**

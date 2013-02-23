@@ -120,7 +120,6 @@ public class BaseVexWidget implements IVexWidget {
 	private LinkedList<UndoableAndOffset> undoList = new LinkedList<UndoableAndOffset>();
 	private LinkedList<UndoableAndOffset> redoList = new LinkedList<UndoableAndOffset>();
 	private static final int MAX_UNDO_STACK_SIZE = 100;
-	private int undoDepth;
 
 	/** Support for beginWork/endWork */
 	private int beginWorkCount = 0;
@@ -452,10 +451,10 @@ public class BaseVexWidget implements IVexWidget {
 	}
 
 	public void doWork(final Runnable runnable) {
-		this.doWork(false, runnable);
+		this.doWork(runnable, false);
 	}
 
-	public void doWork(final boolean savePosition, final Runnable runnable) {
+	public void doWork(final Runnable runnable, final boolean savePosition) {
 		IPosition position = null;
 
 		if (savePosition) {
@@ -483,7 +482,6 @@ public class BaseVexWidget implements IVexWidget {
 			// this.compoundEdit.end();
 			if (success) {
 				undoList.add(new UndoableAndOffset(compoundEdit, beginWorkCaretOffset));
-				undoDepth++;
 				if (undoList.size() > MAX_UNDO_STACK_SIZE) {
 					undoList.removeFirst();
 				}
@@ -776,10 +774,6 @@ public class BaseVexWidget implements IVexWidget {
 
 	public StyleSheet getStyleSheet() {
 		return styleSheet;
-	}
-
-	public int getUndoDepth() {
-		return undoDepth;
 	}
 
 	public int getLayoutWidth() {
@@ -1308,7 +1302,6 @@ public class BaseVexWidget implements IVexWidget {
 		this.moveTo(event.caretOffset, false);
 		event.edit.redo();
 		undoList.add(event);
-		undoDepth++;
 	}
 
 	public void savePosition(final Runnable runnable) {
@@ -1412,7 +1405,6 @@ public class BaseVexWidget implements IVexWidget {
 		this.styleSheet = styleSheet;
 
 		undoList = new LinkedList<UndoableAndOffset>();
-		undoDepth = 0;
 		redoList = new LinkedList<UndoableAndOffset>();
 		beginWorkCount = 0;
 		compoundEdit = null;
@@ -1537,7 +1529,6 @@ public class BaseVexWidget implements IVexWidget {
 			throw new CannotUndoException();
 		}
 		final UndoableAndOffset event = undoList.removeLast();
-		undoDepth--;
 		event.edit.undo();
 		this.moveTo(event.caretOffset, false);
 		redoList.add(event);
@@ -1649,7 +1640,6 @@ public class BaseVexWidget implements IVexWidget {
 			return;
 		} else {
 			undoList.add(new UndoableAndOffset(edit, caretOffset));
-			undoDepth++;
 			if (undoList.size() > MAX_UNDO_STACK_SIZE) {
 				undoList.removeFirst();
 			}
