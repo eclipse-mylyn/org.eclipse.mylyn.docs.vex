@@ -19,6 +19,8 @@ import java.util.List;
 import org.eclipse.core.runtime.AssertionFailedException;
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.vex.core.provisional.dom.DocumentValidationException;
+import org.eclipse.vex.core.provisional.dom.IDocument;
+import org.eclipse.vex.core.provisional.dom.IElement;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -27,8 +29,8 @@ import org.junit.Test;
  */
 public class L1TextHandlingTest {
 
-	private Document document;
-	private Element titleElement;
+	private IDocument document;
+	private IElement titleElement;
 
 	@Before
 	public void setUp() throws Exception {

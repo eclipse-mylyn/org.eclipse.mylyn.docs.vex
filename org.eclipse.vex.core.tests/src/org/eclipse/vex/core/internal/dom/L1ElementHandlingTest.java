@@ -22,6 +22,8 @@ import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.vex.core.provisional.dom.ContentRange;
 import org.eclipse.vex.core.provisional.dom.DocumentValidationException;
 import org.eclipse.vex.core.provisional.dom.IContent;
+import org.eclipse.vex.core.provisional.dom.IDocument;
+import org.eclipse.vex.core.provisional.dom.IElement;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -33,8 +35,8 @@ public class L1ElementHandlingTest {
 	private static final QualifiedName VALID_CHILD = new QualifiedName(null, "validChild");
 	private static final QualifiedName INVALID_CHILD = new QualifiedName(null, "invalidChild");
 
-	private Document document;
-	private Element rootElement;
+	private IDocument document;
+	private IElement rootElement;
 
 	@Before
 	public void setUp() throws Exception {
@@ -64,7 +66,7 @@ public class L1ElementHandlingTest {
 	public void insertElementAtValidInsertionPoint() throws Exception {
 		final IContent content = document.getContent();
 		final int contentLengthBefore = content.length();
-		final Element newElement = document.insertElement(rootElement.getEndOffset(), VALID_CHILD);
+		final IElement newElement = document.insertElement(rootElement.getEndOffset(), VALID_CHILD);
 		assertEquals("validChild", newElement.getLocalName());
 		assertSame(rootElement, newElement.getParent());
 		assertEquals(contentLengthBefore + 2, content.length());

@@ -22,6 +22,7 @@ import org.eclipse.vex.core.provisional.dom.ContentRange;
 import org.eclipse.vex.core.provisional.dom.DocumentValidationException;
 import org.eclipse.vex.core.provisional.dom.IContent;
 import org.eclipse.vex.core.provisional.dom.IDocument;
+import org.eclipse.vex.core.provisional.dom.IDocumentFragment;
 import org.eclipse.vex.core.provisional.dom.IElement;
 import org.junit.Before;
 import org.junit.Test;
@@ -85,7 +86,7 @@ public class L1FragmentHandlingTest {
 		document.insertFragment(rootElement.getEndOffset(), createFragment(VALID_CHILD, INVALID_CHILD, VALID_CHILD));
 	}
 
-	private static DocumentFragment createFragment(final QualifiedName... elementNames) {
+	private static IDocumentFragment createFragment(final QualifiedName... elementNames) {
 		final IContent content = new GapContent(10);
 		final List<Node> nodes = new ArrayList<Node>();
 		for (final QualifiedName elementName : elementNames) {

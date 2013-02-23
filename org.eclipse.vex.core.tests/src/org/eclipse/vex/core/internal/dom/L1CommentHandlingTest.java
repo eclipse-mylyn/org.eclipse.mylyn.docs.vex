@@ -22,6 +22,8 @@ import java.util.List;
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.vex.core.provisional.dom.DocumentValidationException;
 import org.eclipse.vex.core.provisional.dom.IComment;
+import org.eclipse.vex.core.provisional.dom.IDocument;
+import org.eclipse.vex.core.provisional.dom.IElement;
 import org.eclipse.vex.core.provisional.dom.INode;
 import org.junit.Before;
 import org.junit.Test;
@@ -33,9 +35,9 @@ public class L1CommentHandlingTest {
 
 	private static final QualifiedName VALID_CHILD = new QualifiedName(null, "validChild");
 
-	private Document document;
-	private Element rootElement;
-	private Element titleElement;
+	private IDocument document;
+	private IElement rootElement;
+	private IElement titleElement;
 
 	@Before
 	public void setUp() throws Exception {
