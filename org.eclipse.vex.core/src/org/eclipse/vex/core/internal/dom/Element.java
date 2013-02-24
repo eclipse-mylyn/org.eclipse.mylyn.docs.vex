@@ -156,6 +156,14 @@ public class Element extends Parent implements IElement {
 		document.fireAttributeChanged(new AttributeChangeEvent(document, this, name, oldValue, newValue));
 	}
 
+	public boolean canSetAttribute(final String localName, final String value) {
+		return canSetAttribute(qualify(localName), value);
+	}
+
+	public boolean canSetAttribute(final QualifiedName name, final String value) {
+		return true; // TODO implement validation for attribute values
+	}
+
 	public void setAttribute(final String localName, final String value) throws DocumentValidationException {
 		setAttribute(qualify(localName), value);
 	}

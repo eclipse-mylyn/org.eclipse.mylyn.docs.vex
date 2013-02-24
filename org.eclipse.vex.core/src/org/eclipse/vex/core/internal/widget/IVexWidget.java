@@ -441,6 +441,15 @@ public interface IVexWidget {
 	 */
 
 	/**
+	 * @param attributeName
+	 *            local name of the attribute being changed.
+	 * @param value
+	 *            New value for the attribute. If null, the attribute is removed from the element.
+	 * @return true if the given value is valid for the attribute with the given name
+	 */
+	boolean canSetAttribute(String attributeName, String value);
+
+	/**
 	 * Sets the value of an attribute in the current element. Attributes set in this manner (as opposed to calling
 	 * Element.setAttribute directly) will be subject to undo/redo.
 	 * 

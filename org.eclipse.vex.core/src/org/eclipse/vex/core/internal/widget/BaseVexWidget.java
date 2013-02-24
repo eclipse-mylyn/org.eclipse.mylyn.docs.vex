@@ -407,6 +407,9 @@ public class BaseVexWidget implements IVexWidget {
 	}
 
 	public boolean canDeleteSelection() {
+		if (readOnly) {
+			return false;
+		}
 		if (!hasSelection()) {
 			return false;
 		}
@@ -1342,6 +1345,18 @@ public class BaseVexWidget implements IVexWidget {
 	 */
 	public void setAntiAliased(final boolean antiAliased) {
 		this.antiAliased = antiAliased;
+	}
+
+	public boolean canSetAttribute(final String attributeName, final String value) {
+		if (readOnly) {
+			return false;
+		}
+		final IElement element = getCurrentElement();
+		if (element == null) {
+			return false;
+		}
+		final QualifiedName qualifiedAttributeName = element.qualify(attributeName);
+		return element.canSetAttribute(qualifiedAttributeName, value);
 	}
 
 	public void setAttribute(final String attributeName, final String value) throws ReadOnlyException {

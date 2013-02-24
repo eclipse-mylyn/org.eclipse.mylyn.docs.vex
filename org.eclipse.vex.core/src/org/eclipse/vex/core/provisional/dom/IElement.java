@@ -112,6 +112,24 @@ public interface IElement extends IParent {
 	void removeAttribute(QualifiedName name) throws DocumentValidationException;
 
 	/**
+	 * @param localName
+	 *            the local name of the attribute
+	 * @param value
+	 *            the new attribute value
+	 * @return true if the given value is valid for the attribute with the given local name
+	 */
+	boolean canSetAttribute(String localName, String value);
+
+	/**
+	 * @param name
+	 *            the qualified name of the attribute
+	 * @param value
+	 *            the new attribute value
+	 * @return true if the given value is valid for the attribute with the given qualified name
+	 */
+	boolean canSetAttribute(QualifiedName name, String value);
+
+	/**
 	 * Set the attribute with the given local name to the given value.
 	 * 
 	 * @param localName

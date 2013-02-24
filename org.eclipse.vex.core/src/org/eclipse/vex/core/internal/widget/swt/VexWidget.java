@@ -400,6 +400,10 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 		impl.selectWord();
 	}
 
+	public boolean canSetAttribute(final String attributeName, final String value) {
+		return impl.canSetAttribute(attributeName, value);
+	}
+
 	public void setAttribute(final String attributeName, final String value) {
 		impl.setAttribute(attributeName, value);
 	}
