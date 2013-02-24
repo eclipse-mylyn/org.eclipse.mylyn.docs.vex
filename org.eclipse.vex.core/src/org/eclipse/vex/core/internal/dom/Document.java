@@ -399,6 +399,44 @@ public class Document extends Parent implements IDocument {
 		}
 	}
 
+	public boolean canDelete(final ContentRange range) {
+		final IParent surroundingParent = getParentAt(range.getStartOffset());
+		final IParent parentAtEndOffset = getParentAt(range.getEndOffset());
+		if (surroundingParent != parentAtEndOffset) {
+			return false; // the range is unbalanced
+		}
+
+		final Parent parentForDeletion;
+		if (range.equals(surroundingParent.getRange())) {
+			parentForDeletion = (Parent) surroundingParent.getParent();
+		} else {
+			parentForDeletion = (Parent) surroundingParent;
+		}
+
+		final boolean deletionIsValid = parentForDeletion.accept(new BaseNodeVisitorWithResult<Boolean>(true) {
+			@Override
+			public Boolean visit(final IDocument document) {
+				if (range.intersects(document.getRootElement().getRange())) {
+					return false;
+				}
+				return true;
+			}
+
+			@Override
+			public Boolean visit(final IElement element) {
+				final IValidator validator = getValidator();
+				if (validator == null) {
+					return true;
+				}
+				final List<QualifiedName> prefix = getNodeNames(element.children().before(range.getStartOffset()));
+				final List<QualifiedName> suffix = getNodeNames(element.children().after(range.getEndOffset()));
+				return validator.isValidSequence(element.getQualifiedName(), prefix, suffix, null, true);
+			}
+		});
+
+		return deletionIsValid;
+	}
+
 	public void delete(final ContentRange range) throws DocumentValidationException {
 		IParent surroundingParent = getParentAt(range.getStartOffset());
 		if (range.getStartOffset() == surroundingParent.getStartOffset()) {

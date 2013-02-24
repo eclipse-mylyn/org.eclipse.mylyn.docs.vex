@@ -198,6 +198,10 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 		impl.deletePreviousChar();
 	}
 
+	public boolean canDeleteSelection() {
+		return impl.canDeleteSelection();
+	}
+
 	public void deleteSelection() {
 		impl.deleteSelection();
 	}

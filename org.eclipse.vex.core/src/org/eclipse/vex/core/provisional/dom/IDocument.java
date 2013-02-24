@@ -201,6 +201,13 @@ public interface IDocument extends IParent {
 	void insertFragment(int offset, IDocumentFragment fragment) throws DocumentValidationException;
 
 	/**
+	 * @param range
+	 *            the range to delete
+	 * @return true if the given range can be deleted
+	 */
+	boolean canDelete(ContentRange range);
+
+	/**
 	 * Delete everything in the given range. The range must be balanced i.e. it must start in the same node as it ends.
 	 * 
 	 * @param range

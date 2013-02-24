@@ -310,6 +310,11 @@ public interface IVexWidget {
 	void selectWord();
 
 	/**
+	 * @return true if the current selection can be deleted. Returns false if there is no selection.
+	 */
+	boolean canDeleteSelection();
+
+	/**
 	 * Delete the current selection. Does nothing if there is no current selection.
 	 */
 	void deleteSelection();

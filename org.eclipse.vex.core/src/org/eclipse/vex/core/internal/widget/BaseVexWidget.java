@@ -406,6 +406,13 @@ public class BaseVexWidget implements IVexWidget {
 		}
 	}
 
+	public boolean canDeleteSelection() {
+		if (!hasSelection()) {
+			return false;
+		}
+		return document.canDelete(getSelectedRange());
+	}
+
 	public void deleteSelection() throws ReadOnlyException {
 		if (readOnly) {
 			throw new ReadOnlyException("Cannot delete, because the editor is read-only.");
