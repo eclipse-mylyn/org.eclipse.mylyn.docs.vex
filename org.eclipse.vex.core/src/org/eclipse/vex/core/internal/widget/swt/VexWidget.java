@@ -384,6 +384,10 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 		impl.redo();
 	}
 
+	public boolean canRemoveAttribute(final String attributeName) {
+		return impl.canRemoveAttribute(attributeName);
+	}
+
 	public void removeAttribute(final String attributeName) {
 		impl.removeAttribute(attributeName);
 	}

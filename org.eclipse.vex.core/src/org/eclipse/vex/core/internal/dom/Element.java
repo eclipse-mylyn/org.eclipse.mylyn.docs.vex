@@ -133,6 +133,14 @@ public class Element extends Parent implements IElement {
 		return attribute.getValue();
 	}
 
+	public boolean canRemoveAttribute(final String localName) {
+		return canRemoveAttribute(qualify(localName));
+	}
+
+	public boolean canRemoveAttribute(final QualifiedName name) {
+		return true; // TODO implement validation for attribute values
+	}
+
 	public void removeAttribute(final String localName) throws DocumentValidationException {
 		removeAttribute(qualify(localName));
 	}

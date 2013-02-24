@@ -92,6 +92,20 @@ public interface IElement extends IParent {
 	String getAttributeValue(QualifiedName name);
 
 	/**
+	 * @param localName
+	 *            the local name of the attribute to remove
+	 * @return true if it is valid to remove the attribute with the given local name
+	 */
+	boolean canRemoveAttribute(String localName);
+
+	/**
+	 * @param name
+	 *            the qualified name of the attribute to remove
+	 * @return true if it is valid to remove the attribute with the given qualified name
+	 */
+	boolean canRemoveAttribute(QualifiedName name);
+
+	/**
 	 * Remove the attribute with the given local name.
 	 * 
 	 * @param localName

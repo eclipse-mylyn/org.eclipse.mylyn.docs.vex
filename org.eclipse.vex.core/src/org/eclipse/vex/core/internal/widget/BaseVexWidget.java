@@ -1366,7 +1366,6 @@ public class BaseVexWidget implements IVexWidget {
 
 		final IElement element = getCurrentElement();
 		if (element == null) {
-			// TODO throw IllegalStateException("Not in element");
 			return;
 		}
 
@@ -1377,6 +1376,20 @@ public class BaseVexWidget implements IVexWidget {
 		} else if (!value.equals(currentAttributeValue)) {
 			applyEdit(new ChangeAttributeEdit(element, qualifiedAttributeName, currentAttributeValue, value), getCaretOffset());
 		}
+	}
+
+	public boolean canRemoveAttribute(final String attributeName) {
+		if (readOnly) {
+			return false;
+		}
+
+		final IElement element = getCurrentElement();
+		if (element == null) {
+			return false;
+		}
+
+		final QualifiedName qualifiedAttributeName = element.qualify(attributeName);
+		return element.canRemoveAttribute(qualifiedAttributeName);
 	}
 
 	public void removeAttribute(final String attributeName) throws ReadOnlyException {

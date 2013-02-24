@@ -461,6 +461,13 @@ public interface IVexWidget {
 	void setAttribute(String attributeName, String value);
 
 	/**
+	 * @param attributeName
+	 *            the local name of the attribute to remove
+	 * @return true if it is valid to remove the attribute with the given name
+	 */
+	boolean canRemoveAttribute(String attributeName);
+
+	/**
 	 * Removes an attribute from the current element. Attributes removed in this manner (as opposed to calling
 	 * Element.setAttribute directly) will be subject to undo/redo.
 	 * 
