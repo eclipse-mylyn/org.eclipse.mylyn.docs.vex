@@ -21,11 +21,13 @@ import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.dom.Document;
 import org.eclipse.vex.core.internal.validator.WTPVEXValidator;
+import org.eclipse.vex.core.provisional.dom.IDocument;
 import org.eclipse.vex.core.provisional.dom.IDocumentFragment;
 import org.eclipse.vex.core.provisional.dom.IElement;
 import org.eclipse.vex.core.provisional.dom.INode;
 import org.eclipse.vex.core.provisional.dom.IText;
 import org.eclipse.vex.core.provisional.dom.IValidator;
+import org.junit.Before;
 import org.junit.Test;
 
 public class VexWidgetTest {
@@ -33,9 +35,15 @@ public class VexWidgetTest {
 	public static final QualifiedName TITLE = new QualifiedName(null, "title");
 	public static final QualifiedName PARA = new QualifiedName(null, "para");
 
+	private IVexWidget widget;
+
+	@Before
+	public void setUp() throws Exception {
+		widget = new BaseVexWidget(new MockHostComponent());
+	}
+
 	@Test
 	public void provideOnlyAllowedElementsFromDtd() throws Exception {
-		final BaseVexWidget widget = new BaseVexWidget(new MockHostComponent());
 		widget.setDocument(createDocumentWithDTD(TEST_DTD, "section"), StyleSheet.NULL);
 		assertCanInsertOnly(widget, "title", "para");
 		widget.insertElement(new QualifiedName(null, "title"));
@@ -49,7 +57,6 @@ public class VexWidgetTest {
 
 	@Test
 	public void provideOnlyAllowedElementsFromSimpleSchema() throws Exception {
-		final BaseVexWidget widget = new BaseVexWidget(new MockHostComponent());
 		widget.setDocument(createDocument(CONTENT_NS, "p"), StyleSheet.NULL);
 		assertCanInsertOnly(widget, "b", "i");
 		widget.insertElement(new QualifiedName(CONTENT_NS, "b"));
@@ -60,7 +67,6 @@ public class VexWidgetTest {
 
 	@Test
 	public void provideOnlyAllowedElementFromComplexSchema() throws Exception {
-		final BaseVexWidget widget = new BaseVexWidget(new MockHostComponent());
 		widget.setDocument(createDocument(STRUCTURE_NS, "chapter"), StyleSheet.NULL);
 		assertCanInsertOnly(widget, "title", "chapter", "p");
 		widget.insertElement(new QualifiedName(STRUCTURE_NS, "title"));
@@ -77,7 +83,7 @@ public class VexWidgetTest {
 	@Test
 	public void provideNoAllowedElementsForInsertionInComment() throws Exception {
 		final BaseVexWidget widget = new BaseVexWidget(new MockHostComponent());
-		final Document document = createDocument(STRUCTURE_NS, "chapter");
+		final IDocument document = createDocument(STRUCTURE_NS, "chapter");
 		widget.setDocument(document, StyleSheet.NULL);
 		widget.insertElement(new QualifiedName(STRUCTURE_NS, "title"));
 		widget.moveBy(1);
@@ -121,14 +127,14 @@ public class VexWidgetTest {
 		assertEquals(expectedContentStructure, getContentStructure(widget.getDocument().getRootElement()));
 	}
 
-	public static Document createDocumentWithDTD(final String dtdIdentifier, final String rootElementName) {
+	public static IDocument createDocumentWithDTD(final String dtdIdentifier, final String rootElementName) {
 		final IValidator validator = new WTPVEXValidator(dtdIdentifier);
 		final Document document = new Document(new QualifiedName(null, rootElementName));
 		document.setValidator(validator);
 		return document;
 	}
 
-	public static Document createDocument(final String rootSchemaIdentifier, final String rootElementName) {
+	public static IDocument createDocument(final String rootSchemaIdentifier, final String rootElementName) {
 		final IValidator validator = new WTPVEXValidator();
 		final Document document = new Document(new QualifiedName(rootSchemaIdentifier, rootElementName));
 		document.setValidator(validator);

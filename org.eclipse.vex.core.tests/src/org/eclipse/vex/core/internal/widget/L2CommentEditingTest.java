@@ -12,6 +12,7 @@ package org.eclipse.vex.core.internal.widget;
 
 import static org.eclipse.vex.core.internal.widget.VexWidgetTest.TITLE;
 import static org.eclipse.vex.core.internal.widget.VexWidgetTest.createDocumentWithDTD;
+import static org.eclipse.vex.core.internal.widget.VexWidgetTest.getContentStructure;
 import static org.eclipse.vex.core.tests.TestResources.TEST_DTD;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -21,7 +22,9 @@ import static org.junit.Assert.assertTrue;
 
 import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.provisional.dom.IComment;
+import org.eclipse.vex.core.provisional.dom.IDocumentFragment;
 import org.eclipse.vex.core.provisional.dom.IElement;
+import org.eclipse.vex.core.provisional.dom.INode;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -80,4 +83,37 @@ public class L2CommentEditingTest {
 		widget.insertComment();
 		assertFalse("can insert comment within comment", widget.canInsertComment());
 	}
+
+	@Test
+	public void undoRemoveCommentTag() throws Exception {
+		widget.insertElement(TITLE);
+		widget.insertText("1text before comment1");
+		widget.insertComment();
+		final INode comment = widget.getDocument().getChildAt(widget.getCaretOffset());
+		widget.insertText("2comment text2");
+		widget.moveBy(1);
+		widget.insertText("3text after comment3");
+
+		final String expectedContentStructure = getContentStructure(widget.getDocument().getRootElement());
+
+		widget.doWork(new Runnable() {
+			public void run() {
+				widget.moveTo(comment.getStartOffset() + 1, false);
+				widget.moveTo(comment.getEndOffset() - 1, true);
+				final IDocumentFragment fragment = widget.getSelectedFragment();
+				widget.deleteSelection();
+
+				widget.moveBy(-1, false);
+				widget.moveBy(1, true);
+				widget.deleteSelection();
+
+				widget.insertFragment(fragment);
+			}
+		});
+
+		widget.undo();
+
+		assertEquals(expectedContentStructure, getContentStructure(widget.getDocument().getRootElement()));
+	}
+
 }

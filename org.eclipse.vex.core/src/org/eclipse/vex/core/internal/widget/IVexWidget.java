@@ -309,6 +309,11 @@ public interface IVexWidget {
 	 */
 	void selectWord();
 
+	/**
+	 * Delete the current selection. Does nothing if there is no current selection.
+	 */
+	void deleteSelection();
+
 	/*
 	 * Caret Movement
 	 */
@@ -415,25 +420,6 @@ public interface IVexWidget {
 	void moveToPreviousWord(boolean select);
 
 	/*
-	 * Deletion
-	 */
-
-	/**
-	 * Deletes the character to the right of the caret.
-	 */
-	void deleteNextChar() throws DocumentValidationException;
-
-	/**
-	 * Deletes the character to the left of the caret.
-	 */
-	void deletePreviousChar() throws DocumentValidationException;
-
-	/**
-	 * Delete the current selection. Does nothing if there is no current selection.
-	 */
-	void deleteSelection();
-
-	/*
 	 * Namespaces
 	 */
 
@@ -488,6 +474,16 @@ public interface IVexWidget {
 	 *            Character to insert.
 	 */
 	void insertChar(char c) throws DocumentValidationException;
+
+	/**
+	 * Deletes the character to the right of the caret.
+	 */
+	void deleteNextChar() throws DocumentValidationException;
+
+	/**
+	 * Deletes the character to the left of the caret.
+	 */
+	void deletePreviousChar() throws DocumentValidationException;
 
 	/**
 	 * Inserts the given text at the current caret position. Any selected content is first deleted.
