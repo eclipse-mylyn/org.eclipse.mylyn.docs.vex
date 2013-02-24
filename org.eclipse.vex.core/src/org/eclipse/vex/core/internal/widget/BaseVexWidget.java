@@ -214,40 +214,26 @@ public class BaseVexWidget implements IVexWidget {
 		if (readOnly) {
 			return false;
 		}
-		return getDocument().canInsertComment(getCaretOffset());
-	}
-
-	public boolean canInsertFragment(final IDocumentFragment fragment) {
-		if (readOnly) {
-			return false;
-		}
-
 		final IDocument doc = getDocument();
 		if (doc == null) {
 			return false;
 		}
+		return doc.canInsertComment(getCaretOffset());
+	}
 
-		final IValidator validator = doc.getValidator();
-		if (validator == null) {
-			return true;
-		}
-
-		int startOffset = getCaretOffset();
-		int endOffset = getCaretOffset();
-		if (hasSelection()) {
-			startOffset = getSelectionStart();
-			endOffset = getSelectionEnd();
-		}
-
-		final IElement parent = getDocument().getElementForInsertionAt(startOffset);
-		final List<QualifiedName> seq1 = Node.getNodeNames(parent.children().before(startOffset));
-		final List<QualifiedName> seq2 = fragment.getNodeNames();
-		final List<QualifiedName> seq3 = Node.getNodeNames(parent.children().after(endOffset));
-
-		return validator.isValidSequence(parent.getQualifiedName(), seq1, seq2, seq3, true);
+	public boolean canInsertFragment(final IDocumentFragment fragment) {
+		return canInsertAtCurrentSelection(fragment.getNodeNames());
 	}
 
 	public boolean canInsertText() {
+		return canReplaceCurrentSelectionWith(IValidator.PCDATA);
+	}
+
+	private boolean canReplaceCurrentSelectionWith(final QualifiedName... nodeNames) {
+		return canInsertAtCurrentSelection(Arrays.asList(nodeNames));
+	}
+
+	private boolean canInsertAtCurrentSelection(final List<QualifiedName> nodeNames) {
 		if (readOnly) {
 			return false;
 		}
@@ -271,7 +257,7 @@ public class BaseVexWidget implements IVexWidget {
 
 		final IElement parent = getDocument().getElementForInsertionAt(startOffset);
 		final List<QualifiedName> seq1 = Node.getNodeNames(parent.children().before(startOffset));
-		final List<QualifiedName> seq2 = Collections.singletonList(IValidator.PCDATA);
+		final List<QualifiedName> seq2 = nodeNames;
 		final List<QualifiedName> seq3 = Node.getNodeNames(parent.children().after(endOffset));
 
 		return validator.isValidSequence(parent.getQualifiedName(), seq1, seq2, seq3, true);
@@ -787,6 +773,10 @@ public class BaseVexWidget implements IVexWidget {
 
 	public boolean hasSelection() {
 		return getSelectionStart() != getSelectionEnd();
+	}
+
+	public boolean canInsertElement(final QualifiedName elementName) {
+		return canReplaceCurrentSelectionWith(elementName);
 	}
 
 	public IElement insertElement(final QualifiedName elementName) throws DocumentValidationException, ReadOnlyException {

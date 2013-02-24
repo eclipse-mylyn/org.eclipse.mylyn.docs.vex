@@ -529,6 +529,14 @@ public interface IVexWidget {
 	ElementName[] getValidMorphElements();
 
 	/**
+	 * @param elementName
+	 *            the qualified name of the element to insert
+	 * @return true if an element with the given name can be inserted at the current caret position/instead of the
+	 *         current selection
+	 */
+	boolean canInsertElement(QualifiedName elementName);
+
+	/**
 	 * Inserts the given element at the current caret position. Any selected content becomes the new contents of the
 	 * element.
 	 * 
@@ -538,6 +546,9 @@ public interface IVexWidget {
 	 */
 	IElement insertElement(QualifiedName elementName) throws DocumentValidationException;
 
+	/**
+	 * @return true if a comment can be inserted at the current caret position/instead of the current selection
+	 */
 	boolean canInsertComment();
 
 	/**
