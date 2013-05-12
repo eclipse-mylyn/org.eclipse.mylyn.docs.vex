@@ -75,6 +75,19 @@ public class VexWidgetTest {
 	}
 
 	@Test
+	public void provideNoAllowedElementsForInsertionInComment() throws Exception {
+		final VexWidgetImpl widget = new VexWidgetImpl(new MockHostComponent());
+		final Document document = createDocument(STRUCTURE_NS, "chapter");
+		widget.setDocument(document, StyleSheet.NULL);
+		widget.insertElement(new QualifiedName(STRUCTURE_NS, "title"));
+		widget.moveBy(1);
+		widget.insertElement(new QualifiedName(CONTENT_NS, "p"));
+		widget.insertComment();
+
+		assertCannotInsertAnything(widget);
+	}
+
+	@Test
 	public void undoRemoveCommentTag() throws Exception {
 		final VexWidgetImpl widget = new VexWidgetImpl(new MockHostComponent());
 		widget.setDocument(createDocument(STRUCTURE_NS, "chapter"), StyleSheet.NULL);
@@ -126,6 +139,10 @@ public class VexWidgetTest {
 		final String[] expected = sortedCopyOf(elementNames);
 		final String[] actual = sortedCopyOf(widget.getValidInsertElements());
 		assertEquals(Arrays.toString(expected), Arrays.toString(actual));
+	}
+
+	public static void assertCannotInsertAnything(final IVexWidget widget) {
+		assertCanInsertOnly(widget /* nothing */);
 	}
 
 	public static String[] sortedCopyOf(final Object[] objects) {

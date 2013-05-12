@@ -9,6 +9,7 @@
  *     John Krasnay - initial API and implementation
  *     Igor Jacy Lino Campista - Java 5 warnings fixed (bug 311325)
  *     Florian Thienel - refactoring to full fledged DOM
+ *     Carsten Hiesserich - handling of elements within comments (bug 407801)
  *******************************************************************************/
 package org.eclipse.vex.core.internal.dom;
 
@@ -212,6 +213,11 @@ public class Document extends Parent implements IDocument {
 
 			@Override
 			public Boolean visit(final IComment comment) {
+				for (final QualifiedName nodeName : nodeNames) {
+					if (!nodeName.equals(IValidator.PCDATA)) {
+						return false;
+					}
+				}
 				return true;
 			}
 
@@ -307,7 +313,7 @@ public class Document extends Parent implements IDocument {
 	}
 
 	public boolean canInsertElement(final int offset, final QualifiedName elementName) {
-		return canInsertAt(getElementForInsertionAt(offset), offset, elementName);
+		return canInsertAt(getNodeForInsertionAt(offset), offset, elementName);
 	}
 
 	public Element insertElement(final int offset, final QualifiedName elementName) throws DocumentValidationException {
@@ -315,7 +321,8 @@ public class Document extends Parent implements IDocument {
 				MessageFormat.format("Offset must be in [{0}, {1}]", rootElement.getStartOffset() + 1, rootElement.getEndOffset()));
 
 		final Element parent = getElementForInsertionAt(offset);
-		if (!canInsertAt(parent, offset, elementName)) {
+		final INode node = getNodeForInsertionAt(offset);
+		if (!canInsertAt(node, offset, elementName)) {
 			throw new DocumentValidationException(MessageFormat.format("Cannot insert element {0} at offset {1}.", elementName, offset));
 		}
 
@@ -334,14 +341,15 @@ public class Document extends Parent implements IDocument {
 	}
 
 	public boolean canInsertFragment(final int offset, final IDocumentFragment fragment) {
-		return canInsertAt(getElementForInsertionAt(offset), offset, fragment.getNodeNames());
+		return canInsertAt(getNodeForInsertionAt(offset), offset, fragment.getNodeNames());
 	}
 
 	public void insertFragment(final int offset, final IDocumentFragment fragment) throws DocumentValidationException {
 		Assert.isTrue(isInsertionPointIn(this, offset), "Cannot insert fragment outside of the document range.");
 
 		final Element parent = getElementForInsertionAt(offset);
-		if (!canInsertAt(parent, offset, fragment.getNodeNames())) {
+		final INode node = getNodeForInsertionAt(offset);
+		if (!canInsertAt(node, offset, fragment.getNodeNames())) {
 			throw new DocumentValidationException(MessageFormat.format("Cannot insert document fragment at offset {0}.", offset));
 		}
 

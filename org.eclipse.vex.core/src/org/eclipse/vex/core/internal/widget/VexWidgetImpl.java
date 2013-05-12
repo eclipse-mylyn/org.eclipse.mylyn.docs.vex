@@ -10,6 +10,7 @@
  *     Igor Jacy Lino Campista - Java 5 warnings fixed (bug 311325)
  *     Holger Voormann - bug 315914: content assist should only show elements 
  *			valid in the current context
+ *     Carsten Hiesserich - handling of elements within comments (bug 407801)
  *******************************************************************************/
 package org.eclipse.vex.core.internal.widget;
 
@@ -61,6 +62,7 @@ import org.eclipse.vex.core.provisional.dom.BaseNodeVisitorWithResult;
 import org.eclipse.vex.core.provisional.dom.ContentChangeEvent;
 import org.eclipse.vex.core.provisional.dom.ContentRange;
 import org.eclipse.vex.core.provisional.dom.DocumentValidationException;
+import org.eclipse.vex.core.provisional.dom.Filters;
 import org.eclipse.vex.core.provisional.dom.IComment;
 import org.eclipse.vex.core.provisional.dom.IDocument;
 import org.eclipse.vex.core.provisional.dom.IDocumentFragment;
@@ -621,10 +623,13 @@ public class VexWidgetImpl implements IVexWidget {
 		final int startOffset = getStartOffset();
 		final int endOffset = getEndOffset();
 
-		final IElement parent = doc.getElementForInsertionAt(startOffset);
-		if (parent == null) {
+		final INode parentNode = doc.getNodeForInsertionAt(startOffset);
+		final boolean parentNodeIsElement = Filters.elements().matches(parentNode);
+		if (!parentNodeIsElement) {
 			return new ElementName[0];
 		}
+
+		final IElement parent = (IElement) parentNode;
 
 		final List<QualifiedName> nodesBefore = Node.getNodeNames(parent.children().before(startOffset));
 		final List<QualifiedName> nodesAfter = Node.getNodeNames(parent.children().after(endOffset));

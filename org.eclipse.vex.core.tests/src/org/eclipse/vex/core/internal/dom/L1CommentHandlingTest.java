@@ -7,6 +7,7 @@
  * 
  * Contributors:
  * 		Florian Thienel - initial API and implementation
+ *      Carsten Hiesserich - handling of elements within comments (bug 407801)
  *******************************************************************************/
 package org.eclipse.vex.core.internal.dom;
 
@@ -29,6 +30,8 @@ import org.junit.Test;
  * @author Florian Thienel
  */
 public class L1CommentHandlingTest {
+
+	private static final QualifiedName VALID_CHILD = new QualifiedName(null, "validChild");
 
 	private Document document;
 	private Element rootElement;
@@ -96,5 +99,24 @@ public class L1CommentHandlingTest {
 		assertSame(comment, actualChildren.next());
 		assertSame(rootElement, actualChildren.next());
 		assertFalse(actualChildren.hasNext());
+	}
+
+	@Test
+	public void shouldIndicateInvalidInsertionInComments() throws Exception {
+		final IComment comment = document.insertComment(titleElement.getStartOffset());
+		assertFalse(document.canInsertElement(comment.getEndOffset(), VALID_CHILD));
+		assertFalse(document.canInsertComment(comment.getEndOffset()));
+	}
+
+	@Test(expected = DocumentValidationException.class)
+	public void shouldNotInsertElementInComment() throws Exception {
+		final IComment comment = document.insertComment(titleElement.getStartOffset());
+		document.insertElement(comment.getEndOffset(), VALID_CHILD);
+	}
+
+	@Test(expected = DocumentValidationException.class)
+	public void shouldNotInsertCommentInComment() throws Exception {
+		final IComment comment = document.insertComment(titleElement.getStartOffset());
+		document.insertComment(comment.getEndOffset());
 	}
 }
