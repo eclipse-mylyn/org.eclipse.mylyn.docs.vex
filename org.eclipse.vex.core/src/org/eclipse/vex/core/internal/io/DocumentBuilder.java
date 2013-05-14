@@ -8,10 +8,12 @@
  * Contributors:
  *     John Krasnay - initial API and implementation
  *     Igor Jacy Lino Campista - Java 5 warnings fixed (bug 311325)
+ *     Carsten Hiesserich - do not add text nodes containing only whitespace when reading the document (bug 407803)
  *******************************************************************************/
 package org.eclipse.vex.core.internal.io;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -22,10 +24,16 @@ import org.eclipse.vex.core.internal.dom.Document;
 import org.eclipse.vex.core.internal.dom.Element;
 import org.eclipse.vex.core.internal.dom.GapContent;
 import org.eclipse.vex.core.internal.dom.Node;
+import org.eclipse.vex.core.provisional.dom.BaseNodeVisitorWithResult;
 import org.eclipse.vex.core.provisional.dom.ContentRange;
 import org.eclipse.vex.core.provisional.dom.DocumentValidationException;
+import org.eclipse.vex.core.provisional.dom.IComment;
 import org.eclipse.vex.core.provisional.dom.IContent;
 import org.eclipse.vex.core.provisional.dom.IDocument;
+import org.eclipse.vex.core.provisional.dom.IElement;
+import org.eclipse.vex.core.provisional.dom.INode;
+import org.eclipse.vex.core.provisional.dom.IText;
+import org.eclipse.vex.core.provisional.dom.IValidator;
 import org.xml.sax.Attributes;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.Locator;
@@ -46,7 +54,7 @@ import org.xml.sax.ext.LexicalHandler;
  */
 public class DocumentBuilder implements ContentHandler, LexicalHandler {
 
-	private final DocumentContentModel documentContentModel;
+	private final IValidator validator;
 
 	private IWhitespacePolicy policy;
 
@@ -80,9 +88,9 @@ public class DocumentBuilder implements ContentHandler, LexicalHandler {
 	private IDocument document;
 	private Locator locator;
 
-	public DocumentBuilder(final String baseUri, final DocumentContentModel documentContentModel) {
+	public DocumentBuilder(final String baseUri, final IValidator validator) {
 		this.baseUri = baseUri;
-		this.documentContentModel = documentContentModel;
+		this.validator = validator;
 	}
 
 	/**
@@ -209,6 +217,7 @@ public class DocumentBuilder implements ContentHandler, LexicalHandler {
 			}
 		}
 
+		final DocumentContentModel documentContentModel = validator.getDocumentContentModel();
 		if (stack.isEmpty() && documentContentModel != null) {
 			documentContentModel.initialize(baseUri, dtdPublicID, dtdSystemID, rootElement);
 			policy = documentContentModel.getWhitespacePolicy();
@@ -255,7 +264,7 @@ public class DocumentBuilder implements ContentHandler, LexicalHandler {
 
 			trimLeading = true;
 			appendPendingCharsFiltered(ch, start, length);
-			appendChars(true);
+			appendCharsNoValidation(true); // Trailing whitespace of a comment must not be removed (could end with '-- ')
 
 			content.insertTagMarker(content.length());
 			comment.associate(content, new ContentRange(startOffset, content.length() - 1));
@@ -271,7 +280,7 @@ public class DocumentBuilder implements ContentHandler, LexicalHandler {
 
 			trimLeading = true;
 			appendPendingCharsFiltered(ch, start, length);
-			appendChars(true);
+			appendCharsNoValidation(true); // Trailing whitespace of a comment must not be removed (could end with '-- ')
 
 			content.insertTagMarker(content.length());
 			comment.associate(content, new ContentRange(startOffset, content.length() - 1));
@@ -291,7 +300,7 @@ public class DocumentBuilder implements ContentHandler, LexicalHandler {
 
 			trimLeading = true;
 			appendPendingCharsFiltered(ch, start, length);
-			appendChars(true);
+			appendCharsNoValidation(true); // Trailing whitespace of a comment must not be removed (could end with '-- ')
 
 			content.insertTagMarker(content.length());
 			comment.associate(content, new ContentRange(startOffset, content.length() - 1));
@@ -340,6 +349,24 @@ public class DocumentBuilder implements ContentHandler, LexicalHandler {
 
 		sb = cleanUpTextContent(trimTrailing);
 
+		if (!stack.isEmpty()) {
+			final Element parent = stack.getLast().element;
+			if (canInsertText(parent, 0) || sb.toString().trim().length() > 0) {
+				// Whitespace only is ignored if element does not allow text
+				content.insertText(content.length(), sb.toString());
+			}
+		}
+
+		pendingChars.setLength(0);
+		trimLeading = false;
+	}
+
+	// Append any pending characters without validation
+	private void appendCharsNoValidation(final boolean trimTrailing) {
+		StringBuilder sb;
+
+		sb = cleanUpTextContent(trimTrailing);
+
 		content.insertText(content.length(), sb.toString());
 
 		pendingChars.setLength(0);
@@ -359,7 +386,7 @@ public class DocumentBuilder implements ContentHandler, LexicalHandler {
 			boolean ws = false; // true if we're in a run of whitespace
 			for (int i = 0; i < pendingChars.length(); i++) {
 				final char c = pendingChars.charAt(i);
-				if (Character.isWhitespace(c)) {
+				if (isXmlWhitespace(c)) {
 					ws = true;
 				} else {
 					if (ws) {
@@ -385,12 +412,42 @@ public class DocumentBuilder implements ContentHandler, LexicalHandler {
 		return sb;
 	}
 
+	private static boolean isXmlWhitespace(final char c) {
+		// whitespace according to the W3C recommendation (http://www.w3.org/TR/REC-xml/#NT-S)
+		return c == 0x20 || c == 0x9 || c == 0xD || c == 0xA;
+	}
+
 	private boolean isBlock(final Node node) {
 		return policy != null && policy.isBlock(node);
 	}
 
 	private boolean isPre(final Node node) {
 		return policy != null && policy.isPre(node);
+	}
+
+	private boolean canInsertText(final INode insertionNode, final int offset) {
+
+		final List<QualifiedName> textNode = Arrays.asList(IValidator.PCDATA);
+
+		if (insertionNode == null) {
+			return false;
+		}
+		return insertionNode.accept(new BaseNodeVisitorWithResult<Boolean>(false) {
+			@Override
+			public Boolean visit(final IElement element) {
+				return validator.isValidSequence(element.getQualifiedName(), textNode, null, null, true);
+			}
+
+			@Override
+			public Boolean visit(final IComment comment) {
+				return true;
+			}
+
+			@Override
+			public Boolean visit(final IText text) {
+				return true;
+			}
+		});
 	}
 
 	/**

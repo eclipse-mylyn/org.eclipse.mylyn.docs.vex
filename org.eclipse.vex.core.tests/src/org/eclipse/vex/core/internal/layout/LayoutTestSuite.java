@@ -28,6 +28,7 @@ import junit.framework.TestSuite;
 import org.eclipse.vex.core.internal.css.CssWhitespacePolicy;
 import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.css.StyleSheetReader;
+import org.eclipse.vex.core.internal.dom.DummyValidator;
 import org.eclipse.vex.core.internal.io.DocumentContentModel;
 import org.eclipse.vex.core.internal.io.DocumentReader;
 import org.eclipse.vex.core.internal.io.IWhitespacePolicy;
@@ -103,12 +104,12 @@ public class LayoutTestSuite extends TestCase {
 		final CssWhitespacePolicy policy = new CssWhitespacePolicy(ss);
 
 		final DocumentReader docReader = new DocumentReader();
-		docReader.setDocumentContentModel(new DocumentContentModel() {
+		docReader.setValidator(new DummyValidator(new DocumentContentModel() {
 			@Override
 			public IWhitespacePolicy getWhitespacePolicy() {
 				return policy;
 			}
-		});
+		}));
 		final IDocument doc = docReader.read(this.doc);
 		context.setDocument(doc);
 

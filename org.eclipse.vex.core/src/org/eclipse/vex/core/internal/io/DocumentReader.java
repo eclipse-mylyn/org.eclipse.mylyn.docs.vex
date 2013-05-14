@@ -23,6 +23,7 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParserFactory;
 
 import org.eclipse.vex.core.provisional.dom.IDocument;
+import org.eclipse.vex.core.provisional.dom.IValidator;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.EntityResolver;
 import org.xml.sax.InputSource;
@@ -37,7 +38,7 @@ public class DocumentReader {
 
 	private boolean debugging;
 
-	private DocumentContentModel documentContentModel = new DocumentContentModel(); // use the default implementation as default
+	private IValidator validator = IValidator.NULL;
 
 	private EntityResolver entityResolver;
 
@@ -50,7 +51,7 @@ public class DocumentReader {
 				result = null;
 			}
 			if (result == null) {
-				return documentContentModel.resolveEntity(publicId, systemId);
+				return validator.getDocumentContentModel().resolveEntity(publicId, systemId);
 			}
 			return result;
 		}
@@ -103,7 +104,7 @@ public class DocumentReader {
 		factory.setNamespaceAware(true);
 
 		final XMLReader xmlReader = factory.newSAXParser().getXMLReader();
-		final DocumentBuilder builder = new DocumentBuilder(is.getSystemId(), getDocumentContentModel());
+		final DocumentBuilder builder = new DocumentBuilder(is.getSystemId(), validator);
 
 		ContentHandler contentHandler = builder;
 		LexicalHandler lexicalHandler = builder;
@@ -155,12 +156,11 @@ public class DocumentReader {
 		this.entityResolver = entityResolver;
 	}
 
-	public DocumentContentModel getDocumentContentModel() {
-		return documentContentModel;
+	public void setValidator(final IValidator validator) {
+		this.validator = validator;
 	}
 
-	public void setDocumentContentModel(final DocumentContentModel documentContentModel) {
-		this.documentContentModel = documentContentModel;
+	public IValidator getValidator() {
+		return validator;
 	}
-
 }

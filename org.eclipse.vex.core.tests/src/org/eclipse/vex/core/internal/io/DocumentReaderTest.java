@@ -7,6 +7,7 @@
  * 
  * Contributors:
  * 		Florian Thienel - initial API and implementation
+ *      Carsten Hiesserich - do not add text nodes containing only whitespace when reading the document (bug 407803)
  *******************************************************************************/
 package org.eclipse.vex.core.internal.io;
 
@@ -21,10 +22,15 @@ import java.io.IOException;
 import java.net.URL;
 import java.util.Iterator;
 
+import org.eclipse.vex.core.IFilter;
+import org.eclipse.vex.core.internal.dom.DummyValidator;
+import org.eclipse.vex.core.provisional.dom.BaseNodeVisitorWithResult;
+import org.eclipse.vex.core.provisional.dom.IAxis;
 import org.eclipse.vex.core.provisional.dom.IComment;
 import org.eclipse.vex.core.provisional.dom.IDocument;
 import org.eclipse.vex.core.provisional.dom.IElement;
 import org.eclipse.vex.core.provisional.dom.INode;
+import org.eclipse.vex.core.provisional.dom.IText;
 import org.eclipse.vex.core.tests.TestResources;
 import org.eclipse.wst.xml.core.internal.contentmodel.CMDocument;
 import org.eclipse.wst.xml.core.internal.contentmodel.ContentModelManager;
@@ -65,7 +71,7 @@ public class DocumentReaderTest {
 	public void useDocumentContentModelAsEntityResolver() throws Exception {
 		final DocumentReader reader = new DocumentReader();
 		final boolean[] called = new boolean[1];
-		reader.setDocumentContentModel(new DocumentContentModel() {
+		reader.setValidator(new DummyValidator(new DocumentContentModel() {
 			@Override
 			public InputSource resolveEntity(final String publicId, final String systemId) throws SAXException, IOException {
 				if (TestResources.TEST_DTD.equals(publicId)) {
@@ -73,7 +79,7 @@ public class DocumentReaderTest {
 				}
 				return super.resolveEntity(publicId, systemId);
 			}
-		});
+		}));
 		reader.read(TestResources.get("documentWithDtdPublic.xml"));
 		assertTrue(called[0]);
 	}
@@ -83,7 +89,7 @@ public class DocumentReaderTest {
 		final DocumentReader reader = new DocumentReader();
 		final boolean[] documentContentModelCalled = new boolean[1];
 		final boolean[] entityResolverCalled = new boolean[1];
-		reader.setDocumentContentModel(new DocumentContentModel() {
+		reader.setValidator(new DummyValidator(new DocumentContentModel() {
 			@Override
 			public InputSource resolveEntity(final String publicId, final String systemId) throws SAXException, IOException {
 				if (TestResources.TEST_DTD.equals(publicId)) {
@@ -91,7 +97,7 @@ public class DocumentReaderTest {
 				}
 				return super.resolveEntity(publicId, systemId);
 			}
-		});
+		}));
 		reader.setEntityResolver(new EntityResolver() {
 			public InputSource resolveEntity(final String publicId, final String systemId) throws SAXException, IOException {
 				if (TestResources.TEST_DTD.equals(publicId)) {
@@ -111,7 +117,7 @@ public class DocumentReaderTest {
 		final int[] callPosition = new int[1];
 		final int[] documentContentModelPosition = new int[1];
 		final int[] entityResolverPosition = new int[1];
-		reader.setDocumentContentModel(new DocumentContentModel() {
+		reader.setValidator(new DummyValidator(new DocumentContentModel() {
 			@Override
 			public InputSource resolveEntity(final String publicId, final String systemId) throws SAXException, IOException {
 				if (TestResources.TEST_DTD.equals(publicId)) {
@@ -119,7 +125,7 @@ public class DocumentReaderTest {
 				}
 				return super.resolveEntity(publicId, systemId);
 			}
-		});
+		}));
 		reader.setEntityResolver(new EntityResolver() {
 			public InputSource resolveEntity(final String publicId, final String systemId) throws SAXException, IOException {
 				if (TestResources.TEST_DTD.equals(publicId)) {
@@ -161,5 +167,36 @@ public class DocumentReaderTest {
 
 		rootChildren.next();
 		assertFalse(rootChildren.hasNext());
+	}
+
+	@Test
+	public void shouldNotAddWhitespaceTextNodesInDocumentWithoutDTD() throws Exception {
+		final DocumentReader reader = new DocumentReader();
+		final IDocument document = reader.read(TestResources.get("documentWithoutDTD.xml"));
+		final IElement rootElement = document.getRootElement();
+
+		final IFilter<INode> recursiveWhitespaceTextNodeFilter = new IFilter<INode>() {
+			public boolean matches(final INode node) {
+				return node.accept(new BaseNodeVisitorWithResult<Boolean>(false) {
+					@Override
+					public Boolean visit(final IElement element) {
+						return containsEmptyTextNodes(element);
+					}
+
+					@Override
+					public Boolean visit(final IText text) {
+						return text.getText().trim().length() == 0;
+					}
+				});
+			}
+
+			private boolean containsEmptyTextNodes(final IElement element) {
+				return !element.children().matching(this).isEmpty();
+			}
+		};
+
+		final IAxis<? extends INode> nodesWithEmptyTextNodes = rootElement.children().matching(recursiveWhitespaceTextNodeFilter);
+
+		assertEquals("whitespace text nodes", 0, nodesWithEmptyTextNodes.count());
 	}
 }

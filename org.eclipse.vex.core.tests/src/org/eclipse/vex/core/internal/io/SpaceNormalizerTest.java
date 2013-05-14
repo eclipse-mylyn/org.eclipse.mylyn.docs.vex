@@ -45,6 +45,7 @@ import org.eclipse.vex.core.internal.css.CssWhitespacePolicy;
 import org.eclipse.vex.core.internal.css.MockDisplayDevice;
 import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.css.StyleSheetReader;
+import org.eclipse.vex.core.internal.dom.DummyValidator;
 import org.eclipse.vex.core.provisional.dom.IDocument;
 import org.eclipse.vex.core.provisional.dom.IElement;
 import org.eclipse.vex.core.provisional.dom.INode;
@@ -298,12 +299,12 @@ public class SpaceNormalizerTest {
 		final XMLReader xmlReader = factory.newSAXParser().getXMLReader();
 		final StyleSheet mySS = ss;
 		final CssWhitespacePolicy policy = new CssWhitespacePolicy(mySS);
-		final DocumentBuilder builder = new DocumentBuilder(null, new DocumentContentModel() {
+		final DocumentBuilder builder = new DocumentBuilder(null, new DummyValidator(new DocumentContentModel() {
 			@Override
 			public IWhitespacePolicy getWhitespacePolicy() {
 				return policy;
 			}
-		});
+		}));
 
 		final InputSource is = new InputSource(new ByteArrayInputStream(s.getBytes()));
 		xmlReader.setContentHandler(builder);

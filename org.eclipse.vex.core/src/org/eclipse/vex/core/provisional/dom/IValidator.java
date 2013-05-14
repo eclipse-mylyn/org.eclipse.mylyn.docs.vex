@@ -12,10 +12,12 @@
  *******************************************************************************/
 package org.eclipse.vex.core.provisional.dom;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
 import org.eclipse.core.runtime.QualifiedName;
+import org.eclipse.vex.core.internal.io.DocumentContentModel;
 
 /**
  * Represents an object that can validate the structure of a document.
@@ -23,9 +25,52 @@ import org.eclipse.core.runtime.QualifiedName;
 public interface IValidator {
 
 	/**
+	 * NULL object
+	 */
+	IValidator NULL = new IValidator() {
+
+		private final DocumentContentModel documentContentModel = new DocumentContentModel();
+
+		public DocumentContentModel getDocumentContentModel() {
+			return documentContentModel;
+		}
+
+		public AttributeDefinition getAttributeDefinition(final IAttribute attribute) {
+			return null;
+		}
+
+		public List<AttributeDefinition> getAttributeDefinitions(final IElement element) {
+			return Collections.emptyList();
+		}
+
+		public Set<QualifiedName> getValidRootElements() {
+			return Collections.emptySet();
+		}
+
+		public Set<QualifiedName> getValidItems(final IElement element) {
+			return Collections.emptySet();
+		}
+
+		public boolean isValidSequence(final QualifiedName element, final List<QualifiedName> nodes, final boolean partial) {
+			return false;
+		}
+
+		public boolean isValidSequence(final QualifiedName element, final List<QualifiedName> sequence1, final List<QualifiedName> sequence2, final List<QualifiedName> sequence3, final boolean partial) {
+			return false;
+		}
+
+		public Set<String> getRequiredNamespaces() {
+			return Collections.emptySet();
+		}
+
+	};
+
+	/**
 	 * QualifiedName indicating that character data is allowed at the given point in the document.
 	 */
 	final QualifiedName PCDATA = new QualifiedName(null, "#PCDATA");
+
+	DocumentContentModel getDocumentContentModel();
 
 	/**
 	 * Returns the AttributeDefinition for a particular attribute.

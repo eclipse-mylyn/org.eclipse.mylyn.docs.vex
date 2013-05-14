@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter xmlns="http://www.eclipse.org/vex/test/structure">
+	<title>Title1</title>
+	<chapter>
+		<title>Title2</title>
+	</chapter>
+	<!-- comment 1 -->
+	<!-- comment 2 -->
+	<chapter>
+		<title>Title3</title>
+		<!--comment 3-->
+	</chapter>
+</chapter>

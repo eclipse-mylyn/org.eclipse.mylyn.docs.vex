@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.eclipse.core.runtime.QualifiedName;
+import org.eclipse.vex.core.internal.io.DocumentContentModel;
 import org.eclipse.vex.core.provisional.dom.AttributeDefinition;
 import org.eclipse.vex.core.provisional.dom.IAttribute;
 import org.eclipse.vex.core.provisional.dom.IElement;
@@ -24,6 +25,20 @@ import org.eclipse.vex.core.provisional.dom.IValidator;
  * @author Florian Thienel
  */
 public class DummyValidator implements IValidator {
+
+	private final DocumentContentModel documentContentModel;
+
+	public DummyValidator() {
+		this(new DocumentContentModel());
+	}
+
+	public DummyValidator(final DocumentContentModel documentContentModel) {
+		this.documentContentModel = documentContentModel;
+	}
+
+	public DocumentContentModel getDocumentContentModel() {
+		return documentContentModel;
+	}
 
 	public AttributeDefinition getAttributeDefinition(final IAttribute attribute) {
 		return null;

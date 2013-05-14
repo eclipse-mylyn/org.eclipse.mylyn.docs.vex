@@ -336,9 +336,10 @@ public class VexEditor extends EditorPart {
 			}
 
 			final VexDocumentContentModel documentContentModel = new VexDocumentContentModel(getSite().getShell());
+			final IValidator validator = new WTPVEXValidator(documentContentModel);
 			final DocumentReader reader = new DocumentReader();
 			reader.setDebugging(debugging);
-			reader.setDocumentContentModel(documentContentModel);
+			reader.setValidator(validator);
 			document = reader.read(inputSource);
 
 			if (debugging) {
@@ -356,13 +357,10 @@ public class VexEditor extends EditorPart {
 			doctype = documentContentModel.getDocumentType();
 			style = documentContentModel.getStyle();
 
-			final IValidator validator = new WTPVEXValidator(documentContentModel);
-			if (validator != null) {
-				document.setValidator(validator);
-				if (debugging) {
-					final long end = System.currentTimeMillis();
-					System.out.println("Got validator in " + (end - start) + "ms"); //$NON-NLS-1$ //$NON-NLS-2$
-				}
+			document.setValidator(validator);
+			if (debugging) {
+				final long end = System.currentTimeMillis();
+				System.out.println("Got validator in " + (end - start) + "ms"); //$NON-NLS-1$ //$NON-NLS-2$
 			}
 
 			showVexWidget();
