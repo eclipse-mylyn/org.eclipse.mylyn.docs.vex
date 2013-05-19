@@ -7,6 +7,7 @@
  * 
  * Contributors:
  * 		Florian Thienel - initial API and implementation
+ * 		Carsten Hiesserich - additional test for newline handling (bug 407827)
  *******************************************************************************/
 package org.eclipse.vex.core.internal.widget;
 
@@ -20,9 +21,12 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
+import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.vex.core.internal.css.StyleSheet;
+import org.eclipse.vex.core.internal.css.StyleSheetReader;
 import org.eclipse.vex.core.provisional.dom.IDocumentFragment;
 import org.eclipse.vex.core.provisional.dom.IElement;
+import org.eclipse.vex.core.tests.TestResources;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -262,5 +266,45 @@ public class L2SimpleEditingTest {
 		widget.setReadOnly(true);
 		assertFalse(widget.canInsertFragment(fragment));
 		widget.insertFragment(fragment);
+	}
+
+	@Test
+	public void hittingEnterInElement_shouldSplitElement() throws Exception {
+		final StyleSheet styleSheet = new StyleSheetReader().read(TestResources.get("test.css"));
+		widget.setDocument(createDocumentWithDTD(TEST_DTD, "section"), styleSheet);
+		rootElement = widget.getDocument().getRootElement();
+
+		widget.insertElement(TITLE);
+		widget.moveBy(1);
+		final IElement para1 = widget.insertElement(PARA);
+		widget.insertText("Hello");
+		widget.moveTo(para1.getEndOffset());
+		widget.insertText("\n");
+		assertEquals("Hello", para1.getText());
+		assertEquals(3, rootElement.children().count());
+	}
+
+	@Test
+	public void hittingEnterInPreformattedElement_shouldInsertNewline() throws Exception {
+		final StyleSheet styleSheet = new StyleSheetReader().read(TestResources.get("test.css"));
+		widget.setDocument(createDocumentWithDTD(TEST_DTD, "para"), styleSheet);
+		rootElement = widget.getDocument().getRootElement();
+
+		final IElement preElement = widget.insertElement(new QualifiedName(null, "pre"));
+		assertEquals(preElement.getEndOffset(), widget.getCaretOffset());
+		widget.insertText("Line1");
+		widget.insertText("\n");
+		assertEquals(1, rootElement.children().count());
+		assertEquals("Line1\n", preElement.getText());
+	}
+
+	@Test
+	public void insertingTextWithNewlineToPreformattedElement_shouldInsertNewline() throws Exception {
+		final StyleSheet styleSheet = new StyleSheetReader().read(TestResources.get("test.css"));
+		widget.setDocument(createDocumentWithDTD(TEST_DTD, "para"), styleSheet);
+		final IElement preElement = widget.insertElement(new QualifiedName(null, "pre"));
+		assertEquals(preElement.getEndOffset(), widget.getCaretOffset());
+		widget.insertText("Line1\nLine2");
+		assertEquals("Line1\nLine2", preElement.getText());
 	}
 }

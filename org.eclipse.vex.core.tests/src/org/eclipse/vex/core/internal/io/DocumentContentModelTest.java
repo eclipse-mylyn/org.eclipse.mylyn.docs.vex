@@ -124,6 +124,6 @@ public class DocumentContentModelTest {
 		assertTrue(model.isDtdAssigned());
 		final CMDocument dtd = model.getDTD();
 		assertNotNull(dtd);
-		assertEquals(10, dtd.getElements().getLength());
+		assertEquals(11, dtd.getElements().getLength());
 	}
 }

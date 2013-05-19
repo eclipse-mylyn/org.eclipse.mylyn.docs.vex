@@ -124,7 +124,7 @@ public class SchemaValidatorTest {
 	@Test
 	public void createValidatorWithDTDPublicId() throws Exception {
 		final IValidator validator = new WTPVEXValidator(TEST_DTD);
-		assertEquals(10, validator.getValidRootElements().size());
+		assertEquals(11, validator.getValidRootElements().size());
 	}
 
 	@Test

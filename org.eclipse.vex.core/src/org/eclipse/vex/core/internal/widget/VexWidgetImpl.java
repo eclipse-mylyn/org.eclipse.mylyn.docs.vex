@@ -11,6 +11,7 @@
  *     Holger Voormann - bug 315914: content assist should only show elements 
  *			valid in the current context
  *     Carsten Hiesserich - handling of elements within comments (bug 407801)
+ *     Carsten Hiesserich - allow insertion of newline into pre elements (bug 407827)
  *******************************************************************************/
 package org.eclipse.vex.core.internal.widget;
 
@@ -847,14 +848,16 @@ public class VexWidgetImpl implements IVexWidget {
 			beginWork();
 			int i = 0;
 			for (;;) {
-				final int j = text.indexOf('\n', i);
-				if (j == -1) {
+				final int nextLineBreak = text.indexOf('\n', i);
+				if (nextLineBreak == -1) {
 					break;
 				}
-				applyEdit(new InsertTextEdit(document, getCaretOffset(), text.substring(i, j)), getCaretOffset());
-				this.moveTo(getCaretOffset() + j - i);
+				if (nextLineBreak - i > 0) {
+					applyEdit(new InsertTextEdit(document, getCaretOffset(), text.substring(i, nextLineBreak)), getCaretOffset());
+				}
+				this.moveTo(getCaretOffset() + nextLineBreak - i);
 				split();
-				i = j + 1;
+				i = nextLineBreak + 1;
 			}
 
 			if (i < text.length()) {
