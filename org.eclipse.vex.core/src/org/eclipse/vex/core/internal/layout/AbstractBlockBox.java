@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2008 John Krasnay and others.
+ * Copyright (c) 2004, 2013 John Krasnay and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,6 +8,7 @@
  * Contributors:
  *     John Krasnay - initial API and implementation
  *     Igor Jacy Lino Campista - Java 5 warnings fixed (bug 311325)
+ *     Carsten Hiesserich - Fixed layout issue when editing nested blocks (bug 408482)
  *******************************************************************************/
 package org.eclipse.vex.core.internal.layout;
 
@@ -25,6 +26,7 @@ import org.eclipse.vex.core.internal.core.Insets;
 import org.eclipse.vex.core.internal.css.CSS;
 import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.css.Styles;
+import org.eclipse.vex.core.internal.widget.IBoxFilter;
 import org.eclipse.vex.core.provisional.dom.BaseNodeVisitorWithResult;
 import org.eclipse.vex.core.provisional.dom.ContentRange;
 import org.eclipse.vex.core.provisional.dom.IComment;
@@ -288,7 +290,7 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 	/**
 	 * Returns the layout state of this box.
 	 */
-	protected byte getLayoutState() {
+	public byte getLayoutState() {
 		return layoutState;
 	}
 
@@ -412,12 +414,38 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 
 		if (direct) {
 			layoutState = LAYOUT_REDO;
-		} else {
+			if (getParent() instanceof AbstractBlockBox) {
+				// The parent box may contain text elements after the edited offset, that has to be updated
+				((AbstractBlockBox) getParent()).invalidateChildrenAfterOffset(getStartOffset());
+			}
+		} else if (layoutState != LAYOUT_REDO) {
 			layoutState = LAYOUT_PROPAGATE;
 		}
 
 		if (getParent() instanceof AbstractBlockBox) {
 			((AbstractBlockBox) getParent()).invalidate(false);
+		}
+	}
+
+	/**
+	 * Checks if there are any children with content after an invalidated element. If so, the box has to update those
+	 * children.
+	 * 
+	 * @param offset
+	 *            The offset of the edited element
+	 */
+	protected void invalidateChildrenAfterOffset(final int offset) {
+		final IBoxFilter filter = new IBoxFilter() {
+			public boolean matches(final Box box) {
+				return box.hasContent() && box.getStartOffset() > offset;
+			}
+		};
+
+		for (final Box child : getChildren()) {
+			if (filter.matches(child)) {
+				layoutState = LAYOUT_REDO;
+				break;
+			}
 		}
 	}
 

@@ -1,0 +1,106 @@
+<?xml version='1.0'?>
+<testcases css="test.css">
+
+	<test id="Block in Block - Insert text" layoutWidth="100" performActions="true">
+		<doc><![CDATA[ <root><p>before<p>block</p>after</p><p>before<p>block</p>after</p></root> ]]></doc>
+		<result>
+			<box class="RootBox">
+				<box class="BlockElementBox">
+					<box class="BlockElementBox" element="root" layoutState="LAYOUT_PROPAGATE">
+						<box class="BlockElementBox" element="p" layoutState="LAYOUT_REDO">
+							<box class="ParagraphBox">
+								<box class="LineBox">
+									<box class="DocumentTextBox" text="before" />
+									<box class="PlaceholderBox" />
+								</box>
+							</box>
+	
+							<box class="BlockElementBox" element="p" invalidateAction="true">
+								<box class="ParagraphBox">
+									<box class="LineBox">
+										<box class="DocumentTextBox" text="block" insertTextAction="WithInsert" textAfter="blockWithInsert" />
+										<box class="PlaceholderBox" />
+									</box>
+								</box>
+							</box>
+	
+							<box class="ParagraphBox">
+								<box class="LineBox">
+									<box class="DocumentTextBox" text="after" />
+									<box class="PlaceholderBox" />
+								</box>
+							</box>
+						</box>	
+						
+						<box class="BlockElementBox" element="p" layoutState="LAYOUT_OK">
+							<box class="ParagraphBox">
+								<box class="LineBox">
+									<box class="DocumentTextBox" text="before" />
+									<box class="PlaceholderBox" />
+								</box>
+							</box>
+	
+							<box class="BlockElementBox" element="p">
+								<box class="ParagraphBox">
+									<box class="LineBox">
+										<box class="DocumentTextBox" text="block" />
+										<box class="PlaceholderBox" />
+									</box>
+								</box>
+							</box>
+	
+							<box class="ParagraphBox">
+								<box class="LineBox">
+									<box class="DocumentTextBox" text="after" />
+									<box class="PlaceholderBox" />
+								</box>
+							</box>
+						</box>	
+					
+					</box>
+
+				</box>
+			</box>
+		</result>
+	</test>
+
+<test id="Block in Block - Remove text" layoutWidth="100" performActions="true">
+		<doc><![CDATA[ <root><p>before<p>block</p>after</p></root> ]]></doc>
+		<result>
+			<box class="RootBox">
+				<box class="BlockElementBox">
+					<box class="BlockElementBox" element="root">
+					
+						<box class="BlockElementBox" element="p" layoutState="LAYOUT_REDO">
+							<box class="ParagraphBox">
+								<box class="LineBox">
+									<box class="DocumentTextBox" text="before" />
+									<box class="PlaceholderBox" />
+								</box>
+							</box>
+	
+							<box class="BlockElementBox" element="p" invalidateAction="true">
+								<box class="ParagraphBox">
+									<box class="LineBox">
+										<box class="DocumentTextBox" text="block" removeTextAction="4" textAfter="k" />
+										<box class="PlaceholderBox" />
+									</box>
+								</box>
+							</box>
+	
+							<box class="ParagraphBox">
+								<box class="LineBox">
+									<box class="DocumentTextBox" text="after" />
+									<box class="PlaceholderBox" />
+								</box>
+							</box>
+						</box>		
+					
+					</box>
+
+				</box>
+			</box>
+		</result>
+	</test>
+
+</testcases>

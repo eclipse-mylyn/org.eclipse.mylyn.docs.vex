@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2008 John Krasnay and others.
+ * Copyright (c) 2004, 2013 John Krasnay and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,6 +8,7 @@
  * Contributors:
  *     John Krasnay - initial API and implementation
  *     Igor Jacy Lino Campista - Java 5 warnings fixed (bug 311325)
+ *     Carsten Hiesserich - Extended TestSuite to perform simple actions (bug 408482)
  *******************************************************************************/
 package org.eclipse.vex.core.internal.layout;
 
@@ -33,6 +34,7 @@ import org.eclipse.vex.core.internal.io.DocumentContentModel;
 import org.eclipse.vex.core.internal.io.DocumentReader;
 import org.eclipse.vex.core.internal.io.IWhitespacePolicy;
 import org.eclipse.vex.core.provisional.dom.BaseNodeVisitorWithResult;
+import org.eclipse.vex.core.provisional.dom.ContentRange;
 import org.eclipse.vex.core.provisional.dom.IDocument;
 import org.eclipse.vex.core.provisional.dom.IElement;
 import org.eclipse.vex.core.provisional.dom.INode;
@@ -46,7 +48,18 @@ import org.xml.sax.helpers.DefaultHandler;
 
 /**
  * Runs several suites of layout tests. Each suite is defined in an XML file. The XML files to run are registered in the
- * suite() method.
+ * suite() method.<br />
+ * When the attribute <code>performActions</code> in the test's root element is set, some simple actions defined as
+ * element's attributes my be performed before re-running the layout test:
+ * <ul>
+ * <li>insertTextAction="someText" - Insert the given text at the end of the element.</li>
+ * <li>removeTextAction="5" - Remove given length text from the start of the element.</li>
+ * <li>InvalidateAction="1" - Invalidates the element (only valid in BlockBox instances)</li>
+ * </ul>
+ * The expected layout state of an box may be checked with the attribute <code>layoutState="LAYOUT_XXX"</code> (
+ * {@link AbstractBlockBox#LAYOUT_OK}, {@link AbstractBlockBox#LAYOUT_REDO}, {@link AbstractBlockBox#LAYOUT_PROPAGATE}).<br />
+ * The expected text after actions are performed is defined with the attribute <code>textAfter</code>.
+ * 
  */
 @RunWith(AllTests.class)
 public class LayoutTestSuite extends TestCase {
@@ -54,6 +67,7 @@ public class LayoutTestSuite extends TestCase {
 	public String id;
 	public String doc;
 	public int layoutWidth = 100;
+	public boolean performActions = false;
 	public BoxSpec result;
 	public String css;
 
@@ -63,6 +77,7 @@ public class LayoutTestSuite extends TestCase {
 		suite.addTest(loadSuite("before-after.xml"));
 		suite.addTest(loadSuite("linebreaks.xml"));
 		suite.addTest(loadSuite("tables.xml"));
+		suite.addTest(loadSuite("simple-edit.xml"));
 		return suite;
 	}
 
@@ -117,9 +132,44 @@ public class LayoutTestSuite extends TestCase {
 		rootBox.layout(context, 0, Integer.MAX_VALUE);
 
 		assertBox(result, rootBox, "");
+
+		if (performActions) {
+			performActions(result, rootBox, doc);
+			assertLayoutStates(result, rootBox);
+			rootBox.layout(context, 0, Integer.MAX_VALUE);
+			assertBox(result, rootBox, "", true);
+		}
+	}
+
+	private static void performActions(final BoxSpec boxSpec, final Box box, final IDocument doc) {
+		if (boxSpec.insertTextAction != null) {
+			doc.insertText(box.getNode().getEndOffset(), boxSpec.insertTextAction);
+		}
+
+		if (boxSpec.removeTextAction > 0) {
+			System.out.println("Removing text ");
+			if (box.getNode() == null || box.getNode().getText().length() < boxSpec.removeTextAction) {
+				fail(String.format("Error in test configuration. Can not remove %s chars from element with text:'%s'", boxSpec.removeTextAction, box.getNode().getText() != null ? box.getNode()
+						.getText() : "null"));
+			}
+			final int startOffset = box.getNode().getStartOffset();
+			doc.getContent().remove(new ContentRange(startOffset + 1, startOffset + boxSpec.removeTextAction));
+		}
+
+		if (boxSpec.invalidateAction && box instanceof BlockBox) {
+			((BlockBox) box).invalidate(true);
+		}
+
+		for (int i = 0; i < boxSpec.children.size(); i++) {
+			performActions(boxSpec.children.get(i), box.getChildren()[i], doc);
+		}
 	}
 
 	private static void assertBox(final BoxSpec boxSpec, final Box box, final String indent) {
+		assertBox(boxSpec, box, indent, false);
+	}
+
+	private static void assertBox(final BoxSpec boxSpec, final Box box, final String indent, final boolean afterAction) {
 
 		System.out.println(indent + boxSpec.className);
 
@@ -140,7 +190,9 @@ public class LayoutTestSuite extends TestCase {
 		}
 
 		if (boxSpec.text != null && box instanceof TextBox) {
-			assertEquals(boxSpec.text, ((TextBox) box).getText());
+			final String expected = !afterAction || boxSpec.textAfter == null ? boxSpec.text : boxSpec.textAfter;
+			System.out.println(indent + "  Expexted: " + expected + " Actual:" + ((TextBox) box).getText());
+			assertEquals("Content of " + boxSpec.className + " does not match.", expected, ((TextBox) box).getText());
 		}
 
 		if (!boxSpec.children.isEmpty() && box.getChildren() == null) {
@@ -152,7 +204,8 @@ public class LayoutTestSuite extends TestCase {
 			System.out.println("  Expected:");
 			for (final BoxSpec childSpec : boxSpec.children) {
 				System.out.print("    " + childSpec.className);
-				if (childSpec.text != null) {
+				final String expected = !afterAction || boxSpec.textAfter == null ? boxSpec.text : boxSpec.textAfter;
+				if (expected != null) {
 					System.out.print(" '" + childSpec.text + "'");
 				}
 				System.out.println();
@@ -165,7 +218,19 @@ public class LayoutTestSuite extends TestCase {
 		}
 
 		for (int i = 0; i < boxSpec.children.size(); i++) {
-			assertBox(boxSpec.children.get(i), box.getChildren()[i], indent + "  ");
+			assertBox(boxSpec.children.get(i), box.getChildren()[i], indent + "  ", afterAction);
+		}
+
+	}
+
+	private static void assertLayoutStates(final BoxSpec boxSpec, final Box box) {
+
+		if (boxSpec.layoutState >= 0 && box instanceof AbstractBlockBox) {
+			assertEquals("Unexpected LayoutState for " + boxSpec.className, boxSpec.layoutState, ((AbstractBlockBox) box).getLayoutState());
+		}
+
+		for (int i = 0; i < boxSpec.children.size(); i++) {
+			assertLayoutStates(boxSpec.children.get(i), box.getChildren()[i]);
 		}
 
 	}
@@ -233,6 +298,7 @@ public class LayoutTestSuite extends TestCase {
 				if (layoutWidth != null) {
 					testCase.layoutWidth = Integer.parseInt(layoutWidth);
 				}
+				testCase.performActions = attributes.getValue("performActions") != null;
 				testCases.add(testCase);
 			} else if (qName.equals("doc")) {
 				inDoc = true;
@@ -244,6 +310,29 @@ public class LayoutTestSuite extends TestCase {
 				boxSpec.className = attributes.getValue("class");
 				boxSpec.element = attributes.getValue("element");
 				boxSpec.text = attributes.getValue("text");
+				boxSpec.textAfter = attributes.getValue("textAfter");
+				boxSpec.insertTextAction = attributes.getValue("insertTextAction");
+				try {
+					boxSpec.removeTextAction = Integer.parseInt(attributes.getValue("removeTextAction"));
+				} catch (final NumberFormatException e) {
+					boxSpec.removeTextAction = 0;
+				}
+				boxSpec.invalidateAction = attributes.getValue("invalidateAction") != null;
+				String layoutStateAttr = attributes.getValue("layoutState");
+				if (layoutStateAttr != null) {
+					layoutStateAttr = layoutStateAttr.trim().toLowerCase();
+					if (layoutStateAttr.equals("LAYOUT_OK".toLowerCase())) {
+						boxSpec.layoutState = AbstractBlockBox.LAYOUT_OK;
+					} else if (layoutStateAttr.equals("LAYOUT_PROPAGATE".toLowerCase())) {
+						boxSpec.layoutState = AbstractBlockBox.LAYOUT_PROPAGATE;
+					} else if (layoutStateAttr.equals("LAYOUT_REDO".toLowerCase())) {
+						boxSpec.layoutState = AbstractBlockBox.LAYOUT_REDO;
+					}
+				}
+				for (int i = 0; i < attributes.getLength(); i++) {
+					System.out.println("Attr:" + attributes.getQName(i) + "  " + attributes.getValue(i));
+				}
+
 				if (parent == null) {
 					testCase.result = boxSpec;
 				} else {
@@ -261,6 +350,11 @@ public class LayoutTestSuite extends TestCase {
 		public String element;
 		public List<BoxSpec> children = new ArrayList<BoxSpec>();
 		public String text;
+		public String textAfter;
+		public byte layoutState = -1;
+		public String insertTextAction;
+		public int removeTextAction;
+		public boolean invalidateAction = false;
 	}
 
 }
