@@ -1,3 +1,14 @@
+/*******************************************************************************
+ * Copyright (c) 2012, 2013 Florian Thienel and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ * 
+ * Contributors:
+ *		Florian Thienel - initial API and implementation
+ *		Carsten Hiesserich - extended insert / remove tests for nodes with text (bug 408731)
+ *******************************************************************************/
 package org.eclipse.vex.core.internal.dom;
 
 import static org.junit.Assert.assertEquals;
@@ -83,6 +94,60 @@ public class ParentTest {
 		for (final INode child : parent.children()) {
 			assertTrue(child != secondChild);
 		}
+	}
+
+	@Test
+	public void insertChildBeforeFirstInline() throws Exception {
+		content.insertText(parent.getEndOffset(), "1234");
+		final TestChild firstInlineElement = addTestChild();
+		content.insertText(parent.getEndOffset(), "5678");
+		addTestChild();
+
+		// insert element between 2 and 3
+		final TestChild insertedElement = insertTestChildAt(firstInlineElement.getStartOffset() - 2);
+
+		assertEquals(6, parent.children().count());
+		assertTrue(parent.children().get(0) instanceof IText);
+		assertEquals("12", parent.children().get(0).getText());
+		assertSame(insertedElement, parent.children().get(1));
+		assertTrue(parent.children().get(2) instanceof IText);
+		assertEquals("34", parent.children().get(2).getText());
+	}
+
+	@Test
+	public void insertChildAfterLastInline() throws Exception {
+		content.insertText(parent.getEndOffset(), "1234");
+		addTestChild();
+		content.insertText(parent.getEndOffset(), "5678");
+		final TestChild lastInlineElement = addTestChild();
+		content.insertText(parent.getEndOffset(), "90");
+
+		// insert element between 9 and 0
+		final TestChild insertedElement = insertTestChildAt(lastInlineElement.getEndOffset() + 2);
+
+		for (final INode child : parent.children()) {
+			System.out.println(child);
+		}
+		assertEquals(7, parent.children().count());
+		assertTrue(parent.children().get(4) instanceof IText);
+		assertEquals("9", parent.children().get(4).getText());
+		assertSame(insertedElement, parent.children().get(5));
+		assertTrue(parent.children().get(6) instanceof IText);
+		assertEquals("0", parent.children().get(6).getText());
+	}
+
+	@Test
+	public void removeChildExtended() throws Exception {
+		addTestChild();
+		content.insertText(parent.getEndOffset(), "12");
+		final TestChild secondChild = addTestChild();
+		content.insertText(parent.getEndOffset(), "34");
+		addTestChild();
+
+		parent.removeChild(secondChild);
+
+		assertTrue(parent.children().get(1) instanceof IText);
+		assertEquals("1234", parent.children().get(1).getText());
 	}
 
 	@Test
@@ -614,6 +679,15 @@ public class ParentTest {
 		content.insertTagMarker(offset);
 		final TestChild result = new TestChild();
 		parent.addChild(result);
+		result.associate(content, new ContentRange(offset, offset + 1));
+		return result;
+	}
+
+	private TestChild insertTestChildAt(final int offset) {
+		content.insertTagMarker(offset);
+		content.insertTagMarker(offset);
+		final TestChild result = new TestChild();
+		parent.insertChildAt(offset, result);
 		result.associate(content, new ContentRange(offset, offset + 1));
 		return result;
 	}

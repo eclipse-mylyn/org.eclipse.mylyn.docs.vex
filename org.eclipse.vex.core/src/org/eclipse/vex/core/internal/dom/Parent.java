@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 Florian Thienel and others.
+ * Copyright (c) 2012, 2013 Florian Thienel and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  * 
  * Contributors:
  * 		Florian Thienel - initial API and implementation
+ * 		Carsten Hiesserich - fixed insertion of elements to nodes with text (bug 408731)
  *******************************************************************************/
 package org.eclipse.vex.core.internal.dom;
 
@@ -61,8 +62,10 @@ public abstract class Parent extends Node implements IParent {
 	private int indexOfChildNextTo(final int offset) {
 		final ContentRange insertionRange = getRange().resizeBy(1, 0);
 		Assert.isTrue(insertionRange.contains(offset), MessageFormat.format("The offset must be within {0}.", insertionRange));
+
+		// We have to return an index in the children List, so Axis withoutText must be used!
 		int i = 0;
-		for (final INode child : children()) {
+		for (final INode child : children().withoutText()) {
 			if (offset <= child.getStartOffset()) {
 				return i;
 			}
