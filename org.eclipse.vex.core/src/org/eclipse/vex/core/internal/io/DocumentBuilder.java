@@ -19,6 +19,7 @@ import java.util.List;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.QualifiedName;
+import org.eclipse.vex.core.XML;
 import org.eclipse.vex.core.internal.dom.Comment;
 import org.eclipse.vex.core.internal.dom.Document;
 import org.eclipse.vex.core.internal.dom.Element;
@@ -379,42 +380,14 @@ public class DocumentBuilder implements ContentHandler, LexicalHandler {
 
 		if (entry != null && entry.pre) {
 			sb = pendingChars;
+			XML.normalizeNewlines(sb);
 		} else {
-
-			// collapse the space in the pending characters
-			sb = new StringBuilder(pendingChars.length());
-			boolean ws = false; // true if we're in a run of whitespace
-			for (int i = 0; i < pendingChars.length(); i++) {
-				final char c = pendingChars.charAt(i);
-				if (isXmlWhitespace(c)) {
-					ws = true;
-				} else {
-					if (ws) {
-						sb.append(' ');
-						ws = false;
-					}
-					sb.append(c);
-				}
-			}
-			if (ws) {
-				sb.append(' ');
-			}
-			// trim leading and trailing space, if necessary
-			if (trimLeading && sb.length() > 0 && sb.charAt(0) == ' ') {
-				sb.deleteCharAt(0);
-			}
-			if (trimTrailing && sb.length() > 0 && sb.charAt(sb.length() - 1) == ' ') {
-				sb.setLength(sb.length() - 1);
-			}
+			sb = new StringBuilder(pendingChars);
+			XML.normalizeNewlines(sb);
+			sb = XML.compressWhitespace(sb, trimLeading, trimTrailing, false);
 		}
 
-		normalizeNewlines(sb);
 		return sb;
-	}
-
-	private static boolean isXmlWhitespace(final char c) {
-		// whitespace according to the W3C recommendation (http://www.w3.org/TR/REC-xml/#NT-S)
-		return c == 0x20 || c == 0x9 || c == 0xD || c == 0xA;
 	}
 
 	private boolean isBlock(final Node node) {
@@ -448,59 +421,6 @@ public class DocumentBuilder implements ContentHandler, LexicalHandler {
 				return true;
 			}
 		});
-	}
-
-	/**
-	 * Convert lines that end in CR and CRLFs to plain newlines.
-	 * 
-	 * @param sb
-	 *            StringBuffer to be normalized.
-	 */
-	private void normalizeNewlines(final StringBuilder sb) {
-
-		// State machine states
-		final int START = 0;
-		final int SEEN_CR = 1;
-
-		int state = START;
-		int i = 0;
-		while (i < sb.length()) {
-			// No simple 'for' here, since we may delete chars
-
-			final char c = sb.charAt(i);
-
-			switch (state) {
-			case START:
-				if (c == '\r') {
-					state = SEEN_CR;
-				}
-				i++;
-				break;
-
-			case SEEN_CR:
-				if (c == '\n') {
-					// CR-LF, just delete the previous CR
-					sb.deleteCharAt(i - 1);
-					state = START;
-					// no need to advance i, since it's done implicitly
-				} else if (c == '\r') {
-					// CR line ending followed by another
-					// Replace the first with a newline...
-					sb.setCharAt(i - 1, '\n');
-					i++;
-					// ...and stay in the SEEN_CR state
-				} else {
-					// CR line ending, replace it with a newline
-					sb.setCharAt(i - 1, '\n');
-					i++;
-					state = START;
-				}
-			}
-		}
-
-		if (state == SEEN_CR) {
-			// CR line ending, replace it with a newline
-		}
 	}
 
 	private static class StackEntry {
