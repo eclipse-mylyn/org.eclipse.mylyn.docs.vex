@@ -18,6 +18,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.Set;
 
 import javax.xml.parsers.ParserConfigurationException;
 
@@ -333,5 +334,25 @@ public class NamespaceTest {
 		assertTrue(child.getNamespacePrefixes().contains("ns1"));
 		assertTrue(child.getNamespacePrefixes().contains("ns2"));
 		assertTrue(child.getNamespacePrefixes().contains("ns3"));
+	}
+
+	@Test
+	public void findUndeclaredNamespaces() throws Exception {
+		final Element parent = new Element(new QualifiedName("http://namespace/default", "parent"));
+		parent.declareDefaultNamespace("http://namespace/default");
+		parent.declareNamespace("ns2", "http://namespace/uri/2");
+
+		parent.addChild(new Element(new QualifiedName("http://namespace/uri/1", "child")));
+		parent.addChild(new Element(new QualifiedName("http://namespace/uri/2", "child")));
+		((Parent) parent.children().get(0)).addChild(new Element(new QualifiedName("http://namespace/uri/1", "child")));
+		((Parent) parent.children().get(0)).addChild(new Element(new QualifiedName("http://namespace/uri/2", "child")));
+		((Parent) parent.children().get(0)).addChild(new Element(new QualifiedName("http://namespace/uri/3", "child")));
+		((Parent) parent.children().get(0)).addChild(new Element(new QualifiedName("http://namespace/default", "child")));
+
+		final Set<String> undeclaredNamespaces = parent.accept(new FindUndeclaredNamespacesVisitor());
+		assertTrue(undeclaredNamespaces.contains("http://namespace/uri/1"));
+		assertFalse(undeclaredNamespaces.contains("http://namespace/uri/2"));
+		assertTrue(undeclaredNamespaces.contains("http://namespace/uri/3"));
+		assertFalse(undeclaredNamespaces.contains("http://namespace/default"));
 	}
 }
