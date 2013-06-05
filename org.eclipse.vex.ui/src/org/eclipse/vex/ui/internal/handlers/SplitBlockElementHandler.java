@@ -16,7 +16,6 @@ import java.util.List;
 
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.vex.core.internal.VEXCorePlugin;
-import org.eclipse.vex.core.internal.css.CSS;
 import org.eclipse.vex.core.internal.css.Styles;
 import org.eclipse.vex.core.internal.dom.CopyOfElement;
 import org.eclipse.vex.core.internal.widget.IVexWidget;
@@ -69,12 +68,10 @@ public class SplitBlockElementHandler extends AbstractVexWidgetHandler {
 					start = System.currentTimeMillis();
 				}
 
-				final Styles styles = vexWidget.getStyleSheet().getStyles(node);
-
-				if (styles.getWhiteSpace().equals(CSS.PRE)) {
+				final boolean isPreformatted = vexWidget.getWhitespacePolicy().isPre(node);
+				if (isPreformatted) {
 					vexWidget.insertText("\n");
 				} else {
-
 					// There may be a number of child elements below the given
 					// element. We cut out the tails of each of these elements
 					// and put them in a list of fragments to be reconstructed

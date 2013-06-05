@@ -28,17 +28,16 @@ import java.util.Set;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.QualifiedName;
+import org.eclipse.vex.core.XML;
 import org.eclipse.vex.core.internal.core.Caret;
 import org.eclipse.vex.core.internal.core.Color;
 import org.eclipse.vex.core.internal.core.ElementName;
 import org.eclipse.vex.core.internal.core.Graphics;
 import org.eclipse.vex.core.internal.core.QualifiedNameComparator;
 import org.eclipse.vex.core.internal.core.Rectangle;
-import org.eclipse.vex.core.internal.css.CSS;
 import org.eclipse.vex.core.internal.css.IWhitespacePolicy;
 import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.css.StyleSheetReader;
-import org.eclipse.vex.core.internal.css.Styles;
 import org.eclipse.vex.core.internal.dom.Document;
 import org.eclipse.vex.core.internal.dom.Node;
 import org.eclipse.vex.core.internal.layout.BlockBox;
@@ -71,6 +70,7 @@ import org.eclipse.vex.core.provisional.dom.IDocumentFragment;
 import org.eclipse.vex.core.provisional.dom.IDocumentListener;
 import org.eclipse.vex.core.provisional.dom.IElement;
 import org.eclipse.vex.core.provisional.dom.INode;
+import org.eclipse.vex.core.provisional.dom.IParent;
 import org.eclipse.vex.core.provisional.dom.IPosition;
 import org.eclipse.vex.core.provisional.dom.IText;
 import org.eclipse.vex.core.provisional.dom.IValidator;
@@ -846,31 +846,57 @@ public class VexWidgetImpl implements IVexWidget {
 			deleteSelection();
 		}
 
+		final IElement element = getBlockForInsertionAt(getCaretOffset());
+		final boolean isPreformatted = whitespacePolicy.isPre(element);
+
+		String toInsert;
+		if (!isPreformatted) {
+			toInsert = XML.compressWhitespace(XML.normalizeNewlines(text), true, true, true);
+		} else {
+			toInsert = text;
+		}
+
 		boolean success = false;
 		try {
 			beginWork();
 			int i = 0;
 			for (;;) {
-				final int nextLineBreak = text.indexOf('\n', i);
+				final int nextLineBreak = toInsert.indexOf('\n', i);
 				if (nextLineBreak == -1) {
 					break;
 				}
 				if (nextLineBreak - i > 0) {
-					applyEdit(new InsertTextEdit(document, getCaretOffset(), text.substring(i, nextLineBreak)), getCaretOffset());
+					applyEdit(new InsertTextEdit(document, getCaretOffset(), toInsert.substring(i, nextLineBreak)), getCaretOffset());
 				}
 				this.moveTo(getCaretOffset() + nextLineBreak - i);
 				split();
 				i = nextLineBreak + 1;
 			}
 
-			if (i < text.length()) {
-				applyEdit(new InsertTextEdit(document, getCaretOffset(), text.substring(i)), getCaretOffset());
-				this.moveTo(getCaretOffset() + text.length() - i);
+			if (i < toInsert.length()) {
+				applyEdit(new InsertTextEdit(document, getCaretOffset(), toInsert.substring(i)), getCaretOffset());
+				this.moveTo(getCaretOffset() + toInsert.length() - i);
 			}
 			success = true;
 		} finally {
 			endWork(success);
 		}
+	}
+
+	private IElement getBlockForInsertionAt(final int offset) {
+		final IElement element = getDocument().getElementForInsertionAt(offset);
+
+		if (whitespacePolicy.isBlock(element)) {
+			return element;
+		}
+
+		for (final IParent parent : element.ancestors().matching(Filters.elements())) {
+			if (whitespacePolicy.isBlock(parent)) {
+				return (IElement) parent;
+			}
+		}
+
+		return null;
 	}
 
 	public void insertChar(final char c) throws DocumentValidationException, ReadOnlyException {
@@ -1377,18 +1403,13 @@ public class VexWidgetImpl implements IVexWidget {
 
 		final long start = System.currentTimeMillis();
 
-		final IDocument doc = getDocument();
-		IElement element = doc.getElementForInsertionAt(getCaretOffset());
-		Styles styles = getStyleSheet().getStyles(element);
-		while (!styles.isBlock()) {
-			element = element.getParentElement();
-			styles = getStyleSheet().getStyles(element);
-		}
+		final IElement element = getBlockForInsertionAt(getCaretOffset());
+		final boolean isPreformatted = whitespacePolicy.isPre(element);
 
 		boolean success = false;
 		try {
 			beginWork();
-			if (styles.getWhiteSpace().equals(CSS.PRE)) {
+			if (isPreformatted) {
 				applyEdit(new InsertTextEdit(document, getCaretOffset(), "\n"), getCaretOffset());
 				this.moveBy(1);
 			} else {

@@ -21,11 +21,18 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
+import java.io.IOException;
+import java.util.List;
+
 import org.eclipse.core.runtime.QualifiedName;
+import org.eclipse.vex.core.internal.css.CssWhitespacePolicy;
 import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.css.StyleSheetReader;
 import org.eclipse.vex.core.provisional.dom.IDocumentFragment;
 import org.eclipse.vex.core.provisional.dom.IElement;
+import org.eclipse.vex.core.provisional.dom.INode;
+import org.eclipse.vex.core.provisional.dom.IParent;
+import org.eclipse.vex.core.provisional.dom.IText;
 import org.eclipse.vex.core.tests.TestResources;
 import org.junit.Before;
 import org.junit.Test;
@@ -269,9 +276,9 @@ public class L2SimpleEditingTest {
 	}
 
 	@Test
-	public void hittingEnterInElement_shouldSplitElement() throws Exception {
-		final StyleSheet styleSheet = new StyleSheetReader().read(TestResources.get("test.css"));
-		widget.setDocument(createDocumentWithDTD(TEST_DTD, "section"), styleSheet);
+	public void givenNonPreElement_whenInsertingNewline_shouldSplitElement() throws Exception {
+		widget.setDocument(createDocumentWithDTD(TEST_DTD, "section"), readTestStyleSheet());
+		widget.setWhitespacePolicy(new CssWhitespacePolicy(widget.getStyleSheet()));
 		rootElement = widget.getDocument().getRootElement();
 
 		widget.insertElement(TITLE);
@@ -285,26 +292,77 @@ public class L2SimpleEditingTest {
 	}
 
 	@Test
-	public void hittingEnterInPreformattedElement_shouldInsertNewline() throws Exception {
-		final StyleSheet styleSheet = new StyleSheetReader().read(TestResources.get("test.css"));
-		widget.setDocument(createDocumentWithDTD(TEST_DTD, "para"), styleSheet);
+	public void givenPreElement_whenInsertingNewline_shouldInsertNewline() throws Exception {
+		widget.setDocument(createDocumentWithDTD(TEST_DTD, "para"), readTestStyleSheet());
+		widget.setWhitespacePolicy(new CssWhitespacePolicy(widget.getStyleSheet()));
 		rootElement = widget.getDocument().getRootElement();
 
 		final IElement preElement = widget.insertElement(new QualifiedName(null, "pre"));
 		assertEquals(preElement.getEndOffset(), widget.getCaretOffset());
-		widget.insertText("Line1");
+		widget.insertText("line1");
 		widget.insertText("\n");
 		assertEquals(1, rootElement.children().count());
-		assertEquals("Line1\n", preElement.getText());
+		assertEquals("line1\n", preElement.getText());
 	}
 
 	@Test
-	public void insertingTextWithNewlineToPreformattedElement_shouldInsertNewline() throws Exception {
-		final StyleSheet styleSheet = new StyleSheetReader().read(TestResources.get("test.css"));
-		widget.setDocument(createDocumentWithDTD(TEST_DTD, "para"), styleSheet);
+	public void givenPreElement_whenInsertingTextWithNewline_shouldInsertNewline() throws Exception {
+		widget.setDocument(createDocumentWithDTD(TEST_DTD, "para"), readTestStyleSheet());
+		widget.setWhitespacePolicy(new CssWhitespacePolicy(widget.getStyleSheet()));
 		final IElement preElement = widget.insertElement(new QualifiedName(null, "pre"));
 		assertEquals(preElement.getEndOffset(), widget.getCaretOffset());
-		widget.insertText("Line1\nLine2");
-		assertEquals("Line1\nLine2", preElement.getText());
+		widget.insertText("line1\nline2");
+		assertEquals("line1\nline2", preElement.getText());
 	}
+
+	@Test
+	public void givenPreElement_whenInsertingText_shouldKeepWhitespace() throws Exception {
+		widget.setDocument(createDocumentWithDTD(TEST_DTD, "para"), readTestStyleSheet());
+		widget.setWhitespacePolicy(new CssWhitespacePolicy(widget.getStyleSheet()));
+		final IElement preElement = widget.insertElement(new QualifiedName(null, "pre"));
+
+		widget.moveTo(preElement.getEndOffset());
+		widget.insertText("line1\nline2   end");
+
+		final List<? extends INode> children = preElement.children().asList();
+		assertTrue("Expecting IText", children.get(0) instanceof IText);
+		assertEquals("line1\nline2   end", children.get(0).getText());
+	}
+
+	@Test
+	public void givenNonPreElement_whenInsertingText_shouldCompressWhitespace() throws Exception {
+		widget.setDocument(createDocumentWithDTD(TEST_DTD, "section"), readTestStyleSheet());
+		widget.setWhitespacePolicy(new CssWhitespacePolicy(widget.getStyleSheet()));
+		final IElement para = widget.insertElement(PARA);
+		widget.moveTo(para.getEndOffset());
+		widget.insertText("line1\nline2   \t end");
+
+		final List<? extends INode> children = widget.getDocument().getRootElement().children().after(para.getStartOffset()).asList();
+		assertEquals("single para element", 2, children.size());
+		assertTrue("original para element", children.get(0) instanceof IParent);
+		assertTrue("splitted para element", children.get(1) instanceof IParent);
+		assertEquals("first line", "line1", children.get(0).getText());
+		assertEquals("second line with compressed whitespace", "line2 end", children.get(1).getText());
+	}
+
+	@Test
+	public void givenNonPreElement_whenInsertingText_shouldCompressNewlines() throws Exception {
+		widget.setDocument(createDocumentWithDTD(TEST_DTD, "section"), readTestStyleSheet());
+		widget.setWhitespacePolicy(new CssWhitespacePolicy(widget.getStyleSheet()));
+		final IElement para = widget.insertElement(PARA);
+		widget.moveTo(para.getEndOffset());
+		widget.insertText("line1\n\nline2");
+
+		final List<? extends INode> children = widget.getDocument().getRootElement().children().after(para.getStartOffset()).asList();
+		assertEquals("single para element", 2, children.size());
+		assertTrue("original para element", children.get(0) instanceof IParent);
+		assertTrue("splitted para element", children.get(1) instanceof IParent);
+		assertEquals("first line", "line1", children.get(0).getText());
+		assertEquals("second line", "line2", children.get(1).getText());
+	}
+
+	private static StyleSheet readTestStyleSheet() throws IOException {
+		return new StyleSheetReader().read(TestResources.get("test.css"));
+	}
+
 }
