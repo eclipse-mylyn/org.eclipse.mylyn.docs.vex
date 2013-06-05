@@ -11,6 +11,9 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.io;
 
+import org.eclipse.vex.core.internal.css.StyleSheet;
+import org.eclipse.vex.core.provisional.dom.IValidator;
+
 /**
  * Factory for returning a WhitespacePolicy object given a document type public ID. This is required by DocumentBuilder,
  * since we don't know what WhitespacePolicy we need before we begin parsing the document.
@@ -21,7 +24,7 @@ public interface IWhitespacePolicyFactory {
 	 * A factory that always returns the NULL whitespace policy.
 	 */
 	IWhitespacePolicyFactory NULL = new IWhitespacePolicyFactory() {
-		public IWhitespacePolicy getPolicy(final String publicId) {
+		public IWhitespacePolicy createPolicy(final IValidator validator, final DocumentContentModel documentContentModel, final StyleSheet style) {
 			return IWhitespacePolicy.NULL;
 		}
 	};
@@ -32,5 +35,5 @@ public interface IWhitespacePolicyFactory {
 	 * @param publicId
 	 *            Public ID of the document type associated with the document.
 	 */
-	IWhitespacePolicy getPolicy(String publicId);
+	IWhitespacePolicy createPolicy(IValidator validator, DocumentContentModel documentContentModel, StyleSheet styleSheet);
 }

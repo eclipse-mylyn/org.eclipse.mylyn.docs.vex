@@ -202,7 +202,7 @@ public class VexEditor extends EditorPart {
 
 	private DocumentWriter createDocumentWriter() {
 		final DocumentWriter result = new DocumentWriter();
-		result.setWhitespacePolicy(new CssWhitespacePolicy(style.getStyleSheet()));
+		result.setWhitespacePolicy(vexWidget.getWhitespacePolicy());
 		result.setIndent(preferences.getIndentationPattern());
 		result.setWrapColumn(preferences.getLineWidth());
 		return result;
@@ -340,6 +340,8 @@ public class VexEditor extends EditorPart {
 			final DocumentReader reader = new DocumentReader();
 			reader.setDebugging(debugging);
 			reader.setValidator(validator);
+			reader.setStyleSheetProvider(VexPlugin.getDefault().getPreferences());
+			reader.setWhitespacePolicyFactory(CssWhitespacePolicy.FACTORY);
 			document = reader.read(inputSource);
 
 			if (debugging) {
@@ -368,6 +370,7 @@ public class VexEditor extends EditorPart {
 			document.addDocumentListener(documentListener);
 
 			vexWidget.setDebugging(debugging);
+			vexWidget.setWhitespacePolicy(reader.getWhitespacePolicy());
 			vexWidget.setDocument(document, style.getStyleSheet());
 			vexWidget.setReadOnly(readOnly);
 

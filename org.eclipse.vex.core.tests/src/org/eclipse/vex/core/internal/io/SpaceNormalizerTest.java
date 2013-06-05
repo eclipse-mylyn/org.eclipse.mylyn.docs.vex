@@ -294,19 +294,16 @@ public class SpaceNormalizerTest {
 		assertFalse("more strings expected", children.hasNext());
 	}
 
-	private IDocument createDocument(final String s, final StyleSheet ss) throws ParserConfigurationException, SAXException, IOException {
+	private IDocument createDocument(final String documentContent, final StyleSheet styleSheet) throws ParserConfigurationException, SAXException, IOException {
 		final SAXParserFactory factory = SAXParserFactory.newInstance();
 		final XMLReader xmlReader = factory.newSAXParser().getXMLReader();
-		final StyleSheet mySS = ss;
-		final CssWhitespacePolicy policy = new CssWhitespacePolicy(mySS);
-		final DocumentBuilder builder = new DocumentBuilder(null, new DummyValidator(new DocumentContentModel() {
-			@Override
-			public IWhitespacePolicy getWhitespacePolicy() {
-				return policy;
+		final DocumentBuilder builder = new DocumentBuilder(null, new DummyValidator(), new IStyleSheetProvider() {
+			public StyleSheet getStyleSheet(final DocumentContentModel documentContentModel) {
+				return styleSheet;
 			}
-		}));
+		}, CssWhitespacePolicy.FACTORY);
 
-		final InputSource is = new InputSource(new ByteArrayInputStream(s.getBytes()));
+		final InputSource is = new InputSource(new ByteArrayInputStream(documentContent.getBytes()));
 		xmlReader.setContentHandler(builder);
 		xmlReader.parse(is);
 		return builder.getDocument();

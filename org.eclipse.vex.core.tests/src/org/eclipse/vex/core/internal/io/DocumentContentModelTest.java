@@ -20,7 +20,6 @@ import java.net.URL;
 
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.vex.core.internal.dom.Element;
-import org.eclipse.vex.core.internal.io.DocumentContentModel;
 import org.eclipse.vex.core.tests.TestResources;
 import org.eclipse.vex.core.tests.VEXCoreTestPlugin;
 import org.eclipse.wst.xml.core.internal.contentmodel.CMDocument;
@@ -60,11 +59,6 @@ public class DocumentContentModelTest {
 		model.initialize(null, null, null, new Element(new QualifiedName("schemaId", "rootElement")));
 		assertEquals("schemaId", model.getMainDocumentTypeIdentifier());
 		assertFalse(model.isDtdAssigned());
-	}
-
-	@Test
-	public void createWhitespacePolicy() throws Exception {
-		assertNotNull(model.getWhitespacePolicy());
 	}
 
 	@Test

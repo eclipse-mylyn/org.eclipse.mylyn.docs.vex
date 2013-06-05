@@ -18,8 +18,6 @@ import org.eclipse.jface.viewers.IBaseLabelProvider;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.Viewer;
-import org.eclipse.vex.core.internal.css.CssWhitespacePolicy;
-import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.io.IWhitespacePolicy;
 import org.eclipse.vex.core.provisional.dom.IDocument;
 import org.eclipse.vex.core.provisional.dom.IElement;
@@ -31,8 +29,7 @@ import org.eclipse.vex.ui.internal.editor.VexEditor;
 public class DefaultOutlineProvider implements IOutlineProvider {
 
 	public void init(final VexEditor editor) {
-		final StyleSheet ss = editor.getVexWidget().getStyleSheet();
-		whitespacePolicy = new CssWhitespacePolicy(ss);
+		whitespacePolicy = editor.getVexWidget().getWhitespacePolicy();
 		contentProvider = new ContentProvider();
 		labelProvider = new LabelProvider() {
 			@Override

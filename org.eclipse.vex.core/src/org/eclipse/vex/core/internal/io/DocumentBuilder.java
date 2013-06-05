@@ -20,6 +20,7 @@ import java.util.List;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.vex.core.XML;
+import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.dom.Comment;
 import org.eclipse.vex.core.internal.dom.Document;
 import org.eclipse.vex.core.internal.dom.Element;
@@ -57,7 +58,10 @@ public class DocumentBuilder implements ContentHandler, LexicalHandler {
 
 	private final IValidator validator;
 
-	private IWhitespacePolicy policy;
+	private final IStyleSheetProvider styleSheetProvider;
+
+	private final IWhitespacePolicyFactory whitespacePolicyFactory;
+	private IWhitespacePolicy whitespacePolicy = IWhitespacePolicy.NULL;
 
 	// Holds pending characters until we see another element boundary.
 	// This is (a) so we can collapse spaces in multiple adjacent character
@@ -89,9 +93,11 @@ public class DocumentBuilder implements ContentHandler, LexicalHandler {
 	private IDocument document;
 	private Locator locator;
 
-	public DocumentBuilder(final String baseUri, final IValidator validator) {
+	public DocumentBuilder(final String baseUri, final IValidator validator, final IStyleSheetProvider styleSheetProvider, final IWhitespacePolicyFactory whitespacePolicyFactory) {
 		this.baseUri = baseUri;
 		this.validator = validator;
+		this.styleSheetProvider = styleSheetProvider;
+		this.whitespacePolicyFactory = whitespacePolicyFactory;
 	}
 
 	/**
@@ -99,6 +105,10 @@ public class DocumentBuilder implements ContentHandler, LexicalHandler {
 	 */
 	public IDocument getDocument() {
 		return document;
+	}
+
+	public IWhitespacePolicy getWhitespacePolicy() {
+		return whitespacePolicy;
 	}
 
 	// ============================================= ContentHandler methods
@@ -221,7 +231,8 @@ public class DocumentBuilder implements ContentHandler, LexicalHandler {
 		final DocumentContentModel documentContentModel = validator.getDocumentContentModel();
 		if (stack.isEmpty() && documentContentModel != null) {
 			documentContentModel.initialize(baseUri, dtdPublicID, dtdSystemID, rootElement);
-			policy = documentContentModel.getWhitespacePolicy();
+			final StyleSheet styleSheet = styleSheetProvider.getStyleSheet(documentContentModel);
+			whitespacePolicy = whitespacePolicyFactory.createPolicy(validator, documentContentModel, styleSheet);
 		}
 
 		appendChars(isBlock(element));
@@ -391,11 +402,11 @@ public class DocumentBuilder implements ContentHandler, LexicalHandler {
 	}
 
 	private boolean isBlock(final Node node) {
-		return policy != null && policy.isBlock(node);
+		return whitespacePolicy != null && whitespacePolicy.isBlock(node);
 	}
 
 	private boolean isPre(final Node node) {
-		return policy != null && policy.isPre(node);
+		return whitespacePolicy != null && whitespacePolicy.isPre(node);
 	}
 
 	private boolean canInsertText(final INode insertionNode, final int offset) {

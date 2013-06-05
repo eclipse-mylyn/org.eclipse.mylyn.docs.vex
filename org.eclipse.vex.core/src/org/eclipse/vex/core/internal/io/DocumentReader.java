@@ -40,6 +40,12 @@ public class DocumentReader {
 
 	private IValidator validator = IValidator.NULL;
 
+	private IStyleSheetProvider styleSheetProvider = IStyleSheetProvider.NULL;
+
+	private IWhitespacePolicyFactory whitespacePolicyFactory = IWhitespacePolicyFactory.NULL;
+
+	private IWhitespacePolicy whitespacePolicy = IWhitespacePolicy.NULL;
+
 	private EntityResolver entityResolver;
 
 	private final EntityResolver combinedEntityResolver = new EntityResolver() {
@@ -62,13 +68,6 @@ public class DocumentReader {
 	 */
 	public boolean isDebugging() {
 		return debugging;
-	}
-
-	/**
-	 * Returns the entity resolver for this reader.
-	 */
-	public EntityResolver getEntityResolver() {
-		return entityResolver;
 	}
 
 	/**
@@ -104,7 +103,7 @@ public class DocumentReader {
 		factory.setNamespaceAware(true);
 
 		final XMLReader xmlReader = factory.newSAXParser().getXMLReader();
-		final DocumentBuilder builder = new DocumentBuilder(is.getSystemId(), validator);
+		final DocumentBuilder builder = new DocumentBuilder(is.getSystemId(), validator, styleSheetProvider, whitespacePolicyFactory);
 
 		ContentHandler contentHandler = builder;
 		LexicalHandler lexicalHandler = builder;
@@ -133,6 +132,9 @@ public class DocumentReader {
 		if (result != null) {
 			result.setDocumentURI(is.getSystemId());
 		}
+
+		whitespacePolicy = builder.getWhitespacePolicy();
+
 		return result;
 	}
 
@@ -156,11 +158,30 @@ public class DocumentReader {
 		this.entityResolver = entityResolver;
 	}
 
+	/**
+	 * Returns the entity resolver for this reader.
+	 */
+	public EntityResolver getEntityResolver() {
+		return entityResolver;
+	}
+
 	public void setValidator(final IValidator validator) {
 		this.validator = validator;
 	}
 
 	public IValidator getValidator() {
 		return validator;
+	}
+
+	public void setStyleSheetProvider(final IStyleSheetProvider styleSheetProvider) {
+		this.styleSheetProvider = styleSheetProvider;
+	}
+
+	public void setWhitespacePolicyFactory(final IWhitespacePolicyFactory whitespacePolicyFactory) {
+		this.whitespacePolicyFactory = whitespacePolicyFactory;
+	}
+
+	public IWhitespacePolicy getWhitespacePolicy() {
+		return whitespacePolicy;
 	}
 }

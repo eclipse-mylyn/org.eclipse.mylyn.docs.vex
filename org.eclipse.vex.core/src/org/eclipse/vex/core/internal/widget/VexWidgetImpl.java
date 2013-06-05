@@ -40,6 +40,7 @@ import org.eclipse.vex.core.internal.css.StyleSheetReader;
 import org.eclipse.vex.core.internal.css.Styles;
 import org.eclipse.vex.core.internal.dom.Document;
 import org.eclipse.vex.core.internal.dom.Node;
+import org.eclipse.vex.core.internal.io.IWhitespacePolicy;
 import org.eclipse.vex.core.internal.layout.BlockBox;
 import org.eclipse.vex.core.internal.layout.Box;
 import org.eclipse.vex.core.internal.layout.BoxFactory;
@@ -106,6 +107,8 @@ public class VexWidgetImpl implements IVexWidget {
 
 	private IDocument document;
 	private StyleSheet styleSheet;
+	private IWhitespacePolicy whitespacePolicy = IWhitespacePolicy.NULL;
+
 	private BoxFactory boxFactory = new CssBoxFactory();
 
 	private RootBox rootBox;
@@ -1353,6 +1356,18 @@ public class VexWidgetImpl implements IVexWidget {
 		final StyleSheetReader reader = new StyleSheetReader();
 		final StyleSheet ss = reader.read(ssUrl);
 		this.setStyleSheet(ss);
+	}
+
+	public void setWhitespacePolicy(final IWhitespacePolicy whitespacePolicy) {
+		if (whitespacePolicy == null) {
+			this.whitespacePolicy = IWhitespacePolicy.NULL;
+		} else {
+			this.whitespacePolicy = whitespacePolicy;
+		}
+	}
+
+	public IWhitespacePolicy getWhitespacePolicy() {
+		return whitespacePolicy;
 	}
 
 	public void split() throws DocumentValidationException, ReadOnlyException {

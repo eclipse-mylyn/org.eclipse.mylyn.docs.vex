@@ -15,6 +15,9 @@ import java.util.Arrays;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.vex.core.internal.css.StyleSheet;
+import org.eclipse.vex.core.internal.io.DocumentContentModel;
+import org.eclipse.vex.core.internal.io.IStyleSheetProvider;
 import org.eclipse.vex.ui.internal.config.ConfigurationRegistry;
 import org.eclipse.vex.ui.internal.config.Style;
 import org.eclipse.vex.ui.internal.editor.Messages;
@@ -24,7 +27,7 @@ import org.osgi.service.prefs.Preferences;
 /**
  * @author Florian Thienel
  */
-public class VexPreferences {
+public class VexPreferences implements IStyleSheetProvider {
 
 	public static final String INDENTATION_CHAR_CHOICE = "indetationCharChoice";
 
@@ -82,5 +85,13 @@ public class VexPreferences {
 
 	public int getLineWidth() {
 		return preferenceStore.getInt(LINE_WIDTH);
+	}
+
+	public StyleSheet getStyleSheet(final DocumentContentModel documentContentModel) {
+		final Style style = getPreferredStyle(documentContentModel.getMainDocumentTypeIdentifier());
+		if (style == null) {
+			return StyleSheet.NULL;
+		}
+		return style.getStyleSheet();
 	}
 }

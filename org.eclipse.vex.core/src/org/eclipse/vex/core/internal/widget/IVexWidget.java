@@ -16,6 +16,7 @@ import java.net.URL;
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.vex.core.internal.core.ElementName;
 import org.eclipse.vex.core.internal.css.StyleSheet;
+import org.eclipse.vex.core.internal.io.IWhitespacePolicy;
 import org.eclipse.vex.core.internal.layout.Box;
 import org.eclipse.vex.core.internal.layout.BoxFactory;
 import org.eclipse.vex.core.internal.undo.CannotRedoException;
@@ -502,6 +503,10 @@ public interface IVexWidget {
 	 *            URL of the CSS style sheet to use.
 	 */
 	public void setStyleSheet(URL ssUrl) throws IOException;
+
+	public void setWhitespacePolicy(IWhitespacePolicy whitespacePolicy);
+
+	public IWhitespacePolicy getWhitespacePolicy();
 
 	/**
 	 * Split the element at the current caret offset. This is the normal behaviour when the user presses Enter.

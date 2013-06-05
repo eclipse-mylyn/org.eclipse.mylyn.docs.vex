@@ -32,7 +32,7 @@ import org.eclipse.vex.core.internal.css.StyleSheetReader;
 import org.eclipse.vex.core.internal.dom.DummyValidator;
 import org.eclipse.vex.core.internal.io.DocumentContentModel;
 import org.eclipse.vex.core.internal.io.DocumentReader;
-import org.eclipse.vex.core.internal.io.IWhitespacePolicy;
+import org.eclipse.vex.core.internal.io.IStyleSheetProvider;
 import org.eclipse.vex.core.provisional.dom.BaseNodeVisitorWithResult;
 import org.eclipse.vex.core.provisional.dom.ContentRange;
 import org.eclipse.vex.core.provisional.dom.IDocument;
@@ -65,7 +65,7 @@ import org.xml.sax.helpers.DefaultHandler;
 public class LayoutTestSuite extends TestCase {
 
 	public String id;
-	public String doc;
+	public String documentContent;
 	public int layoutWidth = 100;
 	public boolean performActions = false;
 	public BoxSpec result;
@@ -107,34 +107,33 @@ public class LayoutTestSuite extends TestCase {
 
 	public void testLayout() throws Exception {
 		final URL url = LayoutTestSuite.class.getResource(css);
-		final StyleSheetReader reader = new StyleSheetReader();
-		final StyleSheet ss = reader.read(url);
+		final StyleSheet styleSheet = new StyleSheetReader().read(url);
 
 		final FakeGraphics g = new FakeGraphics();
 
 		final LayoutContext context = new LayoutContext();
 		context.setBoxFactory(new MockBoxFactory());
 		context.setGraphics(g);
-		context.setStyleSheet(ss);
-		final CssWhitespacePolicy policy = new CssWhitespacePolicy(ss);
+		context.setStyleSheet(styleSheet);
 
-		final DocumentReader docReader = new DocumentReader();
-		docReader.setValidator(new DummyValidator(new DocumentContentModel() {
-			@Override
-			public IWhitespacePolicy getWhitespacePolicy() {
-				return policy;
+		final DocumentReader reader = new DocumentReader();
+		reader.setValidator(new DummyValidator());
+		reader.setStyleSheetProvider(new IStyleSheetProvider() {
+			public StyleSheet getStyleSheet(final DocumentContentModel documentContentModel) {
+				return styleSheet;
 			}
-		}));
-		final IDocument doc = docReader.read(this.doc);
-		context.setDocument(doc);
+		});
+		reader.setWhitespacePolicyFactory(CssWhitespacePolicy.FACTORY);
+		final IDocument document = reader.read(documentContent);
+		context.setDocument(document);
 
-		final RootBox rootBox = new RootBox(context, doc, layoutWidth);
+		final RootBox rootBox = new RootBox(context, document, layoutWidth);
 		rootBox.layout(context, 0, Integer.MAX_VALUE);
 
 		assertBox(result, rootBox, "");
 
 		if (performActions) {
-			performActions(result, rootBox, doc);
+			performActions(result, rootBox, document);
 			assertLayoutStates(result, rootBox);
 			rootBox.layout(context, 0, Integer.MAX_VALUE);
 			assertBox(result, rootBox, "", true);
@@ -259,7 +258,7 @@ public class LayoutTestSuite extends TestCase {
 			final String s = new String(ch, start, length).trim();
 			if (s.length() > 0) {
 				if (inDoc) {
-					testCase.doc = testCase.doc + new String(ch, start, length);
+					testCase.documentContent = testCase.documentContent + new String(ch, start, length);
 				} else {
 					throw new IllegalStateException();
 				}
@@ -302,7 +301,7 @@ public class LayoutTestSuite extends TestCase {
 				testCases.add(testCase);
 			} else if (qName.equals("doc")) {
 				inDoc = true;
-				testCase.doc = "";
+				testCase.documentContent = "";
 			} else if (qName.equals("result")) {
 			} else if (qName.equals("box")) {
 				final BoxSpec parent = boxSpec;

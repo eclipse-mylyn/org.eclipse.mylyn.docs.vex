@@ -84,10 +84,6 @@ public class DocumentContentModel implements EntityResolver {
 		return modelManager.createCMDocument(resolvedDtdUrl.toString(), null);
 	}
 
-	public IWhitespacePolicy getWhitespacePolicy() {
-		return IWhitespacePolicy.NULL;
-	}
-
 	public InputSource resolveEntity(final String publicId, final String systemId) throws SAXException, IOException {
 		final String resolved = URI_RESOLVER.resolve(baseUri, publicId, systemId);
 		System.out.println("Resolved " + publicId + " " + systemId + " -> " + resolved);

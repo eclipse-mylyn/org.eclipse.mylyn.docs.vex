@@ -59,10 +59,11 @@ import org.eclipse.vex.core.internal.core.ElementName;
 import org.eclipse.vex.core.internal.core.Graphics;
 import org.eclipse.vex.core.internal.core.Rectangle;
 import org.eclipse.vex.core.internal.css.StyleSheet;
+import org.eclipse.vex.core.internal.io.IWhitespacePolicy;
 import org.eclipse.vex.core.internal.layout.Box;
 import org.eclipse.vex.core.internal.layout.BoxFactory;
-import org.eclipse.vex.core.internal.widget.IHostComponent;
 import org.eclipse.vex.core.internal.widget.IBoxFilter;
+import org.eclipse.vex.core.internal.widget.IHostComponent;
 import org.eclipse.vex.core.internal.widget.IVexWidget;
 import org.eclipse.vex.core.internal.widget.ReadOnlyException;
 import org.eclipse.vex.core.internal.widget.VexWidgetImpl;
@@ -431,6 +432,14 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 
 	public void setStyleSheet(final URL ssUrl) throws IOException {
 		impl.setStyleSheet(ssUrl);
+	}
+
+	public void setWhitespacePolicy(final IWhitespacePolicy whitespacePolicy) {
+		impl.setWhitespacePolicy(whitespacePolicy);
+	}
+
+	public IWhitespacePolicy getWhitespacePolicy() {
+		return impl.getWhitespacePolicy();
 	}
 
 	public void split() throws DocumentValidationException {

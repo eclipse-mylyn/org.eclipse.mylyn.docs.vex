@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 Florian Thienel and others.
+ * Copyright (c) 2011, 2013 Florian Thienel and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,9 +11,7 @@
 package org.eclipse.vex.ui.internal.editor;
 
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.vex.core.internal.css.CssWhitespacePolicy;
 import org.eclipse.vex.core.internal.io.DocumentContentModel;
-import org.eclipse.vex.core.internal.io.IWhitespacePolicy;
 import org.eclipse.vex.core.provisional.dom.IElement;
 import org.eclipse.vex.ui.internal.VexPlugin;
 import org.eclipse.vex.ui.internal.config.DocumentType;
@@ -73,14 +71,6 @@ public class VexDocumentContentModel extends DocumentContentModel {
 			shouldAssignInferredDocumentType = true;
 		}
 		return dialog.getDoctype();
-	}
-
-	@Override
-	public IWhitespacePolicy getWhitespacePolicy() {
-		if (style == null) {
-			return super.getWhitespacePolicy();
-		}
-		return new CssWhitespacePolicy(style.getStyleSheet());
 	}
 
 	public DocumentType getDocumentType() {
