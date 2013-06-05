@@ -16,8 +16,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 
-import org.eclipse.vex.core.internal.io.DocumentContentModel;
 import org.eclipse.vex.core.internal.validator.WTPVEXValidator;
+import org.eclipse.vex.core.provisional.dom.DocumentContentModel;
 
 /**
  * Factory for DocumentType objects.

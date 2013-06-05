@@ -22,6 +22,9 @@ import java.net.URL;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParserFactory;
 
+import org.eclipse.vex.core.internal.css.IStyleSheetProvider;
+import org.eclipse.vex.core.internal.css.IWhitespacePolicy;
+import org.eclipse.vex.core.internal.css.IWhitespacePolicyFactory;
 import org.eclipse.vex.core.provisional.dom.IDocument;
 import org.eclipse.vex.core.provisional.dom.IValidator;
 import org.xml.sax.ContentHandler;

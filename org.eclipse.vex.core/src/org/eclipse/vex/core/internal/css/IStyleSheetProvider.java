@@ -8,9 +8,9 @@
  * Contributors:
  * 		Florian Thienel - initial API and implementation
  *******************************************************************************/
-package org.eclipse.vex.core.internal.io;
+package org.eclipse.vex.core.internal.css;
 
-import org.eclipse.vex.core.internal.css.StyleSheet;
+import org.eclipse.vex.core.provisional.dom.DocumentContentModel;
 
 /**
  * @author Florian Thienel

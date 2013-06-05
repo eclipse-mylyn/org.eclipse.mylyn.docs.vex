@@ -27,14 +27,14 @@ import junit.framework.TestCase;
 import junit.framework.TestSuite;
 
 import org.eclipse.vex.core.internal.css.CssWhitespacePolicy;
+import org.eclipse.vex.core.internal.css.IStyleSheetProvider;
 import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.css.StyleSheetReader;
 import org.eclipse.vex.core.internal.dom.DummyValidator;
-import org.eclipse.vex.core.internal.io.DocumentContentModel;
 import org.eclipse.vex.core.internal.io.DocumentReader;
-import org.eclipse.vex.core.internal.io.IStyleSheetProvider;
 import org.eclipse.vex.core.provisional.dom.BaseNodeVisitorWithResult;
 import org.eclipse.vex.core.provisional.dom.ContentRange;
+import org.eclipse.vex.core.provisional.dom.DocumentContentModel;
 import org.eclipse.vex.core.provisional.dom.IDocument;
 import org.eclipse.vex.core.provisional.dom.IElement;
 import org.eclipse.vex.core.provisional.dom.INode;

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2008 John Krasnay and others.
+ * Copyright (c) 2004, 2013 John Krasnay and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -20,6 +20,9 @@ import java.util.List;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.vex.core.XML;
+import org.eclipse.vex.core.internal.css.IStyleSheetProvider;
+import org.eclipse.vex.core.internal.css.IWhitespacePolicy;
+import org.eclipse.vex.core.internal.css.IWhitespacePolicyFactory;
 import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.dom.Comment;
 import org.eclipse.vex.core.internal.dom.Document;
@@ -28,6 +31,7 @@ import org.eclipse.vex.core.internal.dom.GapContent;
 import org.eclipse.vex.core.internal.dom.Node;
 import org.eclipse.vex.core.provisional.dom.BaseNodeVisitorWithResult;
 import org.eclipse.vex.core.provisional.dom.ContentRange;
+import org.eclipse.vex.core.provisional.dom.DocumentContentModel;
 import org.eclipse.vex.core.provisional.dom.DocumentValidationException;
 import org.eclipse.vex.core.provisional.dom.IComment;
 import org.eclipse.vex.core.provisional.dom.IContent;

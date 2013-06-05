@@ -20,6 +20,7 @@ import java.net.URL;
 
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.vex.core.internal.dom.Element;
+import org.eclipse.vex.core.provisional.dom.DocumentContentModel;
 import org.eclipse.vex.core.tests.TestResources;
 import org.eclipse.vex.core.tests.VEXCoreTestPlugin;
 import org.eclipse.wst.xml.core.internal.contentmodel.CMDocument;

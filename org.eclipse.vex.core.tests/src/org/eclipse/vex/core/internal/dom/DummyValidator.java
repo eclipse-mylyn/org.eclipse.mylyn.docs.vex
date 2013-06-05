@@ -15,8 +15,8 @@ import java.util.List;
 import java.util.Set;
 
 import org.eclipse.core.runtime.QualifiedName;
-import org.eclipse.vex.core.internal.io.DocumentContentModel;
 import org.eclipse.vex.core.provisional.dom.AttributeDefinition;
+import org.eclipse.vex.core.provisional.dom.DocumentContentModel;
 import org.eclipse.vex.core.provisional.dom.IAttribute;
 import org.eclipse.vex.core.provisional.dom.IElement;
 import org.eclipse.vex.core.provisional.dom.IValidator;

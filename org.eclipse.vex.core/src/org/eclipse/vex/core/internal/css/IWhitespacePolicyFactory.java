@@ -9,9 +9,9 @@
  *     John Krasnay - initial API and implementation
  *     Florian Thienel - a NULL object
  *******************************************************************************/
-package org.eclipse.vex.core.internal.io;
+package org.eclipse.vex.core.internal.css;
 
-import org.eclipse.vex.core.internal.css.StyleSheet;
+import org.eclipse.vex.core.provisional.dom.DocumentContentModel;
 import org.eclipse.vex.core.provisional.dom.IValidator;
 
 /**

@@ -11,7 +11,7 @@
 package org.eclipse.vex.ui.internal.editor;
 
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.vex.core.internal.io.DocumentContentModel;
+import org.eclipse.vex.core.provisional.dom.DocumentContentModel;
 import org.eclipse.vex.core.provisional.dom.IElement;
 import org.eclipse.vex.ui.internal.VexPlugin;
 import org.eclipse.vex.ui.internal.config.DocumentType;

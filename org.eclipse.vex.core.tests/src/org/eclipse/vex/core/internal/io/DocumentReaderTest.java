@@ -25,6 +25,7 @@ import java.util.Iterator;
 import org.eclipse.vex.core.IFilter;
 import org.eclipse.vex.core.internal.dom.DummyValidator;
 import org.eclipse.vex.core.provisional.dom.BaseNodeVisitorWithResult;
+import org.eclipse.vex.core.provisional.dom.DocumentContentModel;
 import org.eclipse.vex.core.provisional.dom.IAxis;
 import org.eclipse.vex.core.provisional.dom.IComment;
 import org.eclipse.vex.core.provisional.dom.IDocument;

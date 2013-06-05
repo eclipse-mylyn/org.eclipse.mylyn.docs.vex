@@ -17,7 +17,6 @@ import java.util.List;
 import java.util.Set;
 
 import org.eclipse.core.runtime.QualifiedName;
-import org.eclipse.vex.core.internal.io.DocumentContentModel;
 
 /**
  * Represents an object that can validate the structure of a document.

@@ -10,9 +10,7 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.css;
 
-import org.eclipse.vex.core.internal.io.DocumentContentModel;
-import org.eclipse.vex.core.internal.io.IWhitespacePolicy;
-import org.eclipse.vex.core.internal.io.IWhitespacePolicyFactory;
+import org.eclipse.vex.core.provisional.dom.DocumentContentModel;
 import org.eclipse.vex.core.provisional.dom.INode;
 import org.eclipse.vex.core.provisional.dom.IValidator;
 
