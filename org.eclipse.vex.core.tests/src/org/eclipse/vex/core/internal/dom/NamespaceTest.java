@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010 Florian Thienel and others.
+ * Copyright (c) 2010, 2013 Florian Thienel and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,8 @@
  * 
  * Contributors:
  * 		Florian Thienel - initial API and implementation
+ * 		Carsten Hiesserich - test for handling of attribute namespaces in FindUndeclaredNamespacesVisitor
+ * 
  *******************************************************************************/
 package org.eclipse.vex.core.internal.dom;
 
@@ -354,5 +356,21 @@ public class NamespaceTest {
 		assertFalse(undeclaredNamespaces.contains("http://namespace/uri/2"));
 		assertTrue(undeclaredNamespaces.contains("http://namespace/uri/3"));
 		assertFalse(undeclaredNamespaces.contains("http://namespace/default"));
+	}
+
+	@Test
+	public void findUndeclaredAttributeNamespaces() throws Exception {
+		final Element parent = new Element(new QualifiedName("http://namespace/default", "parent"));
+		parent.declareDefaultNamespace("http://namespace/default");
+		parent.declareNamespace("ns2", "http://namespace/uri/2");
+
+		parent.addChild(new Element(new QualifiedName(null, "child")));
+
+		((IElement) parent.children().get(0)).setAttribute(new QualifiedName("http://namespace/uri/1", "attr1"), "val1");
+		((IElement) parent.children().get(0)).setAttribute(new QualifiedName("http://namespace/uri/2", "attr2"), "val12");
+
+		final Set<String> undeclaredNamespaces = parent.accept(new FindUndeclaredNamespacesVisitor());
+		assertTrue(undeclaredNamespaces.contains("http://namespace/uri/1"));
+		assertFalse(undeclaredNamespaces.contains("http://namespace/uri/2"));
 	}
 }
