@@ -10,14 +10,26 @@
  *******************************************************************************/
 package org.eclipse.vex.core;
 
+import org.eclipse.core.runtime.QualifiedName;
+import org.eclipse.vex.core.internal.dom.Namespace;
+
 /**
  * Common processing methods according to http://www.w3.org/TR/REC-xml/
  * 
  * @see http://www.w3.org/TR/REC-xml/#sec-white-space
  * @see http://www.w3.org/TR/REC-xml/#sec-line-ends
  * @see http://www.w3.org/TR/REC-xml/#NT-S
+ * @see http://www.w3.org/TR/xmlbase/
  */
 public class XML {
+
+	/**
+	 * The xml:base attribute re-defines the base URI for a part of an XML document, according to the XML Base
+	 * Recommendation.
+	 * 
+	 * @see http://www.w3.org/TR/xmlbase/
+	 */
+	public static final QualifiedName BASE_ATTRIBUTE = new QualifiedName(Namespace.XML_NAMESPACE_URI, "base");
 
 	/**
 	 * @param c

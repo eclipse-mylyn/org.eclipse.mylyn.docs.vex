@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.eclipse.core.runtime.QualifiedName;
+import org.eclipse.vex.core.XML;
 import org.eclipse.vex.core.internal.core.QualifiedNameComparator;
 import org.eclipse.vex.core.provisional.dom.AttributeChangeEvent;
 import org.eclipse.vex.core.provisional.dom.DocumentValidationException;
@@ -34,14 +35,6 @@ import org.eclipse.vex.core.provisional.dom.INodeVisitorWithResult;
 import org.eclipse.vex.core.provisional.dom.NamespaceDeclarationChangeEvent;
 
 public class Element extends Parent implements IElement {
-
-	/*
-	 * The xml:base attribute re-defines the base URI for a part of an XML document, according to the XML Base
-	 * Recommendation.
-	 * 
-	 * @see http://www.w3.org/TR/xmlbase/
-	 */
-	private static final QualifiedName XML_BASE_ATTRIBUTE = new QualifiedName(Namespace.XML_NAMESPACE_URI, "base");
 
 	private final QualifiedName name;
 
@@ -62,7 +55,7 @@ public class Element extends Parent implements IElement {
 
 	@Override
 	public String getBaseURI() {
-		final IAttribute baseAttribute = getAttribute(XML_BASE_ATTRIBUTE);
+		final IAttribute baseAttribute = getAttribute(XML.BASE_ATTRIBUTE);
 		if (baseAttribute != null) {
 			return baseAttribute.getValue();
 		}
@@ -70,7 +63,7 @@ public class Element extends Parent implements IElement {
 	}
 
 	public void setBaseURI(final String baseURI) {
-		setAttribute(XML_BASE_ATTRIBUTE, baseURI);
+		setAttribute(XML.BASE_ATTRIBUTE, baseURI);
 	}
 
 	public boolean isKindOf(final INode other) {
