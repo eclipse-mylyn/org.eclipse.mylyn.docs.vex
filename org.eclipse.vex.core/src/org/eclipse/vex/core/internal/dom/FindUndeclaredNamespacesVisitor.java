@@ -14,6 +14,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.eclipse.vex.core.provisional.dom.IAttribute;
 import org.eclipse.vex.core.provisional.dom.IComment;
 import org.eclipse.vex.core.provisional.dom.IDocument;
 import org.eclipse.vex.core.provisional.dom.IDocumentFragment;
@@ -46,7 +47,15 @@ public class FindUndeclaredNamespacesVisitor implements INodeVisitorWithResult<S
 			result.add(namespaceUri);
 		}
 
+		for (final IAttribute attribute : element.getAttributes()) {
+			final String attributeNamespaceUri = attribute.getQualifiedName().getQualifier();
+			if (!isNamespaceDeclared(element, attributeNamespaceUri)) {
+				result.add(attributeNamespaceUri);
+			}
+		}
+
 		result.addAll(visitAll(element.children()));
+
 		return result;
 	}
 
@@ -68,6 +77,10 @@ public class FindUndeclaredNamespacesVisitor implements INodeVisitorWithResult<S
 
 	private static boolean isNamespaceDeclared(final IElement element, final String namespaceUri) {
 		if (namespaceUri == null) {
+			return true;
+		}
+
+		if (namespaceUri.equals(Namespace.XML_NAMESPACE_URI) || namespaceUri.equals(Namespace.XMLNS_NAMESPACE_URI)) {
 			return true;
 		}
 
