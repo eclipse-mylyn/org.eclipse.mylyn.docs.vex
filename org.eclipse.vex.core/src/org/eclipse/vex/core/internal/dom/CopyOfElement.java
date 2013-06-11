@@ -43,7 +43,7 @@ public class CopyOfElement extends BaseNodeVisitor {
 
 		element.declareDefaultNamespace(source.getDeclaredDefaultNamespaceURI());
 
-		for (final String prefix : source.getNamespacePrefixes()) {
+		for (final String prefix : source.getDeclaredNamespacePrefixes()) {
 			element.declareNamespace(prefix, source.getNamespaceURI(prefix));
 		}
 	}

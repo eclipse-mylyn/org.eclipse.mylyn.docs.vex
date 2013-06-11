@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 Florian Thienel and others.
+ * Copyright (c) 2012, 2013 Florian Thienel and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  * 
  * Contributors:
  * 		Florian Thienel - initial API and implementation
+ *		Carsten Hiesserich - additional test for namespace inheritance
  *******************************************************************************/
 package org.eclipse.vex.core.internal.dom;
 
@@ -14,6 +15,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Iterator;
@@ -232,6 +234,22 @@ public class DeepCopyTest {
 		assertEquals("Hello", copiedChildren.next().getText());
 		assertEquals("World", copiedChildren.next().getText());
 		assertFalse(copiedChildren.hasNext());
+	}
+
+	@Test
+	public void givenAnElement_shouldCopyOnlyDeclaredNamespaces() throws Exception {
+		final Element parent = new Element("parent");
+		parent.declareDefaultNamespace("http://namespace/default");
+		parent.declareNamespace("ns1", "http://namespace/ns1");
+		final Element child = new Element("child");
+		child.declareNamespace("ns2", "http://namespace/ns2");
+		parent.addChild(child);
+
+		final DeepCopy deepCopy = new DeepCopy(child);
+		final Element copiedChild = (Element) deepCopy.getNodes().get(0);
+		assertNull(copiedChild.getDeclaredDefaultNamespaceURI());
+		assertEquals(1, copiedChild.getDeclaredNamespacePrefixes().size());
+		assertEquals("ns2", copiedChild.getDeclaredNamespacePrefixes().iterator().next());
 	}
 
 	private static void assertNodeIsAssociatedElementWithText(final String expectedText, final INode actualNode) {

@@ -15,7 +15,11 @@ package org.eclipse.vex.core.internal.dom;
 
 import java.text.MessageFormat;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.QualifiedName;
@@ -43,6 +47,8 @@ import org.eclipse.vex.core.provisional.dom.IValidator;
  * A representation of an XML document in the DOM.
  */
 public class Document extends Parent implements IDocument {
+
+	private static final String DEFAULT_NAMESPACE_PREFIX = "ns";
 
 	private final Element rootElement;
 	private final ListenerList<IDocumentListener, DocumentEvent> listeners = new ListenerList<IDocumentListener, DocumentEvent>(IDocumentListener.class);
@@ -357,6 +363,8 @@ public class Document extends Parent implements IDocument {
 
 		getContent().insertContent(offset, fragment.getContent());
 
+		final Set<String> undeclaredNamespaces = new HashSet<String>();
+
 		final DeepCopy deepCopy = new DeepCopy(fragment);
 		final List<Node> newNodes = deepCopy.getNodes();
 		int nextOffset = offset;
@@ -364,7 +372,11 @@ public class Document extends Parent implements IDocument {
 			parent.insertChildAt(nextOffset, newNode);
 			associateDeeply(newNode, offset);
 			nextOffset = newNode.getEndOffset() + 1;
+
+			undeclaredNamespaces.addAll(newNode.accept(new FindUndeclaredNamespacesVisitor()));
 		}
+
+		declareNamespaces(undeclaredNamespaces, parent);
 
 		fireContentInserted(new ContentChangeEvent(this, parent, new ContentRange(offset, offset + fragment.getContent().length() - 1)));
 	}
@@ -377,6 +389,14 @@ public class Document extends Parent implements IDocument {
 			}
 		}
 		node.associate(getContent(), node.getRange().moveBy(offset));
+	}
+
+	private void declareNamespaces(final Collection<String> namespaceURIs, final IElement element) {
+		final NamespacePrefixGenerator namespacePrefixGenerator = new NamespacePrefixGenerator(element, DEFAULT_NAMESPACE_PREFIX);
+		for (final String namespaceURI : namespaceURIs) {
+			final String namespacePrefix = namespacePrefixGenerator.next();
+			element.declareNamespace(namespacePrefix, namespaceURI);
+		}
 	}
 
 	public void delete(final ContentRange range) throws DocumentValidationException {
@@ -581,6 +601,38 @@ public class Document extends Parent implements IDocument {
 
 	private void fireContentInserted(final DocumentEvent e) {
 		listeners.fireEvent("contentInserted", e);
+	}
+
+	/*
+	 * Internal Helper Classes
+	 */
+
+	private static class NamespacePrefixGenerator implements Iterator<String> {
+		final IElement element;
+		final String prefix;
+		int namespaceIndex = 1;
+
+		public NamespacePrefixGenerator(final IElement element, final String prefix) {
+			this.element = element;
+			this.prefix = prefix;
+		}
+
+		public boolean hasNext() {
+			return true;
+		}
+
+		public String next() {
+			final String result = prefix + namespaceIndex++;
+			if (!element.getNamespacePrefixes().contains(result)) {
+				return result;
+			}
+			return next();
+		}
+
+		public void remove() {
+			throw new UnsupportedOperationException("remove not supported");
+		}
+
 	}
 
 }

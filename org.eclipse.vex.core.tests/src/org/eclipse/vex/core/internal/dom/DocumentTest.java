@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 Florian Thienel and others.
+ * Copyright (c) 2012, 2013 Florian Thienel and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  * 
  * Contributors:
  * 		Florian Thienel - initial API and implementation
+ * 		Carsten Hiesserich - automatically declare undeclared namespaces when copiing (bug 409647)
  *******************************************************************************/
 package org.eclipse.vex.core.internal.dom;
 
@@ -118,6 +119,38 @@ public class DocumentTest {
 		final IDocumentFragment actualFragment = document.getFragment(new ContentRange(child.getEndOffset() + 1, document.getRootElement().getEndOffset() - 1));
 
 		assertNodeEquals(expectedFragment, actualFragment, 0);
+	}
+
+	@Test
+	public void insertFragment_shouldDeclareUndeclaredNamespaces() throws Exception {
+		final IDocument document = new Document(new QualifiedName(null, "root"));
+		document.getRootElement().declareNamespace("ns1", "http://ns1");
+		final IElement sourceParent = document.insertElement(2, new QualifiedName("http://ns1", "parent"));
+		sourceParent.declareNamespace("ns2", "http://ns2");
+		final IElement child = document.insertElement(sourceParent.getEndOffset(), new QualifiedName("http://ns2", "child"));
+
+		final IElement targetParent = document.insertElement(document.getRootElement().getEndOffset(), new QualifiedName("http://ns1", "parent"));
+		final IDocumentFragment fragment = document.getFragment(child.getRange());
+		document.insertFragment(targetParent.getEndOffset(), fragment);
+
+		assertEquals(1, targetParent.getDeclaredNamespacePrefixes().size());
+		assertEquals("http://ns2", targetParent.getNamespaceURI(targetParent.getDeclaredNamespacePrefixes().iterator().next()));
+	}
+
+	@Test
+	public void insertFragment_shouldNotOverrideDeclaredNamespacePrefixes() throws Exception {
+		final IDocument document = new Document(new QualifiedName(null, "root"));
+		document.getRootElement().declareNamespace("ns1", "http://ns1");
+		final IElement sourceParent = document.insertElement(2, new QualifiedName("http://ns1", "parent"));
+		sourceParent.declareNamespace("ns2", "http://ns2");
+		final IElement child = document.insertElement(sourceParent.getEndOffset(), new QualifiedName("http://ns2", "child"));
+
+		final IElement targetParent = document.insertElement(document.getRootElement().getEndOffset(), new QualifiedName("http://ns1", "parent"));
+		final IDocumentFragment fragment = document.getFragment(child.getRange());
+		document.insertFragment(targetParent.getEndOffset(), fragment);
+
+		assertEquals("http://ns1", targetParent.getNamespaceURI("ns1"));
+		assertEquals("http://ns2", targetParent.getNamespaceURI("ns2"));
 	}
 
 	private static void assertNodesEqual(final Iterable<? extends INode> expected, final Iterable<? extends INode> actual, final int rangeOffsetExpected) {
