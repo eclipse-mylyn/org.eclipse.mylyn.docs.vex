@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2008 John Krasnay and others.
+ * Copyright (c) 2004, 2013 John Krasnay and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,6 +8,7 @@
  * Contributors:
  *     John Krasnay - initial API and implementation
  *     Igor Jacy Lino Campista - Java 5 warnings fixed (bug 311325)
+ *     Carsten Hiesserich - writeNoWrap(DocumentFragment) method
  *******************************************************************************/
 package org.eclipse.vex.core.internal.io;
 
@@ -155,6 +156,15 @@ public class DocumentWriter {
 		printWriter.flush();
 	}
 
+	public void writeNoWrap(final IDocumentFragment fragment, final OutputStream out) throws IOException {
+		final PrintWriter printWriter = new PrintWriter(new OutputStreamWriter(out, "UTF-8"));
+
+		for (final INode child : fragment.children()) {
+			writeNodeNoWrap(child, printWriter);
+		}
+		printWriter.flush();
+	}
+
 	// ====================================================== PRIVATE
 
 	private void writeNode(final INode node, final PrintWriter out, final String indent) {
@@ -255,7 +265,7 @@ public class DocumentWriter {
 			@Override
 			public void visit(final IComment comment) {
 				out.print(indent);
-				out.println("<!-- ");
+				out.println("<!--");
 
 				final String childIndent = indent + DocumentWriter.this.indent;
 				final TextWrapper wrapper = new TextWrapper();
@@ -268,7 +278,7 @@ public class DocumentWriter {
 				}
 
 				out.print(indent);
-				out.println(" -->");
+				out.println("-->");
 			}
 
 			@Override
@@ -307,9 +317,9 @@ public class DocumentWriter {
 
 			@Override
 			public void visit(final IComment comment) {
-				out.print("<!-- ");
+				out.print("<!--");
 				out.print(escape(node.getText()));
-				out.print(" -->");
+				out.print("-->");
 			}
 
 			@Override
@@ -360,9 +370,9 @@ public class DocumentWriter {
 
 			@Override
 			public void visit(final IComment comment) {
-				wrapper.addNoSplit("<!-- ");
+				wrapper.addNoSplit("<!--");
 				wrapper.add(escape(node.getText()));
-				wrapper.addNoSplit(" -->");
+				wrapper.addNoSplit("-->");
 			}
 
 			@Override
