@@ -7,6 +7,7 @@
  * 
  * Contributors:
  * 		Florian Thienel - initial API and implementation
+ * 		Carsten Hiesserich - Vex namespace URI
  *******************************************************************************/
 package org.eclipse.vex.core.internal.dom;
 
@@ -22,5 +23,7 @@ public class Namespace {
 	public static final String XMLNS_NAMESPACE_URI = "http://www.w3.org/2000/xmlns/";
 
 	public static final String XMLNS_NAMESPACE_PREFIX = "xmlns";
+
+	public static final String VEX_NAMESPACE_URI = "http://www.eclipse.org/vex";
 
 }
