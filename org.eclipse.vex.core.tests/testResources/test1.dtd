@@ -9,7 +9,7 @@
 <!ELEMENT document (title?, preface, section+, index)>
 <!ELEMENT preface (para+)>
 <!ELEMENT index (para+)>
-<!ELEMENT pre (#PCDATA)>
+<!ELEMENT pre (#PCDATA | emphasis)*>
 
 <!-- a dummy attribute, just to make sure attribute def serialization is OK -->
 <!ATTLIST section

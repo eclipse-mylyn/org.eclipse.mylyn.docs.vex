@@ -12,9 +12,6 @@ package org.eclipse.vex.ui.internal.swt.tests;
 
 import static org.eclipse.vex.core.internal.io.RoundTrip.assertContentEqual;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.vex.core.internal.dom.Document;
 import org.eclipse.vex.core.provisional.dom.IComment;
@@ -87,10 +84,9 @@ public class DocumentFragmentTransferTest {
 	}
 
 	private static void assertRoundTripWorks(final IDocumentFragment expectedFragment) throws Exception {
-		final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-		final DocumentFragmentTransfer transfer = new DocumentFragmentTransfer();
-		transfer.writeFragmentToStream(expectedFragment, buffer);
-		final IDocumentFragment actualFragment = transfer.readFragmentFromStream(new ByteArrayInputStream(buffer.toByteArray()));
+		final DocumentFragmentTransfer transfer = DocumentFragmentTransfer.getInstance();
+		final byte[] buffer = transfer.writeFragmentToStream(expectedFragment);
+		final IDocumentFragment actualFragment = transfer.readFragmentFromStream(buffer);
 		assertContentEqual(expectedFragment, actualFragment);
 	}
 

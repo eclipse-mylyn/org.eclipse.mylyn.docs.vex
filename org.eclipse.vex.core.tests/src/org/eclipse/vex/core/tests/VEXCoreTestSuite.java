@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2010 John Krasnay and others.
+ * Copyright (c) 2004, 2013 John Krasnay and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,8 @@
  *     John Krasnay - initial API and implementation
  *     Florian Thienel - bug 306639 - remove serializability from StyleSheet
  *                       and dependend classes
+ *     Carsten Hiesserich - bug 408501 - keep whitespace when copying fragments 
+ *     						into pre elements
  *******************************************************************************/
 package org.eclipse.vex.core.tests;
 
@@ -22,6 +24,7 @@ import org.eclipse.vex.core.internal.css.RuleTest;
 import org.eclipse.vex.core.internal.dom.AxisTest;
 import org.eclipse.vex.core.internal.dom.BasicNodeTest;
 import org.eclipse.vex.core.internal.dom.BlockElementBoxTest;
+import org.eclipse.vex.core.internal.dom.ContentRangeTest;
 import org.eclipse.vex.core.internal.dom.CopyVisitorTest;
 import org.eclipse.vex.core.internal.dom.DTDValidatorTest;
 import org.eclipse.vex.core.internal.dom.DeepCopyTest;
@@ -34,13 +37,13 @@ import org.eclipse.vex.core.internal.dom.L1FragmentHandlingTest;
 import org.eclipse.vex.core.internal.dom.L1TextHandlingTest;
 import org.eclipse.vex.core.internal.dom.NamespaceTest;
 import org.eclipse.vex.core.internal.dom.ParentTest;
-import org.eclipse.vex.core.internal.dom.ContentRangeTest;
 import org.eclipse.vex.core.internal.io.DocumentContentModelTest;
 import org.eclipse.vex.core.internal.io.DocumentReaderTest;
 import org.eclipse.vex.core.internal.io.DocumentWriterTest;
 import org.eclipse.vex.core.internal.io.NamespaceStackTest;
 import org.eclipse.vex.core.internal.io.SpaceNormalizerTest;
 import org.eclipse.vex.core.internal.io.TextWrapperTest;
+import org.eclipse.vex.core.internal.io.XMLFragmentTest;
 import org.eclipse.vex.core.internal.layout.ImageBoxTest;
 import org.eclipse.vex.core.internal.layout.LayoutTestSuite;
 import org.eclipse.vex.core.internal.layout.TableLayoutTest;
@@ -52,6 +55,7 @@ import org.eclipse.vex.core.internal.validator.SchemaValidatorTest;
 import org.eclipse.vex.core.internal.widget.L2CommentEditingTest;
 import org.eclipse.vex.core.internal.widget.L2SelectionTest;
 import org.eclipse.vex.core.internal.widget.L2SimpleEditingTest;
+import org.eclipse.vex.core.internal.widget.L2XmlInsertionTest;
 import org.eclipse.vex.core.internal.widget.VexWidgetTest;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
@@ -62,7 +66,7 @@ import org.junit.runners.Suite;
 		L1TextHandlingTest.class, L1CommentHandlingTest.class, L1ElementHandlingTest.class, L1FragmentHandlingTest.class, DocumentFragmentTest.class, CopyVisitorTest.class, DeepCopyTest.class,
 		PropertyTest.class, RuleTest.class, BlockElementBoxTest.class, ImageBoxTest.class, DocumentWriterTest.class, DTDValidatorTest.class, GapContentTest.class, SpaceNormalizerTest.class,
 		TextWrapperTest.class, TestBlockElementBox.class, TestBlocksInInlines.class, TestDocumentTextBox.class, TestStaticTextBox.class, TableLayoutTest.class, LayoutTestSuite.class,
-		ListenerListTest.class, VexWidgetTest.class, L2SimpleEditingTest.class, L2SelectionTest.class, L2CommentEditingTest.class
+		ListenerListTest.class, XMLFragmentTest.class, VexWidgetTest.class, L2SimpleEditingTest.class, L2SelectionTest.class, L2CommentEditingTest.class, L2XmlInsertionTest.class
 
 })
 public class VEXCoreTestSuite {

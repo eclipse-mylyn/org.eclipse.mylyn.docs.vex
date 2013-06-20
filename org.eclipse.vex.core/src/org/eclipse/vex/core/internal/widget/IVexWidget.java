@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2008 John Krasnay and others.
+ * Copyright (c) 2004, 2013 John Krasnay and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  * 
  * Contributors:
  *     John Krasnay - initial API and implementation
+ *     Carsten Hiesserich - insertXML (bug 408501)
  *******************************************************************************/
 package org.eclipse.vex.core.internal.widget;
 
@@ -269,6 +270,15 @@ public interface IVexWidget {
 	 *            String to insert.
 	 */
 	public void insertText(String text) throws DocumentValidationException;
+
+	/**
+	 * Inserts the given XML fragment at the current caret position. Any selected content is first deleted.
+	 * 
+	 * @param xml
+	 *            XML to insert
+	 * @throws DocumentValidationException
+	 */
+	public void insertXML(String xml) throws DocumentValidationException;
 
 	/**
 	 * Inserts a comment a the current caret position. Any selected content is first deleted.

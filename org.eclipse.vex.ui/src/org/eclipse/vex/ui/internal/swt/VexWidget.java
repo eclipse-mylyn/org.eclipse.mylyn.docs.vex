@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2008 John Krasnay and others.
+ * Copyright (c) 2004, 2013 John Krasnay and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,6 +8,7 @@
  * Contributors:
  *     John Krasnay - initial API and implementation
  *     Igor Jacy Lino Campista - Java 5 warnings fixed (bug 311325)
+ *     Carsten Hiesserich - changed fragment pasting to allow XML content
  *******************************************************************************/
 package org.eclipse.vex.ui.internal.swt;
 
@@ -60,6 +61,7 @@ import org.eclipse.vex.core.internal.core.Graphics;
 import org.eclipse.vex.core.internal.core.Rectangle;
 import org.eclipse.vex.core.internal.css.IWhitespacePolicy;
 import org.eclipse.vex.core.internal.css.StyleSheet;
+import org.eclipse.vex.core.internal.dom.DocumentFragment;
 import org.eclipse.vex.core.internal.layout.Box;
 import org.eclipse.vex.core.internal.layout.BoxFactory;
 import org.eclipse.vex.core.internal.widget.IBoxFilter;
@@ -292,6 +294,10 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 		impl.insertText(text);
 	}
 
+	public void insertXML(final String xml) throws DocumentValidationException {
+		impl.insertXML(xml);
+	}
+
 	public IComment insertComment() throws DocumentValidationException {
 		return impl.insertComment();
 	}
@@ -358,7 +364,7 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 		}
 
 		final Clipboard clipboard = new Clipboard(getDisplay());
-		final IDocumentFragment fragment = (IDocumentFragment) clipboard.getContents(DocumentFragmentTransfer.getInstance());
+		final DocumentFragment fragment = (DocumentFragment) clipboard.getContents(DocumentFragmentTransfer.getInstance());
 		if (fragment != null) {
 			insertFragment(fragment);
 		} else {

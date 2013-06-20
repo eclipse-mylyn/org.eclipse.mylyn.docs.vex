@@ -13,7 +13,6 @@ package org.eclipse.vex.core.internal.css;
 
 import org.eclipse.vex.core.provisional.dom.INode;
 
-
 /**
  * Determines whitespace policy for document elements. For example, a CSS stylesheet implements a whitespace policy via
  * its display and white-space properties.
@@ -30,6 +29,19 @@ public interface IWhitespacePolicy {
 
 		public boolean isPre(final INode node) {
 			return false;
+		}
+	};
+
+	/**
+	 * This policy preserves whitespace but knows no blocks.
+	 */
+	IWhitespacePolicy PRESERVE_WHITESPACE = new IWhitespacePolicy() {
+		public boolean isBlock(final INode node) {
+			return false;
+		}
+
+		public boolean isPre(final INode node) {
+			return true;
 		}
 	};
 

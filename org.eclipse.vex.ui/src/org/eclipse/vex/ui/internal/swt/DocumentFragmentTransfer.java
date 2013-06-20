@@ -8,25 +8,16 @@
  * Contributors:
  *     John Krasnay - initial API and implementation
  *     Florian Thienel - use XML reader/writer for serialization
+ *     Carsten Hiesserich - moved serialization to XMLFragment
  *******************************************************************************/
 package org.eclipse.vex.ui.internal.swt;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-
-import javax.xml.parsers.ParserConfigurationException;
+import java.io.UnsupportedEncodingException;
 
 import org.eclipse.swt.dnd.ByteArrayTransfer;
 import org.eclipse.swt.dnd.TransferData;
-import org.eclipse.vex.core.internal.io.DocumentReader;
-import org.eclipse.vex.core.internal.io.DocumentWriter;
-import org.eclipse.vex.core.provisional.dom.IDocument;
+import org.eclipse.vex.core.internal.io.XMLFragment;
 import org.eclipse.vex.core.provisional.dom.IDocumentFragment;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
 
 /**
  * Transfer object that handles Vex DocumentFragments.
@@ -73,16 +64,18 @@ public class DocumentFragmentTransfer extends ByteArrayTransfer {
 		}
 
 		final IDocumentFragment fragment = (IDocumentFragment) object;
-		final ByteArrayOutputStream out = new ByteArrayOutputStream();
-		try {
-			writeFragmentToStream(fragment, out);
-		} catch (final IOException e) {
-		}
-		super.javaToNative(out.toByteArray(), transferData);
+
+		super.javaToNative(writeFragmentToStream(fragment), transferData);
 	}
 
-	public void writeFragmentToStream(final IDocumentFragment fragment, final OutputStream out) throws IOException {
-		new DocumentWriter().write(fragment, out);
+	public byte[] writeFragmentToStream(final IDocumentFragment fragment) {
+		final XMLFragment wrapper = new XMLFragment(fragment);
+		try {
+			return wrapper.getXML().getBytes("UTF-8");
+		} catch (final UnsupportedEncodingException e) {
+			// This should not happen with UTF-8
+			return new byte[0];
+		}
 	}
 
 	// Reading
@@ -94,30 +87,21 @@ public class DocumentFragmentTransfer extends ByteArrayTransfer {
 			if (buffer == null) {
 				return null;
 			}
-			final ByteArrayInputStream in = new ByteArrayInputStream(buffer);
 
-			try {
-				return readFragmentFromStream(in);
-			} catch (final IOException ex) {
-				return null;
-			}
+			return readFragmentFromStream(buffer);
 		}
 
 		return null;
 	}
 
-	public IDocumentFragment readFragmentFromStream(final InputStream in) throws IOException {
+	public IDocumentFragment readFragmentFromStream(final byte[] in) {
 		try {
-			final IDocument document = new DocumentReader().read(new InputSource(in));
-			return document.getFragment(document.getRootElement().getRange().resizeBy(1, -1));
-		} catch (final ParserConfigurationException e) {
-			// TODO shoult never happen - log this exception?
-			e.printStackTrace();
-			return null;
-		} catch (final SAXException e) {
-			// TODO shoult never happen - log this exception?
-			e.printStackTrace();
+			final XMLFragment xmlFragment = new XMLFragment(new String(in, "UTF-8"));
+			return xmlFragment.getDocumentFragment();
+		} catch (final UnsupportedEncodingException e) {
+			// This should not happen with UTF-8
 			return null;
 		}
 	}
+
 }

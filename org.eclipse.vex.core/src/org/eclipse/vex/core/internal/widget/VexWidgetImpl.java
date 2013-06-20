@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2008 John Krasnay and others.
+ * Copyright (c) 2004, 2013 John Krasnay and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -11,7 +11,7 @@
  *     Holger Voormann - bug 315914: content assist should only show elements 
  *			valid in the current context
  *     Carsten Hiesserich - handling of elements within comments (bug 407801)
- *     Carsten Hiesserich - allow insertion of newline into pre elements (bug 407827)
+ *     Carsten Hiesserich - handling of preformatted elements, XML insertion(bug 407827, bug 408501 )
  *******************************************************************************/
 package org.eclipse.vex.core.internal.widget;
 
@@ -40,6 +40,7 @@ import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.css.StyleSheetReader;
 import org.eclipse.vex.core.internal.dom.Document;
 import org.eclipse.vex.core.internal.dom.Node;
+import org.eclipse.vex.core.internal.io.XMLFragment;
 import org.eclipse.vex.core.internal.layout.BlockBox;
 import org.eclipse.vex.core.internal.layout.Box;
 import org.eclipse.vex.core.internal.layout.BoxFactory;
@@ -59,6 +60,7 @@ import org.eclipse.vex.core.internal.undo.InsertElementEdit;
 import org.eclipse.vex.core.internal.undo.InsertFragmentEdit;
 import org.eclipse.vex.core.internal.undo.InsertTextEdit;
 import org.eclipse.vex.core.provisional.dom.AttributeChangeEvent;
+import org.eclipse.vex.core.provisional.dom.BaseNodeVisitor;
 import org.eclipse.vex.core.provisional.dom.BaseNodeVisitorWithResult;
 import org.eclipse.vex.core.provisional.dom.ContentChangeEvent;
 import org.eclipse.vex.core.provisional.dom.ContentRange;
@@ -881,6 +883,77 @@ public class VexWidgetImpl implements IVexWidget {
 		} finally {
 			endWork(success);
 		}
+	}
+
+	public void insertXML(final String xml) throws DocumentValidationException, ReadOnlyException {
+		if (readOnly) {
+			throw new ReadOnlyException("Cannot insert text, because the editor is read-only.");
+		}
+
+		final XMLFragment wrappedFragment = new XMLFragment(xml);
+
+		// If fragment contains only simple Text, use insertText to ensure consistent behavior
+		if (wrappedFragment.isTextOnly()) {
+			insertText(wrappedFragment.getXML());
+			return;
+		}
+
+		final IElement element = getBlockForInsertionAt(getCaretOffset());
+		final boolean isPreformatted = whitespacePolicy.isPre(element);
+
+		try {
+			final IDocumentFragment fragment = wrappedFragment.getDocumentFragment();
+
+			if (document.canInsertFragment(getCaretOffset(), fragment)) {
+				insertFragment(fragment);
+			} else if (document.canInsertText(getCaretOffset())) {
+				insertText(fragment.getText());
+			}
+		} catch (final DocumentValidationException e) {
+			// given XML is not valid - Insert text instead if target is preformatted
+			if (isPreformatted) {
+				insertText(wrappedFragment.getXML());
+			} else {
+				throw e;
+			}
+		}
+
+		applyWhitespacePolicy(element, whitespacePolicy);
+	}
+
+	private static void applyWhitespacePolicy(final INode node, final IWhitespacePolicy whitespacePolicy) {
+		final IDocument document = node.getDocument();
+		if (document == null) {
+			throw new IllegalArgumentException("applyWhitespacePolicy works only for nodes in documents!");
+		}
+		node.accept(new BaseNodeVisitor() {
+			@Override
+			public void visit(final IDocument document) {
+				document.children().accept(this);
+			}
+
+			@Override
+			public void visit(final IDocumentFragment fragment) {
+				fragment.children().accept(this);
+			}
+
+			@Override
+			public void visit(final IElement element) {
+				element.children().accept(this);
+			}
+
+			@Override
+			public void visit(final IText text) {
+				final IParent parentElement = text.ancestors().matching(Filters.elements()).first();
+				if (!whitespacePolicy.isPre(parentElement)) {
+					final String compressedContent = XML.compressWhitespace(text.getText(), false, false, false);
+					final ContentRange originalTextRange = text.getRange();
+					document.delete(originalTextRange);
+					document.insertText(originalTextRange.getStartOffset(), compressedContent);
+				}
+
+			}
+		});
 	}
 
 	private IElement getBlockForInsertionAt(final int offset) {
