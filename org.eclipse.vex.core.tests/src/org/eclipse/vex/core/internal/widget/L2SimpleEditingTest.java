@@ -7,7 +7,7 @@
  * 
  * Contributors:
  * 		Florian Thienel - initial API and implementation
- * 		Carsten Hiesserich - additional test for newline handling (bug 407827)
+ * 		Carsten Hiesserich - additional tests (bug 407827, 409032)
  *******************************************************************************/
 package org.eclipse.vex.core.internal.widget;
 
@@ -303,6 +303,48 @@ public class L2SimpleEditingTest {
 		widget.insertText("\n");
 		assertEquals(1, rootElement.children().count());
 		assertEquals("line1\n", preElement.getText());
+	}
+
+	@Test
+	public void insertingTextAtInvalidPosition_shouldNotAlterDocument() throws Exception {
+		final IElement para1 = widget.insertElement(PARA);
+		widget.moveBy(1);
+		final IElement para2 = widget.insertElement(PARA);
+		widget.moveTo(para1.getEndOffset());
+		widget.insertText("Para1");
+		widget.moveTo(para2.getEndOffset());
+		widget.insertText("Para2");
+
+		// Insert position is invalid
+		widget.moveTo(para1.getEndOffset() + 1);
+		try {
+			widget.insertText("Test");
+		} catch (final Exception ex) {
+		} finally {
+			assertEquals("Para1", para1.getText());
+			assertEquals("Para2", para2.getText());
+		}
+	}
+
+	@Test
+	public void insertingElementAtInvalidPosition_shouldNotAlterDocument() throws Exception {
+		final IElement para1 = widget.insertElement(PARA);
+		widget.moveBy(1);
+		final IElement para2 = widget.insertElement(PARA);
+		widget.moveTo(para1.getEndOffset());
+		widget.insertText("Para1");
+		widget.moveTo(para2.getEndOffset());
+		widget.insertText("Para2");
+
+		// Insert position is invalid
+		widget.moveTo(para1.getEndOffset());
+		try {
+			widget.insertElement(PARA);
+		} catch (final Exception ex) {
+		} finally {
+			assertEquals("Para1", para1.getText());
+			assertEquals("Para2", para2.getText());
+		}
 	}
 
 	@Test
