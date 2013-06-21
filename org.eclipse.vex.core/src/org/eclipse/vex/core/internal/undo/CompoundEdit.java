@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2008 John Krasnay and others.
+ * Copyright (c) 2004, 2013 John Krasnay and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,6 +8,7 @@
  * Contributors:
  *     John Krasnay - initial API and implementation
  *     Igor Jacy Lino Campista - Java 5 warnings fixed (bug 311325)
+ *	   Carsten Hiesserich - Refactored to use AbstractUndoableEdit
  *******************************************************************************/
 package org.eclipse.vex.core.internal.undo;
 
@@ -17,7 +18,7 @@ import java.util.List;
 /**
  * An undoable edit that is a composite of others.
  */
-public class CompoundEdit implements IUndoableEdit {
+public class CompoundEdit extends AbstractUndoableEdit {
 
 	/**
 	 * Class constructor.
@@ -35,28 +36,40 @@ public class CompoundEdit implements IUndoableEdit {
 		edits.add(edit);
 	}
 
-	public boolean combine(final IUndoableEdit edit) {
-		return false;
-	}
-
 	/**
 	 * Calls redo() on each contained edit, in the order that they were added.
 	 */
-	public void redo() {
+	@Override
+	protected void performRedo() {
 		for (int i = 0; i < edits.size(); i++) {
 			final IUndoableEdit edit = edits.get(i);
-			edit.redo();
+			if (edit.canRedo()) {
+				edit.redo();
+			}
 		}
 	}
 
 	/**
 	 * Calls undo() on each contained edit, in reverse order from which they were added.
 	 */
-	public void undo() {
+	@Override
+	protected void performUndo() {
 		for (int i = edits.size() - 1; i >= 0; i--) {
 			final IUndoableEdit edit = edits.get(i);
-			edit.undo();
+			if (edit.canUndo()) {
+				edit.undo();
+			}
 		}
+	}
+
+	@Override
+	public boolean canUndo() {
+		return true;
+	}
+
+	@Override
+	public boolean canRedo() {
+		return true;
 	}
 
 	// ===================================================== PRIVATE

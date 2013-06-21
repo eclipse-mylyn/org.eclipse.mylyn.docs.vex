@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2008 John Krasnay and others.
+ * Copyright (c) 2004, 2013 John Krasnay and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  * 
  * Contributors:
  *     John Krasnay - initial API and implementation
+ *     Carsten Hiesserich - Added methods to support AbstractUndoableEdit
  *******************************************************************************/
 package org.eclipse.vex.core.internal.undo;
 
@@ -36,4 +37,18 @@ public interface IUndoableEdit {
 	 * Undo the edit.
 	 */
 	public void undo() throws CannotUndoException;
+
+	/**
+	 * Determines whether it would be possible to undo this editing action.
+	 * 
+	 * @return <code>true</code> to indicate that this edit can be undone, <code>false</code> otherwise.
+	 */
+	public boolean canUndo();
+
+	/**
+	 * Determines whether it would be possible to redo this editing action.
+	 * 
+	 * @return <code>true</code> to indicate that this edit can be redone, <code>false</code> otherwise.
+	 */
+	public boolean canRedo();
 }
