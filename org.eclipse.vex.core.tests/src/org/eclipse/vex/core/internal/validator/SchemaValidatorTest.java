@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2011 Florian Thienel and others.
+ * Copyright (c) 2011, 2013 Florian Thienel and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  * 
  * Contributors:
  * 		Florian Thienel - initial API and implementation
+ * 		Carsten Hiesserich - tests for attribute namespaces
  *******************************************************************************/
 package org.eclipse.vex.core.internal.validator;
 
@@ -22,14 +23,17 @@ import static org.junit.Assert.assertTrue;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.vex.core.internal.dom.Document;
 import org.eclipse.vex.core.internal.dom.Element;
 import org.eclipse.vex.core.internal.io.DocumentReader;
+import org.eclipse.vex.core.provisional.dom.AttributeDefinition;
 import org.eclipse.vex.core.provisional.dom.DocumentContentModel;
 import org.eclipse.vex.core.provisional.dom.IDocument;
 import org.eclipse.vex.core.provisional.dom.IElement;
@@ -234,4 +238,61 @@ public class SchemaValidatorTest {
 		assertEquals(expected, candidateItems);
 	}
 
+	@Test
+	public void testGetAttributes_shouldReturnAllAttributes() throws Exception {
+		final Map<QualifiedName, AttributeDefinition> defs = getAttributeMap();
+		assertEquals("Expect all defined attributes", 4, defs.size());
+	}
+
+	@Test
+	public void testAttribueWithNamespace() throws Exception {
+		final Map<QualifiedName, AttributeDefinition> defs = getAttributeMap();
+
+		final AttributeDefinition ad = defs.get(new QualifiedName("http://www.eclipse.org/vex/test/test_ns1", "att1"));
+		assertNotNull("AttributeDefinition 'ns1:att1' not found", ad);
+		assertEquals("Namespace of ns1:att1", "http://www.eclipse.org/vex/test/test_ns1", ad.getQualifiedName().getQualifier());
+	}
+
+	@Test
+	public void testEnumAttribute() throws Exception {
+		final Map<QualifiedName, AttributeDefinition> defs = getAttributeMap();
+
+		final AttributeDefinition ad = defs.get(new QualifiedName(null, "enatt"));
+		assertEquals("enatt", ad.getName());
+
+		final String[] enumValues = ad.getValues();
+		assertEquals(3, enumValues.length);
+	}
+
+	@Test
+	public void testDefaultValue() throws Exception {
+		final Map<QualifiedName, AttributeDefinition> defs = getAttributeMap();
+
+		final AttributeDefinition ad = defs.get(new QualifiedName(null, "enatt"));
+		assertNotNull("AttributeDefinition 'enatt' not found", ad);
+		assertEquals("Default value of 'enatt'", "value1", ad.getDefaultValue());
+	}
+
+	@Test
+	public void testRequiredAttribute() throws Exception {
+		final Map<QualifiedName, AttributeDefinition> defs = getAttributeMap();
+
+		final AttributeDefinition ad = defs.get(new QualifiedName(null, "reqatt"));
+		assertNotNull("AttributeDefinition 'reqatt' not found", ad);
+		assertTrue("isRequired should be true", ad.isRequired());
+	}
+
+	private Map<QualifiedName, AttributeDefinition> getAttributeMap() {
+		final IDocument doc = new Document(new QualifiedName(null, "chapter"));
+		final IValidator validator = new WTPVEXValidator(STRUCTURE_NS);
+		doc.setValidator(validator);
+		final IElement chapterElement = doc.getRootElement();
+
+		final List<AttributeDefinition> atts = validator.getAttributeDefinitions(chapterElement);
+		final Map<QualifiedName, AttributeDefinition> adMap = new HashMap<QualifiedName, AttributeDefinition>();
+		for (final AttributeDefinition ad : atts) {
+			adMap.put(ad.getQualifiedName(), ad);
+		}
+		return adMap;
+	}
 }

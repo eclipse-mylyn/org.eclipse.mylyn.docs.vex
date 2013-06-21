@@ -9,8 +9,11 @@
  *     John Krasnay - initial API and implementation
  *     Igor Jacy Lino Campista - Java 5 warnings fixed (bug 311325)
  *     Florian Thienel - promotion to public API
+ *     Carsten Hiesserich - added namespace support
  *******************************************************************************/
 package org.eclipse.vex.core.provisional.dom;
+
+import org.eclipse.core.runtime.QualifiedName;
 
 /**
  * An immuatable representation of an attribute definition in a grammar. Attribute definitions are comparable by the
@@ -18,7 +21,7 @@ package org.eclipse.vex.core.provisional.dom;
  */
 public class AttributeDefinition implements Comparable<AttributeDefinition> {
 
-	private final String name;
+	private final QualifiedName name;
 	private final Type type;
 	private final String defaultValue;
 	private final String[] values;
@@ -50,7 +53,7 @@ public class AttributeDefinition implements Comparable<AttributeDefinition> {
 	 * @param fixed
 	 *            if true the value of this attribute is fixed and may not be changed
 	 */
-	public AttributeDefinition(final String name, final Type type, final String defaultValue, final String[] values, final boolean required, final boolean fixed) {
+	public AttributeDefinition(final QualifiedName name, final Type type, final String defaultValue, final String[] values, final boolean required, final boolean fixed) {
 		this.name = name;
 		this.type = type;
 		this.defaultValue = defaultValue;
@@ -67,7 +70,7 @@ public class AttributeDefinition implements Comparable<AttributeDefinition> {
 	 * @see Comparable
 	 */
 	public int compareTo(final AttributeDefinition other) {
-		return name.compareTo(other.name);
+		return name.toString().compareTo(other.getQualifiedName().toString());
 	}
 
 	/**
@@ -95,6 +98,13 @@ public class AttributeDefinition implements Comparable<AttributeDefinition> {
 	 * @return the (local) name of the attribute
 	 */
 	public String getName() {
+		return name.getLocalName();
+	}
+
+	/**
+	 * @return the qualified name of the attribute
+	 */
+	public QualifiedName getQualifiedName() {
 		return name;
 	}
 

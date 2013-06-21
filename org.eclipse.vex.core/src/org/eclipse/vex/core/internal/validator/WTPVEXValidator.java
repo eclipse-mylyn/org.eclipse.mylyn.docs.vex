@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.runtime.QualifiedName;
+import org.eclipse.vex.core.internal.dom.Namespace;
 import org.eclipse.vex.core.provisional.dom.AttributeDefinition;
 import org.eclipse.vex.core.provisional.dom.AttributeDefinition.Type;
 import org.eclipse.vex.core.provisional.dom.DocumentContentModel;
@@ -37,6 +38,7 @@ import org.eclipse.wst.xml.core.internal.contentmodel.CMDataType;
 import org.eclipse.wst.xml.core.internal.contentmodel.CMDocument;
 import org.eclipse.wst.xml.core.internal.contentmodel.CMElementDeclaration;
 import org.eclipse.wst.xml.core.internal.contentmodel.CMGroup;
+import org.eclipse.wst.xml.core.internal.contentmodel.CMNamedNodeMap;
 import org.eclipse.wst.xml.core.internal.contentmodel.CMNode;
 import org.eclipse.wst.xml.core.internal.contentmodel.CMNodeList;
 import org.eclipse.wst.xml.core.internal.contentmodel.ContentModelManager;
@@ -44,6 +46,7 @@ import org.eclipse.wst.xml.core.internal.contentmodel.internal.util.CMValidator;
 import org.eclipse.wst.xml.core.internal.contentmodel.internal.util.CMValidator.ElementContentComparator;
 import org.eclipse.wst.xml.core.internal.contentmodel.internal.util.CMValidator.ElementPathRecordingResult;
 import org.eclipse.wst.xml.core.internal.contentmodel.internal.util.CMValidator.StringElementContentComparator;
+import org.eclipse.xsd.XSDAttributeUse;
 
 public class WTPVEXValidator implements IValidator {
 
@@ -140,9 +143,13 @@ public class WTPVEXValidator implements IValidator {
 			return createUnknownAttributeDefinition(attributeName);
 		}
 
-		final CMAttributeDeclaration cmAttribute = (CMAttributeDeclaration) cmElement.getAttributes().getNamedItem(attributeName);
+		final CMNamedNodeMap attributeMap = cmElement.getAttributes();
+		final CMAttributeDeclaration cmAttribute = (CMAttributeDeclaration) attributeMap.getNamedItem(attributeName);
 		if (cmAttribute != null) {
-			return createAttributeDefinition(cmAttribute);
+			final AttributeDefinition attributeDefinition = createAttributeDefinition(cmAttribute, attributeMap);
+			if (attributeDefinition != null) {
+				return attributeDefinition;
+			}
 		}
 		/*
 		 * #318834 If we do not find the attribute, it is actually not valid. But we are benevolent here since we do not
@@ -152,7 +159,7 @@ public class WTPVEXValidator implements IValidator {
 	}
 
 	private static AttributeDefinition createUnknownAttributeDefinition(final String attributeName) {
-		return new AttributeDefinition(attributeName, Type.CDATA, /* default value */"", /* values */new String[0], /* required */false, /* fixed */true);
+		return new AttributeDefinition(new QualifiedName(null, attributeName), Type.CDATA, /* default value */"", /* values */new String[0], /* required */false, /* fixed */true);
 	}
 
 	public List<AttributeDefinition> getAttributeDefinitions(final IElement element) {
@@ -165,11 +172,14 @@ public class WTPVEXValidator implements IValidator {
 			return Collections.emptyList();
 		}
 		final List<AttributeDefinition> attributeList = new ArrayList<AttributeDefinition>(cmElement.getAttributes().getLength());
-		final Iterator<?> iter = cmElement.getAttributes().iterator();
+		final CMNamedNodeMap attributeMap = cmElement.getAttributes();
+		final Iterator<?> iter = attributeMap.iterator();
 		while (iter.hasNext()) {
 			final CMAttributeDeclaration attribute = (CMAttributeDeclaration) iter.next();
-			final AttributeDefinition vexAttr = createAttributeDefinition(attribute);
-			attributeList.add(vexAttr);
+			final AttributeDefinition vexAttr = createAttributeDefinition(attribute, attributeMap);
+			if (vexAttr != null) {
+				attributeList.add(vexAttr);
+			}
 		}
 
 		return attributeList;
@@ -191,9 +201,9 @@ public class WTPVEXValidator implements IValidator {
 		return (CMElementDeclaration) parentDeclaration.getLocalElements().getNamedItem(localName);
 	}
 
-	private AttributeDefinition createAttributeDefinition(final CMAttributeDeclaration attribute) {
-		@SuppressWarnings("deprecation")
-		final String defaultValue = attribute.getDefaultValue();
+	private AttributeDefinition createAttributeDefinition(final CMAttributeDeclaration attribute, final CMNamedNodeMap attributeMap) {
+
+		final String defaultValue = attribute.getAttrType().getImpliedValue();
 		final String[] values = attribute.getAttrType().getEnumeratedValues();
 		AttributeDefinition.Type type = null;
 		if (attribute.getAttrType().getDataTypeName().equals(CMDataType.ENUM)) {
@@ -205,30 +215,63 @@ public class WTPVEXValidator implements IValidator {
 		}
 		final boolean required = attribute.getUsage() == CMAttributeDeclaration.REQUIRED;
 		final boolean fixed = attribute.getUsage() == CMAttributeDeclaration.FIXED;
-		final AttributeDefinition vexAttr = new AttributeDefinition(attribute.getAttrName(), type, defaultValue, values, required, fixed);
+
+		String localName = attribute.getAttrName();
+
+		if (localName.startsWith(Namespace.XMLNS_NAMESPACE_PREFIX)) {
+			// Don't return namespace attributes here (The DTD implementation returns them)
+			return null;
+		}
+
+		final String PROPERTY_MOF_NOTIFIER = "key"; // This is non-public in WST
+		String targetNamespace = null;
+		String nsPrefix = "";
+		if (attribute.getProperty(PROPERTY_MOF_NOTIFIER) instanceof XSDAttributeUse) {
+			// The WST XSD implementation ignores attributes namespaces
+			// We have to access the org.eclipse.xsd classes directly
+			final XSDAttributeUse attributeUse = (XSDAttributeUse) attribute.getProperty(PROPERTY_MOF_NOTIFIER);
+			targetNamespace = attributeUse.getAttributeDeclaration().getTargetNamespace();
+			nsPrefix = "";
+		} else if (localName.indexOf(':') > -1) {
+			// The DTD implementation returns prefixed names
+			final int ndx = localName.indexOf(':');
+			nsPrefix = localName.substring(0, ndx);
+			// For DTD, the namespaces are declared as attributes, the namespace is in the default value
+			final CMAttributeDeclaration nsAttribute = (CMAttributeDeclaration) attributeMap.getNamedItem(Namespace.XMLNS_NAMESPACE_PREFIX + ":" + nsPrefix);
+			if (nsAttribute != null) {
+				targetNamespace = nsAttribute.getAttrType().getImpliedValue();
+			}
+			localName = localName.substring(ndx + 1);
+		}
+
+		if (nsPrefix.equals(Namespace.XML_NAMESPACE_PREFIX)) {
+			targetNamespace = Namespace.XML_NAMESPACE_URI;
+		}
+
+		final AttributeDefinition vexAttr = new AttributeDefinition(new QualifiedName(targetNamespace, localName), type, defaultValue, values, required, fixed);
 		return vexAttr;
 	}
 
 	private static AttributeDefinition.Type toAttributeType(final CMDataType cmDataType) {
-		if (cmDataType.equals(CMDataType.CDATA)) {
+		if (cmDataType.getDataTypeName().equals(CMDataType.CDATA)) {
 			return AttributeDefinition.Type.CDATA;
-		} else if (cmDataType.equals(CMDataType.ID)) {
+		} else if (cmDataType.getDataTypeName().equals(CMDataType.ID)) {
 			return AttributeDefinition.Type.ID;
-		} else if (cmDataType.equals(CMDataType.IDREF)) {
+		} else if (cmDataType.getDataTypeName().equals(CMDataType.IDREF)) {
 			return AttributeDefinition.Type.IDREF;
-		} else if (cmDataType.equals(CMDataType.IDREFS)) {
+		} else if (cmDataType.getDataTypeName().equals(CMDataType.IDREFS)) {
 			return AttributeDefinition.Type.IDREFS;
-		} else if (cmDataType.equals(CMDataType.NMTOKEN)) {
+		} else if (cmDataType.getDataTypeName().equals(CMDataType.NMTOKEN)) {
 			return AttributeDefinition.Type.NMTOKEN;
-		} else if (cmDataType.equals(CMDataType.NMTOKENS)) {
+		} else if (cmDataType.getDataTypeName().equals(CMDataType.NMTOKENS)) {
 			return AttributeDefinition.Type.NMTOKENS;
-		} else if (cmDataType.equals(CMDataType.ENTITY)) {
+		} else if (cmDataType.getDataTypeName().equals(CMDataType.ENTITY)) {
 			return AttributeDefinition.Type.ENTITY;
-		} else if (cmDataType.equals(CMDataType.ENTITIES)) {
+		} else if (cmDataType.getDataTypeName().equals(CMDataType.ENTITIES)) {
 			return AttributeDefinition.Type.ENTITIES;
-		} else if (cmDataType.equals(CMDataType.NOTATION)) {
+		} else if (cmDataType.getDataTypeName().equals(CMDataType.NOTATION)) {
 			return AttributeDefinition.Type.NOTATION;
-		} else if (cmDataType.equals(CMDataType.ENUM)) {
+		} else if (cmDataType.getDataTypeName().equals(CMDataType.ENUM)) {
 			return AttributeDefinition.Type.ENUMERATION;
 		} else {
 			System.out.println("Found unknown attribute type '" + cmDataType + "'.");

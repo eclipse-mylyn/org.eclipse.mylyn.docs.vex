@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2008 John Krasnay and others.
+ * Copyright (c) 2004, 2013 John Krasnay and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,20 +9,25 @@
  *     John Krasnay - initial API and implementation
  *     Igor Jacy Lino Campista - Java 5 warnings fixed (bug 311325)
  *     Florian Thienel - bug 299999 - completed implementation of validation
+ *     Carsten Hiesserich - tests for attribute namespaces
  *******************************************************************************/
-package org.eclipse.vex.core.internal.dom;
+package org.eclipse.vex.core.internal.validator;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.eclipse.core.runtime.QualifiedName;
+import org.eclipse.vex.core.internal.dom.Document;
 import org.eclipse.vex.core.internal.validator.WTPVEXValidator;
 import org.eclipse.vex.core.provisional.dom.AttributeDefinition;
 import org.eclipse.vex.core.provisional.dom.IDocument;
@@ -46,25 +51,14 @@ public class DTDValidatorTest {
 	}
 
 	@Test
-	public void testAttributeDefinition() throws Exception {
-		final IDocument doc = new Document(new QualifiedName(null, "section"));
-		doc.setValidator(validator);
-		final IElement sectionElement = doc.getRootElement();
-		final AttributeDefinition.Type adType = validator.getAttributeDefinitions(sectionElement).get(0).getType();
-		final AttributeDefinition.Type adType2 = validator.getAttributeDefinitions(sectionElement).get(0).getType();
-
-		assertSame(adType, adType2);
-	}
-
-	@Test
 	public void testEnumAttribute() throws Exception {
 		final IDocument doc = new Document(new QualifiedName(null, "section"));
 		doc.setValidator(validator);
 		final IElement sectionElement = doc.getRootElement();
-		final AttributeDefinition attributeDefinition = validator.getAttributeDefinitions(sectionElement).get(0);
-		assertEquals("enatt", attributeDefinition.getName());
+		final AttributeDefinition ad = getAttributeMap(sectionElement).get(new QualifiedName(null, "enatt"));
+		assertEquals("enatt", ad.getName());
 
-		final String[] enumValues = attributeDefinition.getValues();
+		final String[] enumValues = ad.getValues();
 		assertEquals(3, enumValues.length);
 	}
 
@@ -232,5 +226,58 @@ public class DTDValidatorTest {
 			suffix.add(new QualifiedName(null, sequence[i]));
 		}
 		return suffix;
+	}
+
+	@Test
+	public void testGetAttributes_shouldReturnAllAttributesButNamespaceDefs() throws Exception {
+		// xmlns:xxx attributes should not be returned
+		final IDocument doc = new Document(new QualifiedName(null, "section"));
+		doc.setValidator(validator);
+		final IElement sectionElement = doc.getRootElement();
+
+		final Map<QualifiedName, AttributeDefinition> defs = getAttributeMap(sectionElement);
+		assertEquals("Expect all defined attributes", 4, defs.size());
+	}
+
+	@Test
+	public void testAttribueWithNamespace() throws Exception {
+		final IDocument doc = new Document(new QualifiedName(null, "section"));
+		doc.setValidator(validator);
+		final IElement sectionElement = doc.getRootElement();
+
+		final AttributeDefinition ad = getAttributeMap(sectionElement).get(new QualifiedName("http://www.eclipse.org/vex/test/test_ns1", "att1"));
+		assertNotNull("AttributeDefinition 'ns1:att1' not found", ad);
+		assertEquals("Namespace of ns1:att1", "http://www.eclipse.org/vex/test/test_ns1", ad.getQualifiedName().getQualifier());
+	}
+
+	@Test
+	public void testDefaultValue() throws Exception {
+		final IDocument doc = new Document(new QualifiedName(null, "section"));
+		doc.setValidator(validator);
+		final IElement sectionElement = doc.getRootElement();
+
+		final AttributeDefinition ad = getAttributeMap(sectionElement).get(new QualifiedName(null, "enatt"));
+		assertNotNull("AttributeDefinition 'enatt' not found", ad);
+		assertEquals("Default value of 'enatt'", "value1", ad.getDefaultValue());
+	}
+
+	@Test
+	public void testRequiredAttribute() throws Exception {
+		final IDocument doc = new Document(new QualifiedName(null, "section"));
+		doc.setValidator(validator);
+		final IElement sectionElement = doc.getRootElement();
+
+		final AttributeDefinition ad = getAttributeMap(sectionElement).get(new QualifiedName(null, "reqatt"));
+		assertNotNull("AttributeDefinition 'reqatt' not found", ad);
+		assertTrue("isRequired should be true", ad.isRequired());
+	}
+
+	private Map<QualifiedName, AttributeDefinition> getAttributeMap(final IElement element) {
+		final List<AttributeDefinition> atts = validator.getAttributeDefinitions(element);
+		final Map<QualifiedName, AttributeDefinition> adMap = new HashMap<QualifiedName, AttributeDefinition>();
+		for (final AttributeDefinition ad : atts) {
+			adMap.put(ad.getQualifiedName(), ad);
+		}
+		return adMap;
 	}
 }

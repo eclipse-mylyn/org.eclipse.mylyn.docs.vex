@@ -1,26 +1,46 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
- Copyright (c) 2011 Florian Thienel and others.
+ Copyright (c) 2011, 2013 Florian Thienel and others.
  All rights reserved. This program and the accompanying materials
  are made available under the terms of the Eclipse Public License v1.0
  which accompanies this distribution, and is available at
  http://www.eclipse.org/legal/epl-v10.html
  
  Contributors:
- 		Florian Thienel - initial creation 
+ 		Florian Thienel - initial creation
+ 		Carsten Hiesserich - modifications for attribute tests 
 -->
-<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.eclipse.org/vex/test/structure" xmlns="http://www.eclipse.org/vex/test/structure" elementFormDefault="qualified">
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" targetNamespace="http://www.eclipse.org/vex/test/structure" xmlns="http://www.eclipse.org/vex/test/structure" xmlns:ns1="http://www.eclipse.org/vex/test/test_ns1" elementFormDefault="qualified">
+
+
+	<xs:import schemaLocation="test_ns1.xsd" namespace="http://www.eclipse.org/vex/test/test_ns1"></xs:import>
 
 	<xs:complexType name="ChapterType">
 		<xs:sequence>
-			<xs:element name="title" type="xs:string" minOccurs="0" maxOccurs="1"/>
+			<xs:element name="title" type="xs:string" minOccurs="0"
+				maxOccurs="1" />
 			<xs:choice>
-				<xs:element name="chapter" type="ChapterType" minOccurs="0" maxOccurs="unbounded"/>
-				<xs:any namespace="http://www.eclipse.org/vex/test/content" processContents="strict" minOccurs="0" maxOccurs="unbounded"/>
+				<xs:element ref="chapter" minOccurs="0"
+					maxOccurs="unbounded" />
+				<xs:any
+					namespace="http://www.eclipse.org/vex/test/content"
+					processContents="strict" minOccurs="0" maxOccurs="unbounded" />
 			</xs:choice>
 		</xs:sequence>
+		<xs:attribute name="name" type="xs:string"></xs:attribute>
+		<xs:attribute name="enatt" default="value1">
+			<xs:simpleType>
+				<xs:restriction base="xs:token">
+					<xs:enumeration value="value1" />
+					<xs:enumeration value="value2" />
+					<xs:enumeration value="value3" />
+				</xs:restriction>
+			</xs:simpleType>
+		</xs:attribute>
+		<xs:attribute ref="ns1:att1"></xs:attribute>
+		<xs:attribute name="reqatt" type="xs:string" use="required"></xs:attribute>
 	</xs:complexType>
-	
+
 	<xs:element name="chapter" type="ChapterType"/>
 	
 </xs:schema>

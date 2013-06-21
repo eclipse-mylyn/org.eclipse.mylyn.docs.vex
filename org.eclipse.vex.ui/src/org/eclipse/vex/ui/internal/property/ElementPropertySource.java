@@ -71,16 +71,27 @@ public class ElementPropertySource implements IPropertySource2 {
 		final List<AttributeDefinition> attributeDefinitions = validator.getAttributeDefinitions(element);
 		for (final AttributeDefinition attributeDefinition : attributeDefinitions) {
 			final PropertyDescriptor propertyDescriptor;
-			if (multipleElementsSelected && attributeDefinition.getName().equals(ATTR_ID)) {
-				propertyDescriptor = new PropertyDescriptor(attributeDefinition, attributeDefinition.getName());
-			} else if (attributeDefinition.isFixed()) {
-				propertyDescriptor = new PropertyDescriptor(attributeDefinition, attributeDefinition.getName());
-			} else if (attributeDefinition.getType() == AttributeDefinition.Type.ENUMERATION) {
-				propertyDescriptor = new ComboBoxPropertyDescriptor(attributeDefinition, attributeDefinition.getName(), getEnumValues(attributeDefinition));
-			} else {
-				propertyDescriptor = new TextPropertyDescriptor(attributeDefinition, attributeDefinition.getName());
+
+			final String nsPrefix = element.getNamespacePrefix(attributeDefinition.getQualifiedName().getQualifier());
+			String attributeName = attributeDefinition.getName();
+			if (nsPrefix != null) {
+				attributeName = nsPrefix + ":" + attributeName;
 			}
-			propertyDescriptor.setCategory(ATTRIBUTES_CATEGORY);
+
+			if (multipleElementsSelected && attributeDefinition.getName().equals(ATTR_ID)) {
+				propertyDescriptor = new PropertyDescriptor(attributeDefinition, attributeName);
+			} else if (attributeDefinition.isFixed()) {
+				propertyDescriptor = new PropertyDescriptor(attributeDefinition, attributeName);
+			} else if (attributeDefinition.getType() == AttributeDefinition.Type.ENUMERATION) {
+				propertyDescriptor = new ComboBoxPropertyDescriptor(attributeDefinition, attributeName, getEnumValues(attributeDefinition));
+			} else {
+				propertyDescriptor = new TextPropertyDescriptor(attributeDefinition, attributeName);
+			}
+			if (nsPrefix != null) {
+				propertyDescriptor.setCategory(ATTRIBUTES_CATEGORY + " " + nsPrefix);
+			} else {
+				propertyDescriptor.setCategory(ATTRIBUTES_CATEGORY);
+			}
 			result.add(propertyDescriptor);
 		}
 
@@ -123,7 +134,7 @@ public class ElementPropertySource implements IPropertySource2 {
 				return Messages.getString("ElementPropertySource.multiple"); //$NON-NLS-1$
 			}
 
-			final IAttribute attribute = element.getAttribute(attributeDefinition.getName());
+			final IAttribute attribute = element.getAttribute(attributeDefinition.getQualifiedName());
 			final String value;
 			if (attribute != null) {
 				value = attribute.getValue();
@@ -206,14 +217,14 @@ public class ElementPropertySource implements IPropertySource2 {
 				if (!attributeDefinition.isRequired() && enumValue.equals("")) {
 					element.removeAttribute(attributeDefinition.getName());
 				} else {
-					element.setAttribute(attributeDefinition.getName(), enumValue);
+					element.setAttribute(attributeDefinition.getQualifiedName(), enumValue);
 				}
 			} else {
 				final String s = (String) value;
 				if (s.equals("")) {
-					element.removeAttribute(attributeDefinition.getName());
+					element.removeAttribute(attributeDefinition.getQualifiedName());
 				} else {
-					element.setAttribute(attributeDefinition.getName(), s);
+					element.setAttribute(attributeDefinition.getQualifiedName(), s);
 				}
 			}
 		} catch (final DocumentValidationException e) {
