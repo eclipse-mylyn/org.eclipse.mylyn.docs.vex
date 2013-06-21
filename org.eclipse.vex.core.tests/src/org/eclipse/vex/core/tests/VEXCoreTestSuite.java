@@ -32,6 +32,7 @@ import org.eclipse.vex.core.internal.dom.DocumentFragmentTest;
 import org.eclipse.vex.core.internal.dom.DocumentTest;
 import org.eclipse.vex.core.internal.dom.GapContentTest;
 import org.eclipse.vex.core.internal.dom.L1CommentHandlingTest;
+import org.eclipse.vex.core.internal.dom.L1DeletionTests;
 import org.eclipse.vex.core.internal.dom.L1ElementHandlingTest;
 import org.eclipse.vex.core.internal.dom.L1FragmentHandlingTest;
 import org.eclipse.vex.core.internal.dom.L1TextHandlingTest;
@@ -63,10 +64,11 @@ import org.junit.runners.Suite;
 @RunWith(Suite.class)
 @Suite.SuiteClasses({ FilterIteratorTest.class, FirstNIteratorTest.class, AfterNIteratorTest.class, AxisTest.class, NamespaceStackTest.class, NamespaceTest.class, DocumentReaderTest.class,
 		DocumentContentModelTest.class, SchemaValidatorTest.class, CssTest.class, BatikBehaviorTest.class, ContentRangeTest.class, BasicNodeTest.class, ParentTest.class, DocumentTest.class,
-		L1TextHandlingTest.class, L1CommentHandlingTest.class, L1ElementHandlingTest.class, L1FragmentHandlingTest.class, DocumentFragmentTest.class, CopyVisitorTest.class, DeepCopyTest.class,
-		PropertyTest.class, RuleTest.class, BlockElementBoxTest.class, ImageBoxTest.class, DocumentWriterTest.class, DTDValidatorTest.class, GapContentTest.class, SpaceNormalizerTest.class,
-		TextWrapperTest.class, TestBlockElementBox.class, TestBlocksInInlines.class, TestDocumentTextBox.class, TestStaticTextBox.class, TableLayoutTest.class, LayoutTestSuite.class,
-		ListenerListTest.class, XMLFragmentTest.class, VexWidgetTest.class, L2SimpleEditingTest.class, L2SelectionTest.class, L2CommentEditingTest.class, L2XmlInsertionTest.class
+		L1TextHandlingTest.class, L1CommentHandlingTest.class, L1ElementHandlingTest.class, L1FragmentHandlingTest.class, L1DeletionTests.class, DocumentFragmentTest.class, CopyVisitorTest.class,
+		DeepCopyTest.class, PropertyTest.class, RuleTest.class, BlockElementBoxTest.class, ImageBoxTest.class, DocumentWriterTest.class, DTDValidatorTest.class, GapContentTest.class,
+		SpaceNormalizerTest.class, TextWrapperTest.class, TestBlockElementBox.class, TestBlocksInInlines.class, TestDocumentTextBox.class, TestStaticTextBox.class, TableLayoutTest.class,
+		LayoutTestSuite.class, ListenerListTest.class, XMLFragmentTest.class, VexWidgetTest.class, L2SimpleEditingTest.class, L2SelectionTest.class, L2CommentEditingTest.class,
+		L2XmlInsertionTest.class
 
 })
 public class VEXCoreTestSuite {

@@ -9,7 +9,7 @@
  *     John Krasnay - initial API and implementation
  *     Igor Jacy Lino Campista - Java 5 warnings fixed (bug 311325)
  *     Florian Thienel - refactoring to full fledged DOM
- *     Carsten Hiesserich - handling of elements within comments (bug 407801)
+ *     Carsten Hiesserich - bug fixes (bug 407801, 410659)
  *******************************************************************************/
 package org.eclipse.vex.core.internal.dom;
 
@@ -400,16 +400,19 @@ public class Document extends Parent implements IDocument {
 	}
 
 	public void delete(final ContentRange range) throws DocumentValidationException {
-		final IParent surroundingParent = getParentAt(range.getStartOffset());
-		final IParent parentAtEndOffset = getParentAt(range.getEndOffset());
-		Assert.isTrue(surroundingParent == parentAtEndOffset, MessageFormat.format("Range {0} for deletion is unbalanced: {1} -> {2}", range, surroundingParent, parentAtEndOffset));
-
-		final Parent parentForDeletion;
-		if (range.equals(surroundingParent.getRange())) {
-			parentForDeletion = (Parent) surroundingParent.getParent();
-		} else {
-			parentForDeletion = (Parent) surroundingParent;
+		IParent surroundingParent = getParentAt(range.getStartOffset());
+		if (range.getStartOffset() == surroundingParent.getStartOffset()) {
+			if (surroundingParent.getEndOffset() > range.getEndOffset()) {
+				throw new DocumentValidationException(MessageFormat.format("Range for deletion is unbalanced (Node {1} is not completely enclosed)", surroundingParent));
+			}
+			surroundingParent = surroundingParent.getParent();
 		}
+
+		if (surroundingParent.getEndOffset() <= range.getEndOffset()) {
+			throw new DocumentValidationException(MessageFormat.format("Range for deletion is unbalanced (Range exceeds end offset of node {1})", surroundingParent));
+		}
+
+		final Parent parentForDeletion = (Parent) surroundingParent;
 
 		final boolean deletionIsValid = parentForDeletion.accept(new BaseNodeVisitorWithResult<Boolean>(true) {
 			@Override
