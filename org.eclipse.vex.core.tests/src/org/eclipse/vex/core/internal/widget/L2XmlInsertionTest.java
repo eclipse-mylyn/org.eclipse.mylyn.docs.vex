@@ -28,6 +28,7 @@ import org.eclipse.vex.core.internal.dom.Element;
 import org.eclipse.vex.core.internal.dom.GapContent;
 import org.eclipse.vex.core.internal.dom.Node;
 import org.eclipse.vex.core.internal.io.XMLFragment;
+import org.eclipse.vex.core.internal.undo.CannotRedoException;
 import org.eclipse.vex.core.provisional.dom.ContentRange;
 import org.eclipse.vex.core.provisional.dom.DocumentValidationException;
 import org.eclipse.vex.core.provisional.dom.IContent;
@@ -143,12 +144,10 @@ public class L2XmlInsertionTest {
 		assertEquals("after end", children.get(2).getText());
 	}
 
-	@Test
-	public void givenNonPreElement_whenInsertingNotAllowedFragment_shouldInsertTextOnly() throws Exception {
+	@Test(expected = CannotRedoException.class)
+	public void givenNonPreElement_whenInsertingNotAllowedFragment_shouldThrowCannotRedoException() throws Exception {
 		widget.moveTo(para1.getStartOffset() + 1);
 		widget.insertFragment(createParaFragment());
-
-		assertEquals("beforeinnerafter", para1.getText());
 	}
 
 	@Test
@@ -166,12 +165,10 @@ public class L2XmlInsertionTest {
 		assertEquals("after", children.get(3).getText());
 	}
 
-	@Test
-	public void givenPreElement_whenInsertingInvalidFragment_shouldInsertTextWithWhitespace() throws Exception {
+	@Test(expected = CannotRedoException.class)
+	public void givenPreElement_whenInsertingInvalidFragment_shouldThrowCannotRedoException() throws Exception {
 		widget.moveTo(pre.getStartOffset() + 1);
 		widget.insertFragment(createParaFragment());
-
-		assertEquals("beforeinnerafter", pre.getText());
 	}
 
 	@Test
