@@ -835,8 +835,23 @@ public class VexWidgetImpl implements IVexWidget {
 		if (hasSelection()) {
 			deleteSelection();
 		}
-		applyEdit(new InsertFragmentEdit(document, getCaretOffset(), fragment), getCaretOffset());
-		this.moveTo(getCaretOffset() + fragment.getLength());
+
+		final IElement surroundingElement = document.getElementForInsertionAt(getCaretOffset());
+
+		boolean success = false;
+		try {
+			beginWork();
+			applyEdit(new InsertFragmentEdit(document, getCaretOffset(), fragment), getCaretOffset());
+			final IPosition finalCaretPosition = document.createPosition(getCaretOffset() + fragment.getLength());
+
+			applyWhitespacePolicy(surroundingElement);
+
+			this.moveTo(finalCaretPosition.getOffset());
+			document.removePosition(finalCaretPosition);
+			success = true;
+		} finally {
+			endWork(success);
+		}
 	}
 
 	public void insertText(final String text) throws DocumentValidationException, ReadOnlyException {
@@ -848,7 +863,7 @@ public class VexWidgetImpl implements IVexWidget {
 			deleteSelection();
 		}
 
-		final IElement element = getBlockForInsertionAt(getCaretOffset());
+		final IElement element = document.getElementForInsertionAt(getCaretOffset());
 		final boolean isPreformatted = whitespacePolicy.isPre(element);
 
 		String toInsert;
@@ -917,15 +932,9 @@ public class VexWidgetImpl implements IVexWidget {
 				throw e;
 			}
 		}
-
-		applyWhitespacePolicy(element, whitespacePolicy);
 	}
 
-	private static void applyWhitespacePolicy(final INode node, final IWhitespacePolicy whitespacePolicy) {
-		final IDocument document = node.getDocument();
-		if (document == null) {
-			throw new IllegalArgumentException("applyWhitespacePolicy works only for nodes in documents!");
-		}
+	private void applyWhitespacePolicy(final INode node) {
 		node.accept(new BaseNodeVisitor() {
 			@Override
 			public void visit(final IDocument document) {
@@ -948,8 +957,10 @@ public class VexWidgetImpl implements IVexWidget {
 				if (!whitespacePolicy.isPre(parentElement)) {
 					final String compressedContent = XML.compressWhitespace(text.getText(), false, false, false);
 					final ContentRange originalTextRange = text.getRange();
-					document.delete(originalTextRange);
-					document.insertText(originalTextRange.getStartOffset(), compressedContent);
+					final CompoundEdit compoundEdit = new CompoundEdit();
+					compoundEdit.addEdit(new DeleteEdit(document, originalTextRange));
+					compoundEdit.addEdit(new InsertTextEdit(document, originalTextRange.getStartOffset(), compressedContent));
+					applyEdit(compoundEdit, originalTextRange.getStartOffset());
 				}
 
 			}
@@ -957,7 +968,7 @@ public class VexWidgetImpl implements IVexWidget {
 	}
 
 	private IElement getBlockForInsertionAt(final int offset) {
-		final IElement element = getDocument().getElementForInsertionAt(offset);
+		final IElement element = document.getElementForInsertionAt(offset);
 
 		if (whitespacePolicy.isBlock(element)) {
 			return element;
