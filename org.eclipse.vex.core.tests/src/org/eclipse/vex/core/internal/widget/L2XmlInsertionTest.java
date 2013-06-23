@@ -31,6 +31,7 @@ import org.eclipse.vex.core.internal.io.XMLFragment;
 import org.eclipse.vex.core.provisional.dom.ContentRange;
 import org.eclipse.vex.core.provisional.dom.DocumentValidationException;
 import org.eclipse.vex.core.provisional.dom.IContent;
+import org.eclipse.vex.core.provisional.dom.IDocumentFragment;
 import org.eclipse.vex.core.provisional.dom.IElement;
 import org.eclipse.vex.core.provisional.dom.INode;
 import org.eclipse.vex.core.provisional.dom.IParent;
@@ -62,24 +63,98 @@ public class L2XmlInsertionTest {
 	}
 
 	@Test
-	public void givenNonPreElement_whenInsertingNotAllowedFragment_shouldInsertTextOnly() throws Exception {
+	public void givenNonPreElement_whenInsertingNotAllowedXML_shouldInsertTextOnly() throws Exception {
 		widget.moveTo(para1.getStartOffset() + 1);
-		widget.insertXML(createParaFragment());
+		widget.insertXML(createParaXML());
 
 		assertEquals("beforeinnerafter", para1.getText());
 	}
 
 	@Test(expected = DocumentValidationException.class)
-	public void givenNonPreElement_whenInsertingInvalidFragment_shouldThrowDocumentValidationExeption() throws Exception {
+	public void givenNonPreElement_whenInsertingInvalidXML_shouldThrowDocumentValidationExeption() throws Exception {
 		widget.moveTo(para1.getStartOffset() + 1);
 
 		widget.insertXML("<emphasis>someText</para>");
 	}
 
 	@Test
+	public void givenNonPreElement_whenInsertingValidXML_shouldInsertXml() throws Exception {
+		widget.moveTo(para1.getEndOffset());
+		widget.insertXML(createInlineXML("before", "inner", "after"));
+
+		final List<? extends INode> children = para1.children().asList();
+		assertTrue("Expecting IParent", children.get(0) instanceof IParent); // the pre element
+		assertTrue("Expecting IText", children.get(1) instanceof IText);
+		assertEquals("before", children.get(1).getText());
+		assertTrue("Expecting IParent", children.get(2) instanceof IParent); // the inserted emphasis
+		assertEquals("inner", children.get(2).getText());
+		assertTrue("Expecting IText", children.get(3) instanceof IText);
+		assertEquals("after", children.get(3).getText());
+	}
+
+	@Test
+	public void givenPreElement_whenInsertingInvalidXML_shouldInsertTextWithWhitespace() throws Exception {
+		widget.moveTo(pre.getStartOffset() + 1);
+		widget.insertXML(createParaXML());
+
+		assertEquals("beforeinnerafter", pre.getText());
+	}
+
+	@Test
+	public void givenPreElement_whenInsertingValidXML_shouldInsertXML() throws Exception {
+		widget.moveTo(pre.getEndOffset());
+		widget.insertXML(createInlineXML("before", "inner", "after"));
+
+		final List<? extends INode> children = pre.children().asList();
+		assertTrue("Expecting IText", children.get(0) instanceof IText);
+		assertEquals("before", children.get(0).getText());
+		assertTrue("Expecting IParent", children.get(1) instanceof IParent); // the inserted emphasis
+		assertEquals("inner", children.get(1).getText());
+		assertTrue("Expecting IText", children.get(2) instanceof IText);
+		assertEquals("after", children.get(2).getText());
+	}
+
+	@Test
+	public void givenPreElement_whenInsertingValidXMLWithWhitespace_shouldKeepWhitespace() throws Exception {
+		widget.moveTo(pre.getEndOffset());
+		widget.insertXML(createInlineXML("line1\nline2   end", "inner", "after"));
+
+		final List<? extends INode> children = pre.children().asList();
+		assertTrue("Expecting IText", children.get(0) instanceof IText);
+		assertEquals("line1\nline2   end", children.get(0).getText());
+		assertTrue("Expecting IParent", children.get(1) instanceof IParent); // the inserted emphasis
+		assertEquals("inner", children.get(1).getText());
+		assertTrue("Expecting IText", children.get(2) instanceof IText);
+		assertEquals("after", children.get(2).getText());
+	}
+
+	@Test
+	public void whenInsertingMixedXMLWithWhitespace_shouldKeepWhitecpaceInPre() throws Exception {
+		widget.moveTo(para1.getEndOffset());
+		widget.insertXML("before<pre>pre1\npre2  end</pre>after   \nend");
+
+		final List<? extends INode> children = para1.children().after(pre.getEndOffset()).asList();
+		assertEquals("New children count", 3, children.size());
+		assertTrue("Expecting IText", children.get(0) instanceof IText);
+		assertEquals("before", children.get(0).getText());
+		assertTrue("Expecting IParent", children.get(1) instanceof IParent); // the inserted pre element
+		assertEquals("pre1\npre2  end", children.get(1).getText());
+		assertTrue("Expecting IText", children.get(2) instanceof IText);
+		assertEquals("after end", children.get(2).getText());
+	}
+
+	@Test
+	public void givenNonPreElement_whenInsertingNotAllowedFragment_shouldInsertTextOnly() throws Exception {
+		widget.moveTo(para1.getStartOffset() + 1);
+		widget.insertFragment(createParaFragment());
+
+		assertEquals("beforeinnerafter", para1.getText());
+	}
+
+	@Test
 	public void givenNonPreElement_whenInsertingValidFragment_shouldInsertXml() throws Exception {
 		widget.moveTo(para1.getEndOffset());
-		widget.insertXML(createInlineFragment("before", "inner", "after"));
+		widget.insertFragment(createInlineFragment("before", "inner", "after"));
 
 		final List<? extends INode> children = para1.children().asList();
 		assertTrue("Expecting IParent", children.get(0) instanceof IParent); // the pre element
@@ -94,15 +169,15 @@ public class L2XmlInsertionTest {
 	@Test
 	public void givenPreElement_whenInsertingInvalidFragment_shouldInsertTextWithWhitespace() throws Exception {
 		widget.moveTo(pre.getStartOffset() + 1);
-		widget.insertXML(createParaFragment());
+		widget.insertFragment(createParaFragment());
 
 		assertEquals("beforeinnerafter", pre.getText());
 	}
 
 	@Test
-	public void givenPreElement_whenInsertingValidFragment_shouldinsertXML() throws Exception {
+	public void givenPreElement_whenInsertingValidFragment_shouldInsertXML() throws Exception {
 		widget.moveTo(pre.getEndOffset());
-		widget.insertXML(createInlineFragment("before", "inner", "after"));
+		widget.insertFragment(createInlineFragment("before", "inner", "after"));
 
 		final List<? extends INode> children = pre.children().asList();
 		assertTrue("Expecting IText", children.get(0) instanceof IText);
@@ -114,9 +189,9 @@ public class L2XmlInsertionTest {
 	}
 
 	@Test
-	public void givenPreElement_whenInsertingValidFragmentWithWhitespace_shouldKeepWhitecpace() throws Exception {
+	public void givenPreElement_whenInsertingValidFragmentWithWhitespace_shouldKeepWhitespace() throws Exception {
 		widget.moveTo(pre.getEndOffset());
-		widget.insertXML(createInlineFragment("line1\nline2   end", "inner", "after"));
+		widget.insertFragment(createInlineFragment("line1\nline2   end", "inner", "after"));
 
 		final List<? extends INode> children = pre.children().asList();
 		assertTrue("Expecting IText", children.get(0) instanceof IText);
@@ -130,7 +205,7 @@ public class L2XmlInsertionTest {
 	@Test
 	public void whenInsertingMixedFragmentWithWhitespace_shouldKeepWhitecpaceInPre() throws Exception {
 		widget.moveTo(para1.getEndOffset());
-		widget.insertXML("before<pre>pre1\npre2  end</pre>after   \nend");
+		widget.insertFragment(new XMLFragment("before<pre>pre1\npre2  end</pre>after   \nend").getDocumentFragment());
 
 		final List<? extends INode> children = para1.children().after(pre.getEndOffset()).asList();
 		assertEquals("New children count", 3, children.size());
@@ -142,7 +217,11 @@ public class L2XmlInsertionTest {
 		assertEquals("after end", children.get(2).getText());
 	}
 
-	private String createInlineFragment(final String before, final String inner, final String after) {
+	private IDocumentFragment createInlineFragment(final String before, final String inner, final String after) {
+		return new XMLFragment(createInlineXML(before, inner, after)).getDocumentFragment();
+	}
+
+	private String createInlineXML(final String before, final String inner, final String after) {
 		final IContent content = new GapContent(10);
 		final List<Node> nodes = new ArrayList<Node>();
 
@@ -161,7 +240,11 @@ public class L2XmlInsertionTest {
 		return new XMLFragment(new DocumentFragment(content, nodes)).getXML();
 	}
 
-	private String createParaFragment() {
+	private IDocumentFragment createParaFragment() {
+		return new XMLFragment(createParaXML()).getDocumentFragment();
+	}
+
+	private String createParaXML() {
 		final IContent content = new GapContent(10);
 		final List<Node> nodes = new ArrayList<Node>();
 
