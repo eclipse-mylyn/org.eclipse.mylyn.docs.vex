@@ -62,6 +62,7 @@ import org.eclipse.vex.core.internal.core.Rectangle;
 import org.eclipse.vex.core.internal.css.IWhitespacePolicy;
 import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.dom.DocumentFragment;
+import org.eclipse.vex.core.internal.io.XMLFragment;
 import org.eclipse.vex.core.internal.layout.Box;
 import org.eclipse.vex.core.internal.layout.BoxFactory;
 import org.eclipse.vex.core.internal.widget.IBoxFilter;
@@ -366,7 +367,7 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 		final Clipboard clipboard = new Clipboard(getDisplay());
 		final DocumentFragment fragment = (DocumentFragment) clipboard.getContents(DocumentFragmentTransfer.getInstance());
 		if (fragment != null) {
-			insertFragment(fragment);
+			insertXML(new XMLFragment(fragment).getXML());
 		} else {
 			pasteText();
 		}
