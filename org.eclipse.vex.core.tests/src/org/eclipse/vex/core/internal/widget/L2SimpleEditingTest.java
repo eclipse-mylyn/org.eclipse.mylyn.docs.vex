@@ -28,6 +28,8 @@ import java.util.List;
 import org.eclipse.vex.core.internal.css.CssWhitespacePolicy;
 import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.css.StyleSheetReader;
+import org.eclipse.vex.core.internal.undo.CannotRedoException;
+import org.eclipse.vex.core.provisional.dom.DocumentValidationException;
 import org.eclipse.vex.core.provisional.dom.IDocumentFragment;
 import org.eclipse.vex.core.provisional.dom.IElement;
 import org.eclipse.vex.core.provisional.dom.INode;
@@ -428,7 +430,95 @@ public class L2SimpleEditingTest {
 		assertEquals("second line element", PRE, ((IElement) children.get(0)).getQualifiedName());
 		assertEquals("first line", "line1", children.get(0).getText());
 		assertEquals("second line", "line2", children.get(1).getText());
+	}
 
+	@Test
+	public void givenElementWithMultipleOccurrence_canSplitElement() throws Exception {
+		widget.insertElement(PARA);
+		assertTrue(widget.canSplit());
+	}
+
+	@Test
+	public void givenElementWithMultipleOccurrence_whenAnythingIsSelected_canSplitElement() throws Exception {
+		widget.insertElement(PARA);
+		widget.insertText("12345");
+		widget.moveBy(-3, true);
+		assertTrue(widget.canSplit());
+	}
+
+	@Test
+	public void givenElementWithMultipleOccurrence_whenSplittingWithAnythingSelected_shouldDeleteSelectionAndSplit() throws Exception {
+		widget.insertElement(PARA);
+		widget.insertText("12345");
+		widget.moveBy(-3, true);
+		widget.split();
+
+		final List<? extends INode> children = rootElement.children().asList();
+		assertEquals("two para elements", 2, children.size());
+		assertTrue("original para element", children.get(0) instanceof IParent);
+		assertTrue("splitted para element", children.get(1) instanceof IParent);
+		assertEquals("first line element", PARA, ((IElement) children.get(0)).getQualifiedName());
+		assertEquals("second line element", PARA, ((IElement) children.get(0)).getQualifiedName());
+		assertEquals("first line", "12", children.get(0).getText());
+		assertEquals("second line", "", children.get(1).getText());
+	}
+
+	@Test
+	public void givenElementWithMultipleOccurrenceAndInlineElement_whenCaretAtInlineStartOffset_shouldSplit() throws Exception {
+		widget.insertElement(PARA);
+		widget.insertText("12");
+		widget.insertElement(PRE);
+		widget.insertText("34");
+		widget.moveBy(1);
+		widget.insertText("56");
+		widget.moveBy(-6);
+		widget.split();
+
+		final List<? extends INode> children = rootElement.children().asList();
+		assertEquals("two para elements", 2, children.size());
+		assertTrue("original para element", children.get(0) instanceof IParent);
+		assertTrue("splitted para element", children.get(1) instanceof IParent);
+		assertEquals("first line element", PARA, ((IElement) children.get(0)).getQualifiedName());
+		assertEquals("second line element", PARA, ((IElement) children.get(0)).getQualifiedName());
+		assertEquals("first line", "12", children.get(0).getText());
+		assertEquals("second line", "3456", children.get(1).getText());
+		assertEquals("pre in second line", PRE, ((IElement) ((IElement) children.get(1)).children().get(0)).getQualifiedName());
+	}
+
+	@Test
+	public void givenElementWithSingleOccurrence_cannotSplitElement() throws Exception {
+		widget.insertElement(TITLE);
+		assertFalse(widget.canSplit());
+	}
+
+	@Test(expected = CannotRedoException.class)
+	public void givenElementWithSingleOccurrence_whenSplitting_shouldThrowCannotRedoException() throws Exception {
+		widget.insertElement(TITLE);
+		widget.split();
+	}
+
+	@Test
+	public void givenComment_cannotSplit() throws Exception {
+		widget.insertComment();
+		assertFalse(widget.canSplit());
+	}
+
+	@Test(expected = DocumentValidationException.class)
+	public void givenComment_whenSplitting_shouldThrowDocumentValidationException() throws Exception {
+		widget.insertComment();
+		widget.split();
+	}
+
+	@Test
+	public void givenBeforeRootElement_cannotSplitElement() throws Exception {
+		widget.moveTo(rootElement.getStartOffset());
+		assertFalse(widget.canSplit());
+	}
+
+	@Test(expected = DocumentValidationException.class)
+	public void givenBeforeRootElement_whenSplitting_shouldThrowDocumentValidationException() throws Exception {
+		widget.moveTo(rootElement.getStartOffset());
+		widget.split();
 	}
 
 	private static StyleSheet readTestStyleSheet() throws IOException {

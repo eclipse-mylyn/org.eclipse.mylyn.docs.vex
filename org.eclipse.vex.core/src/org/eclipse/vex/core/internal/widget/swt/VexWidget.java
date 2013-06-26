@@ -452,6 +452,10 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 		return impl.getWhitespacePolicy();
 	}
 
+	public boolean canSplit() {
+		return impl.canSplit();
+	}
+
 	public void split() throws DocumentValidationException {
 		impl.split();
 	}

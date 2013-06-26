@@ -214,11 +214,10 @@ public class BaseVexWidget implements IVexWidget {
 		if (readOnly) {
 			return false;
 		}
-		final IDocument doc = getDocument();
-		if (doc == null) {
+		if (document == null) {
 			return false;
 		}
-		return doc.canInsertComment(getCaretOffset());
+		return document.canInsertComment(getCaretOffset());
 	}
 
 	public boolean canInsertFragment(final IDocumentFragment fragment) {
@@ -238,8 +237,7 @@ public class BaseVexWidget implements IVexWidget {
 			return false;
 		}
 
-		final IDocument doc = getDocument();
-		if (doc == null) {
+		if (document == null) {
 			return false;
 		}
 
@@ -255,7 +253,7 @@ public class BaseVexWidget implements IVexWidget {
 			endOffset = getSelectionEnd();
 		}
 
-		final IElement parent = getDocument().getElementForInsertionAt(startOffset);
+		final IElement parent = document.getElementForInsertionAt(startOffset);
 		final List<QualifiedName> seq1 = Node.getNodeNames(parent.children().before(startOffset));
 		final List<QualifiedName> seq2 = nodeNames;
 		final List<QualifiedName> seq3 = Node.getNodeNames(parent.children().after(endOffset));
@@ -290,17 +288,16 @@ public class BaseVexWidget implements IVexWidget {
 			return false;
 		}
 
-		final IDocument doc = getDocument();
-		if (doc == null) {
+		if (document == null) {
 			return false;
 		}
 
-		final IValidator validator = doc.getValidator();
+		final IValidator validator = document.getValidator();
 		if (validator == null) {
 			return false;
 		}
 
-		final IElement element = doc.getElementForInsertionAt(getCaretOffset());
+		final IElement element = document.getElementForInsertionAt(getCaretOffset());
 		final IElement parent = element.getParentElement();
 		if (parent == null) {
 			// can't unwrap the root
@@ -331,26 +328,25 @@ public class BaseVexWidget implements IVexWidget {
 			deleteSelection();
 		} else {
 			final int offset = getCaretOffset();
-			final IDocument doc = getDocument();
-			final int n = doc.getLength() - 1;
+			final int n = document.getLength() - 1;
 			if (offset == n) {
 				// nop
 			} else if (isBetweenMatchingElements(offset)) {
 				joinElementsAt(offset);
 			} else if (isBetweenMatchingElements(offset + 1)) {
 				joinElementsAt(offset + 1);
-			} else if (doc.getNodeForInsertionAt(offset).isEmpty()) {
+			} else if (document.getNodeForInsertionAt(offset).isEmpty()) {
 				// deleting the right sentinel of an empty element
 				// so just delete the whole element an move on
 				moveBy(1);
 				moveBy(-2, true);
 				deleteSelection();
-			} else if (doc.getNodeForInsertionAt(offset + 1).isEmpty()) {
+			} else if (document.getNodeForInsertionAt(offset + 1).isEmpty()) {
 				// deleting the left sentinel of an empty element
 				// so just delete the whole element an move on
 				moveBy(2, true);
 				deleteSelection();
-			} else if (!doc.isTagAt(offset)) {
+			} else if (!document.isTagAt(offset)) {
 				deleteNextToCaret();
 			}
 		}
@@ -365,27 +361,26 @@ public class BaseVexWidget implements IVexWidget {
 			deleteSelection();
 		} else {
 			int offset = getCaretOffset();
-			final IDocument doc = getDocument();
 			if (offset == 1) {
 				// nop
 			} else if (isBetweenMatchingElements(offset)) {
 				joinElementsAt(offset);
 			} else if (isBetweenMatchingElements(offset - 1)) {
 				joinElementsAt(offset - 1);
-			} else if (doc.getNodeForInsertionAt(offset).isEmpty()) {
+			} else if (document.getNodeForInsertionAt(offset).isEmpty()) {
 				// deleting the left sentinel of an empty element
 				// so just delete the whole element an move on
 				moveBy(1);
 				moveBy(-2, true);
 				deleteSelection();
-			} else if (doc.getNodeForInsertionAt(offset - 1).isEmpty()) {
+			} else if (document.getNodeForInsertionAt(offset - 1).isEmpty()) {
 				// deleting the right sentinel of an empty element
 				// so just delete the whole element an move on
 				moveBy(-2, true);
 				deleteSelection();
 			} else {
 				offset--;
-				if (!doc.isTagAt(offset)) {
+				if (!document.isTagAt(offset)) {
 					deleteBeforeCaret();
 				}
 			}
@@ -445,7 +440,7 @@ public class BaseVexWidget implements IVexWidget {
 		IPosition position = null;
 
 		if (savePosition) {
-			position = getDocument().createPosition(getCaretOffset());
+			position = document.createPosition(getCaretOffset());
 		}
 
 		boolean success = false;
@@ -598,12 +593,11 @@ public class BaseVexWidget implements IVexWidget {
 			return new ElementName[0];
 		}
 
-		final IDocument doc = getDocument();
-		if (doc == null) {
+		if (document == null) {
 			return new ElementName[0];
 		}
 
-		final IValidator validator = doc.getValidator();
+		final IValidator validator = document.getValidator();
 		if (validator == null) {
 			return new ElementName[0];
 		}
@@ -611,7 +605,7 @@ public class BaseVexWidget implements IVexWidget {
 		final int startOffset = getStartOffset();
 		final int endOffset = getEndOffset();
 
-		final INode parentNode = doc.getNodeForInsertionAt(startOffset);
+		final INode parentNode = document.getNodeForInsertionAt(startOffset);
 		final boolean parentNodeIsElement = Filters.elements().matches(parentNode);
 		if (!parentNodeIsElement) {
 			return new ElementName[0];
@@ -690,17 +684,16 @@ public class BaseVexWidget implements IVexWidget {
 			return new ElementName[0];
 		}
 
-		final IDocument doc = getDocument();
-		if (doc == null) {
+		if (document == null) {
 			return new ElementName[0];
 		}
 
-		final IValidator validator = doc.getValidator();
+		final IValidator validator = document.getValidator();
 		if (validator == null) {
 			return new ElementName[0];
 		}
 
-		final IElement element = doc.getElementForInsertionAt(getCaretOffset());
+		final IElement element = document.getElementForInsertionAt(getCaretOffset());
 		final IElement parent = element.getParentElement();
 		if (parent == null) {
 			// can't morph the root
@@ -1012,11 +1005,10 @@ public class BaseVexWidget implements IVexWidget {
 			throw new ReadOnlyException(MessageFormat.format("Cannot morph to element {0}, because the editor is read-only.", elementName));
 		}
 
-		final IDocument doc = getDocument();
 		final int offset = getCaretOffset();
-		final IElement currentElement = doc.getElementForInsertionAt(offset);
+		final IElement currentElement = document.getElementForInsertionAt(offset);
 
-		if (currentElement == doc.getRootElement()) {
+		if (currentElement == document.getRootElement()) {
 			throw new DocumentValidationException("Cannot morph the root element.");
 		}
 
@@ -1188,14 +1180,13 @@ public class BaseVexWidget implements IVexWidget {
 	}
 
 	public void moveToNextWord(final boolean select) {
-		final IDocument doc = getDocument();
-		final int n = doc.getLength() - 1;
+		final int n = document.getLength() - 1;
 		int offset = getCaretOffset();
-		while (offset < n && !Character.isLetterOrDigit(doc.getCharacterAt(offset))) {
+		while (offset < n && !Character.isLetterOrDigit(document.getCharacterAt(offset))) {
 			offset++;
 		}
 
-		while (offset < n && Character.isLetterOrDigit(doc.getCharacterAt(offset))) {
+		while (offset < n && Character.isLetterOrDigit(document.getCharacterAt(offset))) {
 			offset++;
 		}
 
@@ -1221,13 +1212,12 @@ public class BaseVexWidget implements IVexWidget {
 	}
 
 	public void moveToPreviousWord(final boolean select) {
-		final IDocument doc = getDocument();
 		int offset = getCaretOffset();
-		while (offset > 1 && !Character.isLetterOrDigit(doc.getCharacterAt(offset - 1))) {
+		while (offset > 1 && !Character.isLetterOrDigit(document.getCharacterAt(offset - 1))) {
 			offset--;
 		}
 
-		while (offset > 1 && Character.isLetterOrDigit(doc.getCharacterAt(offset - 1))) {
+		while (offset > 1 && Character.isLetterOrDigit(document.getCharacterAt(offset - 1))) {
 			offset--;
 		}
 
@@ -1301,7 +1291,7 @@ public class BaseVexWidget implements IVexWidget {
 	}
 
 	public void savePosition(final Runnable runnable) {
-		final IPosition pos = getDocument().createPosition(getCaretOffset());
+		final IPosition pos = document.createPosition(getCaretOffset());
 		try {
 			runnable.run();
 		} finally {
@@ -1311,18 +1301,17 @@ public class BaseVexWidget implements IVexWidget {
 
 	public void selectAll() {
 		this.moveTo(1);
-		this.moveTo(getDocument().getLength() - 1, true);
+		this.moveTo(document.getLength() - 1, true);
 	}
 
 	public void selectWord() {
-		final IDocument doc = getDocument();
 		int startOffset = getCaretOffset();
 		int endOffset = getCaretOffset();
-		while (startOffset > 1 && Character.isLetterOrDigit(doc.getCharacterAt(startOffset - 1))) {
+		while (startOffset > 1 && Character.isLetterOrDigit(document.getCharacterAt(startOffset - 1))) {
 			startOffset--;
 		}
-		final int n = doc.getLength() - 1;
-		while (endOffset < n && Character.isLetterOrDigit(doc.getCharacterAt(endOffset))) {
+		final int n = document.getLength() - 1;
+		while (endOffset < n && Character.isLetterOrDigit(document.getCharacterAt(endOffset))) {
 			endOffset++;
 		}
 
@@ -1449,7 +1438,7 @@ public class BaseVexWidget implements IVexWidget {
 
 	public void setLayoutWidth(int width) {
 		width = Math.max(width, MIN_LAYOUT_WIDTH);
-		if (getDocument() != null && width != getLayoutWidth()) {
+		if (document != null && width != getLayoutWidth()) {
 			// this.layoutWidth is set by relayoutAll
 			relayoutAll(width, styleSheet);
 		} else {
@@ -1460,7 +1449,7 @@ public class BaseVexWidget implements IVexWidget {
 	}
 
 	public void setStyleSheet(final StyleSheet styleSheet) {
-		if (getDocument() != null) {
+		if (document != null) {
 			relayoutAll(layoutWidth, styleSheet);
 		}
 	}
@@ -1483,25 +1472,69 @@ public class BaseVexWidget implements IVexWidget {
 		return whitespacePolicy;
 	}
 
+	public boolean canSplit() {
+		if (readOnly) {
+			return false;
+		}
+
+		if (document == null) {
+			return false;
+		}
+
+		final IValidator validator = document.getValidator();
+		if (validator == null) {
+			return true;
+		}
+
+		final INode node = document.getNodeForInsertionAt(getCaretOffset());
+		if (!Filters.elements().matches(node)) {
+			return false;
+		}
+
+		final IElement element = (IElement) node;
+		final IElement parent = element.getParentElement();
+		if (parent == null) {
+			return false;
+		}
+
+		final int startOffset = element.getStartOffset();
+		final int endOffset = element.getEndOffset();
+
+		final List<QualifiedName> seq1 = Node.getNodeNames(parent.children().before(startOffset));
+		final List<QualifiedName> seq2 = Arrays.asList(element.getQualifiedName(), element.getQualifiedName());
+		final List<QualifiedName> seq3 = Node.getNodeNames(parent.children().after(endOffset));
+
+		return validator.isValidSequence(parent.getQualifiedName(), seq1, seq2, seq3, true);
+	}
+
 	public void split() throws DocumentValidationException, ReadOnlyException {
 		if (readOnly) {
 			throw new ReadOnlyException("Cannot split, because the editor is read-only.");
 		}
 
+		final INode node = document.getNodeForInsertionAt(getCaretOffset());
+		if (!Filters.elements().matches(node)) {
+			throw new DocumentValidationException("Can only split elements.");
+		}
+		final IElement element = (IElement) node;
+
 		final long start = System.currentTimeMillis();
-
-		final IElement element = getBlockForInsertionAt(getCaretOffset());
-
 		boolean success = false;
 		try {
 			beginWork();
-			IDocumentFragment frag = null;
-			int offset = getCaretOffset();
-			final boolean atEnd = offset == element.getEndOffset();
-			if (!atEnd) {
-				this.moveTo(element.getEndOffset(), true);
-				frag = getSelectedFragment();
+
+			if (hasSelection()) {
 				deleteSelection();
+			}
+
+			final IDocumentFragment splittedFragment;
+			final boolean splitAtEnd = getCaretOffset() == element.getEndOffset();
+			if (!splitAtEnd) {
+				this.moveTo(element.getEndOffset(), true);
+				splittedFragment = getSelectedFragment();
+				deleteSelection();
+			} else {
+				splittedFragment = null;
 			}
 
 			// either way, we are now at the end offset for the element, let's move just outside
@@ -1510,10 +1543,10 @@ public class BaseVexWidget implements IVexWidget {
 			insertElement(element.getQualifiedName());
 			// TODO: clone attributes
 
-			if (!atEnd) {
-				offset = getCaretOffset();
-				insertFragment(frag);
-				this.moveTo(offset, false);
+			if (splittedFragment != null) {
+				final int finalOffset = getCaretOffset();
+				insertFragment(splittedFragment);
+				this.moveTo(finalOffset, false);
 			}
 			success = true;
 		} finally {
@@ -1672,9 +1705,9 @@ public class BaseVexWidget implements IVexWidget {
 	private LayoutContext createLayoutContext(final Graphics g) {
 		final LayoutContext context = new LayoutContext();
 		context.setBoxFactory(boxFactory);
-		context.setDocument(getDocument());
+		context.setDocument(document);
 		context.setGraphics(g);
-		context.setStyleSheet(getStyleSheet());
+		context.setStyleSheet(styleSheet);
 
 		if (hasSelection()) {
 			context.setSelectionStart(getSelectionStart());
@@ -1721,11 +1754,11 @@ public class BaseVexWidget implements IVexWidget {
 	 * @param int offset The offset to check.
 	 */
 	private boolean isBetweenMatchingElements(final int offset) {
-		if (offset <= 1 || offset >= getDocument().getLength() - 1) {
+		if (offset <= 1 || offset >= document.getLength() - 1) {
 			return false;
 		}
-		final IElement e1 = getDocument().getElementForInsertionAt(offset - 1);
-		final IElement e2 = getDocument().getElementForInsertionAt(offset + 1);
+		final IElement e1 = document.getElementForInsertionAt(offset - 1);
+		final IElement e2 = document.getElementForInsertionAt(offset + 1);
 		return e1 != e2 && e1 != null && e2 != null && e1.getParent() == e2.getParent() && e1.isKindOf(e2);
 	}
 
@@ -1960,7 +1993,7 @@ public class BaseVexWidget implements IVexWidget {
 		final int offset = getCaretOffset();
 		if (offset == 1) {
 			y = 0;
-		} else if (offset == getDocument().getLength() - 1) {
+		} else if (offset == document.getLength() - 1) {
 			if (rootBox.getHeight() < viewport.getHeight()) {
 				y = 0;
 			} else {

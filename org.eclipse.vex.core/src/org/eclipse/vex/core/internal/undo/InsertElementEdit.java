@@ -45,7 +45,7 @@ public class InsertElementEdit extends AbstractUndoableEdit {
 		try {
 			element = document.insertElement(offset, elementName);
 		} catch (final DocumentValidationException ex) {
-			throw new CannotRedoException();
+			throw new CannotRedoException(ex);
 		}
 	}
 

@@ -552,6 +552,13 @@ public interface IVexWidget {
 	boolean canInsertComment();
 
 	/**
+	 * Inserts a comment a the current caret position. Any selected content is first deleted.
+	 * 
+	 * @return the new comment
+	 */
+	IComment insertComment() throws DocumentValidationException;
+
+	/**
 	 * Inserts the given XML fragment at the current caret position. Any selected content is first deleted.
 	 * 
 	 * @param xml
@@ -559,13 +566,6 @@ public interface IVexWidget {
 	 * @throws DocumentValidationException
 	 */
 	public void insertXML(String xml) throws DocumentValidationException;
-
-	/**
-	 * Inserts a comment a the current caret position. Any selected content is first deleted.
-	 * 
-	 * @return the new comment
-	 */
-	IComment insertComment() throws DocumentValidationException;
 
 	/**
 	 * Returns true if the given fragment can be inserted at the current caret position.
@@ -602,6 +602,13 @@ public interface IVexWidget {
 	public void setWhitespacePolicy(IWhitespacePolicy whitespacePolicy);
 
 	public IWhitespacePolicy getWhitespacePolicy();
+
+	/**
+	 * Indicates whether the current element can be splitted into two elements at the current caret position.
+	 * 
+	 * @return true if the current element can be splitted
+	 */
+	boolean canSplit();
 
 	/**
 	 * Split the element at the current caret offset. This is the normal behaviour when the user presses Enter.
