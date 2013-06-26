@@ -48,7 +48,8 @@ public class L2SimpleEditingTest {
 	@Before
 	public void setUp() throws Exception {
 		widget = new BaseVexWidget(new MockHostComponent());
-		widget.setDocument(createDocumentWithDTD(TEST_DTD, "section"), StyleSheet.NULL);
+		widget.setDocument(createDocumentWithDTD(TEST_DTD, "section"), readTestStyleSheet());
+		widget.setWhitespacePolicy(new CssWhitespacePolicy(widget.getStyleSheet()));
 		rootElement = widget.getDocument().getRootElement();
 	}
 
@@ -268,7 +269,7 @@ public class L2SimpleEditingTest {
 		widget.moveBy(1);
 		final IElement para = widget.insertElement(PARA);
 		final IDocumentFragment fragment = widget.getDocument().getFragment(para.getRange());
-		widget.moveTo(widget.getDocument().getRootElement().getEndOffset());
+		widget.moveTo(rootElement.getEndOffset());
 
 		widget.setReadOnly(true);
 		assertFalse(widget.canInsertFragment(fragment));
@@ -277,10 +278,6 @@ public class L2SimpleEditingTest {
 
 	@Test
 	public void givenNonPreElement_whenInsertingNewline_shouldSplitElement() throws Exception {
-		widget.setDocument(createDocumentWithDTD(TEST_DTD, "section"), readTestStyleSheet());
-		widget.setWhitespacePolicy(new CssWhitespacePolicy(widget.getStyleSheet()));
-		rootElement = widget.getDocument().getRootElement();
-
 		widget.insertElement(TITLE);
 		widget.moveBy(1);
 		final IElement para1 = widget.insertElement(PARA);
@@ -293,15 +290,12 @@ public class L2SimpleEditingTest {
 
 	@Test
 	public void givenPreElement_whenInsertingNewline_shouldInsertNewline() throws Exception {
-		widget.setDocument(createDocumentWithDTD(TEST_DTD, "para"), readTestStyleSheet());
-		widget.setWhitespacePolicy(new CssWhitespacePolicy(widget.getStyleSheet()));
-		rootElement = widget.getDocument().getRootElement();
-
+		final IElement para = widget.insertElement(PARA);
 		final IElement preElement = widget.insertElement(PRE);
 		assertEquals(preElement.getEndOffset(), widget.getCaretOffset());
 		widget.insertText("line1");
 		widget.insertText("\n");
-		assertEquals(1, rootElement.children().count());
+		assertEquals(1, para.children().count());
 		assertEquals("line1\n", preElement.getText());
 	}
 
@@ -349,8 +343,7 @@ public class L2SimpleEditingTest {
 
 	@Test
 	public void givenPreElement_whenInsertingTextWithNewline_shouldInsertNewline() throws Exception {
-		widget.setDocument(createDocumentWithDTD(TEST_DTD, "para"), readTestStyleSheet());
-		widget.setWhitespacePolicy(new CssWhitespacePolicy(widget.getStyleSheet()));
+		widget.insertElement(PARA);
 		final IElement preElement = widget.insertElement(PRE);
 		assertEquals(preElement.getEndOffset(), widget.getCaretOffset());
 		widget.insertText("line1\nline2");
@@ -359,8 +352,7 @@ public class L2SimpleEditingTest {
 
 	@Test
 	public void givenPreElement_whenInsertingText_shouldKeepWhitespace() throws Exception {
-		widget.setDocument(createDocumentWithDTD(TEST_DTD, "para"), readTestStyleSheet());
-		widget.setWhitespacePolicy(new CssWhitespacePolicy(widget.getStyleSheet()));
+		widget.insertElement(PARA);
 		final IElement preElement = widget.insertElement(PRE);
 
 		widget.moveTo(preElement.getEndOffset());
@@ -373,13 +365,11 @@ public class L2SimpleEditingTest {
 
 	@Test
 	public void givenNonPreElement_whenInsertingText_shouldCompressWhitespace() throws Exception {
-		widget.setDocument(createDocumentWithDTD(TEST_DTD, "section"), readTestStyleSheet());
-		widget.setWhitespacePolicy(new CssWhitespacePolicy(widget.getStyleSheet()));
 		final IElement para = widget.insertElement(PARA);
 		widget.moveTo(para.getEndOffset());
 		widget.insertText("line1\nline2   \t end");
 
-		final List<? extends INode> children = widget.getDocument().getRootElement().children().after(para.getStartOffset()).asList();
+		final List<? extends INode> children = rootElement.children().after(para.getStartOffset()).asList();
 		assertEquals("two para elements", 2, children.size());
 		assertTrue("original para element", children.get(0) instanceof IParent);
 		assertTrue("splitted para element", children.get(1) instanceof IParent);
@@ -389,13 +379,11 @@ public class L2SimpleEditingTest {
 
 	@Test
 	public void givenNonPreElement_whenInsertingText_shouldCompressNewlines() throws Exception {
-		widget.setDocument(createDocumentWithDTD(TEST_DTD, "section"), readTestStyleSheet());
-		widget.setWhitespacePolicy(new CssWhitespacePolicy(widget.getStyleSheet()));
 		final IElement para = widget.insertElement(PARA);
 		widget.moveTo(para.getEndOffset());
 		widget.insertText("line1\n\nline2");
 
-		final List<? extends INode> children = widget.getDocument().getRootElement().children().after(para.getStartOffset()).asList();
+		final List<? extends INode> children = rootElement.children().after(para.getStartOffset()).asList();
 		assertEquals("two para elements", 2, children.size());
 		assertTrue("original para element", children.get(0) instanceof IParent);
 		assertTrue("splitted para element", children.get(1) instanceof IParent);
@@ -405,8 +393,6 @@ public class L2SimpleEditingTest {
 
 	@Test
 	public void givenNonPreElement_whenSplitting_shouldSplitIntoTwoElements() throws Exception {
-		widget.setDocument(createDocumentWithDTD(TEST_DTD, "section"), readTestStyleSheet());
-		widget.setWhitespacePolicy(new CssWhitespacePolicy(widget.getStyleSheet()));
 		final IElement para = widget.insertElement(PARA);
 		widget.moveTo(para.getEndOffset());
 		widget.insertText("line1line2");
@@ -414,7 +400,7 @@ public class L2SimpleEditingTest {
 
 		widget.split();
 
-		final List<? extends INode> children = widget.getDocument().getRootElement().children().after(para.getStartOffset()).asList();
+		final List<? extends INode> children = rootElement.children().after(para.getStartOffset()).asList();
 		assertEquals("two para elements", 2, children.size());
 		assertTrue("original para element", children.get(0) instanceof IParent);
 		assertTrue("splitted para element", children.get(1) instanceof IParent);
@@ -426,8 +412,7 @@ public class L2SimpleEditingTest {
 
 	@Test
 	public void givenPreElement_whenSplitting_shouldSplitIntoTwoElements() throws Exception {
-		widget.setDocument(createDocumentWithDTD(TEST_DTD, "para"), readTestStyleSheet());
-		widget.setWhitespacePolicy(new CssWhitespacePolicy(widget.getStyleSheet()));
+		final IElement para = widget.insertElement(PARA);
 		final IElement preElement = widget.insertElement(PRE);
 		widget.moveTo(preElement.getEndOffset());
 		widget.insertText("line1line2");
@@ -435,7 +420,7 @@ public class L2SimpleEditingTest {
 
 		widget.split();
 
-		final List<? extends INode> children = widget.getDocument().getRootElement().children().after(preElement.getStartOffset()).asList();
+		final List<? extends INode> children = para.children().after(preElement.getStartOffset()).asList();
 		assertEquals("two para elements", 2, children.size());
 		assertTrue("original pre element", children.get(0) instanceof IParent);
 		assertTrue("splitted pre element", children.get(1) instanceof IParent);
