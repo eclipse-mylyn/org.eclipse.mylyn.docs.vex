@@ -12,6 +12,7 @@
 package org.eclipse.vex.core.internal.widget;
 
 import static org.eclipse.vex.core.internal.widget.VexWidgetTest.PARA;
+import static org.eclipse.vex.core.internal.widget.VexWidgetTest.PRE;
 import static org.eclipse.vex.core.internal.widget.VexWidgetTest.TITLE;
 import static org.eclipse.vex.core.internal.widget.VexWidgetTest.createDocumentWithDTD;
 import static org.eclipse.vex.core.tests.TestResources.TEST_DTD;
@@ -24,7 +25,6 @@ import static org.junit.Assert.assertTrue;
 import java.io.IOException;
 import java.util.List;
 
-import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.vex.core.internal.css.CssWhitespacePolicy;
 import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.css.StyleSheetReader;
@@ -297,7 +297,7 @@ public class L2SimpleEditingTest {
 		widget.setWhitespacePolicy(new CssWhitespacePolicy(widget.getStyleSheet()));
 		rootElement = widget.getDocument().getRootElement();
 
-		final IElement preElement = widget.insertElement(new QualifiedName(null, "pre"));
+		final IElement preElement = widget.insertElement(PRE);
 		assertEquals(preElement.getEndOffset(), widget.getCaretOffset());
 		widget.insertText("line1");
 		widget.insertText("\n");
@@ -351,7 +351,7 @@ public class L2SimpleEditingTest {
 	public void givenPreElement_whenInsertingTextWithNewline_shouldInsertNewline() throws Exception {
 		widget.setDocument(createDocumentWithDTD(TEST_DTD, "para"), readTestStyleSheet());
 		widget.setWhitespacePolicy(new CssWhitespacePolicy(widget.getStyleSheet()));
-		final IElement preElement = widget.insertElement(new QualifiedName(null, "pre"));
+		final IElement preElement = widget.insertElement(PRE);
 		assertEquals(preElement.getEndOffset(), widget.getCaretOffset());
 		widget.insertText("line1\nline2");
 		assertEquals("line1\nline2", preElement.getText());
@@ -361,7 +361,7 @@ public class L2SimpleEditingTest {
 	public void givenPreElement_whenInsertingText_shouldKeepWhitespace() throws Exception {
 		widget.setDocument(createDocumentWithDTD(TEST_DTD, "para"), readTestStyleSheet());
 		widget.setWhitespacePolicy(new CssWhitespacePolicy(widget.getStyleSheet()));
-		final IElement preElement = widget.insertElement(new QualifiedName(null, "pre"));
+		final IElement preElement = widget.insertElement(PRE);
 
 		widget.moveTo(preElement.getEndOffset());
 		widget.insertText("line1\nline2   end");
@@ -380,7 +380,7 @@ public class L2SimpleEditingTest {
 		widget.insertText("line1\nline2   \t end");
 
 		final List<? extends INode> children = widget.getDocument().getRootElement().children().after(para.getStartOffset()).asList();
-		assertEquals("single para element", 2, children.size());
+		assertEquals("two para elements", 2, children.size());
 		assertTrue("original para element", children.get(0) instanceof IParent);
 		assertTrue("splitted para element", children.get(1) instanceof IParent);
 		assertEquals("first line", "line1", children.get(0).getText());
@@ -396,11 +396,54 @@ public class L2SimpleEditingTest {
 		widget.insertText("line1\n\nline2");
 
 		final List<? extends INode> children = widget.getDocument().getRootElement().children().after(para.getStartOffset()).asList();
-		assertEquals("single para element", 2, children.size());
+		assertEquals("two para elements", 2, children.size());
 		assertTrue("original para element", children.get(0) instanceof IParent);
 		assertTrue("splitted para element", children.get(1) instanceof IParent);
 		assertEquals("first line", "line1", children.get(0).getText());
 		assertEquals("second line", "line2", children.get(1).getText());
+	}
+
+	@Test
+	public void givenNonPreElement_whenSplitting_shouldSplitIntoTwoElements() throws Exception {
+		widget.setDocument(createDocumentWithDTD(TEST_DTD, "section"), readTestStyleSheet());
+		widget.setWhitespacePolicy(new CssWhitespacePolicy(widget.getStyleSheet()));
+		final IElement para = widget.insertElement(PARA);
+		widget.moveTo(para.getEndOffset());
+		widget.insertText("line1line2");
+		widget.moveBy(-5);
+
+		widget.split();
+
+		final List<? extends INode> children = widget.getDocument().getRootElement().children().after(para.getStartOffset()).asList();
+		assertEquals("two para elements", 2, children.size());
+		assertTrue("original para element", children.get(0) instanceof IParent);
+		assertTrue("splitted para element", children.get(1) instanceof IParent);
+		assertEquals("first line element", PARA, ((IElement) children.get(0)).getQualifiedName());
+		assertEquals("second line element", PARA, ((IElement) children.get(0)).getQualifiedName());
+		assertEquals("first line", "line1", children.get(0).getText());
+		assertEquals("second line", "line2", children.get(1).getText());
+	}
+
+	@Test
+	public void givenPreElement_whenSplitting_shouldSplitIntoTwoElements() throws Exception {
+		widget.setDocument(createDocumentWithDTD(TEST_DTD, "para"), readTestStyleSheet());
+		widget.setWhitespacePolicy(new CssWhitespacePolicy(widget.getStyleSheet()));
+		final IElement preElement = widget.insertElement(PRE);
+		widget.moveTo(preElement.getEndOffset());
+		widget.insertText("line1line2");
+		widget.moveBy(-5);
+
+		widget.split();
+
+		final List<? extends INode> children = widget.getDocument().getRootElement().children().after(preElement.getStartOffset()).asList();
+		assertEquals("two para elements", 2, children.size());
+		assertTrue("original pre element", children.get(0) instanceof IParent);
+		assertTrue("splitted pre element", children.get(1) instanceof IParent);
+		assertEquals("first line element", PRE, ((IElement) children.get(0)).getQualifiedName());
+		assertEquals("second line element", PRE, ((IElement) children.get(0)).getQualifiedName());
+		assertEquals("first line", "line1", children.get(0).getText());
+		assertEquals("second line", "line2", children.get(1).getText());
+
 	}
 
 	private static StyleSheet readTestStyleSheet() throws IOException {

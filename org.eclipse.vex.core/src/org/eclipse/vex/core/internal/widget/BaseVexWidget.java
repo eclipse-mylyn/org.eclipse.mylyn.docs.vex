@@ -848,7 +848,7 @@ public class BaseVexWidget implements IVexWidget {
 		final IElement element = document.getElementForInsertionAt(getCaretOffset());
 		final boolean isPreformatted = whitespacePolicy.isPre(element);
 
-		String toInsert;
+		final String toInsert;
 		if (!isPreformatted) {
 			toInsert = XML.compressWhitespace(XML.normalizeNewlines(text), true, true, true);
 		} else {
@@ -868,7 +868,12 @@ public class BaseVexWidget implements IVexWidget {
 					applyEdit(new InsertTextEdit(document, getCaretOffset(), toInsert.substring(i, nextLineBreak)), getCaretOffset());
 				}
 				this.moveTo(getCaretOffset() + nextLineBreak - i);
-				split();
+				if (isPreformatted) {
+					applyEdit(new InsertTextEdit(document, getCaretOffset(), "\n"), getCaretOffset());
+					moveBy(1);
+				} else {
+					split();
+				}
 				i = nextLineBreak + 1;
 			}
 
@@ -1486,35 +1491,29 @@ public class BaseVexWidget implements IVexWidget {
 		final long start = System.currentTimeMillis();
 
 		final IElement element = getBlockForInsertionAt(getCaretOffset());
-		final boolean isPreformatted = whitespacePolicy.isPre(element);
 
 		boolean success = false;
 		try {
 			beginWork();
-			if (isPreformatted) {
-				applyEdit(new InsertTextEdit(document, getCaretOffset(), "\n"), getCaretOffset());
-				this.moveBy(1);
-			} else {
-				IDocumentFragment frag = null;
-				int offset = getCaretOffset();
-				final boolean atEnd = offset == element.getEndOffset();
-				if (!atEnd) {
-					this.moveTo(element.getEndOffset(), true);
-					frag = getSelectedFragment();
-					deleteSelection();
-				}
+			IDocumentFragment frag = null;
+			int offset = getCaretOffset();
+			final boolean atEnd = offset == element.getEndOffset();
+			if (!atEnd) {
+				this.moveTo(element.getEndOffset(), true);
+				frag = getSelectedFragment();
+				deleteSelection();
+			}
 
-				// either way, we are now at the end offset for the element, let's move just outside
-				this.moveBy(1);
+			// either way, we are now at the end offset for the element, let's move just outside
+			this.moveBy(1);
 
-				insertElement(element.getQualifiedName());
-				// TODO: clone attributes
+			insertElement(element.getQualifiedName());
+			// TODO: clone attributes
 
-				if (!atEnd) {
-					offset = getCaretOffset();
-					insertFragment(frag);
-					this.moveTo(offset, false);
-				}
+			if (!atEnd) {
+				offset = getCaretOffset();
+				insertFragment(frag);
+				this.moveTo(offset, false);
 			}
 			success = true;
 		} finally {
