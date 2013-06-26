@@ -478,7 +478,7 @@ public class Document extends Parent implements IDocument {
 
 		fireBeforeContentDeleted(new ContentChangeEvent(this, parentForDeletion, range));
 
-		for (final INode child : parentForDeletion.children().in(range)) {
+		for (final INode child : parentForDeletion.children().in(range).asList()) {
 			parentForDeletion.removeChild((Node) child);
 			((Node) child).dissociate();
 		}

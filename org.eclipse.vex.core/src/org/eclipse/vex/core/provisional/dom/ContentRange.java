@@ -98,7 +98,7 @@ public class ContentRange {
 	 * @return the union of this and the given range
 	 */
 	public ContentRange union(final ContentRange other) {
-		return new ContentRange(Math.min(startOffset, other.startOffset), Math.min(endOffset, other.endOffset));
+		return new ContentRange(Math.min(startOffset, other.startOffset), Math.max(endOffset, other.endOffset));
 	}
 
 	/**

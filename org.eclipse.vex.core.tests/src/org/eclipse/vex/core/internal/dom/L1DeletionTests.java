@@ -26,6 +26,7 @@ public class L1DeletionTests {
 	private IDocument document;
 	private IElement child;
 	private IElement grandchild;
+	private IElement sibling;
 
 	@Before
 	public void setUp() throws Exception {
@@ -35,6 +36,7 @@ public class L1DeletionTests {
 		grandchild = document.insertElement(child.getEndOffset(), new QualifiedName(null, "grandchild"));
 		document.insertText(grandchild.getEndOffset(), "ABCDEF");
 		document.insertText(child.getEndOffset(), "67890");
+		sibling = document.insertElement(document.getRootElement().getEndOffset(), new QualifiedName(null, "sibling"));
 	}
 
 	@Test
@@ -77,6 +79,11 @@ public class L1DeletionTests {
 	@Test(expected = DocumentValidationException.class)
 	public void shouldNotDeleteUnbalancedRangeWhenRangeStartsAtStartOffset() throws Exception {
 		document.delete(new ContentRange(grandchild.getStartOffset(), grandchild.getEndOffset() - 1));
-		System.out.println(document);
+	}
+
+	@Test
+	public void shouldDeleteMultipleElementsAtOnce() throws Exception {
+		document.delete(child.getRange().union(sibling.getRange()));
+		assertTrue("no more children", document.getRootElement().children().withoutText().isEmpty());
 	}
 }
