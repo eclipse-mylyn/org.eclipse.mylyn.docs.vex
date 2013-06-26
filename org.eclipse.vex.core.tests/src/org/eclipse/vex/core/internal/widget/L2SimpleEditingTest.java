@@ -464,6 +464,23 @@ public class L2SimpleEditingTest {
 	}
 
 	@Test
+	public void givenElementWithMultipleOccurrence_whenCaretRightAfterStartIndex_shouldSplit() throws Exception {
+		final IElement para = widget.insertElement(PARA);
+		widget.insertText("12345");
+		widget.moveTo(para.getStartOffset() + 1);
+		widget.split();
+
+		final List<? extends INode> children = rootElement.children().asList();
+		assertEquals("two para elements", 2, children.size());
+		assertTrue("original para element", children.get(0) instanceof IParent);
+		assertTrue("splitted para element", children.get(1) instanceof IParent);
+		assertEquals("first line element", PARA, ((IElement) children.get(0)).getQualifiedName());
+		assertEquals("second line element", PARA, ((IElement) children.get(0)).getQualifiedName());
+		assertEquals("first line", "", children.get(0).getText());
+		assertEquals("second line", "12345", children.get(1).getText());
+	}
+
+	@Test
 	public void givenElementWithMultipleOccurrenceAndInlineElement_whenCaretAtInlineStartOffset_shouldSplit() throws Exception {
 		widget.insertElement(PARA);
 		widget.insertText("12");

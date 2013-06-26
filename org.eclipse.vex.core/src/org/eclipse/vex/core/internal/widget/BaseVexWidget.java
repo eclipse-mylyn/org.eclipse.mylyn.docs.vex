@@ -1486,12 +1486,11 @@ public class BaseVexWidget implements IVexWidget {
 			return true;
 		}
 
-		final INode node = document.getNodeForInsertionAt(getCaretOffset());
-		if (!Filters.elements().matches(node)) {
+		if (!Filters.elements().matches(currentNode)) {
 			return false;
 		}
 
-		final IElement element = (IElement) node;
+		final IElement element = (IElement) currentNode;
 		final IElement parent = element.getParentElement();
 		if (parent == null) {
 			return false;
@@ -1512,11 +1511,10 @@ public class BaseVexWidget implements IVexWidget {
 			throw new ReadOnlyException("Cannot split, because the editor is read-only.");
 		}
 
-		final INode node = document.getNodeForInsertionAt(getCaretOffset());
-		if (!Filters.elements().matches(node)) {
+		if (!Filters.elements().matches(currentNode)) {
 			throw new DocumentValidationException("Can only split elements.");
 		}
-		final IElement element = (IElement) node;
+		final IElement element = (IElement) currentNode;
 
 		final long start = System.currentTimeMillis();
 		boolean success = false;
