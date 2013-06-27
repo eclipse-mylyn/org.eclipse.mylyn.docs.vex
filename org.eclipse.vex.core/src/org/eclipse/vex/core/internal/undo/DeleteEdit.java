@@ -33,8 +33,8 @@ public class DeleteEdit extends AbstractUndoableEdit {
 		try {
 			document.insertFragment(range.getStartOffset(), fragment);
 			fragment = null;
-		} catch (final DocumentValidationException ex) {
-			throw new CannotUndoException(ex);
+		} catch (final DocumentValidationException e) {
+			throw new CannotUndoException(e);
 		}
 	}
 
@@ -43,8 +43,8 @@ public class DeleteEdit extends AbstractUndoableEdit {
 		try {
 			fragment = document.getFragment(range);
 			document.delete(range);
-		} catch (final DocumentValidationException ex) {
-			throw new CannotRedoException(ex);
+		} catch (final DocumentValidationException e) {
+			throw new CannotRedoException(e);
 		}
 	}
 

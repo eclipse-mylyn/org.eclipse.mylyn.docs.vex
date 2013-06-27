@@ -28,6 +28,11 @@ public interface IPosition {
 		public boolean isValid() {
 			return false;
 		};
+
+		@Override
+		public String toString() {
+			return "NULL";
+		}
 	};
 
 	/**

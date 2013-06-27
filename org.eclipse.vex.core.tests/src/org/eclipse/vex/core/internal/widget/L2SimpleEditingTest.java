@@ -28,6 +28,7 @@ import java.util.List;
 import org.eclipse.vex.core.internal.css.CssWhitespacePolicy;
 import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.css.StyleSheetReader;
+import org.eclipse.vex.core.internal.io.XMLFragment;
 import org.eclipse.vex.core.internal.undo.CannotRedoException;
 import org.eclipse.vex.core.provisional.dom.DocumentValidationException;
 import org.eclipse.vex.core.provisional.dom.IDocumentFragment;
@@ -503,6 +504,28 @@ public class L2SimpleEditingTest {
 	}
 
 	@Test
+	public void undoSubsequentSplitsOfInlineAndBlock() throws Exception {
+		widget.insertElement(PARA);
+		widget.insertText("12");
+		widget.insertElement(PRE);
+		widget.insertText("34");
+		widget.moveBy(1);
+		widget.insertText("56");
+		final String expectedXml = getCurrentXML();
+
+		widget.moveBy(-4);
+		widget.split();
+
+		widget.moveBy(-1);
+		widget.split();
+
+		widget.undo();
+		widget.undo();
+
+		assertEquals(expectedXml, getCurrentXML());
+	}
+
+	@Test
 	public void givenElementWithSingleOccurrence_cannotSplitElement() throws Exception {
 		widget.insertElement(TITLE);
 		assertFalse(widget.canSplit());
@@ -536,6 +559,10 @@ public class L2SimpleEditingTest {
 	public void givenBeforeRootElement_whenSplitting_shouldThrowDocumentValidationException() throws Exception {
 		widget.moveTo(rootElement.getStartOffset());
 		widget.split();
+	}
+
+	private String getCurrentXML() {
+		return new XMLFragment(widget.getDocument().getFragment(widget.getDocument().getRootElement().getRange())).getXML();
 	}
 
 	private static StyleSheet readTestStyleSheet() throws IOException {
