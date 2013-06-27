@@ -15,6 +15,7 @@ import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.vex.core.internal.widget.IVexWidget;
 import org.eclipse.vex.core.internal.widget.swt.VexWidget;
 import org.eclipse.vex.core.provisional.dom.INode;
+import org.eclipse.vex.ui.internal.swt.ContentAssist;
 
 /**
  * Splits the current block element, for instance to create new block/paragraph or table cell (usually by hitting the
@@ -26,11 +27,20 @@ public class SplitBlockElementHandler extends AbstractVexWidgetHandler {
 
 	@Override
 	public void execute(final VexWidget widget) throws ExecutionException {
-		if (!widget.canSplit()) {
+		if (widget.isReadOnly()) {
 			return;
 		}
 
-		splitElement(widget, widget.getCurrentNode());
+		final INode currentNode = widget.getCurrentNode();
+		if (widget.canSplit()) {
+			splitElement(widget, currentNode);
+		} else {
+			final int targetOffset = currentNode.getEndOffset() + 1;
+			if (widget.getDocument().getRootElement().containsOffset(targetOffset)) {
+				widget.moveTo(targetOffset);
+				ContentAssist.openAddElementsContentAssist(widget);
+			}
+		}
 	}
 
 	/**

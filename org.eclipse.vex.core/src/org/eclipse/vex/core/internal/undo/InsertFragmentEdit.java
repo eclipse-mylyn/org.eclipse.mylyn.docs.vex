@@ -32,8 +32,8 @@ public class InsertFragmentEdit extends AbstractUndoableEdit {
 	protected void performUndo() throws CannotUndoException {
 		try {
 			document.delete(fragment.getContent().getRange().moveBy(offset));
-		} catch (final DocumentValidationException ex) {
-			throw new CannotUndoException();
+		} catch (final DocumentValidationException e) {
+			throw new CannotUndoException(e);
 		}
 	}
 
@@ -41,8 +41,8 @@ public class InsertFragmentEdit extends AbstractUndoableEdit {
 	protected void performRedo() throws CannotRedoException {
 		try {
 			document.insertFragment(offset, fragment);
-		} catch (final DocumentValidationException ex) {
-			throw new CannotRedoException();
+		} catch (final DocumentValidationException e) {
+			throw new CannotRedoException(e);
 		}
 	}
 
