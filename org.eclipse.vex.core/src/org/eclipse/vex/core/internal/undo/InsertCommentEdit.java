@@ -11,6 +11,7 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.undo;
 
+import org.eclipse.vex.core.provisional.dom.ContentRange;
 import org.eclipse.vex.core.provisional.dom.DocumentValidationException;
 import org.eclipse.vex.core.provisional.dom.IComment;
 import org.eclipse.vex.core.provisional.dom.IDocument;
@@ -20,21 +21,24 @@ public class InsertCommentEdit extends AbstractUndoableEdit {
 	private final IDocument document;
 	private final int offset;
 	private IComment comment;
+	private ContentRange commentRange;
 
 	public InsertCommentEdit(final IDocument document, final int offset) {
 		super();
 		this.document = document;
 		this.offset = offset;
 		comment = null;
+		commentRange = ContentRange.NULL;
 	}
 
 	@Override
 	protected void performUndo() throws CannotUndoException {
 		try {
-			document.delete(comment.getRange());
+			document.delete(commentRange);
 			comment = null;
-		} catch (final DocumentValidationException ex) {
-			throw new CannotUndoException();
+			commentRange = ContentRange.NULL;
+		} catch (final DocumentValidationException e) {
+			throw new CannotUndoException(e);
 		}
 	}
 
@@ -42,8 +46,9 @@ public class InsertCommentEdit extends AbstractUndoableEdit {
 	protected void performRedo() throws CannotRedoException {
 		try {
 			comment = document.insertComment(offset);
-		} catch (final DocumentValidationException ex) {
-			throw new CannotRedoException();
+			commentRange = comment.getRange();
+		} catch (final DocumentValidationException e) {
+			throw new CannotRedoException(e);
 		}
 	}
 

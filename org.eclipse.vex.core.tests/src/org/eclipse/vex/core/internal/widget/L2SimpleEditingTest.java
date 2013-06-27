@@ -15,6 +15,7 @@ import static org.eclipse.vex.core.internal.widget.VexWidgetTest.PARA;
 import static org.eclipse.vex.core.internal.widget.VexWidgetTest.PRE;
 import static org.eclipse.vex.core.internal.widget.VexWidgetTest.TITLE;
 import static org.eclipse.vex.core.internal.widget.VexWidgetTest.createDocumentWithDTD;
+import static org.eclipse.vex.core.internal.widget.VexWidgetTest.getCurrentXML;
 import static org.eclipse.vex.core.tests.TestResources.TEST_DTD;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -28,7 +29,6 @@ import java.util.List;
 import org.eclipse.vex.core.internal.css.CssWhitespacePolicy;
 import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.css.StyleSheetReader;
-import org.eclipse.vex.core.internal.io.XMLFragment;
 import org.eclipse.vex.core.internal.undo.CannotRedoException;
 import org.eclipse.vex.core.provisional.dom.DocumentValidationException;
 import org.eclipse.vex.core.provisional.dom.IDocumentFragment;
@@ -511,7 +511,7 @@ public class L2SimpleEditingTest {
 		widget.insertText("34");
 		widget.moveBy(1);
 		widget.insertText("56");
-		final String expectedXml = getCurrentXML();
+		final String expectedXml = getCurrentXML(widget);
 
 		widget.moveBy(-4);
 		widget.split();
@@ -522,7 +522,7 @@ public class L2SimpleEditingTest {
 		widget.undo();
 		widget.undo();
 
-		assertEquals(expectedXml, getCurrentXML());
+		assertEquals(expectedXml, getCurrentXML(widget));
 	}
 
 	@Test
@@ -559,10 +559,6 @@ public class L2SimpleEditingTest {
 	public void givenBeforeRootElement_whenSplitting_shouldThrowDocumentValidationException() throws Exception {
 		widget.moveTo(rootElement.getStartOffset());
 		widget.split();
-	}
-
-	private String getCurrentXML() {
-		return new XMLFragment(widget.getDocument().getFragment(widget.getDocument().getRootElement().getRange())).getXML();
 	}
 
 	private static StyleSheet readTestStyleSheet() throws IOException {

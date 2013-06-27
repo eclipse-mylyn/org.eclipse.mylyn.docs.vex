@@ -10,9 +10,11 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.widget;
 
+import static org.eclipse.vex.core.internal.widget.VexWidgetTest.PARA;
 import static org.eclipse.vex.core.internal.widget.VexWidgetTest.TITLE;
 import static org.eclipse.vex.core.internal.widget.VexWidgetTest.createDocumentWithDTD;
 import static org.eclipse.vex.core.internal.widget.VexWidgetTest.getContentStructure;
+import static org.eclipse.vex.core.internal.widget.VexWidgetTest.getCurrentXML;
 import static org.eclipse.vex.core.tests.TestResources.TEST_DTD;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -114,6 +116,22 @@ public class L2CommentEditingTest {
 		widget.undo();
 
 		assertEquals(expectedContentStructure, getContentStructure(widget.getDocument().getRootElement()));
+	}
+
+	@Test
+	public void undoRedoInsertCommentWithSubsequentDelete() throws Exception {
+		widget.insertElement(PARA);
+		final String expectedXml = getCurrentXML(widget);
+
+		final IComment comment = widget.insertComment();
+		widget.moveTo(comment.getStartOffset());
+		widget.moveTo(comment.getEndOffset(), true);
+		widget.deleteSelection();
+
+		widget.undo(); // delete
+		widget.undo(); // insert comment
+
+		assertEquals(expectedXml, getCurrentXML(widget));
 	}
 
 }

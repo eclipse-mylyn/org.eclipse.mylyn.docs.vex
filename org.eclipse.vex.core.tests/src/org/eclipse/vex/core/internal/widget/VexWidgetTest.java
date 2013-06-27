@@ -20,6 +20,7 @@ import java.util.Arrays;
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.dom.Document;
+import org.eclipse.vex.core.internal.io.XMLFragment;
 import org.eclipse.vex.core.internal.validator.WTPVEXValidator;
 import org.eclipse.vex.core.provisional.dom.IDocument;
 import org.eclipse.vex.core.provisional.dom.IDocumentFragment;
@@ -184,5 +185,9 @@ public class VexWidgetTest {
 		final StringBuilder result = new StringBuilder();
 		result.append("'(").append(text.getStartOffset()).append("-").append(text.getEndOffset()).append(") ").append(text.getText()).append("'");
 		return result.toString();
+	}
+
+	public static String getCurrentXML(final IVexWidget widget) {
+		return new XMLFragment(widget.getDocument().getFragment(widget.getDocument().getRootElement().getRange())).getXML();
 	}
 }
