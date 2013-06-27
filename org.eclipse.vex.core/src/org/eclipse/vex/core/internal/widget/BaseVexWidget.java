@@ -1358,7 +1358,7 @@ public class BaseVexWidget implements IVexWidget {
 		if (value == null) {
 			removeAttribute(attributeName);
 		} else if (!value.equals(currentAttributeValue)) {
-			applyEdit(new ChangeAttributeEdit(element, qualifiedAttributeName, currentAttributeValue, value), getCaretOffset());
+			applyEdit(new ChangeAttributeEdit(document, getCaretOffset(), qualifiedAttributeName, currentAttributeValue, value), getCaretOffset());
 		}
 	}
 
@@ -1389,7 +1389,7 @@ public class BaseVexWidget implements IVexWidget {
 		final QualifiedName qualifiedAttributeName = element.qualify(attributeName);
 		final String currentAttributeValue = element.getAttributeValue(qualifiedAttributeName);
 		if (currentAttributeValue != null) {
-			applyEdit(new ChangeAttributeEdit(element, qualifiedAttributeName, currentAttributeValue, null), getCaretOffset());
+			applyEdit(new ChangeAttributeEdit(document, getCaretOffset(), qualifiedAttributeName, currentAttributeValue, null), getCaretOffset());
 		}
 	}
 

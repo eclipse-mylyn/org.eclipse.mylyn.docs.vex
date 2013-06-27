@@ -13,18 +13,21 @@ package org.eclipse.vex.core.internal.undo;
 
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.vex.core.provisional.dom.DocumentValidationException;
+import org.eclipse.vex.core.provisional.dom.IDocument;
 import org.eclipse.vex.core.provisional.dom.IElement;
 
 public class ChangeAttributeEdit extends AbstractUndoableEdit {
 
-	private final IElement element;
+	private final IDocument document;
+	private final int offset;
 	private final QualifiedName attributeName;
 	private final String oldValue;
 	private final String newValue;
 
-	public ChangeAttributeEdit(final IElement element, final QualifiedName attributeName, final String oldValue, final String newValue) {
+	public ChangeAttributeEdit(final IDocument document, final int offset, final QualifiedName attributeName, final String oldValue, final String newValue) {
 		super();
-		this.element = element;
+		this.document = document;
+		this.offset = offset;
 		this.attributeName = attributeName;
 		this.oldValue = oldValue;
 		this.newValue = newValue;
@@ -33,18 +36,20 @@ public class ChangeAttributeEdit extends AbstractUndoableEdit {
 	@Override
 	protected void performUndo() throws CannotUndoException {
 		try {
+			final IElement element = document.getElementForInsertionAt(offset);
 			element.setAttribute(attributeName, oldValue);
-		} catch (final DocumentValidationException ex) {
-			throw new CannotUndoException();
+		} catch (final DocumentValidationException e) {
+			throw new CannotUndoException(e);
 		}
 	}
 
 	@Override
 	protected void performRedo() throws CannotRedoException {
 		try {
+			final IElement element = document.getElementForInsertionAt(offset);
 			element.setAttribute(attributeName, newValue);
-		} catch (final DocumentValidationException ex) {
-			throw new CannotRedoException();
+		} catch (final DocumentValidationException e) {
+			throw new CannotRedoException(e);
 		}
 	}
 }

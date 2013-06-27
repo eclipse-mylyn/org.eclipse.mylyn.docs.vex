@@ -573,8 +573,26 @@ public class L2SimpleEditingTest {
 		widget.moveTo(para.getEndOffset(), true);
 		widget.deleteSelection();
 
-		widget.undo();
-		widget.undo();
+		widget.undo(); // delete
+		widget.undo(); // declare namespace
+
+		assertEquals(expectedXml, getCurrentXML(widget));
+	}
+
+	@Test
+	public void undoRedoChangeAttributeWithSubsequentDelete() throws Exception {
+		widget.insertElement(TITLE);
+		widget.moveBy(1);
+		final IElement para = widget.insertElement(PARA);
+		final String expectedXml = getCurrentXML(widget);
+
+		widget.setAttribute("id", "newParaElement");
+		widget.moveTo(para.getStartOffset());
+		widget.moveTo(para.getEndOffset(), true);
+		widget.deleteSelection();
+
+		widget.undo(); // delete
+		widget.undo(); // set attribute
 
 		assertEquals(expectedXml, getCurrentXML(widget));
 	}
