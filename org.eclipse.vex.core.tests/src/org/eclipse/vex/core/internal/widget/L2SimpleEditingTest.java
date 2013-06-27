@@ -561,6 +561,24 @@ public class L2SimpleEditingTest {
 		widget.split();
 	}
 
+	@Test
+	public void undoRedoChangeNamespaceWithSubsequentDelete() throws Exception {
+		widget.insertElement(TITLE);
+		widget.moveBy(1);
+		final IElement para = widget.insertElement(PARA);
+		final String expectedXml = getCurrentXML(widget);
+
+		widget.declareNamespace("ns1", "nsuri1");
+		widget.moveTo(para.getStartOffset());
+		widget.moveTo(para.getEndOffset(), true);
+		widget.deleteSelection();
+
+		widget.undo();
+		widget.undo();
+
+		assertEquals(expectedXml, getCurrentXML(widget));
+	}
+
 	private static StyleSheet readTestStyleSheet() throws IOException {
 		return new StyleSheetReader().read(TestResources.get("test.css"));
 	}

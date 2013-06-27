@@ -1599,7 +1599,7 @@ public class BaseVexWidget implements IVexWidget {
 			return;
 		}
 		final String currentNamespaceURI = element.getNamespaceURI(namespacePrefix);
-		applyEdit(new ChangeNamespaceEdit(element, namespacePrefix, currentNamespaceURI, namespaceURI), getCaretOffset());
+		applyEdit(new ChangeNamespaceEdit(document, getCaretOffset(), namespacePrefix, currentNamespaceURI, namespaceURI), getCaretOffset());
 	}
 
 	public void removeNamespace(final String namespacePrefix) throws ReadOnlyException {
@@ -1613,7 +1613,7 @@ public class BaseVexWidget implements IVexWidget {
 			return;
 		}
 		final String currentNamespaceURI = element.getNamespaceURI(namespacePrefix);
-		applyEdit(new ChangeNamespaceEdit(element, namespacePrefix, currentNamespaceURI, null), getCaretOffset());
+		applyEdit(new ChangeNamespaceEdit(document, getCaretOffset(), namespacePrefix, currentNamespaceURI, null), getCaretOffset());
 	}
 
 	public void declareDefaultNamespace(final String namespaceURI) throws ReadOnlyException {
@@ -1627,7 +1627,7 @@ public class BaseVexWidget implements IVexWidget {
 			return;
 		}
 		final String currentNamespaceURI = element.getDefaultNamespaceURI();
-		applyEdit(new ChangeNamespaceEdit(element, null, currentNamespaceURI, namespaceURI), getCaretOffset());
+		applyEdit(new ChangeNamespaceEdit(document, getCaretOffset(), null, currentNamespaceURI, namespaceURI), getCaretOffset());
 	}
 
 	public void removeDefaultNamespace() throws ReadOnlyException {
@@ -1641,7 +1641,7 @@ public class BaseVexWidget implements IVexWidget {
 			return;
 		}
 		final String currentNamespaceURI = element.getDefaultNamespaceURI();
-		applyEdit(new ChangeNamespaceEdit(element, null, currentNamespaceURI, null), getCaretOffset());
+		applyEdit(new ChangeNamespaceEdit(document, getCaretOffset(), null, currentNamespaceURI, null), getCaretOffset());
 	}
 
 	// ================================================== PRIVATE
