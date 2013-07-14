@@ -7,6 +7,7 @@
  * 
  * Contributors:
  * 		Florian Thienel - initial API and implementation
+ * 		Carsten Hiesserich - added structuralChange flag
  *******************************************************************************/
 package org.eclipse.vex.core.provisional.dom;
 
@@ -20,6 +21,7 @@ public class ContentChangeEvent extends DocumentEvent {
 	private static final long serialVersionUID = 1L;
 
 	private final ContentRange range;
+	private final boolean structuralChange;
 
 	/**
 	 * Create an event.
@@ -30,10 +32,12 @@ public class ContentChangeEvent extends DocumentEvent {
 	 *            the parent node containing the change
 	 * @param range
 	 *            the range which was changed
+	 * @param structuralChange
+	 *            <code>true</code> if the structure is changed (childs added or removed)
 	 */
-	public ContentChangeEvent(final IDocument document, final IParent parent, final ContentRange range) {
+	public ContentChangeEvent(final IDocument document, final IParent parent, final ContentRange range, final boolean structuralChange) {
 		super(document, parent);
-
+		this.structuralChange = structuralChange;
 		this.range = range;
 	}
 
@@ -42,6 +46,13 @@ public class ContentChangeEvent extends DocumentEvent {
 	 */
 	public ContentRange getRange() {
 		return range;
+	}
+
+	/**
+	 * @return <code>true</code> when this event has been triggered by a structural change (childs added or removed).
+	 */
+	public boolean isStructuralChange() {
+		return structuralChange;
 	}
 
 }
