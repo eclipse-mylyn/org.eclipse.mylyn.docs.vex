@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2008 John Krasnay and others.
+ * Copyright (c) 2004, 2013 John Krasnay and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@
  *     John Krasnay - initial API and implementation
  *     Torsten Stolpmann - bug 257946 - fixed outline view to work with multipage editor.
  *     Igor Jacy Lino Campista - Java 5 warnings fixed (bug 311325)
+ *     Carsten Hiesserich - Use EditorEventAdapter instead of IVexEditorListener
  *******************************************************************************/
 package org.eclipse.vex.ui.internal.outline;
 
@@ -35,6 +36,7 @@ import org.eclipse.vex.core.internal.widget.swt.VexWidget;
 import org.eclipse.vex.core.provisional.dom.IElement;
 import org.eclipse.vex.ui.internal.VexPlugin;
 import org.eclipse.vex.ui.internal.config.DocumentType;
+import org.eclipse.vex.ui.internal.editor.EditorEventAdapter;
 import org.eclipse.vex.ui.internal.editor.IVexEditorListener;
 import org.eclipse.vex.ui.internal.editor.Messages;
 import org.eclipse.vex.ui.internal.editor.SelectionProvider;
@@ -239,12 +241,14 @@ public class DocumentOutlinePage extends Page implements IContentOutlinePage {
 		}
 	};
 
-	private final IVexEditorListener vexEditorListener = new IVexEditorListener() {
+	private final IVexEditorListener vexEditorListener = new EditorEventAdapter() {
 
+		@Override
 		public void documentLoaded(final VexEditorEvent event) {
 			showTreeViewer();
 		}
 
+		@Override
 		public void documentUnloaded(final VexEditorEvent event) {
 			showLabel(Messages.getString("DocumentOutlinePage.reloading")); //$NON-NLS-1$
 		}
