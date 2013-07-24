@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2008 John Krasnay and others.
+ * Copyright (c) 2004, 2013 John Krasnay and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  * 
  * Contributors:
  *     John Krasnay - initial API and implementation
+ *     Carsten Hiesserich - removed 'none' from valid values
  *******************************************************************************/
 package org.eclipse.vex.core.internal.css;
 
@@ -50,9 +51,9 @@ public class DisplayProperty extends AbstractProperty {
 			return false;
 		} else if (lu.getLexicalUnitType() == LexicalUnit.SAC_IDENT) {
 			final String s = lu.getStringValue();
-			return s.equals(CSS.BLOCK) || s.equals(CSS.INLINE) || s.equals(CSS.INLINE_BLOCK) || s.equals(CSS.INLINE_TABLE) || s.equals(CSS.LIST_ITEM) || s.equals(CSS.NONE) || s.equals(CSS.RUN_IN)
-					|| s.equals(CSS.TABLE) || s.equals(CSS.TABLE_CAPTION) || s.equals(CSS.TABLE_CELL) || s.equals(CSS.TABLE_COLUMN) || s.equals(CSS.TABLE_COLUMN_GROUP)
-					|| s.equals(CSS.TABLE_FOOTER_GROUP) || s.equals(CSS.TABLE_HEADER_GROUP) || s.equals(CSS.TABLE_ROW) || s.equals(CSS.TABLE_ROW_GROUP);
+			return s.equals(CSS.BLOCK) || s.equals(CSS.INLINE) || s.equals(CSS.INLINE_BLOCK) || s.equals(CSS.INLINE_TABLE) || s.equals(CSS.LIST_ITEM) || s.equals(CSS.RUN_IN) || s.equals(CSS.TABLE)
+					|| s.equals(CSS.TABLE_CAPTION) || s.equals(CSS.TABLE_CELL) || s.equals(CSS.TABLE_COLUMN) || s.equals(CSS.TABLE_COLUMN_GROUP) || s.equals(CSS.TABLE_FOOTER_GROUP)
+					|| s.equals(CSS.TABLE_HEADER_GROUP) || s.equals(CSS.TABLE_ROW) || s.equals(CSS.TABLE_ROW_GROUP);
 		} else {
 			return false;
 		}

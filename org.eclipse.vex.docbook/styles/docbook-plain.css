@@ -770,7 +770,7 @@ section,sect1,sect2,sect3,sect4,sect5 {
 }
 
 sectioninfo {
-	display: none;
+	display: block;
 }
 
 sidebar {
@@ -962,7 +962,7 @@ caution>title,important>title,note>title,tip>title,warning>title {
 }
 
 titleabbrev {
-	display: none;
+	display: block;
 }
 
 trademark {
