@@ -9,6 +9,7 @@
  *     John Krasnay - initial API and implementation
  *     Igor Jacy Lino Campista - Java 5 warnings fixed (bug 311325)
  *     Carsten Hiesserich - added styleChanged event
+ *     Carsten Hiesserich - remove listeners on dispose (bug 413878)
  *******************************************************************************/
 package org.eclipse.vex.ui.internal.editor;
 
@@ -149,6 +150,12 @@ public class VexEditor extends EditorPart {
 	@Override
 	public void dispose() {
 		super.dispose();
+
+		if (document != null) {
+			document.removeDocumentListener(documentListener);
+		}
+
+		getEditorSite().getSelectionProvider().removeSelectionChangedListener(selectionChangedListener);
 
 		if (parentControl != null) {
 			// createPartControl was called, so we must de-register from config
