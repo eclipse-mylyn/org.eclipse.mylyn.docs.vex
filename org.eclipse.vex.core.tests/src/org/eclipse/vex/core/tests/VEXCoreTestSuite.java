@@ -28,6 +28,7 @@ import org.eclipse.vex.core.internal.dom.ContentRangeTest;
 import org.eclipse.vex.core.internal.dom.CopyVisitorTest;
 import org.eclipse.vex.core.internal.dom.DTDValidatorTest;
 import org.eclipse.vex.core.internal.dom.DeepCopyTest;
+import org.eclipse.vex.core.internal.dom.DocumentEventTest;
 import org.eclipse.vex.core.internal.dom.DocumentFragmentTest;
 import org.eclipse.vex.core.internal.dom.DocumentTest;
 import org.eclipse.vex.core.internal.dom.GapContentTest;
@@ -69,7 +70,7 @@ import org.junit.runners.Suite;
 		DeepCopyTest.class, PropertyTest.class, RuleTest.class, BlockElementBoxTest.class, ImageBoxTest.class, DocumentWriterTest.class, DTDValidatorTest.class, GapContentTest.class,
 		SpaceNormalizerTest.class, TextWrapperTest.class, TestBlockElementBox.class, TestBlocksInInlines.class, TestDocumentTextBox.class, TestStaticTextBox.class, TableLayoutTest.class,
 		LayoutTestSuite.class, ListenerListTest.class, DocumentFragmentTransferTest.class, XMLFragmentTest.class, VexWidgetTest.class, L2SimpleEditingTest.class, L2SelectionTest.class,
-		L2CommentEditingTest.class, L2XmlInsertionTest.class
+		L2CommentEditingTest.class, L2XmlInsertionTest.class, DocumentEventTest.class
 
 })
 public class VEXCoreTestSuite {

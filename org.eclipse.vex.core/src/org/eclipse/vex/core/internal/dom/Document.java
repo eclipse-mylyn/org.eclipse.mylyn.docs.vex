@@ -10,6 +10,7 @@
  *     Igor Jacy Lino Campista - Java 5 warnings fixed (bug 311325)
  *     Florian Thienel - refactoring to full fledged DOM
  *     Carsten Hiesserich - bug fixes (bug 407801, 410659)
+ *     Carsten Hiesserich - added structuralChange flag to ContentChangeEvent
  *******************************************************************************/
 package org.eclipse.vex.core.internal.dom;
 
@@ -257,21 +258,21 @@ public class Document extends Parent implements IDocument {
 					throw new DocumentValidationException(MessageFormat.format("Cannot insert text ''{0}'' at offset {1}.", text, offset));
 				}
 
-				fireBeforeContentInserted(new ContentChangeEvent(Document.this, element, new ContentRange(offset, offset + adjustedText.length() - 1)));
+				fireBeforeContentInserted(new ContentChangeEvent(Document.this, element, new ContentRange(offset, offset + adjustedText.length() - 1), false));
 				getContent().insertText(offset, adjustedText);
-				fireContentInserted(new ContentChangeEvent(Document.this, element, new ContentRange(offset, offset + adjustedText.length() - 1)));
+				fireContentInserted(new ContentChangeEvent(Document.this, element, new ContentRange(offset, offset + adjustedText.length() - 1), false));
 			}
 
 			public void visit(final IText text) {
-				fireBeforeContentInserted(new ContentChangeEvent(Document.this, text.getParent(), new ContentRange(offset, offset + adjustedText.length() - 1)));
+				fireBeforeContentInserted(new ContentChangeEvent(Document.this, text.getParent(), new ContentRange(offset, offset + adjustedText.length() - 1), false));
 				getContent().insertText(offset, adjustedText);
-				fireContentInserted(new ContentChangeEvent(Document.this, text.getParent(), new ContentRange(offset, offset + adjustedText.length() - 1)));
+				fireContentInserted(new ContentChangeEvent(Document.this, text.getParent(), new ContentRange(offset, offset + adjustedText.length() - 1), false));
 			}
 
 			public void visit(final IComment comment) {
-				fireBeforeContentInserted(new ContentChangeEvent(Document.this, comment.getParent(), new ContentRange(offset, offset + adjustedText.length() - 1)));
+				fireBeforeContentInserted(new ContentChangeEvent(Document.this, comment.getParent(), new ContentRange(offset, offset + adjustedText.length() - 1), false));
 				getContent().insertText(offset, adjustedText);
-				fireContentInserted(new ContentChangeEvent(Document.this, comment.getParent(), new ContentRange(offset, offset + adjustedText.length() - 1)));
+				fireContentInserted(new ContentChangeEvent(Document.this, comment.getParent(), new ContentRange(offset, offset + adjustedText.length() - 1), false));
 			}
 		});
 	}
@@ -304,7 +305,7 @@ public class Document extends Parent implements IDocument {
 
 		final Parent parent = getParentForInsertionAt(offset);
 
-		fireBeforeContentInserted(new ContentChangeEvent(this, parent, new ContentRange(offset, offset + 1)));
+		fireBeforeContentInserted(new ContentChangeEvent(this, parent, new ContentRange(offset, offset + 1), true));
 
 		final Comment comment = new Comment();
 		getContent().insertTagMarker(offset);
@@ -313,7 +314,7 @@ public class Document extends Parent implements IDocument {
 
 		parent.insertChildAt(offset, comment);
 
-		fireContentInserted(new ContentChangeEvent(this, parent, comment.getRange()));
+		fireContentInserted(new ContentChangeEvent(this, parent, comment.getRange(), true));
 
 		return comment;
 	}
@@ -332,7 +333,7 @@ public class Document extends Parent implements IDocument {
 			throw new DocumentValidationException(MessageFormat.format("Cannot insert element {0} at offset {1}.", elementName, offset));
 		}
 
-		fireBeforeContentInserted(new ContentChangeEvent(this, parent, new ContentRange(offset, offset + 1)));
+		fireBeforeContentInserted(new ContentChangeEvent(this, parent, new ContentRange(offset, offset + 1), true));
 
 		final Element element = new Element(elementName);
 		getContent().insertTagMarker(offset);
@@ -341,7 +342,7 @@ public class Document extends Parent implements IDocument {
 
 		parent.insertChildAt(offset, element);
 
-		fireContentInserted(new ContentChangeEvent(this, parent, element.getRange()));
+		fireContentInserted(new ContentChangeEvent(this, parent, element.getRange(), true));
 
 		return element;
 	}
@@ -359,7 +360,8 @@ public class Document extends Parent implements IDocument {
 			throw new DocumentValidationException(MessageFormat.format("Cannot insert document fragment at offset {0}.", offset));
 		}
 
-		fireBeforeContentInserted(new ContentChangeEvent(this, parent, new ContentRange(offset, offset + 1)));
+		final boolean textOnly = fragment.children().withoutText().isEmpty();
+		fireBeforeContentInserted(new ContentChangeEvent(this, parent, new ContentRange(offset, offset + 1), !textOnly));
 
 		getContent().insertContent(offset, fragment.getContent());
 
@@ -378,7 +380,7 @@ public class Document extends Parent implements IDocument {
 
 		declareNamespaces(undeclaredNamespaces, parent);
 
-		fireContentInserted(new ContentChangeEvent(this, parent, new ContentRange(offset, offset + fragment.getContent().length() - 1)));
+		fireContentInserted(new ContentChangeEvent(this, parent, new ContentRange(offset, offset + fragment.getContent().length() - 1), !textOnly));
 	}
 
 	private void associateDeeply(final Node node, final int offset) {
@@ -476,16 +478,18 @@ public class Document extends Parent implements IDocument {
 			throw new DocumentValidationException(MessageFormat.format("Cannot delete {0}", range));
 		}
 
-		fireBeforeContentDeleted(new ContentChangeEvent(this, parentForDeletion, range));
+		// Use IAxis#withoutText here, there is no need to create Text nodes for deletion
+		final List<? extends INode> childrenToDelete = parentForDeletion.children().withoutText().in(range).asList();
+		fireBeforeContentDeleted(new ContentChangeEvent(this, parentForDeletion, range, !childrenToDelete.isEmpty()));
 
-		for (final INode child : parentForDeletion.children().in(range).asList()) {
+		for (final INode child : childrenToDelete) {
 			parentForDeletion.removeChild((Node) child);
 			((Node) child).dissociate();
 		}
 
 		getContent().remove(range);
 
-		fireContentDeleted(new ContentChangeEvent(this, parentForDeletion, range));
+		fireContentDeleted(new ContentChangeEvent(this, parentForDeletion, range, !childrenToDelete.isEmpty()));
 	}
 
 	/*
