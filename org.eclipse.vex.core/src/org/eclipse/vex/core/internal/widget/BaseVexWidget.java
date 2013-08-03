@@ -13,6 +13,7 @@
  *     Carsten Hiesserich - handling of elements within comments (bug 407801)
  *     Carsten Hiesserich - allow insertion of newline into pre elements (bug 407827)
  *     Carsten Hiesserich - handling of preformatted elements, XML insertion(bug 407827, bug 408501 )
+ *     Carsten Hiesserich - added dispose()
  *******************************************************************************/
 package org.eclipse.vex.core.internal.widget;
 
@@ -200,6 +201,18 @@ public class BaseVexWidget implements IVexWidget {
 	 */
 	public BaseVexWidget(final IHostComponent hostComponent) {
 		this.hostComponent = hostComponent;
+	}
+
+	/**
+	 * @see org.eclipse.swt.widgets.Widget#dispose()
+	 * 
+	 */
+	public void dispose() {
+		if (document != null) {
+			final IDocument doc = document;
+			doc.removeDocumentListener(documentListener);
+		}
+		styleSheet = null;
 	}
 
 	public void beginWork() {

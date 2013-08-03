@@ -9,6 +9,7 @@
  *     John Krasnay - initial API and implementation
  *     Igor Jacy Lino Campista - Java 5 warnings fixed (bug 311325)
  *     Carsten Hiesserich - changed fragment pasting to allow XML content
+ *     Carsten Hiesserich - replaced dispose override by disposeListener
  *******************************************************************************/
 package org.eclipse.vex.core.internal.widget.swt;
 
@@ -35,6 +36,8 @@ import org.eclipse.swt.dnd.TextTransfer;
 import org.eclipse.swt.dnd.Transfer;
 import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.ControlListener;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.FocusEvent;
 import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.KeyAdapter;
@@ -62,10 +65,10 @@ import org.eclipse.vex.core.internal.core.Rectangle;
 import org.eclipse.vex.core.internal.css.IWhitespacePolicy;
 import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.io.XMLFragment;
+import org.eclipse.vex.core.internal.widget.BaseVexWidget;
 import org.eclipse.vex.core.internal.widget.IHostComponent;
 import org.eclipse.vex.core.internal.widget.IVexWidget;
 import org.eclipse.vex.core.internal.widget.ReadOnlyException;
-import org.eclipse.vex.core.internal.widget.BaseVexWidget;
 import org.eclipse.vex.core.provisional.dom.ContentRange;
 import org.eclipse.vex.core.provisional.dom.DocumentValidationException;
 import org.eclipse.vex.core.provisional.dom.IComment;
@@ -101,12 +104,7 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 		addMouseListener(mouseListener);
 		addMouseMoveListener(mouseMoveListener);
 		addPaintListener(painter);
-	}
-
-	@Override
-	public void dispose() {
-		super.dispose();
-		impl.setFocus(false); // This stops the caret timer, in case the control is disposed before focus is lost.
+		addDisposeListener(disposeListener);
 	}
 
 	public Object getInput() {
@@ -713,6 +711,19 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 		}
 
 		public void widgetDefaultSelected(final SelectionEvent e) {
+		}
+	};
+
+	/**
+	 * The DisposedEvent is Fired when this Widget is disposed. The event is used instead of re-implementing
+	 * Wigdet#dispose, which does not work.
+	 * 
+	 * @see org.eclipse.swt.widgets.Widget#dispose
+	 */
+	private final DisposeListener disposeListener = new DisposeListener() {
+		public void widgetDisposed(final DisposeEvent e) {
+			impl.dispose();
+			caretTimer.stop();
 		}
 	};
 
