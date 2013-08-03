@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2008 John Krasnay and others.
+ * Copyright (c) 2004, 2013 John Krasnay and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  * 
  * Contributors:
  *     John Krasnay - initial API and implementation
+ *     Carsten Hiesserich - remove selection listener on dispose (bug 413878)
  *******************************************************************************/
 package org.eclipse.vex.ui.internal.editor;
 
@@ -36,6 +37,8 @@ public class VexActionBarContributor extends XMLMultiPageEditorActionBarContribu
 
 	@Override
 	public void dispose() {
+		activeEditor = null;
+		getPage().removeSelectionListener(selectionListener);
 	}
 
 	public VexEditor getVexEditor() {
@@ -62,6 +65,7 @@ public class VexActionBarContributor extends XMLMultiPageEditorActionBarContribu
 		// This can occur if we have an error loading the editor,
 		// in which case Eclipse provides its own part
 		if (!(activeEditor instanceof VexEditor)) {
+			this.activeEditor = null;
 			return;
 		}
 
