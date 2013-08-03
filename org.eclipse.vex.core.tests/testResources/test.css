@@ -21,6 +21,11 @@ section {
 
 para {
   display: block;
+  background-color: rgb(255,255,255);
+}
+
+para + para {
+  background-color: red;
 }
 
 pre {

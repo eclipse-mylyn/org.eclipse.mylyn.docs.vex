@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2008 John Krasnay and others.
+ * Copyright (c) 2004, 2013 John Krasnay and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  * 
  * Contributors:
  *     John Krasnay - initial API and implementation
+ *     Carsten Hiesserich - added styles field
  *******************************************************************************/
 package org.eclipse.vex.core.internal.css;
 
@@ -22,6 +23,7 @@ public class PseudoElement extends Element {
 
 	public static final String AFTER = "after";
 	public static final String BEFORE = "before";
+	private Styles styles;
 
 	/**
 	 * Class constructor.
@@ -54,5 +56,20 @@ public class PseudoElement extends Element {
 	@Override
 	public int hashCode() {
 		return getParent().hashCode() + getQualifiedName().hashCode();
+	}
+
+	/**
+	 * @param styles
+	 *            The styles associated with this pseudo element
+	 */
+	public void setStyles(final Styles styles) {
+		this.styles = styles;
+	}
+
+	/**
+	 * @return The styles associated with this pseudo element
+	 */
+	public Styles getStyles() {
+		return styles;
 	}
 }

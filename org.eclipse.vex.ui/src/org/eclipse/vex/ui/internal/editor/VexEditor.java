@@ -367,6 +367,10 @@ public class VexEditor extends EditorPart {
 			doctype = documentContentModel.getDocumentType();
 			style = documentContentModel.getStyle();
 
+			// The document reader uses the style sheet before the document is completely loaded
+			// This results in imcomplete styles in the cache
+			style.getStyleSheet().flushAllStyles(document);
+
 			document.setValidator(validator);
 			if (debugging) {
 				final long end = System.currentTimeMillis();

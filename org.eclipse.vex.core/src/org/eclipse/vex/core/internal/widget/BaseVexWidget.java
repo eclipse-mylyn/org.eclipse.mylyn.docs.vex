@@ -14,6 +14,7 @@
  *     Carsten Hiesserich - allow insertion of newline into pre elements (bug 407827)
  *     Carsten Hiesserich - handling of preformatted elements, XML insertion(bug 407827, bug 408501 )
  *     Carsten Hiesserich - added dispose()
+ *     Carsten Hiesserich - flushing StyleSheet when content structure is changed
  *******************************************************************************/
 package org.eclipse.vex.core.internal.widget;
 
@@ -153,7 +154,7 @@ public class BaseVexWidget implements IVexWidget {
 			 * 
 			 * This cast is save because this event is only fired due to the attribute changes of elements.
 			 */
-			getStyleSheet().flushStyles((IElement) e.getParent());
+			getStyleSheet().flushStyles(e.getParent());
 
 			if (beginWorkCount == 0) {
 				BaseVexWidget.this.relayout();
@@ -163,20 +164,32 @@ public class BaseVexWidget implements IVexWidget {
 		}
 
 		public void beforeContentDeleted(final ContentChangeEvent e) {
+			// Clean-up stylesheet cache
+			if (e.isStructuralChange()) {
+				final Iterator<? extends INode> childrenToDelete = e.getParent().children().withoutText().in(e.getRange()).iterator();
+				while (childrenToDelete.hasNext()) {
+					getStyleSheet().flushStyles(childrenToDelete.next());
+				}
+			}
 		}
 
 		public void beforeContentInserted(final ContentChangeEvent e) {
 		}
 
 		public void contentDeleted(final ContentChangeEvent e) {
+
+			flushStyles(e);
 			invalidateElementBox(e.getParent());
 
 			if (beginWorkCount == 0) {
 				BaseVexWidget.this.relayout();
 			}
+
 		}
 
 		public void contentInserted(final ContentChangeEvent e) {
+
+			flushStyles(e);
 			invalidateElementBox(e.getParent());
 
 			if (beginWorkCount == 0) {
@@ -194,6 +207,19 @@ public class BaseVexWidget implements IVexWidget {
 			hostComponent.fireSelectionChanged();
 		}
 
+		private void flushStyles(final ContentChangeEvent e) {
+			if (e.isStructuralChange()) {
+				final StyleSheet styleSheet = getStyleSheet();
+				styleSheet.flushStyles(e.getParent());
+
+				// Flush styles of children before and after the changed content
+				final Iterator<? extends INode> childs = e.getParent().children().withoutText().in(e.getRange().resizeBy(-2, 2)).iterator();
+				while (childs.hasNext()) {
+					styleSheet.flushStyles(childs.next());
+				}
+			}
+		}
+
 	};
 
 	/**
@@ -209,6 +235,10 @@ public class BaseVexWidget implements IVexWidget {
 	 */
 	public void dispose() {
 		if (document != null) {
+			// Flushing the styles is not absolutely necessary, but without doing so,
+			// the entries in the StyleSheets cache map would only collected when the
+			// map is accessed agein by another instance.
+			getStyleSheet().flushAllStyles(document);
 			final IDocument doc = document;
 			doc.removeDocumentListener(documentListener);
 		}

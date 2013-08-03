@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2010 John Krasnay and others.
+ * Copyright (c) 2004, 2013 John Krasnay and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,6 +14,8 @@
  *     Florian Thienel - bug 306639 - remove serializability from StyleSheet
  *                       and dependend classes
  *     Mohamadou Nassourou - Bug 298912 - rudimentary support for images 
+ *     Carsten Hiesserich - Styles cache now uses hard references instead of
+ *                          WeekReference. PseudoElements are cached.
  *******************************************************************************/
 package org.eclipse.vex.core.internal.css;
 
@@ -23,12 +25,14 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.WeakHashMap;
 
 import org.eclipse.vex.core.internal.core.FontSpec;
 import org.eclipse.vex.core.provisional.dom.BaseNodeVisitor;
+import org.eclipse.vex.core.provisional.dom.IDocument;
 import org.eclipse.vex.core.provisional.dom.IElement;
 import org.eclipse.vex.core.provisional.dom.INode;
 import org.w3c.css.sac.LexicalUnit;
@@ -81,13 +85,14 @@ public class StyleSheet {
 
 	/**
 	 * Computing styles can be expensive, e.g. we have to calculate the styles of all parents of an element. We
-	 * therefore cache styles in a map of element => WeakReference(styles). A weak hash map is used to avoid leaking
-	 * memory as elements are deleted. By using weak references to the values, we also ensure the cache is
-	 * memory-sensitive.
-	 * 
-	 * This must be transient to prevent it from being serialized, as WeakHashMaps are not serializable.
+	 * therefore cache styles in a map of element => styles. We use a WeakHashMap here that does not prevent the INode's
+	 * from being GC'ed. The created pseudo-elements are also cached. Without caching, they would have to be recreated
+	 * for every layout update. Note that the entries of the Map are only collected, when one of the Maps method is
+	 * called the next time, so entries will stay on the heap until another VexEditor is launched. To prevent this, the
+	 * Styles are flushed in BaseVexWidget#dispose.
 	 */
-	private transient Map<INode, WeakReference<Styles>> styleMap;
+	private final Map<INode, Styles> styleMap = new WeakHashMap<INode, Styles>(50);
+	private final Map<INode, PseudoElementEntry> pseudoElementMap = new WeakHashMap<INode, PseudoElementEntry>(50);
 
 	/**
 	 * Class constructor.
@@ -103,10 +108,28 @@ public class StyleSheet {
 	 * Flush any cached styles for the given element.
 	 * 
 	 * @param element
-	 *            IVEXElement for which styles are to be flushed.
+	 *            INode for which styles are to be flushed.
 	 */
-	public void flushStyles(final IElement element) {
-		getStyleMap().remove(element);
+	public void flushStyles(final INode node) {
+		styleMap.remove(node);
+		pseudoElementMap.remove(node);
+	}
+
+	/**
+	 * Flush all styles used by the given document. A StyleSheet may be shared by multiple documents, so we only remove
+	 * elements for the specific document.
+	 * 
+	 * @param document
+	 *            The document for which to flush cached styles.
+	 */
+	public void flushAllStyles(final IDocument document) {
+		for (final Iterator<Map.Entry<INode, Styles>> iter = styleMap.entrySet().iterator(); iter.hasNext();) {
+			final Map.Entry<INode, Styles> entry = iter.next();
+			if (entry.getKey().getDocument().equals(document)) {
+				pseudoElementMap.remove(entry.getKey());
+				iter.remove();
+			}
+		}
 	}
 
 	/**
@@ -115,15 +138,14 @@ public class StyleSheet {
 	 * 
 	 * @param element
 	 *            Parent element of the pseudo-element.
+	 * @return
 	 */
 	public PseudoElement getAfterElement(final IElement element) {
-		final PseudoElement pe = new PseudoElement(element, PseudoElement.AFTER);
-		final Styles styles = getStyles(pe);
-		if (styles == null) {
-			return null;
-		} else {
-			return pe;
+		if (pseudoElementMap.containsKey(element)) {
+			return pseudoElementMap.get(element).getAfterElement();
 		}
+
+		return null;
 	}
 
 	/**
@@ -134,13 +156,11 @@ public class StyleSheet {
 	 *            Parent element of the pseudo-element.
 	 */
 	public PseudoElement getBeforeElement(final IElement element) {
-		final PseudoElement pe = new PseudoElement(element, PseudoElement.BEFORE);
-		final Styles styles = getStyles(pe);
-		if (styles == null) {
-			return null;
-		} else {
-			return pe;
+		if (pseudoElementMap.containsKey(element)) {
+			return pseudoElementMap.get(element).getBeforeElement();
 		}
+
+		return null;
 	}
 
 	/**
@@ -151,30 +171,40 @@ public class StyleSheet {
 	 */
 	public Styles getStyles(final INode node) {
 
-		Styles styles;
-		final WeakReference<Styles> ref = getStyleMap().get(node);
-
-		if (ref != null) {
-			// can't combine these tests, since calling ref.get() twice
-			// (once to query for null, once to get the value) would
-			// cause a race condition should the GC happen btn the two.
-			styles = ref.get();
-			if (styles != null) {
-				return styles;
+		// Get style from cache if possible
+		if (node instanceof PseudoElement) {
+			// Styles for pseudo-elements are calculated once and stored in the element.
+			return ((PseudoElement) node).getStyles();
+		} else {
+			if (styleMap.containsKey(node)) {
+				return styleMap.get(node);
 			}
-		} else if (getStyleMap().containsKey(node)) {
-			// this must be a pseudo-element with no content
-			return null;
 		}
 
-		styles = calculateStyles(node);
+		// Style is not cached - calculate styles
+		final Styles styles = calculateStyles(node);
+		styleMap.put(node, styles);
 
-		if (styles == null) {
-			// Yes, they can be null if element is a PseudoElement with no
-			// content property
-			getStyleMap().put(node, null);
-		} else {
-			getStyleMap().put(node, new WeakReference<Styles>(styles));
+		// Create the pseudo elements if this node is an IElement
+		// The pseudo elements are also cahed, so they don't have to
+		// be recreated for every layout update.
+		if (!(node instanceof PseudoElement) && node instanceof IElement) {
+			PseudoElement pseudoBefore = new PseudoElement((IElement) node, PseudoElement.BEFORE);
+			final Styles beforeStyles = calculateStyles(pseudoBefore);
+			if (beforeStyles != null) {
+				pseudoBefore.setStyles(beforeStyles);
+			} else {
+				pseudoBefore = null;
+			}
+
+			PseudoElement pseudoAfter = new PseudoElement((IElement) node, PseudoElement.AFTER);
+			final Styles afterStyles = calculateStyles(pseudoAfter);
+			if (afterStyles != null) {
+				pseudoAfter.setStyles(afterStyles);
+			} else {
+				pseudoAfter = null;
+			}
+			pseudoElementMap.put(node, new PseudoElementEntry(pseudoBefore, pseudoAfter));
 		}
 
 		return styles;
@@ -302,10 +332,36 @@ public class StyleSheet {
 		return rawDeclarations;
 	}
 
-	private Map<INode, WeakReference<Styles>> getStyleMap() {
-		if (styleMap == null) {
-			styleMap = new WeakHashMap<INode, WeakReference<Styles>>();
-		}
+	/**
+	 * This method is only public to be available for unit testing. It is not meant to be used in an implementation.
+	 * 
+	 * @param node
+	 * @return
+	 */
+	public Map<INode, Styles> testGetStylesCache() {
 		return styleMap;
+	}
+
+	/**
+	 * An entry in the pseudoElementMap. PseudoElements keep a reference to their parent Elements, so this class uses a
+	 * WeakReference for cached PseudoElements to avoid a circular dependency.
+	 * 
+	 */
+	private class PseudoElementEntry {
+		private final WeakReference<PseudoElement> before;
+		private final WeakReference<PseudoElement> after;
+
+		public PseudoElementEntry(final PseudoElement before, final PseudoElement after) {
+			this.before = new WeakReference<PseudoElement>(before);
+			this.after = new WeakReference<PseudoElement>(after);
+		}
+
+		public PseudoElement getBeforeElement() {
+			return before.get();
+		}
+
+		public PseudoElement getAfterElement() {
+			return after.get();
+		}
 	}
 }
