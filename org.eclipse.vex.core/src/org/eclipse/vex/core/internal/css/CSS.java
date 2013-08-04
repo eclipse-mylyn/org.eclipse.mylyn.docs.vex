@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2008 John Krasnay and others.
+ * Copyright (c) 2004, 2013 John Krasnay and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@
  *     John Krasnay - initial API and implementation
  *     Dave Holroyd - Implement text decoration
  *     John Austin - More complete CSS constants.  Add the colour "orange".
+ *     Carsten Hiesserich - added OutlineContent property
  *******************************************************************************/
 package org.eclipse.vex.core.internal.css;
 
@@ -127,6 +128,9 @@ public interface CSS {
 	public static final String WIDTH = "width";
 	public static final String WORD_SPACING = "word-spacing";
 	public static final String Z_SPACING = "z-spacing";
+
+	// VEX specific properties
+	public static final String OUTLINE_CONTENT = "-vex-outline-content";
 
 	// suffixes to BORDER_XXX
 	public static final String COLOR_SUFFIX = "-color";

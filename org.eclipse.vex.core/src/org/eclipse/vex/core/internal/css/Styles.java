@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2010 John Krasnay and others.
+ * Copyright (c) 2004, 2013 John Krasnay and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,7 +8,8 @@
  * Contributors:
  *     John Krasnay - initial API and implementation
  *     Dave Holroyd - Implement text decoration
- *     Mohamadou Nassourou - Bug 298912 - rudimentary support for images 
+ *     Mohamadou Nassourou - Bug 298912 - rudimentary support for images
+ *     Carsten Hiesserich - added OutlineContent property
  *******************************************************************************/
 package org.eclipse.vex.core.internal.css;
 
@@ -352,6 +353,13 @@ public class Styles {
 	 */
 	public RelativeLength getPaddingTop() {
 		return (RelativeLength) values.get(CSS.PADDING_TOP);
+	}
+
+	/**
+	 * @return the IElement whose text content should be used in the outline view.
+	 */
+	public Object getOutlineContent() {
+		return values.get(CSS.OUTLINE_CONTENT);
 	}
 
 }

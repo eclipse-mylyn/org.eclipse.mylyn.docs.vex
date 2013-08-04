@@ -16,6 +16,7 @@
  *     Mohamadou Nassourou - Bug 298912 - rudimentary support for images 
  *     Carsten Hiesserich - Styles cache now uses hard references instead of
  *                          WeekReference. PseudoElements are cached.
+ *     Carsten Hiesserich - Added OutlineContent property
  *******************************************************************************/
 package org.eclipse.vex.core.internal.css;
 
@@ -76,7 +77,7 @@ public class StyleSheet {
 			new BorderWidthProperty(CSS.BORDER_LEFT_WIDTH, CSS.BORDER_LEFT_STYLE, IProperty.Axis.HORIZONTAL),
 			new BorderWidthProperty(CSS.BORDER_RIGHT_WIDTH, CSS.BORDER_RIGHT_STYLE, IProperty.Axis.HORIZONTAL),
 			new BorderWidthProperty(CSS.BORDER_TOP_WIDTH, CSS.BORDER_TOP_STYLE, IProperty.Axis.VERTICAL), new BorderSpacingProperty(), new LengthProperty(CSS.HEIGHT, IProperty.Axis.VERTICAL),
-			new LengthProperty(CSS.WIDTH, IProperty.Axis.HORIZONTAL), new BackgroundImageProperty() };
+			new LengthProperty(CSS.WIDTH, IProperty.Axis.HORIZONTAL), new BackgroundImageProperty(), new OutlineContentProperty() };
 
 	/**
 	 * The rules that comprise the stylesheet.

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2008 John Krasnay and others.
+ * Copyright (c) 2004, 2013 John Krasnay and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  * 
  * Contributors:
  *     John Krasnay - initial API and implementation
+ *     Carsten Hieserich - added test for OutlineContentProperty
  *******************************************************************************/
 package org.eclipse.vex.core.internal.css;
 
@@ -132,6 +133,21 @@ public class PropertyTest {
 		final LexicalUnit lexicalUnit = parser.parsePropertyValue(source);
 		assertEquals(LexicalUnit.SAC_PIXEL, lexicalUnit.getLexicalUnitType());
 		assertEquals(300f, lexicalUnit.getFloatValue(), 0f);
+	}
+
+	@Test
+	public void testOutlineContentProperty() throws Exception {
+		final Styles styles = new Styles();
+		final IDocument document = new DocumentReader().read("<root><parent><child>child_text</child></parent></root>");
+
+		final IElement parent = document.getRootElement().childElements().first();
+		final IElement child = parent.childElements().first();
+		final OutlineContentProperty property = new OutlineContentProperty();
+		final MockLU lu = (MockLU) MockLU.createIdent("child");
+		lu.setNextLexicalUnit(MockLU.createIdent("none"));
+
+		assertEquals(child, property.calculate(lu, styles, null, parent));
+		assertEquals(null, property.calculate(lu, styles, null, child));
 	}
 
 	private static class DummyDisplayDevice extends DisplayDevice {
