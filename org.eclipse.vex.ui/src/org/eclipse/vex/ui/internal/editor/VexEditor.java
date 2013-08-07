@@ -817,7 +817,7 @@ public class VexEditor extends EditorPart {
 	@Override
 	public Object getAdapter(@SuppressWarnings("rawtypes") final Class adapter) {
 		if (adapter == IContentOutlinePage.class) {
-			return new DocumentOutlinePage();
+			return new DocumentOutlinePage(this);
 		} else if (adapter == IPropertySheetPage.class) {
 			final PropertySheetPage page = new PropertySheetPage();
 			page.setPropertySourceProvider(new IPropertySourceProvider() {

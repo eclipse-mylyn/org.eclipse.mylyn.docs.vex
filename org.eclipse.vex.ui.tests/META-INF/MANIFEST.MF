@@ -11,7 +11,8 @@ Require-Bundle: org.eclipse.ui,
  org.eclipse.vex.core.tests;bundle-version="[1.0.0,2.0.0)",
  org.eclipse.vex.ui;bundle-version="[1.0.0,2.0.0)",
  org.junit;bundle-version="3.8.1",
- org.eclipse.jface.text;bundle-version="3.0.0"
+ org.eclipse.jface.text;bundle-version="3.0.0",
+ org.w3c.css.sac;bundle-version="[1.3.0,2.0.0)"
 Bundle-RequiredExecutionEnvironment: J2SE-1.5
 Export-Package: org.eclipse.vex.ui.internal.config.tests;x-internal:=true,
  org.eclipse.vex.ui.internal.editor.tests;x-internal:=true,

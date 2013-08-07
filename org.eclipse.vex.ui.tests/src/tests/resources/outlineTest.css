@@ -1,0 +1,13 @@
+/* Styles for OutlineProvider tests */
+parent {
+  display: block;
+  -vex-outline-content: title;
+}
+
+title {
+  display: inline;
+}
+
+child {
+  display: block;
+}

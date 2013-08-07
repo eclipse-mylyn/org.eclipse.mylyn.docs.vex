@@ -10,6 +10,8 @@
  *     Torsten Stolpmann - bug 257946 - fixed outline view to work with multipage editor.
  *     Igor Jacy Lino Campista - Java 5 warnings fixed (bug 311325)
  *     Carsten Hiesserich - Use EditorEventAdapter instead of IVexEditorListener
+ *     Carsten Hiesserich - complete revision
+ *                          Support for ToolBar and actions, performance optimization
  *******************************************************************************/
 package org.eclipse.vex.ui.internal.outline;
 
@@ -17,23 +19,32 @@ import java.text.MessageFormat;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.TreeItem;
-import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.part.IPageSite;
 import org.eclipse.ui.part.Page;
 import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
 import org.eclipse.vex.core.internal.widget.swt.VexWidget;
+import org.eclipse.vex.core.provisional.dom.AttributeChangeEvent;
+import org.eclipse.vex.core.provisional.dom.ContentChangeEvent;
+import org.eclipse.vex.core.provisional.dom.IAttribute;
+import org.eclipse.vex.core.provisional.dom.IDocument;
+import org.eclipse.vex.core.provisional.dom.IDocumentListener;
 import org.eclipse.vex.core.provisional.dom.IElement;
+import org.eclipse.vex.core.provisional.dom.IParent;
+import org.eclipse.vex.core.provisional.dom.NamespaceDeclarationChangeEvent;
 import org.eclipse.vex.ui.internal.VexPlugin;
 import org.eclipse.vex.ui.internal.config.DocumentType;
 import org.eclipse.vex.ui.internal.editor.EditorEventAdapter;
@@ -50,12 +61,20 @@ import org.osgi.framework.Bundle;
  */
 public class DocumentOutlinePage extends Page implements IContentOutlinePage {
 
+	public DocumentOutlinePage(final VexEditor vexEditor) {
+		super();
+		this.vexEditor = vexEditor;
+	}
+
 	@Override
 	public void createControl(final Composite parent) {
 
 		composite = new Composite(parent, SWT.NONE);
 		composite.setLayout(new FillLayout());
 
+		vexEditor.addVexEditorListener(vexEditorListener);
+		vexEditor.getEditorSite().getSelectionProvider().addSelectionChangedListener(selectionListener);
+		registerToolbarActions(getSite().getActionBars());
 		if (vexEditor.isLoaded()) {
 			showTreeViewer();
 		} else {
@@ -68,6 +87,9 @@ public class DocumentOutlinePage extends Page implements IContentOutlinePage {
 	public void dispose() {
 		vexEditor.removeVexEditorListener(vexEditorListener);
 		vexEditor.getEditorSite().getSelectionProvider().removeSelectionChangedListener(selectionListener);
+		if (filterActionGroup != null) {
+			filterActionGroup.dispose();
+		}
 	}
 
 	@Override
@@ -78,12 +100,6 @@ public class DocumentOutlinePage extends Page implements IContentOutlinePage {
 	@Override
 	public void init(final IPageSite pageSite) {
 		super.init(pageSite);
-		final IEditorPart editor = pageSite.getPage().getActiveEditor();
-		if (editor instanceof VexEditor) {
-			vexEditor = (VexEditor) editor;
-		}
-		vexEditor.addVexEditorListener(vexEditorListener);
-		vexEditor.getEditorSite().getSelectionProvider().addSelectionChangedListener(selectionListener);
 	}
 
 	@Override
@@ -111,12 +127,32 @@ public class DocumentOutlinePage extends Page implements IContentOutlinePage {
 
 	public void removeSelectionChangedListener(final ISelectionChangedListener listener) {
 		selectionProvider.removeSelectionChangedListener(listener);
-
 	}
 
 	public void setSelection(final ISelection selection) {
 		selectionProvider.setSelection(selection);
 	}
+
+	/**
+	 * Updates the state of the outline view and refreshes the tree viewer.
+	 * 
+	 * @see IToolBarContributor
+	 */
+	public void setViewState(final String stateId, final boolean newValue) {
+		if (outlineProvider instanceof IToolBarContributor) {
+			((IToolBarContributor) outlineProvider).setState(stateId, newValue);
+		}
+
+		if (treeViewer != null) {
+			treeViewer.getControl().setRedraw(false);
+			BusyIndicator.showWhile(treeViewer.getControl().getDisplay(), new Runnable() {
+				public void run() {
+					treeViewer.refresh();
+				}
+			});
+			treeViewer.getControl().setRedraw(true);
+		}
+	};
 
 	// ===================================================== PRIVATE
 
@@ -124,8 +160,9 @@ public class DocumentOutlinePage extends Page implements IContentOutlinePage {
 
 	private Label label;
 	private TreeViewer treeViewer;
+	private OutlineFilterActionGroup filterActionGroup;
 
-	private VexEditor vexEditor;
+	private final VexEditor vexEditor;
 
 	private IOutlineProvider outlineProvider;
 
@@ -160,6 +197,7 @@ public class DocumentOutlinePage extends Page implements IContentOutlinePage {
 		}
 
 		treeViewer = new TreeViewer(composite, SWT.NONE);
+
 		composite.layout();
 
 		final DocumentType doctype = vexEditor.getDocumentType();
@@ -185,16 +223,24 @@ public class DocumentOutlinePage extends Page implements IContentOutlinePage {
 			outlineProvider = new DefaultOutlineProvider();
 		}
 
+		if (outlineProvider instanceof IToolBarContributor) {
+			((IToolBarContributor) outlineProvider).registerToolBarActions(this, getSite().getActionBars());
+		}
+
 		outlineProvider.init(vexEditor);
 
 		treeViewer.setContentProvider(outlineProvider.getContentProvider());
 		treeViewer.setLabelProvider(outlineProvider.getLabelProvider());
 		treeViewer.setAutoExpandLevel(2);
 
-		treeViewer.setInput(vexEditor.getVexWidget().getDocument());
+		filterActionGroup.setViewer(treeViewer);
+
+		treeViewer.setUseHashlookup(true);
+		final IDocument document = vexEditor.getVexWidget().getDocument();
+		treeViewer.setInput(document);
+		document.addDocumentListener(documentListener);
 
 		treeViewer.addSelectionChangedListener(selectionListener);
-
 	}
 
 	/**
@@ -207,17 +253,49 @@ public class DocumentOutlinePage extends Page implements IContentOutlinePage {
 	 * - notifications from the TreeViewer are passed on to our SelectionChangedListeners.
 	 */
 	private final ISelectionChangedListener selectionListener = new ISelectionChangedListener() {
+		private Object[] lastExpandedElements = null;
+		private IElement selectedTreeElement;
+
 		public void selectionChanged(final SelectionChangedEvent event) {
 			if (event.getSource() instanceof VexWidget) {
 				final VexWidget vexWidget = (VexWidget) event.getSource();
 				if (vexWidget.isFocusControl() && getTreeViewer() != null) {
 					final IElement element = vexWidget.getCurrentElement();
-					if (element != null) {
-						final IElement outlineElement = outlineProvider.getOutlineElement(element);
-						getTreeViewer().refresh(outlineElement);
-						getTreeViewer().setSelection(new StructuredSelection(outlineElement), true);
+
+					if (element != null && element.equals(selectedTreeElement)) {
+						// If we're still in the same element, there is no need to refresh
+						return;
+					}
+
+					if (element.getDocument().getRootElement() == element) {
+						return;
+					}
+
+					selectedTreeElement = element;
+					while (selectedTreeElement != null && filterActionGroup.isElementFiltered(selectedTreeElement)) {
+						// If the selected element is not visible, try to find a visible parent
+						selectedTreeElement = selectedTreeElement.getParentElement();
+					}
+					if (selectedTreeElement != null) {
+						getTreeViewer().getControl().setRedraw(false);
+						BusyIndicator.showWhile(getTreeViewer().getControl().getDisplay(), new Runnable() {
+							public void run() {
+								// restore the expanded state
+								if (lastExpandedElements != null) {
+									getTreeViewer().setExpandedElements(lastExpandedElements);
+									lastExpandedElements = null;
+								}
+								if (!getTreeViewer().getExpandedState(selectedTreeElement.getParentElement())) {
+									// ELement is not visible - save the tree state
+									lastExpandedElements = getTreeViewer().getExpandedElements();
+								}
+								getTreeViewer().setSelection(new StructuredSelection(selectedTreeElement));
+							}
+						});
+						getTreeViewer().getControl().setRedraw(true);
 					} else {
-						getTreeViewer().setSelection(new StructuredSelection(), true);
+						getTreeViewer().setSelection(new StructuredSelection());
+						selectedTreeElement = null;
 					}
 				}
 			} else {
@@ -226,8 +304,9 @@ public class DocumentOutlinePage extends Page implements IContentOutlinePage {
 				if (treeViewer.getTree().isFocusControl()) {
 					final TreeItem[] selected = treeViewer.getTree().getSelection();
 					if (selected.length > 0) {
-
+						lastExpandedElements = null;
 						final IElement element = (IElement) selected[0].getData();
+						selectedTreeElement = element;
 						final VexWidget vexWidget = vexEditor.getVexWidget();
 
 						// Moving to the end of the element first is a cheap
@@ -253,5 +332,68 @@ public class DocumentOutlinePage extends Page implements IContentOutlinePage {
 			showLabel(Messages.getString("DocumentOutlinePage.reloading")); //$NON-NLS-1$
 		}
 
+		@Override
+		public void styleChanged(final VexEditorEvent event) {
+			filterActionGroup.setStyleSheet(event.getVexEditor().getStyle().getStyleSheet());
+		};
 	};
+
+	private final IDocumentListener documentListener = new IDocumentListener() {
+
+		public void attributeChanged(final AttributeChangeEvent event) {
+
+			// This cast is save because this event is only fired due to the attribute changes of elements.
+			final IElement parent = (IElement) event.getParent();
+			final IAttribute attr = parent.getAttribute(event.getAttributeName());
+			if (vexEditor.getStyle().getStyleSheet().getStyles(parent).getOutlineContent() == attr) {
+				// Parent has to be refreshed, since it uses this attribute as outline content
+				getTreeViewer().refresh(outlineProvider.getOutlineElement(parent));
+			}
+		}
+
+		public void namespaceChanged(final NamespaceDeclarationChangeEvent event) {
+		}
+
+		public void beforeContentDeleted(final ContentChangeEvent event) {
+		}
+
+		public void beforeContentInserted(final ContentChangeEvent event) {
+		}
+
+		public void contentDeleted(final ContentChangeEvent event) {
+			final IParent outlineElement = event.getParent();
+			refreshOutlineElement(outlineElement);
+		}
+
+		public void contentInserted(final ContentChangeEvent event) {
+			final IParent outlineElement = event.getParent();
+			refreshOutlineElement(outlineElement);
+		}
+
+		private void refreshOutlineElement(final IParent outlineElement) {
+			if (outlineElement.getDocument().getRootElement().equals(outlineElement)) {
+				getTreeViewer().refresh();
+			} else if (outlineElement instanceof IElement) {
+				// This SHOULD always be the case
+				final IElement parent = ((IElement) outlineElement).getParentElement();
+				if (parent != null && vexEditor.getStyle().getStyleSheet().getStyles(parent).getOutlineContent() == outlineElement) {
+					// Parent has to be refreshed, since it uses this element as content
+					getTreeViewer().refresh(outlineProvider.getOutlineElement(parent));
+				} else {
+					getTreeViewer().refresh(outlineProvider.getOutlineElement((IElement) outlineElement));
+				}
+			}
+		}
+	};
+
+	private void registerToolbarActions(final IActionBars actionBars) {
+
+		filterActionGroup = new OutlineFilterActionGroup(vexEditor.getStyle().getStyleSheet());
+
+		final IToolBarManager toolBarManager = actionBars.getToolBarManager();
+		if (toolBarManager != null) {
+			filterActionGroup.fillActionBars(actionBars);
+			//toolBarManager.add(new ToolBarToggleAction(this, IOutlineViewState.SHOW_ELEMENT_CONTENT, PluginImages.DESC_SHOW_ELEMENT_CONTENT));
+		}
+	}
 }

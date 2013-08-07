@@ -1,48 +1,75 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2008 John Krasnay and others.
+ * Copyright (c) 2004, 2013 John Krasnay and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     John Krasnay - initial API and implementation
  *     Igor Jacy Lino Campista - Java 5 warnings fixed (bug 311325)
+ *     Carsten Hiesserich - Added support for view states and content display
  *******************************************************************************/
 package org.eclipse.vex.ui.internal.outline;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
+import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.viewers.IBaseLabelProvider;
 import org.eclipse.jface.viewers.ITreeContentProvider;
-import org.eclipse.jface.viewers.LabelProvider;
+import org.eclipse.jface.viewers.StyledCellLabelProvider;
+import org.eclipse.jface.viewers.StyledString;
 import org.eclipse.jface.viewers.Viewer;
-import org.eclipse.vex.core.internal.css.IWhitespacePolicy;
+import org.eclipse.jface.viewers.ViewerCell;
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.ui.IActionBars;
+import org.eclipse.vex.core.XML;
+import org.eclipse.vex.core.internal.css.StyleSheet;
+import org.eclipse.vex.core.provisional.dom.BaseNodeVisitorWithResult;
+import org.eclipse.vex.core.provisional.dom.IAttribute;
 import org.eclipse.vex.core.provisional.dom.IDocument;
 import org.eclipse.vex.core.provisional.dom.IElement;
+import org.eclipse.vex.core.provisional.dom.INode;
+import org.eclipse.vex.core.provisional.dom.INodeVisitorWithResult;
+import org.eclipse.vex.core.provisional.dom.IParent;
+import org.eclipse.vex.core.provisional.dom.IText;
+import org.eclipse.vex.ui.internal.PluginImages;
+import org.eclipse.vex.ui.internal.VexPlugin;
+import org.eclipse.vex.ui.internal.editor.EditorEventAdapter;
+import org.eclipse.vex.ui.internal.editor.IVexEditorListener;
 import org.eclipse.vex.ui.internal.editor.VexEditor;
+import org.eclipse.vex.ui.internal.editor.VexEditorEvent;
+import org.osgi.service.prefs.Preferences;
 
 /**
- * Default implementation of IOutlineProvider. Simply displays all block-level elements.
+ * Default implementation of IOutlineProvider.
  */
-public class DefaultOutlineProvider implements IOutlineProvider {
+public class DefaultOutlineProvider implements IOutlineProvider, IToolBarContributor {
+
+	/* Display the element content */
+	public static final String SHOW_ELEMENT_CONTENT = "showElementContent";
+
+	private ITreeContentProvider contentProvider;
+	private IBaseLabelProvider labelProvider;
+
+	/* The 'Show Element Content' command state */
+	private boolean showElementContent = false;
+
+	/* The maximum length of the shown element content */
+	private static final int MAX_CONTENT_LENGTH = 30;
 
 	public void init(final VexEditor editor) {
-		whitespacePolicy = editor.getVexWidget().getWhitespacePolicy();
-		contentProvider = new ContentProvider();
-		labelProvider = new LabelProvider() {
-			@Override
-			public String getText(final Object o) {
-				final IElement e = (IElement) o;
-				String s = e.getText();
-				if (s.length() > 30) {
-					s = s.substring(0, 30) + "..."; //$NON-NLS-1$
-				}
-				return e.getPrefixedName() + ": " + s; //$NON-NLS-1$
-			}
-		};
+		contentProvider = new OutlineContentProvider();
+		labelProvider = new OutlineLabelProvider(editor);
+		initStates();
+	}
 
+	public void init(final StyleSheet styleSheet) {
+		contentProvider = new OutlineContentProvider();
+		labelProvider = new OutlineLabelProvider(styleSheet);
+		initStates();
 	}
 
 	public ITreeContentProvider getContentProvider() {
@@ -54,73 +81,181 @@ public class DefaultOutlineProvider implements IOutlineProvider {
 	}
 
 	public IElement getOutlineElement(final IElement child) {
-		IElement element = child;
-		while (element != null) {
-
-			// block element?
-			if (whitespacePolicy.isBlock(element)) {
-				return element;
-			}
-
-			// root?
-			final IElement parent = element.getParentElement();
-			if (parent == null) {
-				return element;
-			}
-			element = parent;
-		}
-		return element;
+		return child;
 	}
 
-	// ====================================================== PRIVATE
+	public void setState(final String commandId, final boolean state) {
+		if (commandId.equals(SHOW_ELEMENT_CONTENT)) {
+			showElementContent = state;
+		}
+	}
 
-	private IWhitespacePolicy whitespacePolicy;
-	private ITreeContentProvider contentProvider;
-	private IBaseLabelProvider labelProvider;
+	public void registerToolBarActions(final DocumentOutlinePage page, final IActionBars actionBars) {
+		actionBars.getToolBarManager().add(new ToolBarToggleAction(page, SHOW_ELEMENT_CONTENT, PluginImages.DESC_SHOW_ELEMENT_CONTENT));
+	}
 
-	private class ContentProvider implements ITreeContentProvider {
-
-		public Object[] getChildren(final Object parentElement) {
-			final List<IElement> blockChildren = new ArrayList<IElement>();
-			for (final IElement child : ((IElement) parentElement).childElements()) {
-				if (whitespacePolicy.isBlock(child)) {
-					blockChildren.add(child);
-				}
-			}
-			return blockChildren.toArray();
+	public boolean isStateSupported(final String commandId) {
+		if (commandId.equals(SHOW_ELEMENT_CONTENT)) {
+			return true;
 		}
 
-		public Object getParent(final Object element) {
-			return ((IElement) element).getParent();
-		}
+		return false;
+	}
 
-		public boolean hasChildren(final Object o) {
-			return hasBlockChild((IElement) o);
-		}
+	public StyledString getOutlineLabel(final IElement element) {
+		return ((OutlineLabelProvider) labelProvider).getElementLabel(element);
+	}
 
-		public Object[] getElements(final Object inputElement) {
-			return new Object[] { ((IDocument) inputElement).getRootElement() };
-			// return this.getChildren(inputElement);
+	public Image getOutlineImage(final IElement element) {
+		return ((OutlineLabelProvider) labelProvider).getElementImage(element);
+	}
+
+	private void initStates() {
+		final Preferences preferences = InstanceScope.INSTANCE.getNode(VexPlugin.ID);
+		if (preferences != null) {
+			showElementContent = preferences.getBoolean(SHOW_ELEMENT_CONTENT, true);
 		}
+	}
+
+	private class OutlineContentProvider implements ITreeContentProvider {
 
 		public void dispose() {
 		}
 
 		public void inputChanged(final Viewer viewer, final Object oldInput, final Object newInput) {
-			// TODO Auto-generated method stub
-
 		}
 
-		// ====================================================== PRIVATE
+		public Object[] getChildren(final Object parentElement) {
+			return getOutlineChildren((IElement) parentElement);
+		}
 
-		private boolean hasBlockChild(final IElement element) {
+		public Object getParent(final Object element) {
+			final IElement parent = ((IElement) element).getParentElement();
+			if (parent == null) {
+				//return element;
+				return null;
+			} else {
+				return getOutlineElement(parent);
+			}
+		}
+
+		public boolean hasChildren(final Object element) {
+			return getOutlineChildren((IElement) element).length > 0;
+		}
+
+		public Object[] getElements(final Object inputElement) {
+			final IDocument document = (IDocument) inputElement;
+			final IElement root = document.getRootElement();
+			if (root.hasChildren()) {
+				return document.getRootElement().children().asList().toArray();
+			} else {
+				// Only show the root element if there are no childs
+				return new Object[] { root };
+			}
+		}
+
+		private IElement[] getOutlineChildren(final IElement element) {
+
+			final List<IElement> children = new ArrayList<IElement>();
 			for (final IElement child : element.childElements()) {
-				if (whitespacePolicy.isBlock(child)) {
-					return true;
+				children.add(child);
+			}
+			return children.toArray(new IElement[children.size()]);
+		}
+	}
+
+	private class OutlineLabelProvider extends StyledCellLabelProvider {
+
+		private VexEditor editor = null;
+		private IVexEditorListener listener = null;
+		private StyleSheet styleSheet;
+
+		public OutlineLabelProvider(final VexEditor editor) {
+			this(editor.getStyle().getStyleSheet());
+			this.editor = editor;
+			listener = new EditorEventAdapter() {
+				@Override
+				public void styleChanged(final VexEditorEvent event) {
+					styleSheet = event.getVexEditor().getStyle().getStyleSheet();
+				}
+			};
+			editor.addVexEditorListener(listener);
+		}
+
+		public OutlineLabelProvider(final StyleSheet styleSheet) {
+			this.styleSheet = styleSheet;
+		}
+
+		@Override
+		public void update(final ViewerCell cell) {
+			final IElement e = (IElement) cell.getElement();
+
+			final StyledString label = getElementLabel(e);
+			cell.setText(label.getString());
+			cell.setStyleRanges(label.getStyleRanges());
+
+			cell.setImage(getElementImage(e));
+			super.update(cell);
+		}
+
+		@Override
+		public void dispose() {
+			super.dispose();
+			if (editor != null) {
+				editor.removeVexEditorListener(listener);
+			}
+		}
+
+		public Image getElementImage(final IElement element) {
+			return element.accept(elementImageVisitor);
+		}
+
+		public StyledString getElementLabel(final IElement element) {
+			if (!showElementContent) {
+				return new StyledString(element.getLocalName());
+			}
+
+			final StyledString label = new StyledString(element.getLocalName());
+			String content = null;
+			// getOutlineContent returns either an IAttribute or an INode
+			final Object outlineElement = styleSheet.getStyles(element).getOutlineContent();
+			if (outlineElement != null) {
+				if (outlineElement instanceof IAttribute) {
+					content = ((IAttribute) outlineElement).getValue();
+				} else if (outlineElement instanceof IParent) {
+					content = "";
+					final Iterator<? extends INode> childIter = ((IParent) outlineElement).children().iterator();
+					while (content.length() < MAX_CONTENT_LENGTH && childIter.hasNext()) {
+						content += childIter.next().accept(new BaseNodeVisitorWithResult<String>("") {
+							@Override
+							public String visit(final IElement element) {
+								return element.getText();
+							}
+
+							@Override
+							public String visit(final IText text) {
+								return text.getText();
+							}
+						});
+					}
+					content = XML.compressWhitespace(content, false, false, false);
+					content = content.substring(0, Math.min(MAX_CONTENT_LENGTH, content.length()));
 				}
 			}
-			return false;
+
+			if (content != null && content.length() > 0) {
+				label.append(" : " + content, StyledString.DECORATIONS_STYLER);
+			}
+
+			return label;
 		}
+
+		private final INodeVisitorWithResult<Image> elementImageVisitor = new BaseNodeVisitorWithResult<Image>(PluginImages.get(PluginImages.IMG_XML_UNKNOWN)) {
+			@Override
+			public Image visit(final IElement element) {
+				return PluginImages.get(PluginImages.IMG_XML_ELEMENT);
+			}
+		};
 	}
 
 }
