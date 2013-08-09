@@ -68,7 +68,6 @@
          name="%doctype.docbook4_5"
          point="org.eclipse.vex.ui.doctypes">
       <doctype
-            outlineProvider="org.eclipse.vex.docbook.DocBookOutlineProvider"
             publicId="-//OASIS//DTD DocBook XML V4.5//EN"
             systemId="http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
             
@@ -110,7 +109,6 @@
          name="%doctype.docbook5_0_DTD"
          point="org.eclipse.vex.ui.doctypes">
       <doctype
-            outlineProvider="org.eclipse.vex.docbook.DocBookOutlineProvider"
             publicId="-//OASIS//DTD DocBook XML 5.0//EN"
             systemId="http://www.oasis-open.org/docbook/xml/5.0/docbook.dtd">
             
@@ -152,7 +150,6 @@
          name="%doctype.docbook5_0_XSD1"
          point="org.eclipse.vex.ui.doctypes">
       <doctype
-            outlineProvider="org.eclipse.vex.docbook.DocBookOutlineProvider"
             publicId="http://www.oasis-open.org/docbook/xml/5.0/xsd/docbook.xsd"
             systemId="5.0/xsd/docbook.xsd">
             
@@ -194,7 +191,6 @@
          name="%doctype.docbook5_0_XSD2"
          point="org.eclipse.vex.ui.doctypes">
       <doctype
-            outlineProvider="org.eclipse.vex.docbook.DocBookOutlineProvider"
             publicId="http://docbook.org/xml/5.0/xsd/docbook.xsd"
             systemId="5.0/xsd/docbook.xsd">
             
@@ -236,7 +232,6 @@
          name="%doctype.docbook5_0_XSD3"
          point="org.eclipse.vex.ui.doctypes">
       <doctype
-            outlineProvider="org.eclipse.vex.docbook.DocBookOutlineProvider"
             publicId="http://docbook.org/ns/docbook"
             systemId="5.0/xsd/docbook.xsd">
             
