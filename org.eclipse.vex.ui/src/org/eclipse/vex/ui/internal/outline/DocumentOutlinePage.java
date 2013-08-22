@@ -262,7 +262,7 @@ public class DocumentOutlinePage extends Page implements IContentOutlinePage {
 				if (vexWidget.isFocusControl() && getTreeViewer() != null) {
 					final IElement element = vexWidget.getCurrentElement();
 
-					if (element != null && element.equals(selectedTreeElement)) {
+					if (element == null || element.equals(selectedTreeElement)) {
 						// If we're still in the same element, there is no need to refresh
 						return;
 					}
