@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2010 John Krasnay and others.
+ * Copyright (c) 2004, 2013 John Krasnay and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,6 +8,7 @@
  * Contributors:
  *     John Krasnay - initial API and implementation
  *     Florian Thienel - generics inferred
+ *     Carsten Hiesserich - allow adding/removing listeners during invocation
  *******************************************************************************/
 package org.eclipse.vex.core.internal.core;
 
@@ -94,7 +95,11 @@ public class ListenerList<L, E extends EventObject> {
 			return; // Exception handling already done by getMethod
 		}
 
-		for (final L listener : listeners) {
+		// Listeners may call #remove or #add during method invocation, thus the List is copied here
+		// to prevent a ConcurrentModificationException.
+		@SuppressWarnings("unchecked")
+		final L[] l = (L[]) listeners.toArray();
+		for (final L listener : l) {
 			try {
 				method.invoke(listener, event);
 			} catch (final IllegalArgumentException e) {
