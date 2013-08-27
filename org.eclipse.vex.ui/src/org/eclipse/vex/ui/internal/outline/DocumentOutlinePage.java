@@ -36,6 +36,7 @@ import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.part.IPageSite;
 import org.eclipse.ui.part.Page;
 import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
+import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.widget.swt.VexWidget;
 import org.eclipse.vex.core.provisional.dom.AttributeChangeEvent;
 import org.eclipse.vex.core.provisional.dom.ContentChangeEvent;
@@ -47,6 +48,7 @@ import org.eclipse.vex.core.provisional.dom.IParent;
 import org.eclipse.vex.core.provisional.dom.NamespaceDeclarationChangeEvent;
 import org.eclipse.vex.ui.internal.VexPlugin;
 import org.eclipse.vex.ui.internal.config.DocumentType;
+import org.eclipse.vex.ui.internal.config.Style;
 import org.eclipse.vex.ui.internal.editor.EditorEventAdapter;
 import org.eclipse.vex.ui.internal.editor.IVexEditorListener;
 import org.eclipse.vex.ui.internal.editor.Messages;
@@ -388,7 +390,13 @@ public class DocumentOutlinePage extends Page implements IContentOutlinePage {
 
 	private void registerToolbarActions(final IActionBars actionBars) {
 
-		filterActionGroup = new OutlineFilterActionGroup(vexEditor.getStyle().getStyleSheet());
+		final Style style = vexEditor.getStyle();
+		if (style != null) {
+			filterActionGroup = new OutlineFilterActionGroup(style.getStyleSheet());
+		} else {
+			// Style might be null if no document is loaded
+			filterActionGroup = new OutlineFilterActionGroup(StyleSheet.NULL);
+		}
 
 		final IToolBarManager toolBarManager = actionBars.getToolBarManager();
 		if (toolBarManager != null) {
