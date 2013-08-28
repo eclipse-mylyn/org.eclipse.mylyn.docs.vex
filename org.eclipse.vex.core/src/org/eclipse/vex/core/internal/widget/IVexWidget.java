@@ -589,6 +589,15 @@ public interface IVexWidget {
 	boolean canUnwrap();
 
 	/**
+	 * Indicates whether the current element can be morphed into the given element.
+	 * 
+	 * @param elementName
+	 *            Qualified name of the element to morph the current element into.
+	 * @return true if the current element can be morphed
+	 */
+	boolean canMorph(QualifiedName elementName);
+
+	/**
 	 * Replaces the current element with an element with the given name. The content of the element is preserved.
 	 * 
 	 * @param elementName

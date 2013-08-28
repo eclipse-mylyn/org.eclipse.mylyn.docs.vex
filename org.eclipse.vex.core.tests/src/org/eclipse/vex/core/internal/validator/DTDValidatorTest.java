@@ -28,7 +28,6 @@ import java.util.Set;
 
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.vex.core.internal.dom.Document;
-import org.eclipse.vex.core.internal.validator.WTPVEXValidator;
 import org.eclipse.vex.core.provisional.dom.AttributeDefinition;
 import org.eclipse.vex.core.provisional.dom.IDocument;
 import org.eclipse.vex.core.provisional.dom.IElement;
@@ -270,6 +269,11 @@ public class DTDValidatorTest {
 		final AttributeDefinition ad = getAttributeMap(sectionElement).get(new QualifiedName(null, "reqatt"));
 		assertNotNull("AttributeDefinition 'reqatt' not found", ad);
 		assertTrue("isRequired should be true", ad.isRequired());
+	}
+
+	@Test
+	public void givenEmptyElement_shouldBePartiallyValid() throws Exception {
+		assertTrue(validator.isValidSequence(new QualifiedName(null, "section"), Collections.<QualifiedName> emptyList(), true));
 	}
 
 	private Map<QualifiedName, AttributeDefinition> getAttributeMap(final IElement element) {

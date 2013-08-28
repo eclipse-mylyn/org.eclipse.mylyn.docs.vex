@@ -304,6 +304,10 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 		return impl.isDebugging();
 	}
 
+	public boolean canMorph(final QualifiedName elementName) {
+		return impl.canMorph(elementName);
+	}
+
 	public void morph(final QualifiedName elementName) throws DocumentValidationException {
 		impl.morph(elementName);
 	}
