@@ -19,6 +19,7 @@ import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.css.StyleSheetReader;
 import org.eclipse.vex.core.internal.dom.Document;
 import org.eclipse.vex.core.internal.io.XMLFragment;
+import org.eclipse.vex.core.provisional.dom.IComment;
 import org.eclipse.vex.core.provisional.dom.IDocument;
 import org.eclipse.vex.core.provisional.dom.IDocumentFragment;
 import org.eclipse.vex.core.provisional.dom.IElement;
@@ -42,15 +43,18 @@ public class OutlineProviderTest {
 	@Test
 	public void testContentProvider() throws Exception {
 		final IDocument doc = new Document(new QualifiedName(null, "root"));
-		final IElement parent = doc.insertElement(2, new QualifiedName(null, "parent"));
+		final IComment comment = doc.insertComment(2);
+		final IElement parent = doc.insertElement(comment.getEndOffset() + 1, new QualifiedName(null, "parent"));
 		doc.insertElement(parent.getEndOffset(), new QualifiedName(null, "child"));
 		doc.insertElement(parent.getEndOffset(), new QualifiedName(null, "child"));
+		doc.insertComment(parent.getEndOffset());
 
 		final Object[] outlineElements = outlineProvider.getContentProvider().getElements(doc);
-		assertEquals("Count of root elements", 1, outlineElements.length);
-		assertEquals(parent, outlineElements[0]);
+		assertEquals("Count of root elements", 2, outlineElements.length);
+		assertEquals(comment, outlineElements[0]);
+		assertEquals(parent, outlineElements[1]);
 		final Object[] childElements = outlineProvider.getContentProvider().getChildren(parent);
-		assertEquals("Count of child elements", 2, childElements.length);
+		assertEquals("Count of child elements", 3, childElements.length);
 	}
 
 	@Test

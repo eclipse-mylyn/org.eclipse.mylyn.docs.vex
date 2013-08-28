@@ -44,6 +44,7 @@ import org.eclipse.vex.core.provisional.dom.IAttribute;
 import org.eclipse.vex.core.provisional.dom.IDocument;
 import org.eclipse.vex.core.provisional.dom.IDocumentListener;
 import org.eclipse.vex.core.provisional.dom.IElement;
+import org.eclipse.vex.core.provisional.dom.INode;
 import org.eclipse.vex.core.provisional.dom.IParent;
 import org.eclipse.vex.core.provisional.dom.NamespaceDeclarationChangeEvent;
 import org.eclipse.vex.ui.internal.VexPlugin;
@@ -256,7 +257,7 @@ public class DocumentOutlinePage extends Page implements IContentOutlinePage {
 	 */
 	private final ISelectionChangedListener selectionListener = new ISelectionChangedListener() {
 		private Object[] lastExpandedElements = null;
-		private IElement selectedTreeElement;
+		private INode selectedTreeNode;
 
 		public void selectionChanged(final SelectionChangedEvent event) {
 			if (event.getSource() instanceof VexWidget) {
@@ -264,7 +265,7 @@ public class DocumentOutlinePage extends Page implements IContentOutlinePage {
 				if (vexWidget.isFocusControl() && getTreeViewer() != null) {
 					final IElement element = vexWidget.getCurrentElement();
 
-					if (element == null || element.equals(selectedTreeElement)) {
+					if (element == null || element.equals(selectedTreeNode)) {
 						// If we're still in the same element, there is no need to refresh
 						return;
 					}
@@ -273,12 +274,12 @@ public class DocumentOutlinePage extends Page implements IContentOutlinePage {
 						return;
 					}
 
-					selectedTreeElement = element;
-					while (selectedTreeElement != null && filterActionGroup.isElementFiltered(selectedTreeElement)) {
+					selectedTreeNode = element;
+					while (selectedTreeNode != null && filterActionGroup.isElementFiltered(selectedTreeNode)) {
 						// If the selected element is not visible, try to find a visible parent
-						selectedTreeElement = selectedTreeElement.getParentElement();
+						selectedTreeNode = selectedTreeNode.getParent();
 					}
-					if (selectedTreeElement != null) {
+					if (selectedTreeNode != null) {
 						getTreeViewer().getControl().setRedraw(false);
 						BusyIndicator.showWhile(getTreeViewer().getControl().getDisplay(), new Runnable() {
 							public void run() {
@@ -287,17 +288,17 @@ public class DocumentOutlinePage extends Page implements IContentOutlinePage {
 									getTreeViewer().setExpandedElements(lastExpandedElements);
 									lastExpandedElements = null;
 								}
-								if (!getTreeViewer().getExpandedState(selectedTreeElement.getParentElement())) {
+								if (!getTreeViewer().getExpandedState(selectedTreeNode.getParent())) {
 									// ELement is not visible - save the tree state
 									lastExpandedElements = getTreeViewer().getExpandedElements();
 								}
-								getTreeViewer().setSelection(new StructuredSelection(selectedTreeElement));
+								getTreeViewer().setSelection(new StructuredSelection(selectedTreeNode));
 							}
 						});
 						getTreeViewer().getControl().setRedraw(true);
 					} else {
 						getTreeViewer().setSelection(new StructuredSelection());
-						selectedTreeElement = null;
+						selectedTreeNode = null;
 					}
 				}
 			} else {
@@ -307,15 +308,15 @@ public class DocumentOutlinePage extends Page implements IContentOutlinePage {
 					final TreeItem[] selected = treeViewer.getTree().getSelection();
 					if (selected.length > 0) {
 						lastExpandedElements = null;
-						final IElement element = (IElement) selected[0].getData();
-						selectedTreeElement = element;
+						final INode node = (INode) selected[0].getData();
+						selectedTreeNode = node;
 						final VexWidget vexWidget = vexEditor.getVexWidget();
 
 						// Moving to the end of the element first is a cheap
 						// way to make sure we end up with the
 						// caret at the top of the viewport
-						vexWidget.moveTo(element.getEndOffset());
-						vexWidget.moveTo(element.getStartOffset() + 1);
+						vexWidget.moveTo(node.getEndOffset());
+						vexWidget.moveTo(node.getStartOffset() + 1);
 					}
 				}
 			}

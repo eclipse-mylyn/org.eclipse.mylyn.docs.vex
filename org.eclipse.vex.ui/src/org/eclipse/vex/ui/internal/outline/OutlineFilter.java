@@ -14,8 +14,10 @@ import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerFilter;
 import org.eclipse.vex.core.internal.css.CSS;
 import org.eclipse.vex.core.internal.css.StyleSheet;
+import org.eclipse.vex.core.provisional.dom.BaseNodeVisitorWithResult;
 import org.eclipse.vex.core.provisional.dom.IElement;
 import org.eclipse.vex.core.provisional.dom.INode;
+import org.eclipse.vex.core.provisional.dom.INodeVisitorWithResult;
 
 public class OutlineFilter extends ViewerFilter {
 
@@ -40,14 +42,7 @@ public class OutlineFilter extends ViewerFilter {
 			return true;
 		}
 
-		final IElement domElement = (IElement) element;
-		if (hasFilter(FILTER_ID_INLINE_ELEMENTS)) {
-			if (styleSheet.getStyles(domElement).getDisplay().equals(CSS.INLINE)) {
-				return false;
-			}
-		}
-
-		return true;
+		return ((INode) element).accept(filterVisitor);
 	}
 
 	/**
@@ -76,5 +71,18 @@ public class OutlineFilter extends ViewerFilter {
 	public final boolean hasFilter(final int filter) {
 		return (activeFilters & filter) != 0;
 	}
+
+	private final INodeVisitorWithResult<Boolean> filterVisitor = new BaseNodeVisitorWithResult<Boolean>(false) {
+		@Override
+		public Boolean visit(final IElement element) {
+			final IElement domElement = element;
+			if (hasFilter(FILTER_ID_INLINE_ELEMENTS)) {
+				if (styleSheet.getStyles(domElement).getDisplay().equals(CSS.INLINE)) {
+					return false;
+				}
+			}
+			return true;
+		}
+	};
 
 }

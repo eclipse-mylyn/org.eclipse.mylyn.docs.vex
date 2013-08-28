@@ -80,6 +80,7 @@ public class DefaultOutlineProvider implements IOutlineProvider, IToolBarContrib
 		return labelProvider;
 	}
 
+	/* This method is only here for compatibility with the interface */
 	public IElement getOutlineElement(final IElement child) {
 		return child;
 	}
@@ -126,21 +127,20 @@ public class DefaultOutlineProvider implements IOutlineProvider, IToolBarContrib
 		}
 
 		public Object[] getChildren(final Object parentElement) {
-			return getOutlineChildren((IElement) parentElement);
+			return getOutlineChildren((INode) parentElement);
 		}
 
-		public Object getParent(final Object element) {
-			final IElement parent = ((IElement) element).getParentElement();
+		public Object getParent(final Object node) {
+			final INode parent = ((INode) node).getParent();
 			if (parent == null) {
-				//return element;
 				return null;
 			} else {
-				return getOutlineElement(parent);
+				return parent;
 			}
 		}
 
-		public boolean hasChildren(final Object element) {
-			return getOutlineChildren((IElement) element).length > 0;
+		public boolean hasChildren(final Object node) {
+			return getOutlineChildren((INode) node).length > 0;
 		}
 
 		public Object[] getElements(final Object inputElement) {
@@ -154,17 +154,23 @@ public class DefaultOutlineProvider implements IOutlineProvider, IToolBarContrib
 			}
 		}
 
-		private IElement[] getOutlineChildren(final IElement element) {
+		private INode[] getOutlineChildren(final INode node) {
 
-			final List<IElement> children = new ArrayList<IElement>();
-			for (final IElement child : element.childElements()) {
+			if (!(node instanceof IParent)) {
+				return new INode[0];
+			}
+
+			final List<INode> children = new ArrayList<INode>();
+			for (final INode child : ((IParent) node).children().withoutText()) {
 				children.add(child);
 			}
-			return children.toArray(new IElement[children.size()]);
+			return children.toArray(new INode[children.size()]);
 		}
 	}
 
 	private class OutlineLabelProvider extends StyledCellLabelProvider {
+
+		private static final String EMPTY_STRING = "";
 
 		private VexEditor editor = null;
 		private IVexEditorListener listener = null;
@@ -188,13 +194,13 @@ public class DefaultOutlineProvider implements IOutlineProvider, IToolBarContrib
 
 		@Override
 		public void update(final ViewerCell cell) {
-			final IElement e = (IElement) cell.getElement();
+			final INode node = (INode) cell.getElement();
 
-			final StyledString label = getElementLabel(e);
+			final StyledString label = getElementLabel(node);
 			cell.setText(label.getString());
 			cell.setStyleRanges(label.getStyleRanges());
 
-			cell.setImage(getElementImage(e));
+			cell.setImage(getElementImage(node));
 			super.update(cell);
 		}
 
@@ -206,19 +212,22 @@ public class DefaultOutlineProvider implements IOutlineProvider, IToolBarContrib
 			}
 		}
 
-		public Image getElementImage(final IElement element) {
-			return element.accept(elementImageVisitor);
+		public Image getElementImage(final INode node) {
+			return node.accept(elementImageVisitor);
 		}
 
-		public StyledString getElementLabel(final IElement element) {
+		public StyledString getElementLabel(final INode node) {
+
+			final String rawLabel = node.accept(elementLabelVisitor);
+
 			if (!showElementContent) {
-				return new StyledString(element.getLocalName());
+				return new StyledString(rawLabel);
 			}
 
-			final StyledString label = new StyledString(element.getLocalName());
+			final StyledString label = new StyledString(rawLabel);
 			String content = null;
 			// getOutlineContent returns either an IAttribute or an INode
-			final Object outlineElement = styleSheet.getStyles(element).getOutlineContent();
+			final Object outlineElement = styleSheet.getStyles(node).getOutlineContent();
 			if (outlineElement != null) {
 				if (outlineElement instanceof IAttribute) {
 					content = ((IAttribute) outlineElement).getValue();
@@ -254,6 +263,13 @@ public class DefaultOutlineProvider implements IOutlineProvider, IToolBarContrib
 			@Override
 			public Image visit(final IElement element) {
 				return PluginImages.get(PluginImages.IMG_XML_ELEMENT);
+			}
+		};
+
+		private final INodeVisitorWithResult<String> elementLabelVisitor = new BaseNodeVisitorWithResult<String>(EMPTY_STRING) {
+			@Override
+			public String visit(final IElement element) {
+				return element.getLocalName();
 			}
 		};
 	}
