@@ -31,6 +31,7 @@ import org.eclipse.vex.core.provisional.dom.IComment;
 import org.eclipse.vex.core.provisional.dom.IDocument;
 import org.eclipse.vex.core.provisional.dom.IElement;
 import org.eclipse.vex.core.provisional.dom.INode;
+import org.eclipse.vex.core.provisional.dom.IProcessingInstruction;
 import org.eclipse.vex.core.provisional.dom.IText;
 import org.eclipse.vex.core.tests.TestResources;
 import org.eclipse.wst.xml.core.internal.contentmodel.CMDocument;
@@ -167,6 +168,39 @@ public class DocumentReaderTest {
 		assertEquals("Another comment between two child elements.", comment3.getText());
 
 		rootChildren.next();
+		assertFalse(rootChildren.hasNext());
+	}
+
+	@Test
+	public void readDocumentWithProcessingInstruction() throws Exception {
+		final DocumentReader reader = new DocumentReader();
+
+		final IDocument document = reader.read(TestResources.get("documentWithProcessingInstr.xml"));
+		final Iterator<INode> documentChildren = document.children().iterator();
+
+		final IProcessingInstruction pi1 = (IProcessingInstruction) documentChildren.next();
+		assertEquals("position=beforeRoot", pi1.getText());
+		assertEquals("pi", pi1.getTarget());
+		assertSame(document.getRootElement(), documentChildren.next());
+		final IProcessingInstruction pi2 = (IProcessingInstruction) documentChildren.next();
+		assertEquals("position=afterRoot", pi2.getText());
+		final IProcessingInstruction pi3 = (IProcessingInstruction) documentChildren.next();
+		assertEquals("Entity references should not be parsed", "&lt;test&gt;", pi3.getText());
+		assertFalse(documentChildren.hasNext());
+
+		final IElement rootElement = document.getRootElement();
+		final Iterator<INode> rootChildren = rootElement.children().iterator();
+
+		final IProcessingInstruction pi4 = (IProcessingInstruction) rootChildren.next();
+		assertEquals("position=begin", pi4.getText());
+
+		rootChildren.next();
+
+		final IElement para = (IElement) rootChildren.next();
+		final IProcessingInstruction pi5 = (IProcessingInstruction) para.children().get(1);
+		assertEquals("position=inline", pi5.getText());
+		assertEquals("Before PI position=inline After PI", para.getText());
+
 		assertFalse(rootChildren.hasNext());
 	}
 

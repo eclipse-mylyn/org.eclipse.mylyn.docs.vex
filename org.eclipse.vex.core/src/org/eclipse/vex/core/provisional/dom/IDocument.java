@@ -151,6 +151,27 @@ public interface IDocument extends IParent {
 	boolean canInsertComment(int offset);
 
 	/**
+	 * Insert a new procesing instruction at the given offset.
+	 * 
+	 * @see IProcessingInstruction
+	 * @param offset
+	 *            the offset at which the processing instruction should be inserted
+	 * @return the new processing instruction
+	 * @throws DocumentValidationException
+	 *             if a processing instruction is not allowed at the given offset (e.g. within an existing processing
+	 *             instr.)
+	 */
+	IProcessingInstruction insertProcessingInstruction(int offset, String target) throws DocumentValidationException;
+
+	/**
+	 * @param offset
+	 * @param target
+	 *            The target of the pi to insert. If null, validity of target is not checked.
+	 * @return true if a processing instruction can be inserted a the given offset
+	 */
+	boolean canInsertProcessingInstruction(int offset, String target);
+
+	/**
 	 * Insert a new comment at the given offset.
 	 * 
 	 * @see IComment

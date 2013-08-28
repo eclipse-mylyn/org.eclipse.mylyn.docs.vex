@@ -64,6 +64,11 @@ public class DocumentWriterTest {
 	}
 
 	@Test
+	public void testDocumentWithProcessingInstructions() throws Exception {
+		assertWriteReadCycleWorks(TestResources.get("documentWithProcessingInstr.xml"));
+	}
+
+	@Test
 	public void writeDocumentFragmentNoWrap() throws Exception {
 		final Document doc = new Document(new QualifiedName(null, "root"));
 		final IElement child1 = doc.insertElement(doc.getRootElement().getEndOffset(), new QualifiedName(null, "child"));

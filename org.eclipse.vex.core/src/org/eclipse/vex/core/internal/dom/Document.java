@@ -11,6 +11,7 @@
  *     Florian Thienel - refactoring to full fledged DOM
  *     Carsten Hiesserich - bug fixes (bug 407801, 410659)
  *     Carsten Hiesserich - added structuralChange flag to ContentChangeEvent
+ *     Carsten Hiesserich - added support for processing instructions
  *******************************************************************************/
 package org.eclipse.vex.core.internal.dom;
 
@@ -24,6 +25,8 @@ import java.util.Set;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.QualifiedName;
+import org.eclipse.vex.core.IValidationResult;
+import org.eclipse.vex.core.XML;
 import org.eclipse.vex.core.internal.core.ListenerList;
 import org.eclipse.vex.core.provisional.dom.BaseNodeVisitorWithResult;
 import org.eclipse.vex.core.provisional.dom.ContentChangeEvent;
@@ -41,6 +44,7 @@ import org.eclipse.vex.core.provisional.dom.INodeVisitor;
 import org.eclipse.vex.core.provisional.dom.INodeVisitorWithResult;
 import org.eclipse.vex.core.provisional.dom.IParent;
 import org.eclipse.vex.core.provisional.dom.IPosition;
+import org.eclipse.vex.core.provisional.dom.IProcessingInstruction;
 import org.eclipse.vex.core.provisional.dom.IText;
 import org.eclipse.vex.core.provisional.dom.IValidator;
 
@@ -229,6 +233,16 @@ public class Document extends Parent implements IDocument {
 			}
 
 			@Override
+			public Boolean visit(final IProcessingInstruction pi) {
+				for (final QualifiedName nodeName : nodeNames) {
+					if (!nodeName.equals(IValidator.PCDATA)) {
+						return false;
+					}
+				}
+				return true;
+			}
+
+			@Override
 			public Boolean visit(final IText text) {
 				return true;
 			}
@@ -274,6 +288,22 @@ public class Document extends Parent implements IDocument {
 				getContent().insertText(offset, adjustedText);
 				fireContentInserted(new ContentChangeEvent(Document.this, comment.getParent(), new ContentRange(offset, offset + adjustedText.length() - 1), false));
 			}
+
+			public void visit(final IProcessingInstruction pi) {
+				// The target is validated to ensure the instruction is valid after the insertion
+				final String charBefore = pi.getText(new ContentRange(offset - 1, offset - 1));
+				final String charAfter = pi.getText(new ContentRange(offset, offset));
+				final String candidate = charBefore + adjustedText + charAfter;
+
+				final IValidationResult result = XML.validateProcessingInstructionTarget(candidate);
+				if (!result.isOK()) {
+					throw new DocumentValidationException(result.getMessage());
+				}
+
+				fireBeforeContentInserted(new ContentChangeEvent(Document.this, pi.getParent(), new ContentRange(offset, offset + adjustedText.length() - 1), false));
+				getContent().insertText(offset, adjustedText);
+				fireContentInserted(new ContentChangeEvent(Document.this, pi.getParent(), new ContentRange(offset, offset + adjustedText.length() - 1), false));
+			}
 		});
 	}
 
@@ -287,15 +317,38 @@ public class Document extends Parent implements IDocument {
 		return new String(characters);
 	}
 
+	/**
+	 * Inserts a node at the given offset. There is no check that the insertion is valid.
+	 * 
+	 * @param node
+	 *            The node to insert
+	 * @param offset
+	 *            The content offset to insert the node at.
+	 */
+	private void insertNode(final Node node, final int offset) {
+		final Parent parent = getParentForInsertionAt(offset);
+
+		fireBeforeContentInserted(new ContentChangeEvent(this, parent, new ContentRange(offset, offset + 1), true));
+
+		getContent().insertTagMarker(offset);
+		getContent().insertTagMarker(offset);
+		node.associate(getContent(), new ContentRange(offset, offset + 1));
+
+		parent.insertChildAt(offset, node);
+
+		fireContentInserted(new ContentChangeEvent(this, parent, node.getRange(), true));
+	}
+
+	@Override
 	public boolean canInsertComment(final int offset) {
 		if (!(offset > getStartOffset() && offset <= getEndOffset())) {
 			return false;
 		}
 		final INode node = getNodeForInsertionAt(offset);
-		if (node instanceof IComment) {
-			return false;
+		if (node instanceof IParent) {
+			return true;
 		}
-		return true;
+		return false;
 	}
 
 	public IComment insertComment(final int offset) throws DocumentValidationException {
@@ -303,20 +356,48 @@ public class Document extends Parent implements IDocument {
 			throw new DocumentValidationException(MessageFormat.format("Cannot insert a comment at offset {0}.", offset));
 		}
 
-		final Parent parent = getParentForInsertionAt(offset);
-
-		fireBeforeContentInserted(new ContentChangeEvent(this, parent, new ContentRange(offset, offset + 1), true));
-
 		final Comment comment = new Comment();
-		getContent().insertTagMarker(offset);
-		getContent().insertTagMarker(offset);
-		comment.associate(getContent(), new ContentRange(offset, offset + 1));
-
-		parent.insertChildAt(offset, comment);
-
-		fireContentInserted(new ContentChangeEvent(this, parent, comment.getRange(), true));
+		insertNode(comment, offset);
 
 		return comment;
+	}
+
+	@Override
+	public boolean canInsertProcessingInstruction(final int offset, final String target) {
+		if (!(offset > getStartOffset() && offset <= getEndOffset())) {
+			return false;
+		}
+		final INode node = getNodeForInsertionAt(offset);
+		if (!(node instanceof IParent)) {
+			// IComment and IProcessingInstructions are not derived from IParent
+			return false;
+		}
+
+		if (target == null) {
+			// No validity check if target is null
+			return true;
+		}
+
+		return XML.validateProcessingInstructionTarget(target).isOK();
+	}
+
+	@Override
+	public IProcessingInstruction insertProcessingInstruction(final int offset, final String target) throws DocumentValidationException {
+		// Validate first to throw an appropriate message
+		final IValidationResult resultTarget = XML.validateProcessingInstructionTarget(target);
+		if (!resultTarget.isOK()) {
+			throw new DocumentValidationException(resultTarget.getMessage());
+		}
+
+		if (!canInsertProcessingInstruction(offset, target)) {
+			throw new DocumentValidationException(MessageFormat.format("Cannot insert a processing instruction at offset {0}.", offset));
+		}
+
+		// The constructor throws an Exception if the target is not valid.
+		final ProcessingInstruction pi = new ProcessingInstruction(target);
+		insertNode(pi, offset);
+
+		return pi;
 	}
 
 	public boolean canInsertElement(final int offset, final QualifiedName elementName) {
@@ -327,22 +408,13 @@ public class Document extends Parent implements IDocument {
 		Assert.isTrue(offset > rootElement.getStartOffset() && offset <= rootElement.getEndOffset(),
 				MessageFormat.format("Offset must be in [{0}, {1}]", rootElement.getStartOffset() + 1, rootElement.getEndOffset()));
 
-		final Element parent = getElementForInsertionAt(offset);
 		final INode node = getNodeForInsertionAt(offset);
 		if (!canInsertAt(node, offset, elementName)) {
 			throw new DocumentValidationException(MessageFormat.format("Cannot insert element {0} at offset {1}.", elementName, offset));
 		}
 
-		fireBeforeContentInserted(new ContentChangeEvent(this, parent, new ContentRange(offset, offset + 1), true));
-
 		final Element element = new Element(elementName);
-		getContent().insertTagMarker(offset);
-		getContent().insertTagMarker(offset);
-		element.associate(getContent(), new ContentRange(offset, offset + 1));
-
-		parent.insertChildAt(offset, element);
-
-		fireContentInserted(new ContentChangeEvent(this, parent, element.getRange(), true));
+		insertNode(element, offset);
 
 		return element;
 	}

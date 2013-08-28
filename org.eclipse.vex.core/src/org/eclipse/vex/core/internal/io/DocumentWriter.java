@@ -4,11 +4,12 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     John Krasnay - initial API and implementation
  *     Igor Jacy Lino Campista - Java 5 warnings fixed (bug 311325)
  *     Carsten Hiesserich - writeNoWrap(DocumentFragment) method
+ *     Carsten Hiesserich - added processing instructions support
  *******************************************************************************/
 package org.eclipse.vex.core.internal.io;
 
@@ -27,6 +28,7 @@ import org.eclipse.vex.core.provisional.dom.IDocument;
 import org.eclipse.vex.core.provisional.dom.IDocumentFragment;
 import org.eclipse.vex.core.provisional.dom.IElement;
 import org.eclipse.vex.core.provisional.dom.INode;
+import org.eclipse.vex.core.provisional.dom.IProcessingInstruction;
 import org.eclipse.vex.core.provisional.dom.IText;
 import org.eclipse.vex.core.provisional.dom.IValidator;
 
@@ -282,6 +284,15 @@ public class DocumentWriter {
 			}
 
 			@Override
+			public void visit(final IProcessingInstruction pi) {
+				// Text in PI's is written as is with no wrapping
+				out.print(indent);
+				out.print("<?");
+				out.print(pi.getTarget() + " " + node.getText());
+				out.println("?>");
+			}
+
+			@Override
 			public void visit(final IText text) {
 				final TextWrapper wrapper = new TextWrapper();
 				wrapper.add(escape(node.getText()));
@@ -320,6 +331,13 @@ public class DocumentWriter {
 				out.print("<!--");
 				out.print(escape(node.getText()));
 				out.print("-->");
+			}
+
+			@Override
+			public void visit(final IProcessingInstruction pi) {
+				out.print("<?");
+				out.print(pi.getTarget() + " " + node.getText());
+				out.print("?>");
 			}
 
 			@Override
@@ -373,6 +391,13 @@ public class DocumentWriter {
 				wrapper.addNoSplit("<!--");
 				wrapper.add(escape(node.getText()));
 				wrapper.addNoSplit("-->");
+			}
+
+			@Override
+			public void visit(final IProcessingInstruction pi) {
+				wrapper.addNoSplit("<?");
+				wrapper.add(pi.getTarget() + " " + node.getText());
+				wrapper.addNoSplit("?>");
 			}
 
 			@Override

@@ -1,3 +1,14 @@
+/*******************************************************************************
+ * Copyright (c) 2012, 2013 Florian Thienel and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ * 		Florian Thienel - initial API and implementation
+ * 		Carsten Hiesserich - added processing instructions
+ *******************************************************************************/
 package org.eclipse.vex.core.internal.dom;
 
 import java.util.List;
@@ -11,6 +22,7 @@ import org.eclipse.vex.core.provisional.dom.IElement;
 import org.eclipse.vex.core.provisional.dom.INode;
 import org.eclipse.vex.core.provisional.dom.INodeVisitor;
 import org.eclipse.vex.core.provisional.dom.IParent;
+import org.eclipse.vex.core.provisional.dom.IProcessingInstruction;
 import org.eclipse.vex.core.provisional.dom.IText;
 
 /**
@@ -69,6 +81,12 @@ public class DeepCopyVisitor implements INodeVisitor {
 		final Comment copy = (Comment) copy(comment);
 		addToParent(copy);
 		associate(comment, copy);
+	}
+
+	public void visit(final IProcessingInstruction pi) {
+		final ProcessingInstruction copy = (ProcessingInstruction) copy(pi);
+		addToParent(copy);
+		associate(pi, copy);
 	}
 
 	@SuppressWarnings("unchecked")

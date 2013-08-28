@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<!DOCTYPE section PUBLIC "-//Eclipse Foundation//DTD Vex Test//EN" "test1.dtd">
+<?pi position=beforeRoot?>
+<section>
+	<?pi position=begin?>
+	<title>Testdocument with Processing Instructions</title>
+	<para>Before PI <?pi position=inline?> After PI</para>
+</section>
+<?pi position=afterRoot?>
+<?pi &lt;test&gt;?>

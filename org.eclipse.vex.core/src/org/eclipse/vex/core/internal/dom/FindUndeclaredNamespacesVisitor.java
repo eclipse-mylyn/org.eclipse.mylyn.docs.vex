@@ -4,9 +4,10 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  * 		Florian Thienel - initial API and implementation
+ * 		Carsten Hiesserich - added processing instruction
  *******************************************************************************/
 package org.eclipse.vex.core.internal.dom;
 
@@ -21,6 +22,7 @@ import org.eclipse.vex.core.provisional.dom.IDocumentFragment;
 import org.eclipse.vex.core.provisional.dom.IElement;
 import org.eclipse.vex.core.provisional.dom.INode;
 import org.eclipse.vex.core.provisional.dom.INodeVisitorWithResult;
+import org.eclipse.vex.core.provisional.dom.IProcessingInstruction;
 import org.eclipse.vex.core.provisional.dom.IText;
 
 /**
@@ -64,6 +66,10 @@ public class FindUndeclaredNamespacesVisitor implements INodeVisitorWithResult<S
 	}
 
 	public Set<String> visit(final IComment comment) {
+		return Collections.emptySet();
+	}
+
+	public Set<String> visit(final IProcessingInstruction pi) {
 		return Collections.emptySet();
 	}
 

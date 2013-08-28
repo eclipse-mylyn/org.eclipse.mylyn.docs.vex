@@ -4,11 +4,12 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     John Krasnay - initial API and implementation
  *     Igor Jacy Lino Campista - Java 5 warnings fixed (bug 311325)
  *     Carsten Hiesserich - do not add text nodes containing only whitespace when reading the document (bug 407803)
+ *     Carsten Hiesserich - added processing instructions support
  *******************************************************************************/
 package org.eclipse.vex.core.internal.io;
 
@@ -29,6 +30,7 @@ import org.eclipse.vex.core.internal.dom.Document;
 import org.eclipse.vex.core.internal.dom.Element;
 import org.eclipse.vex.core.internal.dom.GapContent;
 import org.eclipse.vex.core.internal.dom.Node;
+import org.eclipse.vex.core.internal.dom.ProcessingInstruction;
 import org.eclipse.vex.core.provisional.dom.BaseNodeVisitorWithResult;
 import org.eclipse.vex.core.provisional.dom.ContentRange;
 import org.eclipse.vex.core.provisional.dom.DocumentContentModel;
@@ -176,6 +178,26 @@ public class DocumentBuilder implements ContentHandler, LexicalHandler {
 	}
 
 	public void processingInstruction(final String target, final String data) {
+
+		final ProcessingInstruction pi = new ProcessingInstruction(target);
+
+		if (isBeforeRoot()) {
+			nodesBeforeRoot.add(pi);
+		} else if (isAfterRoot()) {
+			nodesAfterRoot.add(pi);
+		} else {
+			final Element parent = stack.getLast().element;
+			parent.addChild(pi);
+			appendChars(false);
+		}
+
+		final int startOffset = content.length();
+		content.insertTagMarker(content.length());
+		content.insertText(content.length(), data);
+		content.insertTagMarker(content.length());
+		pi.associate(content, new ContentRange(startOffset, content.length() - 1));
+
+		trimLeading = false; // Keep a leading whitespace after a processing instruction
 	}
 
 	public void setDocumentLocator(final Locator locator) {

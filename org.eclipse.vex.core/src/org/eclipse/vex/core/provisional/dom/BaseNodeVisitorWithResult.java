@@ -4,9 +4,10 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  * 		Florian Thienel - initial API and implementation
+ * 		Carsten Hiesserich - added processing instruction
  *******************************************************************************/
 package org.eclipse.vex.core.provisional.dom;
 
@@ -47,6 +48,10 @@ public class BaseNodeVisitorWithResult<T> implements INodeVisitorWithResult<T> {
 	}
 
 	public T visit(final IComment comment) {
+		return defaultValue;
+	}
+
+	public T visit(final IProcessingInstruction pi) {
 		return defaultValue;
 	}
 }

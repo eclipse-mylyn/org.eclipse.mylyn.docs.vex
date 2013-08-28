@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.vex.core;
 
+import java.util.regex.Pattern;
+
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.vex.core.internal.dom.Namespace;
 
@@ -22,6 +24,8 @@ import org.eclipse.vex.core.internal.dom.Namespace;
  * @see http://www.w3.org/TR/xmlbase/
  */
 public class XML {
+
+	public static final String VALIDATE_OK = "OK";
 
 	/**
 	 * The xml:base attribute re-defines the base URI for a part of an XML document, according to the XML Base
@@ -39,6 +43,8 @@ public class XML {
 	public static boolean isWhitespace(final char c) {
 		return c == 0x20 || c == 0x9 || c == 0xD || c == 0xA;
 	}
+
+	public static Pattern XML_WHITESPACE_PATTERN = Pattern.compile("[\\u0020\\u0009\\u000d\\u000a]");
 
 	/**
 	 * Replace runs of XML whitespace (see {@link #isWhitespace}) with a single space. Newlines in the input should be
@@ -173,5 +179,48 @@ public class XML {
 		if (state == SEEN_CR) {
 			// CR line ending, replace it with a newline
 		}
+	}
+
+	/**
+	 * Validate the target of an processing instruction.
+	 * 
+	 * @param target
+	 *            The target String to validate.
+	 * @return The IValidationResult. Use {@link IValidationResult#isOK()} to check if there is an error.
+	 */
+	public static IValidationResult validateProcessingInstructionTarget(final String target) {
+
+		if (target.isEmpty()) {
+			return ValidationResult.error("Processing instruction target must not be empty");
+		}
+
+		if (XML.XML_WHITESPACE_PATTERN.matcher(target).find()) {
+			return ValidationResult.error("Processing instruction target must not contain whitespace characters");
+		}
+
+		if (target.indexOf("?>") > -1) {
+			return ValidationResult.error("Cannot insert entity end '?>' into a processing instruction.");
+		}
+
+		if (target.length() >= 3 && target.substring(0, 3).equalsIgnoreCase("xml")) {
+			return ValidationResult.error("Processing instruction target must not start with 'xml'");
+		}
+
+		return ValidationResult.VALIDATE_OK;
+	}
+
+	/**
+	 * Validate the data of an processing instruction.
+	 * 
+	 * @param data
+	 *            The data String to validate.
+	 * @return The IValidationResult. Use {@link IValidationResult#isOK()} to check if there is an error.
+	 */
+	public static IValidationResult validateProcessingInstructionData(final String data) {
+		if (data.indexOf("?>") > -1) {
+			return ValidationResult.error("Cannot insert entity end '?>' into a processing instruction.");
+		}
+
+		return ValidationResult.VALIDATE_OK;
 	}
 }

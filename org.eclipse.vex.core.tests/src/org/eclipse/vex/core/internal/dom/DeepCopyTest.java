@@ -252,6 +252,32 @@ public class DeepCopyTest {
 		assertEquals("ns2", copiedChild.getDeclaredNamespacePrefixes().iterator().next());
 	}
 
+	@Test
+	public void givenOneParentWithProcessingInstruction_shouldCopyParentAndProcessingInstruction() throws Exception {
+		final GapContent content = new GapContent(10);
+		content.insertTagMarker(0);
+		content.insertTagMarker(0);
+		content.insertTagMarker(0);
+		content.insertTagMarker(0);
+		final Element parent = new Element("parent");
+		parent.associate(content, content.getRange());
+
+		final ProcessingInstruction pi = new ProcessingInstruction("PI");
+		pi.associate(content, new ContentRange(1, 2));
+		content.insertText(2, "test=  1");
+
+		parent.addChild(pi);
+
+		final DeepCopy deepCopy = new DeepCopy(parent);
+		final Element copiedParent = (Element) deepCopy.getNodes().get(0);
+		final List<? extends INode> copiedChildren = copiedParent.children().asList();
+
+		assertEquals(1, copiedChildren.size());
+		assertTrue("Expecting the copied processing instruction", copiedChildren.get(0) instanceof ProcessingInstruction);
+		assertEquals("Data should be copied", pi.getText(), copiedChildren.get(0).getText());
+		assertEquals("Target should be copied", pi.getTarget(), ((ProcessingInstruction) copiedChildren.get(0)).getTarget());
+	}
+
 	private static void assertNodeIsAssociatedElementWithText(final String expectedText, final INode actualNode) {
 		assertTrue(actualNode.isAssociated());
 		assertTrue(actualNode instanceof Element);

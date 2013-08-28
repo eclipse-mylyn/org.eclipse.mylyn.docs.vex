@@ -1,12 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2012 Florian Thienel and others.
+ * Copyright (c) 2013 Florian Thienel and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  * 		Florian Thienel - initial API and implementation
+ * 		Carsten Hieserich - added processing instruction
  *******************************************************************************/
 package org.eclipse.vex.core.provisional.dom;
 
@@ -28,4 +29,5 @@ public interface INodeVisitorWithResult<T> {
 
 	T visit(IComment comment);
 
+	T visit(IProcessingInstruction pi);
 }
