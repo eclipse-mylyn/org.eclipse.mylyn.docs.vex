@@ -39,6 +39,11 @@ public class OutlineFilterActionGroup extends ActionGroup {
 
 		filter = new OutlineFilter(styleSheet);
 		filterActions = actions.toArray(new OutlineFilterAction[actions.size()]);
+
+		// Init filters from preferences
+		for (final OutlineFilterAction action : filterActions) {
+			setFilter(action.getFilterId(), action.isChecked());
+		}
 	}
 
 	public void setFilter(final int filterId, final boolean isSet) {

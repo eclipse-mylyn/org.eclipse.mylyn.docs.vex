@@ -51,6 +51,13 @@ public class OutlineFilterAction extends Action {
 		}
 	}
 
+	/**
+	 * @return The filter id associated with this filter action.
+	 */
+	public int getFilterId() {
+		return filterId;
+	}
+
 	@Override
 	public void run() {
 		final Preferences preferences = InstanceScope.INSTANCE.getNode(VexPlugin.ID);
