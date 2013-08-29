@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     John Krasnay - initial API and implementation
  *     Torsten Stolpmann - bug 257946 - fixed outline view to work with multipage editor.
@@ -19,7 +19,6 @@ import java.text.MessageFormat;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
-import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
@@ -32,7 +31,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.TreeItem;
-import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.part.IPageSite;
 import org.eclipse.ui.part.Page;
 import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
@@ -77,7 +75,7 @@ public class DocumentOutlinePage extends Page implements IContentOutlinePage {
 
 		vexEditor.addVexEditorListener(vexEditorListener);
 		vexEditor.getEditorSite().getSelectionProvider().addSelectionChangedListener(selectionListener);
-		registerToolbarActions(getSite().getActionBars());
+		initToolbarActions();
 		if (vexEditor.isLoaded()) {
 			showTreeViewer();
 		} else {
@@ -176,6 +174,7 @@ public class DocumentOutlinePage extends Page implements IContentOutlinePage {
 		if (treeViewer != null) {
 			treeViewer.removeSelectionChangedListener(selectionListener);
 			treeViewer.getTree().dispose();
+			getSite().getActionBars().getToolBarManager().removeAll();
 			treeViewer = null;
 		}
 
@@ -208,6 +207,8 @@ public class DocumentOutlinePage extends Page implements IContentOutlinePage {
 		if (doctype == null) {
 			return;
 		}
+
+		filterActionGroup.fillActionBars(getSite().getActionBars());
 
 		final String ns = doctype.getConfig().getUniqueIdentifer();
 		final Bundle bundle = Platform.getBundle(ns);
@@ -389,7 +390,7 @@ public class DocumentOutlinePage extends Page implements IContentOutlinePage {
 		}
 	};
 
-	private void registerToolbarActions(final IActionBars actionBars) {
+	private void initToolbarActions() {
 
 		final Style style = vexEditor.getStyle();
 		if (style != null) {
@@ -397,12 +398,6 @@ public class DocumentOutlinePage extends Page implements IContentOutlinePage {
 		} else {
 			// Style might be null if no document is loaded
 			filterActionGroup = new OutlineFilterActionGroup(StyleSheet.NULL);
-		}
-
-		final IToolBarManager toolBarManager = actionBars.getToolBarManager();
-		if (toolBarManager != null) {
-			filterActionGroup.fillActionBars(actionBars);
-			//toolBarManager.add(new ToolBarToggleAction(this, IOutlineViewState.SHOW_ELEMENT_CONTENT, PluginImages.DESC_SHOW_ELEMENT_CONTENT));
 		}
 	}
 }
