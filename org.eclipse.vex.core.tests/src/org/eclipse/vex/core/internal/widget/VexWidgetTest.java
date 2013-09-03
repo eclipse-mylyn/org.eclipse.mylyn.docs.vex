@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Florian Thienel - bug 315914, initial implementation
  *******************************************************************************/
@@ -143,9 +143,15 @@ public class VexWidgetTest {
 		return document;
 	}
 
-	public static void assertCanInsertOnly(final IVexWidget widget, final String... elementNames) {
+	public static void assertCanInsertOnly(final IVexWidget widget, final Object... elementNames) {
 		final String[] expected = sortedCopyOf(elementNames);
 		final String[] actual = sortedCopyOf(widget.getValidInsertElements());
+		assertEquals(Arrays.toString(expected), Arrays.toString(actual));
+	}
+
+	public static void assertCanMorphOnlyTo(final IVexWidget widget, final Object... elementNames) {
+		final String[] expected = sortedCopyOf(elementNames);
+		final String[] actual = sortedCopyOf(widget.getValidMorphElements());
 		assertEquals(Arrays.toString(expected), Arrays.toString(actual));
 	}
 

@@ -364,6 +364,10 @@ public class WTPVEXValidator implements IValidator {
 	}
 
 	public boolean isValidSequence(final QualifiedName element, final List<QualifiedName> nodes, final boolean partial) {
+		if (partial && nodes.isEmpty()) {
+			return true;
+		}
+
 		final CMNode parent = getSchema(element.getQualifier()).getElements().getNamedItem(element.getLocalName());
 		if (!(parent instanceof CMElementDeclaration)) {
 			return true;

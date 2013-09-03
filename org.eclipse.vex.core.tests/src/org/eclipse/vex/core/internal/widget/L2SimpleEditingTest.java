@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  * 		Florian Thienel - initial API and implementation
  * 		Carsten Hiesserich - additional tests (bug 407827, 409032)
@@ -14,6 +14,7 @@ package org.eclipse.vex.core.internal.widget;
 import static org.eclipse.vex.core.internal.widget.VexWidgetTest.PARA;
 import static org.eclipse.vex.core.internal.widget.VexWidgetTest.PRE;
 import static org.eclipse.vex.core.internal.widget.VexWidgetTest.TITLE;
+import static org.eclipse.vex.core.internal.widget.VexWidgetTest.assertCanMorphOnlyTo;
 import static org.eclipse.vex.core.internal.widget.VexWidgetTest.createDocumentWithDTD;
 import static org.eclipse.vex.core.internal.widget.VexWidgetTest.getCurrentXML;
 import static org.eclipse.vex.core.tests.TestResources.TEST_DTD;
@@ -29,6 +30,7 @@ import java.util.List;
 import org.eclipse.vex.core.internal.css.CssWhitespacePolicy;
 import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.css.StyleSheetReader;
+import org.eclipse.vex.core.internal.io.XMLFragment;
 import org.eclipse.vex.core.internal.undo.CannotRedoException;
 import org.eclipse.vex.core.provisional.dom.DocumentValidationException;
 import org.eclipse.vex.core.provisional.dom.IDocumentFragment;
@@ -595,6 +597,100 @@ public class L2SimpleEditingTest {
 		widget.undo(); // set attribute
 
 		assertEquals(expectedXml, getCurrentXML(widget));
+	}
+
+	@Test
+	public void whenReadOnly_cannotMorph() throws Exception {
+		widget.insertElement(TITLE);
+		widget.setReadOnly(true);
+		assertFalse(widget.canMorph(PARA));
+	}
+
+	@Test(expected = ReadOnlyException.class)
+	public void whenReadOnly_shouldNotMorph() throws Exception {
+		widget.insertElement(TITLE);
+		widget.setReadOnly(true);
+		widget.morph(PARA);
+	}
+
+	@Test
+	public void cannotMorphRootElement() throws Exception {
+		assertFalse(widget.canMorph(TITLE));
+	}
+
+	@Test
+	public void morphEmptyElement() throws Exception {
+		widget.insertElement(TITLE);
+
+		assertTrue(widget.canMorph(PARA));
+		assertCanMorphOnlyTo(widget, PARA);
+		widget.morph(PARA);
+	}
+
+	@Test
+	public void givenElementWithText_whenMorphing_shouldPreserveText() throws Exception {
+		widget.insertElement(TITLE);
+		widget.insertText("text");
+
+		assertTrue(widget.canMorph(PARA));
+		widget.morph(PARA);
+
+		widget.selectAll();
+		assertEquals("<section><para>text</para></section>", new XMLFragment(widget.getSelectedFragment()).getXML());
+	}
+
+	@Test
+	public void givenElementWithChildren_whenStructureIsInvalidAfterMorphing_cannotMorph() throws Exception {
+		widget.insertElement(PARA);
+		widget.insertText("before");
+		widget.insertElement(PRE);
+		widget.insertText("within");
+		widget.moveBy(1);
+		widget.insertText("after");
+
+		assertFalse(widget.canMorph(TITLE));
+	}
+
+	@Test
+	public void givenElementWithChildren_whenStructureIsInvalidAfterMorphing_shouldNotProvideElementToMorph() throws Exception {
+		widget.insertElement(PARA);
+		widget.insertText("before");
+		widget.insertElement(PRE);
+		widget.insertText("within");
+		widget.moveBy(1);
+		widget.insertText("after");
+
+		assertCanMorphOnlyTo(widget /* nothing */);
+	}
+
+	@Test(expected = CannotRedoException.class)
+	public void givenElementWithChildren_whenStructureIsInvalidAfterMorphing_shouldNotMorph() throws Exception {
+		widget.insertElement(PARA);
+		widget.insertText("before");
+		widget.insertElement(PRE);
+		widget.insertText("within");
+		widget.moveBy(1);
+		widget.insertText("after");
+
+		widget.morph(TITLE);
+	}
+
+	@Test
+	public void givenAlternativeElement_whenElementIsNotAllowedAtCurrentInsertionPosition_cannotMorph() throws Exception {
+		widget.insertElement(PARA);
+		widget.moveBy(1);
+		widget.insertElement(PARA);
+
+		assertFalse(widget.canMorph(TITLE));
+	}
+
+	@Test
+	public void givenAlternativeElement_whenElementIsNotAllowedAtCurrentInsertionPosition_shouldNotProvideElementToMorph() throws Exception {
+		widget.insertElement(PARA);
+		widget.moveBy(1);
+		widget.insertElement(PARA);
+
+		assertCanMorphOnlyTo(widget /* nothing */);
 	}
 
 	private static StyleSheet readTestStyleSheet() throws IOException {

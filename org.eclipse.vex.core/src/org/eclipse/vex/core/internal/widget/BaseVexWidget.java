@@ -4,11 +4,11 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     John Krasnay - initial API and implementation
  *     Igor Jacy Lino Campista - Java 5 warnings fixed (bug 311325)
- *     Holger Voormann - bug 315914: content assist should only show elements 
+ *     Holger Voormann - bug 315914: content assist should only show elements
  *			valid in the current context
  *     Carsten Hiesserich - handling of elements within comments (bug 407801)
  *     Carsten Hiesserich - allow insertion of newline into pre elements (bug 407827)
@@ -297,11 +297,10 @@ public class BaseVexWidget implements IVexWidget {
 		}
 
 		final IElement parent = document.getElementForInsertionAt(startOffset);
-		final List<QualifiedName> seq1 = Node.getNodeNames(parent.children().before(startOffset));
-		final List<QualifiedName> seq2 = nodeNames;
-		final List<QualifiedName> seq3 = Node.getNodeNames(parent.children().after(endOffset));
+		final List<QualifiedName> nodesBefore = Node.getNodeNames(parent.children().before(startOffset));
+		final List<QualifiedName> nodesAfter = Node.getNodeNames(parent.children().after(endOffset));
 
-		return validator.isValidSequence(parent.getQualifiedName(), seq1, seq2, seq3, true);
+		return validator.isValidSequence(parent.getQualifiedName(), nodesBefore, nodeNames, nodesAfter, true);
 	}
 
 	public boolean canPaste() {
@@ -347,11 +346,11 @@ public class BaseVexWidget implements IVexWidget {
 			return false;
 		}
 
-		final List<QualifiedName> seq1 = Node.getNodeNames(parent.children().before(element.getStartOffset()));
-		final List<QualifiedName> seq2 = Node.getNodeNames(element.children());
-		final List<QualifiedName> seq3 = Node.getNodeNames(parent.children().after(element.getEndOffset()));
+		final List<QualifiedName> nodesBefore = Node.getNodeNames(parent.children().before(element.getStartOffset()));
+		final List<QualifiedName> newNodes = Node.getNodeNames(element.children());
+		final List<QualifiedName> nodesAfter = Node.getNodeNames(parent.children().after(element.getEndOffset()));
 
-		return validator.isValidSequence(parent.getQualifiedName(), seq1, seq2, seq3, true);
+		return validator.isValidSequence(parent.getQualifiedName(), nodesBefore, newNodes, nodesAfter, true);
 	}
 
 	public void copySelection() {
@@ -670,11 +669,7 @@ public class BaseVexWidget implements IVexWidget {
 
 		Collections.sort(candidates, new QualifiedNameComparator());
 
-		final ElementName[] result = new ElementName[candidates.size()];
-		int i = 0;
-		for (final QualifiedName candidate : candidates) {
-			result[i++] = new ElementName(candidate, parent.getNamespacePrefix(candidate.getQualifier()));
-		}
+		final ElementName[] result = toElementNames(parent, candidates);
 		return result;
 	}
 
@@ -699,7 +694,7 @@ public class BaseVexWidget implements IVexWidget {
 			sequence.addAll(nodesBefore);
 			sequence.add(candidate);
 			sequence.addAll(nodesAfter);
-			if (!validator.isValidSequence(parent.getQualifiedName(), sequence, true)) {
+			if (!canContainContent(validator, parent.getQualifiedName(), sequence)) {
 				iterator.remove();
 			}
 		}
@@ -708,7 +703,7 @@ public class BaseVexWidget implements IVexWidget {
 	private static void filterInvalidSelectionParents(final IValidator validator, final List<QualifiedName> selectedNodes, final List<QualifiedName> candidates) {
 		for (final Iterator<QualifiedName> iter = candidates.iterator(); iter.hasNext();) {
 			final QualifiedName candidate = iter.next();
-			if (!validator.isValidSequence(candidate, selectedNodes, true)) {
+			if (!canContainContent(validator, candidate, selectedNodes)) {
 				iter.remove();
 			}
 		}
@@ -720,48 +715,6 @@ public class BaseVexWidget implements IVexWidget {
 
 	public boolean isDebugging() {
 		return debugging;
-	}
-
-	public ElementName[] getValidMorphElements() {
-		if (readOnly) {
-			return new ElementName[0];
-		}
-
-		if (document == null) {
-			return new ElementName[0];
-		}
-
-		final IValidator validator = document.getValidator();
-		if (validator == null) {
-			return new ElementName[0];
-		}
-
-		final IElement element = document.getElementForInsertionAt(getCaretOffset());
-		final IElement parent = element.getParentElement();
-		if (parent == null) {
-			// can't morph the root
-			return new ElementName[0];
-		}
-
-		final List<QualifiedName> candidates = createCandidatesList(validator, parent, IValidator.PCDATA, element.getQualifiedName());
-
-		// root out those that can't contain the current content
-		final List<QualifiedName> content = Node.getNodeNames(element.children());
-
-		for (final Iterator<QualifiedName> iter = candidates.iterator(); iter.hasNext();) {
-			final QualifiedName candidate = iter.next();
-			if (!validator.isValidSequence(candidate, content, true)) {
-				iter.remove();
-			}
-		}
-
-		Collections.sort(candidates, new QualifiedNameComparator());
-		final ElementName[] result = new ElementName[candidates.size()];
-		int i = 0;
-		for (final QualifiedName candidate : candidates) {
-			result[i++] = new ElementName(candidate, parent.getNamespacePrefix(candidate.getQualifier()));
-		}
-		return result;
 	}
 
 	private int getSelectionEnd() {
@@ -1041,6 +994,97 @@ public class BaseVexWidget implements IVexWidget {
 		} finally {
 			endWork(success);
 		}
+	}
+
+	public ElementName[] getValidMorphElements() {
+		final IElement currentElement = document.getElementForInsertionAt(getCaretOffset());
+		if (!canMorphElement(currentElement)) {
+			return new ElementName[0];
+		}
+
+		final IValidator validator = document.getValidator();
+		final IElement parent = currentElement.getParentElement();
+		final List<QualifiedName> candidates = createCandidatesList(validator, parent, IValidator.PCDATA, currentElement.getQualifiedName());
+		if (candidates.isEmpty()) {
+			return new ElementName[0];
+		}
+
+		final List<QualifiedName> content = Node.getNodeNames(currentElement.children());
+		final List<QualifiedName> nodesBefore = Node.getNodeNames(parent.children().before(currentElement.getStartOffset()));
+		final List<QualifiedName> nodesAfter = Node.getNodeNames(parent.children().after(currentElement.getEndOffset()));
+
+		for (final Iterator<QualifiedName> iter = candidates.iterator(); iter.hasNext();) {
+			final QualifiedName candidate = iter.next();
+			if (!canContainContent(validator, candidate, content)) {
+				iter.remove();
+			} else if (!isValidChild(validator, parent.getQualifiedName(), candidate, nodesBefore, nodesAfter)) {
+				iter.remove();
+			}
+		}
+
+		Collections.sort(candidates, new QualifiedNameComparator());
+		return toElementNames(parent, candidates);
+	}
+
+	private static ElementName[] toElementNames(final IElement parent, final List<QualifiedName> candidates) {
+		final ElementName[] result = new ElementName[candidates.size()];
+		int i = 0;
+		for (final QualifiedName candidate : candidates) {
+			result[i++] = new ElementName(candidate, parent.getNamespacePrefix(candidate.getQualifier()));
+		}
+		return result;
+	}
+
+	private boolean canMorphElement(final IElement element) {
+		if (readOnly) {
+			return false;
+		}
+
+		if (document == null) {
+			return false;
+		}
+
+		if (document.getValidator() == null) {
+			return false;
+		}
+
+		if (element.getParentElement() == null) {
+			return false;
+		}
+
+		if (element == document.getRootElement()) {
+			return false;
+		}
+
+		return true;
+	}
+
+	private static boolean canContainContent(final IValidator validator, final QualifiedName elementName, final List<QualifiedName> content) {
+		return validator.isValidSequence(elementName, content, true);
+	}
+
+	private static boolean isValidChild(final IValidator validator, final QualifiedName parentName, final QualifiedName elementName, final List<QualifiedName> nodesBefore,
+			final List<QualifiedName> nodesAfter) {
+		return validator.isValidSequence(parentName, nodesBefore, Arrays.asList(elementName), nodesAfter, true);
+	}
+
+	public boolean canMorph(final QualifiedName elementName) {
+		final IElement currentElement = document.getElementForInsertionAt(getCaretOffset());
+		if (!canMorphElement(currentElement)) {
+			return false;
+		}
+
+		final IValidator validator = document.getValidator();
+
+		if (!canContainContent(validator, elementName, Node.getNodeNames(currentElement.children()))) {
+			return false;
+		}
+
+		final IElement parent = currentElement.getParentElement();
+		final List<QualifiedName> nodesBefore = Node.getNodeNames(parent.children().before(currentElement.getStartOffset()));
+		final List<QualifiedName> nodesAfter = Node.getNodeNames(parent.children().after(currentElement.getEndOffset()));
+
+		return isValidChild(validator, parent.getQualifiedName(), elementName, nodesBefore, nodesAfter);
 	}
 
 	public void morph(final QualifiedName elementName) throws DocumentValidationException, ReadOnlyException {
@@ -1542,11 +1586,11 @@ public class BaseVexWidget implements IVexWidget {
 		final int startOffset = element.getStartOffset();
 		final int endOffset = element.getEndOffset();
 
-		final List<QualifiedName> seq1 = Node.getNodeNames(parent.children().before(startOffset));
-		final List<QualifiedName> seq2 = Arrays.asList(element.getQualifiedName(), element.getQualifiedName());
-		final List<QualifiedName> seq3 = Node.getNodeNames(parent.children().after(endOffset));
+		final List<QualifiedName> nodesBefore = Node.getNodeNames(parent.children().before(startOffset));
+		final List<QualifiedName> newNodes = Arrays.asList(element.getQualifiedName(), element.getQualifiedName());
+		final List<QualifiedName> nodesAfter = Node.getNodeNames(parent.children().after(endOffset));
 
-		return validator.isValidSequence(parent.getQualifiedName(), seq1, seq2, seq3, true);
+		return validator.isValidSequence(parent.getQualifiedName(), nodesBefore, newNodes, nodesAfter, true);
 	}
 
 	public void split() throws DocumentValidationException, ReadOnlyException {
