@@ -693,6 +693,16 @@ public class L2SimpleEditingTest {
 		assertCanMorphOnlyTo(widget /* nothing */);
 	}
 
+	@Test
+	public void givenElementWithAttributes_whenUndoMorph_shouldPreserveAttributes() throws Exception {
+		widget.insertElement(PARA);
+		widget.setAttribute("id", "idValue");
+		widget.morph(TITLE);
+		widget.undo();
+
+		assertEquals("idValue", widget.getCurrentElement().getAttribute("id").getValue());
+	}
+
 	private static StyleSheet readTestStyleSheet() throws IOException {
 		return new StyleSheetReader().read(TestResources.get("test.css"));
 	}

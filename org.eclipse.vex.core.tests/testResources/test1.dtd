@@ -11,10 +11,14 @@
 <!ELEMENT index (para+)>
 <!ELEMENT pre (#PCDATA | emphasis)*>
 
-<!-- a dummy attribute, just to make sure attribute def serialization is OK -->
 <!ATTLIST section
 	xmlns:ns1	CDATA	#FIXED	'http://www.eclipse.org/vex/test/test_ns1'
 	name		CDATA	#IMPLIED
 	enatt 		(value1|value2|value3) 'value1'
 	ns1:att1	CDATA	#IMPLIED
-	reqatt		CDATA	#REQUIRED>
+	reqatt		CDATA	#REQUIRED
+>
+
+<!ATTLIST para
+	id			ID		#IMPLIED
+>
