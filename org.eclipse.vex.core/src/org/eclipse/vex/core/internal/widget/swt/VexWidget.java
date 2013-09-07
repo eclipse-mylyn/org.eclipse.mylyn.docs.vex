@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     John Krasnay - initial API and implementation
  *     Igor Jacy Lino Campista - Java 5 warnings fixed (bug 311325)
@@ -156,10 +156,6 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 		return impl.canUndo();
 	}
 
-	public boolean canUnwrap() {
-		return impl.canUnwrap();
-	}
-
 	@Override
 	public Point computeSize(final int wHint, final int hHint, final boolean changed) {
 		final org.eclipse.swt.graphics.Rectangle r = getClientArea();
@@ -302,6 +298,14 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 
 	public boolean isDebugging() {
 		return impl.isDebugging();
+	}
+
+	public boolean canUnwrap() {
+		return impl.canUnwrap();
+	}
+
+	public void unwrap() throws DocumentValidationException {
+		impl.unwrap();
 	}
 
 	public boolean canMorph(final QualifiedName elementName) {
@@ -737,7 +741,7 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 
 	private static void buildKeyMap() {
 
-		// arrows: (Shift) Up/Down, {-, Shift, Ctrl, Shift+Ctrl} + Left/Right 
+		// arrows: (Shift) Up/Down, {-, Shift, Ctrl, Shift+Ctrl} + Left/Right
 		addKey(CHAR_NONE, SWT.ARROW_DOWN, SWT.NONE, new Action() {
 			@Override
 			public void runEx(final IVexWidget w) {

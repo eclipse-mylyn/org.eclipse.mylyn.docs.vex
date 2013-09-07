@@ -325,34 +325,6 @@ public class BaseVexWidget implements IVexWidget {
 		return !undoList.isEmpty();
 	}
 
-	public boolean canUnwrap() {
-		if (readOnly) {
-			return false;
-		}
-
-		if (document == null) {
-			return false;
-		}
-
-		final IValidator validator = document.getValidator();
-		if (validator == null) {
-			return false;
-		}
-
-		final IElement element = document.getElementForInsertionAt(getCaretOffset());
-		final IElement parent = element.getParentElement();
-		if (parent == null) {
-			// can't unwrap the root
-			return false;
-		}
-
-		final List<QualifiedName> nodesBefore = Node.getNodeNames(parent.children().before(element.getStartOffset()));
-		final List<QualifiedName> newNodes = Node.getNodeNames(element.children());
-		final List<QualifiedName> nodesAfter = Node.getNodeNames(parent.children().after(element.getEndOffset()));
-
-		return validator.isValidSequence(parent.getQualifiedName(), nodesBefore, newNodes, nodesAfter, true);
-	}
-
 	public void copySelection() {
 		throw new UnsupportedOperationException("Must be implemented in tookit-specific widget.");
 	}
@@ -991,6 +963,66 @@ public class BaseVexWidget implements IVexWidget {
 			scrollCaretVisible();
 			success = true;
 			return result;
+		} finally {
+			endWork(success);
+		}
+	}
+
+	public boolean canUnwrap() {
+		if (readOnly) {
+			return false;
+		}
+
+		if (document == null) {
+			return false;
+		}
+
+		final IValidator validator = document.getValidator();
+		if (validator == null) {
+			return false;
+		}
+
+		final IElement element = document.getElementForInsertionAt(getCaretOffset());
+		final IElement parent = element.getParentElement();
+		if (parent == null) {
+			// can't unwrap the root
+			return false;
+		}
+
+		final List<QualifiedName> nodesBefore = Node.getNodeNames(parent.children().before(element.getStartOffset()));
+		final List<QualifiedName> newNodes = Node.getNodeNames(element.children());
+		final List<QualifiedName> nodesAfter = Node.getNodeNames(parent.children().after(element.getEndOffset()));
+
+		return validator.isValidSequence(parent.getQualifiedName(), nodesBefore, newNodes, nodesAfter, true);
+	}
+
+	public void unwrap() throws DocumentValidationException, ReadOnlyException {
+		if (readOnly) {
+			throw new ReadOnlyException("Cannot unwrap the element, because the editor is read-only.");
+		}
+
+		final int offset = getCaretOffset();
+		final IElement currentElement = document.getElementForInsertionAt(offset);
+
+		if (currentElement == document.getRootElement()) {
+			throw new DocumentValidationException("Cannot unwrap the root element.");
+		}
+
+		boolean success = false;
+		try {
+			beginWork();
+			this.moveTo(currentElement.getStartOffset() + 1, false);
+			this.moveTo(currentElement.getEndOffset(), true);
+			final IDocumentFragment frag = getSelectedFragment();
+			deleteSelection();
+			this.moveBy(-1, false);
+			this.moveBy(2, true);
+			deleteSelection();
+			if (frag != null) {
+				insertFragment(frag);
+			}
+			this.moveTo(offset - 1, false);
+			success = true;
 		} finally {
 			endWork(success);
 		}

@@ -196,4 +196,8 @@ public class VexWidgetTest {
 	public static String getCurrentXML(final IVexWidget widget) {
 		return new XMLFragment(widget.getDocument().getFragment(widget.getDocument().getRootElement().getRange())).getXML();
 	}
+
+	public static void assertXmlEquals(final String expected, final IVexWidget widget) {
+		assertEquals(expected, getCurrentXML(widget));
+	}
 }

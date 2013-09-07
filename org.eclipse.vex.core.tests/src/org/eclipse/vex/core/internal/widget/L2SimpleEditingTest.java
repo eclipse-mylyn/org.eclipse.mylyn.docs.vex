@@ -15,6 +15,7 @@ import static org.eclipse.vex.core.internal.widget.VexWidgetTest.PARA;
 import static org.eclipse.vex.core.internal.widget.VexWidgetTest.PRE;
 import static org.eclipse.vex.core.internal.widget.VexWidgetTest.TITLE;
 import static org.eclipse.vex.core.internal.widget.VexWidgetTest.assertCanMorphOnlyTo;
+import static org.eclipse.vex.core.internal.widget.VexWidgetTest.assertXmlEquals;
 import static org.eclipse.vex.core.internal.widget.VexWidgetTest.createDocumentWithDTD;
 import static org.eclipse.vex.core.internal.widget.VexWidgetTest.getCurrentXML;
 import static org.eclipse.vex.core.tests.TestResources.TEST_DTD;
@@ -30,7 +31,6 @@ import java.util.List;
 import org.eclipse.vex.core.internal.css.CssWhitespacePolicy;
 import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.css.StyleSheetReader;
-import org.eclipse.vex.core.internal.io.XMLFragment;
 import org.eclipse.vex.core.internal.undo.CannotRedoException;
 import org.eclipse.vex.core.provisional.dom.DocumentValidationException;
 import org.eclipse.vex.core.provisional.dom.IDocumentFragment;
@@ -524,7 +524,7 @@ public class L2SimpleEditingTest {
 		widget.undo();
 		widget.undo();
 
-		assertEquals(expectedXml, getCurrentXML(widget));
+		assertXmlEquals(expectedXml, widget);
 	}
 
 	@Test
@@ -578,7 +578,7 @@ public class L2SimpleEditingTest {
 		widget.undo(); // delete
 		widget.undo(); // declare namespace
 
-		assertEquals(expectedXml, getCurrentXML(widget));
+		assertXmlEquals(expectedXml, widget);
 	}
 
 	@Test
@@ -596,7 +596,7 @@ public class L2SimpleEditingTest {
 		widget.undo(); // delete
 		widget.undo(); // set attribute
 
-		assertEquals(expectedXml, getCurrentXML(widget));
+		assertXmlEquals(expectedXml, widget);
 	}
 
 	@Test
@@ -636,7 +636,7 @@ public class L2SimpleEditingTest {
 		widget.morph(PARA);
 
 		widget.selectAll();
-		assertEquals("<section><para>text</para></section>", new XMLFragment(widget.getSelectedFragment()).getXML());
+		assertXmlEquals("<section><para>text</para></section>", widget);
 	}
 
 	@Test
@@ -693,7 +693,6 @@ public class L2SimpleEditingTest {
 		assertCanMorphOnlyTo(widget /* nothing */);
 	}
 
-	@Test
 	public void givenElementWithAttributes_whenUndoMorph_shouldPreserveAttributes() throws Exception {
 		widget.insertElement(PARA);
 		widget.setAttribute("id", "idValue");
@@ -701,6 +700,94 @@ public class L2SimpleEditingTest {
 		widget.undo();
 
 		assertEquals("idValue", widget.getCurrentElement().getAttribute("id").getValue());
+	}
+
+	public void whenReadOnly_cannotUnwrap() throws Exception {
+		widget.insertElement(PARA);
+		widget.insertElement(PRE);
+		widget.insertText("text");
+		widget.setReadOnly(true);
+		assertFalse(widget.canUnwrap());
+	}
+
+	@Test(expected = ReadOnlyException.class)
+	public void whenReadOnly_shouldNotUnwrap() throws Exception {
+		widget.insertElement(PARA);
+		widget.insertElement(PRE);
+		widget.insertText("text");
+		widget.setReadOnly(true);
+		widget.unwrap();
+	}
+
+	@Test
+	public void cannotUnwrapRootElement() throws Exception {
+		assertFalse(widget.canUnwrap());
+	}
+
+	@Test
+	public void unwrapEmptyElement() throws Exception {
+		widget.insertElement(PARA);
+		widget.unwrap();
+
+		widget.selectAll();
+		assertXmlEquals("<section></section>", widget);
+	}
+
+	@Test
+	public void givenInlineElementWithText_shouldUnwrapInlineElement() throws Exception {
+		final IElement para = widget.insertElement(PARA);
+		widget.insertElement(PRE);
+		widget.insertText("text");
+		widget.unwrap();
+
+		assertSame(para, widget.getCurrentElement());
+		widget.selectAll();
+		assertXmlEquals("<section><para>text</para></section>", widget);
+	}
+
+	@Test
+	public void givenElementWithText_whenParentDoesNotAllowText_cannotUnwrap() throws Exception {
+		widget.insertElement(PARA);
+		widget.insertText("text");
+
+		assertFalse(widget.canUnwrap());
+	}
+
+	@Test(expected = CannotRedoException.class)
+	public void givenElementWithText_whenParentDoesNotAllowText_shouldNotUnwrap() throws Exception {
+		widget.insertElement(PARA);
+		widget.insertText("text");
+		widget.unwrap();
+	}
+
+	@Test
+	public void givenElementWithChildren_whenParentDoesNotAllowChildren_cannotUnwrap() throws Exception {
+		widget.insertElement(PARA);
+		widget.insertElement(PRE);
+		widget.moveBy(1);
+
+		assertFalse(widget.canUnwrap());
+	}
+
+	@Test(expected = CannotRedoException.class)
+	public void givenElementWithChildren_whenParentDoesNotAllowChildren_shouldNotUnwrap() throws Exception {
+		widget.insertElement(PARA);
+		widget.insertElement(PRE);
+		widget.moveBy(1);
+		widget.unwrap();
+	}
+
+	@Test
+	public void givenElementWithAttributes_whenUndoUnwrap_shouldPreserveAttributes() throws Exception {
+		widget.insertElement(PARA);
+		widget.insertElement(PRE);
+		widget.setAttribute("id", "idValue");
+
+		widget.unwrap();
+		widget.undo();
+
+		assertEquals(PRE, widget.getCurrentElement().getQualifiedName());
+		assertEquals("idValue", widget.getCurrentElement().getAttributeValue("id"));
 	}
 
 	private static StyleSheet readTestStyleSheet() throws IOException {

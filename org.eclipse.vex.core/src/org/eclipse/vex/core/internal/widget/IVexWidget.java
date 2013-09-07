@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     John Krasnay - initial API and implementation
  *     Carsten Hiesserich - insertXML (bug 408501)
@@ -587,6 +587,8 @@ public interface IVexWidget {
 	 * Returns true if the current element can be unwrapped, i.e. replaced with its content.
 	 */
 	boolean canUnwrap();
+
+	void unwrap() throws DocumentValidationException;
 
 	/**
 	 * Indicates whether the current element can be morphed into the given element.
