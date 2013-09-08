@@ -626,6 +626,10 @@ public interface IVexWidget {
 	 */
 	void morph(QualifiedName elementName) throws DocumentValidationException;
 
+	boolean canJoin();
+
+	void join() throws DocumentValidationException;
+
 	public void setWhitespacePolicy(IWhitespacePolicy whitespacePolicy);
 
 	public IWhitespacePolicy getWhitespacePolicy();

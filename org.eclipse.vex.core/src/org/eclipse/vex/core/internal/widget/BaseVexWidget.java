@@ -69,6 +69,7 @@ import org.eclipse.vex.core.provisional.dom.ContentChangeEvent;
 import org.eclipse.vex.core.provisional.dom.ContentRange;
 import org.eclipse.vex.core.provisional.dom.DocumentValidationException;
 import org.eclipse.vex.core.provisional.dom.Filters;
+import org.eclipse.vex.core.provisional.dom.IAxis;
 import org.eclipse.vex.core.provisional.dom.IComment;
 import org.eclipse.vex.core.provisional.dom.IDocument;
 import org.eclipse.vex.core.provisional.dom.IDocumentFragment;
@@ -146,6 +147,7 @@ public class BaseVexWidget implements IVexWidget {
 
 	private final IDocumentListener documentListener = new IDocumentListener() {
 
+		@Override
 		public void attributeChanged(final AttributeChangeEvent e) {
 			invalidateElementBox(e.getParent());
 
@@ -161,6 +163,7 @@ public class BaseVexWidget implements IVexWidget {
 			fireSelectionChanged();
 		}
 
+		@Override
 		public void beforeContentDeleted(final ContentChangeEvent e) {
 			// Clean-up stylesheet cache
 			if (e.isStructuralChange()) {
@@ -171,9 +174,11 @@ public class BaseVexWidget implements IVexWidget {
 			}
 		}
 
+		@Override
 		public void beforeContentInserted(final ContentChangeEvent e) {
 		}
 
+		@Override
 		public void contentDeleted(final ContentChangeEvent e) {
 			flushStyles(e);
 			invalidateElementBox(e.getParent());
@@ -181,6 +186,7 @@ public class BaseVexWidget implements IVexWidget {
 			BaseVexWidget.this.relayout();
 		}
 
+		@Override
 		public void contentInserted(final ContentChangeEvent e) {
 			flushStyles(e);
 			invalidateElementBox(e.getParent());
@@ -188,6 +194,7 @@ public class BaseVexWidget implements IVexWidget {
 			BaseVexWidget.this.relayout();
 		}
 
+		@Override
 		public void namespaceChanged(final NamespaceDeclarationChangeEvent e) {
 			invalidateElementBox(e.getParent());
 
@@ -234,6 +241,7 @@ public class BaseVexWidget implements IVexWidget {
 		styleSheet = null;
 	}
 
+	@Override
 	public void beginWork() {
 		if (beginWorkCount == 0) {
 			beginWorkCaretOffset = getCaretOffset();
@@ -278,6 +286,7 @@ public class BaseVexWidget implements IVexWidget {
 		return beginWorkCount > 0;
 	}
 
+	@Override
 	public boolean canInsertComment() {
 		if (readOnly) {
 			return false;
@@ -288,10 +297,12 @@ public class BaseVexWidget implements IVexWidget {
 		return document.canInsertComment(getCaretOffset());
 	}
 
+	@Override
 	public boolean canInsertFragment(final IDocumentFragment fragment) {
 		return canInsertAtCurrentSelection(fragment.getNodeNames());
 	}
 
+	@Override
 	public boolean canInsertText() {
 		return canReplaceCurrentSelectionWith(IValidator.PCDATA);
 	}
@@ -328,14 +339,17 @@ public class BaseVexWidget implements IVexWidget {
 		return validator.isValidSequence(parent.getQualifiedName(), nodesBefore, nodeNames, nodesAfter, true);
 	}
 
+	@Override
 	public boolean canPaste() {
 		throw new UnsupportedOperationException("Must be implemented in tookit-specific widget.");
 	}
 
+	@Override
 	public boolean canPasteText() {
 		throw new UnsupportedOperationException("Must be implemented in tookit-specific widget.");
 	}
 
+	@Override
 	public boolean canRedo() {
 		if (readOnly) {
 			return false;
@@ -343,6 +357,7 @@ public class BaseVexWidget implements IVexWidget {
 		return !redoList.isEmpty();
 	}
 
+	@Override
 	public boolean canUndo() {
 		if (readOnly) {
 			return false;
@@ -350,14 +365,17 @@ public class BaseVexWidget implements IVexWidget {
 		return !undoList.isEmpty();
 	}
 
+	@Override
 	public void copySelection() {
 		throw new UnsupportedOperationException("Must be implemented in tookit-specific widget.");
 	}
 
+	@Override
 	public void cutSelection() {
 		throw new UnsupportedOperationException("Must be implemented in tookit-specific widget.");
 	}
 
+	@Override
 	public void deleteNextChar() throws DocumentValidationException, ReadOnlyException {
 		if (readOnly) {
 			throw new ReadOnlyException("Cannot delete, because the editor is read-only.");
@@ -391,6 +409,7 @@ public class BaseVexWidget implements IVexWidget {
 		}
 	}
 
+	@Override
 	public void deletePreviousChar() throws DocumentValidationException, ReadOnlyException {
 		if (readOnly) {
 			throw new ReadOnlyException("Cannot delete, because the editor is read-only.");
@@ -426,6 +445,7 @@ public class BaseVexWidget implements IVexWidget {
 		}
 	}
 
+	@Override
 	public boolean canDeleteSelection() {
 		if (readOnly) {
 			return false;
@@ -436,6 +456,7 @@ public class BaseVexWidget implements IVexWidget {
 		return document.canDelete(getSelectedRange());
 	}
 
+	@Override
 	public void deleteSelection() throws ReadOnlyException {
 		if (readOnly) {
 			throw new ReadOnlyException("Cannot delete, because the editor is read-only.");
@@ -471,10 +492,12 @@ public class BaseVexWidget implements IVexWidget {
 		}
 	}
 
+	@Override
 	public void doWork(final Runnable runnable) {
 		this.doWork(runnable, false);
 	}
 
+	@Override
 	public void doWork(final Runnable runnable, final boolean savePosition) {
 		IPosition position = null;
 
@@ -551,6 +574,7 @@ public class BaseVexWidget implements IVexWidget {
 		return caret;
 	}
 
+	@Override
 	public int getCaretOffset() {
 		return caretOffset;
 	}
@@ -569,6 +593,7 @@ public class BaseVexWidget implements IVexWidget {
 		return getCaretOffset();
 	}
 
+	@Override
 	public IElement getCurrentElement() {
 		return currentNode.accept(new BaseNodeVisitorWithResult<IElement>(null) {
 			@Override
@@ -588,10 +613,12 @@ public class BaseVexWidget implements IVexWidget {
 		});
 	}
 
+	@Override
 	public INode getCurrentNode() {
 		return currentNode;
 	}
 
+	@Override
 	public IDocument getDocument() {
 		return document;
 	}
@@ -603,6 +630,7 @@ public class BaseVexWidget implements IVexWidget {
 		return rootBox.getHeight();
 	}
 
+	@Override
 	public ElementName[] getValidInsertElements() {
 		if (readOnly) {
 			return new ElementName[0];
@@ -686,6 +714,7 @@ public class BaseVexWidget implements IVexWidget {
 		return antiAliased;
 	}
 
+	@Override
 	public boolean isDebugging() {
 		return debugging;
 	}
@@ -698,6 +727,7 @@ public class BaseVexWidget implements IVexWidget {
 		return selectionStart;
 	}
 
+	@Override
 	public ContentRange getSelectedRange() {
 		if (!hasSelection()) {
 			return new ContentRange(getCaretOffset(), getCaretOffset());
@@ -705,6 +735,7 @@ public class BaseVexWidget implements IVexWidget {
 		return new ContentRange(getSelectionStart(), getSelectionEnd() - 1);
 	}
 
+	@Override
 	public IDocumentFragment getSelectedFragment() {
 		if (hasSelection()) {
 			return document.getFragment(getSelectedRange());
@@ -713,6 +744,7 @@ public class BaseVexWidget implements IVexWidget {
 		}
 	}
 
+	@Override
 	public String getSelectedText() {
 		if (hasSelection()) {
 			return document.getText(getSelectedRange());
@@ -721,10 +753,12 @@ public class BaseVexWidget implements IVexWidget {
 		}
 	}
 
+	@Override
 	public StyleSheet getStyleSheet() {
 		return styleSheet;
 	}
 
+	@Override
 	public int getLayoutWidth() {
 		return layoutWidth;
 	}
@@ -733,14 +767,17 @@ public class BaseVexWidget implements IVexWidget {
 		return rootBox;
 	}
 
+	@Override
 	public boolean hasSelection() {
 		return getSelectionStart() != getSelectionEnd();
 	}
 
+	@Override
 	public boolean canInsertElement(final QualifiedName elementName) {
 		return canReplaceCurrentSelectionWith(elementName);
 	}
 
+	@Override
 	public IElement insertElement(final QualifiedName elementName) throws DocumentValidationException, ReadOnlyException {
 		if (readOnly) {
 			throw new ReadOnlyException(MessageFormat.format("Cannot insert element {0}, because the editor is read-only.", elementName));
@@ -771,6 +808,7 @@ public class BaseVexWidget implements IVexWidget {
 		}
 	}
 
+	@Override
 	public void insertFragment(final IDocumentFragment fragment) throws DocumentValidationException {
 		if (readOnly) {
 			throw new ReadOnlyException("Cannot insert fragment, because the editor is read-only");
@@ -798,6 +836,7 @@ public class BaseVexWidget implements IVexWidget {
 		}
 	}
 
+	@Override
 	public void insertText(final String text) throws DocumentValidationException, ReadOnlyException {
 		if (readOnly) {
 			throw new ReadOnlyException("Cannot insert text, because the editor is read-only.");
@@ -849,6 +888,7 @@ public class BaseVexWidget implements IVexWidget {
 		}
 	}
 
+	@Override
 	public void insertXML(final String xml) throws DocumentValidationException, ReadOnlyException {
 		if (readOnly) {
 			throw new ReadOnlyException("Cannot insert text, because the editor is read-only.");
@@ -932,6 +972,7 @@ public class BaseVexWidget implements IVexWidget {
 		return null;
 	}
 
+	@Override
 	public void insertChar(final char c) throws DocumentValidationException, ReadOnlyException {
 		if (readOnly) {
 			throw new ReadOnlyException("Cannot insert a character, because the editor is read-only.");
@@ -944,6 +985,7 @@ public class BaseVexWidget implements IVexWidget {
 		this.moveBy(+1);
 	}
 
+	@Override
 	public IComment insertComment() throws DocumentValidationException, ReadOnlyException {
 		if (readOnly) {
 			throw new ReadOnlyException("Cannot insert comment, because the editor is read-only.");
@@ -969,6 +1011,7 @@ public class BaseVexWidget implements IVexWidget {
 		}
 	}
 
+	@Override
 	public boolean canUnwrap() {
 		if (readOnly) {
 			return false;
@@ -997,6 +1040,7 @@ public class BaseVexWidget implements IVexWidget {
 		return validator.isValidSequence(parent.getQualifiedName(), nodesBefore, newNodes, nodesAfter, true);
 	}
 
+	@Override
 	public void unwrap() throws DocumentValidationException, ReadOnlyException {
 		if (readOnly) {
 			throw new ReadOnlyException("Cannot unwrap the element, because the editor is read-only.");
@@ -1029,6 +1073,7 @@ public class BaseVexWidget implements IVexWidget {
 		}
 	}
 
+	@Override
 	public ElementName[] getValidMorphElements() {
 		final IElement currentElement = document.getElementForInsertionAt(getCaretOffset());
 		if (!canMorphElement(currentElement)) {
@@ -1101,6 +1146,7 @@ public class BaseVexWidget implements IVexWidget {
 		return validator.isValidSequence(parentName, nodesBefore, Arrays.asList(elementName), nodesAfter, true);
 	}
 
+	@Override
 	public boolean canMorph(final QualifiedName elementName) {
 		final IElement currentElement = document.getElementForInsertionAt(getCaretOffset());
 		if (!canMorphElement(currentElement)) {
@@ -1120,6 +1166,7 @@ public class BaseVexWidget implements IVexWidget {
 		return isValidChild(validator, parent.getQualifiedName(), elementName, nodesBefore, nodesAfter);
 	}
 
+	@Override
 	public void morph(final QualifiedName elementName) throws DocumentValidationException, ReadOnlyException {
 		if (readOnly) {
 			throw new ReadOnlyException(MessageFormat.format("Cannot morph to element {0}, because the editor is read-only.", elementName));
@@ -1154,18 +1201,22 @@ public class BaseVexWidget implements IVexWidget {
 
 	}
 
+	@Override
 	public void moveBy(final int distance) {
 		this.moveTo(getCaretOffset() + distance, false);
 	}
 
+	@Override
 	public void moveBy(final int distance, final boolean select) {
 		this.moveTo(getCaretOffset() + distance, select);
 	}
 
+	@Override
 	public void moveTo(final int offset) {
 		this.moveTo(offset, false);
 	}
 
+	@Override
 	public void moveTo(final int offset, final boolean select) {
 		if (!Document.isInsertionPointIn(document, offset)) {
 			return;
@@ -1271,14 +1322,17 @@ public class BaseVexWidget implements IVexWidget {
 		mark = offset;
 	}
 
+	@Override
 	public void moveToLineEnd(final boolean select) {
 		this.moveTo(rootBox.getLineEndOffset(getCaretOffset()), select);
 	}
 
+	@Override
 	public void moveToLineStart(final boolean select) {
 		this.moveTo(rootBox.getLineStartOffset(getCaretOffset()), select);
 	}
 
+	@Override
 	public void moveToNextLine(final boolean select) {
 		final int x = magicX == -1 ? caret.getBounds().getX() : magicX;
 
@@ -1290,6 +1344,7 @@ public class BaseVexWidget implements IVexWidget {
 		magicX = x;
 	}
 
+	@Override
 	public void moveToNextPage(final boolean select) {
 		final int x = magicX == -1 ? caret.getBounds().getX() : magicX;
 		final int y = caret.getY() + Math.round(hostComponent.getViewport().getHeight() * 0.9f);
@@ -1297,6 +1352,7 @@ public class BaseVexWidget implements IVexWidget {
 		magicX = x;
 	}
 
+	@Override
 	public void moveToNextWord(final boolean select) {
 		final int n = document.getLength() - 1;
 		int offset = getCaretOffset();
@@ -1311,6 +1367,7 @@ public class BaseVexWidget implements IVexWidget {
 		this.moveTo(offset, select);
 	}
 
+	@Override
 	public void moveToPreviousLine(final boolean select) {
 		final int x = magicX == -1 ? caret.getBounds().getX() : magicX;
 
@@ -1322,6 +1379,7 @@ public class BaseVexWidget implements IVexWidget {
 		magicX = x;
 	}
 
+	@Override
 	public void moveToPreviousPage(final boolean select) {
 		final int x = magicX == -1 ? caret.getBounds().getX() : magicX;
 		final int y = caret.getY() - Math.round(hostComponent.getViewport().getHeight() * 0.9f);
@@ -1329,6 +1387,7 @@ public class BaseVexWidget implements IVexWidget {
 		magicX = x;
 	}
 
+	@Override
 	public void moveToPreviousWord(final boolean select) {
 		int offset = getCaretOffset();
 		while (offset > 1 && !Character.isLetterOrDigit(document.getCharacterAt(offset - 1))) {
@@ -1440,14 +1499,17 @@ public class BaseVexWidget implements IVexWidget {
 		 */
 	}
 
+	@Override
 	public void paste() throws DocumentValidationException {
 		throw new UnsupportedOperationException("Must be implemented in tookit-specific widget.");
 	}
 
+	@Override
 	public void pasteText() throws DocumentValidationException {
 		throw new UnsupportedOperationException("Must be implemented in tookit-specific widget.");
 	}
 
+	@Override
 	public void redo() throws CannotRedoException, ReadOnlyException {
 		if (readOnly) {
 			throw new ReadOnlyException("Cannot redo, because the editor is read-only.");
@@ -1461,6 +1523,7 @@ public class BaseVexWidget implements IVexWidget {
 		undoList.add(event);
 	}
 
+	@Override
 	public void savePosition(final Runnable runnable) {
 		final IPosition pos = document.createPosition(getCaretOffset());
 		try {
@@ -1480,6 +1543,7 @@ public class BaseVexWidget implements IVexWidget {
 		this.antiAliased = antiAliased;
 	}
 
+	@Override
 	public boolean canSetAttribute(final String attributeName, final String value) {
 		if (readOnly) {
 			return false;
@@ -1492,6 +1556,7 @@ public class BaseVexWidget implements IVexWidget {
 		return element.canSetAttribute(qualifiedAttributeName, value);
 	}
 
+	@Override
 	public void setAttribute(final String attributeName, final String value) throws ReadOnlyException {
 		if (readOnly) {
 			throw new ReadOnlyException(MessageFormat.format("Cannot set attribute {0}, because the editor is read-only.", attributeName));
@@ -1511,6 +1576,7 @@ public class BaseVexWidget implements IVexWidget {
 		}
 	}
 
+	@Override
 	public boolean canRemoveAttribute(final String attributeName) {
 		if (readOnly) {
 			return false;
@@ -1525,6 +1591,7 @@ public class BaseVexWidget implements IVexWidget {
 		return element.canRemoveAttribute(qualifiedAttributeName);
 	}
 
+	@Override
 	public void removeAttribute(final String attributeName) throws ReadOnlyException {
 		if (readOnly) {
 			throw new ReadOnlyException(MessageFormat.format("Cannot remove attribute {0}, because the editor is read-only.", attributeName));
@@ -1542,18 +1609,22 @@ public class BaseVexWidget implements IVexWidget {
 		}
 	}
 
+	@Override
 	public void setDebugging(final boolean debugging) {
 		this.debugging = debugging;
 	}
 
+	@Override
 	public boolean isReadOnly() {
 		return readOnly;
 	}
 
+	@Override
 	public void setReadOnly(final boolean readOnly) {
 		this.readOnly = readOnly;
 	}
 
+	@Override
 	public void setDocument(final IDocument document, final StyleSheet styleSheet) {
 		if (this.document != null) {
 			final IDocument doc = document;
@@ -1585,6 +1656,7 @@ public class BaseVexWidget implements IVexWidget {
 		repaintCaret();
 	}
 
+	@Override
 	public void setLayoutWidth(int width) {
 		width = Math.max(width, MIN_LAYOUT_WIDTH);
 		if (document != null && width != getLayoutWidth()) {
@@ -1597,6 +1669,7 @@ public class BaseVexWidget implements IVexWidget {
 		}
 	}
 
+	@Override
 	public void setStyleSheet(final StyleSheet styleSheet) {
 		if (document != null) {
 			relayoutAll(layoutWidth, styleSheet);
@@ -1609,6 +1682,7 @@ public class BaseVexWidget implements IVexWidget {
 		this.setStyleSheet(ss);
 	}
 
+	@Override
 	public void setWhitespacePolicy(final IWhitespacePolicy whitespacePolicy) {
 		if (whitespacePolicy == null) {
 			this.whitespacePolicy = IWhitespacePolicy.NULL;
@@ -1617,10 +1691,12 @@ public class BaseVexWidget implements IVexWidget {
 		}
 	}
 
+	@Override
 	public IWhitespacePolicy getWhitespacePolicy() {
 		return whitespacePolicy;
 	}
 
+	@Override
 	public boolean canSplit() {
 		if (readOnly) {
 			return false;
@@ -1655,6 +1731,7 @@ public class BaseVexWidget implements IVexWidget {
 		return validator.isValidSequence(parent.getQualifiedName(), nodesBefore, newNodes, nodesAfter, true);
 	}
 
+	@Override
 	public void split() throws DocumentValidationException, ReadOnlyException {
 		if (readOnly) {
 			throw new ReadOnlyException("Cannot split, because the editor is read-only.");
@@ -1715,6 +1792,7 @@ public class BaseVexWidget implements IVexWidget {
 		repaintCaret();
 	}
 
+	@Override
 	public void undo() throws CannotUndoException, ReadOnlyException {
 		if (readOnly) {
 			throw new ReadOnlyException("Cannot undo, because the editor is read-only.");
@@ -1729,6 +1807,7 @@ public class BaseVexWidget implements IVexWidget {
 		redoList.add(event);
 	}
 
+	@Override
 	public int viewToModel(final int x, final int y) {
 		final Graphics g = hostComponent.createDefaultGraphics();
 		final LayoutContext context = createLayoutContext(g);
@@ -1737,6 +1816,7 @@ public class BaseVexWidget implements IVexWidget {
 		return offset;
 	}
 
+	@Override
 	public void declareNamespace(final String namespacePrefix, final String namespaceURI) throws ReadOnlyException {
 		if (readOnly) {
 			throw new ReadOnlyException(MessageFormat.format("Cannot declare namespace {0}, because the editor is read-only.", namespacePrefix));
@@ -1751,6 +1831,7 @@ public class BaseVexWidget implements IVexWidget {
 		applyEdit(new ChangeNamespaceEdit(document, getCaretOffset(), namespacePrefix, currentNamespaceURI, namespaceURI), getCaretOffset());
 	}
 
+	@Override
 	public void removeNamespace(final String namespacePrefix) throws ReadOnlyException {
 		if (readOnly) {
 			throw new ReadOnlyException(MessageFormat.format("Cannot remove namespace {0}, because the editor is read-only.", namespacePrefix));
@@ -1765,6 +1846,7 @@ public class BaseVexWidget implements IVexWidget {
 		applyEdit(new ChangeNamespaceEdit(document, getCaretOffset(), namespacePrefix, currentNamespaceURI, null), getCaretOffset());
 	}
 
+	@Override
 	public void declareDefaultNamespace(final String namespaceURI) throws ReadOnlyException {
 		if (readOnly) {
 			throw new ReadOnlyException("Cannot declare default namespace, because the editor is read-only.");
@@ -1779,6 +1861,7 @@ public class BaseVexWidget implements IVexWidget {
 		applyEdit(new ChangeNamespaceEdit(document, getCaretOffset(), null, currentNamespaceURI, namespaceURI), getCaretOffset());
 	}
 
+	@Override
 	public void removeDefaultNamespace() throws ReadOnlyException {
 		if (readOnly) {
 			throw new ReadOnlyException("Cannot remove default namespace, because the editor is read-only.");
@@ -1884,6 +1967,7 @@ public class BaseVexWidget implements IVexWidget {
 	private void invalidateElementBox(final INode node) {
 
 		final BlockBox elementBox = (BlockBox) this.findInnermostBox(new IBoxFilter() {
+			@Override
 			public boolean matches(final Box box) {
 				return box instanceof BlockBox && box.getNode() != null && box.getStartOffset() <= node.getStartOffset() + 1 && box.getEndOffset() >= node.getEndOffset();
 			}
@@ -1951,6 +2035,107 @@ public class BaseVexWidget implements IVexWidget {
 			final VerticalRange intersection = repaintRange.intersection(viewportRange);
 			hostComponent.repaint(viewport.getX(), intersection.getTop(), viewport.getWidth(), intersection.getHeight());
 		}
+	}
+
+	@Override
+	public boolean canJoin() {
+		if (!hasSelection()) {
+			return false;
+		}
+
+		final IElement parent = document.getElementForInsertionAt(getCaretOffset());
+		final IAxis<? extends INode> selectedNodes = parent.children().in(getSelectedRange());
+		if (selectedNodes.isEmpty()) {
+			return false;
+		}
+
+		final IValidator validator = document.getValidator();
+		final INode firstNode = selectedNodes.first();
+		final List<QualifiedName> childNodeNames = new ArrayList<QualifiedName>();
+		int count = 0;
+		for (final INode selectedNode : selectedNodes) {
+			if (!selectedNode.isKindOf(firstNode)) {
+				return false;
+			}
+			childNodeNames.addAll(selectedNode.accept(new BaseNodeVisitorWithResult<List<QualifiedName>>(Collections.<QualifiedName> emptyList()) {
+				@Override
+				public List<QualifiedName> visit(final IElement element) {
+					return Node.getNodeNames(element.children());
+				}
+			}));
+			count++;
+		}
+
+		if (count <= 1) {
+			return false;
+		}
+
+		final boolean joinedChildrenValid = firstNode.accept(new BaseNodeVisitorWithResult<Boolean>(true) {
+			@Override
+			public Boolean visit(final IElement element) {
+				return validator.isValidSequence(element.getQualifiedName(), childNodeNames, true);
+			}
+		});
+		if (!joinedChildrenValid) {
+			return false;
+		}
+
+		return true;
+	}
+
+	@Override
+	public void join() throws DocumentValidationException {
+		if (!hasSelection()) {
+			return;
+		}
+
+		final IElement parent = document.getElementForInsertionAt(getCaretOffset());
+		final IAxis<? extends INode> selectedNodes = parent.children().in(getSelectedRange());
+		if (selectedNodes.isEmpty()) {
+			return;
+		}
+
+		final INode firstNode = selectedNodes.first();
+		final int selectionEnd = getSelectionEnd();
+
+		boolean success = false;
+		try {
+			beginWork();
+
+			final ArrayList<IDocumentFragment> contentToJoin = new ArrayList<IDocumentFragment>();
+			int count = 0;
+			for (final INode selectedNode : selectedNodes) {
+				if (!selectedNode.isKindOf(firstNode) && count > 0) {
+					throw new DocumentValidationException("Cannot join nodes of different kind.");
+				}
+				if (!selectedNode.isEmpty()) {
+					contentToJoin.add(document.getFragment(selectedNode.getRange().resizeBy(1, -1)));
+				}
+				count++;
+			}
+
+			if (count <= 1) {
+				return;
+			}
+
+			moveTo(firstNode.getEndOffset() + 1);
+			moveTo(selectionEnd, true);
+			deleteSelection();
+
+			moveTo(firstNode.getStartOffset() + 1);
+			moveTo(firstNode.getEndOffset(), true);
+			deleteSelection();
+
+			for (final IDocumentFragment preservedContent : contentToJoin) {
+				moveTo(firstNode.getEndOffset());
+				insertFragment(preservedContent);
+			}
+
+			success = true;
+		} finally {
+			endWork(success);
+		}
+
 	}
 
 	private void joinElementsAt(final int offset) throws DocumentValidationException {

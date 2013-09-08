@@ -13,6 +13,7 @@ package org.eclipse.vex.core.internal.widget;
 
 import static org.eclipse.vex.core.internal.widget.VexWidgetTest.PARA;
 import static org.eclipse.vex.core.internal.widget.VexWidgetTest.PRE;
+import static org.eclipse.vex.core.internal.widget.VexWidgetTest.SECTION;
 import static org.eclipse.vex.core.internal.widget.VexWidgetTest.TITLE;
 import static org.eclipse.vex.core.internal.widget.VexWidgetTest.assertCanMorphOnlyTo;
 import static org.eclipse.vex.core.internal.widget.VexWidgetTest.assertXmlEquals;
@@ -33,6 +34,7 @@ import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.css.StyleSheetReader;
 import org.eclipse.vex.core.internal.undo.CannotRedoException;
 import org.eclipse.vex.core.provisional.dom.DocumentValidationException;
+import org.eclipse.vex.core.provisional.dom.IComment;
 import org.eclipse.vex.core.provisional.dom.IDocumentFragment;
 import org.eclipse.vex.core.provisional.dom.IElement;
 import org.eclipse.vex.core.provisional.dom.INode;
@@ -786,6 +788,302 @@ public class L2SimpleEditingTest {
 
 		assertEquals(PRE, widget.getCurrentElement().getQualifiedName());
 		assertEquals("idValue", widget.getCurrentElement().getAttributeValue("id"));
+	}
+
+	@Test
+	public void givenMultipleElementsOfSameTypeSelected_canJoin() throws Exception {
+		final IElement firstPara = widget.insertElement(PARA);
+		widget.insertText("1");
+		widget.moveBy(1);
+		widget.insertElement(PARA);
+		widget.insertText("2");
+		widget.moveBy(1);
+		final IElement lastPara = widget.insertElement(PARA);
+		widget.insertText("3");
+		widget.moveBy(1);
+
+		widget.moveTo(firstPara.getStartOffset());
+		widget.moveTo(lastPara.getEndOffset(), true);
+
+		assertTrue(widget.canJoin());
+	}
+
+	@Test
+	public void givenMultipleElementsOfSameTypeSelected_shouldJoin() throws Exception {
+		final IElement firstPara = widget.insertElement(PARA);
+		widget.insertText("1");
+		widget.moveBy(1);
+		widget.insertElement(PARA);
+		widget.insertText("2");
+		widget.moveBy(1);
+		final IElement lastPara = widget.insertElement(PARA);
+		widget.insertText("3");
+		widget.moveBy(1);
+
+		widget.moveTo(firstPara.getStartOffset());
+		widget.moveTo(lastPara.getEndOffset(), true);
+
+		widget.join();
+
+		assertXmlEquals("<section><para>123</para></section>", widget);
+	}
+
+	@Test
+	public void givenMultipleElementsOfSameKindSelected_whenJoining_shouldPreserveAttributesOfFirstElement() throws Exception {
+		final IElement firstPara = widget.insertElement(PARA);
+		widget.insertText("1");
+		widget.moveBy(1);
+		widget.insertElement(PARA);
+		widget.insertText("2");
+		widget.moveBy(1);
+		final IElement lastPara = widget.insertElement(PARA);
+		widget.insertText("3");
+		firstPara.setAttribute("id", "para1");
+		lastPara.setAttribute("id", "para3");
+
+		widget.moveTo(firstPara.getStartOffset());
+		widget.moveTo(lastPara.getEndOffset(), true);
+
+		widget.join();
+
+		assertXmlEquals("<section><para id=\"para1\">123</para></section>", widget);
+	}
+
+	@Test
+	public void givenMultipleElementsOfSameKindSelected_whenJoinUndone_shouldRestoreAttributesOfAllElements() throws Exception {
+		final IElement firstPara = widget.insertElement(PARA);
+		widget.insertText("1");
+		widget.moveBy(1);
+		widget.insertElement(PARA);
+		widget.insertText("2");
+		widget.moveBy(1);
+		final IElement lastPara = widget.insertElement(PARA);
+		widget.insertText("3");
+		firstPara.setAttribute("id", "para1");
+		lastPara.setAttribute("id", "para3");
+
+		widget.moveTo(firstPara.getStartOffset());
+		widget.moveTo(lastPara.getEndOffset(), true);
+
+		widget.join();
+		widget.undo();
+
+		assertXmlEquals("<section><para id=\"para1\">1</para><para>2</para><para id=\"para3\">3</para></section>", widget);
+	}
+
+	@Test
+	public void givenMultipleElementsOfSameKindSelected_whenStructureAfterJoinWouldBeInvalid_cannotJoin() throws Exception {
+		widget.setDocument(createDocumentWithDTD(TEST_DTD, "one-kind-of-child"), readTestStyleSheet());
+		rootElement = widget.getDocument().getRootElement();
+
+		final IElement firstSection = widget.insertElement(SECTION);
+		widget.insertElement(TITLE);
+		widget.moveBy(2);
+		widget.insertElement(SECTION);
+		widget.insertElement(TITLE);
+		widget.moveBy(2);
+		final IElement lastSection = widget.insertElement(SECTION);
+		widget.insertElement(TITLE);
+
+		widget.moveTo(firstSection.getStartOffset());
+		widget.moveTo(lastSection.getEndOffset(), true);
+
+		assertFalse(widget.canJoin());
+	}
+
+	@Test(expected = CannotRedoException.class)
+	public void givenMultipleElementsOfSameKindSelected_whenStructureAfterJoinWouldBeInvalid_shouldJoin() throws Exception {
+		widget.setDocument(createDocumentWithDTD(TEST_DTD, "one-kind-of-child"), readTestStyleSheet());
+		rootElement = widget.getDocument().getRootElement();
+
+		final IElement firstSection = widget.insertElement(SECTION);
+		widget.insertElement(TITLE);
+		widget.moveBy(2);
+		widget.insertElement(SECTION);
+		widget.insertElement(TITLE);
+		widget.moveBy(2);
+		final IElement lastSection = widget.insertElement(SECTION);
+		widget.insertElement(TITLE);
+
+		widget.moveTo(firstSection.getStartOffset());
+		widget.moveTo(lastSection.getEndOffset(), true);
+
+		widget.join();
+	}
+
+	@Test
+	public void givenMultipleElementsOfDifferentTypeSelected_cannotJoin() throws Exception {
+		final IElement title = widget.insertElement(TITLE);
+		widget.insertText("1");
+		widget.moveBy(1);
+		widget.insertElement(PARA);
+		widget.insertText("2");
+		widget.moveBy(1);
+		final IElement lastPara = widget.insertElement(PARA);
+		widget.insertText("3");
+		widget.moveBy(1);
+
+		widget.moveTo(title.getStartOffset());
+		widget.moveTo(lastPara.getEndOffset(), true);
+
+		assertFalse(widget.canJoin());
+	}
+
+	@Test(expected = DocumentValidationException.class)
+	public void givenMultipleElementsOfDifferentTypeSelected_shouldNotJoin() throws Exception {
+		final IElement title = widget.insertElement(TITLE);
+		widget.insertText("1");
+		widget.moveBy(1);
+		widget.insertElement(PARA);
+		widget.insertText("2");
+		widget.moveBy(1);
+		final IElement lastPara = widget.insertElement(PARA);
+		widget.insertText("3");
+		widget.moveBy(1);
+
+		widget.moveTo(title.getStartOffset());
+		widget.moveTo(lastPara.getEndOffset(), true);
+
+		widget.join();
+	}
+
+	@Test
+	public void givenSelectionIsEmpty_cannotJoin() throws Exception {
+		assertFalse(widget.canJoin());
+	}
+
+	@Test
+	public void givenSelectionIsEmpty_whenRequestedToJoin_shouldIgnoreGracefully() throws Exception {
+		final String expectedXml = getCurrentXML(widget);
+
+		widget.join();
+
+		assertXmlEquals(expectedXml, widget);
+	}
+
+	@Test
+	public void givenOnlyTextSelected_cannotJoin() throws Exception {
+		final IElement title = widget.insertElement(TITLE);
+		widget.insertText("title text");
+		widget.moveTo(title.getStartOffset() + 1, true);
+
+		assertFalse(widget.canJoin());
+	}
+
+	@Test
+	public void givenOnlyTextSelected_whenRequestedToJoin_shouldIgnoreGracefully() throws Exception {
+		final IElement title = widget.insertElement(TITLE);
+		widget.insertText("title text");
+		widget.selectContentOf(title);
+		final String expectedXml = getCurrentXML(widget);
+
+		widget.join();
+
+		assertXmlEquals(expectedXml, widget);
+	}
+
+	@Test
+	public void givenOnlySingleElementSelected_cannotJoin() throws Exception {
+		final IElement title = widget.insertElement(TITLE);
+		widget.moveTo(title.getStartOffset(), true);
+
+		assertFalse(widget.canJoin());
+	}
+
+	@Test
+	public void givenOnlySingleElementSelected_whenRequestedToJoin_shouldIgnoreGracefully() throws Exception {
+		final IElement title = widget.insertElement(TITLE);
+		widget.moveTo(title.getStartOffset(), true);
+		final String expectedXml = getCurrentXML(widget);
+
+		widget.join();
+
+		assertXmlEquals(expectedXml, widget);
+	}
+
+	@Test
+	public void givenMultipleCommentsSelected_canJoin() throws Exception {
+		final IComment firstComment = widget.insertComment();
+		widget.insertText("comment1");
+		widget.moveBy(1);
+		widget.insertComment();
+		widget.insertText("comment2");
+		widget.moveBy(1);
+		final IComment lastComment = widget.insertComment();
+		widget.insertText("comment3");
+
+		widget.moveTo(firstComment.getStartOffset());
+		widget.moveTo(lastComment.getEndOffset(), true);
+
+		assertTrue(widget.canJoin());
+	}
+
+	@Test
+	public void givenMultipleCommentsSelected_shouldJoin() throws Exception {
+		final IComment firstComment = widget.insertComment();
+		widget.insertText("comment1");
+		widget.moveBy(1);
+		widget.insertComment();
+		widget.insertText("comment2");
+		widget.moveBy(1);
+		final IComment lastComment = widget.insertComment();
+		widget.insertText("comment3");
+
+		widget.moveTo(firstComment.getStartOffset());
+		widget.moveTo(lastComment.getEndOffset(), true);
+
+		widget.join();
+
+		assertXmlEquals("<section><!--comment1comment2comment3--></section>", widget);
+	}
+
+	@Test
+	public void givenMultipleInlineElementsOfSameKindSelected_whenTextEndsWithSpace_shouldJoin() throws Exception {
+		widget.insertElement(PARA);
+		final IElement firstElement = widget.insertElement(PRE);
+		widget.insertText("1");
+		widget.moveBy(1);
+		final IElement lastElement = widget.insertElement(PRE);
+		widget.insertText("2 ");
+
+		widget.moveTo(firstElement.getStartOffset());
+		widget.moveTo(lastElement.getEndOffset(), true);
+
+		widget.join();
+
+		assertXmlEquals("<section><para><pre>12 </pre></para></section>", widget);
+	}
+
+	@Test
+	public void givenMultipleInlineElementsOfSameKindSelected_whenTextBetweenElements_cannotJoin() throws Exception {
+		widget.insertElement(PARA);
+		final IElement firstElement = widget.insertElement(PRE);
+		widget.insertText("1");
+		widget.moveBy(1);
+		widget.insertText("text between elements");
+		final IElement lastElement = widget.insertElement(PRE);
+		widget.insertText("2 ");
+
+		widget.moveTo(firstElement.getStartOffset());
+		widget.moveTo(lastElement.getEndOffset(), true);
+
+		assertFalse(widget.canJoin());
+	}
+
+	@Test(expected = DocumentValidationException.class)
+	public void givenMultipleInlineElementsOfSameKindSelected_whenTextBetweenElements_shouldNotJoin() throws Exception {
+		widget.insertElement(PARA);
+		final IElement firstElement = widget.insertElement(PRE);
+		widget.insertText("1");
+		widget.moveBy(1);
+		widget.insertText("text between elements");
+		final IElement lastElement = widget.insertElement(PRE);
+		widget.insertText("2 ");
+
+		widget.moveTo(firstElement.getStartOffset());
+		widget.moveTo(lastElement.getEndOffset(), true);
+
+		widget.join();
 	}
 
 	private static StyleSheet readTestStyleSheet() throws IOException {

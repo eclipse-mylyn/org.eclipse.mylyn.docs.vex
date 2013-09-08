@@ -111,30 +111,37 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 		return impl.getDocument();
 	}
 
+	@Override
 	public void addSelectionChangedListener(final ISelectionChangedListener listener) {
 		selectionListeners.add(listener);
 	}
 
+	@Override
 	public ISelection getSelection() {
 		return selection;
 	}
 
+	@Override
 	public void removeSelectionChangedListener(final ISelectionChangedListener listener) {
 		selectionListeners.remove(listener);
 	}
 
+	@Override
 	public void setSelection(final ISelection selection) {
 		throw new RuntimeException("Unexpected call to setSelection");
 	}
 
+	@Override
 	public void beginWork() {
 		impl.beginWork();
 	}
 
+	@Override
 	public boolean canInsertComment() {
 		return impl.canInsertComment();
 	}
 
+	@Override
 	public boolean canPaste() {
 		// TODO Auto-generated method stub
 		return false;
@@ -143,15 +150,18 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 	/**
 	 * @see org.eclipse.vex.core.internal.widget.IVexWidget#canPasteText()
 	 */
+	@Override
 	public boolean canPasteText() {
 		// TODO Auto-generated method stub
 		return false;
 	}
 
+	@Override
 	public boolean canRedo() {
 		return impl.canRedo();
 	}
 
+	@Override
 	public boolean canUndo() {
 		return impl.canUndo();
 	}
@@ -168,6 +178,7 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 		return new Point(r.width, height);
 	}
 
+	@Override
 	public void copySelection() {
 		final Clipboard clipboard = new Clipboard(getDisplay());
 		final Object[] data = { getSelectedFragment(), getSelectedText() };
@@ -175,6 +186,7 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 		clipboard.setContents(data, transfers);
 	}
 
+	@Override
 	public void cutSelection() throws ReadOnlyException {
 		if (isReadOnly()) {
 			throw new ReadOnlyException("Cannot cut selection, because the editor is read-only.");
@@ -184,186 +196,242 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 		deleteSelection();
 	}
 
+	@Override
 	public void deleteNextChar() throws DocumentValidationException {
 		impl.deleteNextChar();
 	}
 
+	@Override
 	public void deletePreviousChar() throws DocumentValidationException {
 		impl.deletePreviousChar();
 	}
 
+	@Override
 	public boolean canDeleteSelection() {
 		return impl.canDeleteSelection();
 	}
 
+	@Override
 	public void deleteSelection() {
 		impl.deleteSelection();
 	}
 
+	@Override
 	public void doWork(final Runnable runnable) {
 		impl.doWork(runnable);
 	}
 
+	@Override
 	public void doWork(final Runnable runnable, final boolean savePosition) {
 		impl.doWork(runnable, savePosition);
 	}
 
+	@Override
 	public void endWork(final boolean success) {
 		impl.endWork(success);
 	}
 
+	@Override
 	public int getCaretOffset() {
 		return impl.getCaretOffset();
 	}
 
+	@Override
 	public IElement getCurrentElement() {
 		return impl.getCurrentElement();
 	}
 
+	@Override
 	public INode getCurrentNode() {
 		return impl.getCurrentNode();
 	}
 
+	@Override
 	public IDocument getDocument() {
 		return impl.getDocument();
 	}
 
+	@Override
 	public int getLayoutWidth() {
 		return impl.getLayoutWidth();
 	}
 
+	@Override
 	public ContentRange getSelectedRange() {
 		return impl.getSelectedRange();
 	}
 
+	@Override
 	public IDocumentFragment getSelectedFragment() {
 		return impl.getSelectedFragment();
 	}
 
+	@Override
 	public String getSelectedText() {
 		return impl.getSelectedText();
 	}
 
+	@Override
 	public StyleSheet getStyleSheet() {
 		return impl.getStyleSheet();
 	}
 
+	@Override
 	public ElementName[] getValidInsertElements() {
 		return impl.getValidInsertElements();
 	}
 
+	@Override
 	public ElementName[] getValidMorphElements() {
 		return impl.getValidMorphElements();
 	}
 
+	@Override
 	public boolean hasSelection() {
 		return impl.hasSelection();
 	}
 
+	@Override
 	public void insertChar(final char c) throws DocumentValidationException {
 		impl.insertChar(c);
 	}
 
+	@Override
 	public boolean canInsertFragment(final IDocumentFragment fragment) {
 		return impl.canInsertFragment(fragment);
 	}
 
+	@Override
 	public void insertFragment(final IDocumentFragment fragment) throws DocumentValidationException {
 		impl.insertFragment(fragment);
 	}
 
+	@Override
 	public boolean canInsertElement(final QualifiedName elementName) {
 		return impl.canInsertElement(elementName);
 	}
 
+	@Override
 	public IElement insertElement(final QualifiedName elementName) throws DocumentValidationException {
 		return impl.insertElement(elementName);
 	}
 
+	@Override
 	public boolean canInsertText() {
 		return impl.canInsertText();
 	}
 
+	@Override
 	public void insertText(final String text) throws DocumentValidationException {
 		impl.insertText(text);
 	}
 
+	@Override
 	public void insertXML(final String xml) throws DocumentValidationException {
 		impl.insertXML(xml);
 	}
 
+	@Override
 	public IComment insertComment() throws DocumentValidationException {
 		return impl.insertComment();
 	}
 
+	@Override
 	public boolean isDebugging() {
 		return impl.isDebugging();
 	}
 
+	@Override
 	public boolean canUnwrap() {
 		return impl.canUnwrap();
 	}
 
+	@Override
 	public void unwrap() throws DocumentValidationException {
 		impl.unwrap();
 	}
 
+	@Override
 	public boolean canMorph(final QualifiedName elementName) {
 		return impl.canMorph(elementName);
 	}
 
+	@Override
 	public void morph(final QualifiedName elementName) throws DocumentValidationException {
 		impl.morph(elementName);
 	}
 
+	@Override
+	public boolean canJoin() {
+		return impl.canJoin();
+	}
+
+	@Override
+	public void join() throws DocumentValidationException {
+		impl.join();
+	}
+
+	@Override
 	public void moveBy(final int distance) {
 		impl.moveBy(distance);
 	}
 
+	@Override
 	public void moveBy(final int distance, final boolean select) {
 		impl.moveBy(distance, select);
 	}
 
+	@Override
 	public void moveTo(final int offset) {
 		impl.moveTo(offset);
 	}
 
+	@Override
 	public void moveTo(final int offset, final boolean select) {
 		impl.moveTo(offset, select);
 	}
 
+	@Override
 	public void moveToLineEnd(final boolean select) {
 		impl.moveToLineEnd(select);
 	}
 
+	@Override
 	public void moveToLineStart(final boolean select) {
 		impl.moveToLineStart(select);
 	}
 
+	@Override
 	public void moveToNextLine(final boolean select) {
 		impl.moveToNextLine(select);
 	}
 
+	@Override
 	public void moveToNextPage(final boolean select) {
 		impl.moveToNextPage(select);
 	}
 
+	@Override
 	public void moveToNextWord(final boolean select) {
 		impl.moveToNextWord(select);
 	}
 
+	@Override
 	public void moveToPreviousLine(final boolean select) {
 		impl.moveToPreviousLine(select);
 	}
 
+	@Override
 	public void moveToPreviousPage(final boolean select) {
 		impl.moveToPreviousPage(select);
 	}
 
+	@Override
 	public void moveToPreviousWord(final boolean select) {
 		impl.moveToPreviousWord(select);
 	}
 
+	@Override
 	public void paste() throws DocumentValidationException, ReadOnlyException {
 		if (isReadOnly()) {
 			throw new ReadOnlyException("Cannot paste, because the editor is read-only.");
@@ -378,6 +446,7 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 		}
 	}
 
+	@Override
 	public void pasteText() throws DocumentValidationException, ReadOnlyException {
 		if (isReadOnly()) {
 			throw new ReadOnlyException("Cannot paste text, because the editor is read-only.");
@@ -390,26 +459,32 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 		}
 	}
 
+	@Override
 	public void redo() throws CannotRedoException {
 		impl.redo();
 	}
 
+	@Override
 	public boolean canRemoveAttribute(final String attributeName) {
 		return impl.canRemoveAttribute(attributeName);
 	}
 
+	@Override
 	public void removeAttribute(final String attributeName) {
 		impl.removeAttribute(attributeName);
 	}
 
+	@Override
 	public void savePosition(final Runnable runnable) {
 		impl.savePosition(runnable);
 	}
 
+	@Override
 	public void selectAll() {
 		impl.selectAll();
 	}
 
+	@Override
 	public void selectWord() {
 		impl.selectWord();
 	}
@@ -427,30 +502,37 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 		return impl.canSetAttribute(attributeName, value);
 	}
 
+	@Override
 	public void setAttribute(final String attributeName, final String value) {
 		impl.setAttribute(attributeName, value);
 	}
 
+	@Override
 	public void setDebugging(final boolean debugging) {
 		impl.setDebugging(debugging);
 	}
 
+	@Override
 	public boolean isReadOnly() {
 		return impl.isReadOnly();
 	}
 
+	@Override
 	public void setReadOnly(final boolean readOnly) {
 		impl.setReadOnly(readOnly);
 	}
 
+	@Override
 	public void setDocument(final IDocument doc, final StyleSheet styleSheet) {
 		impl.setDocument(doc, styleSheet);
 	}
 
+	@Override
 	public void setLayoutWidth(final int width) {
 		impl.setLayoutWidth(width);
 	}
 
+	@Override
 	public void setStyleSheet(final StyleSheet styleSheet) {
 		impl.setStyleSheet(styleSheet);
 	}
@@ -459,42 +541,52 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 		impl.setStyleSheet(ssUrl);
 	}
 
+	@Override
 	public void setWhitespacePolicy(final IWhitespacePolicy whitespacePolicy) {
 		impl.setWhitespacePolicy(whitespacePolicy);
 	}
 
+	@Override
 	public IWhitespacePolicy getWhitespacePolicy() {
 		return impl.getWhitespacePolicy();
 	}
 
+	@Override
 	public boolean canSplit() {
 		return impl.canSplit();
 	}
 
+	@Override
 	public void split() throws DocumentValidationException {
 		impl.split();
 	}
 
+	@Override
 	public void undo() throws CannotUndoException {
 		impl.undo();
 	}
 
+	@Override
 	public int viewToModel(final int x, final int y) {
 		return impl.viewToModel(x, y);
 	}
 
+	@Override
 	public void declareNamespace(final String namespacePrefix, final String namespaceURI) {
 		impl.declareNamespace(namespacePrefix, namespaceURI);
 	}
 
+	@Override
 	public void removeNamespace(final String namespacePrefix) {
 		impl.removeNamespace(namespacePrefix);
 	}
 
+	@Override
 	public void declareDefaultNamespace(final String namespaceURI) {
 		impl.declareDefaultNamespace(namespaceURI);
 	}
 
+	@Override
 	public void removeDefaultNamespace() {
 		impl.removeDefaultNamespace();
 	}
@@ -529,6 +621,7 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 	private ISelection selection;
 
 	private final Runnable caretTimerRunnable = new Runnable() {
+		@Override
 		public void run() {
 			impl.toggleCaret();
 		}
@@ -536,9 +629,11 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 	private final Timer caretTimer = new Timer(500, caretTimerRunnable);
 
 	private final ControlListener controlListener = new ControlListener() {
+		@Override
 		public void controlMoved(final ControlEvent e) {
 		}
 
+		@Override
 		public void controlResized(final ControlEvent e) {
 			final org.eclipse.swt.graphics.Rectangle r = getClientArea();
 			// There seems to be a bug in SWT (at least on Linux/GTK+)
@@ -558,11 +653,13 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 	};
 
 	private final FocusListener focusListener = new FocusListener() {
+		@Override
 		public void focusGained(final FocusEvent e) {
 			impl.setFocus(true);
 			caretTimer.start();
 		}
 
+		@Override
 		public void focusLost(final FocusEvent e) {
 			impl.setFocus(false);
 			caretTimer.stop();
@@ -571,6 +668,7 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 
 	private final IHostComponent hostComponent = new IHostComponent() {
 
+		@Override
 		public Graphics createDefaultGraphics() {
 			if (VexWidget.this.isDisposed()) {
 				System.out.println("*** Woot! VexWidget is disposed!");
@@ -578,6 +676,7 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 			return new SwtGraphics(new GC(VexWidget.this));
 		}
 
+		@Override
 		public void fireSelectionChanged() {
 
 			if (hasSelection()) {
@@ -594,14 +693,17 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 			caretTimer.reset();
 		}
 
+		@Override
 		public Rectangle getViewport() {
 			return new Rectangle(getClientArea().x - originX, getClientArea().y - originY, getClientArea().width, getClientArea().height);
 		}
 
+		@Override
 		public void invokeLater(final Runnable runnable) {
 			VexWidget.this.getDisplay().asyncExec(runnable);
 		}
 
+		@Override
 		public void repaint() {
 			if (!VexWidget.this.isDisposed()) {
 				// We can sometimes get a repaint from the VexWidgetImpl's
@@ -610,10 +712,12 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 			}
 		}
 
+		@Override
 		public void repaint(final int x, final int y, final int width, final int height) {
 			VexWidget.this.redraw(x + originX, y + originY, width, height, true);
 		}
 
+		@Override
 		public void scrollTo(final int left, final int top) {
 			final ScrollBar vbar = getVerticalBar();
 			if (vbar != null) {
@@ -622,6 +726,7 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 			setOrigin(-left, -top);
 		}
 
+		@Override
 		public void setPreferredSize(final int width, final int height) {
 			final ScrollBar vbar = getVerticalBar();
 			if (vbar != null) {
@@ -633,6 +738,7 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 
 	private static abstract class Action implements IVexWidgetHandler {
 
+		@Override
 		public void execute(final VexWidget widget) throws ExecutionException {
 			runEx(widget);
 		}
@@ -669,12 +775,14 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 	};
 
 	private final MouseListener mouseListener = new MouseListener() {
+		@Override
 		public void mouseDoubleClick(final MouseEvent e) {
 			if (e.button == 1) {
 				selectWord();
 			}
 		}
 
+		@Override
 		public void mouseDown(final MouseEvent e) {
 			if (e.button == 1) {
 				final int offset = viewToModel(e.x - originX, e.y - originY);
@@ -683,11 +791,13 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 			}
 		}
 
+		@Override
 		public void mouseUp(final MouseEvent e) {
 		}
 	};
 
 	private final MouseMoveListener mouseMoveListener = new MouseMoveListener() {
+		@Override
 		public void mouseMove(final MouseEvent e) {
 			if ((e.stateMask & SWT.BUTTON1) > 0) {
 				final int offset = viewToModel(e.x - originX, e.y - originY);
@@ -697,6 +807,7 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 	};
 
 	private final PaintListener painter = new PaintListener() {
+		@Override
 		public void paintControl(final PaintEvent e) {
 
 			final SwtGraphics g = new SwtGraphics(e.gc);
@@ -719,6 +830,7 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 	};
 
 	private final SelectionListener selectionListener = new SelectionListener() {
+		@Override
 		public void widgetSelected(final SelectionEvent e) {
 			final ScrollBar vbar = getVerticalBar();
 			if (vbar != null) {
@@ -727,6 +839,7 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 			}
 		}
 
+		@Override
 		public void widgetDefaultSelected(final SelectionEvent e) {
 		}
 	};
@@ -738,6 +851,7 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 	 * @see org.eclipse.swt.widgets.Widget#dispose
 	 */
 	private final DisposeListener disposeListener = new DisposeListener() {
+		@Override
 		public void widgetDisposed(final DisposeEvent e) {
 			impl.dispose();
 			caretTimer.stop();

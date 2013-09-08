@@ -33,6 +33,7 @@ import org.junit.Test;
 
 public class VexWidgetTest {
 
+	public static final QualifiedName SECTION = new QualifiedName(null, "section");
 	public static final QualifiedName TITLE = new QualifiedName(null, "title");
 	public static final QualifiedName PARA = new QualifiedName(null, "para");
 	public static final QualifiedName PRE = new QualifiedName(null, "pre");
