@@ -14,6 +14,7 @@ import org.eclipse.vex.core.internal.css.CSS;
 import org.eclipse.vex.core.internal.css.Styles;
 import org.eclipse.vex.core.provisional.dom.IComment;
 import org.eclipse.vex.core.provisional.dom.INode;
+import org.eclipse.vex.core.provisional.dom.IProcessingInstruction;
 
 /**
  * Implementation of the BoxFactory interface that returns boxes that represent CSS semantics.
@@ -26,6 +27,8 @@ public class CssBoxFactory implements BoxFactory {
 		final Styles styles = context.getStyleSheet().getStyles(node);
 		if (node instanceof IComment) {
 			return new CommentBlockBox(context, parentBox, node);
+		} else if (node instanceof IProcessingInstruction) {
+			return new ProcessingInstructionBlockBox(context, parentBox, node);
 		} else if (styles.getDisplay().equals(CSS.TABLE)) {
 			return new TableBox(context, parentBox, node);
 		} else if (styles.isBlock()) {

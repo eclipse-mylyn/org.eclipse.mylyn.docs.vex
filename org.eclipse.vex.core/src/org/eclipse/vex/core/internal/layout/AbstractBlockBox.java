@@ -35,6 +35,7 @@ import org.eclipse.vex.core.provisional.dom.IElement;
 import org.eclipse.vex.core.provisional.dom.INode;
 import org.eclipse.vex.core.provisional.dom.IParent;
 import org.eclipse.vex.core.provisional.dom.IPosition;
+import org.eclipse.vex.core.provisional.dom.IProcessingInstruction;
 import org.eclipse.vex.core.provisional.dom.IText;
 
 /**
@@ -600,6 +601,11 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 			public String visit(final IComment comment) {
 				return "Comment";
 			}
+
+			@Override
+			public String visit(final IProcessingInstruction comment) {
+				return "Processing instruction";
+			}
 		});
 	}
 
@@ -925,6 +931,14 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 					}
 					return null;
 				}
+
+				@Override
+				public INode visit(final IProcessingInstruction pi) {
+					if (!isInline(context, pi, parent)) {
+						return pi;
+					}
+					return null;
+				}
 			});
 			if (nextBlockNode != null) {
 				return nextBlockNode;
@@ -985,6 +999,17 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 
 			@Override
 			public Boolean visit(final IComment comment) {
+				final boolean parentIsInline = parent.accept(new BaseNodeVisitorWithResult<Boolean>(false) {
+					@Override
+					public Boolean visit(final IElement element) {
+						return parentStyle.equals(CSS.INLINE);
+					};
+				});
+				return parentIsInline && style.equals(CSS.INLINE);
+			}
+
+			@Override
+			public Boolean visit(final IProcessingInstruction pi) {
 				final boolean parentIsInline = parent.accept(new BaseNodeVisitorWithResult<Boolean>(false) {
 					@Override
 					public Boolean visit(final IElement element) {

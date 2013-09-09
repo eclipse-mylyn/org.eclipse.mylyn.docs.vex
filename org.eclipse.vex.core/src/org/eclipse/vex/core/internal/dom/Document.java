@@ -295,7 +295,7 @@ public class Document extends Parent implements IDocument {
 				final String charAfter = pi.getText(new ContentRange(offset, offset));
 				final String candidate = charBefore + adjustedText + charAfter;
 
-				final IValidationResult result = XML.validateProcessingInstructionTarget(candidate);
+				final IValidationResult result = XML.validateProcessingInstructionData(candidate);
 				if (!result.isOK()) {
 					throw new DocumentValidationException(result.getMessage());
 				}

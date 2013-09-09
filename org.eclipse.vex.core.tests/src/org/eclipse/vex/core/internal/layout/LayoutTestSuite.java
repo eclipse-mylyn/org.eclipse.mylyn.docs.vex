@@ -78,6 +78,7 @@ public class LayoutTestSuite extends TestCase {
 		suite.addTest(loadSuite("linebreaks.xml"));
 		suite.addTest(loadSuite("tables.xml"));
 		suite.addTest(loadSuite("simple-edit.xml"));
+		suite.addTest(loadSuite("processing-instruction.xml"));
 		return suite;
 	}
 
@@ -130,6 +131,7 @@ public class LayoutTestSuite extends TestCase {
 		final RootBox rootBox = new RootBox(context, document, layoutWidth);
 		rootBox.layout(context, 0, Integer.MAX_VALUE);
 
+		System.out.println("Test: " + id);
 		assertBox(result, rootBox, "");
 
 		if (performActions) {
@@ -327,9 +329,6 @@ public class LayoutTestSuite extends TestCase {
 					} else if (layoutStateAttr.equals("LAYOUT_REDO".toLowerCase())) {
 						boxSpec.layoutState = AbstractBlockBox.LAYOUT_REDO;
 					}
-				}
-				for (int i = 0; i < attributes.getLength(); i++) {
-					System.out.println("Attr:" + attributes.getQName(i) + "  " + attributes.getValue(i));
 				}
 
 				if (parent == null) {

@@ -1,0 +1,126 @@
+<?xml version='1.0'?>
+<testcases css="block-inline.css">
+
+	<test id="PI before root" layoutWidth="100">
+		<doc><![CDATA[ <?target data?><root></root> ]]></doc>
+		<result>
+			<box class="RootBox">		
+				<box class="BlockElementBox">	
+					<box class="ProcessingInstructionBlockBox">
+						<box class="ParagraphBox">
+							<box class="LineBox">
+								<box class="StaticTextBox" text="&lt;?"/>
+								<box class="StaticTextBox" text="target "/>
+								<box class="DocumentTextBox" text="data"/>
+								<box class="PlaceholderBox" />
+								<box class="StaticTextBox" text="?>"/>
+							</box>
+						</box>
+					</box>
+					<box class="BlockElementBox" element="root">
+						<box class="ParagraphBox">
+							<box class="LineBox">
+								<box class="PlaceholderBox" />
+							</box>
+						</box>
+					</box>
+				</box>
+			</box>
+		</result>
+	</test>
+
+	<test id="PI BlockBox in root" layoutWidth="100">
+		<doc><![CDATA[ <root><?target data?></root> ]]></doc>
+		<result>
+			<box class="RootBox">
+				<box class="BlockElementBox">
+					<box class="BlockElementBox" element="root">
+						<box class="ProcessingInstructionBlockBox">
+							<box class="ParagraphBox">
+								<box class="LineBox">
+									<box class="StaticTextBox" text="&lt;?"/>
+									<box class="StaticTextBox" text="target "/>
+									<box class="DocumentTextBox" text="data"/>
+									<box class="PlaceholderBox" />
+									<box class="StaticTextBox" text="?>"/>
+								</box>
+							</box>
+						</box>
+					</box>
+				</box>
+			</box>
+		</result>
+	</test>
+	
+	<test id="PI BlockBox in block" layoutWidth="100">
+		<doc><![CDATA[ <root><p>before<?target data?>after</p></root> ]]></doc>
+		<result>
+			<box class="RootBox">
+				<box class="BlockElementBox">
+					<box class="BlockElementBox" element="root">
+						<box class="BlockElementBox">
+							<box class="ParagraphBox">
+								<box class="LineBox">
+									<box class="DocumentTextBox" text="before"/>
+									<box class="PlaceholderBox" />
+								</box>
+							</box>
+							<box class="ProcessingInstructionBlockBox">
+								<box class="ParagraphBox">
+									<box class="LineBox">
+										<box class="StaticTextBox" text="&lt;?"/>
+										<box class="StaticTextBox" text="target "/>
+										<box class="DocumentTextBox" text="data"/>
+										<box class="PlaceholderBox" />
+										<box class="StaticTextBox" text="?>"/>
+									</box>
+								</box>
+							</box>
+							<box class="ParagraphBox">
+								<box class="LineBox">
+									<box class="DocumentTextBox" text="after"/>
+									<box class="PlaceholderBox" />
+								</box>
+							</box>
+						</box>
+					</box>
+				</box>
+			</box>
+		</result>
+	</test>
+
+	<test id="PI in inline" layoutWidth="200">
+		<doc><![CDATA[ <root><p><b>before<?target data?>after</b></p></root> ]]></doc>
+		<result>
+			<box class="RootBox">
+				<box class="BlockElementBox">
+					<box class="BlockElementBox" element="root">
+						<box class="BlockElementBox">
+							<box class="ParagraphBox">
+									<box class="LineBox">
+										<box class="PlaceholderBox" />
+										<box class="InlineElementBox">
+											<box class="DrawableBox" />
+											<box class="DocumentTextBox" text="before"/>
+											<box class="PlaceholderBox" />
+											<box class="InlineElementBox">
+												<box class="StaticTextBox" text="&lt;?"/>
+												<box class="StaticTextBox" text="target "/>
+												<box class="DocumentTextBox" text="data"/>
+												<box class="PlaceholderBox" />
+												<box class="StaticTextBox" text="?>"/>
+											</box>
+											<box class="DocumentTextBox" text="after"/>
+											<box class="PlaceholderBox" />
+											<box class="DrawableBox" />
+										</box>
+										<box class="PlaceholderBox" />
+									</box>
+							</box>
+						</box>
+					</box>
+				</box>
+			</box>
+		</result>
+	</test>
+</testcases>

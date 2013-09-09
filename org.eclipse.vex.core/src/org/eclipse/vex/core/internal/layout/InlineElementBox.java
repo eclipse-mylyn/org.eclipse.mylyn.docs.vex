@@ -1,13 +1,14 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2008 John Krasnay and others.
+ * Copyright (c) 2004, 2013 John Krasnay and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     John Krasnay - initial API and implementation
  *     Igor Jacy Lino Campista - Java 5 warnings fixed (bug 311325)
+ *     Carsten Hiesserich - added support for processing instructions
  *******************************************************************************/
 package org.eclipse.vex.core.internal.layout;
 
@@ -27,6 +28,7 @@ import org.eclipse.vex.core.provisional.dom.ContentRange;
 import org.eclipse.vex.core.provisional.dom.IComment;
 import org.eclipse.vex.core.provisional.dom.IElement;
 import org.eclipse.vex.core.provisional.dom.INode;
+import org.eclipse.vex.core.provisional.dom.IProcessingInstruction;
 import org.eclipse.vex.core.provisional.dom.IText;
 
 /**
@@ -36,6 +38,8 @@ public class InlineElementBox extends CompositeInlineBox {
 
 	private static final String COMMENT_AFTER_TEXT = "-->";
 	private static final String COMMENT_BEFORE_TEXT = "<!--";
+	private static final String PROCESSING_INSTR_AFTER_TEXT = "?>";
+	private static final String PROCESSING_INSTR_BEFORE_TEXT = "<?";
 	private final INode node;
 	private final InlineBox[] children;
 	private InlineBox firstContentChild = null;
@@ -276,22 +280,14 @@ public class InlineElementBox extends CompositeInlineBox {
 					childNode.accept(new BaseNodeVisitor() {
 						@Override
 						public void visit(final IElement element) {
-							final InlineBox placeholder = new PlaceholderBox(context, node, element.getStartOffset() - node.getStartOffset());
-							result.boxes.add(placeholder);
-							if (result.firstContentBox == null) {
-								result.firstContentBox = placeholder;
-							}
+							addPlaceholderBox(result, new PlaceholderBox(context, node, element.getStartOffset() - node.getStartOffset()));
 							final InlineBox child = new InlineElementBox(context, element, range.getStartOffset(), range.getEndOffset());
 							addChildInlineBox(result, child);
 						}
 
 						@Override
 						public void visit(final IComment comment) {
-							final PlaceholderBox placeholder = new PlaceholderBox(context, node, comment.getStartOffset() - node.getStartOffset());
-							result.boxes.add(placeholder);
-							if (result.firstContentBox == null) {
-								result.firstContentBox = placeholder;
-							}
+							addPlaceholderBox(result, new PlaceholderBox(context, node, comment.getStartOffset() - node.getStartOffset()));
 							final List<Box> commentBoxes = new ArrayList<Box>();
 							commentBoxes.add(new StaticTextBox(context, comment, COMMENT_BEFORE_TEXT));
 							if (comment.getEndOffset() - comment.getStartOffset() > 1) {
@@ -300,6 +296,21 @@ public class InlineElementBox extends CompositeInlineBox {
 							commentBoxes.add(new PlaceholderBox(context, comment, comment.getEndOffset() - comment.getStartOffset()));
 							commentBoxes.add(new StaticTextBox(context, comment, COMMENT_AFTER_TEXT));
 							final InlineBox child = new InlineElementBox(context, comment, commentBoxes.toArray(new InlineBox[commentBoxes.size()]));
+							addChildInlineBox(result, child);
+						};
+
+						@Override
+						public void visit(final IProcessingInstruction pi) {
+							addPlaceholderBox(result, new PlaceholderBox(context, node, pi.getStartOffset() - node.getStartOffset()));
+							final List<Box> piBoxes = new ArrayList<Box>();
+							piBoxes.add(new StaticTextBox(context, pi, PROCESSING_INSTR_BEFORE_TEXT, StaticTextBox.START_MARKER));
+							piBoxes.add(new StaticTextBox(context, pi, pi.getTarget() + " "));
+							if (pi.getEndOffset() - pi.getStartOffset() > 1) {
+								piBoxes.add(new DocumentTextBox(context, pi, pi.getStartOffset() + 1, pi.getEndOffset() - 1));
+							}
+							piBoxes.add(new PlaceholderBox(context, pi, pi.getEndOffset() - pi.getStartOffset()));
+							piBoxes.add(new StaticTextBox(context, pi, PROCESSING_INSTR_AFTER_TEXT, StaticTextBox.END_MARKER));
+							final InlineBox child = new InlineElementBox(context, pi, piBoxes.toArray(new InlineBox[piBoxes.size()]));
 							addChildInlineBox(result, child);
 						};
 
@@ -315,6 +326,16 @@ public class InlineElementBox extends CompositeInlineBox {
 		});
 
 		return result;
+	}
+
+	private static void addPlaceholderBox(final InlineBoxes result, final PlaceholderBox placeholder) {
+		if (result.firstContentBox == null) {
+			result.firstContentBox = placeholder;
+		}
+
+		result.lastContentBox = placeholder;
+
+		result.boxes.add(placeholder);
 	}
 
 	private static void addChildInlineBox(final InlineBoxes result, final InlineBox child) {
