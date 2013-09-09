@@ -41,9 +41,9 @@ import org.eclipse.ui.part.IPageSite;
 import org.eclipse.vex.core.internal.core.Caret;
 import org.eclipse.vex.core.internal.core.Rectangle;
 import org.eclipse.vex.core.internal.layout.Box;
-import org.eclipse.vex.core.internal.widget.IHostComponent;
-import org.eclipse.vex.core.internal.widget.IBoxFilter;
 import org.eclipse.vex.core.internal.widget.BaseVexWidget;
+import org.eclipse.vex.core.internal.widget.IBoxFilter;
+import org.eclipse.vex.core.internal.widget.IHostComponent;
 import org.eclipse.vex.core.internal.widget.swt.VexWidget;
 import org.eclipse.vex.ui.internal.editor.VexEditor;
 
@@ -119,8 +119,10 @@ class DebugViewPage implements IPageBookViewPage {
 			caretField.setAccessible(true);
 			hostComponentField = BaseVexWidget.class.getDeclaredField("hostComponent");
 			hostComponentField.setAccessible(true);
-			findInnermostBoxMethod = BaseVexWidget.class.getMethod("findInnermostBox", IBoxFilter.class);
+			findInnermostBoxMethod = BaseVexWidget.class.getDeclaredMethod("findInnermostBox", IBoxFilter.class);
+			findInnermostBoxMethod.setAccessible(true);
 		} catch (final Exception e) {
+			e.printStackTrace();
 			// TODO: handle exception
 		}
 	}
