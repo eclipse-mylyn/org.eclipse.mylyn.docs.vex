@@ -14,6 +14,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
+import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.swt.SWT;
@@ -45,6 +46,8 @@ import org.eclipse.vex.core.internal.widget.BaseVexWidget;
 import org.eclipse.vex.core.internal.widget.IBoxFilter;
 import org.eclipse.vex.core.internal.widget.IHostComponent;
 import org.eclipse.vex.core.internal.widget.swt.VexWidget;
+import org.eclipse.vex.core.provisional.dom.ContentRange;
+import org.eclipse.vex.core.provisional.dom.IDocument;
 import org.eclipse.vex.ui.internal.editor.VexEditor;
 
 /**
@@ -135,11 +138,14 @@ class DebugViewPage implements IPageBookViewPage {
 
 	private Label loadingLabel;
 
+	private Composite content;
 	private Table table;
+	private Table textTable;
 	private TableItem documentItem;
 	private TableItem viewportItem;
 	private TableItem boxItem;
 	private TableItem caretOffsetItem;
+	private TableItem caretOffsetContentItem;
 	private TableItem caretAbsItem;
 	private TableItem caretRelItem;
 	private TableItem mouseAbsItem;
@@ -166,41 +172,43 @@ class DebugViewPage implements IPageBookViewPage {
 		final GridLayout layout = new GridLayout();
 		layout.numColumns = 1;
 		composite.setLayout(layout);
-		GridData gd;
 
 		final ScrolledComposite sc = new ScrolledComposite(composite, SWT.V_SCROLL);
-		table = new Table(sc, SWT.NONE);
-		table.setHeaderVisible(true);
-		sc.setContent(table);
 		sc.setExpandHorizontal(true);
 		sc.setExpandVertical(true);
-		gd = new GridData();
-		gd.grabExcessHorizontalSpace = true;
-		gd.horizontalAlignment = GridData.FILL;
-		sc.setLayoutData(gd);
+
+		final GridDataFactory dataFactory = GridDataFactory.swtDefaults().align(SWT.FILL, SWT.FILL).hint(SWT.DEFAULT, 50).grab(true, true);
+		dataFactory.applyTo(sc);
+
+		content = new Composite(sc, SWT.NONE);
+		final GridLayout contentLayout = new GridLayout(1, false);
+		content.setLayout(contentLayout);
+
+		sc.setContent(content);
+
+		table = new Table(content, SWT.NO_SCROLL);
+		table.setHeaderVisible(true);
+		final GridData tableGrid = new GridData();
+		tableGrid.grabExcessHorizontalSpace = true;
+		tableGrid.horizontalAlignment = GridData.FILL;
+		table.setLayoutData(tableGrid);
 
 		TableColumn column;
 		column = new TableColumn(table, SWT.LEFT);
 		column.setText("Item");
-		column = new TableColumn(table, SWT.RIGHT);
+		column = new TableColumn(table, SWT.LEFT);
 		column.setText("X");
-		column = new TableColumn(table, SWT.RIGHT);
+		column = new TableColumn(table, SWT.LEFT);
 		column.setText("Y");
 		column = new TableColumn(table, SWT.RIGHT);
 		column.setText("Width");
 		column = new TableColumn(table, SWT.RIGHT);
 		column.setText("Height");
 
-		table.addControlListener(controlListener);
-
 		documentItem = new TableItem(table, SWT.NONE);
 		documentItem.setText(0, "Document");
 		viewportItem = new TableItem(table, SWT.NONE);
 		viewportItem.setText(0, "Viewport");
-		boxItem = new TableItem(table, SWT.NONE);
-		boxItem.setText(0, "Current Box");
-		caretOffsetItem = new TableItem(table, SWT.NONE);
-		caretOffsetItem.setText(0, "Caret Offset");
 		caretAbsItem = new TableItem(table, SWT.NONE);
 		caretAbsItem.setText(0, "Caret Abs.");
 		caretRelItem = new TableItem(table, SWT.NONE);
@@ -209,6 +217,31 @@ class DebugViewPage implements IPageBookViewPage {
 		mouseAbsItem.setText(0, "Mouse Abs.");
 		mouseRelItem = new TableItem(table, SWT.NONE);
 		mouseRelItem.setText(0, "Mouse Rel.");
+
+		textTable = new Table(content, SWT.NO_SCROLL);
+		textTable.setHeaderVisible(true);
+		final GridData textTableGrid = new GridData();
+		textTableGrid.grabExcessHorizontalSpace = true;
+		textTableGrid.horizontalAlignment = GridData.FILL;
+		textTable.setLayoutData(textTableGrid);
+		textTable.setSize(textTable.computeSize(SWT.DEFAULT, 300));
+
+		textTable.addControlListener(controlListener);
+
+		column = new TableColumn(textTable, SWT.LEFT);
+		column.setText("Item");
+		column = new TableColumn(textTable, SWT.LEFT);
+		column.setText("Value");
+
+		caretOffsetItem = new TableItem(textTable, SWT.NONE);
+		caretOffsetItem.setText(0, "Caret Offset");
+		boxItem = new TableItem(textTable, SWT.NONE);
+		boxItem.setText(0, "Current Box");
+		caretOffsetContentItem = new TableItem(textTable, SWT.NONE);
+		caretOffsetContentItem.setText(0, "Content at Caret");
+
+		content.setSize(content.computeSize(SWT.DEFAULT, SWT.DEFAULT));
+		sc.setMinSize(content.computeSize(SWT.DEFAULT, SWT.DEFAULT));
 
 		final Button updateButton = new Button(composite, SWT.PUSH);
 		updateButton.setText("Refresh");
@@ -226,7 +259,6 @@ class DebugViewPage implements IPageBookViewPage {
 		vexWidget.addMouseMoveListener(mouseMoveListener);
 
 		repopulate();
-
 	}
 
 	private final ISelectionChangedListener selectionListener = new ISelectionChangedListener() {
@@ -243,15 +275,23 @@ class DebugViewPage implements IPageBookViewPage {
 		}
 
 		public void controlResized(final ControlEvent e) {
-			final int width = table.getSize().x;
-			final int numWidth = Math.round(width * 0.125f);
-			table.getColumn(0).setWidth(width / 2);
-			table.getColumn(1).setWidth(numWidth);
-			table.getColumn(2).setWidth(numWidth);
-			table.getColumn(3).setWidth(numWidth);
-			table.getColumn(4).setWidth(numWidth);
+			resizeTables();
 		}
 	};
+
+	private void resizeTables() {
+		table.getColumn(0).pack();
+		int width = table.getSize().x - table.getColumn(0).getWidth();
+		final int numWidth = Math.round(width / 4);
+		table.getColumn(1).setWidth(numWidth);
+		table.getColumn(2).setWidth(numWidth);
+		table.getColumn(3).setWidth(numWidth);
+		table.getColumn(4).setWidth(numWidth);
+
+		textTable.getColumn(0).pack();
+		width = textTable.getSize().x - textTable.getColumn(0).getWidth();
+		textTable.getColumn(1).setWidth(width);
+	}
 
 	private final MouseMoveListener mouseMoveListener = new MouseMoveListener() {
 
@@ -292,6 +332,7 @@ class DebugViewPage implements IPageBookViewPage {
 		setFromInnermostBox(boxItem, getInnermostBox());
 		final Rectangle viewport = getViewport();
 		caretOffsetItem.setText(1, Integer.toString(impl.getCaretOffset()));
+		caretOffsetContentItem.setText(1, getContent());
 		setItemFromRect(viewportItem, viewport);
 		setItemFromRect(caretAbsItem, getCaretBounds());
 		setItemRel(caretRelItem, viewport, getCaretBounds());
@@ -318,6 +359,23 @@ class DebugViewPage implements IPageBookViewPage {
 		}
 	}
 
+	private String getContent() {
+		final int offset = impl.getCaretOffset();
+		final IDocument doc = impl.getDocument();
+		final int len = 8;
+
+		final StringBuilder result = new StringBuilder();
+		final ContentRange range = new ContentRange(offset - len, offset + len).intersection(doc.getRange());
+		final String content = doc.getContent().getRawText(range);
+
+		final int caretIndex = offset - range.getStartOffset();
+
+		result.append(content.substring(0, caretIndex).replace("\0", "#"));
+		result.append("|");
+		result.append(content.substring(caretIndex, content.length()).replace("\0", "#"));
+		return result.toString();
+	}
+
 	private static void setItemFromRect(final TableItem item, final Rectangle rect) {
 		item.setText(X, Integer.toString(rect.getX()));
 		item.setText(Y, Integer.toString(rect.getY()));
@@ -331,4 +389,5 @@ class DebugViewPage implements IPageBookViewPage {
 		item.setText(WIDTH, Integer.toString(rect.getWidth()));
 		item.setText(HEIGHT, Integer.toString(rect.getHeight()));
 	}
+
 }
