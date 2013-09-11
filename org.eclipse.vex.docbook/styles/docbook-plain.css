@@ -43,6 +43,14 @@ appendix {
 	display: block;
 }
 
+application {
+	display: inline;
+}
+
+arg {
+	display: inline;	
+}
+
 article,book,chapter {
 	font-family: "Times New Roman", serif;
 	font-size: 16px;
@@ -80,6 +88,10 @@ articleinfo email {
 articleinfo email:before {
 	content: "Email: ";
 	font-weight: bold;
+}
+
+artpagenums {
+	display: inline;
 }
 
 attribution {
@@ -121,11 +133,23 @@ authorinitials {
 	display: inline;
 }
 
+bibliocoverage {
+	display: inline;
+}
+
 bibliodiv {
 	display: block;
 }
 
 bibliography {
+	display: block;
+}
+
+biblioid {
+	display: inline;
+}
+
+bibliolist {
 	display: block;
 }
 
@@ -137,7 +161,19 @@ bibliomixed {
 	display: block;
 }
 
-bibliomset {
+biblioref {
+	display: inline;
+}
+
+bibliorelation {
+	display: inline;
+}
+
+biblioset {
+	display: block;
+}
+
+bibliosource {
 	display: block;
 }
 
@@ -179,6 +215,16 @@ bookinfo email:before {
 	font-weight: bold;
 }
 
+blockquote {
+	display: block;
+	margin-left: 10px;
+}
+
+bridgehead {
+	display: block;
+	/*TODO add renderas attribute */
+}
+
 caption {
 	display: block;
 	font-style: italic;
@@ -210,9 +256,54 @@ caution:before {
 	color: yellow;
 }
 
+citation {
+	display: inline;
+}
+
+citation:before {
+	content: '[';
+}
+
+citation:after {
+	content: ']';
+}
+
+citebiblioid {
+	display: inline;
+}
+
+citerefentry {
+	display: inline;
+}
+
 citetitle {
 	display: inline;
 	font-style: italic;
+}
+
+city {
+	display: inline;
+}
+
+classname {
+	display: inline;
+}
+
+classsynopsisinfo {
+	display: block;
+	white-space: pre;
+}
+
+co {
+	display: inline;
+}
+
+code {
+	display: inline;
+}
+
+col {
+	content: 'col';
 }
 
 colspec {
@@ -526,6 +617,18 @@ literallayout[class="monospaced"] {
 	font-family: "Courier New", monospaced;
 }
 
+manvolnum {
+	display: inline;
+}
+
+manvolnum:before {
+	content: '(';
+}
+
+manvolnum:after {
+	content: ')';
+}
+
 mediaobject {
 	display: inline;
 }
@@ -815,6 +918,14 @@ surname {
 	display: inline;
 }
 
+subscript {
+	display: inline;	
+}
+
+superscript {
+	display: inline;	
+}
+
 synopsis {
 	font-family: "Courier New", monospaced;
 	display: block;
@@ -1028,6 +1139,11 @@ warning:before {
 	font-weight: bold;
 	color: red;
 	display: block
+}
+
+wordasword {
+	display: inline;
+	font-style: italic;		
 }
 
 xref {
