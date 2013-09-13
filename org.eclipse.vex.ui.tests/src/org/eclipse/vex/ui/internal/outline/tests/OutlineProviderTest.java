@@ -15,6 +15,7 @@ import static org.junit.Assert.assertEquals;
 import java.net.URL;
 
 import org.eclipse.core.runtime.QualifiedName;
+import org.eclipse.vex.core.internal.css.IWhitespacePolicy;
 import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.css.StyleSheetReader;
 import org.eclipse.vex.core.internal.dom.Document;
@@ -27,7 +28,6 @@ import org.eclipse.vex.ui.internal.outline.DefaultOutlineProvider;
 import org.junit.Before;
 import org.junit.Test;
 
-@SuppressWarnings("restriction")
 public class OutlineProviderTest {
 
 	private DefaultOutlineProvider outlineProvider;
@@ -36,8 +36,9 @@ public class OutlineProviderTest {
 	public void setUp() throws Exception {
 		final URL url = this.getClass().getResource("/tests/resources/outlineTest.css");
 		final StyleSheet styleSheet = new StyleSheetReader().read(url);
+		final IWhitespacePolicy whitespacePolicy = IWhitespacePolicy.NULL;
 		outlineProvider = new DefaultOutlineProvider();
-		outlineProvider.init(styleSheet);
+		outlineProvider.init(styleSheet, whitespacePolicy);
 	}
 
 	@Test

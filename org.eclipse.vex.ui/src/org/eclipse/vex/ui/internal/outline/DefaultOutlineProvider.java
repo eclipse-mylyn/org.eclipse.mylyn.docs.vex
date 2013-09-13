@@ -26,6 +26,7 @@ import org.eclipse.jface.viewers.ViewerCell;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.ui.IActionBars;
 import org.eclipse.vex.core.XML;
+import org.eclipse.vex.core.internal.css.IWhitespacePolicy;
 import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.provisional.dom.BaseNodeVisitorWithResult;
 import org.eclipse.vex.core.provisional.dom.IAttribute;
@@ -66,9 +67,9 @@ public class DefaultOutlineProvider implements IOutlineProvider, IToolBarContrib
 		initStates();
 	}
 
-	public void init(final StyleSheet styleSheet) {
+	public void init(final StyleSheet styleSheet, final IWhitespacePolicy whitespacePolicy) {
 		contentProvider = new OutlineContentProvider();
-		labelProvider = new OutlineLabelProvider(styleSheet);
+		labelProvider = new OutlineLabelProvider(styleSheet, whitespacePolicy);
 		initStates();
 	}
 
@@ -175,21 +176,24 @@ public class DefaultOutlineProvider implements IOutlineProvider, IToolBarContrib
 		private VexEditor editor = null;
 		private IVexEditorListener listener = null;
 		private StyleSheet styleSheet;
+		private IWhitespacePolicy whitespacePolicy;
 
 		public OutlineLabelProvider(final VexEditor editor) {
-			this(editor.getStyle().getStyleSheet());
+			this(editor.getStyle().getStyleSheet(), editor.getVexWidget().getWhitespacePolicy());
 			this.editor = editor;
 			listener = new EditorEventAdapter() {
 				@Override
 				public void styleChanged(final VexEditorEvent event) {
 					styleSheet = event.getVexEditor().getStyle().getStyleSheet();
+					whitespacePolicy = event.getVexEditor().getVexWidget().getWhitespacePolicy();
 				}
 			};
 			editor.addVexEditorListener(listener);
 		}
 
-		public OutlineLabelProvider(final StyleSheet styleSheet) {
+		public OutlineLabelProvider(final StyleSheet styleSheet, final IWhitespacePolicy whitespacePolicy) {
 			this.styleSheet = styleSheet;
+			this.whitespacePolicy = whitespacePolicy;
 		}
 
 		@Override
@@ -248,12 +252,14 @@ public class DefaultOutlineProvider implements IOutlineProvider, IToolBarContrib
 						});
 					}
 					content = XML.compressWhitespace(content, false, false, false);
-					content = content.substring(0, Math.min(MAX_CONTENT_LENGTH, content.length()));
+					if (content.length() > MAX_CONTENT_LENGTH - 3) {
+						content = content.substring(0, Math.min(MAX_CONTENT_LENGTH, content.length())) + "...";
+					}
 				}
 			}
 
 			if (content != null && content.length() > 0) {
-				label.append(" : " + content, StyledString.DECORATIONS_STYLER);
+				label.append(" " + content, StyledString.DECORATIONS_STYLER);
 			}
 
 			return label;
@@ -262,7 +268,10 @@ public class DefaultOutlineProvider implements IOutlineProvider, IToolBarContrib
 		private final INodeVisitorWithResult<Image> elementImageVisitor = new BaseNodeVisitorWithResult<Image>(PluginImages.get(PluginImages.IMG_XML_UNKNOWN)) {
 			@Override
 			public Image visit(final IElement element) {
-				return PluginImages.get(PluginImages.IMG_XML_ELEMENT);
+				if (whitespacePolicy.isBlock(element)) {
+					return PluginImages.get(PluginImages.IMG_XML_BLOCK_ELEMENT);
+				}
+				return PluginImages.get(PluginImages.IMG_XML_INLINE_ELEMENT);
 			}
 		};
 

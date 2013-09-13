@@ -33,8 +33,8 @@ public class OutlineFilterActionGroup extends ActionGroup {
 
 		final ArrayList<OutlineFilterAction> actions = new ArrayList<OutlineFilterAction>(4);
 
-		final OutlineFilterAction hideInlineElements = new OutlineFilterAction(this, OutlineFilter.FILTER_ID_INLINE_ELEMENTS, KEY_HIDEINLINEELEMENTS, null);
-		hideInlineElements.setImageDescriptor(PluginImages.DESC_HIDE_INLINE_ELEMENTS);
+		final OutlineFilterAction hideInlineElements = new OutlineFilterAction(this, OutlineFilter.FILTER_ID_INCLUDE_INLINE_ELEMENTS, KEY_HIDEINLINEELEMENTS, null);
+		hideInlineElements.setImageDescriptor(PluginImages.DESC_SHOW_INLINE_ELEMENTS);
 		actions.add(hideInlineElements);
 
 		filter = new OutlineFilter(styleSheet);

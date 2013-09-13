@@ -20,12 +20,14 @@ public class PluginImages {
 	private static ImageRegistry IMAGE_REGISTRY;
 
 	// Outline toolbar actions
-	public static final ImageDescriptor DESC_HIDE_INLINE_ELEMENTS = createImageDescriptor("icons/hide_inline.gif"); //$NON-NLS-1$
+	public static final ImageDescriptor DESC_SHOW_INLINE_ELEMENTS = createImageDescriptor("icons/show_inline.gif"); //$NON-NLS-1$
 	public static final ImageDescriptor DESC_SHOW_ELEMENT_CONTENT = createImageDescriptor("icons/show_content.gif"); //$NON-NLS-1$
 
 	// Element Icons
 	/** XML element */
 	public static final ImageDescriptor DESC_XML_ELEMENT = createImageDescriptor("icons/element_obj.gif"); //$NON-NLS-1$
+	public static final ImageDescriptor DESC_XML_BLOCK_ELEMENT = createImageDescriptor("icons/block_element_obj.gif"); //$NON-NLS-1$
+	public static final ImageDescriptor DESC_XML_INLINE_ELEMENT = createImageDescriptor("icons/inline_element_obj.gif"); //$NON-NLS-1$
 	/** XML comment. */
 	public static final ImageDescriptor DESC_XML_COMMENT = createImageDescriptor("icons/comment_obj.gif"); //$NON-NLS-1$
 	/** XML attribute. */
@@ -40,6 +42,8 @@ public class PluginImages {
 	// ImageRegistry for frequently used images
 	private static final String NAME_PREFIX = VexPlugin.ID + "."; //$NON-NLS-1$
 	public static final String IMG_XML_ELEMENT = NAME_PREFIX + "img.xml_element"; //$NON-NLS-1$
+	public static final String IMG_XML_BLOCK_ELEMENT = NAME_PREFIX + "img.xml_block_element"; //$NON-NLS-1$
+	public static final String IMG_XML_INLINE_ELEMENT = NAME_PREFIX + "img.xml_inline_element"; //$NON-NLS-1$
 	public static final String IMG_XML_COMMENT = NAME_PREFIX + "img.xml_comment"; //$NON-NLS-1$
 	public static final String IMG_XML_ATTRIBUTE = NAME_PREFIX + "img.xml_attribute"; //$NON-NLS-1$
 	public static final String IMG_XML_UNKNOWN = NAME_PREFIX + "img.xml_unknown"; //$NON-NLS-1$
@@ -54,6 +58,8 @@ public class PluginImages {
 	private static final void initializeImageRegistry() {
 		IMAGE_REGISTRY = new ImageRegistry();
 		register(IMG_XML_ELEMENT, DESC_XML_ELEMENT);
+		register(IMG_XML_BLOCK_ELEMENT, DESC_XML_BLOCK_ELEMENT);
+		register(IMG_XML_INLINE_ELEMENT, DESC_XML_INLINE_ELEMENT);
 		register(IMG_XML_COMMENT, DESC_XML_COMMENT);
 		register(IMG_XML_ATTRIBUTE, DESC_XML_ATTRIBUTE);
 		register(IMG_XML_UNKNOWN, DESC_XML_UNKNOWN);

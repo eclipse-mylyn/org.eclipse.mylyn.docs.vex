@@ -22,7 +22,7 @@ import org.eclipse.vex.core.provisional.dom.INodeVisitorWithResult;
 public class OutlineFilter extends ViewerFilter {
 
 	// Binary coded - use 2-4-8... for next constants
-	public static final int FILTER_ID_INLINE_ELEMENTS = 1;
+	public static final int FILTER_ID_INCLUDE_INLINE_ELEMENTS = 1;
 
 	private int activeFilters = 0;
 	private StyleSheet styleSheet;
@@ -76,7 +76,7 @@ public class OutlineFilter extends ViewerFilter {
 		@Override
 		public Boolean visit(final IElement element) {
 			final IElement domElement = element;
-			if (hasFilter(FILTER_ID_INLINE_ELEMENTS)) {
+			if (!hasFilter(FILTER_ID_INCLUDE_INLINE_ELEMENTS)) {
 				if (styleSheet.getStyles(domElement).getDisplay().equals(CSS.INLINE)) {
 					return false;
 				}

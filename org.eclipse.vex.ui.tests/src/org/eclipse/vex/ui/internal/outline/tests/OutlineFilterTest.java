@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  * 		Carsten Hiesserich - initial API and implementation
  *******************************************************************************/
@@ -25,7 +25,6 @@ import org.eclipse.vex.ui.internal.outline.OutlineFilter;
 import org.junit.Before;
 import org.junit.Test;
 
-@SuppressWarnings("restriction")
 public class OutlineFilterTest {
 
 	private OutlineFilter filter;
@@ -45,10 +44,10 @@ public class OutlineFilterTest {
 
 	@Test
 	public void testInlineElementFilter() throws Exception {
-		filter.addFilter(OutlineFilter.FILTER_ID_INLINE_ELEMENTS);
 		final IElement inline = new Element("title");
 		assertFalse("Should filter inline element", filter.select(null, null, inline));
 
+		filter.addFilter(OutlineFilter.FILTER_ID_INCLUDE_INLINE_ELEMENTS);
 		final IElement block = new Element("child");
 		assertTrue("Should not filter block element", filter.select(null, null, block));
 	}
