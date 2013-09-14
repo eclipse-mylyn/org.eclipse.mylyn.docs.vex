@@ -11,6 +11,7 @@
 package org.eclipse.vex.ui.internal.outline.tests;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.net.URL;
 
@@ -86,9 +87,26 @@ public class OutlineProviderTest {
 		outlineProvider.setState(DefaultOutlineProvider.SHOW_ELEMENT_CONTENT, true);
 
 		final IElement parent = (IElement) outlineElements[0];
-		assertEquals("Should return local name:title content", "parent : titleText", outlineProvider.getOutlineLabel(parent).getString());
+		assertEquals("Should return local name title content", "parent titleText", outlineProvider.getOutlineLabel(parent).getString());
 
 		final IElement title = (IElement) outlineProvider.getContentProvider().getChildren(outlineElements[0])[0];
-		assertEquals("Should return local name:content", "title : titleText", outlineProvider.getOutlineLabel(title).getString());
+		assertEquals("Should return local name content", "title titleText", outlineProvider.getOutlineLabel(title).getString());
+	}
+
+	@Test
+	public void testLabelProvider_whenContentIsTooLong_shouldTrimContent() throws Exception {
+		final IDocument doc = new Document(new QualifiedName(null, "root"));
+		final IDocumentFragment fragment = new XMLFragment("<parent><title>titleText</title><para>This is a very long text passage that should be trimmed.</para></parent>").getDocumentFragment();
+		doc.insertFragment(2, fragment);
+		final Object[] outlineElements = outlineProvider.getContentProvider().getElements(doc);
+		assertEquals("Count of root elements", 1, outlineElements.length);
+
+		outlineProvider.setState(DefaultOutlineProvider.SHOW_ELEMENT_CONTENT, true);
+
+		final IElement parent = (IElement) outlineElements[0];
+		assertTrue("Should trim child content", outlineProvider.getOutlineLabel(parent).getString().endsWith("..."));
+
+		final IElement para = (IElement) outlineProvider.getContentProvider().getChildren(outlineElements[0])[1];
+		assertTrue("Should trim element content", outlineProvider.getOutlineLabel(para).getString().endsWith("..."));
 	}
 }
