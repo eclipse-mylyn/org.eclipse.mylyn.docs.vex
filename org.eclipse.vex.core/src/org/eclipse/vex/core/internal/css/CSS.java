@@ -234,4 +234,12 @@ public interface CSS {
 	public static final String XX_LARGE = "xx-large";
 	public static final String XX_SMALL = "xx-small";
 
+	// Common element names
+	public static final String XML_PROCESSING_INSTRUCTION = "vex|processing-instruction";
+
+	// Pseudo elements
+	public static final String PSEUDO_TARGET = "target";
+	public static final String PSEUDO_BEFORE = "before";
+	public static final String PSEUDO_AFTER = "after";
+
 }

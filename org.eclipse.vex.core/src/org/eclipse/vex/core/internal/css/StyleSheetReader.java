@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2010 John Krasnay and others.
+ * Copyright (c) 2004, 2013 John Krasnay and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,16 +10,21 @@
  *     Florian Thienel - bug 306639 - remove serializability from StyleSheet
  *                       and dependend classes
  *     Igor Jacy Lino Campista - Java 5 warnings fixed (bug 311325)
+ *     Carsten Hiesserich - added isPseudoElement override
  *******************************************************************************/
 package org.eclipse.vex.core.internal.css;
 
 import java.io.CharArrayReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.Reader;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.batik.css.parser.Scanner;
+import org.apache.batik.util.CSSConstants;
+import org.apache.batik.util.ParsedURL;
 import org.eclipse.wst.common.uriresolver.internal.provisional.URIResolver;
 import org.eclipse.wst.common.uriresolver.internal.provisional.URIResolverPlugin;
 import org.w3c.css.sac.CSSException;
@@ -39,7 +44,68 @@ public class StyleSheetReader {
 	private static final URIResolver URI_RESOLVER = URIResolverPlugin.createResolver();
 
 	public static Parser createParser() {
-		return new org.apache.batik.css.parser.Parser();
+		return new org.apache.batik.css.parser.Parser() {
+
+			/**
+			 * The batik implementation uses hardcoded values. This Override allows custom PseudoElements.
+			 */
+			@Override
+			protected boolean isPseudoElement(final String s) {
+				if (super.isPseudoElement(s)) {
+					return true;
+				} else {
+					return s.equalsIgnoreCase(CSS.PSEUDO_TARGET);
+				}
+			}
+
+			/**
+			 * This override allows the use of a custom Scanner overrride.
+			 */
+			@Override
+			protected Scanner createScanner(final InputSource source) {
+				documentURI = source.getURI();
+				if (documentURI == null) {
+					documentURI = "";
+				}
+
+				final Reader r = source.getCharacterStream();
+				if (r != null) {
+					return new CssScanner(r);
+				}
+
+				InputStream is = source.getByteStream();
+				if (is != null) {
+					return new CssScanner(is, source.getEncoding());
+				}
+
+				final String uri = source.getURI();
+				if (uri == null) {
+					throw new CSSException(formatMessage("empty.source", null));
+				}
+
+				try {
+					final ParsedURL purl = new ParsedURL(uri);
+					is = purl.openStreamRaw(CSSConstants.CSS_MIME_TYPE);
+					return new CssScanner(is, source.getEncoding());
+				} catch (final IOException e) {
+					throw new CSSException(e);
+				}
+			}
+
+			/**
+			 * This override joins two identifiers which are seperated by a dash '|'. The created rule uses the joined
+			 * identifier (e.g. <code>vex|identifier</code>).<br />
+			 * This is a hack to support 'pseudo namespaces'. There is no <b>real</b> namespace support!
+			 */
+			@Override
+			protected void parseRuleSet() {
+				if (((CssScanner) scanner).getCurrent() == '|') {
+					((CssScanner) scanner).joinIdentifier();
+				}
+				super.parseRuleSet();
+			}
+
+		};
 	}
 
 	/**

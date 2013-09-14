@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2010 John Krasnay and others.
+ * Copyright (c) 2004, 2013 John Krasnay and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,7 +8,8 @@
  * Contributors:
  *     John Krasnay - initial API and implementation
  *     Igor Jacy Lino Campista - Java 5 warnings fixed (bug 311325)
- *     Mohamadou Nassourou - Bug 298912 - rudimentary support for images 
+ *     Mohamadou Nassourou - Bug 298912 - rudimentary support for images
+ *     Carsten Hiesserich - changed pseudo element handling
  *******************************************************************************/
 package org.eclipse.vex.core.internal.layout;
 
@@ -20,7 +21,6 @@ import org.eclipse.vex.core.internal.core.Drawable;
 import org.eclipse.vex.core.internal.core.Graphics;
 import org.eclipse.vex.core.internal.core.Rectangle;
 import org.eclipse.vex.core.internal.css.CSS;
-import org.eclipse.vex.core.internal.css.PseudoElement;
 import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.css.Styles;
 import org.eclipse.vex.core.provisional.dom.IElement;
@@ -131,22 +131,16 @@ public class BlockElementBox extends AbstractBlockBox {
 
 		final StyleSheet styleSheet = context.getStyleSheet();
 
-		// element and styles for generated boxes
-		PseudoElement genElement;
-		Styles genStyles;
-
 		// :before content
 		List<InlineBox> beforeInlines = null;
-		if (node instanceof IElement) { // TODO replace PseudoElement with a more flexible mechanism
-			genElement = context.getStyleSheet().getBeforeElement((IElement) node);
-			if (genElement != null) {
-				genStyles = styleSheet.getStyles(genElement);
-				if (genStyles.getDisplay().equals(CSS.INLINE)) {
-					beforeInlines = new ArrayList<InlineBox>();
-					beforeInlines.addAll(LayoutUtils.createGeneratedInlines(context, genElement));
-				} else {
-					childList.add(new BlockPseudoElementBox(context, genElement, this, width));
-				}
+		final IElement before = styleSheet.getPseudoElement(node, CSS.PSEUDO_BEFORE, true);
+		if (before != null) {
+			final Styles beforeStyles = styleSheet.getStyles(before);
+			if (beforeStyles.getDisplay().equals(CSS.INLINE)) {
+				beforeInlines = new ArrayList<InlineBox>();
+				beforeInlines.addAll(LayoutUtils.createGeneratedInlines(context, before));
+			} else {
+				childList.add(new BlockPseudoElementBox(context, before, this, width));
 			}
 		}
 
@@ -165,16 +159,15 @@ public class BlockElementBox extends AbstractBlockBox {
 		// :after content
 		Box afterBlock = null;
 		List<InlineBox> afterInlines = null;
-		if (node instanceof IElement) {
-			genElement = context.getStyleSheet().getAfterElement((IElement) node);
-			if (genElement != null) {
-				genStyles = context.getStyleSheet().getStyles(genElement);
-				if (genStyles.getDisplay().equals(CSS.INLINE)) {
-					afterInlines = new ArrayList<InlineBox>();
-					afterInlines.addAll(LayoutUtils.createGeneratedInlines(context, genElement));
-				} else {
-					afterBlock = new BlockPseudoElementBox(context, genElement, this, width);
-				}
+
+		final IElement after = styleSheet.getPseudoElement(node, CSS.PSEUDO_AFTER, true);
+		if (after != null) {
+			final Styles afterStyles = styleSheet.getStyles(after);
+			if (afterStyles.getDisplay().equals(CSS.INLINE)) {
+				afterInlines = new ArrayList<InlineBox>();
+				afterInlines.addAll(LayoutUtils.createGeneratedInlines(context, after));
+			} else {
+				afterBlock = new BlockPseudoElementBox(context, after, this, width);
 			}
 		}
 

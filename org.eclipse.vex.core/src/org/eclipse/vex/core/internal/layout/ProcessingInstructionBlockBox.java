@@ -14,16 +14,15 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.vex.core.internal.VEXCorePlugin;
+import org.eclipse.vex.core.internal.css.CSS;
+import org.eclipse.vex.core.internal.css.StyleSheet;
+import org.eclipse.vex.core.provisional.dom.IElement;
 import org.eclipse.vex.core.provisional.dom.INode;
-import org.eclipse.vex.core.provisional.dom.IProcessingInstruction;
 
 /**
  * This class displays a ProcessingInstruction as a block element.
  */
 public class ProcessingInstructionBlockBox extends BlockElementBox {
-
-	private static final String AFTER_TEXT = "?>";
-	private static final String BEFORE_TEXT = "<?";
 
 	public ProcessingInstructionBlockBox(final LayoutContext context, final BlockBox parent, final INode node) {
 		super(context, parent, node);
@@ -44,13 +43,15 @@ public class ProcessingInstructionBlockBox extends BlockElementBox {
 		final INode node = getNode();
 		final int width = getWidth();
 
+		final StyleSheet styleSheet = context.getStyleSheet();
 		final List<Box> result = new ArrayList<Box>();
-
 		final List<InlineBox> pendingInlines = new ArrayList<InlineBox>();
 
 		// :before content - includes the target
-		pendingInlines.add(new StaticTextBox(context, node, BEFORE_TEXT));
-		pendingInlines.add(new StaticTextBox(context, node, ((IProcessingInstruction) node).getTarget() + " "));
+		final IElement before = styleSheet.getPseudoElement(node, CSS.PSEUDO_BEFORE, true);
+		if (before != null) {
+			pendingInlines.addAll(LayoutUtils.createGeneratedInlines(context, before, StaticTextBox.START_MARKER));
+		}
 
 		// textual content
 		if (node.getEndOffset() - node.getStartOffset() > 1) {
@@ -61,7 +62,10 @@ public class ProcessingInstructionBlockBox extends BlockElementBox {
 		pendingInlines.add(new PlaceholderBox(context, node, node.getEndOffset() - node.getStartOffset()));
 
 		// :after content
-		pendingInlines.add(new StaticTextBox(context, node, AFTER_TEXT));
+		final IElement after = styleSheet.getPseudoElement(node, CSS.PSEUDO_AFTER, true);
+		if (after != null) {
+			pendingInlines.addAll(LayoutUtils.createGeneratedInlines(context, after, StaticTextBox.END_MARKER));
+		}
 
 		result.add(ParagraphBox.create(context, node, pendingInlines, width));
 

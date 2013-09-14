@@ -1,0 +1,6 @@
+/* Stylesheet for unit testing */
+
+element {
+  content: attr(attribute);
+}
+

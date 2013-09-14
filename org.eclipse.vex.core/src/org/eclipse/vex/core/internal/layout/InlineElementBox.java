@@ -21,7 +21,7 @@ import org.eclipse.vex.core.internal.core.FontResource;
 import org.eclipse.vex.core.internal.core.Graphics;
 import org.eclipse.vex.core.internal.core.Rectangle;
 import org.eclipse.vex.core.internal.css.CSS;
-import org.eclipse.vex.core.internal.css.PseudoElement;
+import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.css.Styles;
 import org.eclipse.vex.core.provisional.dom.BaseNodeVisitor;
 import org.eclipse.vex.core.provisional.dom.ContentRange;
@@ -38,8 +38,6 @@ public class InlineElementBox extends CompositeInlineBox {
 
 	private static final String COMMENT_AFTER_TEXT = "-->";
 	private static final String COMMENT_BEFORE_TEXT = "<!--";
-	private static final String PROCESSING_INSTR_AFTER_TEXT = "?>";
-	private static final String PROCESSING_INSTR_BEFORE_TEXT = "<?";
 	private final INode node;
 	private final InlineBox[] children;
 	private InlineBox firstContentChild = null;
@@ -76,7 +74,7 @@ public class InlineElementBox extends CompositeInlineBox {
 			}
 
 			// :before content
-			final PseudoElement beforeElement = context.getStyleSheet().getBeforeElement((IElement) node);
+			final IElement beforeElement = context.getStyleSheet().getPseudoElement(node, CSS.PSEUDO_BEFORE, true);
 			if (beforeElement != null) {
 				childList.addAll(LayoutUtils.createGeneratedInlines(context, beforeElement));
 			}
@@ -104,7 +102,7 @@ public class InlineElementBox extends CompositeInlineBox {
 			childList.add(createRightMarker(node, styles));
 
 			// :after content
-			final PseudoElement afterElement = context.getStyleSheet().getAfterElement((IElement) node);
+			final IElement afterElement = context.getStyleSheet().getPseudoElement(node, CSS.PSEUDO_AFTER, true);
 			if (afterElement != null) {
 				childList.addAll(LayoutUtils.createGeneratedInlines(context, afterElement));
 			}
@@ -303,13 +301,24 @@ public class InlineElementBox extends CompositeInlineBox {
 						public void visit(final IProcessingInstruction pi) {
 							addPlaceholderBox(result, new PlaceholderBox(context, node, pi.getStartOffset() - node.getStartOffset()));
 							final List<Box> piBoxes = new ArrayList<Box>();
-							piBoxes.add(new StaticTextBox(context, pi, PROCESSING_INSTR_BEFORE_TEXT, StaticTextBox.START_MARKER));
-							piBoxes.add(new StaticTextBox(context, pi, pi.getTarget() + " "));
+							final StyleSheet styleSheet = context.getStyleSheet();
+							final IElement before = styleSheet.getPseudoElement(pi, CSS.PSEUDO_BEFORE, true);
+
+							// :before content
+							if (before != null) {
+								piBoxes.addAll(LayoutUtils.createGeneratedInlines(context, before, StaticTextBox.START_MARKER));
+							}
+
 							if (pi.getEndOffset() - pi.getStartOffset() > 1) {
 								piBoxes.add(new DocumentTextBox(context, pi, pi.getStartOffset() + 1, pi.getEndOffset() - 1));
 							}
 							piBoxes.add(new PlaceholderBox(context, pi, pi.getEndOffset() - pi.getStartOffset()));
-							piBoxes.add(new StaticTextBox(context, pi, PROCESSING_INSTR_AFTER_TEXT, StaticTextBox.END_MARKER));
+
+							// :after content
+							final IElement after = styleSheet.getPseudoElement(pi, CSS.PSEUDO_AFTER, true);
+							if (after != null) {
+								piBoxes.addAll(LayoutUtils.createGeneratedInlines(context, after, StaticTextBox.END_MARKER));
+							}
 							final InlineBox child = new InlineElementBox(context, pi, piBoxes.toArray(new InlineBox[piBoxes.size()]));
 							addChildInlineBox(result, child);
 						};

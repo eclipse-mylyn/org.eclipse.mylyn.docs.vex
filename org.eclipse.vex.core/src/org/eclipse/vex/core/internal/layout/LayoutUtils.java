@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.eclipse.vex.core.internal.css.CSS;
+import org.eclipse.vex.core.internal.css.PseudoElement;
 import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.css.Styles;
 import org.eclipse.vex.core.provisional.dom.ContentRange;
@@ -36,14 +37,29 @@ public class LayoutUtils {
 	 *            LayoutContext in use
 	 * @param pseudoElement
 	 *            Element representing the generated content.
+	 * @param marker
+	 *            Marker if this node represents the start sentinel or the end sentinel of the element. See also
+	 *            {@link StaticTextBox#StaticTextBox(LayoutContext, INode, String, byte)}
 	 */
-	public static List<InlineBox> createGeneratedInlines(final LayoutContext context, final IElement pseudoElement) {
+	public static List<InlineBox> createGeneratedInlines(final LayoutContext context, final IElement pseudoElement, final byte marker) {
 		final String text = getGeneratedContent(context, pseudoElement);
 		final List<InlineBox> list = new ArrayList<InlineBox>();
 		if (text.length() > 0) {
-			list.add(new StaticTextBox(context, pseudoElement, text));
+			list.add(new StaticTextBox(context, pseudoElement, text, marker));
 		}
 		return list;
+	}
+
+	/**
+	 * Creates a list of generated inline boxes for the given pseudo-element.
+	 * 
+	 * @param context
+	 *            LayoutContext in use
+	 * @param pseudoElement
+	 *            Element representing the generated content.
+	 */
+	public static List<InlineBox> createGeneratedInlines(final LayoutContext context, final IElement pseudoElement) {
+		return createGeneratedInlines(context, pseudoElement, StaticTextBox.NO_MARKER);
 	}
 
 	/**
@@ -72,7 +88,10 @@ public class LayoutUtils {
 	 */
 	private static String getGeneratedContent(final LayoutContext context, final IElement pseudoElement) {
 		final Styles styles = context.getStyleSheet().getStyles(pseudoElement);
-		final List<String> content = styles.getContent();
+		// This cast is a bit ugly, but the parent of a PseudoElement may not be an IParent, so we can't
+		// use INode#getParent
+		assert pseudoElement instanceof PseudoElement;
+		final List<String> content = styles.getContent(((PseudoElement) pseudoElement).getParentNode());
 		final StringBuffer sb = new StringBuffer();
 		for (final String string : content) {
 			sb.append(string); // TODO: change to ContentPart

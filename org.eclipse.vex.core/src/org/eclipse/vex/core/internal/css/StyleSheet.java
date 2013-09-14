@@ -17,10 +17,10 @@
  *     Carsten Hiesserich - Styles cache now uses hard references instead of
  *                          WeekReference. PseudoElements are cached.
  *     Carsten Hiesserich - Added OutlineContent property
+ *     Carsten Hiesserich - New handling for pseudo elements
  *******************************************************************************/
 package org.eclipse.vex.core.internal.css;
 
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -29,14 +29,17 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.WeakHashMap;
 
 import org.eclipse.vex.core.internal.core.FontSpec;
-import org.eclipse.vex.core.provisional.dom.BaseNodeVisitor;
 import org.eclipse.vex.core.provisional.dom.IDocument;
 import org.eclipse.vex.core.provisional.dom.IElement;
 import org.eclipse.vex.core.provisional.dom.INode;
+import org.w3c.css.sac.DescendantSelector;
+import org.w3c.css.sac.ElementSelector;
 import org.w3c.css.sac.LexicalUnit;
+import org.w3c.css.sac.Selector;
 
 /**
  * Represents a CSS style sheet.
@@ -87,13 +90,11 @@ public class StyleSheet {
 	/**
 	 * Computing styles can be expensive, e.g. we have to calculate the styles of all parents of an element. We
 	 * therefore cache styles in a map of element => styles. We use a WeakHashMap here that does not prevent the INode's
-	 * from being GC'ed. The created pseudo-elements are also cached. Without caching, they would have to be recreated
-	 * for every layout update. Note that the entries of the Map are only collected, when one of the Maps method is
-	 * called the next time, so entries will stay on the heap until another VexEditor is launched. To prevent this, the
-	 * Styles are flushed in BaseVexWidget#dispose.
+	 * from being GC'ed. Note that the entries of the Map are only collected, when one of the Maps method is called the
+	 * next time, so entries will stay on the heap until another VexEditor is launched. To prevent this, the Styles are
+	 * flushed in BaseVexWidget#dispose.
 	 */
 	private final Map<INode, Styles> styleMap = new WeakHashMap<INode, Styles>(50);
-	private final Map<INode, PseudoElementEntry> pseudoElementMap = new WeakHashMap<INode, PseudoElementEntry>(50);
 
 	/**
 	 * Class constructor.
@@ -113,7 +114,6 @@ public class StyleSheet {
 	 */
 	public void flushStyles(final INode node) {
 		styleMap.remove(node);
-		pseudoElementMap.remove(node);
 	}
 
 	/**
@@ -127,41 +127,35 @@ public class StyleSheet {
 		for (final Iterator<Map.Entry<INode, Styles>> iter = styleMap.entrySet().iterator(); iter.hasNext();) {
 			final Map.Entry<INode, Styles> entry = iter.next();
 			if (entry.getKey().getDocument().equals(document)) {
-				pseudoElementMap.remove(entry.getKey());
 				iter.remove();
 			}
 		}
 	}
 
 	/**
-	 * Returns a pseudo-element representing content to be displayed after the given element, or null if there is no
-	 * such content.
+	 * Returns a pseudo-element for the given parent element, or null if there is no such element defined in the
+	 * stylesheet.
 	 * 
-	 * @param element
+	 * @param parent
 	 *            Parent element of the pseudo-element.
+	 * @param pseudoElementName
+	 *            The name of the PseudoElement to return (case insensitive).
+	 * @param hasContent
+	 *            <code>true</code> will only return a PseudoElement with defined content.
 	 * @return
 	 */
-	public PseudoElement getAfterElement(final IElement element) {
-		if (pseudoElementMap.containsKey(element)) {
-			return pseudoElementMap.get(element).getAfterElement();
+	public IElement getPseudoElement(final INode parent, final String pseudoElementName, final boolean hasContent) {
+		final String name = pseudoElementName.toLowerCase();
+		Styles styles = getStyles(parent);
+		if (!styles.hasPseudoElement(name)) {
+			return null;
 		}
 
-		return null;
-	}
-
-	/**
-	 * Returns a pseudo-element representing content to be displayed before the given element, or null if there is no
-	 * such content.
-	 * 
-	 * @param element
-	 *            Parent element of the pseudo-element.
-	 */
-	public PseudoElement getBeforeElement(final IElement element) {
-		if (pseudoElementMap.containsKey(element)) {
-			return pseudoElementMap.get(element).getBeforeElement();
+		styles = styles.getPseudoElementStyles(name);
+		if (hasContent && styles != null && styles.getContent(parent) == null) {
+			return null;
 		}
-
-		return null;
+		return new PseudoElement(parent, name);
 	}
 
 	/**
@@ -172,10 +166,8 @@ public class StyleSheet {
 	 */
 	public Styles getStyles(final INode node) {
 
-		// Get style from cache if possible
 		if (node instanceof PseudoElement) {
-			// Styles for pseudo-elements are calculated once and stored in the element.
-			return ((PseudoElement) node).getStyles();
+			return getStyles(((PseudoElement) node).getParentNode()).getPseudoElementStyles(((PseudoElement) node).getName());
 		} else {
 			if (styleMap.containsKey(node)) {
 				return styleMap.get(node);
@@ -186,76 +178,57 @@ public class StyleSheet {
 		final Styles styles = calculateStyles(node);
 		styleMap.put(node, styles);
 
-		// Create the pseudo elements if this node is an IElement
-		// The pseudo elements are also cahed, so they don't have to
-		// be recreated for every layout update.
-		if (!(node instanceof PseudoElement) && node instanceof IElement) {
-			PseudoElement pseudoBefore = new PseudoElement((IElement) node, PseudoElement.BEFORE);
-			final Styles beforeStyles = calculateStyles(pseudoBefore);
-			if (beforeStyles != null) {
-				pseudoBefore.setStyles(beforeStyles);
-			} else {
-				pseudoBefore = null;
-			}
-
-			PseudoElement pseudoAfter = new PseudoElement((IElement) node, PseudoElement.AFTER);
-			final Styles afterStyles = calculateStyles(pseudoAfter);
-			if (afterStyles != null) {
-				pseudoAfter.setStyles(afterStyles);
-			} else {
-				pseudoAfter = null;
-			}
-			pseudoElementMap.put(node, new PseudoElementEntry(pseudoBefore, pseudoAfter));
-		}
-
 		return styles;
 	}
 
 	private Styles calculateStyles(final INode node) {
 
-		final Styles styles = new Styles();
+		// getApplicableDeclarations returns the elements styles and also pseudo element styles 
+		final Map<String, Map<String, LexicalUnit>> decls = getApplicableDeclarations(node);
+
+		// The null key contains the element's direct styles
 		Styles parentStyles = null;
 		if (node != null && node.getParent() != null) {
 			parentStyles = getStyles(node.getParent());
 		}
+		final Styles styles = calculateNodeStyles(node, decls.get(null), parentStyles);
+		if (styles == null) {
+			return null;
+		}
 
-		final Map<String, LexicalUnit> decls = getApplicableDeclarations(node);
+		// Now calculate the pseudo element styles and store the in the parent's Styles
+		decls.remove(null);
+		for (final Entry<String, Map<String, LexicalUnit>> entry : decls.entrySet()) {
+			final String pseudoElement = entry.getKey();
+			final Styles pseudoElementStyles = calculateNodeStyles(node, entry.getValue(), styles);
+			styles.putPseudoElementStyles(pseudoElement, pseudoElementStyles);
+		}
+
+		return styles;
+	}
+
+	private Styles calculateNodeStyles(final INode node, final Map<String, LexicalUnit> decls, final Styles parentStyles) {
+		final Styles styles = new Styles();
 
 		LexicalUnit lexicalUnit;
-
-		// If we're finding a pseudo-element, look at the 'content' property
-		// first, since most of the time it'll be empty and we'll return null.
-		if (node instanceof PseudoElement) {
-			lexicalUnit = decls.get(CSS.CONTENT);
-			if (lexicalUnit == null) {
-				return null;
+		lexicalUnit = decls.get(CSS.CONTENT);
+		// Content needs special handling, since the value of attr(xxx) may change while editing
+		// We pass all valid LexicalUnits to Styles and evaluate there on every access
+		final List<LexicalUnit> content = new ArrayList<LexicalUnit>();
+		while (lexicalUnit != null) {
+			switch (lexicalUnit.getLexicalUnitType()) {
+			case LexicalUnit.SAC_STRING_VALUE:
+				// content: "A String"
+				content.add(lexicalUnit);
+				break;
+			case LexicalUnit.SAC_ATTR:
+				// content: attr(attributeName)
+				content.add(lexicalUnit);
+				break;
 			}
-
-			final List<String> content = new ArrayList<String>();
-			while (lexicalUnit != null) {
-				switch (lexicalUnit.getLexicalUnitType()) {
-				case LexicalUnit.SAC_STRING_VALUE:
-					// content: "A String"
-					content.add(lexicalUnit.getStringValue());
-					break;
-				case LexicalUnit.SAC_ATTR:
-					// content: attr(attributeName)
-					final LexicalUnit currentLexicalUnit = lexicalUnit;
-					node.accept(new BaseNodeVisitor() {
-						@Override
-						public void visit(final IElement element) {
-							final String attributeValue = element.getParentElement().getAttributeValue(currentLexicalUnit.getStringValue());
-							if (attributeValue != null) {
-								content.add(attributeValue);
-							}
-						}
-					});
-					break;
-				}
-				lexicalUnit = lexicalUnit.getNextLexicalUnit();
-			}
-			styles.setContent(content);
+			lexicalUnit = lexicalUnit.getNextLexicalUnit();
 		}
+		styles.setContent(content);
 
 		for (final IProperty property : CSS_PROPERTIES) {
 			lexicalUnit = decls.get(property.getName());
@@ -297,9 +270,12 @@ public class StyleSheet {
 	}
 
 	/**
-	 * Returns all the declarations that apply to the given element.
+	 * Returns all the declarations that apply to the given element and defined pseudo elements.
+	 * 
+	 * @return The key 'null' in the returned Map contains the node's declarations. Names keys contain the declarations
+	 *         for pseudo elements.
 	 */
-	private Map<String, LexicalUnit> getApplicableDeclarations(final INode node) {
+	private Map<String, Map<String, LexicalUnit>> getApplicableDeclarations(final INode node) {
 		final List<PropertyDecl> rawDeclarationsForElement = findAllDeclarationsFor(node);
 
 		// Sort in cascade order. We can then just stuff them into a
@@ -307,13 +283,34 @@ public class StyleSheet {
 		// come later and overwrite lower-priority ones.
 		Collections.sort(rawDeclarationsForElement, PROPERTY_CASCADE_ORDERING);
 
-		final Map<String, PropertyDecl> distilledDeclarations = new HashMap<String, PropertyDecl>();
-		final Map<String, LexicalUnit> values = new HashMap<String, LexicalUnit>();
+		final Map<String, Map<String, PropertyDecl>> distilledDeclarations = new HashMap<String, Map<String, PropertyDecl>>();
+		final Map<String, Map<String, LexicalUnit>> values = new HashMap<String, Map<String, LexicalUnit>>();
+		// Key null for nodes direct styles
+		distilledDeclarations.put(null, new HashMap<String, PropertyDecl>());
+		values.put(null, new HashMap<String, LexicalUnit>());
 		for (final PropertyDecl declaration : rawDeclarationsForElement) {
-			final PropertyDecl previousDeclaration = distilledDeclarations.get(declaration.getProperty());
+			String pseudoElement = null;
+			final Selector sel = declaration.getRule().getSelector();
+			if (sel instanceof DescendantSelector && ((DescendantSelector) sel).getSimpleSelector().getSelectorType() == Selector.SAC_PSEUDO_ELEMENT_SELECTOR) {
+				// Get the pseudo elements name, if this declaration comes from an SAC_PSEUDO_ELEMENT_SELECTOR
+				final ElementSelector elementSel = (ElementSelector) ((DescendantSelector) sel).getSimpleSelector();
+				pseudoElement = elementSel.getLocalName().toLowerCase();
+			}
+
+			PropertyDecl previousDeclaration = null;
+			if (distilledDeclarations.containsKey(pseudoElement)) {
+				previousDeclaration = distilledDeclarations.get(pseudoElement).get(declaration.getProperty());
+			} else {
+				distilledDeclarations.put(pseudoElement, new HashMap<String, PropertyDecl>());
+			}
 			if (previousDeclaration == null || !previousDeclaration.isImportant() || declaration.isImportant()) {
-				distilledDeclarations.put(declaration.getProperty(), declaration);
-				values.put(declaration.getProperty(), declaration.getValue());
+				distilledDeclarations.get(pseudoElement).put(declaration.getProperty(), declaration);
+				if (values.containsKey(pseudoElement)) {
+					values.get(pseudoElement).put(declaration.getProperty(), declaration.getValue());
+				} else {
+					values.put(pseudoElement, new HashMap<String, LexicalUnit>());
+					values.get(pseudoElement).put(declaration.getProperty(), declaration.getValue());
+				}
 			}
 		}
 
@@ -341,28 +338,5 @@ public class StyleSheet {
 	 */
 	public Map<INode, Styles> testGetStylesCache() {
 		return styleMap;
-	}
-
-	/**
-	 * An entry in the pseudoElementMap. PseudoElements keep a reference to their parent Elements, so this class uses a
-	 * WeakReference for cached PseudoElements to avoid a circular dependency.
-	 * 
-	 */
-	private class PseudoElementEntry {
-		private final WeakReference<PseudoElement> before;
-		private final WeakReference<PseudoElement> after;
-
-		public PseudoElementEntry(final PseudoElement before, final PseudoElement after) {
-			this.before = new WeakReference<PseudoElement>(before);
-			this.after = new WeakReference<PseudoElement>(after);
-		}
-
-		public PseudoElement getBeforeElement() {
-			return before.get();
-		}
-
-		public PseudoElement getAfterElement() {
-			return after.get();
-		}
 	}
 }

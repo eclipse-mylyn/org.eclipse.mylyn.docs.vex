@@ -1,0 +1,29 @@
+
+vex|processing-instruction {
+	display: inherit;
+}
+
+vex|processing-instruction:before {
+	display: inline;
+	content: '<?',attr(target),' ';
+}
+
+vex|processing-instruction:after {
+	display: inline;
+	content: '?>';
+}
+
+root {
+  display: block;
+  font: 10pt monospaced;
+}
+
+
+b {
+  display: inline;
+}
+
+p {
+  display: block;
+}
+

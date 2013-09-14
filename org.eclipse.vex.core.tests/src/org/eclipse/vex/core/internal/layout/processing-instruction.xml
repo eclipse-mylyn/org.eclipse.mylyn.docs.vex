@@ -1,5 +1,5 @@
 <?xml version='1.0'?>
-<testcases css="block-inline.css">
+<testcases css="processing-instruction.css">
 
 	<test id="PI before root" layoutWidth="100">
 		<doc><![CDATA[ <?target data?><root></root> ]]></doc>
@@ -9,8 +9,7 @@
 					<box class="ProcessingInstructionBlockBox">
 						<box class="ParagraphBox">
 							<box class="LineBox">
-								<box class="StaticTextBox" text="&lt;?"/>
-								<box class="StaticTextBox" text="target "/>
+								<box class="StaticTextBox" text="&lt;?target "/>
 								<box class="DocumentTextBox" text="data"/>
 								<box class="PlaceholderBox" />
 								<box class="StaticTextBox" text="?>"/>
@@ -38,8 +37,7 @@
 						<box class="ProcessingInstructionBlockBox">
 							<box class="ParagraphBox">
 								<box class="LineBox">
-									<box class="StaticTextBox" text="&lt;?"/>
-									<box class="StaticTextBox" text="target "/>
+									<box class="StaticTextBox" text="&lt;?target "/>
 									<box class="DocumentTextBox" text="data"/>
 									<box class="PlaceholderBox" />
 									<box class="StaticTextBox" text="?>"/>
@@ -68,8 +66,7 @@
 							<box class="ProcessingInstructionBlockBox">
 								<box class="ParagraphBox">
 									<box class="LineBox">
-										<box class="StaticTextBox" text="&lt;?"/>
-										<box class="StaticTextBox" text="target "/>
+										<box class="StaticTextBox" text="&lt;?target "/>
 										<box class="DocumentTextBox" text="data"/>
 										<box class="PlaceholderBox" />
 										<box class="StaticTextBox" text="?>"/>
@@ -104,8 +101,7 @@
 											<box class="DocumentTextBox" text="before"/>
 											<box class="PlaceholderBox" />
 											<box class="InlineElementBox">
-												<box class="StaticTextBox" text="&lt;?"/>
-												<box class="StaticTextBox" text="target "/>
+												<box class="StaticTextBox" text="&lt;?target "/>
 												<box class="DocumentTextBox" text="data"/>
 												<box class="PlaceholderBox" />
 												<box class="StaticTextBox" text="?>"/>

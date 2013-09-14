@@ -1,75 +1,68 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2013 John Krasnay and others.
+ * Copyright (c) 2013 Carsten Hiesserich and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
- *     John Krasnay - initial API and implementation
- *     Carsten Hiesserich - added styles field
+ *     Carsten Hiesserich - initial API and implementation
  *******************************************************************************/
 package org.eclipse.vex.core.internal.css;
 
 import org.eclipse.vex.core.internal.dom.Element;
-import org.eclipse.vex.core.provisional.dom.IElement;
+import org.eclipse.vex.core.provisional.dom.INode;
+import org.eclipse.vex.core.provisional.dom.INodeVisitor;
+import org.eclipse.vex.core.provisional.dom.INodeVisitorWithResult;
 
 /**
- * Represents a :before or :after pseudo-element.
+ * The PseudoElement is used to pass CSS pseudo elements to layout functions.<br />
+ * To get an instance of this class use {@link StyleSheet#getPseudoElement(INode, String, boolean)}.
  * 
- * XXX REMOVE THIS HACK!!!
+ * @author Carsten Hiesserich
  */
 public class PseudoElement extends Element {
 
-	public static final String AFTER = "after";
-	public static final String BEFORE = "before";
-	private Styles styles;
+	private final INode parentNode;
+	private final String pseudoElementName;
 
-	/**
-	 * Class constructor.
-	 * 
-	 * @param parent
-	 *            Parent element to this pseudo-element.
-	 * @param name
-	 *            Name of this pseudo-element, e.g. PseudoElement.BEFORE.
-	 */
-	public PseudoElement(final IElement parent, final String name) {
+	public PseudoElement(final INode parentNode, final String name) {
 		super(name);
-		setParent((Element) parent);
+		this.parentNode = parentNode;
+		pseudoElementName = name;
 	}
 
-	/**
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
 	@Override
-	public boolean equals(final Object o) {
-		if (o == null || o.getClass() != this.getClass()) {
-			return false;
-		}
-		final PseudoElement other = (PseudoElement) o;
-		return getParent() == other.getParent() && getQualifiedName().equals(other.getQualifiedName());
+	public boolean isKindOf(final INode node) {
+		return false;
 	}
 
-	/**
-	 * @see java.lang.Object#hashCode()
-	 */
 	@Override
-	public int hashCode() {
-		return getParent().hashCode() + getQualifiedName().hashCode();
+	public void accept(final INodeVisitor visitor) {
+		visitor.visit(this);
 	}
 
-	/**
-	 * @param styles
-	 *            The styles associated with this pseudo element
-	 */
-	public void setStyles(final Styles styles) {
-		this.styles = styles;
+	@Override
+	public <T> T accept(final INodeVisitorWithResult<T> visitor) {
+		return visitor.visit(this);
 	}
 
-	/**
-	 * @return The styles associated with this pseudo element
-	 */
-	public Styles getStyles() {
-		return styles;
+	@Override
+	public int getStartOffset() {
+		return parentNode.getStartOffset();
 	}
+
+	@Override
+	public int getEndOffset() {
+		return parentNode.getEndOffset();
+	}
+
+	public INode getParentNode() {
+		return parentNode;
+	}
+
+	public String getName() {
+		return pseudoElementName;
+	}
+
 }

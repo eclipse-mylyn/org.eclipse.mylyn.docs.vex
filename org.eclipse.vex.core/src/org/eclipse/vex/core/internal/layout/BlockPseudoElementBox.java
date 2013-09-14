@@ -13,8 +13,8 @@ package org.eclipse.vex.core.internal.layout;
 
 import java.util.List;
 
-import org.eclipse.vex.core.internal.css.PseudoElement;
 import org.eclipse.vex.core.internal.css.Styles;
+import org.eclipse.vex.core.provisional.dom.IElement;
 import org.eclipse.vex.core.provisional.dom.INode;
 
 /**
@@ -24,14 +24,14 @@ import org.eclipse.vex.core.provisional.dom.INode;
  */
 public class BlockPseudoElementBox extends AbstractBox implements BlockBox {
 
-	private final PseudoElement pseudoElement;
+	private final IElement pseudoElement;
 	private final BlockBox parent;
 	private final ParagraphBox para;
 
 	private final int marginTop;
 	private final int marginBottom;
 
-	public BlockPseudoElementBox(final LayoutContext context, final PseudoElement pseudoElement, final BlockBox parent, final int width) {
+	public BlockPseudoElementBox(final LayoutContext context, final IElement pseudoElement, final BlockBox parent, final int width) {
 
 		this.pseudoElement = pseudoElement;
 		this.parent = parent;

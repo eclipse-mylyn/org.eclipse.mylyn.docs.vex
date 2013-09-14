@@ -1,16 +1,17 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2010 John Krasnay and others.
+ * Copyright (c) 2004, 2013 John Krasnay and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     John Krasnay - initial API and implementation
  *     Dave Holroyd - Proper specificity for wildcard selector
  *     John Austin - Implement sibling selectors
  *     Florian Thienel - bug 306639 - remove serializability from StyleSheet
  *                       and dependend classes
+ *     Carsten Hiesserich - changed pseudo element handling
  *******************************************************************************/
 package org.eclipse.vex.core.internal.css;
 
@@ -25,6 +26,7 @@ import org.eclipse.vex.core.provisional.dom.IDocument;
 import org.eclipse.vex.core.provisional.dom.IElement;
 import org.eclipse.vex.core.provisional.dom.INode;
 import org.eclipse.vex.core.provisional.dom.IParent;
+import org.eclipse.vex.core.provisional.dom.IProcessingInstruction;
 import org.w3c.css.sac.AttributeCondition;
 import org.w3c.css.sac.CombinatorCondition;
 import org.w3c.css.sac.Condition;
@@ -124,18 +126,14 @@ public class Rule {
 
 		switch (selectorType) {
 		case Selector.SAC_CONDITIONAL_SELECTOR:
-			// This little wart is the product of a mismatch btn the CSS
-			// spec an the Flute parser. CSS treats pseudo-elements as elements
-			// attached to their parents, while Flute treats them like
-			// attributes
+			// We end here for PseudoClass selectors in difference to PseudoElementSelectors.
+			// See StyleSheetReader#createParser for defined PseudoElements.
+			// according to http://www.w3.org/TR/CSS2/selector.html#pseudo-class names are case insensitive
 			final ConditionalSelector cs = (ConditionalSelector) selector;
 			if (cs.getCondition().getConditionType() == Condition.SAC_PSEUDO_CLASS_CONDITION) {
-				if (node instanceof PseudoElement) {
-					final AttributeCondition ac = (AttributeCondition) cs.getCondition();
-					return ac.getValue().equals(getLocalNameOfElement(node)) && matches(cs.getSimpleSelector(), node.getParent());
-				} else if (node instanceof IComment) {
-					final AttributeCondition ac = (AttributeCondition) cs.getCondition();
-					return COMMENT_RULE_NAME.equals(ac.getValue()) && matches(cs.getSimpleSelector(), node.getParent());
+				final AttributeCondition ac = (AttributeCondition) cs.getCondition();
+				if (node instanceof IComment) {
+					return COMMENT_RULE_NAME.equalsIgnoreCase(ac.getValue()) && matches(cs.getSimpleSelector(), node.getParent());
 				} else {
 					return false;
 				}
@@ -183,8 +181,9 @@ public class Rule {
 			return false; // not yet supported 
 
 		case Selector.SAC_PSEUDO_ELEMENT_SELECTOR:
-			final ElementSelector elementSelector = (ElementSelector) selector;
-			return elementSelector.getLocalName().equals(getLocalNameOfElement(node));
+			// Always return true here. The Selector is evaluated with SAC_CHILD_SELECTOR.
+			// The pseudo element rules are stored with the parent's rules (see StyleSheet#getApplicableDeclarations)
+			return true;
 
 		case Selector.SAC_DESCENDANT_SELECTOR:
 			final DescendantSelector ds = (DescendantSelector) selector;
@@ -192,6 +191,9 @@ public class Rule {
 
 		case Selector.SAC_CHILD_SELECTOR:
 			final DescendantSelector ds2 = (DescendantSelector) selector;
+			if (ds2.getSimpleSelector().getSelectorType() == Selector.SAC_PSEUDO_ELEMENT_SELECTOR) {
+				return matches(ds2.getAncestorSelector(), node);
+			}
 			final IParent parent = node.getParent();
 			return matches(ds2.getSimpleSelector(), node) && matches(ds2.getAncestorSelector(), parent);
 
@@ -228,6 +230,11 @@ public class Rule {
 			@Override
 			public String visit(final IElement element) {
 				return element.getLocalName();
+			}
+
+			@Override
+			public String visit(final IProcessingInstruction pi) {
+				return CSS.XML_PROCESSING_INSTRUCTION;
 			}
 		});
 	}

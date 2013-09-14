@@ -549,4 +549,17 @@ public class CssTest {
 		return reader.read(url);
 
 	}
+
+	@Test
+	public void testContentUpdate() throws Exception {
+		final StyleSheet ss = parseStyleSheetResource("testContent.css");
+		final Element element = new Element("element");
+		element.setAttribute("attribute", "Before");
+
+		final Styles styles = ss.getStyles(element);
+
+		assertEquals("Before", styles.getContent(element).get(0));
+		element.setAttribute("attribute", "After");
+		assertEquals("After", styles.getContent(element).get(0));
+	}
 }

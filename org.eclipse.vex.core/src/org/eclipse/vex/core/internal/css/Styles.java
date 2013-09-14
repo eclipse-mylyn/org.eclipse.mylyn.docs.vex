@@ -13,12 +13,18 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.css;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.eclipse.vex.core.internal.core.Color;
 import org.eclipse.vex.core.internal.core.FontSpec;
+import org.eclipse.vex.core.provisional.dom.BaseNodeVisitor;
+import org.eclipse.vex.core.provisional.dom.IElement;
+import org.eclipse.vex.core.provisional.dom.INode;
+import org.eclipse.vex.core.provisional.dom.IProcessingInstruction;
+import org.w3c.css.sac.LexicalUnit;
 
 /**
  * Represents the computed style properties for a particular element.
@@ -28,7 +34,13 @@ public class Styles {
 	/** Maps property name (String) => value (Object) */
 	private final Map<String, Object> values = new HashMap<String, Object>();
 
-	private List<String> content;
+	/**
+	 * This Map contains the Styles for all pseudo elements of the element that this Style belongs to. Key is the pseudo
+	 * elements name.
+	 */
+	private final Map<String, Styles> pseudoElementStyles = new HashMap<String, Styles>();
+
+	private List<LexicalUnit> contentLexicalUnits;
 	private FontSpec font;
 
 	/**
@@ -119,9 +131,44 @@ public class Styles {
 	}
 
 	/**
-	 * Returns a <code>List</code> of <code>ContentPart</code> objects representing the <code>content</code> property.
+	 * Returns a <code>List</code> of <code>ContentPart</code> objects representing the <code>content</code> property.<br />
+	 * The content is parsed on every access to get the actual values for attributes. Do not try to get the content via
+	 * the {@link #get(String)} method!
+	 * 
+	 * @param node
+	 *            The INode to get attr(...) values from
 	 */
-	public List<String> getContent() {
+	public List<String> getContent(final INode node) {
+		final List<String> content = new ArrayList<String>();
+		for (LexicalUnit lexicalUnit : contentLexicalUnits) {
+			switch (lexicalUnit.getLexicalUnitType()) {
+			case LexicalUnit.SAC_STRING_VALUE:
+				// content: "A String"
+				content.add(lexicalUnit.getStringValue());
+				break;
+			case LexicalUnit.SAC_ATTR:
+				// content: attr(attributeName)
+				final LexicalUnit currentLexicalUnit = lexicalUnit;
+				node.accept(new BaseNodeVisitor() {
+					@Override
+					public void visit(final IElement element) {
+						final String attributeValue = element.getAttributeValue(currentLexicalUnit.getStringValue());
+						if (attributeValue != null) {
+							content.add(attributeValue);
+						}
+					}
+
+					@Override
+					public void visit(final IProcessingInstruction pi) {
+						if (currentLexicalUnit.getStringValue().equalsIgnoreCase(CSS.PSEUDO_TARGET)) {
+							content.add(pi.getTarget());
+						}
+					}
+				});
+				break;
+			}
+			lexicalUnit = lexicalUnit.getNextLexicalUnit();
+		}
 		return content;
 	}
 
@@ -230,14 +277,37 @@ public class Styles {
 		values.put(propertyName, value);
 	}
 
+	public void putPseudoElementStyles(final String pseudoElementName, final Styles pseudoElStyles) {
+		pseudoElementStyles.put(pseudoElementName, pseudoElStyles);
+	}
+
+	public Styles getPseudoElementStyles(final String pseudoElementName) {
+		if (pseudoElementStyles.containsKey(pseudoElementName.toLowerCase())) {
+			return pseudoElementStyles.get(pseudoElementName.toLowerCase());
+		} else {
+			// There are no styles for the given pseudo element - return this
+			return this;
+		}
+	}
+
 	/**
-	 * Sets the vale of the <code>content</code> property.
+	 * Check if the given pseudo element is defined for this node.
+	 * 
+	 * @param pseudoElementName
+	 * @return <code>true</code> when the given pseudo element is defined.
+	 */
+	public boolean hasPseudoElement(final String pseudoElementName) {
+		return pseudoElementStyles.containsKey(pseudoElementName.toLowerCase());
+	}
+
+	/**
+	 * Sets the LexicalUnits of the <code>content</code> property.
 	 * 
 	 * @param content
-	 *            <code>List</code> of <code>ContentPart</code> objects representing the content.
+	 *            <code>List</code> of <code>LexicalUnits</code> objects defining the content.
 	 */
-	public void setContent(final List<String> content) {
-		this.content = content;
+	public void setContent(final List<LexicalUnit> content) {
+		contentLexicalUnits = content;
 	}
 
 	/**
