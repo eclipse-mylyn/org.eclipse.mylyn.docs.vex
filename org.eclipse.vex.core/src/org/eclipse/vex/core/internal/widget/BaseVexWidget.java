@@ -156,11 +156,9 @@ public class BaseVexWidget implements IVexWidget {
 			 */
 			getStyleSheet().flushStyles(e.getParent());
 
-			if (beginWorkCount == 0) {
-				BaseVexWidget.this.relayout();
-			}
+			BaseVexWidget.this.relayout();
 
-			hostComponent.fireSelectionChanged();
+			fireSelectionChanged();
 		}
 
 		public void beforeContentDeleted(final ContentChangeEvent e) {
@@ -177,34 +175,25 @@ public class BaseVexWidget implements IVexWidget {
 		}
 
 		public void contentDeleted(final ContentChangeEvent e) {
-
 			flushStyles(e);
 			invalidateElementBox(e.getParent());
 
-			if (beginWorkCount == 0) {
-				BaseVexWidget.this.relayout();
-			}
-
+			BaseVexWidget.this.relayout();
 		}
 
 		public void contentInserted(final ContentChangeEvent e) {
-
 			flushStyles(e);
 			invalidateElementBox(e.getParent());
 
-			if (beginWorkCount == 0) {
-				BaseVexWidget.this.relayout();
-			}
+			BaseVexWidget.this.relayout();
 		}
 
 		public void namespaceChanged(final NamespaceDeclarationChangeEvent e) {
 			invalidateElementBox(e.getParent());
 
-			if (beginWorkCount == 0) {
-				BaseVexWidget.this.relayout();
-			}
+			BaseVexWidget.this.relayout();
 
-			hostComponent.fireSelectionChanged();
+			fireSelectionChanged();
 		}
 
 		private void flushStyles(final ContentChangeEvent e) {
@@ -251,6 +240,42 @@ public class BaseVexWidget implements IVexWidget {
 			compoundEdit = new CompoundEdit();
 		}
 		beginWorkCount++;
+	}
+
+	public void endWork(final boolean success) {
+		beginWorkCount--;
+		if (beginWorkCount == 0) {
+			// this.compoundEdit.end();
+			if (success) {
+				undoList.add(new UndoableAndOffset(compoundEdit, beginWorkCaretOffset));
+				if (undoList.size() > MAX_UNDO_STACK_SIZE) {
+					undoList.removeFirst();
+				}
+				redoList.clear();
+				relayout();
+				fireSelectionChanged();
+			} else {
+				try {
+					compoundEdit.undo();
+					this.moveTo(beginWorkCaretOffset);
+				} catch (final CannotUndoException e) {
+					// TODO: handle exception
+				}
+			}
+			compoundEdit = null;
+		}
+	}
+
+	private void beginSelection() {
+		beginWorkCount++;
+	}
+
+	private void endSelection() {
+		beginWorkCount--;
+	}
+
+	private boolean isInWorkBlock() {
+		return beginWorkCount > 0;
 	}
 
 	public boolean canInsertComment() {
@@ -469,30 +494,6 @@ public class BaseVexWidget implements IVexWidget {
 			if (position != null) {
 				this.moveTo(position.getOffset());
 			}
-		}
-	}
-
-	public void endWork(final boolean success) {
-		beginWorkCount--;
-		if (beginWorkCount == 0) {
-			// this.compoundEdit.end();
-			if (success) {
-				undoList.add(new UndoableAndOffset(compoundEdit, beginWorkCaretOffset));
-				if (undoList.size() > MAX_UNDO_STACK_SIZE) {
-					undoList.removeFirst();
-				}
-				redoList.clear();
-				relayout();
-				hostComponent.fireSelectionChanged();
-			} else {
-				try {
-					compoundEdit.undo();
-					this.moveTo(beginWorkCaretOffset);
-				} catch (final CannotUndoException e) {
-					// TODO: handle exception
-				}
-			}
-			compoundEdit = null;
 		}
 	}
 
@@ -1182,9 +1183,7 @@ public class BaseVexWidget implements IVexWidget {
 		final INode oldNode = currentNode;
 		currentNode = document.getNodeForInsertionAt(caretOffset);
 
-		if (beginWorkCount == 0) {
-			relayout();
-		}
+		relayout();
 
 		final Graphics g = hostComponent.createDefaultGraphics();
 		final LayoutContext context = createLayoutContext(g);
@@ -1210,7 +1209,7 @@ public class BaseVexWidget implements IVexWidget {
 
 		magicX = -1;
 		scrollCaretVisible();
-		hostComponent.fireSelectionChanged();
+		fireSelectionChanged();
 		caretVisible = true;
 
 		repaintSelectedRange();
@@ -1343,6 +1342,59 @@ public class BaseVexWidget implements IVexWidget {
 		this.moveTo(offset, select);
 	}
 
+	private void select(final ContentRange range) {
+		if (!(Document.isInsertionPointIn(document, range.getStartOffset()) && Document.isInsertionPointIn(document, range.getEndOffset()))) {
+			return;
+		}
+
+		beginSelection();
+		moveTo(range.getStartOffset());
+		moveTo(range.getEndOffset(), true);
+		endSelection();
+	}
+
+	private void fireSelectionChanged() {
+		if (isInWorkBlock()) {
+			return;
+		}
+		hostComponent.fireSelectionChanged();
+	}
+
+	public void selectAll() {
+		select(document.getRange().resizeBy(1, -1));
+	}
+
+	public void selectWord() {
+		int startOffset = getCaretOffset();
+		int endOffset = getCaretOffset();
+		while (startOffset > 1 && Character.isLetterOrDigit(document.getCharacterAt(startOffset - 1))) {
+			startOffset--;
+		}
+		final int n = document.getLength() - 1;
+		while (endOffset < n && Character.isLetterOrDigit(document.getCharacterAt(endOffset))) {
+			endOffset++;
+		}
+
+		if (startOffset < endOffset) {
+			select(new ContentRange(startOffset, endOffset));
+		}
+	}
+
+	@Override
+	public void selectContentOf(final INode node) {
+		if (node.isEmpty()) {
+			moveTo(node.getEndOffset());
+			return;
+		}
+
+		select(node.getRange().resizeBy(1, 0));
+	}
+
+	@Override
+	public void select(final INode node) {
+		select(node.getRange());
+	}
+
 	/**
 	 * Paints the contents of the widget in the given Graphics at the given point.
 	 * 
@@ -1415,28 +1467,6 @@ public class BaseVexWidget implements IVexWidget {
 			runnable.run();
 		} finally {
 			this.moveTo(pos.getOffset());
-		}
-	}
-
-	public void selectAll() {
-		this.moveTo(1);
-		this.moveTo(document.getLength() - 1, true);
-	}
-
-	public void selectWord() {
-		int startOffset = getCaretOffset();
-		int endOffset = getCaretOffset();
-		while (startOffset > 1 && Character.isLetterOrDigit(document.getCharacterAt(startOffset - 1))) {
-			startOffset--;
-		}
-		final int n = document.getLength() - 1;
-		while (endOffset < n && Character.isLetterOrDigit(document.getCharacterAt(endOffset))) {
-			endOffset++;
-		}
-
-		if (startOffset < endOffset) {
-			this.moveTo(startOffset, false);
-			this.moveTo(endOffset, true);
 		}
 	}
 
@@ -1965,6 +1995,9 @@ public class BaseVexWidget implements IVexWidget {
 	 * Lay out the area around the caret.
 	 */
 	private void relayout() {
+		if (isInWorkBlock()) {
+			return;
+		}
 
 		final long start = System.currentTimeMillis();
 
@@ -2076,6 +2109,10 @@ public class BaseVexWidget implements IVexWidget {
 	 * Repaints area of the control corresponding to a range of offsets in the document.
 	 */
 	private void repaintSelectedRange() {
+		if (isInWorkBlock()) {
+			return;
+		}
+
 		final Graphics g = hostComponent.createDefaultGraphics();
 
 		final LayoutContext context = createLayoutContext(g);

@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  * 		Florian Thienel - initial API and implementation
  *******************************************************************************/
@@ -15,6 +15,7 @@ import static org.eclipse.vex.core.internal.widget.VexWidgetTest.TITLE;
 import static org.eclipse.vex.core.internal.widget.VexWidgetTest.createDocumentWithDTD;
 import static org.eclipse.vex.core.tests.TestResources.TEST_DTD;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import org.eclipse.vex.core.internal.css.StyleSheet;
@@ -29,10 +30,12 @@ import org.junit.Test;
 public class L2SelectionTest {
 
 	private IVexWidget widget;
+	private MockHostComponent hostComponent;
 
 	@Before
 	public void setUp() throws Exception {
-		widget = new BaseVexWidget(new MockHostComponent());
+		hostComponent = new MockHostComponent();
+		widget = new BaseVexWidget(hostComponent);
 		widget.setDocument(createDocumentWithDTD(TEST_DTD, "section"), StyleSheet.NULL);
 	}
 
@@ -160,5 +163,50 @@ public class L2SelectionTest {
 		assertTrue(widget.hasSelection());
 		assertEquals(comment.getRange(), widget.getSelectedRange());
 		assertEquals(comment.getStartOffset(), widget.getCaretOffset());
+	}
+
+	@Test
+	public void givenNodeInDocument_whenNodeHasContent_shouldSelectContentOfNode() throws Exception {
+		final IElement title = widget.insertElement(TITLE);
+		widget.insertText("Hello World");
+
+		widget.selectContentOf(title);
+
+		assertEquals(title.getRange().resizeBy(1, -1), widget.getSelectedRange());
+		assertTrue(widget.hasSelection());
+	}
+
+	@Test
+	public void givenNodeInDocument_whenNodeIsEmpty_shouldMoveCaretIntoNode() throws Exception {
+		final IElement title = widget.insertElement(TITLE);
+
+		widget.selectContentOf(title);
+
+		assertEquals(title.getEndOffset(), widget.getCaretOffset());
+		assertFalse(widget.hasSelection());
+	}
+
+	@Test
+	public void givenNodeInDocument_shouldSelectCompleteNodeWithStartAndEndTags() throws Exception {
+		final IElement title = widget.insertElement(TITLE);
+		widget.insertText("Hello World");
+
+		widget.select(title);
+
+		assertEquals(title.getRange(), widget.getSelectedRange());
+		assertTrue(widget.hasSelection());
+	}
+
+	@Test
+	public void givenWorkBlockStarted_whenWorkBlockNotEnded_shouldNotFireSelectionChangedEvent() throws Exception {
+		hostComponent.selectionChanged = false;
+		widget.beginWork();
+		final IElement title = widget.insertElement(TITLE);
+		widget.moveTo(title.getStartOffset());
+		widget.moveTo(title.getEndOffset(), true);
+		final boolean selectionChangedWhileWorking = hostComponent.selectionChanged;
+		widget.endWork(true);
+
+		assertFalse(selectionChangedWhileWorking);
 	}
 }

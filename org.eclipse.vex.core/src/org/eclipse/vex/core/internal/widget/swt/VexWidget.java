@@ -414,6 +414,15 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 		impl.selectWord();
 	}
 
+	@Override
+	public void selectContentOf(final INode node) {
+		impl.selectContentOf(node);
+	}
+
+	public void select(final INode node) {
+		impl.select(node);
+	}
+
 	public boolean canSetAttribute(final String attributeName, final String value) {
 		return impl.canSetAttribute(attributeName, value);
 	}

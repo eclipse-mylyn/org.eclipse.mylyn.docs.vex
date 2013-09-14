@@ -232,7 +232,7 @@ public class L2SimpleEditingTest {
 		final IElement titleElement = widget.insertElement(TITLE);
 		widget.insertText("Hello World");
 
-		widget.moveTo(titleElement.getStartOffset() + 1, true);
+		widget.selectContentOf(titleElement);
 		widget.insertChar('A');
 
 		assertEquals("A", titleElement.getText());
@@ -571,8 +571,7 @@ public class L2SimpleEditingTest {
 		final String expectedXml = getCurrentXML(widget);
 
 		widget.declareNamespace("ns1", "nsuri1");
-		widget.moveTo(para.getStartOffset());
-		widget.moveTo(para.getEndOffset(), true);
+		widget.select(para);
 		widget.deleteSelection();
 
 		widget.undo(); // delete
@@ -589,8 +588,7 @@ public class L2SimpleEditingTest {
 		final String expectedXml = getCurrentXML(widget);
 
 		widget.setAttribute("id", "newParaElement");
-		widget.moveTo(para.getStartOffset());
-		widget.moveTo(para.getEndOffset(), true);
+		widget.select(para);
 		widget.deleteSelection();
 
 		widget.undo(); // delete

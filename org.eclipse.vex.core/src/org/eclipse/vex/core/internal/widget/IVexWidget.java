@@ -310,6 +310,22 @@ public interface IVexWidget {
 	void selectWord();
 
 	/**
+	 * Selects the content of the given node.
+	 * 
+	 * @param node
+	 *            the node
+	 */
+	void selectContentOf(INode node);
+
+	/**
+	 * Selects the given node.
+	 * 
+	 * @param node
+	 *            the node to select
+	 */
+	void select(INode node);
+
+	/**
 	 * @return true if the current selection can be deleted. Returns false if there is no selection.
 	 */
 	boolean canDeleteSelection();
