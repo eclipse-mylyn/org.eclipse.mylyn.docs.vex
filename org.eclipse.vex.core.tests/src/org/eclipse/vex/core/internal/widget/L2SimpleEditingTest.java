@@ -1086,6 +1086,20 @@ public class L2SimpleEditingTest {
 		widget.join();
 	}
 
+	@Test
+	public void givenDeletedText_whenDeleteUndone_shouldSetCaretToEndOfRecoveredText() throws Exception {
+		final IElement title = widget.insertElement(TITLE);
+		widget.insertText("Hello World");
+		widget.moveTo(title.getStartOffset() + 1);
+		widget.moveBy(5, true);
+		final int expectedCaretOffset = widget.getSelectedRange().getEndOffset() + 1;
+
+		widget.deleteSelection();
+		widget.undo();
+
+		assertEquals(expectedCaretOffset, widget.getCaretOffset());
+	}
+
 	private static StyleSheet readTestStyleSheet() throws IOException {
 		return new StyleSheetReader().read(TestResources.get("test.css"));
 	}

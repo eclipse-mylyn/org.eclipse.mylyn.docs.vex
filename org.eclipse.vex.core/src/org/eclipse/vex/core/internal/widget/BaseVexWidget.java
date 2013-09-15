@@ -464,7 +464,7 @@ public class BaseVexWidget implements IVexWidget {
 
 		try {
 			if (hasSelection()) {
-				applyEdit(new DeleteEdit(document, getSelectedRange()), getSelectionStart());
+				applyEdit(new DeleteEdit(document, getSelectedRange()), getSelectionEnd());
 				this.moveTo(getSelectionStart());
 			}
 		} catch (final DocumentValidationException e) {
