@@ -4,13 +4,14 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     John Krasnay - initial API and implementation
  *******************************************************************************/
 package org.eclipse.vex.core.internal.dom;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.fail;
 
@@ -52,6 +53,22 @@ public class GapContentTest extends ContentTest {
 		final IPosition secondPosition = gapContent.createPosition(0);
 		assertEquals(1, gapContent.getPositionCount());
 		assertSame(firstPosition, secondPosition);
+	}
+
+	@Test
+	public void whenDeletingRange_shouldRemovePosistionsInRange() throws Exception {
+		final GapContent content = new GapContent(10);
+		content.insertTagMarker(0);
+		content.insertText(0, "Hello");
+		content.insertTagMarker(0);
+		content.createPosition(0);
+		content.createPosition(1);
+		content.createPosition(5);
+		content.createPosition(6);
+
+		content.remove(new ContentRange(1, 5));
+
+		assertEquals(2, content.getPositionCount());
 	}
 
 	@Test
@@ -133,7 +150,7 @@ public class GapContentTest extends ContentTest {
 		// a b x (gap) y c d
 		// | | | | | | |
 		// 0 1 2 3 4 5 6
-		// 
+		//
 		content.insertText(2, "y");
 		assertEquals(5, content.length());
 		content.insertText(2, "x");
@@ -156,8 +173,10 @@ public class GapContentTest extends ContentTest {
 
 		assertEquals(0, pa.getOffset());
 		assertEquals(1, pb.getOffset());
-		assertEquals(2, px.getOffset());
-		assertEquals(2, py.getOffset());
+
+		assertFalse(px.isValid());
+		assertFalse(py.isValid());
+
 		assertEquals(2, pc.getOffset());
 		assertEquals(3, pd.getOffset());
 		assertEquals(4, pe.getOffset());

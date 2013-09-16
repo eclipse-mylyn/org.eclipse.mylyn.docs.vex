@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  * 		Florian Thienel - initial API and implementation
  *******************************************************************************/
@@ -172,20 +172,6 @@ public abstract class ContentTest {
 	}
 
 	@Test
-	public void shouldMovePositionsWithinRemovedRangeToRangeStart() throws Exception {
-		content.insertText(0, "Hello New World");
-		final IPosition nPosition = content.createPosition(6);
-		final IPosition ePosition = content.createPosition(7);
-		final IPosition wPosition = content.createPosition(8);
-
-		content.remove(new ContentRange(6, 8));
-
-		assertEquals(6, nPosition.getOffset());
-		assertEquals(6, ePosition.getOffset());
-		assertEquals(6, wPosition.getOffset());
-	}
-
-	@Test
 	public void canRemovePosition() throws Exception {
 		content.insertTagMarker(0);
 		content.insertTagMarker(0);
@@ -231,4 +217,23 @@ public abstract class ContentTest {
 			assertEquals(content.getRawText().charAt(i), content.charAt(i));
 		}
 	}
+
+	@Test
+	public void whenDeletingRange_shouldInvalidatePosistionsInRange() throws Exception {
+		content.insertTagMarker(0);
+		content.insertText(0, "Hello");
+		content.insertTagMarker(0);
+		final IPosition positionBefore = content.createPosition(0);
+		final IPosition firstDeletedPosition = content.createPosition(1);
+		final IPosition lastDeletedPosition = content.createPosition(5);
+		final IPosition positionAfter = content.createPosition(6);
+
+		content.remove(new ContentRange(1, 5));
+
+		assertTrue("before", positionBefore.isValid());
+		assertFalse("first deleted", firstDeletedPosition.isValid());
+		assertFalse("last deleted", lastDeletedPosition.isValid());
+		assertTrue("after", positionAfter.isValid());
+	}
+
 }

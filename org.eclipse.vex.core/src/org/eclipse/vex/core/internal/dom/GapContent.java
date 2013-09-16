@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     John Krasnay - initial API and implementation
  *     Igor Jacy Lino Campista - Java 5 warnings fixed (bug 311325)
@@ -37,7 +37,7 @@ public class GapContent implements IContent {
 	private char[] content;
 	private int gapStart;
 	private int gapEnd;
-	private final SortedSet<GapContentPosition> positions = new TreeSet<GapContentPosition>();
+	private TreeSet<GapContentPosition> positions = new TreeSet<GapContentPosition>();
 
 	/**
 	 * Create a GapContent with the given initial capacity.
@@ -108,16 +108,19 @@ public class GapContent implements IContent {
 		gapStart += text.length();
 
 		if (!atEnd) {
-
-			// Update positions
-			final GapContentPosition offsetPosition = new GapContentPosition(offset);
-			for (final GapContentPosition position : positions.tailSet(offsetPosition)) {
-				if (position.getOffset() >= offset) {
-					position.setOffset(position.getOffset() + text.length());
-				}
-			}
-
+			movePositions(offset, text.length());
 		}
+	}
+
+	private void movePositions(final int startOffset, final int delta) {
+		final TreeSet<GapContentPosition> newPositions = new TreeSet<GapContentPosition>();
+		for (final GapContentPosition position : positions) {
+			if (position.getOffset() >= startOffset) {
+				position.setOffset(position.getOffset() + delta);
+			}
+			newPositions.add(position);
+		}
+		positions = newPositions;
 	}
 
 	public void insertTagMarker(final int offset) {
@@ -152,13 +155,18 @@ public class GapContent implements IContent {
 		moveGap(range.getEndOffset() + 1);
 		gapStart -= range.length();
 
+		final TreeSet<GapContentPosition> newPositions = new TreeSet<GapContentPosition>();
 		for (final GapContentPosition position : positions) {
 			if (position.getOffset() > range.getEndOffset()) {
 				position.setOffset(position.getOffset() - range.length());
+				newPositions.add(position);
 			} else if (position.getOffset() >= range.getStartOffset()) {
-				position.setOffset(range.getStartOffset());
+				position.invalidate();
+			} else {
+				newPositions.add(position);
 			}
 		}
+		positions = newPositions;
 	}
 
 	public String getText() {
@@ -316,6 +324,10 @@ public class GapContent implements IContent {
 		public boolean isValid() {
 			return useCount > 0;
 		};
+
+		public void invalidate() {
+			useCount = 0;
+		}
 
 		@Override
 		public int hashCode() {

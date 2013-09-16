@@ -102,8 +102,7 @@ public class VexWidgetTest {
 		widget.setDocument(createDocument(STRUCTURE_NS, "chapter"), StyleSheet.NULL);
 		widget.insertElement(new QualifiedName(CONTENT_NS, "p"));
 		widget.insertText("1text before comment1");
-		widget.insertComment();
-		final INode comment = widget.getDocument().getChildAt(widget.getCaretOffset());
+		final INode comment = widget.insertComment();
 		widget.insertText("2comment text2");
 		widget.moveBy(1);
 		widget.insertText("3text after comment3");
@@ -112,13 +111,11 @@ public class VexWidgetTest {
 
 		widget.doWork(new Runnable() {
 			public void run() {
-				widget.moveTo(comment.getStartOffset() + 1, false);
-				widget.moveTo(comment.getEndOffset() - 1, true);
+				widget.selectContentOf(comment);
 				final IDocumentFragment fragment = widget.getSelectedFragment();
 				widget.deleteSelection();
 
-				widget.moveBy(-1, false);
-				widget.moveBy(1, true);
+				widget.select(comment);
 				widget.deleteSelection();
 
 				widget.insertFragment(fragment);
