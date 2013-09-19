@@ -57,10 +57,12 @@ import org.eclipse.vex.core.internal.undo.ChangeAttributeEdit;
 import org.eclipse.vex.core.internal.undo.ChangeNamespaceEdit;
 import org.eclipse.vex.core.internal.undo.CompoundEdit;
 import org.eclipse.vex.core.internal.undo.DeleteEdit;
+import org.eclipse.vex.core.internal.undo.EditProcessingInstructionEdit;
 import org.eclipse.vex.core.internal.undo.IUndoableEdit;
 import org.eclipse.vex.core.internal.undo.InsertCommentEdit;
 import org.eclipse.vex.core.internal.undo.InsertElementEdit;
 import org.eclipse.vex.core.internal.undo.InsertFragmentEdit;
+import org.eclipse.vex.core.internal.undo.InsertProcessingInstructionEdit;
 import org.eclipse.vex.core.internal.undo.InsertTextEdit;
 import org.eclipse.vex.core.provisional.dom.AttributeChangeEvent;
 import org.eclipse.vex.core.provisional.dom.BaseNodeVisitor;
@@ -78,6 +80,7 @@ import org.eclipse.vex.core.provisional.dom.IElement;
 import org.eclipse.vex.core.provisional.dom.INode;
 import org.eclipse.vex.core.provisional.dom.IParent;
 import org.eclipse.vex.core.provisional.dom.IPosition;
+import org.eclipse.vex.core.provisional.dom.IProcessingInstruction;
 import org.eclipse.vex.core.provisional.dom.IText;
 import org.eclipse.vex.core.provisional.dom.IValidator;
 import org.eclipse.vex.core.provisional.dom.NamespaceDeclarationChangeEvent;
@@ -295,6 +298,17 @@ public class BaseVexWidget implements IVexWidget {
 			return false;
 		}
 		return document.canInsertComment(getCaretOffset());
+	}
+
+	@Override
+	public boolean canInsertProcessingInstruction() {
+		if (readOnly) {
+			return false;
+		}
+		if (document == null) {
+			return false;
+		}
+		return document.canInsertProcessingInstruction(getCaretOffset(), null);
 	}
 
 	@Override
@@ -609,6 +623,11 @@ public class BaseVexWidget implements IVexWidget {
 			@Override
 			public IElement visit(final IText text) {
 				return text.getParent().accept(this);
+			}
+
+			@Override
+			public IElement visit(final IProcessingInstruction pi) {
+				return pi.getParent().accept(this);
 			}
 		});
 	}
@@ -1006,6 +1025,51 @@ public class BaseVexWidget implements IVexWidget {
 			scrollCaretVisible();
 			success = true;
 			return result;
+		} finally {
+			endWork(success);
+		}
+	}
+
+	@Override
+	public IProcessingInstruction insertProcessingInstruction(final String target) throws DocumentValidationException, ReadOnlyException {
+		if (readOnly) {
+			throw new ReadOnlyException("Cannot insert processing instruction, because the editor is read-only.");
+		}
+		Assert.isTrue(canInsertProcessingInstruction());
+
+		boolean success = false;
+		try {
+			beginWork();
+
+			final InsertProcessingInstructionEdit edit = applyEdit(new InsertProcessingInstructionEdit(document, getCaretOffset(), target), getCaretOffset());
+			final IProcessingInstruction result = edit.getProcessingInstruction();
+			this.moveTo(getCaretOffset() + 1);
+			scrollCaretVisible();
+			success = true;
+			return result;
+		} finally {
+			endWork(success);
+		}
+	}
+
+	@Override
+	public void editProcessingInstruction(final String target, final String data) throws CannotRedoException, ReadOnlyException {
+		if (readOnly) {
+			throw new ReadOnlyException("Cannot change processing instruction, because the editor is read-only.");
+		}
+
+		final INode node = getCurrentNode();
+		if (!(node instanceof IProcessingInstruction)) {
+			throw new CannotRedoException("Current node is not a processing instruction");
+		}
+
+		boolean success = false;
+		try {
+			beginWork();
+			applyEdit(new EditProcessingInstructionEdit(document, getCaretOffset(), target, data), getCaretOffset());
+			this.moveTo(node.getStartOffset() + 1);
+			scrollCaretVisible();
+			success = true;
 		} finally {
 			endWork(success);
 		}

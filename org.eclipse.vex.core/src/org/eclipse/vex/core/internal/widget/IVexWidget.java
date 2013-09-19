@@ -24,6 +24,7 @@ import org.eclipse.vex.core.provisional.dom.IDocument;
 import org.eclipse.vex.core.provisional.dom.IDocumentFragment;
 import org.eclipse.vex.core.provisional.dom.IElement;
 import org.eclipse.vex.core.provisional.dom.INode;
+import org.eclipse.vex.core.provisional.dom.IProcessingInstruction;
 
 /**
  * Methods implemented by implementations of the Vex widget on all platforms. This interface is more important as a
@@ -573,6 +574,29 @@ public interface IVexWidget {
 	 * @return the new comment
 	 */
 	IComment insertComment() throws DocumentValidationException;
+
+	/**
+	 * @return true if a processing instruction can be inserted at the current caret position/instead of the current
+	 *         selection
+	 */
+	boolean canInsertProcessingInstruction();
+
+	/**
+	 * Inserts a processing instruction at the current caret position. Any selected content is first deleted.
+	 * 
+	 * @return the new comment
+	 */
+	IProcessingInstruction insertProcessingInstruction(final String target) throws CannotRedoException, ReadOnlyException;
+
+	/**
+	 * Edits the processing instruction at the current caret position. Updates target and data with the given Strings.
+	 * 
+	 * @param target
+	 *            The target to set. may be null to keep the old target.
+	 * @param data
+	 *            The data to set. May be null to keep the old value.
+	 */
+	void editProcessingInstruction(final String target, final String data) throws CannotRedoException, ReadOnlyException;
 
 	/**
 	 * Inserts the given XML fragment at the current caret position. Any selected content is first deleted.

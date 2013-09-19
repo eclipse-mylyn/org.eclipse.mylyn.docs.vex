@@ -56,6 +56,7 @@ import org.eclipse.vex.core.internal.layout.TestStaticTextBox;
 import org.eclipse.vex.core.internal.validator.DTDValidatorTest;
 import org.eclipse.vex.core.internal.validator.SchemaValidatorTest;
 import org.eclipse.vex.core.internal.widget.L2CommentEditingTest;
+import org.eclipse.vex.core.internal.widget.L2ProcessingInstructionEditingTest;
 import org.eclipse.vex.core.internal.widget.L2SelectionTest;
 import org.eclipse.vex.core.internal.widget.L2SimpleEditingTest;
 import org.eclipse.vex.core.internal.widget.L2StyleSheetTest;
@@ -72,7 +73,8 @@ import org.junit.runners.Suite;
 		DocumentFragmentTest.class, CopyVisitorTest.class, DeepCopyTest.class, PropertyTest.class, RuleTest.class, BlockElementBoxTest.class, ImageBoxTest.class, DocumentWriterTest.class,
 		DTDValidatorTest.class, GapContentTest.class, SpaceNormalizerTest.class, TextWrapperTest.class, TestBlockElementBox.class, TestBlocksInInlines.class, TestDocumentTextBox.class,
 		TestStaticTextBox.class, TableLayoutTest.class, LayoutTestSuite.class, ListenerListTest.class, DocumentFragmentTransferTest.class, XMLFragmentTest.class, VexWidgetTest.class,
-		L2SimpleEditingTest.class, L2SelectionTest.class, L2CommentEditingTest.class, L2XmlInsertionTest.class, DocumentEventTest.class, L2StyleSheetTest.class
+		L2SimpleEditingTest.class, L2SelectionTest.class, L2CommentEditingTest.class, L2ProcessingInstructionEditingTest.class, L2XmlInsertionTest.class, DocumentEventTest.class,
+		L2StyleSheetTest.class
 
 })
 public class VEXCoreTestSuite {

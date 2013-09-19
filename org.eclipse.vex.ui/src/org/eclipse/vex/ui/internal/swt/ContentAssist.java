@@ -57,8 +57,8 @@ import org.eclipse.vex.core.internal.core.ElementName;
 import org.eclipse.vex.core.internal.widget.swt.VexWidget;
 import org.eclipse.vex.core.provisional.dom.IElement;
 import org.eclipse.vex.ui.internal.Icon;
+import org.eclipse.vex.ui.internal.Messages;
 import org.eclipse.vex.ui.internal.VexPlugin;
-import org.eclipse.vex.ui.internal.editor.Messages;
 
 /**
  * Content assist dialog that is popped up to show a list of actions to select from. The input field at the top above

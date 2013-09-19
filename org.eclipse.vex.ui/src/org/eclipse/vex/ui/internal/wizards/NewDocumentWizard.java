@@ -38,12 +38,12 @@ import org.eclipse.vex.core.internal.validator.WTPVEXValidator;
 import org.eclipse.vex.core.provisional.dom.DocumentContentModel;
 import org.eclipse.vex.core.provisional.dom.IDocument;
 import org.eclipse.vex.core.provisional.dom.IElement;
+import org.eclipse.vex.ui.internal.Messages;
 import org.eclipse.vex.ui.internal.VexPlugin;
 import org.eclipse.vex.ui.internal.config.DocumentType;
 import org.eclipse.vex.ui.internal.config.Style;
 import org.eclipse.vex.ui.internal.editor.DocumentFileCreationPage;
 import org.eclipse.vex.ui.internal.editor.DocumentTypeSelectionPage;
-import org.eclipse.vex.ui.internal.editor.Messages;
 import org.eclipse.vex.ui.internal.editor.VexEditor;
 
 /**

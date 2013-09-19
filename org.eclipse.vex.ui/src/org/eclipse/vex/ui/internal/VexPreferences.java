@@ -20,7 +20,6 @@ import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.provisional.dom.DocumentContentModel;
 import org.eclipse.vex.ui.internal.config.ConfigurationRegistry;
 import org.eclipse.vex.ui.internal.config.Style;
-import org.eclipse.vex.ui.internal.editor.Messages;
 import org.osgi.service.prefs.BackingStoreException;
 import org.osgi.service.prefs.Preferences;
 

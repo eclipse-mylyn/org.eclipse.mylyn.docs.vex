@@ -22,7 +22,7 @@ import org.eclipse.ui.part.IPageBookViewPage;
 import org.eclipse.ui.part.IPageSite;
 import org.eclipse.ui.part.PageBook;
 import org.eclipse.ui.part.PageBookView;
-import org.eclipse.vex.ui.internal.editor.Messages;
+import org.eclipse.vex.ui.internal.Messages;
 import org.eclipse.vex.ui.internal.editor.VexEditor;
 
 /**

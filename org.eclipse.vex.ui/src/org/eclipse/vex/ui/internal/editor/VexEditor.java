@@ -77,12 +77,18 @@ import org.eclipse.vex.core.internal.io.DocumentWriter;
 import org.eclipse.vex.core.internal.validator.WTPVEXValidator;
 import org.eclipse.vex.core.internal.widget.swt.VexWidget;
 import org.eclipse.vex.core.provisional.dom.AttributeChangeEvent;
+import org.eclipse.vex.core.provisional.dom.BaseNodeVisitorWithResult;
 import org.eclipse.vex.core.provisional.dom.ContentChangeEvent;
+import org.eclipse.vex.core.provisional.dom.IComment;
 import org.eclipse.vex.core.provisional.dom.IDocument;
 import org.eclipse.vex.core.provisional.dom.IDocumentListener;
 import org.eclipse.vex.core.provisional.dom.IElement;
+import org.eclipse.vex.core.provisional.dom.INode;
+import org.eclipse.vex.core.provisional.dom.INodeVisitorWithResult;
+import org.eclipse.vex.core.provisional.dom.IProcessingInstruction;
 import org.eclipse.vex.core.provisional.dom.IValidator;
 import org.eclipse.vex.core.provisional.dom.NamespaceDeclarationChangeEvent;
+import org.eclipse.vex.ui.internal.Messages;
 import org.eclipse.vex.ui.internal.VexPlugin;
 import org.eclipse.vex.ui.internal.VexPreferences;
 import org.eclipse.vex.ui.internal.config.ConfigEvent;
@@ -764,6 +770,26 @@ public class VexEditor extends EditorPart {
 
 	};
 
+	/**
+	 * Visitor to return the path elements displayed in the status line
+	 */
+	private final INodeVisitorWithResult<String> nodePathVisitor = new BaseNodeVisitorWithResult<String>("") {
+		@Override
+		public String visit(final IElement element) {
+			return element.getPrefixedName();
+		};
+
+		@Override
+		public String visit(final IProcessingInstruction pi) {
+			return Messages.getString("VexEditor.Path.ProcessingInstruction");
+		};
+
+		@Override
+		public String visit(final IComment comment) {
+			return Messages.getString("VexEditor.Path.Comment");
+		};
+	};
+
 	private class ResourceChangeListener implements IResourceChangeListener {
 
 		public void resourceChanged(final IResourceChangeEvent event) {
@@ -795,10 +821,10 @@ public class VexEditor extends EditorPart {
 
 	private String getLocationPath() {
 		final List<String> path = new ArrayList<String>();
-		IElement element = vexWidget.getCurrentElement();
-		while (element != null) {
-			path.add(element.getPrefixedName());
-			element = element.getParentElement();
+		INode node = vexWidget.getCurrentNode();
+		while (node != null) {
+			path.add(node.accept(nodePathVisitor));
+			node = node.getParent();
 		}
 		Collections.reverse(path);
 
@@ -808,8 +834,10 @@ public class VexEditor extends EditorPart {
 
 		final StringBuilder pathString = new StringBuilder(path.size() * 15);
 		for (final String part : path) {
-			pathString.append('/');
-			pathString.append(part);
+			if (!part.isEmpty()) {
+				pathString.append('/');
+				pathString.append(part);
+			}
 		}
 		return pathString.toString();
 	}

@@ -76,6 +76,7 @@ import org.eclipse.vex.core.provisional.dom.IDocument;
 import org.eclipse.vex.core.provisional.dom.IDocumentFragment;
 import org.eclipse.vex.core.provisional.dom.IElement;
 import org.eclipse.vex.core.provisional.dom.INode;
+import org.eclipse.vex.core.provisional.dom.IProcessingInstruction;
 
 /**
  * An implementation of the Vex widget based on SWT.
@@ -139,6 +140,10 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 	@Override
 	public boolean canInsertComment() {
 		return impl.canInsertComment();
+	}
+
+	public boolean canInsertProcessingInstruction() {
+		return impl.canInsertProcessingInstruction();
 	}
 
 	@Override
@@ -334,6 +339,14 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 	@Override
 	public IComment insertComment() throws DocumentValidationException {
 		return impl.insertComment();
+	}
+
+	public IProcessingInstruction insertProcessingInstruction(final String target) throws CannotRedoException, ReadOnlyException {
+		return impl.insertProcessingInstruction(target);
+	}
+
+	public void editProcessingInstruction(final String target, final String data) throws CannotRedoException, ReadOnlyException {
+		impl.editProcessingInstruction(target, data);
 	}
 
 	@Override

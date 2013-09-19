@@ -22,7 +22,7 @@ import org.eclipse.ui.services.IServiceScopes;
 import org.eclipse.vex.core.internal.widget.swt.IVexWidgetHandler;
 import org.eclipse.vex.core.internal.widget.swt.VexWidget;
 import org.eclipse.vex.core.provisional.dom.IElement;
-import org.eclipse.vex.ui.internal.editor.Messages;
+import org.eclipse.vex.ui.internal.Messages;
 
 /**
  * Abstract supper class of all command handlers which can be performed on a {@link VexWidget}.

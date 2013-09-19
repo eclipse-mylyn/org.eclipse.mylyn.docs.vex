@@ -26,7 +26,7 @@ import org.eclipse.vex.core.provisional.dom.DocumentValidationException;
 import org.eclipse.vex.core.provisional.dom.IAttribute;
 import org.eclipse.vex.core.provisional.dom.IElement;
 import org.eclipse.vex.core.provisional.dom.IValidator;
-import org.eclipse.vex.ui.internal.editor.Messages;
+import org.eclipse.vex.ui.internal.Messages;
 
 public class ElementPropertySource implements IPropertySource2 {
 

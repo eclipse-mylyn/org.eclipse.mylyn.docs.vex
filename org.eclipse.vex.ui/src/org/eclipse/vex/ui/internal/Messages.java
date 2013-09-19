@@ -8,14 +8,13 @@
  * Contributors:
  *     John Krasnay - initial API and implementation
  *******************************************************************************/
-package org.eclipse.vex.ui.internal.editor;
+package org.eclipse.vex.ui.internal;
 
 import java.text.MessageFormat;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
 import org.eclipse.core.runtime.IStatus;
-import org.eclipse.vex.ui.internal.VexPlugin;
 
 /**
  * Handler for language-specific strings in Vex.
@@ -32,7 +31,7 @@ public class Messages {
 	 */
 	public static String getString(final String key) {
 		if (resources == null) {
-			resources = ResourceBundle.getBundle("org.eclipse.vex.ui.internal.editor.messages"); //$NON-NLS-1$
+			resources = ResourceBundle.getBundle("org.eclipse.vex.ui.internal.messages"); //$NON-NLS-1$
 		}
 
 		try {

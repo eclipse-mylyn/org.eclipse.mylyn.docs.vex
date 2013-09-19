@@ -177,6 +177,16 @@
             id="org.eclipse.vex.ui.AddCommentCommand"
             name="%command.addComment.name">
       </command>
+      <command
+            categoryId="org.eclipse.vex.ui.commands.category"
+            id="org.eclipse.vex.ui.AddProcessingInstructionCommand"
+            name="%command.addProcessingInstruction.name">
+      </command>
+      <command
+            categoryId="org.eclipse.vex.ui.commands.category"
+            id="org.eclipse.vex.ui.SetProcessingInstructionTargetCommand"
+            name="%command.setProcessingInstructionTarget.name">
+      </command>
 
    </extension>
    <extension
@@ -266,6 +276,32 @@
                   definitionId="org.eclipse.vex.ui.activeVexEditor">
             </reference>
          </activeWhen>
+      </handler>
+      <handler
+            class="org.eclipse.vex.ui.internal.handlers.AddProcessingInstructionHandler"
+            commandId="org.eclipse.vex.ui.AddProcessingInstructionCommand">
+         <activeWhen>
+            <reference
+                  definitionId="org.eclipse.vex.ui.activeVexEditor">
+            </reference>
+         </activeWhen>
+      </handler>
+      <handler
+            class="org.eclipse.vex.ui.internal.handlers.SetProcessingInstructionTargetHandler"
+            commandId="org.eclipse.vex.ui.SetProcessingInstructionTargetCommand">
+         <activeWhen>
+            <reference
+                  definitionId="org.eclipse.vex.ui.activeVexEditor">
+            </reference>
+         </activeWhen>
+         <enabledWhen>
+            <with
+                  variable="org.eclipse.vex.ui.isProcessingInstruction">
+               <equals
+                     value="true">
+               </equals>
+            </with>
+         </enabledWhen>
       </handler>
       <handler
             class="org.eclipse.vex.ui.internal.handlers.DuplicateSelectionHandler"
@@ -935,6 +971,18 @@
                name="org.eclipse.vex.ui.isLastRow"
                priorityLevel="workbench">
          </variable>
+         <variable
+               name="org.eclipse.vex.ui.isElement"
+               priorityLevel="workbench">
+         </variable>
+         <variable
+               name="org.eclipse.vex.ui.isComment"
+               priorityLevel="workbench">
+         </variable>
+         <variable
+               name="org.eclipse.vex.ui.isProcessingInstruction"
+               priorityLevel="workbench">
+         </variable>
       </sourceProvider>
    </extension>
    <extension
@@ -958,6 +1006,20 @@
                      commandId="org.eclipse.vex.ui.AddCommentCommand"
                      label="%menu.Add.Comment.name"
                      style="push">
+               </command>
+               <command
+                     commandId="org.eclipse.vex.ui.AddProcessingInstructionCommand"
+                     label="%menu.Add.ProcessingInstruction.name">
+					<visibleWhen>
+						<and>
+							<with variable="org.eclipse.vex.ui.isComment">
+								<equals value="false" />
+							</with>
+							<with variable="org.eclipse.vex.ui.isProcessingInstruction">
+								<equals value="false" />
+							</with>
+						</and>
+					</visibleWhen>
                </command>
                <command
                      commandId="org.eclipse.vex.ui.AddRowAboveCommand"
@@ -1021,6 +1083,13 @@
                   label="%menu.Join.name">
             </command>
             <command
+                  commandId="org.eclipse.vex.ui.SetProcessingInstructionTargetCommand"
+                  label="%command.setProcessingInstructionTarget.name">
+                  <visibleWhen
+                        checkEnabled="true">
+                  </visibleWhen>
+            </command>
+            <command
                   commandId="org.eclipse.vex.ui.EditNamespacesCommand"
                   label="%menu.EditNamespaces.name">
             </command>
@@ -1073,6 +1142,13 @@
          <command
                commandId="org.eclipse.vex.ui.JoinCommand"
                label="%menu.Join.name">
+         </command>
+         <command
+               commandId="org.eclipse.vex.ui.SetProcessingInstructionTargetCommand"
+               label="%command.setProcessingInstructionTarget.name">
+            <visibleWhen
+                  checkEnabled="true">
+            </visibleWhen>
          </command>
          <command
                commandId="org.eclipse.vex.ui.EditNamespacesCommand"

@@ -23,6 +23,9 @@ public class PluginImages {
 	public static final ImageDescriptor DESC_SHOW_INLINE_ELEMENTS = createImageDescriptor("icons/show_inline.gif"); //$NON-NLS-1$
 	public static final ImageDescriptor DESC_SHOW_ELEMENT_CONTENT = createImageDescriptor("icons/show_content.gif"); //$NON-NLS-1$
 
+	// Common Icons
+	public static final ImageDescriptor DESC_VEX_ICON = createImageDescriptor("icons/vex16.png"); //$NON-NLS-1$
+
 	// Element Icons
 	/** XML element */
 	public static final ImageDescriptor DESC_XML_ELEMENT = createImageDescriptor("icons/element_obj.gif"); //$NON-NLS-1$
@@ -47,6 +50,7 @@ public class PluginImages {
 	public static final String IMG_XML_COMMENT = NAME_PREFIX + "img.xml_comment"; //$NON-NLS-1$
 	public static final String IMG_XML_ATTRIBUTE = NAME_PREFIX + "img.xml_attribute"; //$NON-NLS-1$
 	public static final String IMG_XML_UNKNOWN = NAME_PREFIX + "img.xml_unknown"; //$NON-NLS-1$
+	public static final String IMG_VEX_ICON = NAME_PREFIX + "img.vex_icon"; //$NON-NLS-1$
 
 	public static Image get(final String key) {
 		if (IMAGE_REGISTRY == null) {
@@ -63,6 +67,7 @@ public class PluginImages {
 		register(IMG_XML_COMMENT, DESC_XML_COMMENT);
 		register(IMG_XML_ATTRIBUTE, DESC_XML_ATTRIBUTE);
 		register(IMG_XML_UNKNOWN, DESC_XML_UNKNOWN);
+		register(IMG_VEX_ICON, DESC_VEX_ICON);
 	}
 
 	public static void register(final String key, final ImageDescriptor desc) {

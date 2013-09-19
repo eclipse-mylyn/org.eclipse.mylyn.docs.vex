@@ -14,6 +14,7 @@ import java.io.InputStream;
 
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.dialogs.WizardNewFileCreationPage;
+import org.eclipse.vex.ui.internal.Messages;
 
 /**
  * Wizard page for selecting the file name for a new Vex document.

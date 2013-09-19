@@ -400,6 +400,24 @@ public class Document extends Parent implements IDocument {
 		return pi;
 	}
 
+	@Override
+	public void setProcessingInstructionTarget(final int offset, final String target) throws DocumentValidationException {
+		final INode node = getNodeForInsertionAt(offset);
+		if (!(node instanceof IProcessingInstruction)) {
+			throw new DocumentValidationException(MessageFormat.format("Node at offset {0} is not a processing instruction.", offset));
+		}
+
+		// Validate first to throw an appropriate message
+		final IValidationResult resultTarget = XML.validateProcessingInstructionTarget(target);
+		if (!resultTarget.isOK()) {
+			throw new DocumentValidationException(resultTarget.getMessage());
+		}
+
+		fireBeforeContentInserted(new ContentChangeEvent(this, node.getParent(), new ContentRange(node.getStartOffset(), node.getEndOffset()), false));
+		((IProcessingInstruction) node).setTarget(target);
+		fireContentInserted(new ContentChangeEvent(this, node.getParent(), new ContentRange(node.getStartOffset(), node.getEndOffset()), false));
+	}
+
 	public boolean canInsertElement(final int offset, final QualifiedName elementName) {
 		return canInsertAt(getNodeForInsertionAt(offset), offset, elementName);
 	}
