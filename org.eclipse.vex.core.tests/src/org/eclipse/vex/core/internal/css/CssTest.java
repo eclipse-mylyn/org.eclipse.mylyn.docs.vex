@@ -20,8 +20,10 @@ import org.eclipse.vex.core.internal.core.Color;
 import org.eclipse.vex.core.internal.core.DisplayDevice;
 import org.eclipse.vex.core.internal.dom.Document;
 import org.eclipse.vex.core.internal.dom.Element;
+import org.eclipse.vex.core.internal.dom.ProcessingInstruction;
 import org.eclipse.vex.core.provisional.dom.IDocument;
 import org.eclipse.vex.core.provisional.dom.IElement;
+import org.eclipse.vex.core.provisional.dom.INode;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -540,6 +542,24 @@ public class CssTest {
 		assertEquals(120, styles.getPaddingRight().get(10));
 		assertEquals(19, styles.getPaddingTop().get(10));
 
+	}
+
+	@Test
+	public void testCoreStyles() throws Exception {
+		final StyleSheet styleSheet = StyleSheet.NULL;
+		final INode pi = new ProcessingInstruction("target");
+		final Styles styles = styleSheet.getStyles(pi);
+
+		assertEquals(new Color(0, 0, 255), styles.get("color"));
+	}
+
+	@Test
+	public void testCoreStylesOverrule() throws Exception {
+		final StyleSheet styleSheet = parseStyleSheetResource("testCoreStylesOverrule.css");
+		final INode pi = new ProcessingInstruction("target");
+		final Styles styles = styleSheet.getStyles(pi);
+
+		assertEquals(new Color(0x01, 0x23, 0x45), styles.get("color"));
 	}
 
 	private StyleSheet parseStyleSheetResource(final String resource) throws java.io.IOException {

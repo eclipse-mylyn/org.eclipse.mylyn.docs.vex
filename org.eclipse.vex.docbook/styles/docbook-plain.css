@@ -13,23 +13,6 @@
 
 @import url(vex-outline.css);
 
-vex|processing-instruction {
-	display: inherit;
-	color: blue;
-}
-
-vex|processing-instruction:before {
-	display: inline;
-	color: navy;
-	content: '<?',attr(target),' ';
-}
-
-vex|processing-instruction:after {
-	display: inline;
-	color: navy;
-	content: '?>';
-}
-
 abbrev {
 	display: inline;
 }

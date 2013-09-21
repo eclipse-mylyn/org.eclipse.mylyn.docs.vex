@@ -18,9 +18,11 @@
  *                          WeekReference. PseudoElements are cached.
  *     Carsten Hiesserich - Added OutlineContent property
  *     Carsten Hiesserich - New handling for pseudo elements
+ *     Carsten Hiesserich - Added core styles
  *******************************************************************************/
 package org.eclipse.vex.core.internal.css;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -86,6 +88,21 @@ public class StyleSheet {
 	 * The rules that comprise the stylesheet.
 	 */
 	private final List<Rule> rules;
+
+	/**
+	 * The VEX core styles
+	 */
+	private final static List<Rule> coreRules;
+	static {
+		List<Rule> rules;
+		try {
+			rules = new StyleSheetReader().readRules(StyleSheet.class.getResource("vex-core-styles.css"));
+		} catch (final IOException e) {
+			rules = Collections.<Rule> emptyList();
+			e.printStackTrace();
+		}
+		coreRules = rules;
+	}
 
 	/**
 	 * Computing styles can be expensive, e.g. we have to calculate the styles of all parents of an element. We
@@ -276,12 +293,17 @@ public class StyleSheet {
 	 *         for pseudo elements.
 	 */
 	private Map<String, Map<String, LexicalUnit>> getApplicableDeclarations(final INode node) {
-		final List<PropertyDecl> rawDeclarationsForElement = findAllDeclarationsFor(node);
+		final List<PropertyDecl> coreDeclarationsForElement = findCoreDeclarationsFor(node);
+		Collections.sort(coreDeclarationsForElement, PROPERTY_CASCADE_ORDERING);
 
-		// Sort in cascade order. We can then just stuff them into a
-		// map and get the right values since higher-priority values
-		// come later and overwrite lower-priority ones.
-		Collections.sort(rawDeclarationsForElement, PROPERTY_CASCADE_ORDERING);
+		final List<PropertyDecl> stylesheetDeclarationsForElement = findAllDeclarationsFor(node);
+		Collections.sort(stylesheetDeclarationsForElement, PROPERTY_CASCADE_ORDERING);
+
+		// Both lists are sorted in cascade order. We can then just stuff them into a map and get the right values
+		// since higher-priority values come later and overwrite lower-priority ones.
+		// Core styles are at the list's begin, so they are ruled out by stylesheet definitions.
+		final List<PropertyDecl> rawDeclarationsForElement = coreDeclarationsForElement;
+		rawDeclarationsForElement.addAll(stylesheetDeclarationsForElement);
 
 		final Map<String, Map<String, PropertyDecl>> distilledDeclarations = new HashMap<String, Map<String, PropertyDecl>>();
 		final Map<String, Map<String, LexicalUnit>> values = new HashMap<String, Map<String, LexicalUnit>>();
@@ -319,7 +341,22 @@ public class StyleSheet {
 
 	private List<PropertyDecl> findAllDeclarationsFor(final INode node) {
 		final List<PropertyDecl> rawDeclarations = new ArrayList<PropertyDecl>();
+
 		for (final Rule rule : rules) {
+			if (rule.matches(node)) {
+				final PropertyDecl[] ruleDecls = rule.getPropertyDecls();
+				for (final PropertyDecl ruleDecl : ruleDecls) {
+					rawDeclarations.add(ruleDecl);
+				}
+			}
+		}
+		return rawDeclarations;
+	}
+
+	private List<PropertyDecl> findCoreDeclarationsFor(final INode node) {
+		final List<PropertyDecl> rawDeclarations = new ArrayList<PropertyDecl>();
+
+		for (final Rule rule : coreRules) {
 			if (rule.matches(node)) {
 				final PropertyDecl[] ruleDecls = rule.getPropertyDecls();
 				for (final PropertyDecl ruleDecl : ruleDecls) {

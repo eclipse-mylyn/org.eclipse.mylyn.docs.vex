@@ -139,12 +139,38 @@ public class StyleSheetReader {
 	 *            which case @import rules are ignored.
 	 */
 	public StyleSheet read(final InputSource inputSource, final URL url) throws CSSException, IOException {
+		final List<Rule> rules = readRules(inputSource, url);
+		return new StyleSheet(rules);
+	}
+
+	/**
+	 * Parse a stylesheet file from a URL and return the list of rules.
+	 * 
+	 * @param url
+	 *            URL from which to read the style sheet.
+	 * @return The List of rules.
+	 */
+	public List<Rule> readRules(final URL url) throws IOException {
+		return this.readRules(new InputSource(url.toString()), url);
+	}
+
+	/**
+	 * Parse a stylesheet file from an input source and return the list of rules.
+	 * 
+	 * @param inputSource
+	 *            InputSource from which to read the stylesheet.
+	 * @param url
+	 *            URL representing the input source, used to resolve @import rules with relative URIs. May be null, in
+	 *            which case @import rules are ignored.
+	 * @return The List of rules.
+	 */
+	public List<Rule> readRules(final InputSource inputSource, final URL url) throws CSSException, IOException {
 		final Parser parser = createParser();
 		final List<Rule> rules = new ArrayList<Rule>();
 		final StyleSheetBuilder styleSheetBuilder = new StyleSheetBuilder(rules, url);
 		parser.setDocumentHandler(styleSheetBuilder);
 		parser.parseStyleSheet(inputSource);
-		return new StyleSheet(rules);
+		return rules;
 	}
 
 	// ======================================================== PRIVATE
