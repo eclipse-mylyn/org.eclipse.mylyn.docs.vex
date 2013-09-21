@@ -15,14 +15,18 @@ import org.eclipse.jface.viewers.ViewerFilter;
 import org.eclipse.vex.core.internal.css.CSS;
 import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.provisional.dom.BaseNodeVisitorWithResult;
+import org.eclipse.vex.core.provisional.dom.IComment;
 import org.eclipse.vex.core.provisional.dom.IElement;
 import org.eclipse.vex.core.provisional.dom.INode;
 import org.eclipse.vex.core.provisional.dom.INodeVisitorWithResult;
+import org.eclipse.vex.core.provisional.dom.IProcessingInstruction;
 
 public class OutlineFilter extends ViewerFilter {
 
-	// Binary coded - use 2-4-8... for next constants
+	// Binary coded - use 8-16-32... for next constants
 	public static final int FILTER_ID_INCLUDE_INLINE_ELEMENTS = 1;
+	public static final int FILTER_ID_INCLUDE_COMMENTS = 2;
+	public static final int FILTER_ID_INCLUDE_PROC_INSTR = 4;
 
 	private int activeFilters = 0;
 	private StyleSheet styleSheet;
@@ -82,6 +86,16 @@ public class OutlineFilter extends ViewerFilter {
 				}
 			}
 			return true;
+		}
+		
+		@Override
+		public Boolean visit(IComment comment) {
+			return hasFilter(FILTER_ID_INCLUDE_COMMENTS);
+		}
+		
+		@Override
+		public Boolean visit(IProcessingInstruction pi) {
+			return hasFilter(FILTER_ID_INCLUDE_PROC_INSTR);
 		}
 	};
 

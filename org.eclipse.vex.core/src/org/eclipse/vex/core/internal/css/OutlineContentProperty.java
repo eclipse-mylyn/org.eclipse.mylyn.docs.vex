@@ -16,6 +16,7 @@ import org.eclipse.vex.core.provisional.dom.BaseNodeVisitorWithResult;
 import org.eclipse.vex.core.provisional.dom.Filters;
 import org.eclipse.vex.core.provisional.dom.IElement;
 import org.eclipse.vex.core.provisional.dom.INode;
+import org.eclipse.vex.core.provisional.dom.IProcessingInstruction;
 import org.w3c.css.sac.LexicalUnit;
 
 /**
@@ -85,6 +86,11 @@ public class OutlineContentProperty extends AbstractProperty {
 
 				// Return element text content as default
 				return element;
+			}
+			
+			@Override
+			public Object visit(IProcessingInstruction pi) {
+				return pi;
 			}
 		});
 	}

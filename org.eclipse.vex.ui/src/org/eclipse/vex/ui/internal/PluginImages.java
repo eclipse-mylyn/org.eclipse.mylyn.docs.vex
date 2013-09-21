@@ -33,6 +33,8 @@ public class PluginImages {
 	public static final ImageDescriptor DESC_XML_INLINE_ELEMENT = createImageDescriptor("icons/inline_element_obj.gif"); //$NON-NLS-1$
 	/** XML comment. */
 	public static final ImageDescriptor DESC_XML_COMMENT = createImageDescriptor("icons/comment_obj.gif"); //$NON-NLS-1$
+	/** XML processing instruction. */
+	public static final ImageDescriptor DESC_XML_PROC_INSTR = createImageDescriptor("icons/proinst_obj.gif"); //$NON-NLS-1$
 	/** XML attribute. */
 	public static final ImageDescriptor DESC_XML_ATTRIBUTE = createImageDescriptor("icons/attribute_obj.gif"); //$NON-NLS-1$
 	/** XML unknown object. */
@@ -48,6 +50,7 @@ public class PluginImages {
 	public static final String IMG_XML_BLOCK_ELEMENT = NAME_PREFIX + "img.xml_block_element"; //$NON-NLS-1$
 	public static final String IMG_XML_INLINE_ELEMENT = NAME_PREFIX + "img.xml_inline_element"; //$NON-NLS-1$
 	public static final String IMG_XML_COMMENT = NAME_PREFIX + "img.xml_comment"; //$NON-NLS-1$
+	public static final String IMG_XML_PROC_INSTR = NAME_PREFIX + "img.xml_proc_instr"; //$NON-NLS-1$
 	public static final String IMG_XML_ATTRIBUTE = NAME_PREFIX + "img.xml_attribute"; //$NON-NLS-1$
 	public static final String IMG_XML_UNKNOWN = NAME_PREFIX + "img.xml_unknown"; //$NON-NLS-1$
 	public static final String IMG_VEX_ICON = NAME_PREFIX + "img.vex_icon"; //$NON-NLS-1$
@@ -65,6 +68,7 @@ public class PluginImages {
 		register(IMG_XML_BLOCK_ELEMENT, DESC_XML_BLOCK_ELEMENT);
 		register(IMG_XML_INLINE_ELEMENT, DESC_XML_INLINE_ELEMENT);
 		register(IMG_XML_COMMENT, DESC_XML_COMMENT);
+		register(IMG_XML_PROC_INSTR, DESC_XML_PROC_INSTR);
 		register(IMG_XML_ATTRIBUTE, DESC_XML_ATTRIBUTE);
 		register(IMG_XML_UNKNOWN, DESC_XML_UNKNOWN);
 		register(IMG_VEX_ICON, DESC_VEX_ICON);

@@ -30,12 +30,15 @@ import org.eclipse.vex.core.internal.css.IWhitespacePolicy;
 import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.provisional.dom.BaseNodeVisitorWithResult;
 import org.eclipse.vex.core.provisional.dom.IAttribute;
+import org.eclipse.vex.core.provisional.dom.IComment;
 import org.eclipse.vex.core.provisional.dom.IDocument;
 import org.eclipse.vex.core.provisional.dom.IElement;
 import org.eclipse.vex.core.provisional.dom.INode;
 import org.eclipse.vex.core.provisional.dom.INodeVisitorWithResult;
 import org.eclipse.vex.core.provisional.dom.IParent;
+import org.eclipse.vex.core.provisional.dom.IProcessingInstruction;
 import org.eclipse.vex.core.provisional.dom.IText;
+import org.eclipse.vex.ui.internal.Messages;
 import org.eclipse.vex.ui.internal.PluginImages;
 import org.eclipse.vex.ui.internal.VexPlugin;
 import org.eclipse.vex.ui.internal.editor.EditorEventAdapter;
@@ -104,7 +107,7 @@ public class DefaultOutlineProvider implements IOutlineProvider, IToolBarContrib
 		return false;
 	}
 
-	public StyledString getOutlineLabel(final IElement element) {
+	public StyledString getOutlineLabel(final INode element) {
 		return ((OutlineLabelProvider) labelProvider).getElementLabel(element);
 	}
 
@@ -252,13 +255,16 @@ public class DefaultOutlineProvider implements IOutlineProvider, IToolBarContrib
 						});
 					}
 					content = XML.compressWhitespace(content, false, false, false);
-					if (content.length() > MAX_CONTENT_LENGTH - 3) {
-						content = content.substring(0, Math.min(MAX_CONTENT_LENGTH, content.length())) + "...";
-					}
+				} else if (outlineElement instanceof IProcessingInstruction) {
+					content = ((IProcessingInstruction) outlineElement).getText();
+					content = XML.compressWhitespace(content, false, false, false);
 				}
 			}
-
+			
 			if (content != null && content.length() > 0) {
+				if (content.length() > MAX_CONTENT_LENGTH - 3) {
+					content = content.substring(0, Math.min(MAX_CONTENT_LENGTH, content.length())) + "...";
+				}
 				label.append(" " + content, StyledString.DECORATIONS_STYLER);
 			}
 
@@ -273,12 +279,32 @@ public class DefaultOutlineProvider implements IOutlineProvider, IToolBarContrib
 				}
 				return PluginImages.get(PluginImages.IMG_XML_INLINE_ELEMENT);
 			}
+
+			@Override
+			public Image visit(final IComment comment) {
+				return PluginImages.get(PluginImages.IMG_XML_COMMENT);
+			}
+
+			@Override
+			public Image visit(final IProcessingInstruction pi) {
+				return PluginImages.get(PluginImages.IMG_XML_PROC_INSTR);
+			}
 		};
 
 		private final INodeVisitorWithResult<String> elementLabelVisitor = new BaseNodeVisitorWithResult<String>(EMPTY_STRING) {
 			@Override
 			public String visit(final IElement element) {
 				return element.getLocalName();
+			}
+
+			@Override
+			public String visit(final IComment comment) {
+				return Messages.getString("VexEditor.Path.Comment");
+			}
+
+			@Override
+			public String visit(final IProcessingInstruction pi) {
+				return pi.getTarget();
 			}
 		};
 	}

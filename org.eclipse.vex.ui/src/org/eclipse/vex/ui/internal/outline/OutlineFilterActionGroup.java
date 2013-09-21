@@ -23,6 +23,8 @@ import org.eclipse.vex.ui.internal.PluginImages;
 
 public class OutlineFilterActionGroup extends ActionGroup {
 	private static final String KEY_HIDEINLINEELEMENTS = "hideInlineElements"; //$NON-NLS-1$
+	private static final String KEY_SHOWCOMMENTS = "showComments"; //$NON-NLS-1$
+	private static final String KEY_SHOWPROCINSTR = "showProcInstr"; //$NON-NLS-1$
 
 	private final OutlineFilterAction[] filterActions;
 	private final OutlineFilter filter;
@@ -36,6 +38,14 @@ public class OutlineFilterActionGroup extends ActionGroup {
 		final OutlineFilterAction hideInlineElements = new OutlineFilterAction(this, OutlineFilter.FILTER_ID_INCLUDE_INLINE_ELEMENTS, KEY_HIDEINLINEELEMENTS, null);
 		hideInlineElements.setImageDescriptor(PluginImages.DESC_SHOW_INLINE_ELEMENTS);
 		actions.add(hideInlineElements);
+
+		final OutlineFilterAction showComments = new OutlineFilterAction(this, OutlineFilter.FILTER_ID_INCLUDE_COMMENTS, KEY_SHOWCOMMENTS, null);
+		showComments.setImageDescriptor(PluginImages.DESC_XML_COMMENT);
+		actions.add(showComments);
+
+		final OutlineFilterAction showProcInstr = new OutlineFilterAction(this, OutlineFilter.FILTER_ID_INCLUDE_PROC_INSTR, KEY_SHOWPROCINSTR, null);
+		showProcInstr.setImageDescriptor(PluginImages.DESC_XML_PROC_INSTR);
+		actions.add(showProcInstr);
 
 		filter = new OutlineFilter(styleSheet);
 		filterActions = actions.toArray(new OutlineFilterAction[actions.size()]);

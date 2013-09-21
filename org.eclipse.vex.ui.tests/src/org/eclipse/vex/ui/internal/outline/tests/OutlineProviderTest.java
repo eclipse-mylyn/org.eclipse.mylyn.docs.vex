@@ -25,10 +25,13 @@ import org.eclipse.vex.core.provisional.dom.IComment;
 import org.eclipse.vex.core.provisional.dom.IDocument;
 import org.eclipse.vex.core.provisional.dom.IDocumentFragment;
 import org.eclipse.vex.core.provisional.dom.IElement;
+import org.eclipse.vex.core.provisional.dom.INode;
+import org.eclipse.vex.ui.internal.Messages;
 import org.eclipse.vex.ui.internal.outline.DefaultOutlineProvider;
 import org.junit.Before;
 import org.junit.Test;
 
+@SuppressWarnings("restriction")
 public class OutlineProviderTest {
 
 	private DefaultOutlineProvider outlineProvider;
@@ -77,6 +80,40 @@ public class OutlineProviderTest {
 	}
 
 	@Test
+	public void testLabelProvider_CommentWithoutContent() throws Exception {
+		final IDocument doc = new Document(new QualifiedName(null, "root"));
+		final IDocumentFragment fragment = new XMLFragment("<parent><!--comment--></parent>").getDocumentFragment();
+		doc.insertFragment(2, fragment);
+		final Object[] outlineElements = outlineProvider.getContentProvider().getElements(doc);
+		assertEquals("Count of root elements", 1, outlineElements.length);
+
+		outlineProvider.setState(DefaultOutlineProvider.SHOW_ELEMENT_CONTENT, false);
+
+		final IElement parent = (IElement) outlineElements[0];
+		assertEquals("Should return local name", "parent", outlineProvider.getOutlineLabel(parent).getString());
+
+		final INode comment = (INode) outlineProvider.getContentProvider().getChildren(outlineElements[0])[0];
+		assertEquals("Should return 'Comment'", Messages.getString("VexEditor.Path.Comment"), outlineProvider.getOutlineLabel(comment).getString());
+	}
+
+	@Test
+	public void testLabelProvider_PiWithoutContent() throws Exception {
+		final IDocument doc = new Document(new QualifiedName(null, "root"));
+		final IDocumentFragment fragment = new XMLFragment("<parent><?target Test?></parent>").getDocumentFragment();
+		doc.insertFragment(2, fragment);
+		final Object[] outlineElements = outlineProvider.getContentProvider().getElements(doc);
+		assertEquals("Count of root elements", 1, outlineElements.length);
+
+		outlineProvider.setState(DefaultOutlineProvider.SHOW_ELEMENT_CONTENT, false);
+
+		final IElement parent = (IElement) outlineElements[0];
+		assertEquals("Should return local name", "parent", outlineProvider.getOutlineLabel(parent).getString());
+
+		final INode pi = (INode) outlineProvider.getContentProvider().getChildren(outlineElements[0])[0];
+		assertEquals("Should return target", "target", outlineProvider.getOutlineLabel(pi).getString());
+	}
+
+	@Test
 	public void testLabelProviderWithContent() throws Exception {
 		final IDocument doc = new Document(new QualifiedName(null, "root"));
 		final IDocumentFragment fragment = new XMLFragment("<parent><title>titleText</title></parent>").getDocumentFragment();
@@ -108,5 +145,22 @@ public class OutlineProviderTest {
 
 		final IElement para = (IElement) outlineProvider.getContentProvider().getChildren(outlineElements[0])[1];
 		assertTrue("Should trim element content", outlineProvider.getOutlineLabel(para).getString().endsWith("..."));
+	}
+
+	@Test
+	public void testLabelProvider_PiWithContent() throws Exception {
+		final IDocument doc = new Document(new QualifiedName(null, "root"));
+		final IDocumentFragment fragment = new XMLFragment("<parent><?target Test?></parent>").getDocumentFragment();
+		doc.insertFragment(2, fragment);
+		final Object[] outlineElements = outlineProvider.getContentProvider().getElements(doc);
+		assertEquals("Count of root elements", 1, outlineElements.length);
+
+		outlineProvider.setState(DefaultOutlineProvider.SHOW_ELEMENT_CONTENT, true);
+
+		final IElement parent = (IElement) outlineElements[0];
+		assertEquals("Should return local name", "parent", outlineProvider.getOutlineLabel(parent).getString());
+
+		final INode pi = (INode) outlineProvider.getContentProvider().getChildren(outlineElements[0])[0];
+		assertEquals("Should return target and data", "target Test", outlineProvider.getOutlineLabel(pi).getString());
 	}
 }
