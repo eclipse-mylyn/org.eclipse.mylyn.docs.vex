@@ -78,7 +78,7 @@ public class LayoutTestSuite extends TestCase {
 		suite.addTest(loadSuite("linebreaks.xml"));
 		suite.addTest(loadSuite("tables.xml"));
 		suite.addTest(loadSuite("simple-edit.xml"));
-		suite.addTest(loadSuite("processing-instruction.xml"));
+		suite.addTest(loadSuite("comment-processing-instr.xml"));
 		return suite;
 	}
 

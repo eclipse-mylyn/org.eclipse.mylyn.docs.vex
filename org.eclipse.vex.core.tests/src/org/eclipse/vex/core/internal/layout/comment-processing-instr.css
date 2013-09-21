@@ -13,6 +13,20 @@ vex|processing-instruction:after {
 	content: '?>';
 }
 
+vex|comment {
+	display: inherit;
+}
+
+vex|comment:before {
+	display: inline;
+	content: '12';
+}
+
+vex|comment:after {
+	display: inline;
+	content: '34';
+}
+
 root {
   display: block;
   font: 10pt monospaced;

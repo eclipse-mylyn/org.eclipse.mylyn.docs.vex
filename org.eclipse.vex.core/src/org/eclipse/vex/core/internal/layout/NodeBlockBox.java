@@ -1,12 +1,12 @@
 /*******************************************************************************
- * Copyright (c) 2013 Carsten Hiesserich and others.
+ * Copyright (c) 2012 Florian Thienel and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- *
+ * 
  * Contributors:
- * 		Carsten Hiesserich - initial API and implementation
+ * 		Florian Thienel - initial API and implementation
  *******************************************************************************/
 package org.eclipse.vex.core.internal.layout;
 
@@ -20,11 +20,11 @@ import org.eclipse.vex.core.provisional.dom.IElement;
 import org.eclipse.vex.core.provisional.dom.INode;
 
 /**
- * This class displays a ProcessingInstruction as a block element.
+ * This class displays special block elements like ProcessingInstructions or comments.
  */
-public class ProcessingInstructionBlockBox extends BlockElementBox {
+public class NodeBlockBox extends BlockElementBox {
 
-	public ProcessingInstructionBlockBox(final LayoutContext context, final BlockBox parent, final INode node) {
+	public NodeBlockBox(final LayoutContext context, final BlockBox parent, final INode node) {
 		super(context, parent, node);
 	}
 

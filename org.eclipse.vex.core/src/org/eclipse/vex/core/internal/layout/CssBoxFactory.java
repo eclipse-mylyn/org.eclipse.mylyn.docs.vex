@@ -26,9 +26,9 @@ public class CssBoxFactory implements BoxFactory {
 	public Box createBox(final LayoutContext context, final INode node, final BlockBox parentBox, final int containerWidth) {
 		final Styles styles = context.getStyleSheet().getStyles(node);
 		if (node instanceof IComment) {
-			return new CommentBlockBox(context, parentBox, node);
+			return new NodeBlockBox(context, parentBox, node);
 		} else if (node instanceof IProcessingInstruction) {
-			return new ProcessingInstructionBlockBox(context, parentBox, node);
+			return new NodeBlockBox(context, parentBox, node);
 		} else if (styles.getDisplay().equals(CSS.TABLE)) {
 			return new TableBox(context, parentBox, node);
 		} else if (styles.isBlock()) {

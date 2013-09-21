@@ -236,6 +236,7 @@ public interface CSS {
 
 	// Common element names
 	public static final String XML_PROCESSING_INSTRUCTION = "vex|processing-instruction";
+	public static final String XML_COMMENT = "vex|comment";
 
 	// Pseudo elements
 	public static final String PSEUDO_TARGET = "target";

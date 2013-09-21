@@ -36,8 +36,6 @@ import org.eclipse.vex.core.provisional.dom.IText;
  */
 public class InlineElementBox extends CompositeInlineBox {
 
-	private static final String COMMENT_AFTER_TEXT = "-->";
-	private static final String COMMENT_BEFORE_TEXT = "<!--";
 	private final INode node;
 	private final InlineBox[] children;
 	private InlineBox firstContentChild = null;
@@ -285,48 +283,43 @@ public class InlineElementBox extends CompositeInlineBox {
 
 						@Override
 						public void visit(final IComment comment) {
-							addPlaceholderBox(result, new PlaceholderBox(context, node, comment.getStartOffset() - node.getStartOffset()));
-							final List<Box> commentBoxes = new ArrayList<Box>();
-							commentBoxes.add(new StaticTextBox(context, comment, COMMENT_BEFORE_TEXT));
-							if (comment.getEndOffset() - comment.getStartOffset() > 1) {
-								commentBoxes.add(new DocumentTextBox(context, comment, comment.getStartOffset() + 1, comment.getEndOffset() - 1));
-							}
-							commentBoxes.add(new PlaceholderBox(context, comment, comment.getEndOffset() - comment.getStartOffset()));
-							commentBoxes.add(new StaticTextBox(context, comment, COMMENT_AFTER_TEXT));
-							final InlineBox child = new InlineElementBox(context, comment, commentBoxes.toArray(new InlineBox[commentBoxes.size()]));
-							addChildInlineBox(result, child);
+							createBoxWithBeforeAndAfterContent(comment);
 						};
 
 						@Override
 						public void visit(final IProcessingInstruction pi) {
-							addPlaceholderBox(result, new PlaceholderBox(context, node, pi.getStartOffset() - node.getStartOffset()));
-							final List<Box> piBoxes = new ArrayList<Box>();
-							final StyleSheet styleSheet = context.getStyleSheet();
-							final IElement before = styleSheet.getPseudoElement(pi, CSS.PSEUDO_BEFORE, true);
-
-							// :before content
-							if (before != null) {
-								piBoxes.addAll(LayoutUtils.createGeneratedInlines(context, before, StaticTextBox.START_MARKER));
-							}
-
-							if (pi.getEndOffset() - pi.getStartOffset() > 1) {
-								piBoxes.add(new DocumentTextBox(context, pi, pi.getStartOffset() + 1, pi.getEndOffset() - 1));
-							}
-							piBoxes.add(new PlaceholderBox(context, pi, pi.getEndOffset() - pi.getStartOffset()));
-
-							// :after content
-							final IElement after = styleSheet.getPseudoElement(pi, CSS.PSEUDO_AFTER, true);
-							if (after != null) {
-								piBoxes.addAll(LayoutUtils.createGeneratedInlines(context, after, StaticTextBox.END_MARKER));
-							}
-							final InlineBox child = new InlineElementBox(context, pi, piBoxes.toArray(new InlineBox[piBoxes.size()]));
-							addChildInlineBox(result, child);
+							createBoxWithBeforeAndAfterContent(pi);
 						};
 
 						@Override
 						public void visit(final IText text) {
 							final ContentRange boxRange = range.intersection(text.getRange());
 							final InlineBox child = new DocumentTextBox(context, node, boxRange.getStartOffset(), boxRange.getEndOffset());
+							addChildInlineBox(result, child);
+						}
+
+						private void createBoxWithBeforeAndAfterContent(final INode node) {
+							addPlaceholderBox(result, new PlaceholderBox(context, node, node.getStartOffset() - node.getStartOffset()));
+							final List<Box> boxes = new ArrayList<Box>();
+							final StyleSheet styleSheet = context.getStyleSheet();
+
+							// :before content
+							final IElement before = styleSheet.getPseudoElement(node, CSS.PSEUDO_BEFORE, true);
+							if (before != null) {
+								boxes.addAll(LayoutUtils.createGeneratedInlines(context, before, StaticTextBox.START_MARKER));
+							}
+
+							if (node.getEndOffset() - node.getStartOffset() > 1) {
+								boxes.add(new DocumentTextBox(context, node, node.getStartOffset() + 1, node.getEndOffset() - 1));
+							}
+							boxes.add(new PlaceholderBox(context, node, node.getEndOffset() - node.getStartOffset()));
+
+							// :after content
+							final IElement after = styleSheet.getPseudoElement(node, CSS.PSEUDO_AFTER, true);
+							if (after != null) {
+								boxes.addAll(LayoutUtils.createGeneratedInlines(context, after, StaticTextBox.END_MARKER));
+							}
+							final InlineBox child = new InlineElementBox(context, node, boxes.toArray(new InlineBox[boxes.size()]));
 							addChildInlineBox(result, child);
 						}
 					});

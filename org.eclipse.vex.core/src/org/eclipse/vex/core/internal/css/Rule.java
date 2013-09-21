@@ -233,6 +233,11 @@ public class Rule {
 			}
 
 			@Override
+			public String visit(final IComment comment) {
+				return CSS.XML_COMMENT;
+			}
+
+			@Override
 			public String visit(final IProcessingInstruction pi) {
 				return CSS.XML_PROCESSING_INSTRUCTION;
 			}

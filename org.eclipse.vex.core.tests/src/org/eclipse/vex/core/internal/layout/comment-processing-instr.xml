@@ -1,12 +1,39 @@
 <?xml version='1.0'?>
-<testcases css="processing-instruction.css">
+<testcases css="comment-processing-instr.css">
+
+	<test id="Comment before root" layoutWidth="100">
+		<doc><![CDATA[ <!--comment--><root></root> ]]></doc>
+		<result>
+			<box class="RootBox">		
+				<box class="BlockElementBox">	
+					<box class="NodeBlockBox">
+						<box class="ParagraphBox">
+							<box class="LineBox">
+								<box class="StaticTextBox" text="12"/>
+								<box class="DocumentTextBox" text="comment"/>
+								<box class="PlaceholderBox" />
+								<box class="StaticTextBox" text="34"/>
+							</box>
+						</box>
+					</box>
+					<box class="BlockElementBox" element="root">
+						<box class="ParagraphBox">
+							<box class="LineBox">
+								<box class="PlaceholderBox" />
+							</box>
+						</box>
+					</box>
+				</box>
+			</box>
+		</result>
+	</test>
 
 	<test id="PI before root" layoutWidth="100">
 		<doc><![CDATA[ <?target data?><root></root> ]]></doc>
 		<result>
 			<box class="RootBox">		
 				<box class="BlockElementBox">	
-					<box class="ProcessingInstructionBlockBox">
+					<box class="NodeBlockBox">
 						<box class="ParagraphBox">
 							<box class="LineBox">
 								<box class="StaticTextBox" text="&lt;?target "/>
@@ -34,7 +61,7 @@
 			<box class="RootBox">
 				<box class="BlockElementBox">
 					<box class="BlockElementBox" element="root">
-						<box class="ProcessingInstructionBlockBox">
+						<box class="NodeBlockBox">
 							<box class="ParagraphBox">
 								<box class="LineBox">
 									<box class="StaticTextBox" text="&lt;?target "/>
@@ -63,7 +90,7 @@
 									<box class="PlaceholderBox" />
 								</box>
 							</box>
-							<box class="ProcessingInstructionBlockBox">
+							<box class="NodeBlockBox">
 								<box class="ParagraphBox">
 									<box class="LineBox">
 										<box class="StaticTextBox" text="&lt;?target "/>
@@ -78,6 +105,40 @@
 									<box class="DocumentTextBox" text="after"/>
 									<box class="PlaceholderBox" />
 								</box>
+							</box>
+						</box>
+					</box>
+				</box>
+			</box>
+		</result>
+	</test>
+
+	<test id="Comment in inline" layoutWidth="200">
+		<doc><![CDATA[ <root><p><b>before<!--comment-->after</b></p></root> ]]></doc>
+		<result>
+			<box class="RootBox">
+				<box class="BlockElementBox">
+					<box class="BlockElementBox" element="root">
+						<box class="BlockElementBox">
+							<box class="ParagraphBox">
+									<box class="LineBox">
+										<box class="PlaceholderBox" />
+										<box class="InlineElementBox">
+											<box class="DrawableBox" />
+											<box class="DocumentTextBox" text="before"/>
+											<box class="PlaceholderBox" />
+											<box class="InlineElementBox">
+												<box class="StaticTextBox" text="12"/>
+												<box class="DocumentTextBox" text="comment"/>
+												<box class="PlaceholderBox" />
+												<box class="StaticTextBox" text="34"/>
+											</box>
+											<box class="DocumentTextBox" text="after"/>
+											<box class="PlaceholderBox" />
+											<box class="DrawableBox" />
+										</box>
+										<box class="PlaceholderBox" />
+									</box>
 							</box>
 						</box>
 					</box>
