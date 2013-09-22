@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     John Krasnay - initial API and implementation
  *     Carsten Hiesserich - removed 'none' from valid values
@@ -34,7 +34,7 @@ public class DisplayProperty extends AbstractProperty {
 			return parentStyles.getDisplay();
 		} else {
 			// not specified or other unknown value
-			return CSS.INLINE;
+			return CSS.BLOCK;
 		}
 	}
 

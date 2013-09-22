@@ -11,8 +11,8 @@
 
 /*
 This file defines a set of core styles that are always added when creating a StyleSheet.
-*/ 
- 
+*/
+
 vex|processing-instruction {
 	display: inherit;
 	color: blue;
@@ -32,7 +32,7 @@ vex|processing-instruction:after {
 
 vex|comment {
 	display: inherit;
-	color: green;	
+	color: green;
 }
 
 vex|comment:before {
