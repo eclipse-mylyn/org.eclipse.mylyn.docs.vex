@@ -4,7 +4,7 @@
 <section>
 	<?pi position=begin?>
 	<title>Testdocument with Processing Instructions</title>
-	<para>Before PI <?pi position=inline?> After PI</para>
+	<para>Before PI <?pi position=inline    A very long data with whitespace      end?> After PI</para>
 </section>
 <?pi position=afterRoot?>
 <?pi &lt;test&gt;?>

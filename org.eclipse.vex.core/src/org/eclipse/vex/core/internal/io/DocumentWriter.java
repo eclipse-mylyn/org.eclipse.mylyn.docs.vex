@@ -395,9 +395,8 @@ public class DocumentWriter {
 
 			@Override
 			public void visit(final IProcessingInstruction pi) {
-				wrapper.addNoSplit("<?");
-				wrapper.add(pi.getTarget() + " " + node.getText());
-				wrapper.addNoSplit("?>");
+				// Text in PI's is written as is with no wrapping
+				wrapper.addNoSplit("<?" + pi.getTarget() + " " + node.getText() + "?>");
 			}
 
 			@Override

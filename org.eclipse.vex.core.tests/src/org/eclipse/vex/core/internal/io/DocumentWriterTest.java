@@ -94,6 +94,7 @@ public class DocumentWriterTest {
 		final IDocument expectedDocument = readDocument(new InputSource(documentUrl.toString()));
 
 		final DocumentWriter documentWriter = new DocumentWriter();
+		documentWriter.setWrapColumn(30); // Set a small value to detect wrapping problems
 		documentWriter.setWhitespacePolicy(new CssWhitespacePolicy(styleSheet));
 		final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
 		documentWriter.write(expectedDocument, buffer);
