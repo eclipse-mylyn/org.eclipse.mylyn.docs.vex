@@ -717,6 +717,7 @@ revhistory {
 revhistory:before {
 	content: "Revision History:";
 	font-weight: bold;
+	color: white;
 }
 
 revision {
@@ -736,7 +737,7 @@ revremark,revdescription {
 	display: table-cell;
 }
 
-revision>author,revision>authorinitials {
+revision>author,revision>authorinitials,revision>date {
 	display: table-cell;
 }
 
