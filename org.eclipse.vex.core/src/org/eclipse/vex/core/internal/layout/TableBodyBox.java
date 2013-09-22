@@ -55,6 +55,12 @@ public class TableBodyBox extends AbstractBlockBox {
 		return children;
 	}
 
+	// We need this override because this is an anonymous box, but it has content
+	@Override
+	public boolean hasContent() {
+		return getEndOffset() - getStartOffset() > 1;
+	}
+
 	/**
 	 * Return the insets of the parent box.
 	 */

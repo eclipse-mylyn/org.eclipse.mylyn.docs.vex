@@ -83,6 +83,12 @@ public class TableRowGroupBox extends AbstractBlockBox {
 		return children;
 	}
 
+	// We need this override because this is an anonymous box, but it has content
+	@Override
+	public boolean hasContent() {
+		return getEndOffset() - getStartOffset() > 1;
+	}
+
 	@Override
 	public Insets getInsets(final LayoutContext context, final int containerWidth) {
 		return Insets.ZERO_INSETS;

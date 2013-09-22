@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2008 John Krasnay and others.
+ * Copyright (c) 2004, 2013 John Krasnay and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,6 +8,7 @@
  * Contributors:
  *     John Krasnay - initial API and implementation
  *     Igor Jacy Lino Campista - Java 5 warnings fixed (bug 311325)
+ *     Carsten Hiesserich - added support for before and after pseudo elements
  *******************************************************************************/
 package org.eclipse.vex.core.internal.layout;
 
@@ -52,7 +53,17 @@ public class TableBox extends AbstractBlockBox {
 		// each table-column-group gets a TableColumnGroupBox
 		// runs of others get TableBodyBox
 
+		final INode node = getNode();
+		final int width = getWidth();
 		final List<Box> children = new ArrayList<Box>();
+		final StyleSheet styleSheet = context.getStyleSheet();
+
+		// :before content
+		final IElement before = styleSheet.getPseudoElement(node, CSS.PSEUDO_BEFORE, true);
+		if (before != null) {
+			// before element of tables is always displayed as block
+			children.add(new BlockPseudoElementBox(context, before, this, width));
+		}
 
 		iterateChildrenByDisplayStyle(context.getStyleSheet(), captionOrColumnStyles, new ElementOrRangeCallback() {
 			public void onElement(final IElement child, final String displayStyle) {
@@ -63,6 +74,12 @@ public class TableBox extends AbstractBlockBox {
 				children.add(new TableBodyBox(context, TableBox.this, startOffset, endOffset));
 			}
 		});
+
+		// :after content
+		final IElement after = styleSheet.getPseudoElement(node, CSS.PSEUDO_AFTER, true);
+		if (after != null) {
+			children.add(new BlockPseudoElementBox(context, after, this, width));
+		}
 
 		return children;
 	}
@@ -113,6 +130,8 @@ public class TableBox extends AbstractBlockBox {
 		if (skipPaint(context, x, y)) {
 			return;
 		}
+
+		drawBox(context, getNode(), x, y, getWidth(), true);
 
 		paintChildren(context, x, y);
 

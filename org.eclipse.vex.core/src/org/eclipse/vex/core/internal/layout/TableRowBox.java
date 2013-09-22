@@ -55,6 +55,12 @@ public class TableRowBox extends AbstractBlockBox {
 		return children;
 	}
 
+	// We need this override because this may be an anonymous box, but it has content
+	@Override
+	public boolean hasContent() {
+		return getEndOffset() - getStartOffset() > 1;
+	}
+
 	/**
 	 * Override drawBox to do nothing. Table rows have no borders in border-collapse:separate mode.
 	 */
