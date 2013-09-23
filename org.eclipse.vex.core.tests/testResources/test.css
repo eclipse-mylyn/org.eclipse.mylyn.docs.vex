@@ -15,6 +15,10 @@ block {
   display: block;
 }
 
+inline {
+	display: inline;
+}
+
 section {
   display: block;
 }
@@ -33,6 +37,17 @@ pre {
   white-space: pre;
 }
 
+b {
+	display: inline;
+}
+
+i {
+	display: inline;
+}
+
+a {
+	display: inline;
+}
 
 /* Styles for positioning tests */
 root {
