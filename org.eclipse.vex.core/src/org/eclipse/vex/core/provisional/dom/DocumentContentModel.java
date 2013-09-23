@@ -63,6 +63,14 @@ public class DocumentContentModel implements EntityResolver {
 		return schemaId;
 	}
 
+	public String getPublicId() {
+		return publicId;
+	}
+
+	public String getSystemId() {
+		return systemId;
+	}
+
 	public boolean isDtdAssigned() {
 		return publicId != null || systemId != null;
 	}

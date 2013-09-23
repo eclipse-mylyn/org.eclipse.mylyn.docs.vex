@@ -144,8 +144,9 @@ public class DocumentBuilder implements ContentHandler, LexicalHandler {
 		}
 
 		document = new Document(content, rootElement);
-		document.setPublicID(dtdPublicID);
-		document.setSystemID(dtdSystemID);
+		final DocumentContentModel documentContentModel = validator.getDocumentContentModel();
+		document.setPublicID(documentContentModel.getPublicId());
+		document.setSystemID(documentContentModel.getSystemId());
 
 		for (final Node node : nodesBeforeRoot) {
 			((Document) document).insertChildBefore(document.getRootElement(), node);

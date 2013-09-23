@@ -41,10 +41,11 @@ public class VexDocumentContentModel extends DocumentContentModel {
 		documentType = getRegisteredDocumentType();
 		if (documentType == null) {
 			documentType = queryUserForDocumentType();
-		}
-
-		if (documentType == null) {
-			throw new NoRegisteredDoctypeException(mainDocumentTypeIdentifier);
+			if (documentType == null) {
+				throw new NoRegisteredDoctypeException(mainDocumentTypeIdentifier);
+			}
+			// Reinitialize after the user selected a doctype
+			super.initialize(baseUri, documentType.getPublicId(), documentType.getSystemId(), rootElement);
 		}
 
 		// TODO verify documentType URL???
