@@ -198,8 +198,8 @@ public class DocumentReaderTest {
 
 		final IElement para = (IElement) rootChildren.next();
 		final IProcessingInstruction pi5 = (IProcessingInstruction) para.children().get(1);
-		assertEquals("position=inline", pi5.getText());
-		assertEquals("Before PI position=inline After PI", para.getText());
+		assertEquals("position=inline    A very long data with whitespace      end", pi5.getText());
+		assertEquals("Before PI position=inline    A very long data with whitespace      end After PI", para.getText());
 
 		assertFalse(rootChildren.hasNext());
 	}
