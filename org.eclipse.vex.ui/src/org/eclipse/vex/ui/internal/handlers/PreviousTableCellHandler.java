@@ -26,7 +26,7 @@ public class PreviousTableCellHandler extends AbstractNavigateTableCellHandler {
 	protected void navigate(final VexWidget widget, final IElement tableRow, final int offset) {
 		IElement siblingCell = null;
 		for (final IElement cell : tableRow.childElements()) {
-			if (cell.getStartOffset() >= offset) {
+			if (cell.getEndOffset() >= offset) {
 				break;
 			}
 			siblingCell = cell;
@@ -34,14 +34,13 @@ public class PreviousTableCellHandler extends AbstractNavigateTableCellHandler {
 
 		// in this row
 		if (siblingCell != null) {
-			widget.moveTo(siblingCell.getStartOffset());
-			widget.moveTo(siblingCell.getEndOffset(), true);
+			widget.moveTo(siblingCell.getStartOffset() + 1);
 			return;
 		}
 
 		IElement siblingRow = null;
 		for (final IElement row : tableRow.getParentElement().childElements()) {
-			if (row.getStartOffset() >= offset) {
+			if (row.getEndOffset() >= offset) {
 				break;
 			}
 			siblingRow = row;
@@ -51,8 +50,7 @@ public class PreviousTableCellHandler extends AbstractNavigateTableCellHandler {
 		if (siblingRow != null) {
 			final IElement lastCell = lastCellOf(siblingRow);
 			if (lastCell != null) {
-				widget.moveTo(lastCell.getStartOffset());
-				widget.moveTo(lastCell.getEndOffset(), true);
+				widget.moveTo(lastCell.getStartOffset() + 1);
 			}
 		}
 	}

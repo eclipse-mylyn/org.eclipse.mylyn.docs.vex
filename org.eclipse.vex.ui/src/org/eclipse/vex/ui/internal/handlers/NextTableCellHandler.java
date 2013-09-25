@@ -28,8 +28,7 @@ public class NextTableCellHandler extends AbstractNavigateTableCellHandler {
 		// in this row
 		for (final IElement cell : tableRow.childElements()) {
 			if (cell.getStartOffset() > offset) {
-				widget.moveTo(cell.getStartOffset());
-				widget.moveTo(cell.getEndOffset(), true);
+				widget.moveTo(cell.getStartOffset() + 1);
 				return;
 			}
 		}
@@ -40,8 +39,7 @@ public class NextTableCellHandler extends AbstractNavigateTableCellHandler {
 				final IElement firstCell = firstCellOf(siblingRow);
 
 				if (firstCell != null) {
-					widget.moveTo(firstCell.getStartOffset());
-					widget.moveTo(firstCell.getEndOffset(), true);
+					widget.moveTo(firstCell.getStartOffset() + 1);
 				} else {
 					System.out.println("TODO - dup row into new empty row");
 				}
