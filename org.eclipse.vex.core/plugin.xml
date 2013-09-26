@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   <extension
+         point="org.eclipse.wst.xml.core.catalogContributions">
+      <catalogContribution
+            id="XInclude">
+         <uri
+               name="http://www.w3.org/2001/XInclude"
+               uri="xsd/XInclude.xsd">
+         </uri>
+         <system
+               systemId="http://www.w3.org/2001/XInclude.xsd"
+               uri="xsd/XInclude.xsd">
+         </system>
+      </catalogContribution>
+   </extension>
+
+</plugin>
