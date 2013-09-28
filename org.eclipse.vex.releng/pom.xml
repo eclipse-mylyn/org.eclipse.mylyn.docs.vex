@@ -42,8 +42,8 @@
 
 	<repositories>
 		<repository>
-			<id>kepler</id>
-			<url>http://download.eclipse.org/releases/kepler/</url>
+			<id>juno</id>
+			<url>http://download.eclipse.org/releases/juno/</url>
 			<layout>p2</layout>
 		</repository>
 		<repository>
