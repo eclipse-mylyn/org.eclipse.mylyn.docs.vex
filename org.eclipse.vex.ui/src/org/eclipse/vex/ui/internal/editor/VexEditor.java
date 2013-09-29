@@ -119,7 +119,7 @@ public class VexEditor extends EditorPart {
 	private final VexPreferences preferences;
 
 	private Composite parentControl;
-	private Label loadingLabel;
+	private Text loadingLabel;
 
 	private boolean loaded;
 	private DocumentType doctype;
