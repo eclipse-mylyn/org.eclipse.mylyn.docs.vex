@@ -143,7 +143,9 @@ public class StyleSheet {
 	public void flushAllStyles(final IDocument document) {
 		for (final Iterator<Map.Entry<INode, Styles>> iter = styleMap.entrySet().iterator(); iter.hasNext();) {
 			final Map.Entry<INode, Styles> entry = iter.next();
-			if (entry.getKey().getDocument().equals(document)) {
+			final IDocument nodeDoc = entry.getKey().getDocument();
+			if (nodeDoc == null || document.equals(nodeDoc)) {
+				// The style is also flushed if the node is not attached to an document any more.
 				iter.remove();
 			}
 		}
