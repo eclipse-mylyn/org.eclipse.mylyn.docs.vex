@@ -18,6 +18,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.net.URI;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -47,7 +49,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorSite;
@@ -119,7 +121,7 @@ public class VexEditor extends EditorPart {
 	private final VexPreferences preferences;
 
 	private Composite parentControl;
-	private Label loadingLabel;
+	private Text loadingLabel;
 
 	private boolean loaded;
 	private DocumentType doctype;
@@ -543,16 +545,54 @@ public class VexEditor extends EditorPart {
 		vexEditorListeners.fireEvent("styleChanged", new VexEditorEvent(this)); //$NON-NLS-1$
 	}
 
-	private void showLabel(final String message) {
+	/**
+	 * Dispose the VexWidget and display a message instead.
+	 * 
+	 * @param message
+	 *            The message to display.
+	 * @param ex
+	 *            The Exception to display
+	 */
+	private void showLabel(final String message, final Exception ex) {
 		if (loadingLabel == null) {
 			if (vexWidget != null) {
 				vexWidget.dispose();
 				vexWidget = null;
 			}
-			loadingLabel = new Label(parentControl, SWT.WRAP);
+			final GridLayout layout = new GridLayout();
+			layout.numColumns = 1;
+			layout.verticalSpacing = 0;
+			layout.marginHeight = 0;
+			layout.marginWidth = 0;
+			parentControl.setLayout(layout);
+
+			loadingLabel = new Text(parentControl, SWT.WRAP | SWT.V_SCROLL);
+			loadingLabel.setEditable(false);
+			final GridData gd = new GridData();
+			gd.grabExcessHorizontalSpace = true;
+			gd.grabExcessVerticalSpace = true;
+			gd.horizontalAlignment = GridData.FILL;
+			gd.verticalAlignment = GridData.FILL;
+			loadingLabel.setLayoutData(gd);
 		}
-		loadingLabel.setText(message);
+		final StringWriter sw = new StringWriter();
+		sw.append(message);
+		if (ex != null) {
+			sw.append("\n\n");
+			ex.printStackTrace(new PrintWriter(sw));
+		}
+		loadingLabel.setText(sw.toString());
 		parentControl.layout(true);
+	}
+
+	/**
+	 * Dispose the VexWidget and display a message instead.
+	 * 
+	 * @param message
+	 *            The message to display.
+	 */
+	private void showLabel(final String message) {
+		showLabel(message, null);
 	}
 
 	private void showVexWidget() {
