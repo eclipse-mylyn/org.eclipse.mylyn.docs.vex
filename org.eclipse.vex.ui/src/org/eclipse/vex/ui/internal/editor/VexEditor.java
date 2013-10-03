@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     John Krasnay - initial API and implementation
  *     Igor Jacy Lino Campista - Java 5 warnings fixed (bug 311325)
@@ -444,7 +444,7 @@ public class VexEditor extends EditorPart {
 
 			VexPlugin.getDefault().log(IStatus.ERROR, msg, ex);
 
-			showLabel(msg);
+			showLabel(msg, ex);
 		}
 	}
 
@@ -709,7 +709,7 @@ public class VexEditor extends EditorPart {
 				new Object[] { getEditorInput().getName() });
 
 		final MessageDialog dlg = new MessageDialog(getSite().getShell(), Messages.getString("VexEditor.docDeleted.title"), //$NON-NLS-1$
-				null, message, MessageDialog.QUESTION, new String[] { Messages.getString("VexEditor.docDeleted.discard"), //$NON-NLS-1$ 
+				null, message, MessageDialog.QUESTION, new String[] { Messages.getString("VexEditor.docDeleted.discard"), //$NON-NLS-1$
 						Messages.getString("VexEditor.docDeleted.save") }, //$NON-NLS-1$
 				1);
 

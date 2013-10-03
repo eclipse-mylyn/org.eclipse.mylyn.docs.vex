@@ -9,7 +9,7 @@
  *     John Krasnay - initial API and implementation
  *     Florian Thienel - bug 306639 - remove serializability from StyleSheet
  *                       and dependend classes
- *     Carsten Hiesserich - bug 408501 - keep whitespace when copying fragments 
+ *     Carsten Hiesserich - bug 408501 - keep whitespace when copying fragments
  *     						into pre elements
  *******************************************************************************/
 package org.eclipse.vex.core.tests;
@@ -17,6 +17,7 @@ package org.eclipse.vex.core.tests;
 import org.eclipse.vex.core.internal.core.AfterNIteratorTest;
 import org.eclipse.vex.core.internal.core.FilterIteratorTest;
 import org.eclipse.vex.core.internal.core.FirstNIteratorTest;
+import org.eclipse.vex.core.internal.core.XmlTest;
 import org.eclipse.vex.core.internal.css.BatikBehaviorTest;
 import org.eclipse.vex.core.internal.css.CssTest;
 import org.eclipse.vex.core.internal.css.PropertyTest;
@@ -74,7 +75,7 @@ import org.junit.runners.Suite;
 		DTDValidatorTest.class, GapContentTest.class, SpaceNormalizerTest.class, TextWrapperTest.class, TestBlockElementBox.class, TestBlocksInInlines.class, TestDocumentTextBox.class,
 		TestStaticTextBox.class, TableLayoutTest.class, LayoutTestSuite.class, ListenerListTest.class, DocumentFragmentTransferTest.class, XMLFragmentTest.class, VexWidgetTest.class,
 		L2SimpleEditingTest.class, L2SelectionTest.class, L2CommentEditingTest.class, L2ProcessingInstructionEditingTest.class, L2XmlInsertionTest.class, DocumentEventTest.class,
-		L2StyleSheetTest.class
+		L2StyleSheetTest.class, XmlTest.class
 
 })
 public class VEXCoreTestSuite {
