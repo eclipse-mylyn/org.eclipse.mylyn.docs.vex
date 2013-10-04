@@ -95,7 +95,9 @@ public class TableRowBox extends AbstractBlockBox {
 			final Box child = children[i];
 
 			if (!child.hasContent()) {
-				continue; // TODO can we really have generated table cells?
+				// We end here if the child is a generated TableCellBox with no childs
+				// This happens when there are nested TABLE-ROW-GROUP's
+				continue;
 			}
 
 			if (offset < child.getStartOffset()) {

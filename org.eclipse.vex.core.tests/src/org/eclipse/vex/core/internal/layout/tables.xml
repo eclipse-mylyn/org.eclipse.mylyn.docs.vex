@@ -571,5 +571,37 @@
 		</result>
 	</test>
 
+	<test id="Table w/ body in row group" layoutWidth="100">
+		<doc><![CDATA[ <root><table><tgroup><thead></thead><tbody><tr></tr></tbody></tgroup></table></root> ]]></doc>
+		<result>
+			<box class="RootBox">
+				<box class="BlockElementBox">
+					<box class="BlockElementBox" element="root">
+						<box class="TableBox" element="table">
+							<box class="TableBodyBox">
+								<box class="TableRowGroupBox" element="tgroup">
+										<box class="TableRowBox">
+											<box class="TableCellBox">
+												<box class="TableBox">
+													<box class="TableBodyBox">
+														<box class="TableRowGroupBox" element="thead">
+														</box>
+														<box class="TableRowGroupBox" element="tbody">
+															<box class="TableRowBox">
+						
+															</box>
+														</box>
+													</box>
+												</box>
+											</box>
+										</box>
+								</box>
+							</box>
+						</box>
+					</box>
+				</box>
+			</box>
+		</result>
+	</test>
 
 </testcases>

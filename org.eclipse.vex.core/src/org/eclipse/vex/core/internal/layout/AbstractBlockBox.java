@@ -406,7 +406,7 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 	@Override
 	public boolean hasContent() {
 		if (isAnonymous()) {
-			return false;
+			return hasChildren();
 		}
 		return getNode().isAssociated();
 	}
@@ -973,9 +973,10 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 					return true;
 				}
 
-				// parent of 'table-row-group', table-header-group'
-				// or 'table-footer-group': 'table'
-				if ((style.equals(CSS.TABLE_ROW_GROUP) || style.equals(CSS.TABLE_HEADER_GROUP) || style.equals(CSS.TABLE_FOOTER_GROUP)) && !parentStyle.equals(CSS.TABLE)) {
+				// parent of 'table-row-group', table-header-group',
+				// or 'table-footer-group': 'table', 'table-row-group'
+				if ((style.equals(CSS.TABLE_ROW_GROUP) || style.equals(CSS.TABLE_HEADER_GROUP) || style.equals(CSS.TABLE_FOOTER_GROUP))
+						&& !(parentStyle.equals(CSS.TABLE) || parentStyle.equals(CSS.TABLE_ROW_GROUP))) {
 					return true;
 				}
 

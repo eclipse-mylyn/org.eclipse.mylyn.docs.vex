@@ -699,7 +699,7 @@ public class VexEditor extends EditorPart {
 
 		final IDocumentProvider provider = getDocumentProvider();
 
-		IValidator validator;
+		IValidator validator = null;
 		VexDocumentContentModel documentContentModel;
 
 		try {
@@ -707,9 +707,13 @@ public class VexEditor extends EditorPart {
 				vexEditorListeners.fireEvent("documentUnloaded", new VexEditorEvent(this)); //$NON-NLS-1$
 			}
 			if (document != null) {
-				validator = document.getValidator();
-				documentContentModel = (VexDocumentContentModel) validator.getDocumentContentModel();
 				document.removeDocumentListener(documentListener);
+				validator = document.getValidator();
+			}
+
+			// Reuse the validator from current document
+			if (validator != null) {
+				documentContentModel = (VexDocumentContentModel) validator.getDocumentContentModel();
 			} else {
 				documentContentModel = new VexDocumentContentModel(getSite().getShell());
 				validator = new WTPVEXValidator(documentContentModel);
@@ -811,9 +815,7 @@ public class VexEditor extends EditorPart {
 
 		} catch (final Exception ex) {
 			final String msg = MessageFormat.format(Messages.getString("VexEditor.unexpectedError"), getEditorInput().getName()); //$NON-NLS-1$
-
 			VexPlugin.getDefault().log(IStatus.ERROR, msg, ex);
-
 			showLabel(msg, ex);
 		}
 

@@ -191,11 +191,6 @@ public class TableLayoutTest {
 	}
 
 	@Test
-	public void testInvalidNesting4() {
-		test("trg", "trg");
-	}
-
-	@Test
 	public void testInvalidNesting5() {
 		test("tr", "tfg");
 	}
