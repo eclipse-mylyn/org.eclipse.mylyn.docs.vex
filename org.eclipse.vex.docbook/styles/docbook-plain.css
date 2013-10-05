@@ -217,6 +217,9 @@ citetitle {
 
 colspec {
 	display: inline;
+	content: 'colspec';
+	font-size: smaller;
+	background-color: #B0B0B0;
 }
 
 command {

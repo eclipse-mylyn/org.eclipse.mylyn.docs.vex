@@ -131,6 +131,13 @@ public class Styles {
 	}
 
 	/**
+	 * @return <code>true</code> if the stylesheet defined content for this element.
+	 */
+	public boolean isContentDefined() {
+		return contentLexicalUnits.size() > 0;
+	}
+
+	/**
 	 * Returns a <code>List</code> of <code>ContentPart</code> objects representing the <code>content</code> property.<br />
 	 * The content is parsed on every access to get the actual values for attributes. Do not try to get the content via
 	 * the {@link #get(String)} method!
