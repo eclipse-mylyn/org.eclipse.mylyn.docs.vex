@@ -604,4 +604,89 @@
 		</result>
 	</test>
 
+	<test id="Comment at end of table row" layoutWidth="400">
+		<doc><![CDATA[ <root><table><tr><td></td><!--Comment--></tr></table></root> ]]></doc>
+		<result>
+			<box class="RootBox">
+				<box class="BlockElementBox">
+					<box class="BlockElementBox" element="root">
+						<box class="TableBox" element="table">
+							<box class="TableBodyBox">
+								<box class="TableRowGroupBox">
+									<box class="TableRowBox">
+										<box class="TableCellBox">
+											<box class="ParagraphBox">
+												<box class="LineBox">
+													<box class="PlaceholderBox" />
+												</box>
+											</box>
+										</box>
+										<box class="TableCellBox">
+											<box class="NodeBlockBox">
+												<box class="ParagraphBox">
+													<box class="LineBox">
+														<box class="StaticTextBox" />
+														<box class="DocumentTextBox" />
+														<box class="PlaceholderBox" />
+														<box class="StaticTextBox" />
+													</box>
+												</box>
+											</box>
+										</box>
+									</box>
+								</box>
+							</box>
+						</box>
+					</box>
+				</box>
+			</box>
+		</result>
+	</test>
+
+	<test id="Comment in table row" layoutWidth="400">
+		<doc><![CDATA[ <root><table><tr><td></td><!--Comment--><td></td></tr></table></root> ]]></doc>
+		<result>
+			<box class="RootBox">
+				<box class="BlockElementBox">
+					<box class="BlockElementBox" element="root">
+						<box class="TableBox" element="table">
+							<box class="TableBodyBox">
+								<box class="TableRowGroupBox">
+									<box class="TableRowBox">
+										<box class="TableCellBox">
+											<box class="ParagraphBox">
+												<box class="LineBox">
+													<box class="PlaceholderBox" />
+												</box>
+											</box>
+										</box>
+										<box class="TableCellBox">
+											<box class="NodeBlockBox">
+												<box class="ParagraphBox">
+													<box class="LineBox">
+														<box class="StaticTextBox" />
+														<box class="DocumentTextBox" />
+														<box class="PlaceholderBox" />
+														<box class="StaticTextBox" />
+													</box>
+												</box>
+											</box>
+										</box>
+										<box class="TableCellBox">
+											<box class="ParagraphBox">
+												<box class="LineBox">
+													<box class="PlaceholderBox" />
+												</box>
+											</box>
+										</box>
+									</box>
+								</box>
+							</box>
+						</box>
+					</box>
+				</box>
+			</box>
+		</result>
+	</test>
+
 </testcases>

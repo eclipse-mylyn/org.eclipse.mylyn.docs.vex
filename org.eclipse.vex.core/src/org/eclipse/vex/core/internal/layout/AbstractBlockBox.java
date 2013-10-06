@@ -788,7 +788,7 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 		public Object next() {
 			if (!pushStack.isEmpty()) {
 				return pushStack.removeLast();
-			} else if (startOffset == endOffset) {
+			} else if (startOffset >= endOffset) {
 				return null;
 			} else {
 				final INode blockNode = findNextBlockNode(context, parent, startOffset, endOffset);
