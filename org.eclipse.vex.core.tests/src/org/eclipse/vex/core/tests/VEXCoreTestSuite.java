@@ -49,6 +49,7 @@ import org.eclipse.vex.core.internal.io.NamespaceStackTest;
 import org.eclipse.vex.core.internal.io.SpaceNormalizerTest;
 import org.eclipse.vex.core.internal.io.TextWrapperTest;
 import org.eclipse.vex.core.internal.io.XMLFragmentTest;
+import org.eclipse.vex.core.internal.layout.FormattingPortionIteratorTest;
 import org.eclipse.vex.core.internal.layout.ImageBoxTest;
 import org.eclipse.vex.core.internal.layout.LayoutTestSuite;
 import org.eclipse.vex.core.internal.layout.TableLayoutTest;
@@ -77,7 +78,7 @@ import org.junit.runners.Suite;
 		ImageBoxTest.class, DocumentWriterTest.class, DTDValidatorTest.class, GapContentTest.class, SpaceNormalizerTest.class, TextWrapperTest.class, TestBlockElementBox.class,
 		TestBlocksInInlines.class, TestDocumentTextBox.class, TestStaticTextBox.class, TableLayoutTest.class, LayoutTestSuite.class, ListenerListTest.class, DocumentFragmentTransferTest.class,
 		XMLFragmentTest.class, VexWidgetTest.class, L2SimpleEditingTest.class, L2SelectionTest.class, L2CommentEditingTest.class, L2ProcessingInstructionEditingTest.class, L2XmlInsertionTest.class,
-		DocumentEventTest.class, L2StyleSheetTest.class, XmlTest.class
+		DocumentEventTest.class, L2StyleSheetTest.class, XmlTest.class, FormattingPortionIteratorTest.class
 
 })
 public class VEXCoreTestSuite {
