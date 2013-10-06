@@ -48,7 +48,7 @@ public class NextTableCellHandler extends AbstractNavigateTableCellHandler {
 		}
 
 		// We didn't find a "next row", so let's dup the current one
-		VexHandlerUtil.duplicateTableRow(widget, tableRow);
+		VexHandlerUtil.duplicateTableRow(widget, tableRow, false);
 	}
 
 	private static IElement firstCellOf(final IElement tableRow) {

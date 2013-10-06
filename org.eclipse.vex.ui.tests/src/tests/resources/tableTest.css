@@ -1,0 +1,12 @@
+/* Styles for Table tests */
+root   {display:block}
+inline {display:inline}
+table  {display:table}
+tcap   {display:table-caption}
+td     {display:table-cell}
+tcol     {display:table-column}
+tcg    {display:table-column-group}
+tfg    {display:table-footer-group}
+thg    {display:table-header-group}
+tr     {display:table-row}
+trg    {display:table-row-group}
