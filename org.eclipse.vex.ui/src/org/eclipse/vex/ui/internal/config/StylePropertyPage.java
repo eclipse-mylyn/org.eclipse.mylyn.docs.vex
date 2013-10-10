@@ -195,7 +195,7 @@ public class StylePropertyPage extends PropertyPage {
 		Arrays.sort(documentTypes);
 		for (final DocumentType documentType : documentTypes) {
 			if (selectedDoctypes.contains(documentType.getName())) {
-				style.addDocumentType(documentType.getPublicId());
+				style.addDocumentType(documentType.getSimpleId());
 			}
 		}
 

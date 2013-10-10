@@ -74,7 +74,7 @@ public class NewDocumentWizard extends BasicNewResourceWizard {
 		try {
 			final IDocument doc = createDocument(typePage.getDocumentType(), typePage.getRootElementName());
 
-			final Style style = VexPlugin.getDefault().getPreferences().getPreferredStyle(typePage.getDocumentType().getPublicId());
+			final Style style = VexPlugin.getDefault().getPreferences().getPreferredStyle(typePage.getDocumentType());
 			if (style == null) {
 				MessageDialog.openError(getShell(), Messages.getString("NewDocumentWizard.noStyles.title"), Messages.getString("NewDocumentWizard.noStyles.message")); //$NON-NLS-1$ //$NON-NLS-2$
 				return false;
@@ -136,7 +136,7 @@ public class NewDocumentWizard extends BasicNewResourceWizard {
 	}
 
 	private static IDocument createDocumentWithSchema(final DocumentType documentType, final String rootElementName) {
-		final String defaultNamespaceUri = documentType.getPublicId();
+		final String defaultNamespaceUri = documentType.getNamespaceName();
 		final Document document = new Document(new QualifiedName(defaultNamespaceUri, rootElementName));
 
 		final IElement root = document.getRootElement();

@@ -1,15 +1,17 @@
 /*******************************************************************************
- * Copyright (c) 2010 Florian Thienel and others.
+ * Copyright (c) 2013 Florian Thienel and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  * 		Florian Thienel - initial API and implementation
+ * 		Carsten Hiesserich - additional tests 
  *******************************************************************************/
 package org.eclipse.vex.ui.internal.config.tests;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -20,10 +22,12 @@ import java.util.List;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.vex.ui.internal.config.ConfigEvent;
+import org.eclipse.vex.ui.internal.config.ConfigLoaderJob;
 import org.eclipse.vex.ui.internal.config.ConfigSource;
 import org.eclipse.vex.ui.internal.config.ConfigurationLoader;
 import org.eclipse.vex.ui.internal.config.ConfigurationRegistry;
 import org.eclipse.vex.ui.internal.config.ConfigurationRegistryImpl;
+import org.eclipse.vex.ui.internal.config.DocumentType;
 import org.eclipse.vex.ui.internal.config.IConfigListener;
 import org.eclipse.vex.ui.internal.config.PluginProject;
 import org.junit.After;
@@ -114,6 +118,46 @@ public class ConfigurationRegistryTest {
 		project.getFile(PluginProject.PLUGIN_XML).delete(true, null);
 		assertTrue(configListener.changed);
 		assertNotNull(registry.getPluginProject(project));
+	}
+
+	@Test
+	public void testPluginDoctypeDefinition() throws Exception {
+		final ConfigurationRegistry configurationRegistry = new ConfigurationRegistryImpl(new ConfigLoaderJob());
+		configurationRegistry.loadConfigurations();
+
+		final DocumentType doctype = configurationRegistry.getDocumentType("-//Vex//DTD Test//EN", null);
+		assertNotNull(doctype);
+		assertEquals("test.dtd", doctype.getSystemId());
+	}
+
+	@Test
+	public void testPluginNamespaceDefinition() throws Exception {
+		final ConfigurationRegistry configurationRegistry = new ConfigurationRegistryImpl(new ConfigLoaderJob());
+		configurationRegistry.loadConfigurations();
+
+		final DocumentType doctype = configurationRegistry.getDocumentType("http://org.eclipse.vex/namespace", null);
+		assertNotNull(doctype);
+		assertEquals("test schema doctype", doctype.getName());
+	}
+
+	@Test
+	public void testGetDocumentTypesWithStyles() throws Exception {
+		final ConfigurationRegistry configurationRegistry = new ConfigurationRegistryImpl(new ConfigLoaderJob());
+		configurationRegistry.loadConfigurations();
+
+		final DocumentType[] doctypes = configurationRegistry.getDocumentTypesWithStyles();
+		boolean dtdFound = false;
+		boolean schemaFound = false;
+		for (final DocumentType doctype : doctypes) {
+			if ("test doctype".equals(doctype.getName())) {
+				dtdFound = true;
+			}
+			if ("test schema doctype".equals(doctype.getName())) {
+				schemaFound = true;
+			}
+		}
+		assertTrue("DoctypeWithStyles should return Doctype with DTD ", dtdFound);
+		assertTrue("DoctypeWithStyles should return Docype with namespace ", schemaFound);
 	}
 
 	private static class MockConfigurationLoader implements ConfigurationLoader {

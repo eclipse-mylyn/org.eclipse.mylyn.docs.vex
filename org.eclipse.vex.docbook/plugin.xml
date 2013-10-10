@@ -16,6 +16,14 @@
              uri="4.5/docbookx.dtd"
              webURL="http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd">
        </public>
+       <system
+             systemId="http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd"
+             uri="4.5/docbookx.dtd">
+       </system>
+       <system
+             systemId="http://docbook.org/xml/4.5/docbookx.dtd"
+             uri="4.5/docbookx.dtd">
+       </system>
        <uri
              name="urn:org:eclipse:vex:styles:docbook:docbook-plain.css"
              uri="styles/docbook-plain.css">
@@ -33,33 +41,41 @@
              webURL="http://www.oasis-open.org/docbook/xml/5.0/docbook.dtd">
        </public>
        <uri
-             name="http://www.oasis-open.org/docbook/xml/5.0/xsd/docbook.xsd"
-             uri="5.0/xsd/docbook.xsd">
-       </uri>
-       <uri
-             name="http://docbook.org/xml/5.0/xsd/docbook.xsd"
-             uri="5.0/xsd/docbook.xsd">
-       </uri>
-       <uri
              name="http://docbook.org/ns/docbook"
              uri="5.0/xsd/docbook.xsd">
        </uri>
+       <system
+             systemId="http://www.oasis-open.org/docbook/xml/5.0/xsd/docbook.xsd"
+             uri="5.0/xsd/docbook.xsd">
+       </system>
+       <system
+             systemId="http://docbook.org/xml/5.0/xsd/docbook.xsd"
+             uri="5.0/xsd/docbook.xsd">
+       </system>
        <uri
-             name="http://www.oasis-open.org/docbook/xml/5.0/xsd/xlink.xsd"
+             name="http://www.w3.org/1999/xlink"
              uri="5.0/xsd/xlink.xsd">
        </uri>
-       <uri
-             name="http://docbook.org/xml/5.0/xsd/xlink.xsd"
+       <system
+             systemId="http://www.oasis-open.org/docbook/xml/5.0/xsd/xlink.xsd"
              uri="5.0/xsd/xlink.xsd">
-       </uri>
+       </system>
+       <system
+             systemId="http://docbook.org/xml/5.0/xsd/xlink.xsd"
+             uri="5.0/xsd/xlink.xsd">
+       </system>
        <uri
-             name="http://www.oasis-open.org/docbook/xml/5.0/xsd/xml.xsd"
+             name="http://www.w3.org/XML/1998/namespace"
              uri="5.0/xsd/xml.xsd">
        </uri>
-       <uri
-             name="http://docbook.org/xml/5.0/xsd/xml.xsd"
+       <system
+             systemId="http://www.oasis-open.org/docbook/xml/5.0/xsd/xml.xsd"
              uri="5.0/xsd/xml.xsd">
-       </uri>
+       </system>
+       <system
+             systemId="http://docbook.org/xml/5.0/xsd/xml.xsd"
+             uri="5.0/xsd/xml.xsd">
+       </system>
     </catalogContribution>
  </extension>
  
@@ -145,54 +161,13 @@
       </doctype>
    </extension>
 
-   <extension
-         id="docbook5_0_XSD1"
-         name="%doctype.docbook5_0_XSD1"
-         point="org.eclipse.vex.ui.doctypes">
-      <doctype
-            publicId="http://www.oasis-open.org/docbook/xml/5.0/xsd/docbook.xsd"
-            systemId="5.0/xsd/docbook.xsd">
-            
-         <rootElement
-               name="article">
-         </rootElement>
-         <rootElement
-               name="appendix">
-         </rootElement>
-         <rootElement
-               name="book">
-         </rootElement>
-         <rootElement
-               name="chapter">
-         </rootElement>
-         <rootElement
-               name="sect1">
-         </rootElement>
-         <rootElement
-               name="sect2">
-         </rootElement>
-         <rootElement
-               name="sect3">
-         </rootElement>
-         <rootElement
-               name="sect4">
-         </rootElement>
-         <rootElement
-               name="sect5">
-         </rootElement>
-         <rootElement
-               name="section">
-         </rootElement>
-      </doctype>
-   </extension>
 
    <extension
          id="docbook5_0_XSD2"
          name="%doctype.docbook5_0_XSD2"
          point="org.eclipse.vex.ui.doctypes">
-      <doctype
-            publicId="http://docbook.org/xml/5.0/xsd/docbook.xsd"
-            systemId="5.0/xsd/docbook.xsd">
+      <schema
+            namespaceName="http://docbook.org/ns/docbook">
             
          <rootElement
                name="article">
@@ -224,49 +199,9 @@
          <rootElement
                name="section">
          </rootElement>
-      </doctype>
+      </schema>
    </extension>
 
-   <extension
-         id="docbook5_0_XSD2"
-         name="%doctype.docbook5_0_XSD3"
-         point="org.eclipse.vex.ui.doctypes">
-      <doctype
-            publicId="http://docbook.org/ns/docbook"
-            systemId="5.0/xsd/docbook.xsd">
-            
-         <rootElement
-               name="article">
-         </rootElement>
-         <rootElement
-               name="appendix">
-         </rootElement>
-         <rootElement
-               name="book">
-         </rootElement>
-         <rootElement
-               name="chapter">
-         </rootElement>
-         <rootElement
-               name="sect1">
-         </rootElement>
-         <rootElement
-               name="sect2">
-         </rootElement>
-         <rootElement
-               name="sect3">
-         </rootElement>
-         <rootElement
-               name="sect4">
-         </rootElement>
-         <rootElement
-               name="sect5">
-         </rootElement>
-         <rootElement
-               name="section">
-         </rootElement>
-      </doctype>
-   </extension>
 
    <extension
          id="docbook-plain"
@@ -274,11 +209,12 @@
          point="org.eclipse.vex.ui.styles">
       <style
             css="styles/docbook-plain.css">
+         <doctypeRef
+               publicId="docbook5_0_DTD">
+         </doctypeRef>
          <doctypeRef publicId="-//OASIS//DTD Simplified DocBook XML V1.1//EN"/>
          <doctypeRef publicId="-//OASIS//DTD DocBook XML V4.5//EN"/>
          <doctypeRef publicId="-//OASIS//DTD DocBook XML 5.0//EN"/>
-         <doctypeRef publicId="http://www.oasis-open.org/docbook/xml/5.0/xsd/docbook.xsd"/>
-         <doctypeRef publicId="http://docbook.org/xml/5.0/xsd/docbook.xsd"/>
          <doctypeRef publicId="http://docbook.org/ns/docbook"/>
       </style>
    </extension>

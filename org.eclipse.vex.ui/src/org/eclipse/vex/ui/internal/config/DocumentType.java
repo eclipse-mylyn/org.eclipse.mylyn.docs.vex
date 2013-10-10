@@ -48,6 +48,30 @@ public class DocumentType extends ConfigItem {
 		return systemId;
 	}
 
+	/**
+	 * Returns the namespace name of the document type.
+	 */
+	public String getNamespaceName() {
+		return namespaceName;
+	}
+
+	/**
+	 * Return the main type identifier of this document type.
+	 */
+	public String getMainId() {
+		if (!isBlank(publicId)) {
+			return publicId;
+		}
+		if (!isBlank(namespaceName)) {
+			return namespaceName;
+		}
+		if (!isBlank(systemId)) {
+			return systemId;
+		}
+
+		return "";
+	}
+
 	@Override
 	public String getExtensionPointId() {
 		return EXTENSION_POINT;
@@ -83,13 +107,24 @@ public class DocumentType extends ConfigItem {
 		this.systemId = systemId;
 	}
 
+	/**
+	 * Sets the namespace name of the document type. This is used when creating new documents but ignored otherwise.
+	 * 
+	 * @param namespaceName
+	 *            new namespace name for the document type.
+	 */
+	public void setNamespaceName(final String namespaceName) {
+		this.namespaceName = namespaceName;
+	}
+
 	public IValidator getValidator() {
 		return (IValidator) getConfig().getParsedResource(getResourceUri());
 	}
 
 	@Override
 	public boolean isValid() {
-		return super.isValid() && !isBlank(publicId) && !isBlank(systemId) && getValidator() != null;
+		final boolean doctypeValid = !isBlank(publicId) && !isBlank(systemId) || !isBlank(namespaceName);
+		return super.isValid() && doctypeValid && getValidator() != null;
 	}
 
 	@Override
@@ -121,6 +156,7 @@ public class DocumentType extends ConfigItem {
 
 	private String publicId;
 	private String systemId;
+	private String namespaceName;
 	private String outlineProvider;
 	private String[] rootElements = EMPTY_STRING_ARRAY;
 

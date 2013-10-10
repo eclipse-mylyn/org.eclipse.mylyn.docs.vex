@@ -13,10 +13,18 @@
                name="http://www.eclipse.org/vex/test/content"
                uri="testResources/content.xsd">
          </uri>
+         <system
+               systemId="http://www.eclipse.org/vex/test/content.xsd"
+               uri="testResources/content.xsd">
+         </system>
          <public
                publicId="-//Eclipse Foundation//DTD Vex Test//EN"
                uri="testResources/test1.dtd">
          </public>
+       <uri
+             name="urn:org:eclipse:vex:styles:test:test.css"
+             uri="testResources/test.css">
+       </uri>
       </catalogContribution>
    </extension>
 

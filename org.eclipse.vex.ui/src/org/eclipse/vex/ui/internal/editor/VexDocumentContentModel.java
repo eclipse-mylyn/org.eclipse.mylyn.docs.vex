@@ -35,18 +35,29 @@ public class VexDocumentContentModel extends DocumentContentModel {
 		this.shell = shell;
 	}
 
+	/**
+	 * This constructor is only menat to be used for unit testing.
+	 */
+	public VexDocumentContentModel() {
+		shell = null;
+	}
+
 	@Override
 	public void initialize(final String baseUri, final String publicId, final String systemId, final IElement rootElement) {
 		super.initialize(baseUri, publicId, systemId, rootElement);
 		final String mainDocumentTypeIdentifier = getMainDocumentTypeIdentifier();
 		documentType = getRegisteredDocumentType();
-		if (documentType == null) {
+		if (documentType == null && shell != null) {
 			documentType = queryUserForDocumentType();
 			if (documentType == null) {
 				throw new NoRegisteredDoctypeException(mainDocumentTypeIdentifier, false);
 			}
 			// Reinitialize after the user selected a doctype
-			super.initialize(baseUri, documentType.getPublicId(), documentType.getSystemId(), rootElement);
+			if (documentType.getNamespaceName() != null) {
+				setSchemaId(baseUri, documentType.getNamespaceName());
+			} else {
+				super.initialize(baseUri, documentType.getPublicId(), documentType.getSystemId(), null);
+			}
 		}
 
 		// TODO verify documentType URL???
@@ -55,15 +66,21 @@ public class VexDocumentContentModel extends DocumentContentModel {
 		//			final String message = MessageFormat.format(Messages.getString("VexEditor.noUrlForDoctype"), mainDocumentTypeIdentifier);
 		//			throw new RuntimeException(message);
 		//		}
-
-		style = VexPlugin.getDefault().getPreferences().getPreferredStyle(documentType.getPublicId());
+		style = VexPlugin.getDefault().getPreferences().getPreferredStyle(getDocumentType());
 		if (style == null) {
 			throw new NoStyleForDoctypeException();
 		}
 	}
 
 	private DocumentType getRegisteredDocumentType() {
-		return VexPlugin.getDefault().getConfigurationRegistry().getDocumentType(getMainDocumentTypeIdentifier());
+		if (getMainDocumentTypeIdentifier() == null) {
+			return null;
+		}
+		final DocumentType doctype = VexPlugin.getDefault().getConfigurationRegistry().getDocumentType(getMainDocumentTypeIdentifier(), getSystemId());
+		if (doctype != null) {
+			return doctype;
+		}
+		return null;
 	}
 
 	private DocumentType queryUserForDocumentType() {

@@ -505,16 +505,6 @@ public class VexEditor extends EditorPart {
 	}
 
 	/**
-	 * Return a reasonable style for the given doctype.
-	 * 
-	 * @param publicId
-	 *            Public ID for which to return the style.
-	 */
-	public Style getPreferredStyle(final String publicId) {
-		return configurationRegistry.getStyle(publicId, preferences.getPreferredStyleId(publicId));
-	}
-
-	/**
 	 * Returns the DocumentType associated with this editor.
 	 */
 	public DocumentType getDocumentType() {
@@ -864,7 +854,7 @@ public class VexEditor extends EditorPart {
 		this.style = style;
 		if (vexWidget != null) {
 			vexWidget.setStyleSheet(style.getStyleSheet());
-			preferences.setPreferredStyleId(document.getPublicID(), style.getUniqueId());
+			preferences.setPreferredStyleId(doctype, style.getUniqueId());
 		}
 		vexEditorListeners.fireEvent("styleChanged", new VexEditorEvent(this)); //$NON-NLS-1$
 	}

@@ -272,7 +272,7 @@ public class DocumentBuilder implements ContentHandler, LexicalHandler {
 			if (dtdPublicID != null && dtdSystemID != null || previousDocTypeID == null) {
 				// The content model is initialized only if the input document defines a DocType
 				// or if it has not been initialized already.
-				// This way, a user selected is reapplied when the document is reloaded.
+				// This way, a user selected doctype is reapplied when the document is reloaded.
 				documentContentModel.initialize(baseUri, dtdPublicID, dtdSystemID, rootElement);
 			}
 			final StyleSheet styleSheet = styleSheetProvider.getStyleSheet(documentContentModel);

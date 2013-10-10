@@ -89,7 +89,7 @@ public class DocumentTypeSelectionPage extends WizardPage {
 		final String[] typeNames = new String[doctypes.length];
 		for (int i = 0; i < doctypes.length; i++) {
 			typeNames[i] = doctypes[i].getName();
-			if (doctypes[i].getPublicId().equals(publicId)) {
+			if (doctypes[i].getMainId().equals(publicId)) {
 				initSelection = i;
 			}
 		}

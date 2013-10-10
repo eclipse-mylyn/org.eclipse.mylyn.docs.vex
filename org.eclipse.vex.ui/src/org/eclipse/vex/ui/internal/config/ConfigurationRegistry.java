@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  * 		Florian Thienel - initial API and implementation
  *******************************************************************************/
@@ -35,15 +35,17 @@ public interface ConfigurationRegistry {
 	boolean isLoaded();
 
 	/**
-	 * The document type configuration for the given public identifier, or null if there is no configuration for the
-	 * given public identifier.
+	 * The document type configuration for the given identifier.<br />
+	 * This method tries to resolve by PublicId or namespace first. If this does not yield as result, a doctype with a
+	 * matching SystemId is returned.
 	 * 
-	 * @param publicId
-	 *            the public identifier
-	 * @return the document type configuration for the given public identifier, or null if there is no configuration for
-	 *         the given public identifier.
+	 * @param id
+	 *            the public/system identifier or namespace
+	 * @param systemId
+	 *            the system id, only used when resolving the public id fails. May be null.
+	 * @return the document type configuration for the identifier, or null if there is no doctype found.
 	 */
-	DocumentType getDocumentType(final String publicId);
+	DocumentType getDocumentType(final String id, final String systemId);
 
 	/**
 	 * @return all document type configurations
@@ -56,13 +58,18 @@ public interface ConfigurationRegistry {
 	DocumentType[] getDocumentTypesWithStyles();
 
 	/**
-	 * All styles for the document type with the given public identifier.
+	 * All styles for the given document type. The returned styles are ordered by the way they are resolved:
+	 * <ul>
+	 * <li>1. document type id</li>
+	 * <li>2. Public ID (DTD) or Namespace (XML-Schema)</li>
+	 * <li>3. System ID (DTD)</li>
+	 * </ul>
 	 * 
-	 * @param publicId
-	 *            the document type's public identifier
-	 * @return all styles for the document type with the given public identifier
+	 * @param doctype
+	 *            the document type
+	 * @return all styles for the given document type
 	 */
-	Style[] getStyles(final String publicId);
+	Style[] getStyles(final DocumentType doctype);
 
 	/**
 	 * The style with the given id, or null if there is no style with this id.
@@ -74,16 +81,15 @@ public interface ConfigurationRegistry {
 	Style getStyle(final String styleId);
 
 	/**
-	 * An arbitrary style for the document type with the given public identifier. If available, the style with the given
-	 * style id is preferred.
+	 * An arbitrary style for the given document type. If available, the style with the given style id is preferred.
 	 * 
-	 * @param publicId
-	 *            the document type's public identifier
+	 * @param pdoctype
+	 *            the document type
 	 * @param preferredStyleId
 	 *            the preferred style's id
 	 * @return a style for the given document type, or null if no style is configured for the given document type
 	 */
-	Style getStyle(final String publicId, final String preferredStyleId);
+	Style getStyle(final DocumentType doctype, final String preferredStyleId);
 
 	/**
 	 * The representation of the given plug-in project in the workspace.

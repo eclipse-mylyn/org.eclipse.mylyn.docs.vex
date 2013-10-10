@@ -166,17 +166,6 @@ public class DTDValidatorTest {
 		assertInvalidSequence("document", "preface", "index");
 	}
 
-	@Test
-	public void testValidateDocumentWithDTDAndNamespaces() throws Exception {
-		final IDocument doc = new Document(new QualifiedName("http://namespace/uri/is/not/registered", "section"));
-		doc.setValidator(validator);
-		doc.insertElement(2, new QualifiedName(null, "title"));
-		doc.insertText(3, "ab");
-		doc.insertElement(6, new QualifiedName(null, "para"));
-
-		validator.getAttributeDefinitions(doc.getRootElement());
-	}
-
 	private void assertFullyValidSequence(final String element, final String... sequence) {
 		// fully includes partially
 		assertValidSequence(true, element, true, true, sequence);

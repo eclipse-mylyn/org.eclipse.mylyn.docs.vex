@@ -19,7 +19,9 @@ import org.eclipse.vex.core.internal.css.IStyleSheetProvider;
 import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.provisional.dom.DocumentContentModel;
 import org.eclipse.vex.ui.internal.config.ConfigurationRegistry;
+import org.eclipse.vex.ui.internal.config.DocumentType;
 import org.eclipse.vex.ui.internal.config.Style;
+import org.eclipse.vex.ui.internal.editor.VexDocumentContentModel;
 import org.osgi.service.prefs.BackingStoreException;
 import org.osgi.service.prefs.Preferences;
 
@@ -49,9 +51,9 @@ public class VexPreferences implements IStyleSheetProvider {
 		this.configurationRegistry = configurationRegistry;
 	}
 
-	public void setPreferredStyleId(final String publicId, final String styleId) {
+	public void setPreferredStyleId(final DocumentType doctype, final String styleId) {
 		final Preferences preferences = InstanceScope.INSTANCE.getNode(VexPlugin.ID);
-		final String key = getStylePreferenceKey(publicId);
+		final String key = getStylePreferenceKey(doctype.getUniqueId());
 		preferences.put(key, styleId);
 		try {
 			preferences.flush();
@@ -60,9 +62,9 @@ public class VexPreferences implements IStyleSheetProvider {
 		}
 	}
 
-	public String getPreferredStyleId(final String publicId) {
+	public String getPreferredStyleId(final DocumentType doctype) {
 		final Preferences preferences = InstanceScope.INSTANCE.getNode(VexPlugin.ID);
-		final String preferredStyleId = preferences.get(getStylePreferenceKey(publicId), null);
+		final String preferredStyleId = preferences.get(getStylePreferenceKey(doctype.getUniqueId()), null);
 		return preferredStyleId;
 	}
 
@@ -70,8 +72,8 @@ public class VexPreferences implements IStyleSheetProvider {
 		return publicId + PREFERRED_STYLE_SUFFIX;
 	}
 
-	public Style getPreferredStyle(final String publicId) {
-		return configurationRegistry.getStyle(publicId, getPreferredStyleId(publicId));
+	public Style getPreferredStyle(final DocumentType doctype) {
+		return configurationRegistry.getStyle(doctype, getPreferredStyleId(doctype));
 	}
 
 	public String getIndentationPattern() {
@@ -87,7 +89,13 @@ public class VexPreferences implements IStyleSheetProvider {
 	}
 
 	public StyleSheet getStyleSheet(final DocumentContentModel documentContentModel) {
-		final Style style = getPreferredStyle(documentContentModel.getMainDocumentTypeIdentifier());
+		Style style = null;
+		if (documentContentModel instanceof VexDocumentContentModel) {
+			// We only support the VexDocumentContentModel
+			// If there will ever be another DocumentContentModel implememntation, it will
+			// have to define it's own method for resolving styles
+			style = getPreferredStyle(((VexDocumentContentModel) documentContentModel).getDocumentType());
+		}
 		if (style == null) {
 			return StyleSheet.NULL;
 		}

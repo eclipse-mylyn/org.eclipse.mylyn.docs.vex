@@ -11,8 +11,6 @@
 package org.eclipse.vex.core.provisional.dom;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.text.MessageFormat;
 
 import org.eclipse.wst.common.uriresolver.internal.provisional.URIResolver;
@@ -42,15 +40,43 @@ public class DocumentContentModel implements EntityResolver {
 		initialize(baseUri, publicId, systemId, rootElement);
 	}
 
+	/**
+	 * Initialize the content model.
+	 * 
+	 * @param baseUri
+	 *            The base uri of the loaded document
+	 * @param publicId
+	 *            The PublicID of the DocumentTypeDefinition (DTD)
+	 * @param systemId
+	 *            The SystemID of the DocumentTypeDefinition (DTD)
+	 * @param rootElement
+	 *            If no DTD is defined (publicId and systemId are both null) the namespace of the root element is used
+	 *            to define the document type.
+	 */
 	public void initialize(final String baseUri, final String publicId, final String systemId, final IElement rootElement) {
 		this.baseUri = baseUri;
 		this.publicId = publicId;
 		this.systemId = systemId;
-		if (rootElement != null) {
+		if (publicId == null && systemId == null && rootElement != null) {
 			schemaId = rootElement.getQualifiedName().getQualifier();
 		} else {
 			schemaId = null;
 		}
+	}
+
+	/**
+	 * Sets an explicit namespace.
+	 * 
+	 * @param baseUri
+	 *            The base uri of the loaded document
+	 * @param rootNamespace
+	 *            The default namespace to resolve the XML-Schema for validation.
+	 */
+	public void setSchemaId(final String baseUri, final String rootNamespace) {
+		this.baseUri = baseUri;
+		publicId = null;
+		systemId = null;
+		schemaId = rootNamespace;
 	}
 
 	public String getMainDocumentTypeIdentifier() {
@@ -71,29 +97,76 @@ public class DocumentContentModel implements EntityResolver {
 		return systemId;
 	}
 
+	public String getSchemaId() {
+		return schemaId;
+	}
+
 	public boolean isDtdAssigned() {
 		return publicId != null || systemId != null;
 	}
 
-	public CMDocument getDTD() {
-		final URL resolvedPublicId = resolveSchemaIdentifier(publicId);
-		if (resolvedPublicId != null) {
-			return createCMDocument(resolvedPublicId);
+	/**
+	 * Create and return the WTP CMDocument for the DTD or schema defined by this ContentModel.
+	 * 
+	 * @return The resolved CMDocument.
+	 */
+	public CMDocument getContentModelDocument() {
+		if (schemaId != null) {
+			return getContentModelDocument(schemaId);
 		}
-		return createCMDocument(resolveSystemId(systemId));
+
+		String resolvedURI = null;
+		try {
+			resolvedURI = resolveResourceURI(publicId, systemId);
+			if (resolvedURI == null) {
+				return null;
+			}
+			return createCMDocument(resolvedURI);
+		} catch (final Exception e) {
+			throw new AssertionError(MessageFormat.format("Resolution of systemId ''{0}'' resulted in a exception:{1}. {2}", systemId, resolvedURI, e.getMessage()));
+		}
 	}
 
-	private CMDocument createCMDocument(final URL resolvedDtdUrl) {
-		if (resolvedDtdUrl == null) {
+	/**
+	 * Create and return the WTP CMDocument for the XML-Schema at the given URI or namespace. The XML catalog is used to
+	 * resolve the schema URI.
+	 * 
+	 * @param schemaID
+	 *            The URI or the namespace of the XML-Schema.
+	 * @return The resolved CMDocument.
+	 */
+	public CMDocument getContentModelDocument(final String schemaId) {
+		String resolvedUri = null;
+		try {
+			resolvedUri = resolveResourceURI(null, schemaId);
+			if (resolvedUri == null) {
+				return null;
+			}
+			return createCMDocument(resolvedUri);
+		} catch (final Exception e) {
+			throw new AssertionError(MessageFormat.format("Resolution of resource URI ''{0}'' resulted in a exception:{1}. {2}", schemaId, resolvedUri, e.getMessage()));
+		}
+	}
+
+	/**
+	 * Create a new CMDocument from the DTD or XML-Schema at the given URI.
+	 * 
+	 * @param resourceURI
+	 *            The URI containing the schema or dtd.
+	 * @return
+	 */
+	private CMDocument createCMDocument(final String resourceURI) {
+		if (resourceURI == null) {
 			return null;
 		}
 		final ContentModelManager modelManager = ContentModelManager.getInstance();
-		return modelManager.createCMDocument(resolvedDtdUrl.toString(), null);
+		final CMDocument cmDocument = modelManager.createCMDocument(resourceURI, null);
+		return cmDocument;
 	}
 
 	public InputSource resolveEntity(final String publicId, final String systemId) throws SAXException, IOException {
-		final String resolved = URI_RESOLVER.resolve(baseUri, publicId, systemId);
-		System.out.println("Resolved " + publicId + " " + systemId + " -> " + resolved);
+		final String resolved = resolveResourceURI(publicId, systemId);
+
 		if (resolved == null) {
 			return null;
 		}
@@ -103,36 +176,19 @@ public class DocumentContentModel implements EntityResolver {
 		return result;
 	}
 
-	public URL resolveSchemaIdentifier(final String schemaIdentifier) {
-		if (schemaIdentifier == null) {
-			return null;
-		}
-		final String schemaLocation = URI_RESOLVER.resolve(baseUri, schemaIdentifier, null);
-		if (schemaLocation == null) {
-			/*
-			 * TODO this is a common case that should be handled somehow - a hint should be shown: the schema is not
-			 * available, the schema should be added to the catalog by the user - an inferred schema should be used, to
-			 * allow to at least display the document in the editor - this is not the right place to either check or
-			 * handle this
-			 */
-			return null;
-		}
-		try {
-			return new URL(schemaLocation);
-		} catch (final MalformedURLException e) {
-			throw new AssertionError(MessageFormat.format("Resolution of schema ''{0}'' resulted in a malformed URL: ''{1}''. {2}", schemaIdentifier, schemaLocation, e.getMessage()));
-		}
-	}
-
-	public URL resolveSystemId(final String systemId) {
-		final String schemaLocation = URI_RESOLVER.resolve(baseUri, null, systemId);
-		if (schemaLocation == null) {
-			return null;
-		}
-		try {
-			return new URL(schemaLocation);
-		} catch (final MalformedURLException e) {
-			throw new AssertionError(MessageFormat.format("Resolution of systemId ''{0}'' resulted in a malformed URL: ''{1}''. {2}", systemId, schemaLocation, e.getMessage()));
-		}
+	/**
+	 * Resolve the URI for a given Resource with the XML-Catalog.
+	 * 
+	 * @param publicId
+	 *            The public identifier (DTD) of the resource being referenced, may be null
+	 * @param systemId
+	 *            The system identifier (DTD) or the namespace (XML-Schema) of the resource being referenced, may be
+	 *            null.
+	 * @return A String containing the resolved URI.
+	 * @throws IOException
+	 */
+	public String resolveResourceURI(final String publicId, final String systemId) throws IOException {
+		final String resolved = URI_RESOLVER.resolve(baseUri, publicId, systemId);
+		return resolved;
 	}
 }

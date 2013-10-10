@@ -41,7 +41,6 @@ import org.eclipse.wst.xml.core.internal.contentmodel.CMGroup;
 import org.eclipse.wst.xml.core.internal.contentmodel.CMNamedNodeMap;
 import org.eclipse.wst.xml.core.internal.contentmodel.CMNode;
 import org.eclipse.wst.xml.core.internal.contentmodel.CMNodeList;
-import org.eclipse.wst.xml.core.internal.contentmodel.ContentModelManager;
 import org.eclipse.wst.xml.core.internal.contentmodel.internal.util.CMValidator;
 import org.eclipse.wst.xml.core.internal.contentmodel.internal.util.CMValidator.ElementContentComparator;
 import org.eclipse.wst.xml.core.internal.contentmodel.internal.util.CMValidator.ElementPathRecordingResult;
@@ -64,9 +63,7 @@ public class WTPVEXValidator implements IValidator {
 
 	private final DocumentContentModel documentContentModel;
 
-	private CMDocument dtd;
-
-	private final Map<URL, CMDocument> contentModelCache = new HashMap<URL, CMDocument>();
+	private final Map<String, CMDocument> contentModelCache = new HashMap<String, CMDocument>();
 
 	private final CMValidator validator = new CMValidator();
 
@@ -90,46 +87,27 @@ public class WTPVEXValidator implements IValidator {
 		return documentContentModel;
 	}
 
-	private CMDocument getSchema(final String namespaceURI) {
-		if (isDTDDefined()) {
-			return getDTD();
-		}
-		if (namespaceURI == null) {
-			/*
-			 * This can be the case if the document does neither contain a doctype declaration nor a default namespace
-			 * declaration.
-			 */
-			return getSchema((URL) null);
-		}
-		final URL resolved = documentContentModel.resolveSchemaIdentifier(namespaceURI);
-		return getSchema(resolved);
-	}
-
-	private CMDocument getSchema(final URL schemaUrl) {
-		if (contentModelCache.containsKey(schemaUrl)) {
-			return contentModelCache.get(schemaUrl);
+	private CMDocument getContentModelDoc(final String schemaURI) {
+		if (contentModelCache.containsKey(schemaURI)) {
+			return contentModelCache.get(schemaURI);
 		}
 
-		final CMDocument contentModel;
-		if (schemaUrl != null) {
-			final ContentModelManager modelManager = ContentModelManager.getInstance();
-			contentModel = modelManager.createCMDocument(schemaUrl.toString(), null);
+		CMDocument contentModel;
+
+		if (schemaURI == null) {
+			contentModel = documentContentModel.getContentModelDocument();
 		} else {
+			contentModel = documentContentModel.getContentModelDocument(schemaURI);
+		}
+
+		if (contentModel == null) {
+			// Schema could not be resolved - create a dummy instance
 			contentModel = new UnknownCMDocument(null);
 		}
-		contentModelCache.put(schemaUrl, contentModel);
+
+		contentModelCache.put(schemaURI, contentModel);
+
 		return contentModel;
-	}
-
-	private boolean isDTDDefined() {
-		return documentContentModel.isDtdAssigned();
-	}
-
-	private CMDocument getDTD() {
-		if (dtd == null && documentContentModel.isDtdAssigned()) {
-			dtd = documentContentModel.getDTD();
-		}
-		return dtd;
 	}
 
 	public AttributeDefinition getAttributeDefinition(final IAttribute attribute) {
@@ -190,7 +168,7 @@ public class WTPVEXValidator implements IValidator {
 			return null;
 		}
 		final String localName = element.getLocalName();
-		final CMElementDeclaration declarationFromRoot = (CMElementDeclaration) getSchema(element.getQualifiedName().getQualifier()).getElements().getNamedItem(localName);
+		final CMElementDeclaration declarationFromRoot = (CMElementDeclaration) getContentModelDoc(element.getQualifiedName().getQualifier()).getElements().getNamedItem(localName);
 		if (declarationFromRoot != null) {
 			return declarationFromRoot;
 		}
@@ -346,7 +324,7 @@ public class WTPVEXValidator implements IValidator {
 
 	private Set<CMElementDeclaration> getValidRootElements(final String namespaceURI) {
 		final HashSet<CMElementDeclaration> result = new HashSet<CMElementDeclaration>();
-		final Iterator<?> iter = getSchema(namespaceURI).getElements().iterator();
+		final Iterator<?> iter = getContentModelDoc(namespaceURI).getElements().iterator();
 		while (iter.hasNext()) {
 			final CMElementDeclaration element = (CMElementDeclaration) iter.next();
 			result.add(element);
@@ -368,7 +346,13 @@ public class WTPVEXValidator implements IValidator {
 			return true;
 		}
 
-		final CMNode parent = getSchema(element.getQualifier()).getElements().getNamedItem(element.getLocalName());
+		final CMDocument document = getContentModelDoc(element.getQualifier());
+		if (document == null) {
+			System.out.println("Unable to resolve validation schema for " + element.getQualifier());
+			return true;
+		}
+		CMNode parent = null;
+		parent = document.getElements().getNamedItem(element.getLocalName());
 		if (!(parent instanceof CMElementDeclaration)) {
 			return true;
 		}
@@ -425,7 +409,7 @@ public class WTPVEXValidator implements IValidator {
 	private Set<String> getRequiredNamespaces(final String namespaceUri, final Set<CMNode> visitedNodes) {
 		final HashSet<String> result = new HashSet<String>();
 		result.add(namespaceUri);
-		final CMDocument mainSchema = getSchema(namespaceUri);
+		final CMDocument mainSchema = getContentModelDoc(namespaceUri);
 		for (final Iterator<?> iter = mainSchema.getElements().iterator(); iter.hasNext();) {
 			final CMElementDeclaration elementDeclaration = (CMElementDeclaration) iter.next();
 			result.addAll(getRequiredNamespaces(elementDeclaration, visitedNodes));

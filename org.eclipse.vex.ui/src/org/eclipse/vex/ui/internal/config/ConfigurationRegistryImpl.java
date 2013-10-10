@@ -187,15 +187,22 @@ public class ConfigurationRegistryImpl implements ConfigurationRegistry {
 		configListeners.fireEvent("configLoaded", e); //$NON-NLS-1$
 	}
 
-	public DocumentType getDocumentType(final String publicId) {
+	public DocumentType getDocumentType(final String id, final String systemId) {
 		final List<ConfigItem> configItems = getAllConfigItems(DocumentType.EXTENSION_POINT);
+		DocumentType systemDoctype = null;
+		// Try to resolve by PublicId or namespace first
 		for (final ConfigItem configItem : configItems) {
 			final DocumentType doctype = (DocumentType) configItem;
-			if (doctype.getPublicId().equals(publicId)) {
+			if (id.equals(doctype.getPublicId()) || id.equals(doctype.getNamespaceName())) {
 				return doctype;
 			}
+			if (systemId != null && systemId.equals(doctype.getSystemId())) {
+				// Save the doctype resolved by SystemID
+				systemDoctype = doctype;
+			}
 		}
-		return null;
+
+		return systemDoctype; // May be null
 	}
 
 	public DocumentType[] getDocumentTypes() {
@@ -210,21 +217,40 @@ public class ConfigurationRegistryImpl implements ConfigurationRegistry {
 		final List<DocumentType> result = new ArrayList<DocumentType>();
 		for (final ConfigItem configItem : getAllConfigItems(DocumentType.EXTENSION_POINT)) {
 			final DocumentType doctype = (DocumentType) configItem;
-			if (getStyles(doctype.getPublicId()).length > 0) {
+			if (getStyles(doctype).length > 0) {
 				result.add(doctype);
 			}
 		}
 		return result.toArray(new DocumentType[result.size()]);
 	}
 
-	public Style[] getStyles(final String publicId) {
-		final ArrayList<Style> result = new ArrayList<Style>();
+	public Style[] getStyles(final DocumentType doctype) {
+		final ArrayList<Style> resultId = new ArrayList<Style>();
+		final ArrayList<Style> resultPublic = new ArrayList<Style>();
+		final ArrayList<Style> resultSystem = new ArrayList<Style>();
+		final ArrayList<Style> resultSchema = new ArrayList<Style>();
 		for (final ConfigItem configItem : getAllConfigItems(Style.EXTENSION_POINT)) {
 			final Style style = (Style) configItem;
-			if (style.appliesTo(publicId)) {
-				result.add(style);
+			if (style.appliesTo(doctype.getSimpleId())) {
+				resultId.add(style);
+			}
+			if (!doctype.isBlank(doctype.getPublicId()) && style.appliesTo(doctype.getPublicId())) {
+				resultPublic.add(style);
+			}
+			if (!doctype.isBlank(doctype.getSystemId()) && style.appliesTo(doctype.getSystemId())) {
+				resultSystem.add(style);
+			}
+			if (!doctype.isBlank(doctype.getNamespaceName()) && style.appliesTo(doctype.getNamespaceName())) {
+				resultSchema.add(style);
 			}
 		}
+
+		// The resolved stylesheet are returned in a defined order
+		final ArrayList<Style> result = new ArrayList<Style>();
+		result.addAll(resultId);
+		result.addAll(resultPublic);
+		result.addAll(resultSchema);
+		result.addAll(resultSystem);
 		return result.toArray(new Style[result.size()]);
 	}
 
@@ -238,8 +264,8 @@ public class ConfigurationRegistryImpl implements ConfigurationRegistry {
 		return null;
 	}
 
-	public Style getStyle(final String publicId, final String preferredStyleId) {
-		final Style[] styles = getStyles(publicId);
+	public Style getStyle(final DocumentType doctype, final String preferredStyleId) {
+		final Style[] styles = getStyles(doctype);
 		if (styles.length == 0) {
 			return null;
 		}

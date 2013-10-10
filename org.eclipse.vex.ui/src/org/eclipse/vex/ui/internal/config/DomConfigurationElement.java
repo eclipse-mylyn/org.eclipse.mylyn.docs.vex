@@ -63,7 +63,7 @@ public class DomConfigurationElement implements IConfigElement {
 	}
 
 	public String getName() {
-		return element.getLocalName();
+		return element.getTagName();
 	}
 
 	public String getValue() {
