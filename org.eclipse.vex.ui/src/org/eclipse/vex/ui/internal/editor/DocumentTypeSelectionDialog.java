@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2008 John Krasnay and others.
+ * Copyright (c) 2004, 2013 John Krasnay and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  * 
  * Contributors:
  *     John Krasnay - initial API and implementation
+ *     Carsten Hiesserich - dialog uses SWT-TOP now to be always visible
  *******************************************************************************/
 package org.eclipse.vex.ui.internal.editor;
 
@@ -43,7 +44,7 @@ public class DocumentTypeSelectionDialog extends MessageDialog {
 	protected DocumentTypeSelectionDialog(final Shell parentShell, final String title, final String message) {
 		super(parentShell, title, null, message, MessageDialog.QUESTION,
 				new String[] { Messages.getString("DocumentTypeSelectionDialog.ok"), Messages.getString("DocumentTypeSelectionDialog.cancel") }, 0); //$NON-NLS-1$ //$NON-NLS-2$
-		setShellStyle(SWT.RESIZE);
+		setShellStyle(SWT.RESIZE | SWT.ON_TOP);
 	}
 
 	/**
@@ -67,7 +68,7 @@ public class DocumentTypeSelectionDialog extends MessageDialog {
 		}
 
 		return new DocumentTypeSelectionDialog(parentShell, Messages.getString("DocumentTypeSelectionDialog.selectDoctype"), //$NON-NLS-1$
-				MessageFormat.format(message, new Object[] { publicId }));
+				MessageFormat.format(message, publicId));
 	}
 
 	@Override
