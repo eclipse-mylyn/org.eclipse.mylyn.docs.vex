@@ -179,7 +179,7 @@ public class StyleSheet {
 		}
 
 		styles = styles.getPseudoElementStyles(name);
-		if (hasContent && styles != null && styles.getContent(parent) == null) {
+		if (hasContent && (styles == null || !styles.isContentDefined())) {
 			return null;
 		}
 		return new PseudoElement(parent, name);
