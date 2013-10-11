@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.vex.ui.internal.editor;
 
+import org.eclipse.jface.window.Window;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.vex.core.provisional.dom.DocumentContentModel;
 import org.eclipse.vex.core.provisional.dom.IElement;
@@ -42,7 +43,7 @@ public class VexDocumentContentModel extends DocumentContentModel {
 		if (documentType == null) {
 			documentType = queryUserForDocumentType();
 			if (documentType == null) {
-				throw new NoRegisteredDoctypeException(mainDocumentTypeIdentifier);
+				throw new NoRegisteredDoctypeException(mainDocumentTypeIdentifier, false);
 			}
 			// Reinitialize after the user selected a doctype
 			super.initialize(baseUri, documentType.getPublicId(), documentType.getSystemId(), rootElement);
@@ -67,7 +68,9 @@ public class VexDocumentContentModel extends DocumentContentModel {
 
 	private DocumentType queryUserForDocumentType() {
 		final DocumentTypeSelectionDialog dialog = DocumentTypeSelectionDialog.create(shell, getMainDocumentTypeIdentifier());
-		dialog.open();
+		if (dialog.open() == Window.CANCEL) {
+			throw new NoRegisteredDoctypeException(null, true);
+		}
 		if (dialog.alwaysUseThisDoctype()) {
 			shouldAssignInferredDocumentType = true;
 		}

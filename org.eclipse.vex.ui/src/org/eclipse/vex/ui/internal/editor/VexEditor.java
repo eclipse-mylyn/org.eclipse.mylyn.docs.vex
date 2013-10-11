@@ -812,7 +812,14 @@ public class VexEditor extends EditorPart {
 				showLabel(msg);
 				VexPlugin.getDefault().log(IStatus.ERROR, msg, ex);
 			}
-
+		} catch (final NoRegisteredDoctypeException ex) {
+			if (ex.isUserCanceled()) {
+				PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().closeEditor(this, true);
+			} else {
+				final String msg = MessageFormat.format(Messages.getString("VexEditor.unexpectedError"), getEditorInput().getName()); //$NON-NLS-1$
+				VexPlugin.getDefault().log(IStatus.ERROR, msg, ex);
+				showLabel(msg, ex);
+			}
 		} catch (final Exception ex) {
 			final String msg = MessageFormat.format(Messages.getString("VexEditor.unexpectedError"), getEditorInput().getName()); //$NON-NLS-1$
 			VexPlugin.getDefault().log(IStatus.ERROR, msg, ex);
