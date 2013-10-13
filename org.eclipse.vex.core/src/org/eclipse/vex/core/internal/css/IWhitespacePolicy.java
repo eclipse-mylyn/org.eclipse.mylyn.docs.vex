@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     John Krasnay - initial API and implementation
  *     Florian Thienel - a NULL object
@@ -42,6 +42,19 @@ public interface IWhitespacePolicy {
 
 		public boolean isPre(final INode node) {
 			return true;
+		}
+	};
+
+	/**
+	 * This policy treats every node as a block.
+	 */
+	IWhitespacePolicy ALL_BLOCKS = new IWhitespacePolicy() {
+		public boolean isBlock(final INode node) {
+			return true;
+		}
+
+		public boolean isPre(final INode node) {
+			return false;
 		}
 	};
 

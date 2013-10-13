@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     John Krasnay - initial API and implementation
  *******************************************************************************/
@@ -137,16 +137,15 @@ public abstract class TextBox extends AbstractInlineBox implements InlineBox {
 		final Graphics g = context.getGraphics();
 
 		boolean inSelectedBlock = false;
-		INode e = getNode();
-		while (e != null) {
-			final Styles styles = context.getStyleSheet().getStyles(e);
-			if (styles.isBlock()) {
-				if (context.isNodeSelected(e)) {
+		INode node = getNode();
+		while (node != null) {
+			if (context.getWhitespacePolicy().isBlock(node)) {
+				if (context.isNodeSelected(node)) {
 					inSelectedBlock = true;
 				}
 				break;
 			}
-			e = e.getParent();
+			node = node.getParent();
 		}
 
 		if (inSelectedBlock) {

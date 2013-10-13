@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     John Krasnay - initial API and implementation
  *******************************************************************************/
@@ -18,6 +18,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.vex.core.internal.VEXCorePlugin;
 import org.eclipse.vex.core.internal.core.Graphics;
+import org.eclipse.vex.core.internal.css.IWhitespacePolicy;
 import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.provisional.dom.IDocument;
 import org.eclipse.vex.core.provisional.dom.INode;
@@ -32,6 +33,7 @@ public class LayoutContext {
 	private IDocument document;
 	private Graphics graphics;
 	private StyleSheet styleSheet;
+	private IWhitespacePolicy whitespacePolicy;
 	private int selectionStart;
 	private int selectionEnd;
 	private long startTime = System.currentTimeMillis();
@@ -155,6 +157,14 @@ public class LayoutContext {
 	 */
 	public void setSelectionStart(final int i) {
 		selectionStart = i;
+	}
+
+	public IWhitespacePolicy getWhitespacePolicy() {
+		return whitespacePolicy;
+	}
+
+	public void setWhitespacePolicy(final IWhitespacePolicy whitespacePolicy) {
+		this.whitespacePolicy = whitespacePolicy;
 	}
 
 	public URL resolveUrl(final String baseUri, final String urlSpecification) {
