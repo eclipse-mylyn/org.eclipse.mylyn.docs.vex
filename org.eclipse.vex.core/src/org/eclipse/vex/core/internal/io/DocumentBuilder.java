@@ -27,6 +27,7 @@ import org.eclipse.vex.core.internal.css.IWhitespacePolicyFactory;
 import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.dom.Comment;
 import org.eclipse.vex.core.internal.dom.Document;
+import org.eclipse.vex.core.internal.dom.DocumentTextPosition;
 import org.eclipse.vex.core.internal.dom.Element;
 import org.eclipse.vex.core.internal.dom.GapContent;
 import org.eclipse.vex.core.internal.dom.Node;
@@ -98,6 +99,9 @@ public class DocumentBuilder implements ContentHandler, LexicalHandler {
 	private String dtdSystemID;
 	private IDocument document;
 	private Locator locator;
+
+	private DocumentTextPosition caretPosition;
+	private INode nodeAtCaret = null;
 
 	public DocumentBuilder(final String baseUri, final IValidator validator, final IStyleSheetProvider styleSheetProvider, final IWhitespacePolicyFactory whitespacePolicyFactory) {
 		this.baseUri = baseUri;
@@ -211,6 +215,7 @@ public class DocumentBuilder implements ContentHandler, LexicalHandler {
 	}
 
 	public void startElement(final String namespaceURI, final String localName, final String qName, final Attributes attrs) throws SAXException {
+
 		final QualifiedName elementName;
 		if ("".equals(namespaceURI)) {
 			elementName = new QualifiedName(null, qName);
@@ -226,6 +231,13 @@ public class DocumentBuilder implements ContentHandler, LexicalHandler {
 
 			final Element parent = stack.getLast().element;
 			parent.addChild(element);
+		}
+
+		if (nodeAtCaret == null && caretPosition != null) {
+			// Sax line number start with 1, document line number start with 0
+			if (locator.getLineNumber() >= caretPosition.getLine() + 1 && locator.getColumnNumber() >= caretPosition.getColumn()) {
+				nodeAtCaret = element;
+			}
 		}
 
 		final String defaultNamespaceUri = namespaceStack.peekDefault();
@@ -256,7 +268,13 @@ public class DocumentBuilder implements ContentHandler, LexicalHandler {
 
 		final DocumentContentModel documentContentModel = validator.getDocumentContentModel();
 		if (stack.isEmpty() && documentContentModel != null) {
-			documentContentModel.initialize(baseUri, dtdPublicID, dtdSystemID, rootElement);
+			final String previousDocTypeID = documentContentModel.getMainDocumentTypeIdentifier();
+			if (dtdPublicID != null && dtdSystemID != null || previousDocTypeID == null) {
+				// The content model is initialized only if the input document defines a DocType
+				// or if it has not been initialized already.
+				// This way, a user selected is reapplied when the document is reloaded.
+				documentContentModel.initialize(baseUri, dtdPublicID, dtdSystemID, rootElement);
+			}
 			final StyleSheet styleSheet = styleSheetProvider.getStyleSheet(documentContentModel);
 			whitespacePolicy = whitespacePolicyFactory.createPolicy(validator, documentContentModel, styleSheet);
 		}
@@ -471,4 +489,25 @@ public class DocumentBuilder implements ContentHandler, LexicalHandler {
 			this.pre = pre;
 		}
 	}
+
+	/**
+	 * Set the stored caret position. While parsing the document, the node at this position will be stored and returned
+	 * with {@link #getNodeAtCaret}.
+	 * 
+	 * @param position
+	 */
+	public void setCaretPosition(final DocumentTextPosition position) {
+		caretPosition = position;
+	}
+
+	/**
+	 * 
+	 * @return The node at the given caret position.
+	 * 
+	 * @see #setCaretPosition(DocumentTextPosition)
+	 */
+	public INode getNodeAtCaret() {
+		return nodeAtCaret;
+	}
+
 }

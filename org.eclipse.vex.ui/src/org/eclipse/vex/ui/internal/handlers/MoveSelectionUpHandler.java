@@ -12,7 +12,7 @@ package org.eclipse.vex.ui.internal.handlers;
 
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.vex.core.IFilter;
-import org.eclipse.vex.core.internal.css.StyleSheet;
+import org.eclipse.vex.core.internal.css.IWhitespacePolicy;
 import org.eclipse.vex.core.internal.widget.swt.VexWidget;
 import org.eclipse.vex.core.provisional.dom.ContentRange;
 import org.eclipse.vex.core.provisional.dom.IAxis;
@@ -32,9 +32,9 @@ public class MoveSelectionUpHandler extends AbstractVexWidgetHandler {
 		final IAxis<? extends IParent> parentsContainingSelection = widget.getCurrentElement().ancestors().matching(containingRange(selectedRange));
 
 		// expand the selection until a parent has other block-children
-		final StyleSheet stylesheet = widget.getStyleSheet();
+		final IWhitespacePolicy policy = widget.getWhitespacePolicy();
 		for (final IParent parent : parentsContainingSelection) {
-			final IAxis<? extends INode> blockChildren = parent.children().matching(displayedAsBlock(stylesheet));
+			final IAxis<? extends INode> blockChildren = parent.children().matching(displayedAsBlock(policy));
 			if (blockChildren.isEmpty()) {
 				widget.moveTo(parent.getStartOffset(), false);
 				widget.moveTo(parent.getEndOffset(), true);
@@ -64,10 +64,10 @@ public class MoveSelectionUpHandler extends AbstractVexWidgetHandler {
 		};
 	}
 
-	private static IFilter<INode> displayedAsBlock(final StyleSheet stylesheet) {
+	private static IFilter<INode> displayedAsBlock(final IWhitespacePolicy policy) {
 		return new IFilter<INode>() {
 			public boolean matches(final INode node) {
-				return stylesheet.getStyles(node).isBlock();
+				return policy.isBlock(node);
 			}
 		};
 	}

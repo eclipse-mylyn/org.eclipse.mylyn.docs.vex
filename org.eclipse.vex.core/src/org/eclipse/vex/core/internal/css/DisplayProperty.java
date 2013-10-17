@@ -19,9 +19,8 @@ import org.w3c.css.sac.LexicalUnit;
  */
 public class DisplayProperty extends AbstractProperty {
 
-	/**
-	 * Class constructor.
-	 */
+	public static final String DEFAULT = CSS.BLOCK;
+
 	public DisplayProperty() {
 		super(CSS.DISPLAY);
 	}
@@ -34,7 +33,7 @@ public class DisplayProperty extends AbstractProperty {
 			return parentStyles.getDisplay();
 		} else {
 			// not specified or other unknown value
-			return CSS.BLOCK;
+			return DEFAULT;
 		}
 	}
 

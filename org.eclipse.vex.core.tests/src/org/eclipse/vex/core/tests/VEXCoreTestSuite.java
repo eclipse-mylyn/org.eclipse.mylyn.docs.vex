@@ -9,7 +9,7 @@
  *     John Krasnay - initial API and implementation
  *     Florian Thienel - bug 306639 - remove serializability from StyleSheet
  *                       and dependend classes
- *     Carsten Hiesserich - bug 408501 - keep whitespace when copying fragments 
+ *     Carsten Hiesserich - bug 408501 - keep whitespace when copying fragments
  *     						into pre elements
  *******************************************************************************/
 package org.eclipse.vex.core.tests;
@@ -17,8 +17,10 @@ package org.eclipse.vex.core.tests;
 import org.eclipse.vex.core.internal.core.AfterNIteratorTest;
 import org.eclipse.vex.core.internal.core.FilterIteratorTest;
 import org.eclipse.vex.core.internal.core.FirstNIteratorTest;
+import org.eclipse.vex.core.internal.core.XmlTest;
 import org.eclipse.vex.core.internal.css.BatikBehaviorTest;
 import org.eclipse.vex.core.internal.css.CssTest;
+import org.eclipse.vex.core.internal.css.CssWhitespacePolicyTest;
 import org.eclipse.vex.core.internal.css.PropertyTest;
 import org.eclipse.vex.core.internal.css.RuleTest;
 import org.eclipse.vex.core.internal.dom.AxisTest;
@@ -68,13 +70,13 @@ import org.junit.runners.Suite;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({ FilterIteratorTest.class, FirstNIteratorTest.class, AfterNIteratorTest.class, AxisTest.class, NamespaceStackTest.class, NamespaceTest.class, DocumentReaderTest.class,
-		DocumentContentModelTest.class, SchemaValidatorTest.class, CssTest.class, BatikBehaviorTest.class, ContentRangeTest.class, BasicNodeTest.class, ParentTest.class, DocumentTest.class,
-		L1TextHandlingTest.class, L1CommentHandlingTest.class, L1ProcessingInstructionHandlingTest.class, L1ElementHandlingTest.class, L1FragmentHandlingTest.class, L1DeletionTests.class,
-		DocumentFragmentTest.class, CopyVisitorTest.class, DeepCopyTest.class, PropertyTest.class, RuleTest.class, BlockElementBoxTest.class, ImageBoxTest.class, DocumentWriterTest.class,
-		DTDValidatorTest.class, GapContentTest.class, SpaceNormalizerTest.class, TextWrapperTest.class, TestBlockElementBox.class, TestBlocksInInlines.class, TestDocumentTextBox.class,
-		TestStaticTextBox.class, TableLayoutTest.class, LayoutTestSuite.class, ListenerListTest.class, DocumentFragmentTransferTest.class, XMLFragmentTest.class, VexWidgetTest.class,
-		L2SimpleEditingTest.class, L2SelectionTest.class, L2CommentEditingTest.class, L2ProcessingInstructionEditingTest.class, L2XmlInsertionTest.class, DocumentEventTest.class,
-		L2StyleSheetTest.class
+		DocumentContentModelTest.class, SchemaValidatorTest.class, CssTest.class, CssWhitespacePolicyTest.class, BatikBehaviorTest.class, ContentRangeTest.class, BasicNodeTest.class,
+		ParentTest.class, DocumentTest.class, L1TextHandlingTest.class, L1CommentHandlingTest.class, L1ProcessingInstructionHandlingTest.class, L1ElementHandlingTest.class,
+		L1FragmentHandlingTest.class, L1DeletionTests.class, DocumentFragmentTest.class, CopyVisitorTest.class, DeepCopyTest.class, PropertyTest.class, RuleTest.class, BlockElementBoxTest.class,
+		ImageBoxTest.class, DocumentWriterTest.class, DTDValidatorTest.class, GapContentTest.class, SpaceNormalizerTest.class, TextWrapperTest.class, TestBlockElementBox.class,
+		TestBlocksInInlines.class, TestDocumentTextBox.class, TestStaticTextBox.class, TableLayoutTest.class, LayoutTestSuite.class, ListenerListTest.class, DocumentFragmentTransferTest.class,
+		XMLFragmentTest.class, VexWidgetTest.class, L2SimpleEditingTest.class, L2SelectionTest.class, L2CommentEditingTest.class, L2ProcessingInstructionEditingTest.class, L2XmlInsertionTest.class,
+		DocumentEventTest.class, L2StyleSheetTest.class, XmlTest.class
 
 })
 public class VEXCoreTestSuite {

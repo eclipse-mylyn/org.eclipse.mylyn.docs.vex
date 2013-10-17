@@ -274,7 +274,7 @@ public class WTPVEXValidator implements IValidator {
 		} else if (cmDataType.getDataTypeName().equals(CMDataType.ENUM)) {
 			return AttributeDefinition.Type.ENUMERATION;
 		} else {
-			System.out.println("Found unknown attribute type '" + cmDataType + "'.");
+			//System.out.println("Found unknown attribute type '" + cmDataType + "'.");
 			return AttributeDefinition.Type.CDATA;
 		}
 	}

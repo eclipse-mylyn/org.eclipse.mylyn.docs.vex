@@ -11,6 +11,10 @@ table {
   display: table;
 }
 
+tgroup {
+  display: table-row-group;
+}
+
 tbody {
   display: table-row-group;
 }

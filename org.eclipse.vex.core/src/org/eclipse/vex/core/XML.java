@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Carsten Hiesserich - extracted whitespace handling from DocumentBuilder (bug 408453)
  *******************************************************************************/
@@ -191,19 +191,19 @@ public class XML {
 	public static IValidationResult validateProcessingInstructionTarget(final String target) {
 
 		if (target.isEmpty()) {
-			return ValidationResult.error("Processing instruction target must not be empty");
+			return ValidationResult.error("Processing instruction target must not be empty.");
 		}
 
 		if (XML.XML_WHITESPACE_PATTERN.matcher(target).find()) {
-			return ValidationResult.error("Processing instruction target must not contain whitespace characters");
+			return ValidationResult.error("Processing instruction target must not contain whitespace characters.");
 		}
 
 		if (target.indexOf("?>") > -1) {
 			return ValidationResult.error("Cannot insert entity end '?>' into a processing instruction.");
 		}
 
-		if (target.length() >= 3 && target.substring(0, 3).equalsIgnoreCase("xml")) {
-			return ValidationResult.error("Processing instruction target must not start with 'xml'");
+		if (target.equalsIgnoreCase("xml")) {
+			return ValidationResult.error("Processing instruction target 'xml' is not allowed.");
 		}
 
 		return ValidationResult.VALIDATE_OK;

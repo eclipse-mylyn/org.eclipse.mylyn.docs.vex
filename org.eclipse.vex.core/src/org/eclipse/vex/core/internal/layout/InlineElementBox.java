@@ -88,10 +88,19 @@ public class InlineElementBox extends CompositeInlineBox {
 			}
 		}
 
-		final InlineBoxes inlines = createInlineBoxes(context, node, new ContentRange(startOffset, endOffset));
-		childList.addAll(inlines.boxes);
-		firstContentChild = inlines.firstContentBox;
-		lastContentChild = inlines.lastContentBox;
+		if (styles.isContentDefined()) {
+			// A CSS 'content' definition overrides the actual content
+			System.out.println(styles.getContent(node));
+			final String content = LayoutUtils.getGeneratedContent(context, styles, node);
+			final InlineBox child = new StaticTextBox(context, node, content);
+			childList.add(child);
+			firstContentChild = lastContentChild = child;
+		} else {
+			final InlineBoxes inlines = createInlineBoxes(context, node, new ContentRange(startOffset, endOffset));
+			childList.addAll(inlines.boxes);
+			firstContentChild = inlines.firstContentBox;
+			lastContentChild = inlines.lastContentBox;
+		}
 
 		if (endOffset > node.getEndOffset()) {
 			childList.add(new PlaceholderBox(context, node, node.getEndOffset() - node.getStartOffset()));

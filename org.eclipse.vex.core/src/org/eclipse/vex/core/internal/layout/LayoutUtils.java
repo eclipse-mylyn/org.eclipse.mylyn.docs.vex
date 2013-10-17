@@ -1,13 +1,14 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2008 John Krasnay and others.
+ * Copyright (c) 2004, 2013 John Krasnay and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     John Krasnay - initial API and implementation
  *     Igor Jacy Lino Campista - Java 5 warnings fixed (bug 311325)
+ *     Carsten Hiesserich - make getGeneratedContent public
  *******************************************************************************/
 package org.eclipse.vex.core.internal.layout;
 
@@ -32,7 +33,7 @@ public class LayoutUtils {
 
 	/**
 	 * Creates a list of generated inline boxes for the given pseudo-element.
-	 * 
+	 *
 	 * @param context
 	 *            LayoutContext in use
 	 * @param pseudoElement
@@ -42,7 +43,9 @@ public class LayoutUtils {
 	 *            {@link StaticTextBox#StaticTextBox(LayoutContext, INode, String, byte)}
 	 */
 	public static List<InlineBox> createGeneratedInlines(final LayoutContext context, final IElement pseudoElement, final byte marker) {
-		final String text = getGeneratedContent(context, pseudoElement);
+		final Styles styles = context.getStyleSheet().getStyles(pseudoElement);
+		final INode parent = ((PseudoElement) pseudoElement).getParentNode();
+		final String text = getGeneratedContent(context, styles, parent);
 		final List<InlineBox> list = new ArrayList<InlineBox>();
 		if (text.length() > 0) {
 			list.add(new StaticTextBox(context, pseudoElement, text, marker));
@@ -52,7 +55,7 @@ public class LayoutUtils {
 
 	/**
 	 * Creates a list of generated inline boxes for the given pseudo-element.
-	 * 
+	 *
 	 * @param context
 	 *            LayoutContext in use
 	 * @param pseudoElement
@@ -64,7 +67,7 @@ public class LayoutUtils {
 
 	/**
 	 * Returns <code>true</code> if the given offset falls within the given element or range.
-	 * 
+	 *
 	 * @param elementOrRange
 	 *            Element or IntRange object representing a range of offsets.
 	 * @param offset
@@ -79,19 +82,17 @@ public class LayoutUtils {
 	}
 
 	/**
-	 * Creates a string representing the generated content for the given pseudo-element.
-	 * 
+	 * Creates a string representing the generated content for the given node.
+	 *
 	 * @param context
 	 *            LayoutContext in use
-	 * @param pseudoElement
-	 *            PseudoElement for which the generated content is to be returned.
+	 * @param styles
+	 *            The Styles definition to get the content from
+	 * @param node
+	 *            The node passed to Styles#getContent (to get attr values from)
 	 */
-	private static String getGeneratedContent(final LayoutContext context, final IElement pseudoElement) {
-		final Styles styles = context.getStyleSheet().getStyles(pseudoElement);
-		// This cast is a bit ugly, but the parent of a PseudoElement may not be an IParent, so we can't
-		// use INode#getParent
-		assert pseudoElement instanceof PseudoElement;
-		final List<String> content = styles.getContent(((PseudoElement) pseudoElement).getParentNode());
+	public static String getGeneratedContent(final LayoutContext context, final Styles styles, final INode node) {
+		final List<String> content = styles.getContent(node);
 		final StringBuffer sb = new StringBuffer();
 		for (final String string : content) {
 			sb.append(string); // TODO: change to ContentPart
@@ -103,7 +104,7 @@ public class LayoutUtils {
 	 * Call the given callback for each child matching one of the given display styles. Any nodes that do not match one
 	 * of the given display types cause the onRange callback to be called, with a range covering all such contiguous
 	 * nodes.
-	 * 
+	 *
 	 * @param context
 	 *            LayoutContext to use.
 	 * @param displayStyles
@@ -168,7 +169,7 @@ public class LayoutUtils {
 	 * Call the given callback for each child matching one of the given display styles. Any nodes that do not match one
 	 * of the given display types cause the onRange callback to be called, with a range covering all such contiguous
 	 * nodes.
-	 * 
+	 *
 	 * @param context
 	 *            LayoutContext to use.
 	 * @param displayStyles
@@ -185,7 +186,7 @@ public class LayoutUtils {
 
 	/**
 	 * Returns true if the given styles represent an element that can be the child of a table element.
-	 * 
+	 *
 	 * @param styleSheet
 	 *            StyleSheet to use.
 	 * @param element

@@ -43,7 +43,15 @@ appendix {
 	display: block;
 }
 
-article,book,chapter {
+application {
+	display: inline;
+}
+
+arg {
+	display: inline;	
+}
+
+article,book,chapter,colophon {
 	font-family: "Times New Roman", serif;
 	font-size: 16px;
 	display: block;
@@ -80,6 +88,10 @@ articleinfo email {
 articleinfo email:before {
 	content: "Email: ";
 	font-weight: bold;
+}
+
+artpagenums {
+	display: inline;
 }
 
 attribution {
@@ -121,11 +133,23 @@ authorinitials {
 	display: inline;
 }
 
+bibliocoverage {
+	display: inline;
+}
+
 bibliodiv {
 	display: block;
 }
 
 bibliography {
+	display: block;
+}
+
+biblioid {
+	display: inline;
+}
+
+bibliolist {
 	display: block;
 }
 
@@ -137,7 +161,19 @@ bibliomixed {
 	display: block;
 }
 
-bibliomset {
+biblioref {
+	display: inline;
+}
+
+bibliorelation {
+	display: inline;
+}
+
+biblioset {
+	display: block;
+}
+
+bibliosource {
 	display: block;
 }
 
@@ -179,6 +215,16 @@ bookinfo email:before {
 	font-weight: bold;
 }
 
+blockquote {
+	display: block;
+	margin-left: 10px;
+}
+
+bridgehead {
+	display: block;
+	/*TODO add renderas attribute */
+}
+
 caption {
 	display: block;
 	font-style: italic;
@@ -210,13 +256,75 @@ caution:before {
 	color: yellow;
 }
 
+citation {
+	display: inline;
+}
+
+citation:before {
+	content: '[';
+}
+
+citation:after {
+	content: ']';
+}
+
+citebiblioid {
+	display: inline;
+}
+
+citerefentry {
+	display: inline;
+}
+
 citetitle {
 	display: inline;
 	font-style: italic;
 }
 
+city {
+	display: inline;
+}
+
+classname {
+	display: inline;
+}
+
+classsynopsisinfo {
+	display: block;
+	white-space: pre;
+}
+
+co {
+	display: inline;
+}
+
+code {
+	display: inline;
+}
+
+col {
+	display: inline;
+	content: 'col';
+	font-size: smaller;
+	background-color: #B0B0B0;
+}
+
+colgroup {
+	display: inline;
+	content: 'colgroup';
+	font-size: smaller;
+	background-color: #B0B0B0;
+}
+
+collab  {
+	display: block;
+}
+
 colspec {
 	display: inline;
+	content: 'colspec';
+	font-size: smaller;
+	background-color: #B0B0B0;
 }
 
 command {
@@ -230,12 +338,22 @@ computeroutput {
 	font: smaller "Courier New", monospace;
 }
 
-copyright {
+constant {
 	display: inline;
+	font-family: "Courier New", monospace; 
+}
+
+copyright {
+	display: block;
 }
 
 copyright:before {
+	display: inline;
 	content: 'Copyright (c) ';
+}
+
+coref {
+	display: inline;
 }
 
 corpauthor {
@@ -247,12 +365,17 @@ corpauthor:before {
 	font-weight: bold;
 }
 
+database {
+	display: inline;
+}
+
 date {
 	display: inline;
 }
 
 bookinfo>date:before {
 	content: 'Date: ';
+	display: inline;
 	font-weight: bold;
 }
 
@@ -274,6 +397,11 @@ emphasis {
 	font-style: italic;
 }
 
+emphasis[role="bold"] {
+	display: inline;
+	font-weight: bold;
+}
+
 entry {
 	display: table-cell;
 	border: thin solid black;
@@ -283,10 +411,30 @@ entrytbl {
 	display: table;
 }
 
+envar {
+	display: inline;
+}
+
 epigraph {
 	font-style: italic;
 	display: block;
 	margin-left: 0.5in;
+}
+
+errorcode {
+	display: inline;
+}
+
+errorname {
+	display: inline;
+}
+
+errortext {
+	display: inline;
+}
+
+errortype {
+	display: inline;
 }
 
 example {
@@ -301,6 +449,11 @@ example title {
 
 example title:before {
 	content: 'Example: ';
+	display: inline;
+}
+
+exceptionname {
+	display: inline;
 }
 
 figure {
@@ -315,6 +468,7 @@ figure title {
 
 figure title:before {
 	content: 'Figure: ';
+	display: inline;
 }
 
 filename {
@@ -326,7 +480,52 @@ firstname {
 	display: inline;
 }
 
+firstterm {
+	display: inline;
+	font-style: italic;
+}
+
 footnote {
+	display: inline;
+}
+
+foreignphrase {
+	display: inline;
+	font-style: italic;
+}
+
+formalpara {
+	display: block;	
+}
+
+formalpara > title {
+	display: inline;
+	font-weight: bold;
+}
+
+formalpara > para {
+	display: inline;
+}
+
+formalpara > title:after {
+	display: inline;
+	content: ' ';
+}
+
+funcdef {
+	display: inline;
+}
+
+funcparams {
+	display: inline;
+}
+
+funcsynopsisinfo {
+	display: block;
+	white-space: pre;
+}
+
+function {
 	display: inline;
 }
 
@@ -384,8 +583,44 @@ graphic {
 	background-image: attr(fileref);
 }
 
+group {
+	display: inline;
+}
+
+guibutton {
+	display: inline;
+}
+
+guiicon {
+	display: inline;
+}
+
+guilabel {
+	display: inline;
+}
+
+guimenu {
+	display: inline;
+}
+
+guimenuitem {
+	display: inline;
+}
+
+guisubmenu {
+	display: inline;
+}
+
+hardware {
+	display: inline;
+}
+
 holder {
 	display: inline;
+}
+
+holder + holder:before {
+	content: ', ';
 }
 
 honorific {
@@ -415,6 +650,10 @@ important:before {
 	color: green;
 }
 
+index {
+	display: block;
+}
+
 informalexample {
 	display: block;
 }
@@ -423,12 +662,24 @@ informaltable {
 	display: table;
 }
 
+initializer {
+	display: inline;
+}
+
+inlineequation {
+	display: inline;
+}
+
 inlinegraphic {
 	display: inline;
 	background-image: attr(fileref);
 }
 
 inlinemediaobject {
+	display: inline;
+}
+
+interfacename {
 	display: inline;
 }
 
@@ -466,6 +717,24 @@ itermset:before {
 	content: "Index Terms: ";
 	display: inline;
 	font-weight: bold;
+}
+
+keycap {
+	display: inline;
+	font-weight: bold;
+}
+
+keycode {
+	display: inline;
+	font-family: "Courier New", monospace; 
+}
+
+keycombo {
+	display: inline;
+}
+
+keysym {
+	display: inline;
 }
 
 keyword {
@@ -523,11 +792,63 @@ literallayout[class="monospaced"] {
 	font-family: "Courier New", monospaced;
 }
 
+manvolnum {
+	display: inline;
+}
+
+manvolnum:before {
+	content: '(';
+}
+
+manvolnum:after {
+	content: ')';
+}
+
+markup {
+	display: inline;
+	white-space: pre;
+}
+
+mathphrase {
+	display: inline;
+}
+
 mediaobject {
 	display: inline;
 }
 
 member {
+	display: inline;
+}
+
+member + member:before {
+	content: ', ';
+}
+
+menuchoice {
+	display: inline;
+}
+
+methodname {
+	display: inline;
+}
+
+methodparam {
+	display: inline;
+}
+
+modifier {
+	display: inline;
+}
+
+/*
+TODO add support for namespaces in XML.
+modifier[xml:space="preserve"]  {
+	white-spave: pre;
+}
+*/
+
+mousebutton {
 	display: inline;
 }
 
@@ -541,12 +862,42 @@ note:before {
 	color: blue;
 }
 
+olink {
+	display: inline;
+}
+
+ooclass {
+	display: inline;
+}
+
+ooexception {
+	display: inline;
+}
+
+oointerface {
+	display: inline;
+}
+
 objectinfo {
 	display: inline;
 }
 
 option {
 	display: inline;
+}
+
+optional {
+	display: inline;
+}
+
+optional:before {
+	display: inline;
+	content: '[';
+}
+
+optional:after {
+	display: inline;
+	content: ']';
 }
 
 orderedlist {
@@ -575,6 +926,10 @@ othername {
 	display: inline;
 }
 
+package {
+	display: inline;
+}
+
 pagenums {
 	display: inline;
 }
@@ -583,6 +938,14 @@ para {
 	display: block;
 	margin-bottom: 1em;
 	margin-top: 1em;
+}
+
+paramdef {
+	display: inline;
+}
+
+parameter {
+	display: inline;
 }
 
 part {
@@ -609,11 +972,37 @@ preface {
 	display: block;
 }
 
-printhistory {
+primary {
 	display: inline;
+	font-size: smaller;
+	background-color: #B0B0B0;
+}
+
+printhistory {
+	display: block;
 }
 
 procedure {
+	display: block;
+}
+
+productname {
+	display: inline;
+}
+productname[class="registered"]:after {
+	display: inline;
+	content: '®';
+}
+productname[class="trade"]:after {
+	display: inline;
+	content: '™';
+}
+productname[class="copyright"]:before {
+	display: inline;
+	content: '©';
+}
+
+productnumber {
 	display: inline;
 }
 
@@ -637,6 +1026,10 @@ programlistingco {
 
 prompt {
 	font-weight: bold;
+	display: inline;
+}
+
+property {
 	display: inline;
 }
 
@@ -678,6 +1071,14 @@ answer {
 quote {
 	display: inline;
 }
+quote:before {
+	display: inline;
+	content: '"';
+}
+quote:after {
+	display: inline;
+	content: '"';
+}
 
 releaseinfo {
 	display: block;
@@ -704,6 +1105,10 @@ replaceable {
 	font-family: "Times New Roman", serif;
 	font-style: italic;
 	font-weight: normal;
+}
+
+returnvalue {
+	display: inline;
 }
 
 revhistory {
@@ -768,6 +1173,38 @@ screenshot {
 	white-space: pre;	
 }
 
+secondary {
+	display: inline;
+	font-size: smaller;
+	background-color: #B0B0B0;
+}
+
+see {
+	display: inline;
+	font-size: smaller;
+	background-color: #B0B0B0;
+}
+
+seealso {
+	display: inline;
+	font-size: smaller;
+	background-color: #B0B0B0;
+}
+
+seealsoie {
+	display: block;
+}
+seealsoie:before {
+	content: 'See also: ';
+}
+
+seeie {
+	display: block;
+}
+seeie:before {
+	content: 'See: ';
+}
+
 section,sect1,sect2,sect3,sect4,sect5 {
 	display: block;
 	margin-left: 18px;
@@ -777,7 +1214,24 @@ sectioninfo {
 	display: block;
 }
 
+seriesvolnums {
+	display: inline;
+}
+
+set {
+	display: block;
+}
+
+shortcut {
+	display: inline;
+}
+
 sidebar {
+	display: block;
+	border: 1px solid black;
+}
+
+simpara {
 	display: block;
 }
 
@@ -785,11 +1239,22 @@ simplelist {
 	display: inline;
 }
 
+spanspec {
+	display: inline;
+	font-size: smaller;
+	background-color: #B0B0B0;
+}
+
 state {
 	display: inline;
 }
 
 step {
+	display: list-item;
+	list-style-type: decimal; 
+}
+
+stepalternatives {
 	display: inline;
 }
 
@@ -798,7 +1263,8 @@ street {
 }
 
 substeps {
-	display: inline;
+	display: list-item;
+	list-style-type: lower-alpha; 
 }
 
 subtitle {
@@ -812,6 +1278,20 @@ surname {
 	display: inline;
 }
 
+subscript {
+	display: inline;
+	font-size: small;
+}
+
+superscript {
+	display: inline;
+	font-size: small;
+}
+
+symbolt {
+	display: inline;	
+}
+
 synopsis {
 	font-family: "Courier New", monospaced;
 	display: block;
@@ -820,6 +1300,17 @@ synopsis {
 
 systemitem {
 	display: inline;
+	font-family: "Courier New", monospaced;
+}
+
+tag {
+	display: inline;	
+}
+tag:before {
+	content: '<';	
+}
+tag:after {
+	content: '>';	
 }
 
 table {
@@ -861,6 +1352,23 @@ th {
 	font-weight: bold;
 }
 
+termdef {
+	display: inline;
+}
+
+tertiary {
+	display: inline;
+	font-size: smaller;
+	background-color: #B0B0B0;
+}
+
+textdata {
+	/* TODO display referenced text */
+	display: inline;
+	font-size: smaller;
+	background-color: #B0B0B0;	
+}
+
 tip {
 	border-color: silver;
 	color: silver;
@@ -873,6 +1381,10 @@ tip:before {
 
 title {
 	display: block;
+}
+
+token {
+	display: inline;
 }
 
 tr {
@@ -973,14 +1485,28 @@ trademark {
 	display: inline;
 }
 
+type {
+	display: inline;
+}
+
 ulink {
 	border-bottom: 1px solid blue;
 	color: blue;
 	display: inline;
 }
 
+uri {
+	display: inline;
+	font-style: italic;
+}
+
 userinput {
 	display: inline;
+}
+
+varargs {
+	display: inline;
+	content: '(...)';
 }
 
 variablelist {
@@ -1000,12 +1526,23 @@ varlistentry listitem {
 	margin-left: 3em;
 }
 
-videodata {
+varname {
 	display: inline;
+}
+
+videodata {
+	display: block;
+	content: 'videodata';
 }
 
 videoobject {
 	display: inline;
+}
+
+void {
+	display: inline;
+	font-family: "Courier New", monospaced;
+	content: 'void';
 }
 
 volumenum {
@@ -1027,6 +1564,11 @@ warning:before {
 	display: block
 }
 
+wordasword {
+	display: inline;
+	font-style: italic;		
+}
+
 xref {
 	display: inline;
 	color: blue;
@@ -1040,4 +1582,8 @@ xref:before {
 
 year {
 	display: inline;
+}
+
+year + year:before {
+	content: ', ';
 }

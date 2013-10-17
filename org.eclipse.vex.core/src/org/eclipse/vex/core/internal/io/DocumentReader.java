@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2008 John Krasnay and others.
+ * Copyright (c) 2004, 2013 John Krasnay and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  * 
  * Contributors:
  *     John Krasnay - initial API and implementation
+ *     Carsten Hiesserich - added caret position tracking
  *******************************************************************************/
 package org.eclipse.vex.core.internal.io;
 
@@ -25,7 +26,9 @@ import javax.xml.parsers.SAXParserFactory;
 import org.eclipse.vex.core.internal.css.IStyleSheetProvider;
 import org.eclipse.vex.core.internal.css.IWhitespacePolicy;
 import org.eclipse.vex.core.internal.css.IWhitespacePolicyFactory;
+import org.eclipse.vex.core.internal.dom.DocumentTextPosition;
 import org.eclipse.vex.core.provisional.dom.IDocument;
+import org.eclipse.vex.core.provisional.dom.INode;
 import org.eclipse.vex.core.provisional.dom.IValidator;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.EntityResolver;
@@ -50,6 +53,9 @@ public class DocumentReader {
 	private IWhitespacePolicy whitespacePolicy = IWhitespacePolicy.NULL;
 
 	private EntityResolver entityResolver;
+
+	private DocumentTextPosition caretPosition;
+	private INode nodeAtCaret;
 
 	private final EntityResolver combinedEntityResolver = new EntityResolver() {
 		public InputSource resolveEntity(final String publicId, final String systemId) throws SAXException, IOException {
@@ -107,6 +113,7 @@ public class DocumentReader {
 
 		final XMLReader xmlReader = factory.newSAXParser().getXMLReader();
 		final DocumentBuilder builder = new DocumentBuilder(is.getSystemId(), validator, styleSheetProvider, whitespacePolicyFactory);
+		builder.setCaretPosition(caretPosition);
 
 		ContentHandler contentHandler = builder;
 		LexicalHandler lexicalHandler = builder;
@@ -132,6 +139,7 @@ public class DocumentReader {
 		xmlReader.setEntityResolver(combinedEntityResolver);
 		xmlReader.parse(is);
 		final IDocument result = builder.getDocument();
+		nodeAtCaret = builder.getNodeAtCaret();
 		if (result != null) {
 			result.setDocumentURI(is.getSystemId());
 		}
@@ -186,5 +194,25 @@ public class DocumentReader {
 
 	public IWhitespacePolicy getWhitespacePolicy() {
 		return whitespacePolicy;
+	}
+
+	/**
+	 * Set the stored caret position. While parsing the document, the node at this position will be stored and returned
+	 * with {@link #getNodeAtCaret}.
+	 * 
+	 * @param position
+	 */
+	public void setCaretPosition(final DocumentTextPosition position) {
+		caretPosition = position;
+	}
+
+	/**
+	 * 
+	 * @return The node at the given caret position.
+	 * 
+	 * @see #setCaretPosition(DocumentTextPosition)
+	 */
+	public INode getNodeAtCaret() {
+		return nodeAtCaret;
 	}
 }

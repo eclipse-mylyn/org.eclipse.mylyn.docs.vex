@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2008 John Krasnay and others.
+ * Copyright (c) 2004, 2013 John Krasnay and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,14 +8,11 @@
  * Contributors:
  *     John Krasnay - initial API and implementation
  *     Igor Jacy Lino Campista - Java 5 warnings fixed (bug 311325)
+ *     Carsten Hiesserich - use common method from VexHandlerUtil
  *******************************************************************************/
 package org.eclipse.vex.ui.internal.handlers;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.vex.core.internal.dom.CopyOfElement;
 import org.eclipse.vex.core.internal.widget.swt.VexWidget;
 import org.eclipse.vex.core.provisional.dom.IElement;
 
@@ -43,94 +40,15 @@ public abstract class AbstractAddRowHandler extends AbstractVexWidgetHandler {
 	protected abstract boolean addAbove();
 
 	private void addRow(final VexWidget widget) {
-		final List<RowCells> rowCellsToInsert = new ArrayList<RowCells>();
+		// Find the parent table row
+		final IElement currentRow = VexHandlerUtil.getCurrentTableRow(widget);
 
-		VexHandlerUtil.iterateTableCells(widget, new ITableCellCallback() {
-
-			private boolean selectedRow;
-			private List<Object> cellsToInsert;
-
-			public void startRow(final Object row, final int rowIndex) {
-				selectedRow = VexHandlerUtil.elementOrRangeIsPartiallySelected(widget, row);
-
-				if (selectedRow) {
-					cellsToInsert = new ArrayList<Object>();
-				}
-			}
-
-			public void onCell(final Object row, final Object cell, final int rowIndex, final int cellIndex) {
-				if (selectedRow) {
-					cellsToInsert.add(cell);
-				}
-			}
-
-			public void endRow(final Object row, final int rowIndex) {
-				if (selectedRow) {
-					rowCellsToInsert.add(new RowCells(row, cellsToInsert));
-				}
-			}
-
-		});
-
-		// something to do?
-		if (rowCellsToInsert.isEmpty()) {
+		// Do nothing is the caret is not inside a table row
+		if (currentRow == widget.getDocument().getRootElement()) {
 			return;
 		}
 
-		// save the caret offset to return inside the first table cell after
-		// row has been added
-		final RowCells firstRow = rowCellsToInsert.get(0);
-		final int outerOffset = VexHandlerUtil.getOuterRange(firstRow.row).getStartOffset();
-		final Object firstInner = firstRow.cells.isEmpty() ? firstRow.row : firstRow.cells.get(0);
-		final int innerOffset = VexHandlerUtil.getInnerRange(firstInner).getStartOffset();
-		final int insertOffset = addAbove() ? VexHandlerUtil.getOuterRange(firstRow.row).getStartOffset() : VexHandlerUtil.getOuterRange(rowCellsToInsert.get(rowCellsToInsert.size() - 1).row)
-				.getEndOffset();
-
-		// (innerOffset - outerOffset) represents the final offset of
-		// the caret, relative to the insertion point of the new rows
-		final int finalOffset = insertOffset + innerOffset - outerOffset;
-		widget.moveTo(insertOffset);
-
-		for (final RowCells rowCells : rowCellsToInsert) {
-			if (rowCells.row instanceof IElement) {
-				final IElement rowElement = (IElement) rowCells.row;
-				widget.insertElement(rowElement.getQualifiedName()).accept(new CopyOfElement(rowElement));
-			}
-
-			//cells that are to be inserted.
-			for (final Object cell : rowCells.cells) {
-				if (cell instanceof IElement) {
-					final IElement cellElement = (IElement) cell;
-					widget.insertElement(cellElement.getQualifiedName()).accept(new CopyOfElement(cellElement));
-					widget.moveBy(+1);
-				} else {
-					widget.insertText(" ");
-				}
-			}
-
-			if (rowCells.row instanceof IElement) {
-				widget.moveBy(+1);
-			}
-		}
-
-		// move inside first inserted table cell
-		widget.moveTo(finalOffset);
-	}
-
-	/** Represents a row and its cells. */
-	private static class RowCells {
-
-		/** The row. */
-		private final Object row;
-
-		/** All cell objects that belong to this row. */
-		private final List<Object> cells;
-
-		private RowCells(final Object row, final List<Object> cells) {
-			this.row = row;
-			this.cells = cells;
-		}
+		VexHandlerUtil.duplicateTableRow(widget, currentRow, addAbove());
 
 	}
-
 }

@@ -116,6 +116,7 @@ public class LayoutTestSuite extends TestCase {
 		context.setBoxFactory(new MockBoxFactory());
 		context.setGraphics(g);
 		context.setStyleSheet(styleSheet);
+		context.setWhitespacePolicy(new CssWhitespacePolicy(styleSheet));
 
 		final DocumentReader reader = new DocumentReader();
 		reader.setValidator(new DummyValidator());

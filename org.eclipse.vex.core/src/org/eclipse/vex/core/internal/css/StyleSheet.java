@@ -143,7 +143,12 @@ public class StyleSheet {
 	public void flushAllStyles(final IDocument document) {
 		for (final Iterator<Map.Entry<INode, Styles>> iter = styleMap.entrySet().iterator(); iter.hasNext();) {
 			final Map.Entry<INode, Styles> entry = iter.next();
-			if (entry.getKey().getDocument().equals(document)) {
+			IDocument nodeDoc = null;
+			if (entry.getKey() != null) {
+				nodeDoc = entry.getKey().getDocument();
+			}
+			if (nodeDoc == null || document.equals(nodeDoc)) {
+				// The style is also flushed if the node is not attached to an document any more.
 				iter.remove();
 			}
 		}
@@ -162,6 +167,11 @@ public class StyleSheet {
 	 * @return
 	 */
 	public IElement getPseudoElement(final INode parent, final String pseudoElementName, final boolean hasContent) {
+		if (parent == null) {
+			System.out.println("Warning! StyleSheet#getPseudoElement Parent is null");
+			return null;
+		}
+
 		final String name = pseudoElementName.toLowerCase();
 		Styles styles = getStyles(parent);
 		if (!styles.hasPseudoElement(name)) {
@@ -169,7 +179,7 @@ public class StyleSheet {
 		}
 
 		styles = styles.getPseudoElementStyles(name);
-		if (hasContent && styles != null && styles.getContent(parent) == null) {
+		if (hasContent && (styles == null || !styles.isContentDefined())) {
 			return null;
 		}
 		return new PseudoElement(parent, name);

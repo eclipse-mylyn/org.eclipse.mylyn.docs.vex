@@ -107,6 +107,8 @@ public class BaseVexWidget implements IVexWidget {
 	 */
 	private static final int MIN_LAYOUT_WIDTH = 200;
 
+	private static final IWhitespacePolicy DEFAULT_POLICY = IWhitespacePolicy.ALL_BLOCKS;
+
 	private boolean debugging;
 	private boolean readOnly;
 
@@ -116,7 +118,7 @@ public class BaseVexWidget implements IVexWidget {
 
 	private IDocument document;
 	private StyleSheet styleSheet;
-	private IWhitespacePolicy whitespacePolicy = IWhitespacePolicy.NULL;
+	private IWhitespacePolicy whitespacePolicy = DEFAULT_POLICY;
 
 	private final BoxFactory boxFactory = new CssBoxFactory();
 
@@ -1749,7 +1751,7 @@ public class BaseVexWidget implements IVexWidget {
 	@Override
 	public void setWhitespacePolicy(final IWhitespacePolicy whitespacePolicy) {
 		if (whitespacePolicy == null) {
-			this.whitespacePolicy = IWhitespacePolicy.NULL;
+			this.whitespacePolicy = DEFAULT_POLICY;
 		} else {
 			this.whitespacePolicy = whitespacePolicy;
 		}
@@ -2002,6 +2004,7 @@ public class BaseVexWidget implements IVexWidget {
 		context.setDocument(document);
 		context.setGraphics(g);
 		context.setStyleSheet(styleSheet);
+		context.setWhitespacePolicy(whitespacePolicy);
 
 		if (hasSelection()) {
 			context.setSelectionStart(getSelectionStart());

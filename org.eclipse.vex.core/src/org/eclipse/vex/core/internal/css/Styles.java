@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     John Krasnay - initial API and implementation
  *     Dave Holroyd - Implement text decoration
@@ -131,6 +131,13 @@ public class Styles {
 	}
 
 	/**
+	 * @return <code>true</code> if the stylesheet defined content for this element.
+	 */
+	public boolean isContentDefined() {
+		return contentLexicalUnits.size() > 0;
+	}
+
+	/**
 	 * Returns a <code>List</code> of <code>ContentPart</code> objects representing the <code>content</code> property.<br />
 	 * The content is parsed on every access to get the actual values for attributes. Do not try to get the content via
 	 * the {@link #get(String)} method!
@@ -254,15 +261,6 @@ public class Styles {
 	 */
 	public String getWhiteSpace() {
 		return (String) values.get(CSS.WHITE_SPACE);
-	}
-
-	/**
-	 * Returns true if this element is block-formatted, or false if it is inline-formatted.
-	 */
-	public boolean isBlock() {
-		return getDisplay().equals(CSS.BLOCK) || getDisplay().equals(CSS.LIST_ITEM) || getDisplay().equals(CSS.TABLE) || getDisplay().equals(CSS.TABLE_CAPTION) || getDisplay().equals(CSS.TABLE_CELL)
-				|| getDisplay().equals(CSS.TABLE_COLUMN) || getDisplay().equals(CSS.TABLE_COLUMN_GROUP) || getDisplay().equals(CSS.TABLE_FOOTER_GROUP) || getDisplay().equals(CSS.TABLE_HEADER_GROUP)
-				|| getDisplay().equals(CSS.TABLE_ROW) || getDisplay().equals(CSS.TABLE_ROW_GROUP);
 	}
 
 	/**

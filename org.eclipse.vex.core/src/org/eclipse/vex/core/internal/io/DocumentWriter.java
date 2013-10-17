@@ -10,6 +10,7 @@
  *     Igor Jacy Lino Campista - Java 5 warnings fixed (bug 311325)
  *     Carsten Hiesserich - writeNoWrap(DocumentFragment) method
  *     Carsten Hiesserich - added processing instructions support
+ *     Carsten Hiesserich - use org.eclipse.jface.text.IDOcument as intermediate
  *******************************************************************************/
 package org.eclipse.vex.core.internal.io;
 
@@ -19,7 +20,9 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.util.Arrays;
 
+import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.vex.core.internal.css.IWhitespacePolicy;
+import org.eclipse.vex.core.internal.dom.DocumentTextPosition;
 import org.eclipse.vex.core.provisional.dom.AttributeDefinition;
 import org.eclipse.vex.core.provisional.dom.BaseNodeVisitor;
 import org.eclipse.vex.core.provisional.dom.IAttribute;
@@ -47,9 +50,16 @@ import org.eclipse.vex.core.provisional.dom.IValidator;
  */
 public class DocumentWriter {
 
+	private final String newLine = System.getProperty("line.separator");
+
 	private IWhitespacePolicy whitespacePolicy;
 	private String indent;
 	private int wrapColumn;
+
+	/** The INode that contains the editing caret */
+	private INode nodeAtCaret;
+	/** Stores the start offset when writing the node */
+	private int startOffsetOfCaretNode = 0;
 
 	public DocumentWriter() {
 		indent = "  ";
@@ -143,33 +153,60 @@ public class DocumentWriter {
 	}
 
 	public void write(final IDocument document, final OutputStream out) throws IOException {
-		final PrintWriter printWriter = new PrintWriter(new OutputStreamWriter(out, "UTF-8"));
-		printWriter.println("<?xml version='1.0' encoding='UTF-8'?>");
+		final org.eclipse.jface.text.Document doc = new org.eclipse.jface.text.Document();
+		docPrintln(doc, "<?xml version='1.0' encoding='UTF-8'?>");
+		writeNode(document, doc, "");
 
-		writeNode(document, printWriter, "");
-		printWriter.flush();
+		writeToOutputStream(out, doc);
 	}
 
 	public void write(final IDocumentFragment fragment, final OutputStream out) throws IOException {
-		final PrintWriter printWriter = new PrintWriter(new OutputStreamWriter(out, "UTF-8"));
-		printWriter.println("<?xml version='1.0' encoding='UTF-8'?>");
+		final org.eclipse.jface.text.Document doc = new org.eclipse.jface.text.Document();
+		docPrintln(doc, "<?xml version='1.0' encoding='UTF-8'?>");
+		writeNode(fragment, doc, "");
 
-		writeNode(fragment, printWriter, "");
-		printWriter.flush();
+		writeToOutputStream(out, doc);
 	}
 
 	public void writeNoWrap(final IDocumentFragment fragment, final OutputStream out) throws IOException {
-		final PrintWriter printWriter = new PrintWriter(new OutputStreamWriter(out, "UTF-8"));
+		final org.eclipse.jface.text.Document doc = new org.eclipse.jface.text.Document();
 
 		for (final INode child : fragment.children()) {
-			writeNodeNoWrap(child, printWriter);
+			writeNodeNoWrap(child, doc);
 		}
-		printWriter.flush();
+
+		writeToOutputStream(out, doc);
+	}
+
+	/**
+	 * Write the document to the given {@link org.eclipse.jface.text.IDocument}. The document is cleaed before the
+	 * content written.<br />
+	 * While writing the document a Position is created to track the caret when external changes occur.
+	 * 
+	 * @param document
+	 * @param doc
+	 * @param nodeAtCaret
+	 *            The node that currently contains the editing caret.
+	 * @return The Position of the given <code>nodeAtCaret</code>. (not added to the doc)
+	 */
+	public DocumentTextPosition write(final IDocument document, final org.eclipse.jface.text.IDocument doc, final INode nodeAtCaret) {
+		this.nodeAtCaret = nodeAtCaret;
+		doc.set("");
+		writeNode(document, doc, "");
+		return new DocumentTextPosition(startOffsetOfCaretNode);
 	}
 
 	// ====================================================== PRIVATE
 
-	private void writeNode(final INode node, final PrintWriter out, final String indent) {
+	private void writeToOutputStream(final OutputStream out, final org.eclipse.jface.text.Document doc) throws IOException {
+		final PrintWriter printWriter = new PrintWriter(new OutputStreamWriter(out, "UTF-8"));
+		printWriter.print(doc.get());
+		printWriter.flush();
+	}
+
+	private void writeNode(final INode node, final org.eclipse.jface.text.IDocument doc, final String indent) {
+		checkCaretPosition(node, doc);
+
 		node.accept(new BaseNodeVisitor() {
 			@Override
 			public void visit(final IDocument document) {
@@ -188,29 +225,29 @@ public class DocumentWriter {
 					buffer.append(" \"");
 					buffer.append(document.getSystemID());
 					buffer.append("\">");
-					out.println(buffer.toString());
+					docPrintln(doc, buffer.toString());
 				}
 
 				for (final INode child : document.children()) {
-					writeNode(child, out, indent);
+					writeNode(child, doc, indent);
 				}
 			}
 
 			@Override
 			public void visit(final IDocumentFragment fragment) {
-				out.print("<vex_fragment>");
+				docPrint(doc, "<vex_fragment>");
 				for (final INode child : fragment.children()) {
-					writeNodeNoWrap(child, out);
+					writeNodeNoWrap(child, doc);
 				}
-				out.println("</vex_fragment>");
+				docPrintln(doc, "</vex_fragment>");
 			}
 
 			@Override
 			public void visit(final IElement element) {
 				if (whitespacePolicy.isPre(element)) {
-					out.print(indent);
-					writeNodeNoWrap(node, out);
-					out.println();
+					docPrint(doc, indent);
+					writeNodeNoWrap(node, doc);
+					docPrintln(doc, "");
 					return;
 				}
 
@@ -223,9 +260,9 @@ public class DocumentWriter {
 				}
 
 				if (hasBlockChild) {
-					out.print(indent);
-					out.print("<");
-					out.print(element.getPrefixedName());
+					docPrint(doc, indent);
+					docPrint(doc, "<");
+					docPrint(doc, element.getPrefixedName());
 
 					final TextWrapper wrapper = new TextWrapper();
 					wrapper.addNoSplit(getNamespaceDeclarationsString(element));
@@ -234,40 +271,41 @@ public class DocumentWriter {
 					final String[] lines = wrapper.wrap(wrapColumn - outdent);
 					final char[] bigIndent = new char[outdent];
 					Arrays.fill(bigIndent, ' ');
+					final String bigIndentString = new String(bigIndent);
 					for (int i = 0; i < lines.length; i++) {
 						if (i > 0) {
-							out.print(bigIndent);
+							docPrint(doc, new String(bigIndentString));
 						}
-						out.print(lines[i]);
+						docPrint(doc, lines[i]);
 						if (i < lines.length - 1) {
-							out.println();
+							docPrintln(doc, "");
 						}
 					}
-					out.println(">");
+					docPrintln(doc, ">");
 
 					final String childIndent = indent + DocumentWriter.this.indent;
 					for (final INode child : element.children()) {
-						writeNode(child, out, childIndent);
+						writeNode(child, doc, childIndent);
 					}
-					out.print(indent);
-					out.print("</");
-					out.print(element.getPrefixedName());
-					out.println(">");
+					docPrint(doc, indent);
+					docPrint(doc, "</");
+					docPrint(doc, element.getPrefixedName());
+					docPrintln(doc, ">");
 				} else {
 					final TextWrapper wrapper = new TextWrapper();
-					addNode(element, wrapper);
+					addNode(element, wrapper, doc);
 					final String[] lines = wrapper.wrap(wrapColumn - indent.length());
 					for (final String line : lines) {
-						out.print(indent);
-						out.println(line);
+						docPrint(doc, indent);
+						docPrintln(doc, line);
 					}
 				}
 			}
 
 			@Override
 			public void visit(final IComment comment) {
-				out.print(indent);
-				out.println("<!--");
+				docPrint(doc, indent);
+				docPrintln(doc, "<!--");
 
 				final String childIndent = indent + DocumentWriter.this.indent;
 				final TextWrapper wrapper = new TextWrapper();
@@ -275,21 +313,21 @@ public class DocumentWriter {
 				final String[] lines = wrapper.wrap(wrapColumn - childIndent.length());
 
 				for (final String line : lines) {
-					out.print(childIndent);
-					out.println(line);
+					docPrint(doc, childIndent);
+					docPrintln(doc, line);
 				}
 
-				out.print(indent);
-				out.println("-->");
+				docPrint(doc, indent);
+				docPrintln(doc, "-->");
 			}
 
 			@Override
 			public void visit(final IProcessingInstruction pi) {
 				// Text in PI's is written as is with no wrapping
-				out.print(indent);
-				out.print("<?");
-				out.print(pi.getTarget() + " " + node.getText());
-				out.println("?>");
+				docPrint(doc, indent);
+				docPrint(doc, "<?");
+				docPrint(doc, pi.getTarget() + " " + node.getText());
+				docPrintln(doc, "?>");
 			}
 
 			@Override
@@ -300,49 +338,52 @@ public class DocumentWriter {
 				final String[] lines = wrapper.wrap(wrapColumn - indent.length());
 
 				for (final String line : lines) {
-					out.print(indent);
-					out.println(line);
+					docPrint(doc, indent);
+					docPrintln(doc, line);
 				}
 			}
 		});
 	}
 
-	private void writeNodeNoWrap(final INode node, final PrintWriter out) {
+	private void writeNodeNoWrap(final INode node, final org.eclipse.jface.text.IDocument doc) {
+
+		checkCaretPosition(node, doc);
+
 		node.accept(new BaseNodeVisitor() {
 			@Override
 			public void visit(final IElement element) {
-				out.print("<");
-				out.print(element.getPrefixedName());
-				out.print(getNamespaceDeclarationsString(element));
-				out.print(getAttributeString(element));
-				out.print(">");
+				docPrint(doc, "<");
+				docPrint(doc, element.getPrefixedName());
+				docPrint(doc, getNamespaceDeclarationsString(element));
+				docPrint(doc, getAttributeString(element));
+				docPrint(doc, ">");
 
 				for (final INode child : element.children()) {
-					writeNodeNoWrap(child, out);
+					writeNodeNoWrap(child, doc);
 				}
 
-				out.print("</");
-				out.print(element.getPrefixedName());
-				out.print(">");
+				docPrint(doc, "</");
+				docPrint(doc, element.getPrefixedName());
+				docPrint(doc, ">");
 			}
 
 			@Override
 			public void visit(final IComment comment) {
-				out.print("<!--");
-				out.print(escape(node.getText()));
-				out.print("-->");
+				docPrint(doc, "<!--");
+				docPrint(doc, escape(node.getText()));
+				docPrint(doc, "-->");
 			}
 
 			@Override
 			public void visit(final IProcessingInstruction pi) {
-				out.print("<?");
-				out.print(pi.getTarget() + " " + node.getText());
-				out.print("?>");
+				docPrint(doc, "<?");
+				docPrint(doc, pi.getTarget() + " " + node.getText());
+				docPrint(doc, "?>");
 			}
 
 			@Override
 			public void visit(final IText text) {
-				out.print(escape(node.getText()));
+				docPrint(doc, escape(node.getText()));
 			}
 		});
 	}
@@ -359,7 +400,10 @@ public class DocumentWriter {
 		return result.toString();
 	}
 
-	private static void addNode(final INode node, final TextWrapper wrapper) {
+	private void addNode(final INode node, final TextWrapper wrapper, final org.eclipse.jface.text.IDocument doc) {
+
+		checkCaretPosition(node, doc);
+
 		node.accept(new BaseNodeVisitor() {
 			@Override
 			public void visit(final IElement element) {
@@ -378,7 +422,7 @@ public class DocumentWriter {
 				wrapper.addNoSplit(buffer.toString());
 
 				for (final INode child : element.children()) {
-					addNode(child, wrapper);
+					addNode(child, wrapper, doc);
 				}
 
 				if (elementHasChildren) {
@@ -433,5 +477,40 @@ public class DocumentWriter {
 			}
 		}
 		return false;
+	}
+
+	private void checkCaretPosition(final INode node, final org.eclipse.jface.text.IDocument doc) {
+		if (startOffsetOfCaretNode > 0) {
+			// Offset already found
+			return;
+		}
+
+		INode nodeToCheck;
+		if (node instanceof IText) {
+			nodeToCheck = node.getParent();
+		} else {
+			nodeToCheck = node;
+		}
+
+		if (nodeToCheck.equals(nodeAtCaret)) {
+			// Store the start offset of the found node
+			startOffsetOfCaretNode = doc.getLength();
+		}
+	}
+
+	private void docPrint(final org.eclipse.jface.text.IDocument doc, final String text) {
+		try {
+			doc.replace(doc.getLength(), 0, text);
+		} catch (final BadLocationException e) {
+			e.printStackTrace();
+		}
+	}
+
+	private void docPrintln(final org.eclipse.jface.text.IDocument doc, final String text) {
+		try {
+			doc.replace(doc.getLength(), 0, text + newLine);
+		} catch (final BadLocationException e) {
+			e.printStackTrace();
+		}
 	}
 }

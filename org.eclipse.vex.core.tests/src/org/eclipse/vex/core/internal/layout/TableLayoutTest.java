@@ -18,6 +18,7 @@ import java.util.Stack;
 
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.vex.core.internal.core.DisplayDevice;
+import org.eclipse.vex.core.internal.css.CssWhitespacePolicy;
 import org.eclipse.vex.core.internal.css.MockDisplayDevice;
 import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.css.StyleSheetReader;
@@ -64,6 +65,7 @@ public class TableLayoutTest {
 				+ "tr     {display:table-row}" + "trg    {display:table-row-group}";
 		final StyleSheet styleSheet = new StyleSheetReader().read(css);
 		context.setStyleSheet(styleSheet);
+		context.setWhitespacePolicy(new CssWhitespacePolicy(styleSheet));
 
 		resetDocument();
 	}
@@ -188,11 +190,6 @@ public class TableLayoutTest {
 	@Test
 	public void testInvalidNesting3() {
 		test("td", "tr");
-	}
-
-	@Test
-	public void testInvalidNesting4() {
-		test("trg", "trg");
 	}
 
 	@Test

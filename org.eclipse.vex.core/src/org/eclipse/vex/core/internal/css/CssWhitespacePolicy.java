@@ -4,14 +4,19 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     John Krasnay - initial API and implementation
  *******************************************************************************/
 package org.eclipse.vex.core.internal.css;
 
+import org.eclipse.vex.core.provisional.dom.BaseNodeVisitorWithResult;
 import org.eclipse.vex.core.provisional.dom.DocumentContentModel;
+import org.eclipse.vex.core.provisional.dom.IComment;
+import org.eclipse.vex.core.provisional.dom.IElement;
 import org.eclipse.vex.core.provisional.dom.INode;
+import org.eclipse.vex.core.provisional.dom.IProcessingInstruction;
+import org.eclipse.vex.core.provisional.dom.IText;
 import org.eclipse.vex.core.provisional.dom.IValidator;
 
 /**
@@ -40,7 +45,108 @@ public class CssWhitespacePolicy implements IWhitespacePolicy {
 	}
 
 	public boolean isBlock(final INode node) {
-		return styleSheet.getStyles(node).isBlock();
+		return node.accept(new BaseNodeVisitorWithResult<Boolean>(true) {
+			@Override
+			public Boolean visit(final IElement element) {
+				if (isDisplay(node, CSS.BLOCK)) {
+					return true;
+				}
+
+				if (isDisplay(node, CSS.LIST_ITEM)) {
+					return true;
+				}
+
+				if (isDisplay(node, CSS.TABLE)) {
+					return true;
+				}
+
+				if (isDisplay(node, CSS.TABLE_CAPTION, CSS.TABLE)) {
+					return true;
+				}
+
+				if (isDisplay(node, CSS.TABLE_CELL, CSS.TABLE_ROW)) {
+					return true;
+				}
+
+				if (isDisplay(node, CSS.TABLE_COLUMN, CSS.TABLE_COLUMN_GROUP)) {
+					return true;
+				}
+
+				if (isDisplay(node, CSS.TABLE_COLUMN_GROUP, CSS.TABLE)) {
+					return true;
+				}
+
+				if (isDisplay(node, CSS.TABLE_FOOTER_GROUP, CSS.TABLE, CSS.TABLE_ROW_GROUP)) {
+					return true;
+				}
+
+				if (isDisplay(node, CSS.TABLE_HEADER_GROUP, CSS.TABLE, CSS.TABLE_ROW_GROUP)) {
+					return true;
+				}
+
+				if (isDisplay(node, CSS.TABLE_ROW_GROUP, CSS.TABLE, CSS.TABLE_ROW_GROUP)) {
+					return true;
+				}
+
+				if (isDisplay(node, CSS.TABLE_ROW, CSS.TABLE, CSS.TABLE_ROW_GROUP, CSS.TABLE_HEADER_GROUP, CSS.TABLE_FOOTER_GROUP)) {
+					return true;
+				}
+
+				return false;
+			}
+
+			@Override
+			public Boolean visit(final IComment comment) {
+				final boolean parentIsInline = !isBlock(comment.getParent());
+				final boolean isInline = CSS.INLINE.equals(getDisplay(comment));
+				return !(parentIsInline && isInline);
+			}
+
+			@Override
+			public Boolean visit(final IProcessingInstruction pi) {
+				final boolean parentIsInline = !isBlock(pi.getParent());
+				final boolean isInline = CSS.INLINE.equals(getDisplay(pi));
+				return !(parentIsInline && isInline);
+			}
+
+			@Override
+			public Boolean visit(final IText text) {
+				return false;
+			}
+		});
+	}
+
+	private boolean isDisplay(final INode node, final String display, final String... allowedParents) {
+		final String nodeDisplay = getDisplay(node);
+		final String parentDisplay = getDisplay(node.getParent());
+
+		if (!display.equals(nodeDisplay)) {
+			return false;
+		}
+
+		if (allowedParents.length == 0) {
+			return true;
+		}
+
+		for (final String parent : allowedParents) {
+			if (parent.equals(parentDisplay)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private String getDisplay(final INode node) {
+		if (node == null) {
+			return DisplayProperty.DEFAULT;
+		}
+
+		final Styles styles = styleSheet.getStyles(node);
+		if (styles == null) {
+			return DisplayProperty.DEFAULT;
+		}
+
+		return styles.getDisplay();
 	}
 
 	public boolean isPre(final INode node) {

@@ -23,7 +23,7 @@
 				</property>
 			</activation>
 			<properties>
-				<qualifier-format>yyyyMMddHHmm</qualifier-format>
+				<qualifier-format>'z'yyyyMMddHHmm</qualifier-format>
 			</properties>
 		</profile>
 		<profile>
@@ -36,6 +36,18 @@
 			</activation>
 			<properties>
 				<qualifier-format>'${milestone}_'yyyyMMddHHmm</qualifier-format>
+			</properties>
+		</profile>
+		<profile>
+			<id>release-build</id>
+			<activation>
+				<property>
+					<name>build-type</name>
+					<value>release</value>
+				</property>
+			</activation>
+			<properties>
+				<qualifier-format>yyyyMMddHHmm</qualifier-format>
 			</properties>
 		</profile>
 	</profiles>

@@ -59,10 +59,13 @@ public class TableBox extends AbstractBlockBox {
 		final StyleSheet styleSheet = context.getStyleSheet();
 
 		// :before content
-		final IElement before = styleSheet.getPseudoElement(node, CSS.PSEUDO_BEFORE, true);
-		if (before != null) {
-			// before element of tables is always displayed as block
-			children.add(new BlockPseudoElementBox(context, before, this, width));
+		if (!isAnonymous()) {
+			// This might be an anonymous box if we have nested TABLE-ROW-GROUP's
+			final IElement before = styleSheet.getPseudoElement(node, CSS.PSEUDO_BEFORE, true);
+			if (before != null) {
+				// before element of tables is always displayed as block
+				children.add(new BlockPseudoElementBox(context, before, this, width));
+			}
 		}
 
 		iterateChildrenByDisplayStyle(context.getStyleSheet(), captionOrColumnStyles, new ElementOrRangeCallback() {
@@ -76,9 +79,11 @@ public class TableBox extends AbstractBlockBox {
 		});
 
 		// :after content
-		final IElement after = styleSheet.getPseudoElement(node, CSS.PSEUDO_AFTER, true);
-		if (after != null) {
-			children.add(new BlockPseudoElementBox(context, after, this, width));
+		if (!isAnonymous()) {
+			final IElement after = styleSheet.getPseudoElement(node, CSS.PSEUDO_AFTER, true);
+			if (after != null) {
+				children.add(new BlockPseudoElementBox(context, after, this, width));
+			}
 		}
 
 		return children;

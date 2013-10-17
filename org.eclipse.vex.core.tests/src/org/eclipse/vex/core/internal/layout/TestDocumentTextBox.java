@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     John Krasnay - initial API and implementation
  *******************************************************************************/
@@ -17,6 +17,7 @@ import static org.junit.Assert.assertNull;
 import java.net.URL;
 
 import org.eclipse.core.runtime.QualifiedName;
+import org.eclipse.vex.core.internal.css.CssWhitespacePolicy;
 import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.css.StyleSheetReader;
 import org.eclipse.vex.core.internal.css.Styles;
@@ -46,6 +47,7 @@ public class TestDocumentTextBox {
 		context.setBoxFactory(new CssBoxFactory());
 		context.setGraphics(g);
 		context.setStyleSheet(ss);
+		context.setWhitespacePolicy(new CssWhitespacePolicy(ss));
 	}
 
 	@Test

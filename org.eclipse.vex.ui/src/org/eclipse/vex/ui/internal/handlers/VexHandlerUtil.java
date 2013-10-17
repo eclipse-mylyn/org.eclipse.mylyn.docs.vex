@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2008 John Krasnay and others.
+ * Copyright (c) 2004, 2013 John Krasnay and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,11 +8,14 @@
  * Contributors:
  *     John Krasnay - initial API and implementation
  *     Igor Jacy Lino Campista - Java 5 warnings fixed (bug 311325)
+ *     Carsten Hiesserich - use a visitor to create a new table row
  *******************************************************************************/
 package org.eclipse.vex.ui.internal.handlers;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
@@ -21,15 +24,19 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.handlers.HandlerUtil;
 import org.eclipse.vex.core.internal.css.CSS;
 import org.eclipse.vex.core.internal.css.StyleSheet;
-import org.eclipse.vex.core.internal.dom.CopyOfElement;
 import org.eclipse.vex.core.internal.layout.ElementOrRangeCallback;
 import org.eclipse.vex.core.internal.layout.LayoutUtils;
 import org.eclipse.vex.core.internal.widget.IVexWidget;
 import org.eclipse.vex.core.internal.widget.swt.VexWidget;
+import org.eclipse.vex.core.provisional.dom.BaseNodeVisitor;
 import org.eclipse.vex.core.provisional.dom.ContentRange;
+import org.eclipse.vex.core.provisional.dom.IAttribute;
+import org.eclipse.vex.core.provisional.dom.IComment;
 import org.eclipse.vex.core.provisional.dom.IDocument;
 import org.eclipse.vex.core.provisional.dom.IElement;
+import org.eclipse.vex.core.provisional.dom.INode;
 import org.eclipse.vex.core.provisional.dom.IParent;
+import org.eclipse.vex.core.provisional.dom.IProcessingInstruction;
 import org.eclipse.vex.ui.internal.editor.VexEditor;
 
 /**
@@ -87,53 +94,67 @@ public final class VexHandlerUtil {
 	}
 
 	/**
-	 * Clone the table cells from the given TableRowBox to the current offset in vexWidget.
-	 * 
-	 * @param vexWidget
-	 *            IVexWidget to modify.
-	 * @param tableRow
-	 *            TableRowBox whose cells are to be cloned.
-	 * @param moveToFirstCell
-	 *            TODO
-	 */
-	public static void cloneTableCells(final IVexWidget vexWidget, final IElement tableRow, final boolean moveToFirstCell) {
-		vexWidget.doWork(new Runnable() {
-			public void run() {
-				int firstCellOffset = -1;
-				for (final IElement cell : tableRow.childElements()) {
-					final IElement newElement = vexWidget.insertElement(cell.getQualifiedName());
-					newElement.accept(new CopyOfElement(cell));
-					if (firstCellOffset == -1) {
-						firstCellOffset = newElement.getEndOffset();
-					}
-				}
-
-				if (moveToFirstCell && firstCellOffset != -1) {
-					vexWidget.moveTo(firstCellOffset);
-				}
-			}
-		});
-	}
-
-	/**
-	 * Duplicate the given table row, inserting a new empty one below it. The new row contains empty children
+	 * Duplicate the given table row, inserting a new empty one aove or below it. The new row contains empty children
 	 * corresponding to the given row's children.
 	 * 
 	 * @param vexWidget
 	 *            IVexWidget with which we're working
 	 * @param tableRow
 	 *            TableRowBox to be duplicated.
+	 * @param addAbove
+	 *            <code>true</code> to add the new row above the current one
 	 */
-	public static void duplicateTableRow(final IVexWidget vexWidget, final IElement tableRow) {
-		vexWidget.doWork(new Runnable() {
-			public void run() {
-				vexWidget.moveTo(tableRow.getEndOffset());
-				vexWidget.moveBy(+1); // Move past sentinel in current row
-				final IElement newElement = vexWidget.insertElement(tableRow.getQualifiedName());
-				newElement.accept(new CopyOfElement(tableRow));
-				cloneTableCells(vexWidget, tableRow, true);
-			}
-		});
+	public static void duplicateTableRow(final IVexWidget vexWidget, final IElement tableRow, final boolean addAbove) {
+		final StyleSheet styleSheet = vexWidget.getStyleSheet();
+		if (!styleSheet.getStyles(tableRow).getDisplay().equals(CSS.TABLE_ROW)) {
+			return;
+		}
+
+		if (addAbove) {
+			vexWidget.moveTo(tableRow.getStartOffset());
+		} else {
+			vexWidget.moveTo(tableRow.getEndOffset() + 1);
+		}
+
+		// Create a new table row
+		final IElement newRow = vexWidget.insertElement(tableRow.getQualifiedName());
+
+		// Iterate all direct children and add them to the new row
+		final Iterator<? extends INode> childIterator = tableRow.children().withoutText().iterator();
+		while (childIterator.hasNext()) {
+			childIterator.next().accept(new BaseNodeVisitor() {
+				@Override
+				public void visit(final IElement element) {
+					final IElement newElement = vexWidget.insertElement(element.getQualifiedName());
+					for (final IAttribute attr : element.getAttributes()) {
+						newElement.setAttribute(attr.getQualifiedName(), attr.getValue());
+					}
+					vexWidget.moveBy(1);
+				}
+
+				@Override
+				public void visit(final IComment comment) {
+					// Comments are copied with content
+					vexWidget.insertComment();
+					vexWidget.insertText(comment.getText());
+					vexWidget.moveBy(1);
+				}
+
+				@Override
+				public void visit(final IProcessingInstruction pi) {
+					// Processing instructions are copied with target and  content
+					vexWidget.insertProcessingInstruction(pi.getTarget());
+					vexWidget.insertText(pi.getText());
+					vexWidget.moveBy(1);
+				}
+			});
+		}
+		try {
+			final INode firstTextChild = newRow.childElements().first();
+			vexWidget.moveTo(firstTextChild.getStartOffset());
+		} catch (final NoSuchElementException ex) {
+			vexWidget.moveTo(newRow.getStartOffset() + 1);
+		}
 	}
 
 	/**

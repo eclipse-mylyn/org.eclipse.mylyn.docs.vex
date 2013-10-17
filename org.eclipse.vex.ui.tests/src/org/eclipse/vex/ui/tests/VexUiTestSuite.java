@@ -14,6 +14,7 @@ package org.eclipse.vex.ui.tests;
 import org.eclipse.vex.ui.internal.config.tests.ConfigLoaderJobTest;
 import org.eclipse.vex.ui.internal.config.tests.ConfigurationRegistryTest;
 import org.eclipse.vex.ui.internal.editor.tests.FindReplaceTargetTest;
+import org.eclipse.vex.ui.internal.editor.tests.HandlerUtilTest;
 import org.eclipse.vex.ui.internal.namespace.tests.EditNamespacesControllerTest;
 import org.eclipse.vex.ui.internal.outline.tests.OutlineFilterTest;
 import org.eclipse.vex.ui.internal.outline.tests.OutlineProviderTest;
@@ -21,6 +22,7 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
 @RunWith(Suite.class)
-@Suite.SuiteClasses({ ConfigLoaderJobTest.class, ConfigurationRegistryTest.class, EditNamespacesControllerTest.class, FindReplaceTargetTest.class, OutlineProviderTest.class, OutlineFilterTest.class })
+@Suite.SuiteClasses({ ConfigLoaderJobTest.class, ConfigurationRegistryTest.class, EditNamespacesControllerTest.class, FindReplaceTargetTest.class, OutlineProviderTest.class, OutlineFilterTest.class,
+		HandlerUtilTest.class })
 public class VexUiTestSuite {
 }

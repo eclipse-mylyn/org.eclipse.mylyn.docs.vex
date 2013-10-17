@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     John Krasnay - initial API and implementation
  *     Igor Jacy Lino Campista - Java 5 warnings fixed (bug 311325)
@@ -23,7 +23,7 @@ import org.eclipse.vex.core.internal.core.ColorResource;
 import org.eclipse.vex.core.internal.core.FontMetrics;
 import org.eclipse.vex.core.internal.core.Graphics;
 import org.eclipse.vex.core.internal.core.Insets;
-import org.eclipse.vex.core.internal.css.CSS;
+import org.eclipse.vex.core.internal.css.IWhitespacePolicy;
 import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.css.Styles;
 import org.eclipse.vex.core.internal.widget.IBoxFilter;
@@ -36,7 +36,6 @@ import org.eclipse.vex.core.provisional.dom.INode;
 import org.eclipse.vex.core.provisional.dom.IParent;
 import org.eclipse.vex.core.provisional.dom.IPosition;
 import org.eclipse.vex.core.provisional.dom.IProcessingInstruction;
-import org.eclipse.vex.core.provisional.dom.IText;
 
 /**
  * Base class of block boxes that can contain other block boxes. This class implements the layout method and various
@@ -406,7 +405,7 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 	@Override
 	public boolean hasContent() {
 		if (isAnonymous()) {
-			return false;
+			return hasChildren();
 		}
 		return getNode().isAssociated();
 	}
@@ -788,7 +787,7 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 		public Object next() {
 			if (!pushStack.isEmpty()) {
 				return pushStack.removeLast();
-			} else if (startOffset == endOffset) {
+			} else if (startOffset >= endOffset) {
 				return null;
 			} else {
 				final INode blockNode = findNextBlockNode(context, parent, startOffset, endOffset);
@@ -906,12 +905,13 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 	 *            The offset at which to end the search.
 	 */
 	private static INode findNextBlockNode(final LayoutContext context, final IParent parent, final int startOffset, final int endOffset) {
+		final IWhitespacePolicy policy = context.getWhitespacePolicy();
 		for (final INode child : parent.children().in(new ContentRange(startOffset, endOffset)).withoutText()) {
 			final INode nextBlockNode = child.accept(new BaseNodeVisitorWithResult<INode>() {
 				@Override
 				public INode visit(final IElement element) {
 					// found?
-					if (!isInline(context, element, parent)) {
+					if (policy.isBlock(element)) {
 						return element;
 					}
 
@@ -926,7 +926,7 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 
 				@Override
 				public INode visit(final IComment comment) {
-					if (!isInline(context, comment, parent)) {
+					if (policy.isBlock(comment)) {
 						return comment;
 					}
 					return null;
@@ -934,7 +934,7 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 
 				@Override
 				public INode visit(final IProcessingInstruction pi) {
-					if (!isInline(context, pi, parent)) {
+					if (policy.isBlock(pi)) {
 						return pi;
 					}
 					return null;
@@ -946,88 +946,6 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 		}
 
 		return null;
-	}
-
-	private static boolean isInline(final LayoutContext context, final INode child, final INode parent) {
-		final String style = displayStyleOf(child, context);
-		final String parentStyle = displayStyleOf(parent, context);
-
-		return child.accept(new BaseNodeVisitorWithResult<Boolean>(false) {
-			@Override
-			public Boolean visit(final IElement element) {
-				if (style.equals(CSS.INLINE)) {
-					return true;
-				}
-
-				// invalid nested table elements have to be shown as 'inline': 
-
-				// parent of 'table-cell': 'table-row'
-				if (style.equals(CSS.TABLE_CELL) && !parentStyle.equals(CSS.TABLE_ROW)) {
-					return true;
-				}
-
-				// parent of 'table-row': 'table', 'table-row-group', 
-				// 'table-header-group' or 'table-footer-group'
-				if (style.equals(CSS.TABLE_ROW) && !parentStyle.equals(CSS.TABLE) && !parentStyle.equals(CSS.TABLE_ROW_GROUP) && !parentStyle.equals(CSS.TABLE_HEADER_GROUP)
-						&& !parentStyle.equals(CSS.TABLE_FOOTER_GROUP)) {
-					return true;
-				}
-
-				// parent of 'table-row-group', table-header-group'
-				// or 'table-footer-group': 'table'
-				if ((style.equals(CSS.TABLE_ROW_GROUP) || style.equals(CSS.TABLE_HEADER_GROUP) || style.equals(CSS.TABLE_FOOTER_GROUP)) && !parentStyle.equals(CSS.TABLE)) {
-					return true;
-				}
-
-				// parent of 'table-column': 'table-column-group'
-				if (style.equals(CSS.TABLE_COLUMN) && !parentStyle.equals(CSS.TABLE_COLUMN_GROUP)) {
-					return true;
-				}
-
-				// parent of 'table-column-group': 'table'
-				if (style.equals(CSS.TABLE_COLUMN_GROUP) && !parentStyle.equals(CSS.TABLE)) {
-					return true;
-				}
-
-				// parent of 'table-caption': 'table'
-				if (style.equals(CSS.TABLE_CAPTION) && !parentStyle.equals(CSS.TABLE)) {
-					return true;
-				}
-
-				return false;
-			}
-
-			@Override
-			public Boolean visit(final IComment comment) {
-				final boolean parentIsInline = parent.accept(new BaseNodeVisitorWithResult<Boolean>(false) {
-					@Override
-					public Boolean visit(final IElement element) {
-						return parentStyle.equals(CSS.INLINE);
-					};
-				});
-				return parentIsInline && style.equals(CSS.INLINE);
-			}
-
-			@Override
-			public Boolean visit(final IProcessingInstruction pi) {
-				final boolean parentIsInline = parent.accept(new BaseNodeVisitorWithResult<Boolean>(false) {
-					@Override
-					public Boolean visit(final IElement element) {
-						return parentStyle.equals(CSS.INLINE);
-					};
-				});
-				return parentIsInline && style.equals(CSS.INLINE);
-			}
-
-			@Override
-			public Boolean visit(final IText text) {
-				return true;
-			}
-		});
-	}
-
-	private static String displayStyleOf(final INode node, final LayoutContext context) {
-		return context.getStyleSheet().getStyles(node).getDisplay();
 	}
 
 	/**
