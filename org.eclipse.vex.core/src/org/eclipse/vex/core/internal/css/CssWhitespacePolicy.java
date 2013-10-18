@@ -56,6 +56,19 @@ public class CssWhitespacePolicy implements IWhitespacePolicy {
 					return true;
 				}
 
+				if (isDisplay(node, CSS.INCLUDE)) {
+					// When this method is called by the DocumentBuilder, the note is not yet associated
+					if (!node.isAssociated() || node.getDocument() == null) {
+						return false;
+					}
+
+					if (node.getDocument().canInsertText(node.getStartOffset())) {
+						return false;
+					}
+
+					return isBlock(element.getParent());
+				}
+
 				if (isDisplay(node, CSS.TABLE)) {
 					return true;
 				}

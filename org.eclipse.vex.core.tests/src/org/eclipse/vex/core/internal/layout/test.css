@@ -24,6 +24,29 @@ p {
   display: block;
 }
 
+blockNoInsert {
+	display: block;
+}
+
+include {
+	display: include;
+}
+
+includeb {
+	display: include;
+}
+
+includeb:before {
+	display: inline;
+	content: "before";
+}
+
+includeb:after {
+	display: inline;
+	content: "after";
+}
+
+
 .blockAfter:after {
   display: block;
   content: 'AFTER';

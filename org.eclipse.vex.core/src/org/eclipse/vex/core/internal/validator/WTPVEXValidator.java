@@ -346,6 +346,10 @@ public class WTPVEXValidator implements IValidator {
 			return true;
 		}
 
+		if (Namespace.XINCLUDE_NAMESPACE_URI.equals(element.getQualifier())) {
+			return isValidSequenceXInclude(nodes, partial);
+		}
+
 		final CMDocument document = getContentModelDoc(element.getQualifier());
 		if (document == null) {
 			System.out.println("Unable to resolve validation schema for " + element.getQualifier());
@@ -360,27 +364,24 @@ public class WTPVEXValidator implements IValidator {
 		final CMElementDeclaration elementDeclaration = (CMElementDeclaration) parent;
 		final ElementPathRecordingResult validationResult = new ElementPathRecordingResult();
 		final List<String> nodeNames = new ArrayList<String>();
+		int elementCount = 0;
 		for (final QualifiedName node : nodes) {
-			nodeNames.add(node.getLocalName()); // TODO learn how the WTP content model handles namespaces
+			// XInlude is normally not a an allowed elements (parser are expected to process
+			// XIncludes before validation), so we ignore them here.
+			if (!Namespace.XINCLUDE_NAMESPACE_URI.equals(node.getQualifier())) {
+				nodeNames.add(node.getLocalName()); // TODO learn how the WTP content model handles namespaces
+				if (ELEMENT_CONTENT_COMPARATOR.isElement(node.getLocalName())) {
+					elementCount++;
+				}
+			}
 		}
 		validator.validate(elementDeclaration, nodeNames, ELEMENT_CONTENT_COMPARATOR, validationResult);
 
-		final int elementCount = getElementCount(nodes);
 		if (partial && elementCount > 0) {
 			return validationResult.getPartialValidationCount() >= elementCount;
 		}
 
 		return validationResult.isValid;
-	}
-
-	private static int getElementCount(final List<QualifiedName> nodes) {
-		int count = 0;
-		for (final QualifiedName node : nodes) {
-			if (ELEMENT_CONTENT_COMPARATOR.isElement(node.getLocalName())) {
-				count++;
-			}
-		}
-		return count;
 	}
 
 	public boolean isValidSequence(final QualifiedName element, final List<QualifiedName> seq1, final List<QualifiedName> seq2, final List<QualifiedName> seq3, final boolean partial) {
@@ -395,6 +396,10 @@ public class WTPVEXValidator implements IValidator {
 			joinedSequence.addAll(seq3);
 		}
 		return isValidSequence(element, joinedSequence, partial);
+	}
+
+	public boolean isValidSequenceXInclude(final List<QualifiedName> nodes, final boolean partial) {
+		return false;
 	}
 
 	public Set<String> getRequiredNamespaces() {

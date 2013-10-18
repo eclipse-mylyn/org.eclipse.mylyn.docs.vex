@@ -81,6 +81,7 @@ public class LayoutTest extends TestCase {
 		suite.addTest(loadSuite("tables.xml"));
 		suite.addTest(loadSuite("simple-edit.xml"));
 		suite.addTest(loadSuite("comment-processing-instr.xml"));
+		suite.addTest(loadSuite("include.xml"));
 		return suite;
 	}
 
@@ -189,7 +190,7 @@ public class LayoutTest extends TestCase {
 
 		boxSpec.children.removeAll(toRemove);
 
-		if (invalidateParentBlock && box instanceof BlockBox && box.getNode() != null) {
+		if (invalidateParentBlock && box instanceof BlockBox && !box.isAnonymous()) {
 			((BlockBox) box).invalidate(true);
 			invalidateParentBlock = false;
 		}

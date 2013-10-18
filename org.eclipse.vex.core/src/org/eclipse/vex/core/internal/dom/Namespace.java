@@ -26,4 +26,6 @@ public class Namespace {
 
 	public static final String VEX_NAMESPACE_URI = "http://www.eclipse.org/vex";
 
+	public static final String XINCLUDE_NAMESPACE_URI = "http://www.w3.org/2001/XInclude";
+
 }

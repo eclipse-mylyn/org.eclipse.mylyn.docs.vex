@@ -188,9 +188,18 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 	@Override
 	public void copySelection() {
 		final Clipboard clipboard = new Clipboard(getDisplay());
-		final Object[] data = { getSelectedFragment(), getSelectedText() };
-		final Transfer[] transfers = { DocumentFragmentTransfer.getInstance(), TextTransfer.getInstance() };
-		clipboard.setContents(data, transfers);
+		final String text = getSelectedText();
+		if (text.isEmpty()) {
+			// Some elements (like XInclude) may not contain textual content. 
+			final Object[] data = { getSelectedFragment() };
+			final Transfer[] transfers = { DocumentFragmentTransfer.getInstance() };
+			clipboard.setContents(data, transfers);
+		} else {
+			final Object[] data = { getSelectedFragment(), getSelectedText() };
+			final Transfer[] transfers = { DocumentFragmentTransfer.getInstance(), TextTransfer.getInstance() };
+			clipboard.setContents(data, transfers);
+		}
+
 	}
 
 	@Override

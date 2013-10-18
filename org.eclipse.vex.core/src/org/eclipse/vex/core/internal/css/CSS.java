@@ -191,6 +191,7 @@ public interface CSS {
 	public static final String DOTTED = "dotted";
 	public static final String DOUBLE = "double";
 	public static final String GROOVE = "groove";
+	public static final String INCLUDE = "include";
 	public static final String INLINE = "inline";
 	public static final String INLINE_BLOCK = "inline-block";
 	public static final String INLINE_TABLE = "inline-table";
@@ -238,6 +239,7 @@ public interface CSS {
 	// Common element names
 	public static final String XML_PROCESSING_INSTRUCTION = "processing-instruction";
 	public static final String XML_COMMENT = "comment";
+	public static final String XINCLUDE_NAMESPACE_PREFIX = "xi";
 	public static final String VEX_NAMESPACE_PREFIX = "vex";
 
 	// Pseudo elements

@@ -305,7 +305,12 @@ public class InlineElementBox extends CompositeInlineBox {
 						@Override
 						public void visit(final IElement element) {
 							addPlaceholderBox(result, new PlaceholderBox(context, node, element.getStartOffset() - node.getStartOffset()));
-							final InlineBox child = new InlineElementBox(context, element, range.getStartOffset(), range.getEndOffset());
+							InlineBox child;
+							if (CSS.INCLUDE.equals(context.getStyleSheet().getStyles(element).getDisplay())) {
+								child = new IncludeInlineBox(context, element, range.getStartOffset(), range.getEndOffset());
+							} else {
+								child = new InlineElementBox(context, element, range.getStartOffset(), range.getEndOffset());
+							}
 							addChildInlineBox(result, child);
 						}
 

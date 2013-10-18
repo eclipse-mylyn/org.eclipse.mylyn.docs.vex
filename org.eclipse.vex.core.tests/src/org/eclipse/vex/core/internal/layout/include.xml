@@ -1,0 +1,117 @@
+<?xml version='1.0'?>
+<testcases css="test.css">
+
+	<test id="Include BlockBox" layoutWidth="100">
+		<doc><![CDATA[ <root><blockNoInsert><include/></blockNoInsert></root> ]]></doc>
+		<result>
+			<box class="RootBox">
+				<box class="BlockElementBox">
+					<box class="BlockElementBox" element="root">
+						<box class="BlockElementBox" element="blockNoInsert">
+							<box class="IncludeBlockBox" element="include">
+								<box class="ParagraphBox">
+									<box class="LineBox">
+										<box class="StaticTextBox" />
+									</box>
+								</box>
+							</box>
+						</box>
+					</box>
+				</box>
+			</box>
+		</result>
+	</test>
+	
+	<test id="Include BlockBox With Before" layoutWidth="100">
+		<doc><![CDATA[ <root><blockNoInsert><includeb/></blockNoInsert></root> ]]></doc>
+		<result>
+			<box class="RootBox">
+				<box class="BlockElementBox">
+					<box class="BlockElementBox" element="root">
+						<box class="BlockElementBox" element="blockNoInsert">
+							<box class="IncludeBlockBox" element="includeb">
+								<box class="ParagraphBox">
+									<box class="LineBox">
+										<box class="StaticTextBox" text="before" />
+										<box class="StaticTextBox" text="after" />
+									</box>
+								</box>
+							</box>
+						</box>
+					</box>
+				</box>
+			</box>
+		</result>
+	</test>
+	
+	<test id="Include InlineBox" layoutWidth="100">
+		<doc><![CDATA[ <root><p><include/></p></root> ]]></doc>
+		<result>
+			<box class="RootBox">
+				<box class="BlockElementBox">
+					<box class="BlockElementBox" element="root">
+						<box class="BlockElementBox" element="p">
+							<box class="ParagraphBox">
+								<box class="LineBox">
+									<box class="PlaceholderBox" />
+										<box class="IncludeInlineBox" element="include">
+											<box class="StaticTextBox" />
+										</box>
+									<box class="PlaceholderBox" />
+								</box>
+							</box>
+						</box>
+					</box>
+				</box>
+			</box>
+		</result>
+	</test>
+	
+	<test id="Include InlineBox With Before And After" layoutWidth="100">
+		<doc><![CDATA[ <root><p><includeb/></p></root> ]]></doc>
+		<result>
+			<box class="RootBox">
+				<box class="BlockElementBox">
+					<box class="BlockElementBox" element="root">
+						<box class="BlockElementBox" element="p">
+							<box class="ParagraphBox">
+								<box class="LineBox">
+									<box class="PlaceholderBox" />
+										<box class="IncludeInlineBox" element="includeb">
+											<box class="StaticTextBox" text="before"/>
+											<box class="StaticTextBox" text="after" />
+										</box>
+									<box class="PlaceholderBox" />
+								</box>
+							</box>
+						</box>
+					</box>
+				</box>
+			</box>
+		</result>
+	</test>
+	
+	<test id="Remove InlineBox" layoutWidth="100" performActions="true">
+		<doc><![CDATA[ <root><p><includeb/></p></root> ]]></doc>
+		<result>
+			<box class="RootBox">
+				<box class="BlockElementBox">
+					<box class="BlockElementBox" element="root">
+						<box class="BlockElementBox" element="p">
+							<box class="ParagraphBox">
+								<box class="LineBox">
+									<box class="PlaceholderBox" shouldBeRemoved="1"/>
+										<box class="IncludeInlineBox" element="includeb" removeElementAction="1">
+											<box class="StaticTextBox" text="before"/>
+											<box class="StaticTextBox" text="after" />
+										</box>
+									<box class="PlaceholderBox" />
+								</box>
+							</box>
+						</box>
+					</box>
+				</box>
+			</box>
+		</result>
+	</test>
+</testcases>

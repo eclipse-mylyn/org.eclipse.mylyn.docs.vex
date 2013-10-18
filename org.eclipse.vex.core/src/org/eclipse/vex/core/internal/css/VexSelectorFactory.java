@@ -30,7 +30,10 @@ public class VexSelectorFactory extends DefaultSelectorFactory {
 		final int seperatorIndex = tagName != null ? tagName.indexOf("|") : -1;
 		if (seperatorIndex > -1) {
 			final String namespacePrefix = tagName.substring(0, seperatorIndex);
-			if (namespacePrefix.equals(CSS.VEX_NAMESPACE_PREFIX)) {
+			if (namespacePrefix.equals(CSS.XINCLUDE_NAMESPACE_PREFIX)) {
+				namespaceURI = Namespace.XINCLUDE_NAMESPACE_URI;
+				tagName = tagName.substring(seperatorIndex + 1);
+			} else if (namespacePrefix.equals(CSS.VEX_NAMESPACE_PREFIX)) {
 				namespaceURI = Namespace.VEX_NAMESPACE_URI;
 				tagName = tagName.substring(seperatorIndex + 1);
 			}

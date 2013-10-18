@@ -64,6 +64,11 @@ public class DummyValidator implements IValidator {
 		return false;
 	}
 
+	@Override
+	public boolean isValidSequenceXInclude(final List<QualifiedName> nodes, final boolean partial) {
+		return false;
+	}
+
 	public Set<String> getRequiredNamespaces() {
 		return Collections.emptySet();
 	}

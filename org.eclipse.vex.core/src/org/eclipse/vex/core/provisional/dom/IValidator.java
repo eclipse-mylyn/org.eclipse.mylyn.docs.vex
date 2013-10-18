@@ -58,6 +58,11 @@ public interface IValidator {
 			return false;
 		}
 
+		@Override
+		public boolean isValidSequenceXInclude(final List<QualifiedName> nodes, final boolean partial) {
+			return false;
+		}
+
 		public Set<String> getRequiredNamespaces() {
 			return Collections.emptySet();
 		}
@@ -128,6 +133,17 @@ public interface IValidator {
 	 *            If true, an valid but incomplete sequence is acceptable.
 	 */
 	boolean isValidSequence(QualifiedName element, List<QualifiedName> seq1, List<QualifiedName> seq2, List<QualifiedName> seq3, boolean partial);
+
+	/**
+	 * Returns true if the given sequence is valid for an XInclude element. We totally ignore the XInclude Schema here
+	 * and allow nothing.
+	 * 
+	 * @param nodes
+	 *            Array of element names and Validator.PCDATA.
+	 * @param partial
+	 *            If true, an valid but incomplete sequence is acceptable.
+	 */
+	boolean isValidSequenceXInclude(List<QualifiedName> nodes, boolean partial);
 
 	/**
 	 * Returns a set of QualifiedNames representing valid root elements for the given document type.

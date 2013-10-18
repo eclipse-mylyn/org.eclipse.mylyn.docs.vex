@@ -52,7 +52,7 @@ public class DisplayProperty extends AbstractProperty {
 			final String s = lu.getStringValue();
 			return s.equals(CSS.BLOCK) || s.equals(CSS.INLINE) || s.equals(CSS.INLINE_BLOCK) || s.equals(CSS.INLINE_TABLE) || s.equals(CSS.LIST_ITEM) || s.equals(CSS.RUN_IN) || s.equals(CSS.TABLE)
 					|| s.equals(CSS.TABLE_CAPTION) || s.equals(CSS.TABLE_CELL) || s.equals(CSS.TABLE_COLUMN) || s.equals(CSS.TABLE_COLUMN_GROUP) || s.equals(CSS.TABLE_FOOTER_GROUP)
-					|| s.equals(CSS.TABLE_HEADER_GROUP) || s.equals(CSS.TABLE_ROW) || s.equals(CSS.TABLE_ROW_GROUP);
+					|| s.equals(CSS.TABLE_HEADER_GROUP) || s.equals(CSS.TABLE_ROW) || s.equals(CSS.TABLE_ROW_GROUP) || s.equals(CSS.INCLUDE);
 		} else {
 			return false;
 		}

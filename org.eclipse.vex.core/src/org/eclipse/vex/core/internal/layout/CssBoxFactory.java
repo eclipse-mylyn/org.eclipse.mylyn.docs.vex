@@ -43,8 +43,11 @@ public class CssBoxFactory implements BoxFactory {
 
 			@Override
 			public Box visit(final IElement element) {
-				if (styles.getDisplay().equals(CSS.TABLE)) {
+				final String displayStyle = styles.getDisplay();
+				if (displayStyle.equals(CSS.TABLE)) {
 					return new TableBox(context, parentBox, element);
+				} else if (displayStyle.equals(CSS.INCLUDE)) {
+					return new IncludeBlockBox(context, parentBox, element);
 				} else if (context.getWhitespacePolicy().isBlock(element)) {
 					return new BlockElementBox(context, parentBox, node);
 				} else {
