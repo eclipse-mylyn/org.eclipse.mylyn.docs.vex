@@ -18,6 +18,7 @@ package org.eclipse.vex.ui.internal.editor;
 import java.io.File;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.net.URI;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -28,6 +29,7 @@ import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.filesystem.URIUtil;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
+import org.eclipse.core.resources.IStorage;
 import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
@@ -62,6 +64,7 @@ import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.IPartListener;
 import org.eclipse.ui.IPartService;
+import org.eclipse.ui.IStorageEditorInput;
 import org.eclipse.ui.IURIEditorInput;
 import org.eclipse.ui.IWindowListener;
 import org.eclipse.ui.IWorkbenchPart;
@@ -120,6 +123,7 @@ import org.eclipse.vex.ui.internal.handlers.RemoveTagHandler;
 import org.eclipse.vex.ui.internal.outline.DocumentOutlinePage;
 import org.eclipse.vex.ui.internal.property.DocumentPropertySource;
 import org.eclipse.vex.ui.internal.property.ElementPropertySource;
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXParseException;
 
 /*
@@ -738,12 +742,29 @@ public class VexEditor extends EditorPart {
 				}
 			}
 
+			final IEditorInput input = getEditorInput();
+			final InputSource is = new InputSource(jFaceDoc.get());
+			if (input instanceof IFileEditorInput) {
+				final IFile file = ((IFileEditorInput) input).getFile();
+				is.setSystemId(file.getLocationURI().toString());
+			} else if (input instanceof IStorageEditorInput) {
+				final IStorage storage = ((IStorageEditorInput) input).getStorage();
+				is.setSystemId(storage.getFullPath().toString());
+			} else if (input instanceof IURIEditorInput) {
+				final URI uri = ((IURIEditorInput) input).getURI();
+				is.setSystemId(uri.toString());
+			} else {
+				final String msg = MessageFormat.format(Messages.getString("VexEditor.unknownInputClass"), //$NON-NLS-1$
+						new Object[] { input.getClass() });
+				showLabel(msg);
+				return;
+			}
+
 			if (positionOfCurrentNode != null) {
 				positionOfCurrentNode.computePosition(jFaceDoc);
 				reader.setCaretPosition(positionOfCurrentNode);
 			}
-
-			document = reader.read(jFaceDoc.get());
+			document = reader.read(is);
 			if (document == null) {
 				showLabel(MessageFormat.format(Messages.getString("VexEditor.noContent"), getEditorInput().getName()));
 				return;
