@@ -732,8 +732,10 @@ public class VexEditor extends EditorPart {
 				}
 			}
 
+			// A InputStream is used here to avoid a in memeory copy of the documents content
+			final InputSource is = new InputSource(new DocumentInputStream(jFaceDoc));
+			// Set the systemId of the InputSource to resolve relative URIs
 			final IEditorInput input = getEditorInput();
-			final InputSource is = new InputSource(jFaceDoc.get());
 			if (input instanceof IFileEditorInput) {
 				final IFile file = ((IFileEditorInput) input).getFile();
 				is.setSystemId(file.getLocationURI().toString());
