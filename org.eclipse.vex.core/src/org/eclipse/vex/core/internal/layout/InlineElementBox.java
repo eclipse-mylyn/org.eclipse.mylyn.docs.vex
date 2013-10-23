@@ -77,7 +77,9 @@ public class InlineElementBox extends CompositeInlineBox {
 				childList.addAll(LayoutUtils.createGeneratedInlines(context, beforeElement));
 			}
 			// left marker
-			childList.add(createLeftMarker(node, styles));
+			if (styles.getInlineMarker().equals(CSS.NORMAL)) {
+				childList.add(createLeftMarker(node, styles));
+			}
 		}
 
 		// background image
@@ -106,7 +108,9 @@ public class InlineElementBox extends CompositeInlineBox {
 			childList.add(new PlaceholderBox(context, node, node.getEndOffset() - node.getStartOffset()));
 
 			// trailing marker
-			childList.add(createRightMarker(node, styles));
+			if (styles.getInlineMarker().equals(CSS.NORMAL)) {
+				childList.add(createRightMarker(node, styles));
+			}
 
 			// :after content
 			final IElement afterElement = context.getStyleSheet().getPseudoElement(node, CSS.PSEUDO_AFTER, true);

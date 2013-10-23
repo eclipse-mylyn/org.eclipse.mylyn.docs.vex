@@ -258,7 +258,28 @@
 		</result>
 	</test>
 
-
+	<test id="Inline w/o marker" layoutWidth="100">
+		<doc><![CDATA[ <root><nomarker>cat sat</nomarker></root> ]]></doc>
+		<result>
+			<box class="RootBox">
+				<box class="BlockElementBox">
+					<box class="BlockElementBox" element="root">
+						<box class="ParagraphBox">
+							<box class="LineBox">
+								<box class="PlaceholderBox" />
+								<box class="InlineElementBox">
+									<box class="DocumentTextBox" text="cat " />
+									<box class="DocumentTextBox" text="sat" />
+									<box class="PlaceholderBox" />
+								</box>
+								<box class="PlaceholderBox" />
+							</box>
+						</box>
+					</box>
+				</box>
+			</box>
+		</result>
+	</test>
 
 	<test id="Block Child w/ Inline Before" layoutWidth="75">
 		<doc><![CDATA[ <root>Paris <p>Garters</p></root> ]]></doc>

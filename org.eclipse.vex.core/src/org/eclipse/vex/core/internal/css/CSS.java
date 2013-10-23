@@ -133,6 +133,7 @@ public interface CSS {
 	// we can't use a dash '-vex' here, because of a bug in the batik css parser
 	// see https://issues.apache.org/bugzilla/show_bug.cgi?id=47800
 	public static final String OUTLINE_CONTENT = "_vex-outline-content";
+	public static final String INLINE_MARKER = "_vex-inline-marker";
 
 	// suffixes to BORDER_XXX
 	public static final String COLOR_SUFFIX = "-color";

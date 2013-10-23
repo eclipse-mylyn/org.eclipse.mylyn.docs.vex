@@ -9,6 +9,11 @@ b {
   display: inline;
 }
 
+nomarker {
+  display: inline;
+  _vex-inline-marker: none;
+}
+
 p {
   display: block;
 }

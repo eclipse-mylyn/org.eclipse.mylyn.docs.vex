@@ -229,6 +229,13 @@ public class Styles {
 	}
 
 	/**
+	 * Returns the value of the <code>_vex-inline-marker</code> property.
+	 */
+	public String getInlineMarker() {
+		return (String) values.get(CSS.INLINE_MARKER);
+	}
+
+	/**
 	 * Returns the value of the <code>lineHeight</code> property.
 	 */
 	public int getLineHeight() {
