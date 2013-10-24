@@ -255,7 +255,8 @@ public class DocumentBuilder implements ContentHandler, LexicalHandler {
 			if ("".equals(attrs.getLocalName(i))) {
 				attributeName = new QualifiedName(null, attrs.getQName(i));
 			} else if ("".equals(attrs.getURI(i))) {
-				attributeName = new QualifiedName(elementName.getQualifier(), attrs.getLocalName(i));
+				// Attributes do not inherit the elements namespace (http://www.w3.org/TR/REC-xml-names/#defaulting)
+				attributeName = new QualifiedName(null, attrs.getLocalName(i));
 			} else {
 				attributeName = new QualifiedName(attrs.getURI(i), attrs.getLocalName(i));
 			}

@@ -114,7 +114,7 @@ public class Element extends Parent implements IElement {
 	 */
 
 	public IAttribute getAttribute(final String localName) {
-		return getAttribute(qualify(localName));
+		return getAttribute(new QualifiedName(null, localName));
 	}
 
 	public IAttribute getAttribute(final QualifiedName name) {
@@ -122,7 +122,7 @@ public class Element extends Parent implements IElement {
 	}
 
 	public String getAttributeValue(final String localName) {
-		return getAttributeValue(qualify(localName));
+		return getAttributeValue(new QualifiedName(null, localName));
 	}
 
 	public String getAttributeValue(final QualifiedName name) {
@@ -142,7 +142,7 @@ public class Element extends Parent implements IElement {
 	}
 
 	public void removeAttribute(final String localName) throws DocumentValidationException {
-		removeAttribute(qualify(localName));
+		removeAttribute(new QualifiedName(null, localName));
 	}
 
 	public void removeAttribute(final QualifiedName name) throws DocumentValidationException {
@@ -173,7 +173,7 @@ public class Element extends Parent implements IElement {
 	}
 
 	public void setAttribute(final String localName, final String value) throws DocumentValidationException {
-		setAttribute(qualify(localName), value);
+		setAttribute(new QualifiedName(null, localName), value);
 	}
 
 	public void setAttribute(final QualifiedName name, final String value) throws DocumentValidationException {

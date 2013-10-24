@@ -21,11 +21,14 @@ import static org.junit.Assert.assertTrue;
 import java.io.IOException;
 import java.net.URL;
 import java.util.Iterator;
+import java.util.List;
 
+import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.vex.core.IFilter;
 import org.eclipse.vex.core.internal.dom.DummyValidator;
 import org.eclipse.vex.core.provisional.dom.BaseNodeVisitorWithResult;
 import org.eclipse.vex.core.provisional.dom.DocumentContentModel;
+import org.eclipse.vex.core.provisional.dom.IAttribute;
 import org.eclipse.vex.core.provisional.dom.IAxis;
 import org.eclipse.vex.core.provisional.dom.IComment;
 import org.eclipse.vex.core.provisional.dom.IDocument;
@@ -233,5 +236,21 @@ public class DocumentReaderTest {
 		final IAxis<? extends INode> nodesWithEmptyTextNodes = rootElement.children().matching(recursiveWhitespaceTextNodeFilter);
 
 		assertEquals("whitespace text nodes", 0, nodesWithEmptyTextNodes.count());
+	}
+
+	@Test
+	public void readDocumentWithAttributes() throws Exception {
+		final DocumentReader reader = new DocumentReader();
+		final IDocument document = reader.read(TestResources.get("document.xml"));
+		final List<? extends IElement> elements = document.getRootElement().childElements().asList();
+		final IElement chapter = elements.get(1);
+		assertEquals("chapter", chapter.getLocalName());
+		assertEquals("Expected attributes in chapter element", 2, chapter.getAttributes().size());
+		final IAttribute attr1 = chapter.getAttribute(new QualifiedName(null, "attribute"));
+		assertNotNull("Attribute without namespace not found", attr1);
+		assertEquals("Value of attribute without namespace", "ns-null", attr1.getValue());
+		final IAttribute attr2 = chapter.getAttribute(new QualifiedName("http://www.eclipse.org/vex/test/content", "attribute"));
+		assertNotNull("Attribute with namespace not found", attr2);
+		assertEquals("Value of attribute without namespace", "ns-content", attr2.getValue());
 	}
 }

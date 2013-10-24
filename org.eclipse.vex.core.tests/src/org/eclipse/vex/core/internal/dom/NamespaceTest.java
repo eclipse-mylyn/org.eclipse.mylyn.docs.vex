@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  * 		Florian Thienel - initial API and implementation
  * 		Carsten Hiesserich - test for handling of attribute namespaces in FindUndeclaredNamespacesVisitor
@@ -226,7 +226,7 @@ public class NamespaceTest {
 		element.setAttribute(new QualifiedName("http://namespace/uri/2", "attribute3"), "value3");
 
 		assertEquals("attribute1", element.getAttribute("attribute1").getPrefixedName());
-		assertEquals("attribute2", element.getAttribute(new QualifiedName("http://namespace/uri/1", "attribute2")).getPrefixedName());
+		assertEquals("ns1:attribute2", element.getAttribute(new QualifiedName("http://namespace/uri/1", "attribute2")).getPrefixedName());
 		assertEquals("ns2:attribute3", element.getAttribute(new QualifiedName("http://namespace/uri/2", "attribute3")).getPrefixedName());
 	}
 
@@ -280,25 +280,26 @@ public class NamespaceTest {
 		final IDocument document = readDocumentFromString("<ns1:a xmlns=\"http://namespace/default\" xmlns:ns1=\"http://namespace/uri/1\" attr1=\"value1\">"
 				+ "<ns2:b xmlns:ns2=\"http://namespace/uri/2\" ns1:attr2=\"value2\" ns2:attr3=\"value3\" attr4=\"value4\" />" + "<c ns1:attr5=\"value5\" attr6=\"value6\" />" + "</ns1:a>");
 		final IElement rootElement = document.getRootElement();
-		assertTrue(rootElement.getAttributeNames().contains(new QualifiedName("http://namespace/uri/1", "attr1")));
+		assertFalse(rootElement.getAttributeNames().contains(new QualifiedName("http://namespace/uri/1", "attr1")));
 		assertFalse(rootElement.getAttributeNames().contains(new QualifiedName("http://namespace/default", "attr1")));
 		assertFalse(rootElement.getAttributeNames().contains(new QualifiedName("", "attr1")));
-		assertFalse(rootElement.getAttributeNames().contains(new QualifiedName(null, "attr1")));
+		assertTrue(rootElement.getAttributeNames().contains(new QualifiedName(null, "attr1")));
 
 		final IElement firstNestedElement = rootElement.childElements().first();
 		assertTrue(firstNestedElement.getAttributeNames().contains(new QualifiedName("http://namespace/uri/1", "attr2")));
 		assertTrue(firstNestedElement.getAttributeNames().contains(new QualifiedName("http://namespace/uri/2", "attr3")));
-		assertTrue(firstNestedElement.getAttributeNames().contains(new QualifiedName("http://namespace/uri/2", "attr4")));
+		assertTrue(firstNestedElement.getAttributeNames().contains(new QualifiedName(null, "attr4")));
 
 		final IElement secondNestedElement = rootElement.childElements().get(1);
 		assertTrue(secondNestedElement.getAttributeNames().contains(new QualifiedName("http://namespace/uri/1", "attr5")));
-		assertTrue(secondNestedElement.getAttributeNames().contains(new QualifiedName("http://namespace/default", "attr6")));
+		assertTrue(secondNestedElement.getAttributeNames().contains(new QualifiedName(null, "attr6")));
 	}
 
 	@Test
 	public void readWriteCycle() throws Exception {
+		// Caution: Vex sorts attributes on writing, so the order of attributes may change
 		final String inputContent = "<?xml version='1.0' encoding='UTF-8'?> <ns1:a xmlns=\"http://namespace/default\" xmlns:ns1=\"http://namespace/uri/1\" attr1=\"value1\"> "
-				+ "<ns2:b xmlns:ns2=\"http://namespace/uri/2\" ns1:attr2=\"value2\" attr3=\"value3\"/> " + "<c attr4=\"value4\" ns1:attr5=\"value5\"/>" + "</ns1:a> ";
+				+ "<ns2:b xmlns:ns2=\"http://namespace/uri/2\" ns1:attr2=\"value2\" ns2:attr3=\"value3\"/> " + "<c attr4=\"value4\" ns1:attr5=\"value5\"/>" + "</ns1:a> ";
 		final IDocument document = readDocumentFromString(inputContent);
 
 		final DocumentWriter documentWriter = new DocumentWriter();

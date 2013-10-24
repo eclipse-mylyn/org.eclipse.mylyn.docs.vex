@@ -23,6 +23,7 @@ import org.eclipse.vex.core.internal.css.CssTest;
 import org.eclipse.vex.core.internal.css.CssWhitespacePolicyTest;
 import org.eclipse.vex.core.internal.css.PropertyTest;
 import org.eclipse.vex.core.internal.css.RuleTest;
+import org.eclipse.vex.core.internal.dom.AttributeTest;
 import org.eclipse.vex.core.internal.dom.AxisTest;
 import org.eclipse.vex.core.internal.dom.BasicNodeTest;
 import org.eclipse.vex.core.internal.dom.BlockElementBoxTest;
@@ -71,7 +72,7 @@ import org.junit.runners.Suite;
 @RunWith(Suite.class)
 @Suite.SuiteClasses({ FilterIteratorTest.class, FirstNIteratorTest.class, AfterNIteratorTest.class, AxisTest.class, NamespaceStackTest.class, NamespaceTest.class, DocumentReaderTest.class,
 		DocumentContentModelTest.class, SchemaValidatorTest.class, CssTest.class, CssWhitespacePolicyTest.class, BatikBehaviorTest.class, ContentRangeTest.class, BasicNodeTest.class,
-		ParentTest.class, DocumentTest.class, L1TextHandlingTest.class, L1CommentHandlingTest.class, L1ProcessingInstructionHandlingTest.class, L1ElementHandlingTest.class,
+		ParentTest.class, DocumentTest.class, AttributeTest.class, L1TextHandlingTest.class, L1CommentHandlingTest.class, L1ProcessingInstructionHandlingTest.class, L1ElementHandlingTest.class,
 		L1FragmentHandlingTest.class, L1DeletionTests.class, DocumentFragmentTest.class, CopyVisitorTest.class, DeepCopyTest.class, PropertyTest.class, RuleTest.class, BlockElementBoxTest.class,
 		ImageBoxTest.class, DocumentWriterTest.class, DTDValidatorTest.class, GapContentTest.class, SpaceNormalizerTest.class, TextWrapperTest.class, TestBlockElementBox.class,
 		TestBlocksInInlines.class, TestDocumentTextBox.class, TestStaticTextBox.class, TableLayoutTest.class, LayoutTestSuite.class, ListenerListTest.class, DocumentFragmentTransferTest.class,
