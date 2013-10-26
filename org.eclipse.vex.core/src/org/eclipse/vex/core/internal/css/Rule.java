@@ -20,6 +20,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.StringTokenizer;
 
+import org.eclipse.vex.core.internal.dom.Namespace;
 import org.eclipse.vex.core.provisional.dom.BaseNodeVisitorWithResult;
 import org.eclipse.vex.core.provisional.dom.IComment;
 import org.eclipse.vex.core.provisional.dom.IDocument;
@@ -156,6 +157,13 @@ public class Rule {
 		case Selector.SAC_ELEMENT_NODE_SELECTOR:
 			final String elementName = getLocalNameOfElement(node);
 			final String selectorName = ((ElementSelector) selector).getLocalName();
+
+			// If the Selector has a namespace URI, it has to match the namespace URI of the node
+			final String selectorNamespaceURI = ((ElementSelector) selector).getNamespaceURI();
+			if (selectorNamespaceURI != null && !selectorNamespaceURI.equals(getNamespaceURIOfElement(node))) {
+				return false;
+			}
+
 			if (selectorName == null) {
 				// We land here if we have a wildcard selector (*) or
 				// a pseudocondition w/o an element name (:before)
@@ -240,6 +248,25 @@ public class Rule {
 			@Override
 			public String visit(final IProcessingInstruction pi) {
 				return CSS.XML_PROCESSING_INSTRUCTION;
+			}
+		});
+	}
+
+	private static String getNamespaceURIOfElement(final INode node) {
+		return node.accept(new BaseNodeVisitorWithResult<String>("") {
+			@Override
+			public String visit(final IElement element) {
+				return element.getQualifiedName().getQualifier();
+			}
+
+			@Override
+			public String visit(final IComment comment) {
+				return Namespace.VEX_NAMESPACE_URI;
+			}
+
+			@Override
+			public String visit(final IProcessingInstruction pi) {
+				return Namespace.VEX_NAMESPACE_URI;
 			}
 		});
 	}
