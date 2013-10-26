@@ -53,6 +53,8 @@ import org.xml.sax.helpers.DefaultHandler;
  * <ul>
  * <li>insertTextAction="someText" - Insert the given text at the end of the element.</li>
  * <li>removeTextAction="5" - Remove given length text from the start of the element.</li>
+ * <li>removeElementAction="1" - Remove the element that defined this box.</li>
+ * <li>shouldBeRemoved="1" - This box is expected to be removed;
  * <li>InvalidateAction="1" - Invalidates the element (only valid in BlockBox instances)</li>
  * </ul>
  * The expected layout state of an box may be checked with the attribute <code>layoutState="LAYOUT_XXX"</code> (
@@ -67,6 +69,7 @@ public class LayoutTestSuite extends TestCase {
 	public String documentContent;
 	public int layoutWidth = 100;
 	public boolean performActions = false;
+	public boolean invalidateParentBlock;
 	public BoxSpec result;
 	public String css;
 
@@ -143,7 +146,8 @@ public class LayoutTestSuite extends TestCase {
 		}
 	}
 
-	private static void performActions(final BoxSpec boxSpec, final Box box, final IDocument doc) {
+	private void performActions(final BoxSpec boxSpec, final Box box, final IDocument doc) {
+
 		if (boxSpec.insertTextAction != null) {
 			doc.insertText(box.getNode().getEndOffset(), boxSpec.insertTextAction);
 		}
@@ -158,12 +162,36 @@ public class LayoutTestSuite extends TestCase {
 			doc.getContent().remove(new ContentRange(startOffset + 1, startOffset + boxSpec.removeTextAction));
 		}
 
+		if (boxSpec.removeElementAction) {
+			if (box.getNode() == null) {
+				fail(String.format("Error in test configuration. Can not remove element for box'%s'", boxSpec.toString()));
+			}
+			System.out.println("Removing element " + box.getNode());
+			final int startOffset = box.getNode().getStartOffset();
+			final int endOffset = box.getNode().getEndOffset();
+			doc.delete(new ContentRange(startOffset, endOffset));
+			invalidateParentBlock = true;
+			return;
+		}
+
 		if (boxSpec.invalidateAction && box instanceof BlockBox) {
 			((BlockBox) box).invalidate(true);
 		}
 
+		final List<BoxSpec> toRemove = new ArrayList<BoxSpec>();
 		for (int i = 0; i < boxSpec.children.size(); i++) {
-			performActions(boxSpec.children.get(i), box.getChildren()[i], doc);
+			final BoxSpec childSpec = boxSpec.children.get(i);
+			performActions(childSpec, box.getChildren()[i], doc);
+			if (childSpec.removeElementAction || childSpec.shouldBeRemoved) {
+				toRemove.add(childSpec);
+			}
+		}
+
+		boxSpec.children.removeAll(toRemove);
+
+		if (invalidateParentBlock && box instanceof BlockBox && box.getNode() != null) {
+			((BlockBox) box).invalidate(true);
+			invalidateParentBlock = false;
 		}
 	}
 
@@ -319,7 +347,9 @@ public class LayoutTestSuite extends TestCase {
 				} catch (final NumberFormatException e) {
 					boxSpec.removeTextAction = 0;
 				}
+				boxSpec.removeElementAction = attributes.getValue("removeElementAction") != null;
 				boxSpec.invalidateAction = attributes.getValue("invalidateAction") != null;
+				boxSpec.shouldBeRemoved = attributes.getValue("shouldBeRemoved") != null;
 				String layoutStateAttr = attributes.getValue("layoutState");
 				if (layoutStateAttr != null) {
 					layoutStateAttr = layoutStateAttr.trim().toLowerCase();
@@ -353,6 +383,8 @@ public class LayoutTestSuite extends TestCase {
 		public byte layoutState = -1;
 		public String insertTextAction;
 		public int removeTextAction;
+		public boolean removeElementAction;
+		public boolean shouldBeRemoved;
 		public boolean invalidateAction = false;
 	}
 
