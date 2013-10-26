@@ -30,7 +30,6 @@ import org.eclipse.vex.core.internal.css.CssWhitespacePolicy;
 import org.eclipse.vex.core.internal.css.IStyleSheetProvider;
 import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.css.StyleSheetReader;
-import org.eclipse.vex.core.internal.dom.DummyValidator;
 import org.eclipse.vex.core.internal.io.DocumentReader;
 import org.eclipse.vex.core.provisional.dom.BaseNodeVisitorWithResult;
 import org.eclipse.vex.core.provisional.dom.ContentRange;
@@ -119,7 +118,7 @@ public class LayoutTestSuite extends TestCase {
 		context.setWhitespacePolicy(new CssWhitespacePolicy(styleSheet));
 
 		final DocumentReader reader = new DocumentReader();
-		reader.setValidator(new DummyValidator());
+		reader.setValidator(new LayoutTestValidator());
 		reader.setStyleSheetProvider(new IStyleSheetProvider() {
 			public StyleSheet getStyleSheet(final DocumentContentModel documentContentModel) {
 				return styleSheet;
@@ -127,6 +126,7 @@ public class LayoutTestSuite extends TestCase {
 		});
 		reader.setWhitespacePolicyFactory(CssWhitespacePolicy.FACTORY);
 		final IDocument document = reader.read(documentContent);
+		document.setValidator(reader.getValidator());
 		context.setDocument(document);
 
 		final RootBox rootBox = new RootBox(context, document, layoutWidth);
