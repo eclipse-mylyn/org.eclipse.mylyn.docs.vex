@@ -12,6 +12,7 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.dom;
 
+import java.util.Iterator;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -37,7 +38,7 @@ public class GapContent implements IContent {
 	private char[] content;
 	private int gapStart;
 	private int gapEnd;
-	private TreeSet<GapContentPosition> positions = new TreeSet<GapContentPosition>();
+	private final TreeSet<GapContentPosition> positions = new TreeSet<GapContentPosition>();
 
 	/**
 	 * Create a GapContent with the given initial capacity.
@@ -113,14 +114,9 @@ public class GapContent implements IContent {
 	}
 
 	private void movePositions(final int startOffset, final int delta) {
-		final TreeSet<GapContentPosition> newPositions = new TreeSet<GapContentPosition>();
-		for (final GapContentPosition position : positions) {
-			if (position.getOffset() >= startOffset) {
-				position.setOffset(position.getOffset() + delta);
-			}
-			newPositions.add(position);
+		for (final GapContentPosition position : positions.tailSet(new GapContentPosition(startOffset))) {
+			position.setOffset(position.getOffset() + delta);
 		}
-		positions = newPositions;
 	}
 
 	public void insertTagMarker(final int offset) {
@@ -155,18 +151,17 @@ public class GapContent implements IContent {
 		moveGap(range.getEndOffset() + 1);
 		gapStart -= range.length();
 
-		final TreeSet<GapContentPosition> newPositions = new TreeSet<GapContentPosition>();
-		for (final GapContentPosition position : positions) {
-			if (position.getOffset() > range.getEndOffset()) {
-				position.setOffset(position.getOffset() - range.length());
-				newPositions.add(position);
-			} else if (position.getOffset() >= range.getStartOffset()) {
+		final SortedSet<GapContentPosition> tail = positions.tailSet(new GapContentPosition(range.getStartOffset()));
+		for (final Iterator<GapContentPosition> iterator = tail.iterator(); iterator.hasNext();) {
+			final GapContentPosition position = iterator.next();
+
+			if (position.getOffset() <= range.getEndOffset()) {
 				position.invalidate();
+				iterator.remove();
 			} else {
-				newPositions.add(position);
+				position.setOffset(position.getOffset() - range.length());
 			}
 		}
-		positions = newPositions;
 	}
 
 	public String getText() {
@@ -295,7 +290,7 @@ public class GapContent implements IContent {
 	/*
 	 * Implementation of the Position interface.
 	 */
-	private static class GapContentPosition implements IPosition, Comparable<IPosition> {
+	private static class GapContentPosition implements IPosition {
 
 		private int offset;
 
