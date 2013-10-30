@@ -16,6 +16,7 @@
 package org.eclipse.vex.ui.internal.editor;
 
 import java.io.File;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.URI;
@@ -74,6 +75,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.commands.ICommandService;
 import org.eclipse.ui.contexts.IContextService;
 import org.eclipse.ui.dialogs.SaveAsDialog;
+import org.eclipse.ui.editors.text.IStorageDocumentProvider;
 import org.eclipse.ui.ide.FileStoreEditorInput;
 import org.eclipse.ui.part.EditorPart;
 import org.eclipse.ui.part.FileEditorInput;
@@ -732,8 +734,17 @@ public class VexEditor extends EditorPart {
 				}
 			}
 
-			// A InputStream is used here to avoid a in memeory copy of the documents content
-			final InputSource is = new InputSource(new DocumentInputStream(jFaceDoc));
+			String encoding;
+			if (provider instanceof IStorageDocumentProvider) {
+				// Try to get the encoding from the DocumentProvider
+				encoding = ((IStorageDocumentProvider) provider).getEncoding(getEditorInput());
+				System.out.println("encoding:" + encoding);
+			} else {
+				encoding = "UTF-8";
+			}
+			// A InputStream is used here to avoid an in memory copy of the documents content
+			final InputSource is = new InputSource(new InputStreamReader(new DocumentInputStream(jFaceDoc), encoding));
+
 			// Set the systemId of the InputSource to resolve relative URIs
 			final IEditorInput input = getEditorInput();
 			if (input instanceof IFileEditorInput) {
