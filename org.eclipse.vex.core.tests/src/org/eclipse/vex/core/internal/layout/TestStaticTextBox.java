@@ -23,6 +23,7 @@ import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.css.StyleSheetReader;
 import org.eclipse.vex.core.internal.css.Styles;
 import org.eclipse.vex.core.internal.dom.Element;
+import org.eclipse.vex.core.provisional.dom.INode;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -54,47 +55,58 @@ public class TestStaticTextBox {
 
 	@Test
 	public void testSplit() throws Exception {
-		final int width = g.getCharWidth();
 
-		final StaticTextBox box = new StaticTextBox(context, root, "baggy orange trousers");
-		assertEquals(box.getText().length() * width, box.getWidth());
+		final StaticTextBox box = new StaticTextBox(context, root, "test");
 		assertEquals(styles.getLineHeight(), box.getHeight());
-		assertSplit(box, 22, false, "baggy orange ", "trousers");
-		assertSplit(box, 21, false, "baggy orange ", "trousers");
-		assertSplit(box, 20, false, "baggy orange ", "trousers");
-		assertSplit(box, 13, false, "baggy orange ", "trousers");
-		assertSplit(box, 12, false, "baggy ", "orange trousers");
-		assertSplit(box, 6, false, "baggy ", "orange trousers");
-		assertSplit(box, 5, false, null, "baggy orange trousers");
-		assertSplit(box, 1, false, null, "baggy orange trousers");
-		assertSplit(box, 0, false, null, "baggy orange trousers");
-		assertSplit(box, -1, false, null, "baggy orange trousers");
 
-		assertSplit(box, 22, true, "baggy orange ", "trousers");
-		assertSplit(box, 21, true, "baggy orange ", "trousers");
-		assertSplit(box, 20, true, "baggy orange ", "trousers");
-		assertSplit(box, 13, true, "baggy orange ", "trousers");
-		assertSplit(box, 12, true, "baggy ", "orange trousers");
-		assertSplit(box, 6, true, "baggy ", "orange trousers");
-		assertSplit(box, 5, true, "baggy ", "orange trousers");
-		assertSplit(box, 4, true, "bagg", "y orange trousers");
-		assertSplit(box, 3, true, "bag", "gy orange trousers");
-		assertSplit(box, 2, true, "ba", "ggy orange trousers");
-		assertSplit(box, 1, true, "b", "aggy orange trousers");
-		assertSplit(box, 0, true, "b", "aggy orange trousers");
-		assertSplit(box, -1, true, "b", "aggy orange trousers");
+		assertSplit(root, 22, false, "baggy orange ", "trousers");
+		assertSplit(root, 21, false, "baggy orange ", "trousers");
+		assertSplit(root, 20, false, "baggy orange ", "trousers");
+		assertSplit(root, 13, false, "baggy orange ", "trousers");
+		assertSplit(root, 12, false, "baggy ", "orange trousers");
+		assertSplit(root, 6, false, "baggy ", "orange trousers");
+		assertSplit(root, 5, false, null, "baggy orange trousers");
+		assertSplit(root, 1, false, null, "baggy orange trousers");
+		assertSplit(root, 0, false, null, "baggy orange trousers");
+		assertSplit(root, -1, false, null, "baggy orange trousers");
+
+		assertSplit(root, 22, true, "baggy orange ", "trousers");
+		assertSplit(root, 21, true, "baggy orange ", "trousers");
+		assertSplit(root, 20, true, "baggy orange ", "trousers");
+		assertSplit(root, 13, true, "baggy orange ", "trousers");
+		assertSplit(root, 12, true, "baggy ", "orange trousers");
+		assertSplit(root, 6, true, "baggy ", "orange trousers");
+		assertSplit(root, 5, true, "baggy ", "orange trousers");
+		assertSplit(root, 4, true, "bagg", "y orange trousers");
+		assertSplit(root, 3, true, "bag", "gy orange trousers");
+		assertSplit(root, 2, true, "ba", "ggy orange trousers");
+		assertSplit(root, 1, true, "b", "aggy orange trousers");
+		assertSplit(root, 0, true, "b", "aggy orange trousers");
+		assertSplit(root, -1, true, "b", "aggy orange trousers");
 	}
 
+	@Test
 	public void testSpaceSplit() throws Exception {
-		final StaticTextBox box = new StaticTextBox(context, root, "red  green");
-		assertSplit(box, 11, false, "red  ", "green");
-		assertSplit(box, 10, false, "red  ", "green");
-		assertSplit(box, 9, false, "red  ", "green");
-		assertSplit(box, 5, false, "red  ", "green");
-
+		assertSplit(root, 11, false, "red  ", "green");
+		assertSplit(root, 10, false, "red  ", "green");
+		assertSplit(root, 9, false, "red  ", "green");
+		assertSplit(root, 5, false, "red  ", "green");
 	}
 
-	private void assertSplit(final StaticTextBox box, final int splitPos, final boolean force, final String left, final String right) {
+	@Test
+	public void testMultipleSplit() throws Exception {
+		final StaticTextBox box = new StaticTextBox(context, root, "12345 67890 ");
+		final InlineBox.Pair pair = box.split(context, 150, false);
+		assertEquals("12345 ", ((StaticTextBox) pair.getLeft()).getText());
+		final InlineBox.Pair pair2 = pair.getRight().split(context, 100, false);
+		assertNull(pair2.getLeft());
+		assertEquals("67890 ", ((StaticTextBox) pair2.getRight()).getText());
+		assertEquals("Last right box should have a width", 36, pair2.getRight().getWidth());
+	}
+
+	private void assertSplit(final INode node, final int splitPos, final boolean force, final String left, final String right) {
+
+		final StaticTextBox box = new StaticTextBox(context, node, left != null ? left + right : right);
 
 		final Styles styles = context.getStyleSheet().getStyles(box.getNode());
 		final int width = g.getCharWidth();
@@ -118,7 +130,6 @@ public class TestStaticTextBox {
 		} else {
 			assertNotNull(rightBox);
 			assertEquals(right, rightBox.getText());
-			assertEquals(right.length() * width, rightBox.getWidth());
 			assertEquals(styles.getLineHeight(), rightBox.getHeight());
 		}
 

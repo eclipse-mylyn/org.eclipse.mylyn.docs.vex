@@ -84,28 +84,25 @@ public class ParagraphBox extends AbstractBox implements BlockBox {
 
 		while (right != null) {
 			final InlineBox.Pair pair = right.split(context, width, true);
-			//FIXME icampist this indicates some design problem, since later on, LineBoxes are expected
-			//either we cast here to LineBox or we make an if later on.
 			lines.add(pair.getLeft());
 			right = pair.getRight();
 		}
 
 		final Styles styles = context.getStyleSheet().getStyles(node);
 		final String textAlign = styles.getTextAlign();
+		final boolean alignRight = textAlign.equals(CSS.RIGHT);
+		final boolean alignCenter = textAlign.equals(CSS.CENTER);
 
 		// y-offset of the next line
 		int y = 0;
 
 		int actualWidth = 0;
 
-		//children for the ParagraphBox constructor that accepts only LineBoxes
-		final List<LineBox> lineBoxesChildren = new ArrayList<LineBox>();
-
 		for (final Box lineBox : lines) {
 			int x;
-			if (textAlign.equals(CSS.RIGHT)) {
+			if (alignRight) {
 				x = width - lineBox.getWidth();
-			} else if (textAlign.equals(CSS.CENTER)) {
+			} else if (alignCenter) {
 				x = (width - lineBox.getWidth()) / 2;
 			} else {
 				x = 0;
@@ -116,35 +113,11 @@ public class ParagraphBox extends AbstractBox implements BlockBox {
 
 			y += lineBox.getHeight();
 			actualWidth = Math.max(actualWidth, lineBox.getWidth());
-
-			//strange, but we need to check the case because it's not explicit anywhere
-			if (lineBox instanceof LineBox) {
-				lineBoxesChildren.add((LineBox) lineBox);
-			}
 		}
 
-		final ParagraphBox para = new ParagraphBox(lineBoxesChildren.toArray(new LineBox[lineBoxesChildren.size()]));
+		final ParagraphBox para = new ParagraphBox(lines.toArray(new LineBox[lines.size()]));
 		para.setWidth(actualWidth);
 		para.setHeight(y);
-
-		// BlockElementBox uses a scaling factor to estimate box height based
-		// on font size, layout width, and character count, as follows.
-		//
-		// estHeight = factor * fontSize * fontSize * charCount / width
-		//
-		// This bit reports the actual factor that would correctly estimate
-		// the height of a BlockElementBox containing only this paragraph.
-		//
-		// factor = estHeight * width / (fontSize * fontSize * charCount)
-		//
-		/*
-		 * Box firstContentBox = null; for (int i = 0; i < inlines.length; i++) { Box box = inlines[i]; if
-		 * (box.hasContent()) { firstContentBox = box; break; } }
-		 * 
-		 * if (firstContentBox != null) { float fontSize = styles.getFontSize(); int charCount =
-		 * lastContentBox.getEndOffset() - firstContentBox.getStartOffset(); float factor = para.getHeight()
-		 * para.getWidth() / (fontSize fontSize charCount); System.out.println("Actual factor is " + factor); }
-		 */
 
 		return para;
 	}

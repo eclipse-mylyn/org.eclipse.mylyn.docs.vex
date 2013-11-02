@@ -63,6 +63,7 @@ public class BlockElementBoxTest {
 		final RootBox parentBox = new RootBox(context, doc, 500);
 
 		final BlockElementBox box = new BlockElementBox(context, parentBox, doc.getRootElement());
+		box.setWidth(parentBox.getWidth());
 
 		final List<Box> childrenList = box.createChildren(context);
 		final Box[] children = childrenList.toArray(new Box[childrenList.size()]);

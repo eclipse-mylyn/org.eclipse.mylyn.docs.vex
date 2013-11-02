@@ -69,14 +69,6 @@ public class PlaceholderBox extends AbstractInlineBox {
 	}
 
 	/**
-	 * @see org.eclipse.vex.core.internal.layout.InlineBox#split(org.eclipse.vex.core.internal.layout.LayoutContext,
-	 *      int, boolean)
-	 */
-	public Pair split(final LayoutContext context, final int maxWidth, final boolean force) {
-		return new Pair(null, this);
-	}
-
-	/**
 	 * @see org.eclipse.vex.core.internal.layout.Box#getCaret(org.eclipse.vex.core.internal.layout.LayoutContext, int)
 	 */
 	@Override

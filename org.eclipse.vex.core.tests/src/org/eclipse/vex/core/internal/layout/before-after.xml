@@ -114,6 +114,74 @@
 		</result>
 	</test>
 
+	<test id="Block with Split In Before" layoutWidth="42">
+		<doc><![CDATA[ <root><bbb2>wuzzle</bbb2></root> ]]></doc>
+		<result>
+			<box class="RootBox">
+				<box class="BlockElementBox">
+					<box class="BlockElementBox" element="root">
+
+						<box class="BlockElementBox" element="bbb2">
+
+							<box class="BlockPseudoElementBox">
+								<box class="ParagraphBox">
+									<box class="LineBox">
+										<box class="StaticTextBox" text="BEFORE1 " />
+									</box>
+									<box class="LineBox">
+										<box class="StaticTextBox" text="BEFORE2 " />
+									</box>
+								</box>
+							</box>
+
+							<box class="ParagraphBox">
+								<box class="LineBox">
+									<box class="DocumentTextBox" text="wuzzle" />
+									<box class="PlaceholderBox" />
+								</box>
+							</box>
+
+						</box>
+					</box>
+				</box>
+			</box>
+		</result>
+	</test>
+
+	<test id="Inline with Split In Before" layoutWidth="66">
+		<doc><![CDATA[ <root>abc<iib2>wuzzle</iib2></root> ]]></doc>
+		<result>
+			<box class="RootBox">
+				<box class="BlockElementBox">
+					<box class="BlockElementBox" element="root">
+						<box class="ParagraphBox">
+							<box class="LineBox">
+								<box class="DocumentTextBox" text="abc" />
+								<box class="PlaceholderBox" />
+								<box class="InlineElementBox" element="iib2">
+									<box class="StaticTextBox" text="BEFORE1 " />
+								</box>
+							</box>
+							<box class="LineBox">
+								<box class="InlineElementBox" element="iib2">
+									<box class="StaticTextBox" text="BEFORE2 " />
+								</box>
+							</box>
+							<box class="LineBox">
+								<box class="InlineElementBox" element="iib2">
+									<box class="DrawableBox" />
+									<box class="DocumentTextBox" text="wuzzle" />
+									<box class="PlaceholderBox" />
+									<box class="DrawableBox" />
+								</box>
+								<box class="PlaceholderBox" />
+							</box>
+						</box>
+					</box>
+				</box>
+			</box>
+		</result>
+	</test>
 
 	<!-- <test id="Inline with Block Before" layoutWidth="100"> <doc><![CDATA[ 
 		<root><ibb>wuzzle</ibb></root> ]]></doc> <result> <box class="RootBox"> <box 

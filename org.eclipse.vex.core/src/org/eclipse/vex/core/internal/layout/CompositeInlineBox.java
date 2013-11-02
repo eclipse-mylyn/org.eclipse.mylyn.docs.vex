@@ -102,10 +102,16 @@ public abstract class CompositeInlineBox extends AbstractInlineBox {
 		return new TextCaret(x, y, height);
 	}
 
+	@Override
+	public boolean isSplitable() {
+		return true;
+	}
+
 	/**
 	 * @see org.eclipse.vex.core.internal.layout.InlineBox#split(org.eclipse.vex.core.internal.layout.LayoutContext,
 	 *      int, boolean)
 	 */
+	@Override
 	public Pair split(final LayoutContext context, final int maxWidth, final boolean force) {
 
 		// list of children that have yet to be added to the left side
@@ -120,26 +126,48 @@ public abstract class CompositeInlineBox extends AbstractInlineBox {
 
 		int remaining = maxWidth;
 		boolean eol = false;
+		InlineBox currentBox = null;
 
-		while (!rights.isEmpty() && remaining >= 0) {
-			final InlineBox inline = (InlineBox) rights.removeFirst();
-			final InlineBox.Pair pair = inline.split(context, remaining, force && lefts.isEmpty());
-
-			if (pair.getLeft() != null) {
-				lefts.addAll(pending);
-				pending.clear();
-				lefts.add(pair.getLeft());
-				remaining -= pair.getLeft().getWidth();
+		while ((!rights.isEmpty() || currentBox != null) && remaining >= 0) {
+			final InlineBox inline;
+			if (currentBox != null) {
+				inline = currentBox;
+				currentBox = null;
+			} else {
+				inline = (InlineBox) rights.removeFirst();
 			}
 
-			if (pair.getRight() != null) {
-				pending.add(pair.getRight());
-				remaining -= pair.getRight().getWidth();
-			}
+			if (inline.isSplitable()) {
+				final InlineBox.Pair pair = inline.split(context, remaining, force && lefts.isEmpty());
 
-			if (pair.getLeft() != null && pair.getLeft().isEOL()) {
-				eol = true;
-				break;
+				if (pair.getLeft() != null) {
+					lefts.addAll(pending);
+					pending.clear();
+					lefts.add(pair.getLeft());
+					remaining -= pair.getLeft().getWidth();
+				}
+
+				if (pair.getRight() != null) {
+					if (pair.getLeft() == null) {
+						// pair.left is null, so the right either fits completely or not at all
+						remaining = pair.getRemaining();
+						pending.add(pair.getRight());
+					} else if (remaining >= 0 && !pair.getLeft().isEOL()) {
+						// we have no valid right width, so try to further split the right element
+						currentBox = pair.getRight();
+					} else {
+						pending.add(pair.getRight());
+					}
+				}
+
+				if (pair.getLeft() != null && pair.getLeft().isEOL()) {
+					eol = true;
+					break;
+				}
+			} else {
+				// If the box is not splitable, it has a valid width
+				remaining -= inline.getWidth();
+				pending.add(inline);
 			}
 
 		}
@@ -152,7 +180,7 @@ public abstract class CompositeInlineBox extends AbstractInlineBox {
 
 		final InlineBox[] leftKids = lefts.toArray(new InlineBox[lefts.size()]);
 		final InlineBox[] rightKids = rights.toArray(new InlineBox[rights.size()]);
-		return this.split(context, leftKids, rightKids);
+		return this.split(context, leftKids, rightKids, remaining);
 	}
 
 	/**
@@ -164,9 +192,11 @@ public abstract class CompositeInlineBox extends AbstractInlineBox {
 	 *            Child boxes to be given to the left box.
 	 * @param rights
 	 *            Child boxes to be given to the right box.
+	 * @param remaining
+	 *            The remaining width after the split.
 	 * @return
 	 */
-	protected abstract Pair split(LayoutContext context, InlineBox[] lefts, InlineBox[] rights);
+	public abstract Pair split(LayoutContext context, InlineBox[] lefts, InlineBox[] rights, int remaining);
 
 	/**
 	 * @see org.eclipse.vex.core.internal.layout.Box#viewToModel(org.eclipse.vex.core.internal.layout.LayoutContext,

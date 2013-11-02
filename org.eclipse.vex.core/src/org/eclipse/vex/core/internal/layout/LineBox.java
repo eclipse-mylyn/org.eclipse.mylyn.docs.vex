@@ -18,7 +18,7 @@ import org.eclipse.vex.core.provisional.dom.INode;
 public class LineBox extends CompositeInlineBox {
 
 	private final INode node;
-	private final InlineBox[] children;
+	private InlineBox[] children;
 	private InlineBox firstContentChild = null;
 	private InlineBox lastContentChild = null;
 	private int baseline;
@@ -32,29 +32,26 @@ public class LineBox extends CompositeInlineBox {
 	 *            InlineBoxes that make up this line.
 	 */
 	public LineBox(final LayoutContext context, final INode node, final InlineBox[] children) {
-
 		this.node = node;
 		this.children = children;
+	}
 
-		int height = 0;
-		int x = 0;
-		baseline = 0;
-		for (final InlineBox child : children) {
-			child.setX(x);
-			child.setY(0); // TODO: do proper vertical alignment
-			baseline = Math.max(baseline, child.getBaseline());
-			x += child.getWidth();
-			height = Math.max(height, child.getHeight());
-			if (child.hasContent()) {
-				if (firstContentChild == null) {
-					firstContentChild = child;
-				}
-				lastContentChild = child;
-			}
-		}
-
-		setHeight(height);
-		setWidth(x);
+	/**
+	 * Class constructor used by the split method.
+	 * 
+	 * @param other
+	 *            Instance of LineBox that should be splitted.
+	 * @param context
+	 *            LayoutContext used for the layout.
+	 * @param node
+	 *            Node to which this box applies.
+	 * @param children
+	 *            Child boxes.
+	 */
+	private LineBox(final LineBox other, final LayoutContext context, final InlineBox[] children) {
+		node = other.node;
+		this.children = children;
+		layout(context);
 	}
 
 	/**
@@ -106,20 +103,27 @@ public class LineBox extends CompositeInlineBox {
 	 *      org.eclipse.vex.core.internal.layout.InlineBox[], org.eclipse.vex.core.internal.layout.InlineBox[])
 	 */
 	@Override
-	public Pair split(final LayoutContext context, final InlineBox[] lefts, final InlineBox[] rights) {
+	public Pair split(final LayoutContext context, final InlineBox[] lefts, final InlineBox[] rights, final int remaining) {
 
 		LineBox left = null;
 		LineBox right = null;
 
 		if (lefts.length > 0) {
-			left = new LineBox(context, getNode(), lefts);
+			left = new LineBox(this, context, lefts);
 		}
 
 		if (rights.length > 0) {
-			right = new LineBox(context, getNode(), rights);
+			// We reuse this element instead of creating a new one
+			children = rights;
+
+			if (left == null && remaining >= 0) {
+				// There is no left box, and the right box fits without further splitting, so we have to calculate the size here
+				layout(context);
+			}
+			right = this;
 		}
 
-		return new Pair(left, right);
+		return new Pair(left, right, remaining);
 	}
 
 	/**
@@ -136,5 +140,27 @@ public class LineBox extends CompositeInlineBox {
 	}
 
 	// ========================================================== PRIVATE
+
+	private void layout(final LayoutContext context) {
+		int height = 0;
+		int x = 0;
+		baseline = 0;
+		for (final InlineBox child : children) {
+			child.setX(x);
+			child.setY(0); // TODO: do proper vertical alignment
+			baseline = Math.max(baseline, child.getBaseline());
+			x += child.getWidth();
+			height = Math.max(height, child.getHeight());
+			if (child.hasContent()) {
+				if (firstContentChild == null) {
+					firstContentChild = child;
+				}
+				lastContentChild = child;
+			}
+		}
+
+		setHeight(height);
+		setWidth(x);
+	}
 
 }

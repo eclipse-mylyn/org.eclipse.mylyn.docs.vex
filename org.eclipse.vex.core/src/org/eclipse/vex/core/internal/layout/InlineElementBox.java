@@ -36,14 +36,15 @@ import org.eclipse.vex.core.provisional.dom.IText;
 public class InlineElementBox extends CompositeInlineBox {
 
 	private final INode node;
-	private final InlineBox[] children;
+	private InlineBox[] children;
 	private InlineBox firstContentChild = null;
 	private InlineBox lastContentChild = null;
 	private int baseline;
 	private int halfLeading;
 
 	/**
-	 * Class constructor, called by the createInlineBoxes static factory method.
+	 * Class constructor, called by the createInlineBoxes static factory method. The Box created here is only temporary,
+	 * it will be replaced by the split method.
 	 * 
 	 * @param context
 	 *            LayoutContext to use.
@@ -130,7 +131,6 @@ public class InlineElementBox extends CompositeInlineBox {
 		}
 
 		children = childList.toArray(new InlineBox[childList.size()]);
-		layout(context);
 	}
 
 	/**
@@ -217,7 +217,7 @@ public class InlineElementBox extends CompositeInlineBox {
 	}
 
 	@Override
-	public Pair split(final LayoutContext context, final InlineBox[] lefts, final InlineBox[] rights) {
+	public Pair split(final LayoutContext context, final InlineBox[] lefts, final InlineBox[] rights, final int remaining) {
 
 		InlineElementBox left = null;
 		InlineElementBox right = null;
@@ -227,10 +227,23 @@ public class InlineElementBox extends CompositeInlineBox {
 		}
 
 		if (rights.length > 0) {
-			right = new InlineElementBox(context, getNode(), rights);
+			// We reuse this element instead of creating a new one
+			children = rights;
+			for (final InlineBox child : children) {
+				if (child.hasContent()) {
+					// The lastContentChild is already set in this instance an did not change
+					firstContentChild = child;
+					break;
+				}
+			}
+			if (left == null && remaining >= 0) {
+				// There is no left box, and the right box fits without further splitting, so we have to calculate the size here
+				layout(context);
+			}
+			right = this;
 		}
 
-		return new Pair(left, right);
+		return new Pair(left, right, remaining);
 	}
 
 	@Override
