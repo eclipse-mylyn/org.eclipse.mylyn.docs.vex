@@ -16,7 +16,6 @@
 package org.eclipse.vex.ui.internal.editor;
 
 import java.io.File;
-import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.URI;
@@ -738,12 +737,13 @@ public class VexEditor extends EditorPart {
 			if (provider instanceof IStorageDocumentProvider) {
 				// Try to get the encoding from the DocumentProvider
 				encoding = ((IStorageDocumentProvider) provider).getEncoding(getEditorInput());
-				System.out.println("encoding:" + encoding);
 			} else {
 				encoding = "UTF-8";
 			}
-			// A InputStream is used here to avoid an in memory copy of the documents content
-			final InputSource is = new InputSource(new InputStreamReader(new DocumentInputStream(jFaceDoc), encoding));
+
+			// A Reader is used here to avoid an in memory copy of the documents content
+			final InputSource is = new InputSource(new DocumentInputReader(jFaceDoc));
+			is.setEncoding(encoding);
 
 			// Set the systemId of the InputSource to resolve relative URIs
 			final IEditorInput input = getEditorInput();
