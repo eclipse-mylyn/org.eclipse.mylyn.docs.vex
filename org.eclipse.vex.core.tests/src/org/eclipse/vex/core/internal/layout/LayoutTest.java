@@ -63,7 +63,7 @@ import org.xml.sax.helpers.DefaultHandler;
  * 
  */
 @RunWith(AllTests.class)
-public class LayoutTestSuite extends TestCase {
+public class LayoutTest extends TestCase {
 
 	public String id;
 	public String documentContent;
@@ -74,7 +74,7 @@ public class LayoutTestSuite extends TestCase {
 	public String css;
 
 	public static Test suite() throws ParserConfigurationException, FactoryConfigurationError, IOException, SAXException {
-		final TestSuite suite = new TestSuite(LayoutTestSuite.class.getName());
+		final TestSuite suite = new TestSuite(LayoutTest.class.getName());
 		suite.addTest(loadSuite("block-inline.xml"));
 		suite.addTest(loadSuite("before-after.xml"));
 		suite.addTest(loadSuite("linebreaks.xml"));
@@ -89,17 +89,17 @@ public class LayoutTestSuite extends TestCase {
 		final TestCaseBuilder builder = new TestCaseBuilder();
 		xmlReader.setContentHandler(builder);
 		// xmlReader.setEntityResolver(builder);
-		final URL url = LayoutTestSuite.class.getResource(filename);
+		final URL url = LayoutTest.class.getResource(filename);
 		xmlReader.parse(new InputSource(url.toString()));
 
 		final TestSuite suite = new TestSuite(filename);
-		for (final LayoutTestSuite test : builder.testCases) {
+		for (final LayoutTest test : builder.testCases) {
 			suite.addTest(test);
 		}
 		return suite;
 	}
 
-	public LayoutTestSuite() {
+	public LayoutTest() {
 		super("testLayout");
 	}
 
@@ -109,7 +109,7 @@ public class LayoutTestSuite extends TestCase {
 	}
 
 	public void testLayout() throws Exception {
-		final URL url = LayoutTestSuite.class.getResource(css);
+		final URL url = LayoutTest.class.getResource(css);
 		final StyleSheet styleSheet = new StyleSheetReader().read(url);
 
 		final FakeGraphics g = new FakeGraphics();
@@ -276,9 +276,9 @@ public class LayoutTestSuite extends TestCase {
 
 	private static class TestCaseBuilder extends DefaultHandler {
 
-		private List<LayoutTestSuite> testCases;
+		private List<LayoutTest> testCases;
 		private String css;
-		private LayoutTestSuite testCase;
+		private LayoutTest testCase;
 		private BoxSpec boxSpec;
 		private Stack<BoxSpec> boxSpecs;
 		private boolean inDoc;
@@ -313,7 +313,7 @@ public class LayoutTestSuite extends TestCase {
 		public void startElement(final String uri, final String localName, final String qName, final Attributes attributes) throws SAXException {
 
 			if (qName.equals("testcases")) {
-				testCases = new ArrayList<LayoutTestSuite>();
+				testCases = new ArrayList<LayoutTest>();
 				css = attributes.getValue("css");
 				if (css == null) {
 					css = "test.css";
@@ -321,7 +321,7 @@ public class LayoutTestSuite extends TestCase {
 				testCase = null;
 				boxSpecs = new Stack<BoxSpec>();
 			} else if (qName.equals("test")) {
-				testCase = new LayoutTestSuite();
+				testCase = new LayoutTest();
 				testCase.id = attributes.getValue("id");
 				testCase.css = css;
 				final String layoutWidth = attributes.getValue("layoutWidth");
