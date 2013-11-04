@@ -16,6 +16,7 @@ This file defines a set of core styles that are always added when creating a Sty
 vex|processing-instruction {
 	display: inherit;
 	color: blue;
+	_vex-inline-marker: none;
 }
 
 vex|processing-instruction:before {
@@ -33,6 +34,7 @@ vex|processing-instruction:after {
 vex|comment {
 	display: inherit;
 	color: green;
+	_vex-inline-marker: none;
 }
 
 vex|comment:before {

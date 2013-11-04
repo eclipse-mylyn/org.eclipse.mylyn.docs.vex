@@ -21,7 +21,6 @@ import org.eclipse.vex.core.internal.core.FontResource;
 import org.eclipse.vex.core.internal.core.Graphics;
 import org.eclipse.vex.core.internal.core.Rectangle;
 import org.eclipse.vex.core.internal.css.CSS;
-import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.css.Styles;
 import org.eclipse.vex.core.provisional.dom.BaseNodeVisitor;
 import org.eclipse.vex.core.provisional.dom.ContentRange;
@@ -71,13 +70,15 @@ public class InlineElementBox extends CompositeInlineBox {
 				childList.add(new SpaceBox(space, 1));
 			}
 
+			final boolean showLeftMarker = styles.getInlineMarker().equals(CSS.NORMAL);
+
 			// :before content
 			final IElement beforeElement = context.getStyleSheet().getPseudoElement(node, CSS.PSEUDO_BEFORE, true);
 			if (beforeElement != null) {
-				childList.addAll(LayoutUtils.createGeneratedInlines(context, beforeElement));
+				childList.addAll(LayoutUtils.createGeneratedInlines(context, beforeElement, showLeftMarker ? StaticTextBox.NO_MARKER : StaticTextBox.START_MARKER));
 			}
 			// left marker
-			if (styles.getInlineMarker().equals(CSS.NORMAL)) {
+			if (showLeftMarker) {
 				childList.add(createLeftMarker(node, styles));
 			}
 		}
@@ -107,15 +108,17 @@ public class InlineElementBox extends CompositeInlineBox {
 		if (endOffset > node.getEndOffset()) {
 			childList.add(new PlaceholderBox(context, node, node.getEndOffset() - node.getStartOffset()));
 
+			final boolean showRightMarker = styles.getInlineMarker().equals(CSS.NORMAL);
+
 			// trailing marker
-			if (styles.getInlineMarker().equals(CSS.NORMAL)) {
+			if (showRightMarker) {
 				childList.add(createRightMarker(node, styles));
 			}
 
 			// :after content
 			final IElement afterElement = context.getStyleSheet().getPseudoElement(node, CSS.PSEUDO_AFTER, true);
 			if (afterElement != null) {
-				childList.addAll(LayoutUtils.createGeneratedInlines(context, afterElement));
+				childList.addAll(LayoutUtils.createGeneratedInlines(context, afterElement, showRightMarker ? StaticTextBox.NO_MARKER : StaticTextBox.END_MARKER));
 			}
 
 			// space for the right margin/border/padding
@@ -296,12 +299,16 @@ public class InlineElementBox extends CompositeInlineBox {
 
 						@Override
 						public void visit(final IComment comment) {
-							createBoxWithBeforeAndAfterContent(comment);
+							addPlaceholderBox(result, new PlaceholderBox(context, node, comment.getStartOffset() - node.getStartOffset()));
+							final InlineBox child = new InlineElementBox(context, comment, range.getStartOffset(), range.getEndOffset());
+							addChildInlineBox(result, child);
 						};
 
 						@Override
 						public void visit(final IProcessingInstruction pi) {
-							createBoxWithBeforeAndAfterContent(pi);
+							addPlaceholderBox(result, new PlaceholderBox(context, node, pi.getStartOffset() - node.getStartOffset()));
+							final InlineBox child = new InlineElementBox(context, pi, range.getStartOffset(), range.getEndOffset());
+							addChildInlineBox(result, child);
 						};
 
 						@Override
@@ -310,33 +317,20 @@ public class InlineElementBox extends CompositeInlineBox {
 							final InlineBox child = new DocumentTextBox(context, node, boxRange.getStartOffset(), boxRange.getEndOffset());
 							addChildInlineBox(result, child);
 						}
-
-						private void createBoxWithBeforeAndAfterContent(final INode node) {
-							addPlaceholderBox(result, new PlaceholderBox(context, node, node.getStartOffset() - node.getStartOffset()));
-							final List<Box> boxes = new ArrayList<Box>();
-							final StyleSheet styleSheet = context.getStyleSheet();
-
-							// :before content
-							final IElement before = styleSheet.getPseudoElement(node, CSS.PSEUDO_BEFORE, true);
-							if (before != null) {
-								boxes.addAll(LayoutUtils.createGeneratedInlines(context, before, StaticTextBox.START_MARKER));
-							}
-
-							if (node.getEndOffset() - node.getStartOffset() > 1) {
-								boxes.add(new DocumentTextBox(context, node, node.getStartOffset() + 1, node.getEndOffset() - 1));
-							}
-							boxes.add(new PlaceholderBox(context, node, node.getEndOffset() - node.getStartOffset()));
-
-							// :after content
-							final IElement after = styleSheet.getPseudoElement(node, CSS.PSEUDO_AFTER, true);
-							if (after != null) {
-								boxes.addAll(LayoutUtils.createGeneratedInlines(context, after, StaticTextBox.END_MARKER));
-							}
-							final InlineBox child = new InlineElementBox(context, node, boxes.toArray(new InlineBox[boxes.size()]));
-							addChildInlineBox(result, child);
-						}
 					});
 				}
+			}
+
+			@Override
+			public void visit(final IComment comment) {
+				final InlineBox child = new DocumentTextBox(context, comment, comment.getStartOffset() + 1, comment.getEndOffset() - 1);
+				addChildInlineBox(result, child);
+			}
+
+			@Override
+			public void visit(final IProcessingInstruction pi) {
+				final InlineBox child = new DocumentTextBox(context, pi, pi.getStartOffset() + 1, pi.getEndOffset() - 1);
+				addChildInlineBox(result, child);
 			}
 		});
 
