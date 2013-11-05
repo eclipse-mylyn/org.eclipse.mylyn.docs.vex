@@ -9,6 +9,7 @@
  *     John Krasnay - initial API and implementation
  *     Igor Jacy Lino Campista - Java 5 warnings fixed (bug 311325)
  *     Florian Thienel - refactoring to full fledged DOM
+ *     Carsten Hiesserich - some optimization in getText methods
  *******************************************************************************/
 package org.eclipse.vex.core.internal.dom;
 
@@ -172,7 +173,8 @@ public class GapContent implements IContent {
 		Assert.isTrue(getRange().contains(range));
 
 		final int delta = gapEnd - gapStart;
-		final StringBuilder result = new StringBuilder();
+		// Use range length as initial capacity. This might be a bit too much, but that's better than having to resize the StringBuilder.
+		final StringBuilder result = new StringBuilder(range.length());
 		if (range.getEndOffset() < gapStart) {
 			appendPlainText(result, range);
 		} else if (range.getStartOffset() >= gapStart) {
@@ -185,7 +187,8 @@ public class GapContent implements IContent {
 	}
 
 	private void appendPlainText(final StringBuilder stringBuilder, final ContentRange range) {
-		for (int i = range.getStartOffset(); range.contains(i); i++) {
+		final int endOffset = range.getEndOffset();
+		for (int i = range.getStartOffset(); i <= endOffset; i++) {
 			final char c = content[i];
 			if (!isTagMarker(c)) {
 				stringBuilder.append(c);
@@ -201,16 +204,16 @@ public class GapContent implements IContent {
 		Assert.isTrue(getRange().contains(range));
 
 		final int delta = gapEnd - gapStart;
-		final StringBuilder result = new StringBuilder();
 		if (range.getEndOffset() < gapStart) {
-			appendRawText(result, range);
+			return new String(content, range.getStartOffset(), range.length());
 		} else if (range.getStartOffset() >= gapStart) {
-			appendRawText(result, range.moveBy(delta));
+			return new String(content, range.getStartOffset() + delta, range.length());
 		} else {
+			final StringBuilder result = new StringBuilder(range.length());
 			appendRawText(result, new ContentRange(range.getStartOffset(), gapStart - 1));
 			appendRawText(result, new ContentRange(gapEnd, range.getEndOffset() + delta));
+			return result.toString();
 		}
-		return result.toString();
 	}
 
 	private void appendRawText(final StringBuilder stringBuilder, final ContentRange range) {

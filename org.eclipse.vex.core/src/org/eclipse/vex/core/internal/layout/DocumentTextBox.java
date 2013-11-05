@@ -52,9 +52,9 @@ public class DocumentTextBox extends TextBox {
 		endRelative = endOffset - nodeStart;
 		calculateSize(context);
 
-		if (getText().length() < endOffset - startOffset) {
+		if (startOffset <= nodeStart || endOffset >= node.getEndOffset()) {
 			// Do not use Assert.isTrue. This Contructor is called very often and the use of Assert.isTrue would evaluate the Message.format every time.
-			throw new AssertionFailedException(MessageFormat.format("DocumentTextBox for {2}: text shorter than range: {0} < {1}", getText().length(), endOffset - startOffset, node)); //$NON-NLS-1$
+			throw new AssertionFailedException(MessageFormat.format("assertion failed: Range of DocumentTextBox for {0} exceeds content of parent node", node)); //$NON-NLS-1$
 		}
 	}
 
@@ -87,7 +87,9 @@ public class DocumentTextBox extends TextBox {
 	 */
 	@Override
 	public String getText() {
-		return getNode().getText(new ContentRange(getStartOffset(), getEndOffset()));
+		// The content range of this box can not include tag markers, so we can use IContent#getRawText here. This
+		// method is dramatically faster than IContent#getText
+		return getNode().getContent().getRawText(new ContentRange(getStartOffset(), getEndOffset()));
 	}
 
 	/**

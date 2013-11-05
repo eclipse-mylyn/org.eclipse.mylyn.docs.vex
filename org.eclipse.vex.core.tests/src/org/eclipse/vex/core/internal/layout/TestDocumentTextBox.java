@@ -64,7 +64,7 @@ public class TestDocumentTextBox {
 		// baggy orange trousers
 
 		doc.insertText(2, "baggy orange trousers");
-		final DocumentTextBox box = new DocumentTextBox(context, root, 2, 23);
+		final DocumentTextBox box = new DocumentTextBox(context, root, root.getStartOffset() + 1, root.getEndOffset() - 1);
 		assertEquals(box.getText().length() * width, box.getWidth());
 		assertEquals(styles.getLineHeight(), box.getHeight());
 		assertSplit(box, 22, false, "baggy orange ", "trousers");
@@ -129,7 +129,7 @@ public class TestDocumentTextBox {
 			assertEquals(right.length() * width, rightBox.getWidth());
 			assertEquals(styles.getLineHeight(), rightBox.getHeight());
 			assertEquals(midOffset, rightBox.getStartOffset());
-			assertEquals(rightOffset, rightBox.getEndOffset());
+			assertEquals(rightOffset - 1, rightBox.getEndOffset());
 		}
 
 	}
