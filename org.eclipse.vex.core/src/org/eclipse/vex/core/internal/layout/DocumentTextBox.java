@@ -12,7 +12,7 @@ package org.eclipse.vex.core.internal.layout;
 
 import java.text.MessageFormat;
 
-import org.eclipse.core.runtime.Assert;
+import org.eclipse.core.runtime.AssertionFailedException;
 import org.eclipse.vex.core.internal.core.ColorResource;
 import org.eclipse.vex.core.internal.core.FontResource;
 import org.eclipse.vex.core.internal.core.Graphics;
@@ -42,14 +42,20 @@ public class DocumentTextBox extends TextBox {
 	 */
 	public DocumentTextBox(final LayoutContext context, final INode node, final int startOffset, final int endOffset) {
 		super(node);
-		Assert.isTrue(startOffset <= endOffset, MessageFormat.format("DocumentTextBox for {2}: startOffset {0} > endOffset {1}", startOffset, endOffset, node));
+		if (startOffset > endOffset) {
+			// Do not use Assert.isTrue. This Contructor is called very often and the use of Assert.isTrue would evaluate the Message.format every time.
+			throw new AssertionFailedException(MessageFormat.format("assertion failed: DocumentTextBox for {2}: startOffset {0} > endOffset {1}", startOffset, endOffset, node)); //$NON-NLS-1$
+		}
 
-		startRelative = startOffset - node.getStartOffset();
-		endRelative = endOffset - node.getStartOffset();
+		final int nodeStart = node.getStartOffset();
+		startRelative = startOffset - nodeStart;
+		endRelative = endOffset - nodeStart;
 		calculateSize(context);
 
-		Assert.isTrue(getText().length() >= endOffset - startOffset,
-				MessageFormat.format("DocumentTextBox for {2}: text shorter than range: {0} < {1}", getText().length(), endOffset - startOffset, node));
+		if (getText().length() < endOffset - startOffset) {
+			// Do not use Assert.isTrue. This Contructor is called very often and the use of Assert.isTrue would evaluate the Message.format every time.
+			throw new AssertionFailedException(MessageFormat.format("DocumentTextBox for {2}: text shorter than range: {0} < {1}", getText().length(), endOffset - startOffset, node)); //$NON-NLS-1$
+		}
 	}
 
 	/**

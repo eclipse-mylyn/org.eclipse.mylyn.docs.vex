@@ -17,6 +17,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.core.runtime.Assert;
+import org.eclipse.core.runtime.AssertionFailedException;
 import org.eclipse.vex.core.provisional.dom.ContentRange;
 import org.eclipse.vex.core.provisional.dom.IAxis;
 import org.eclipse.vex.core.provisional.dom.INode;
@@ -103,7 +104,9 @@ public abstract class Parent extends Node implements IParent {
 	 * @return the node at the given offset
 	 */
 	public INode getChildAt(final int offset) {
-		Assert.isTrue(containsOffset(offset), MessageFormat.format("Offset must be within {0}.", getRange()));
+		if (!containsOffset(offset)) {
+			throw new AssertionFailedException(MessageFormat.format("Offset must be within {0}.", getRange()));
+		}
 
 		if (offset == getStartOffset() || offset == getEndOffset()) {
 			return this;
