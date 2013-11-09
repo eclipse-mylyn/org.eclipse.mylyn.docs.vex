@@ -19,6 +19,8 @@ import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.AssertionFailedException;
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.vex.core.provisional.dom.BaseNodeVisitor;
+import org.eclipse.vex.core.provisional.dom.ContentPosition;
+import org.eclipse.vex.core.provisional.dom.ContentPositionRange;
 import org.eclipse.vex.core.provisional.dom.ContentRange;
 import org.eclipse.vex.core.provisional.dom.IAxis;
 import org.eclipse.vex.core.provisional.dom.IContent;
@@ -97,11 +99,25 @@ public abstract class Node implements INode {
 		return startPosition.getOffset();
 	}
 
+	public ContentPosition getStartPosition() {
+		if (!isAssociated()) {
+			throw new AssertionFailedException("Node must be associated to a ContentRange to have a start position.");
+		}
+		return new ContentPosition(this, startPosition.getOffset());
+	}
+
 	public int getEndOffset() {
 		if (!isAssociated()) {
-			throw new AssertionFailedException("Node must be associated to a ContentRange to have a start offset.");
+			throw new AssertionFailedException("Node must be associated to a ContentRange to have a end offset.");
 		}
 		return endPosition.getOffset();
+	}
+
+	public ContentPosition getEndPosition() {
+		if (!isAssociated()) {
+			throw new AssertionFailedException("Node must be associated to a ContentRange to have a end position.");
+		}
+		return new ContentPosition(this, endPosition.getOffset());
 	}
 
 	public ContentRange getRange() {
@@ -109,6 +125,13 @@ public abstract class Node implements INode {
 			return ContentRange.NULL;
 		}
 		return new ContentRange(getStartOffset(), getEndOffset());
+	}
+
+	public ContentPositionRange getPositionRange() {
+		if (!isAssociated()) {
+			throw new AssertionFailedException("Node must be associated to a ContentRange to have a ContentPositionRange.");
+		}
+		return new ContentPositionRange(getStartPosition(), getEndPosition());
 	}
 
 	public boolean isEmpty() {
@@ -123,6 +146,13 @@ public abstract class Node implements INode {
 			return false;
 		}
 		return getRange().contains(offset);
+	}
+
+	public boolean containsPosition(final ContentPosition position) {
+		if (!isAssociated()) {
+			return false;
+		}
+		return getPositionRange().contains(position);
 	}
 
 	public boolean isInRange(final ContentRange range) {

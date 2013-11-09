@@ -18,6 +18,7 @@ import org.eclipse.vex.core.internal.core.FontResource;
 import org.eclipse.vex.core.internal.core.FontSpec;
 import org.eclipse.vex.core.internal.core.Graphics;
 import org.eclipse.vex.core.internal.css.Styles;
+import org.eclipse.vex.core.provisional.dom.ContentPosition;
 import org.eclipse.vex.core.provisional.dom.INode;
 
 /**
@@ -115,14 +116,14 @@ public abstract class TextBox extends AbstractInlineBox implements InlineBox {
 	 * @see org.eclipse.vex.core.internal.layout.Box#getCaret(org.eclipse.vex.core.internal.layout.LayoutContext, int)
 	 */
 	@Override
-	public Caret getCaret(final LayoutContext context, final int offset) {
+	public Caret getCaret(final LayoutContext context, final ContentPosition position) {
 		final Graphics g = context.getGraphics();
 		final Styles styles = context.getStyleSheet().getStyles(node);
 		final FontResource oldFont = g.getFont();
 		final FontResource font = g.createFont(styles.getFont());
 		g.setFont(font);
 		final char[] chars = getText().toCharArray();
-		final int x = g.charsWidth(chars, 0, offset - getStartOffset());
+		final int x = g.charsWidth(chars, 0, position.getOffset() - getStartOffset());
 		g.setFont(oldFont);
 		font.dispose();
 		return new TextCaret(x, 0, getHeight());
@@ -318,7 +319,7 @@ public abstract class TextBox extends AbstractInlineBox implements InlineBox {
 	/**
 	 * Return a pair of boxes representing a split at the given offset. If split is zero, then the returned left box
 	 * should be null. If the split is equal to the length of the text, then the right box should be null.
-	 *
+	 * 
 	 * @param context
 	 *            LayoutContext used to calculate size. The correct font has to be set in the context's graphics before
 	 *            calling this method.

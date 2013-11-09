@@ -14,6 +14,7 @@ package org.eclipse.vex.core.internal.layout;
 import java.util.List;
 
 import org.eclipse.vex.core.internal.css.Styles;
+import org.eclipse.vex.core.provisional.dom.ContentPosition;
 import org.eclipse.vex.core.provisional.dom.IElement;
 import org.eclipse.vex.core.provisional.dom.INode;
 
@@ -89,14 +90,14 @@ public class BlockPseudoElementBox extends AbstractBox implements BlockBox {
 	/**
 	 * @see org.eclipse.vex.core.internal.layout.BlockBox#getLineEndOffset(int)
 	 */
-	public int getLineEndOffset(final int offset) {
+	public ContentPosition getLineEndPosition(final ContentPosition position) {
 		throw new IllegalStateException();
 	}
 
 	/**
 	 * @see org.eclipse.vex.core.internal.layout.BlockBox#getLineStartOffset(int)
 	 */
-	public int getLineStartOffset(final int offset) {
+	public ContentPosition getLineStartPosition(final ContentPosition position) {
 		throw new IllegalStateException();
 	}
 
@@ -112,7 +113,7 @@ public class BlockPseudoElementBox extends AbstractBox implements BlockBox {
 	 * @see org.eclipse.vex.core.internal.layout.BlockBox#getNextLineOffset(org.eclipse.vex.core.internal.layout.LayoutContext,
 	 *      int, int)
 	 */
-	public int getNextLineOffset(final LayoutContext context, final int offset, final int x) {
+	public ContentPosition getNextLinePosition(final LayoutContext context, final ContentPosition position, final int x) {
 		throw new IllegalStateException();
 	}
 
@@ -127,7 +128,7 @@ public class BlockPseudoElementBox extends AbstractBox implements BlockBox {
 	 * @see org.eclipse.vex.core.internal.layout.BlockBox#getPreviousLineOffset(org.eclipse.vex.core.internal.layout.LayoutContext,
 	 *      int, int)
 	 */
-	public int getPreviousLineOffset(final LayoutContext context, final int offset, final int x) {
+	public ContentPosition getPreviousLinePosition(final LayoutContext context, final ContentPosition position, final int x) {
 		throw new IllegalStateException();
 	}
 

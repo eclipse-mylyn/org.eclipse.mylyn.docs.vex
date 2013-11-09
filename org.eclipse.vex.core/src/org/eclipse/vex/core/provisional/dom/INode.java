@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.vex.core.provisional.dom;
 
+
 /**
  * A representation of one node in the XML structure. A node is associated to a range of the textual content.
  * <p>
@@ -51,6 +52,13 @@ public interface INode {
 	int getStartOffset();
 
 	/**
+	 * The start position of this node, which eventually also includes the position of a tag marker.
+	 * 
+	 * @return the start position of this node within the textual content
+	 */
+	ContentPosition getStartPosition();
+
+	/**
 	 * The end offset of this node, which eventually also includes the position of a tag marker.
 	 * 
 	 * @return the end offset of this node within the textual content
@@ -58,9 +66,21 @@ public interface INode {
 	int getEndOffset();
 
 	/**
-	 * @return the range in the content to which this node is associated, eventually including tag markers
+	 * The end position of this node, which eventually also includes the position of a tag marker.
+	 * 
+	 * @return the end position of this node within the textual content
+	 */
+	ContentPosition getEndPosition();
+
+	/**
+	 * @return the in the content to which this node is associated, eventually including tag markers
 	 */
 	ContentRange getRange();
+
+	/**
+	 * @return the {@link ContentPositionRange} to which this node is associated, eventually including tag markers
+	 */
+	ContentPositionRange getPositionRange();
 
 	/**
 	 * Indicate whether this node has no content beside its tag markers. If this node is not associated with textual
@@ -79,6 +99,16 @@ public interface INode {
 	 * @return true if the given offset is withing [startOffset; endOffset], or false if not associated
 	 */
 	boolean containsOffset(int offset);
+
+	/**
+	 * Indicate whether the given position is within the boundaries of this node. If this node is not associated with
+	 * textual content, this method returns false.
+	 * 
+	 * @param position
+	 *            the position
+	 * @return true if the given position is withing [startPosition; endPosition], or false if not associated
+	 */
+	boolean containsPosition(ContentPosition position);
 
 	/**
 	 * Indicate whether this node is fully within the given range. If this node is not associated with textual content,

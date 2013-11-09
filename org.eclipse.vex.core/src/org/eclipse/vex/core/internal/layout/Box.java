@@ -12,6 +12,7 @@ package org.eclipse.vex.core.internal.layout;
 
 import org.eclipse.vex.core.internal.core.Caret;
 import org.eclipse.vex.core.internal.core.Insets;
+import org.eclipse.vex.core.provisional.dom.ContentPosition;
 import org.eclipse.vex.core.provisional.dom.INode;
 
 /**
@@ -30,14 +31,22 @@ public interface Box {
 	public boolean containsOffset(int offset);
 
 	/**
+	 * Returns true if this box contains the given position.
+	 * 
+	 * @param position
+	 *            the ContentPosition to test
+	 */
+	public boolean containsPosition(ContentPosition position);
+
+	/**
 	 * Returns a Caret object representing the given offset.
 	 * 
 	 * @param context
 	 *            LayoutContext to be used
-	 * @param offset
-	 *            offset for which to retrieve the caret
+	 * @param position
+	 *            position for which to retrieve the caret
 	 */
-	public Caret getCaret(LayoutContext context, int offset);
+	public Caret getCaret(LayoutContext context, ContentPosition position);
 
 	/**
 	 * Returns an array of this box's children.
@@ -158,7 +167,7 @@ public interface Box {
 	public void setY(int y);
 
 	/**
-	 * Returns the offset in the content closest to the given view position.
+	 * Returns the position in the content closest to the given view position.
 	 * 
 	 * @param context
 	 *            <code>LayoutContext</code> for this box tree
@@ -167,6 +176,6 @@ public interface Box {
 	 * @param y
 	 *            y offset of the view position for which the model offset is to be determined.
 	 */
-	public int viewToModel(LayoutContext context, int x, int y);
+	public ContentPosition viewToModel(LayoutContext context, int x, int y);
 
 }

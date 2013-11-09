@@ -36,8 +36,8 @@ public class MoveSelectionUpHandler extends AbstractVexWidgetHandler {
 		for (final IParent parent : parentsContainingSelection) {
 			final IAxis<? extends INode> blockChildren = parent.children().matching(displayedAsBlock(policy));
 			if (blockChildren.isEmpty()) {
-				widget.moveTo(parent.getStartOffset(), false);
-				widget.moveTo(parent.getEndOffset(), true);
+				widget.moveTo(parent.getStartPosition(), false);
+				widget.moveTo(parent.getEndPosition(), true);
 			} else {
 				break;
 			}

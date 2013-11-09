@@ -21,7 +21,8 @@ import org.eclipse.vex.core.internal.css.CSS;
 import org.eclipse.vex.core.internal.css.PseudoElement;
 import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.css.Styles;
-import org.eclipse.vex.core.provisional.dom.ContentRange;
+import org.eclipse.vex.core.provisional.dom.ContentPosition;
+import org.eclipse.vex.core.provisional.dom.ContentPositionRange;
 import org.eclipse.vex.core.provisional.dom.IElement;
 import org.eclipse.vex.core.provisional.dom.INode;
 import org.eclipse.vex.core.provisional.dom.IParent;
@@ -33,7 +34,7 @@ public class LayoutUtils {
 
 	/**
 	 * Creates a list of generated inline boxes for the given pseudo-element.
-	 *
+	 * 
 	 * @param context
 	 *            LayoutContext in use
 	 * @param pseudoElement
@@ -55,7 +56,7 @@ public class LayoutUtils {
 
 	/**
 	 * Creates a list of generated inline boxes for the given pseudo-element.
-	 *
+	 * 
 	 * @param context
 	 *            LayoutContext in use
 	 * @param pseudoElement
@@ -67,23 +68,25 @@ public class LayoutUtils {
 
 	/**
 	 * Returns <code>true</code> if the given offset falls within the given element or range.
-	 *
+	 * 
 	 * @param elementOrRange
 	 *            Element or IntRange object representing a range of offsets.
-	 * @param offset
-	 *            Offset to test.
+	 * @param position
+	 *            ContentPosition to test.
 	 */
-	public static boolean elementOrRangeContains(final Object elementOrRange, final int offset) {
+	public static boolean elementOrRangeContains(final Object elementOrRange, final ContentPosition position) {
 		if (elementOrRange instanceof IElement) {
-			return ((IElement) elementOrRange).containsOffset(offset);
-		} else {
-			return ((ContentRange) elementOrRange).contains(offset);
+			return ((IElement) elementOrRange).containsPosition(position);
+		} else if (elementOrRange instanceof ContentPositionRange) {
+			return ((ContentPositionRange) elementOrRange).contains(position);
 		}
+		throw new IllegalArgumentException("elementOrRangeContains expects an IElement or ContentPositionRange.");
+
 	}
 
 	/**
 	 * Creates a string representing the generated content for the given node.
-	 *
+	 * 
 	 * @param context
 	 *            LayoutContext in use
 	 * @param styles
@@ -104,7 +107,7 @@ public class LayoutUtils {
 	 * Call the given callback for each child matching one of the given display styles. Any nodes that do not match one
 	 * of the given display types cause the onRange callback to be called, with a range covering all such contiguous
 	 * nodes.
-	 *
+	 * 
 	 * @param context
 	 *            LayoutContext to use.
 	 * @param displayStyles
@@ -169,7 +172,7 @@ public class LayoutUtils {
 	 * Call the given callback for each child matching one of the given display styles. Any nodes that do not match one
 	 * of the given display types cause the onRange callback to be called, with a range covering all such contiguous
 	 * nodes.
-	 *
+	 * 
 	 * @param context
 	 *            LayoutContext to use.
 	 * @param displayStyles
@@ -186,7 +189,7 @@ public class LayoutUtils {
 
 	/**
 	 * Returns true if the given styles represent an element that can be the child of a table element.
-	 *
+	 * 
 	 * @param styleSheet
 	 *            StyleSheet to use.
 	 * @param element

@@ -316,8 +316,8 @@ public class DocumentOutlinePage extends Page implements IContentOutlinePage {
 						// Moving to the end of the element first is a cheap
 						// way to make sure we end up with the
 						// caret at the top of the viewport
-						vexWidget.moveTo(node.getEndOffset());
-						vexWidget.moveTo(node.getStartOffset() + 1);
+						vexWidget.moveTo(node.getEndPosition());
+						vexWidget.moveTo(node.getStartPosition().moveBy(1));
 					}
 				}
 			}

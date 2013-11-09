@@ -14,6 +14,7 @@ package org.eclipse.vex.ui.internal.handlers;
 import java.util.NoSuchElementException;
 
 import org.eclipse.vex.core.internal.widget.swt.VexWidget;
+import org.eclipse.vex.core.provisional.dom.ContentPosition;
 import org.eclipse.vex.core.provisional.dom.IElement;
 
 /**
@@ -24,22 +25,22 @@ import org.eclipse.vex.core.provisional.dom.IElement;
 public class NextTableCellHandler extends AbstractNavigateTableCellHandler {
 
 	@Override
-	protected void navigate(final VexWidget widget, final IElement tableRow, final int offset) {
+	protected void navigate(final VexWidget widget, final IElement tableRow, final ContentPosition position) {
 		// in this row
 		for (final IElement cell : tableRow.childElements()) {
-			if (cell.getStartOffset() > offset) {
-				widget.moveTo(cell.getStartOffset() + 1);
+			if (cell.getStartPosition().isAfter(position)) {
+				widget.moveTo(cell.getStartPosition().moveBy(1));
 				return;
 			}
 		}
 
 		// in other row
 		for (final IElement siblingRow : tableRow.getParentElement().childElements()) {
-			if (siblingRow.getStartOffset() > offset) {
+			if (siblingRow.getStartPosition().isAfter(position)) {
 				final IElement firstCell = firstCellOf(siblingRow);
 
 				if (firstCell != null) {
-					widget.moveTo(firstCell.getStartOffset() + 1);
+					widget.moveTo(firstCell.getStartPosition().moveBy(1));
 				} else {
 					System.out.println("TODO - dup row into new empty row");
 				}

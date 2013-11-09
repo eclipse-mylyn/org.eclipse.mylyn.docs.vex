@@ -54,8 +54,8 @@ public class L2StyleSheetTest {
 
 		assertNotNull("Styles for inserted element", styles);
 
-		widget.moveTo(element.getStartOffset());
-		widget.moveTo(element.getEndOffset(), true);
+		widget.moveTo(element.getStartPosition());
+		widget.moveTo(element.getEndPosition(), true);
 		widget.deleteSelection();
 
 		assertFalse("Styles for deleted element should be removed from cache.", widget.getStyleSheet().testGetStylesCache().containsKey(element));
@@ -71,7 +71,7 @@ public class L2StyleSheetTest {
 		assertEquals("Background color from <para> style", new Color(255, 255, 255), styles.getBackgroundColor());
 
 		// Insert a new PARA before the existing one
-		widget.moveTo(element.getStartOffset());
+		widget.moveTo(element.getStartPosition());
 		final IElement newElement = widget.insertElement(PARA);
 		final Styles newStyles = widget.getStyleSheet().getStyles(element);
 		assertNotNull("New styles for element", styles);
@@ -93,8 +93,8 @@ public class L2StyleSheetTest {
 		assertEquals("Background color from <para + para> style", new Color(255, 0, 0), styles.getBackgroundColor());
 
 		// Delete the first PARA
-		widget.moveTo(element1.getStartOffset());
-		widget.moveTo(element1.getEndOffset(), true);
+		widget.moveTo(element1.getStartPosition());
+		widget.moveTo(element1.getEndPosition(), true);
 		widget.deleteSelection();
 
 		final Styles newStyles = widget.getStyleSheet().getStyles(element2);

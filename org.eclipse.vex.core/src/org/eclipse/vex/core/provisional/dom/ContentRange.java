@@ -43,6 +43,15 @@ public class ContentRange {
 		this.endOffset = endOffset;
 	}
 
+	public ContentRange(final ContentPosition startPosition, final ContentPosition endPosition) {
+		startOffset = startPosition.getOffset();
+		endOffset = endPosition.getOffset();
+		if (startOffset > endOffset) {
+			// Do not use Assert.isTrue. This Contructor is called very often and the use of Assert.isTrue would evaluate the Message.format every time.
+			throw new AssertionFailedException(MessageFormat.format("assertion failed: startOffset {0} must not be greater than endOffset {1}", startOffset, endOffset)); //$NON-NLS-1$
+		}
+	}
+
 	public int getStartOffset() {
 		return startOffset;
 	}

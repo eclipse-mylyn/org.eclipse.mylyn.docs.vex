@@ -46,6 +46,7 @@ import org.eclipse.vex.core.internal.widget.BaseVexWidget;
 import org.eclipse.vex.core.internal.widget.IBoxFilter;
 import org.eclipse.vex.core.internal.widget.IHostComponent;
 import org.eclipse.vex.core.internal.widget.swt.VexWidget;
+import org.eclipse.vex.core.provisional.dom.ContentPosition;
 import org.eclipse.vex.core.provisional.dom.ContentRange;
 import org.eclipse.vex.core.provisional.dom.IDocument;
 import org.eclipse.vex.ui.internal.editor.VexEditor;
@@ -331,7 +332,7 @@ class DebugViewPage implements IPageBookViewPage {
 		setItemFromRect(documentItem, getRootBoxBounds());
 		setFromInnermostBox(boxItem, getInnermostBox());
 		final Rectangle viewport = getViewport();
-		caretOffsetItem.setText(1, Integer.toString(impl.getCaretOffset()));
+		caretOffsetItem.setText(1, impl.getCaretPosition().toString());
 		caretOffsetContentItem.setText(1, getContent());
 		setItemFromRect(viewportItem, viewport);
 		setItemFromRect(caretAbsItem, getCaretBounds());
@@ -360,15 +361,15 @@ class DebugViewPage implements IPageBookViewPage {
 	}
 
 	private String getContent() {
-		final int offset = impl.getCaretOffset();
+		final ContentPosition offset = impl.getCaretPosition();
 		final IDocument doc = impl.getDocument();
 		final int len = 8;
 
 		final StringBuilder result = new StringBuilder();
-		final ContentRange range = new ContentRange(offset - len, offset + len).intersection(doc.getRange());
+		final ContentRange range = new ContentRange(offset.moveBy(-len), offset.moveBy(len)).intersection(doc.getRange());
 		final String content = doc.getContent().getRawText(range);
 
-		final int caretIndex = offset - range.getStartOffset();
+		final int caretIndex = offset.getOffset() - range.getStartOffset();
 
 		result.append(content.substring(0, caretIndex).replace("\0", "#"));
 		result.append("|");

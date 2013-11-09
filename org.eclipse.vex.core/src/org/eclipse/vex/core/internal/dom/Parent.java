@@ -18,6 +18,7 @@ import java.util.List;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.AssertionFailedException;
+import org.eclipse.vex.core.provisional.dom.ContentPosition;
 import org.eclipse.vex.core.provisional.dom.ContentRange;
 import org.eclipse.vex.core.provisional.dom.IAxis;
 import org.eclipse.vex.core.provisional.dom.INode;
@@ -94,6 +95,10 @@ public abstract class Parent extends Node implements IParent {
 	private void insertChildAtIndex(final int index, final Node child) {
 		children.add(index, child);
 		child.setParent(this);
+	}
+
+	public INode getChildAt(final ContentPosition position) {
+		return getChildAt(position.getOffset());
 	}
 
 	/**

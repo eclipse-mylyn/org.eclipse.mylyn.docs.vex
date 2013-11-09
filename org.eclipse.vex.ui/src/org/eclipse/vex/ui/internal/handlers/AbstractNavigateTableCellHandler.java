@@ -17,6 +17,7 @@ import org.eclipse.vex.core.IFilter;
 import org.eclipse.vex.core.internal.css.CSS;
 import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.widget.swt.VexWidget;
+import org.eclipse.vex.core.provisional.dom.ContentPosition;
 import org.eclipse.vex.core.provisional.dom.IAxis;
 import org.eclipse.vex.core.provisional.dom.IElement;
 import org.eclipse.vex.core.provisional.dom.INode;
@@ -39,8 +40,8 @@ public abstract class AbstractNavigateTableCellHandler extends AbstractVexWidget
 			return;
 		}
 
-		final int offset = widget.getCaretOffset();
-		navigate(widget, tableRow, offset);
+		final ContentPosition position = widget.getCaretPosition();
+		navigate(widget, tableRow, position);
 	}
 
 	/**
@@ -53,7 +54,7 @@ public abstract class AbstractNavigateTableCellHandler extends AbstractVexWidget
 	 * @param offset
 	 *            the current offset
 	 */
-	protected abstract void navigate(VexWidget widget, IElement tableRow, int offset);
+	protected abstract void navigate(VexWidget widget, IElement tableRow, ContentPosition position);
 
 	private static IFilter<INode> displayedAsTableRow(final StyleSheet stylesheet) {
 		return new IFilter<INode>() {

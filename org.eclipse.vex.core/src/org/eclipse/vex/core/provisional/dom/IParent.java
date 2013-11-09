@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.vex.core.provisional.dom;
 
+
 /**
  * A parent node is a node which can contain other nodes as children. This interface defines the tree-like structure of
  * the DOM. It handles the merging of the child nodes and the textual content of one node within the structure of the
@@ -40,5 +41,14 @@ public interface IParent extends INode {
 	 * @return the node at the given offset
 	 */
 	public abstract INode getChildAt(int offset);
+
+	/**
+	 * Returns the child node which contains the given position, or this node, if no child contains the position.
+	 * 
+	 * @param position
+	 *            the position
+	 * @return the node at the given position
+	 */
+	public abstract INode getChildAt(ContentPosition position);
 
 }

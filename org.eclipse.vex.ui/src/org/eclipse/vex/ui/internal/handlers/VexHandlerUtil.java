@@ -29,6 +29,8 @@ import org.eclipse.vex.core.internal.layout.LayoutUtils;
 import org.eclipse.vex.core.internal.widget.IVexWidget;
 import org.eclipse.vex.core.internal.widget.swt.VexWidget;
 import org.eclipse.vex.core.provisional.dom.BaseNodeVisitor;
+import org.eclipse.vex.core.provisional.dom.ContentPosition;
+import org.eclipse.vex.core.provisional.dom.ContentPositionRange;
 import org.eclipse.vex.core.provisional.dom.ContentRange;
 import org.eclipse.vex.core.provisional.dom.IAttribute;
 import org.eclipse.vex.core.provisional.dom.IComment;
@@ -111,9 +113,9 @@ public final class VexHandlerUtil {
 		}
 
 		if (addAbove) {
-			vexWidget.moveTo(tableRow.getStartOffset());
+			vexWidget.moveTo(tableRow.getStartPosition());
 		} else {
-			vexWidget.moveTo(tableRow.getEndOffset() + 1);
+			vexWidget.moveTo(tableRow.getEndPosition().moveBy(1));
 		}
 
 		// Create a new table row
@@ -151,9 +153,9 @@ public final class VexHandlerUtil {
 		}
 		try {
 			final INode firstTextChild = newRow.childElements().first();
-			vexWidget.moveTo(firstTextChild.getStartOffset());
+			vexWidget.moveTo(firstTextChild.getStartPosition());
 		} catch (final NoSuchElementException ex) {
-			vexWidget.moveTo(newRow.getStartOffset() + 1);
+			vexWidget.moveTo(newRow.getStartPosition().moveBy(1));
 		}
 	}
 
@@ -183,13 +185,13 @@ public final class VexHandlerUtil {
 			return -1;
 		}
 
-		final int offset = vexWidget.getCaretOffset();
+		final ContentPosition offset = vexWidget.getCaretPosition();
 		final int[] column = new int[] { -1 };
 		LayoutUtils.iterateTableCells(vexWidget.getStyleSheet(), row, new ElementOrRangeCallback() {
 			private int i = 0;
 
 			public void onElement(final IElement child, final String displayStyle) {
-				if (offset > child.getStartOffset() && offset <= child.getEndOffset()) {
+				if (offset.isAfter(child.getStartPosition()) && offset.isBeforeOrEquals(child.getEndPosition())) {
 					column[0] = i;
 				}
 				i++;
@@ -324,7 +326,7 @@ public final class VexHandlerUtil {
 
 		final boolean[] found = new boolean[1];
 		final RowColumnInfo[] rcInfo = new RowColumnInfo[] { new RowColumnInfo() };
-		final int offset = vexWidget.getCaretOffset();
+		final ContentPosition position = vexWidget.getCaretPosition();
 
 		rcInfo[0].cellIndex = -1;
 		rcInfo[0].rowIndex = -1;
@@ -339,12 +341,12 @@ public final class VexHandlerUtil {
 
 			public void onCell(final Object row, final Object cell, final int rowIndex, final int cellIndex) {
 				found[0] = true;
-				if (LayoutUtils.elementOrRangeContains(row, offset)) {
+				if (LayoutUtils.elementOrRangeContains(row, position)) {
 					rcInfo[0].row = row;
 					rcInfo[0].rowIndex = rowIndex;
 					rcInfo[0].columnCount++;
 
-					if (LayoutUtils.elementOrRangeContains(cell, offset)) {
+					if (LayoutUtils.elementOrRangeContains(cell, position)) {
 						rcInfo[0].cell = cell;
 						rcInfo[0].cellIndex = cellIndex;
 					}
@@ -378,12 +380,12 @@ public final class VexHandlerUtil {
 
 		final StyleSheet ss = vexWidget.getStyleSheet();
 		final IDocument doc = vexWidget.getDocument();
-		final int offset = vexWidget.getCaretOffset();
+		final ContentPosition position = vexWidget.getCaretPosition();
 
 		// This may or may not be a table
 		// In any case, it's the element that contains the top-level table
 		// children
-		IElement table = doc.getElementForInsertionAt(offset);
+		IElement table = doc.getElementForInsertionAt(position.getOffset());
 
 		while (table != null && !LayoutUtils.isTableChild(ss, table)) {
 			table = table.getParentElement();
@@ -401,7 +403,7 @@ public final class VexHandlerUtil {
 		final boolean[] found = new boolean[] { false };
 		LayoutUtils.iterateChildrenByDisplayStyle(ss, LayoutUtils.TABLE_CHILD_STYLES, table, new ElementOrRangeCallback() {
 			public void onElement(final IElement child, final String displayStyle) {
-				if (offset >= child.getStartOffset() && offset <= child.getEndOffset()) {
+				if (position.isAfterOrEquals(child.getStartPosition()) && position.isBeforeOrEquals(child.getEndPosition())) {
 					found[0] = true;
 				}
 				tableChildren.add(child);
@@ -440,18 +442,18 @@ public final class VexHandlerUtil {
 	}
 
 	/**
-	 * Returns an IntRange representing the offsets outside the given Element or IntRange. If an Element is passed,
-	 * returns the offsets outside the sentinels. If an IntRange is passed it is returned directly.
+	 * Returns an ContentPositionRange representing the offsets outside the given Element or IntRange. If an Element is
+	 * passed, returns the offsets outside the sentinels. If an PositionRange is passed it is returned directly.
 	 * 
 	 * @param elementOrRange
-	 *            Element or IntRange to be inspected.
+	 *            Element or PositionRange to be inspected.
 	 */
-	public static ContentRange getOuterRange(final Object elementOrRange) {
+	public static ContentPositionRange getOuterRange(final Object elementOrRange) {
 		if (elementOrRange instanceof IElement) {
 			final IElement element = (IElement) elementOrRange;
-			return new ContentRange(element.getStartOffset(), element.getEndOffset() + 1);
+			return new ContentPositionRange(element.getStartPosition(), element.getEndPosition().moveBy(1));
 		} else {
-			return (ContentRange) elementOrRange;
+			return (ContentPositionRange) elementOrRange;
 		}
 	}
 

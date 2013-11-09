@@ -19,6 +19,7 @@ import org.eclipse.vex.core.internal.core.Insets;
 import org.eclipse.vex.core.internal.core.Rectangle;
 import org.eclipse.vex.core.internal.css.CSS;
 import org.eclipse.vex.core.internal.css.Styles;
+import org.eclipse.vex.core.provisional.dom.ContentPosition;
 import org.eclipse.vex.core.provisional.dom.INode;
 
 /**
@@ -48,12 +49,16 @@ public abstract class AbstractBox implements Box {
 		return offset >= getStartOffset() && offset <= getEndOffset();
 	}
 
+	public boolean containsPosition(final ContentPosition position) {
+		return containsOffset(position.getOffset());
+	}
+
 	/**
 	 * Throws <code>IllegalStateException</code>. Boxes with content must provide an implementation of this method.
 	 * 
 	 * @see org.eclipse.vex.core.internal.layout.Box#getCaret(org.eclipse.vex.core.internal.layout.LayoutContext, int)
 	 */
-	public Caret getCaret(final LayoutContext context, final int offset) {
+	public Caret getCaret(final LayoutContext context, final ContentPosition position) {
 		throw new IllegalStateException();
 	}
 
@@ -107,11 +112,11 @@ public abstract class AbstractBox implements Box {
 	 * is associated with this box returns all zeros.
 	 */
 	public Insets getInsets(final LayoutContext context, final int containerWidth) {
-		final INode node = getNode();
-		if (node == null) {
+		if (isAnonymous()) {
 			return Insets.ZERO_INSETS;
 		} else {
-			return getInsets(context.getStyleSheet().getStyles(node), containerWidth);
+
+			return getInsets(context.getStyleSheet().getStyles(getNode()), containerWidth);
 		}
 	}
 
@@ -235,7 +240,7 @@ public abstract class AbstractBox implements Box {
 	 * @see org.eclipse.vex.core.internal.layout.Box#viewToModel(org.eclipse.vex.core.internal.layout.LayoutContext,
 	 *      int, int)
 	 */
-	public int viewToModel(final LayoutContext context, final int x, final int y) {
+	public ContentPosition viewToModel(final LayoutContext context, final int x, final int y) {
 		throw new IllegalStateException();
 	}
 
@@ -278,7 +283,7 @@ public abstract class AbstractBox implements Box {
 	 */
 	protected void drawBox(final LayoutContext context, final INode node, final int x, final int y, final int containerWidth, final boolean drawBorders) {
 
-		if (node == null) {
+		if (isAnonymous()) {
 			return;
 		}
 

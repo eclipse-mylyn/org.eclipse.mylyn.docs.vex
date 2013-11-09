@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.layout;
 
+import org.eclipse.vex.core.provisional.dom.ContentPosition;
 
 /**
  * Represents a block box. Block boxes are stacked one on top of another.
@@ -32,7 +33,7 @@ public interface BlockBox extends Box {
 	 * @param offset
 	 *            offset identifying the current line.
 	 */
-	public int getLineEndOffset(int offset);
+	public ContentPosition getLineEndPosition(ContentPosition linePosition);
 
 	/**
 	 * Returns the offset of the start of the line containing the given offset.
@@ -40,7 +41,7 @@ public interface BlockBox extends Box {
 	 * @param offset
 	 *            offset identifying the current line.
 	 */
-	public int getLineStartOffset(int offset);
+	public ContentPosition getLineStartPosition(ContentPosition linePosition);
 
 	/**
 	 * Returns the bottom margin of this box.
@@ -63,7 +64,7 @@ public interface BlockBox extends Box {
 	 * @param x
 	 *            the x coordinate
 	 */
-	public int getNextLineOffset(LayoutContext context, int offset, int x);
+	public ContentPosition getNextLinePosition(LayoutContext context, ContentPosition linePosition, int x);
 
 	/**
 	 * Returns the offset on the previous line that is closest to the given x coordinate. The given offset may be after
@@ -76,7 +77,7 @@ public interface BlockBox extends Box {
 	 * @param x
 	 *            the x coordinate
 	 */
-	public int getPreviousLineOffset(LayoutContext context, int offset, int x);
+	public ContentPosition getPreviousLinePosition(LayoutContext context, ContentPosition linePosition, int x);
 
 	/**
 	 * Returns the parent box of this box.

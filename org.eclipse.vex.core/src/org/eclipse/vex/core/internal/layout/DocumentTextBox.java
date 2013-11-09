@@ -18,6 +18,7 @@ import org.eclipse.vex.core.internal.core.ColorResource;
 import org.eclipse.vex.core.internal.core.FontResource;
 import org.eclipse.vex.core.internal.core.Graphics;
 import org.eclipse.vex.core.internal.css.Styles;
+import org.eclipse.vex.core.provisional.dom.ContentPosition;
 import org.eclipse.vex.core.provisional.dom.ContentRange;
 import org.eclipse.vex.core.provisional.dom.INode;
 import org.eclipse.vex.core.provisional.dom.IPosition;
@@ -240,7 +241,7 @@ public class DocumentTextBox extends TextBox {
 	 *      int, int)
 	 */
 	@Override
-	public int viewToModel(final LayoutContext context, final int x, final int y) {
+	public ContentPosition viewToModel(final LayoutContext context, final int x, final int y) {
 
 		final Graphics g = context.getGraphics();
 		final Styles styles = context.getStyleSheet().getStyles(getNode());
@@ -249,13 +250,13 @@ public class DocumentTextBox extends TextBox {
 		final char[] chars = getText().toCharArray();
 
 		if (getWidth() <= 0) {
-			return getStartOffset();
+			return getNode().getStartPosition().copy();
 		}
 
 		// first, get an estimate based on x / width
 		int offset = x / getWidth() * chars.length;
 		offset = Math.max(0, offset);
-		offset = Math.min(chars.length, offset);
+		offset = Math.min(chars.length - 1, offset);
 
 		int delta = Math.abs(x - g.charsWidth(chars, 0, offset));
 
@@ -270,7 +271,7 @@ public class DocumentTextBox extends TextBox {
 		}
 
 		// Search forwards
-		while (offset < chars.length - 1) {
+		while (offset < chars.length) {
 			final int newDelta = Math.abs(x - g.charsWidth(chars, 0, offset + 1));
 			if (newDelta > delta) {
 				break;
@@ -281,7 +282,7 @@ public class DocumentTextBox extends TextBox {
 
 		g.setFont(oldFont);
 		font.dispose();
-		return getStartOffset() + offset;
+		return new ContentPosition(getNode(), getStartOffset() + offset);
 	}
 
 }

@@ -17,6 +17,8 @@ import org.eclipse.vex.core.internal.css.IWhitespacePolicy;
 import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.undo.CannotRedoException;
 import org.eclipse.vex.core.internal.undo.CannotUndoException;
+import org.eclipse.vex.core.provisional.dom.ContentPosition;
+import org.eclipse.vex.core.provisional.dom.ContentPositionRange;
 import org.eclipse.vex.core.provisional.dom.ContentRange;
 import org.eclipse.vex.core.provisional.dom.DocumentValidationException;
 import org.eclipse.vex.core.provisional.dom.IComment;
@@ -115,7 +117,7 @@ public interface IVexWidget {
 	 * @param y
 	 *            the y-coordinate
 	 */
-	int viewToModel(int x, int y);
+	ContentPosition viewToModel(int x, int y);
 
 	/*
 	 * Undo/Redo
@@ -268,7 +270,7 @@ public interface IVexWidget {
 	/**
 	 * Return the offset into the document represented by the caret.
 	 */
-	int getCaretOffset();
+	ContentPosition getCaretPosition();
 
 	/**
 	 * Returns the element at the current caret offset.
@@ -284,6 +286,11 @@ public interface IVexWidget {
 	 * Returns the offset range in the content which is selected.
 	 */
 	ContentRange getSelectedRange();
+
+	/**
+	 * Returns the {@link ContentPositionRange} which is selected.
+	 */
+	ContentPositionRange getSelectedPositionRange();
 
 	/**
 	 * Returns the currently selected document fragment, or null if there is no current selection.
@@ -365,7 +372,7 @@ public interface IVexWidget {
 	 * @param int new offset for the caret. The offset must be >= 1 and less than the document size; if not, it is
 	 *        silently ignored.
 	 */
-	void moveTo(int offset);
+	void moveTo(final ContentPosition position);
 
 	/**
 	 * Moves the caret to the new offset, possibly changing the selection.
@@ -375,7 +382,7 @@ public interface IVexWidget {
 	 * @param select
 	 *            if true, the current selection is extended to match the new caret offset.
 	 */
-	void moveTo(int offset, boolean select);
+	void moveTo(final ContentPosition position, boolean select);
 
 	/**
 	 * Move the caret to the end of the current line.

@@ -273,6 +273,11 @@ public interface IDocument extends IParent {
 	INode getNodeForInsertionAt(int offset);
 
 	/**
+	 * @return the node in which an insertion at the given offset will end
+	 */
+	INode getNodeForInsertionAt(ContentPosition position);
+
+	/**
 	 * @return the element in which an insertion at the given offset will end
 	 */
 	IElement getElementForInsertionAt(int offset);

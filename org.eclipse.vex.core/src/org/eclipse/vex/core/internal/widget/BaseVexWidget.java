@@ -68,6 +68,8 @@ import org.eclipse.vex.core.provisional.dom.AttributeChangeEvent;
 import org.eclipse.vex.core.provisional.dom.BaseNodeVisitor;
 import org.eclipse.vex.core.provisional.dom.BaseNodeVisitorWithResult;
 import org.eclipse.vex.core.provisional.dom.ContentChangeEvent;
+import org.eclipse.vex.core.provisional.dom.ContentPosition;
+import org.eclipse.vex.core.provisional.dom.ContentPositionRange;
 import org.eclipse.vex.core.provisional.dom.ContentRange;
 import org.eclipse.vex.core.provisional.dom.DocumentValidationException;
 import org.eclipse.vex.core.provisional.dom.Filters;
@@ -131,13 +133,13 @@ public class BaseVexWidget implements IVexWidget {
 
 	/** Support for beginWork/endWork */
 	private int beginWorkCount = 0;
-	private int beginWorkCaretOffset;
+	private ContentPosition beginWorkCaretPosition;
 	private CompoundEdit compoundEdit;
 
-	private int caretOffset;
-	private int mark;
-	private int selectionStart;
-	private int selectionEnd;
+	private ContentPosition caretPosition;
+	private ContentPosition mark;
+	private ContentPosition selectionStart;
+	private ContentPosition selectionEnd;
 
 	private INode currentNode;
 
@@ -249,7 +251,7 @@ public class BaseVexWidget implements IVexWidget {
 	@Override
 	public void beginWork() {
 		if (beginWorkCount == 0) {
-			beginWorkCaretOffset = getCaretOffset();
+			beginWorkCaretPosition = getCaretPosition();
 			compoundEdit = new CompoundEdit();
 		}
 		beginWorkCount++;
@@ -260,7 +262,7 @@ public class BaseVexWidget implements IVexWidget {
 		if (beginWorkCount == 0) {
 			// this.compoundEdit.end();
 			if (success) {
-				undoList.add(new UndoableAndOffset(compoundEdit, beginWorkCaretOffset));
+				undoList.add(new UndoableAndOffset(compoundEdit, beginWorkCaretPosition.getOffset()));
 				if (undoList.size() > MAX_UNDO_STACK_SIZE) {
 					undoList.removeFirst();
 				}
@@ -270,7 +272,7 @@ public class BaseVexWidget implements IVexWidget {
 			} else {
 				try {
 					compoundEdit.undo();
-					this.moveTo(beginWorkCaretOffset);
+					this.moveTo(beginWorkCaretPosition);
 				} catch (final CannotUndoException e) {
 					// TODO: handle exception
 				}
@@ -299,7 +301,7 @@ public class BaseVexWidget implements IVexWidget {
 		if (document == null) {
 			return false;
 		}
-		return document.canInsertComment(getCaretOffset());
+		return document.canInsertComment(getCaretPosition().getOffset());
 	}
 
 	@Override
@@ -310,7 +312,7 @@ public class BaseVexWidget implements IVexWidget {
 		if (document == null) {
 			return false;
 		}
-		return document.canInsertProcessingInstruction(getCaretOffset(), null);
+		return document.canInsertProcessingInstruction(getCaretPosition().getOffset(), null);
 	}
 
 	@Override
@@ -341,16 +343,16 @@ public class BaseVexWidget implements IVexWidget {
 			return true;
 		}
 
-		int startOffset = getCaretOffset();
-		int endOffset = getCaretOffset();
+		ContentPosition startPosition = getCaretPosition();
+		ContentPosition endPosition = getCaretPosition();
 		if (hasSelection()) {
-			startOffset = getSelectionStart();
-			endOffset = getSelectionEnd();
+			startPosition = getSelectionStart();
+			endPosition = getSelectionEnd();
 		}
 
-		final IElement parent = document.getElementForInsertionAt(startOffset);
-		final List<QualifiedName> nodesBefore = Node.getNodeNames(parent.children().before(startOffset));
-		final List<QualifiedName> nodesAfter = Node.getNodeNames(parent.children().after(endOffset));
+		final IElement parent = document.getElementForInsertionAt(startPosition.getOffset());
+		final List<QualifiedName> nodesBefore = Node.getNodeNames(parent.children().before(startPosition.getOffset()));
+		final List<QualifiedName> nodesAfter = Node.getNodeNames(parent.children().after(endPosition.getOffset()));
 
 		return validator.isValidSequence(parent.getQualifiedName(), nodesBefore, nodeNames, nodesAfter, true);
 	}
@@ -400,26 +402,26 @@ public class BaseVexWidget implements IVexWidget {
 		if (hasSelection()) {
 			deleteSelection();
 		} else {
-			final int offset = getCaretOffset();
+			final ContentPosition position = getCaretPosition();
 			final int n = document.getLength() - 1;
-			if (offset == n) {
+			if (position.getOffset() == n) {
 				// nop
-			} else if (isBetweenMatchingElements(offset)) {
-				joinElementsAt(offset);
-			} else if (isBetweenMatchingElements(offset + 1)) {
-				joinElementsAt(offset + 1);
-			} else if (document.getNodeForInsertionAt(offset).isEmpty()) {
+			} else if (isBetweenMatchingElements(position.getOffset())) {
+				joinElementsAt(position);
+			} else if (isBetweenMatchingElements(position.getOffset() + 1)) {
+				joinElementsAt(position.moveBy(1));
+			} else if (document.getNodeForInsertionAt(position).isEmpty()) {
 				// deleting the right sentinel of an empty element
 				// so just delete the whole element an move on
 				moveBy(1);
 				moveBy(-2, true);
 				deleteSelection();
-			} else if (document.getNodeForInsertionAt(offset + 1).isEmpty()) {
+			} else if (document.getNodeForInsertionAt(position.moveBy(1)).isEmpty()) {
 				// deleting the left sentinel of an empty element
 				// so just delete the whole element an move on
 				moveBy(2, true);
 				deleteSelection();
-			} else if (!document.isTagAt(offset)) {
+			} else if (!document.isTagAt(position.getOffset())) {
 				deleteNextToCaret();
 			}
 		}
@@ -434,27 +436,26 @@ public class BaseVexWidget implements IVexWidget {
 		if (hasSelection()) {
 			deleteSelection();
 		} else {
-			int offset = getCaretOffset();
-			if (offset == 1) {
+			final ContentPosition position = getCaretPosition();
+			if (position.getOffset() == 1) {
 				// nop
-			} else if (isBetweenMatchingElements(offset)) {
-				joinElementsAt(offset);
-			} else if (isBetweenMatchingElements(offset - 1)) {
-				joinElementsAt(offset - 1);
-			} else if (document.getNodeForInsertionAt(offset).isEmpty()) {
+			} else if (isBetweenMatchingElements(position.getOffset())) {
+				joinElementsAt(position);
+			} else if (isBetweenMatchingElements(position.getOffset() - 1)) {
+				joinElementsAt(position.moveBy(-1));
+			} else if (document.getNodeForInsertionAt(position).isEmpty()) {
 				// deleting the left sentinel of an empty element
 				// so just delete the whole element an move on
 				moveBy(1);
 				moveBy(-2, true);
 				deleteSelection();
-			} else if (document.getNodeForInsertionAt(offset - 1).isEmpty()) {
+			} else if (document.getNodeForInsertionAt(position.moveBy(-1)).isEmpty()) {
 				// deleting the right sentinel of an empty element
 				// so just delete the whole element an move on
 				moveBy(-2, true);
 				deleteSelection();
 			} else {
-				offset--;
-				if (!document.isTagAt(offset)) {
+				if (!document.isTagAt(position.moveBy(-1).getOffset())) {
 					deleteBeforeCaret();
 				}
 			}
@@ -480,7 +481,7 @@ public class BaseVexWidget implements IVexWidget {
 
 		try {
 			if (hasSelection()) {
-				applyEdit(new DeleteEdit(document, getSelectedRange()), getSelectionEnd());
+				applyEdit(new DeleteEdit(document, getSelectedRange()), getSelectionEnd().getOffset());
 				this.moveTo(getSelectionStart());
 			}
 		} catch (final DocumentValidationException e) {
@@ -490,8 +491,8 @@ public class BaseVexWidget implements IVexWidget {
 
 	private void deleteNextToCaret() {
 		try {
-			final int nextToCaret = getCaretOffset();
-			applyEdit(new DeleteEdit(document, new ContentRange(nextToCaret, nextToCaret)), nextToCaret);
+			final ContentPosition nextToCaret = getCaretPosition();
+			applyEdit(new DeleteEdit(document, new ContentRange(nextToCaret, nextToCaret)), nextToCaret.getOffset());
 			this.moveTo(nextToCaret);
 		} catch (final DocumentValidationException e) {
 			e.printStackTrace(); // This should never happen, because we constrain the selection
@@ -500,8 +501,8 @@ public class BaseVexWidget implements IVexWidget {
 
 	private void deleteBeforeCaret() {
 		try {
-			final int beforeCaret = getCaretOffset() - 1;
-			applyEdit(new DeleteEdit(document, new ContentRange(beforeCaret, beforeCaret)), beforeCaret + 1);
+			final ContentPosition beforeCaret = getCaretPosition().moveBy(-1);
+			applyEdit(new DeleteEdit(document, new ContentRange(beforeCaret, beforeCaret)), beforeCaret.getOffset() + 1);
 			this.moveTo(beforeCaret);
 		} catch (final DocumentValidationException e) {
 			e.printStackTrace(); // This should never happen, because we constrain the selection
@@ -518,7 +519,7 @@ public class BaseVexWidget implements IVexWidget {
 		IPosition position = null;
 
 		if (savePosition) {
-			position = document.createPosition(getCaretOffset());
+			position = document.createPosition(getCaretPosition().getOffset());
 		}
 
 		boolean success = false;
@@ -531,13 +532,13 @@ public class BaseVexWidget implements IVexWidget {
 		} finally {
 			endWork(success);
 			if (position != null) {
-				this.moveTo(position.getOffset());
+				this.moveTo(new ContentPosition(null, position.getOffset()));
 			}
 		}
 	}
 
 	private Box findInnermostBox(final IBoxFilter filter) {
-		return this.findInnermostBox(filter, getCaretOffset());
+		return this.findInnermostBox(filter, getCaretPosition().getOffset());
 	}
 
 	/**
@@ -590,23 +591,26 @@ public class BaseVexWidget implements IVexWidget {
 		return caret;
 	}
 
-	@Override
-	public int getCaretOffset() {
-		return caretOffset;
+	public ContentPosition getCaretPosition() {
+		return caretPosition;
 	}
 
-	private int getStartOffset() {
+	private int getCaretOffset() {
+		return caretPosition.getOffset();
+	}
+
+	private ContentPosition getStartPosition() {
 		if (hasSelection()) {
 			return getSelectionStart();
 		}
-		return getCaretOffset();
+		return getCaretPosition();
 	}
 
-	private int getEndOffset() {
+	private ContentPosition getEndPosition() {
 		if (hasSelection()) {
 			return getSelectionEnd();
 		}
-		return getCaretOffset();
+		return getCaretPosition();
 	}
 
 	@Override
@@ -666,10 +670,10 @@ public class BaseVexWidget implements IVexWidget {
 			return new ElementName[0];
 		}
 
-		final int startOffset = getStartOffset();
-		final int endOffset = getEndOffset();
+		final ContentPosition startPosition = getStartPosition();
+		final ContentPosition endPosition = getEndPosition();
 
-		final INode parentNode = document.getNodeForInsertionAt(startOffset);
+		final INode parentNode = document.getNodeForInsertionAt(startPosition);
 		final boolean parentNodeIsElement = Filters.elements().matches(parentNode);
 		if (!parentNodeIsElement) {
 			return new ElementName[0];
@@ -677,9 +681,9 @@ public class BaseVexWidget implements IVexWidget {
 
 		final IElement parent = (IElement) parentNode;
 
-		final List<QualifiedName> nodesBefore = Node.getNodeNames(parent.children().before(startOffset));
-		final List<QualifiedName> nodesAfter = Node.getNodeNames(parent.children().after(endOffset));
-		final List<QualifiedName> selectedNodes = Node.getNodeNames(parent.children().in(new ContentRange(startOffset, endOffset)));
+		final List<QualifiedName> nodesBefore = Node.getNodeNames(parent.children().before(startPosition.getOffset()));
+		final List<QualifiedName> nodesAfter = Node.getNodeNames(parent.children().after(endPosition.getOffset()));
+		final List<QualifiedName> selectedNodes = Node.getNodeNames(parent.children().in(new ContentRange(startPosition, endPosition)));
 		final List<QualifiedName> candidates = createCandidatesList(validator, parent, IValidator.PCDATA);
 
 		filterInvalidSequences(validator, parent, nodesBefore, nodesAfter, candidates);
@@ -740,20 +744,25 @@ public class BaseVexWidget implements IVexWidget {
 		return debugging;
 	}
 
-	private int getSelectionEnd() {
+	private ContentPosition getSelectionEnd() {
 		return selectionEnd;
 	}
 
-	private int getSelectionStart() {
+	private ContentPosition getSelectionStart() {
 		return selectionStart;
 	}
 
 	@Override
 	public ContentRange getSelectedRange() {
 		if (!hasSelection()) {
-			return new ContentRange(getCaretOffset(), getCaretOffset());
+			return new ContentRange(getCaretPosition(), getCaretPosition());
 		}
-		return new ContentRange(getSelectionStart(), getSelectionEnd() - 1);
+		return new ContentRange(getSelectionStart(), getSelectionEnd().moveBy(-1));
+	}
+
+	@Override
+	public ContentPositionRange getSelectedPositionRange() {
+		return new ContentPositionRange(getSelectionStart(), getSelectionEnd());
 	}
 
 	@Override
@@ -815,9 +824,9 @@ public class BaseVexWidget implements IVexWidget {
 				deleteSelection();
 			}
 
-			result = applyEdit(new InsertElementEdit(document, getCaretOffset(), elementName), getCaretOffset()).getElement();
+			result = applyEdit(new InsertElementEdit(document, getCaretPosition().getOffset(), elementName), getCaretPosition().getOffset()).getElement();
 
-			this.moveTo(getCaretOffset() + 1);
+			this.moveTo(getCaretPosition().moveBy(1));
 			if (selectedFragment != null) {
 				insertFragment(selectedFragment);
 			}
@@ -849,7 +858,7 @@ public class BaseVexWidget implements IVexWidget {
 
 			applyWhitespacePolicy(surroundingElement);
 
-			this.moveTo(finalCaretPosition.getOffset());
+			this.moveTo(new ContentPosition(caretPosition.getNodeAtOffset(), finalCaretPosition.getOffset()));
 			document.removePosition(finalCaretPosition);
 			success = true;
 		} finally {
@@ -889,7 +898,7 @@ public class BaseVexWidget implements IVexWidget {
 				if (nextLineBreak - i > 0) {
 					applyEdit(new InsertTextEdit(document, getCaretOffset(), toInsert.substring(i, nextLineBreak)), getCaretOffset());
 				}
-				this.moveTo(getCaretOffset() + nextLineBreak - i);
+				this.moveTo(getCaretPosition().moveBy(nextLineBreak - i));
 				if (isPreformatted) {
 					applyEdit(new InsertTextEdit(document, getCaretOffset(), "\n"), getCaretOffset());
 					moveBy(1);
@@ -901,7 +910,7 @@ public class BaseVexWidget implements IVexWidget {
 
 			if (i < toInsert.length()) {
 				applyEdit(new InsertTextEdit(document, getCaretOffset(), toInsert.substring(i)), getCaretOffset());
-				this.moveTo(getCaretOffset() + toInsert.length() - i);
+				this.moveTo(getCaretPosition().moveBy(toInsert.length() - i));
 			}
 			success = true;
 		} finally {
@@ -1023,7 +1032,7 @@ public class BaseVexWidget implements IVexWidget {
 
 			final InsertCommentEdit edit = applyEdit(new InsertCommentEdit(document, getCaretOffset()), getCaretOffset());
 			final IComment result = edit.getComment();
-			this.moveTo(getCaretOffset() + 1);
+			this.moveTo(getCaretPosition().moveBy(1));
 			scrollCaretVisible();
 			success = true;
 			return result;
@@ -1045,7 +1054,7 @@ public class BaseVexWidget implements IVexWidget {
 
 			final InsertProcessingInstructionEdit edit = applyEdit(new InsertProcessingInstructionEdit(document, getCaretOffset(), target), getCaretOffset());
 			final IProcessingInstruction result = edit.getProcessingInstruction();
-			this.moveTo(getCaretOffset() + 1);
+			this.moveTo(getCaretPosition().moveBy(1));
 			scrollCaretVisible();
 			success = true;
 			return result;
@@ -1069,7 +1078,7 @@ public class BaseVexWidget implements IVexWidget {
 		try {
 			beginWork();
 			applyEdit(new EditProcessingInstructionEdit(document, getCaretOffset(), target, data), getCaretOffset());
-			this.moveTo(node.getStartOffset() + 1);
+			this.moveTo(node.getStartPosition().moveBy(1));
 			scrollCaretVisible();
 			success = true;
 		} finally {
@@ -1112,8 +1121,8 @@ public class BaseVexWidget implements IVexWidget {
 			throw new ReadOnlyException("Cannot unwrap the element, because the editor is read-only.");
 		}
 
-		final int offset = getCaretOffset();
-		final IElement currentElement = document.getElementForInsertionAt(offset);
+		final ContentPosition caretPosition = getCaretPosition();
+		final IElement currentElement = document.getElementForInsertionAt(caretPosition.getOffset());
 
 		if (currentElement == document.getRootElement()) {
 			throw new DocumentValidationException("Cannot unwrap the root element.");
@@ -1122,8 +1131,8 @@ public class BaseVexWidget implements IVexWidget {
 		boolean success = false;
 		try {
 			beginWork();
-			this.moveTo(currentElement.getStartOffset() + 1, false);
-			this.moveTo(currentElement.getEndOffset(), true);
+			this.moveTo(currentElement.getStartPosition().moveBy(1), false);
+			this.moveTo(currentElement.getEndPosition(), true);
 			final IDocumentFragment frag = getSelectedFragment();
 			deleteSelection();
 			this.moveBy(-1, false);
@@ -1132,7 +1141,7 @@ public class BaseVexWidget implements IVexWidget {
 			if (frag != null) {
 				insertFragment(frag);
 			}
-			this.moveTo(offset - 1, false);
+			this.moveTo(caretPosition.moveBy(-1), false);
 			success = true;
 		} finally {
 			endWork(success);
@@ -1238,8 +1247,8 @@ public class BaseVexWidget implements IVexWidget {
 			throw new ReadOnlyException(MessageFormat.format("Cannot morph to element {0}, because the editor is read-only.", elementName));
 		}
 
-		final int offset = getCaretOffset();
-		final IElement currentElement = document.getElementForInsertionAt(offset);
+		final ContentPosition caretPosition = getCaretPosition();
+		final IElement currentElement = document.getElementForInsertionAt(caretPosition.getOffset());
 
 		if (currentElement == document.getRootElement()) {
 			throw new DocumentValidationException("Cannot morph the root element.");
@@ -1248,8 +1257,8 @@ public class BaseVexWidget implements IVexWidget {
 		boolean success = false;
 		try {
 			beginWork();
-			this.moveTo(currentElement.getStartOffset() + 1, false);
-			this.moveTo(currentElement.getEndOffset(), true);
+			this.moveTo(currentElement.getStartPosition().moveBy(1), false);
+			this.moveTo(currentElement.getEndPosition(), true);
 			final IDocumentFragment frag = getSelectedFragment();
 			deleteSelection();
 			this.moveBy(-1, false);
@@ -1259,7 +1268,7 @@ public class BaseVexWidget implements IVexWidget {
 			if (frag != null) {
 				insertFragment(frag);
 			}
-			this.moveTo(offset, false);
+			this.moveTo(caretPosition, false);
 			success = true;
 		} finally {
 			endWork(success);
@@ -1269,22 +1278,21 @@ public class BaseVexWidget implements IVexWidget {
 
 	@Override
 	public void moveBy(final int distance) {
-		this.moveTo(getCaretOffset() + distance, false);
+		this.moveTo(getCaretPosition().moveBy(distance), false);
 	}
 
 	@Override
 	public void moveBy(final int distance, final boolean select) {
-		this.moveTo(getCaretOffset() + distance, select);
+		this.moveTo(getCaretPosition().moveBy(distance), select);
 	}
 
 	@Override
-	public void moveTo(final int offset) {
-		this.moveTo(offset, false);
+	public void moveTo(final ContentPosition position) {
+		this.moveTo(position, false);
 	}
 
-	@Override
-	public void moveTo(final int offset, final boolean select) {
-		if (!Document.isInsertionPointIn(document, offset)) {
+	public void moveTo(final ContentPosition position, final boolean select) {
+		if (!Document.isInsertionPointIn(document, position.getOffset())) {
 			return;
 		}
 
@@ -1292,19 +1300,19 @@ public class BaseVexWidget implements IVexWidget {
 		repaintSelectedRange();
 
 		if (select) {
-			moveSelectionTo(offset);
+			moveSelectionTo(position);
 		} else {
-			moveCaretTo(offset);
+			moveCaretTo(position);
 		}
 
 		final INode oldNode = currentNode;
-		currentNode = document.getNodeForInsertionAt(caretOffset);
+		currentNode = document.getNodeForInsertionAt(position);
 
 		relayout();
 
 		final Graphics g = hostComponent.createDefaultGraphics();
 		final LayoutContext context = createLayoutContext(g);
-		caret = rootBox.getCaret(context, caretOffset);
+		caret = rootBox.getCaret(context, caretPosition);
 
 		INode node = currentNode;
 		if (node != oldNode) {
@@ -1332,70 +1340,52 @@ public class BaseVexWidget implements IVexWidget {
 		repaintSelectedRange();
 	}
 
-	private void moveSelectionTo(final int offset) {
-		final boolean movingForward = offset > caretOffset;
-		final boolean movingBackward = offset < caretOffset;
-		final boolean movingTowardMark = movingForward && mark >= offset || movingBackward && mark <= offset;
+	private void moveSelectionTo(final ContentPosition position) {
+		final boolean movingForward = position.isAfter(caretPosition);
+		final boolean movingBackward = position.isBefore(caretPosition);
+		final boolean movingTowardMark = movingForward && mark.isAfterOrEquals(position) || movingBackward && mark.isBeforeOrEquals(position);
 		final boolean movingAwayFromMark = !movingTowardMark;
 
 		// expand or shrink the selection to make sure the selection is balanced
-		final int balancedStart = Math.min(mark, offset);
-		final int balancedEnd = Math.max(mark, offset);
-		final INode balancedNode = document.findCommonNode(balancedStart, balancedEnd);
+		final ContentPosition balancedStart = ContentPosition.smallest(mark, position);
+		final ContentPosition balancedEnd = ContentPosition.greatest(mark, position);
+		final INode balancedNode = document.findCommonNode(balancedStart.getOffset(), balancedEnd.getOffset());
 		if (movingForward && movingTowardMark) {
-			selectionStart = balanceForward(balancedStart, balancedNode);
-			selectionEnd = balanceForward(balancedEnd, balancedNode);
-			caretOffset = selectionStart;
+			selectionStart = ContentPosition.balanceForward(balancedStart, balancedNode);
+			selectionEnd = ContentPosition.balanceForward(balancedEnd, balancedNode);
+			caretPosition = selectionStart;
 		} else if (movingBackward && movingTowardMark) {
-			selectionStart = balanceBackward(balancedStart, balancedNode);
-			selectionEnd = balanceBackward(balancedEnd, balancedNode);
-			caretOffset = selectionEnd;
+			selectionStart = ContentPosition.balanceBackward(balancedStart, balancedNode);
+			selectionEnd = ContentPosition.balanceBackward(balancedEnd, balancedNode);
+			caretPosition = selectionEnd;
 		} else if (movingForward && movingAwayFromMark) {
-			selectionStart = balanceBackward(balancedStart, balancedNode);
-			selectionEnd = balanceForward(balancedEnd, balancedNode);
-			caretOffset = selectionEnd;
+			selectionStart = ContentPosition.balanceBackward(balancedStart, balancedNode);
+			selectionEnd = ContentPosition.balanceForward(balancedEnd, balancedNode);
+			caretPosition = selectionEnd;
 		} else if (movingBackward && movingAwayFromMark) {
-			selectionStart = balanceBackward(balancedStart, balancedNode);
-			selectionEnd = balanceForward(balancedEnd, balancedNode);
-			caretOffset = selectionStart;
+			selectionStart = ContentPosition.balanceBackward(balancedStart, balancedNode);
+			selectionEnd = ContentPosition.balanceForward(balancedEnd, balancedNode);
+			caretPosition = selectionStart;
 		}
 	}
 
-	private int balanceForward(final int offset, final INode balancedNode) {
-		int balancedOffset = offset;
-		INode node = document.getNodeForInsertionAt(balancedOffset);
-		while (node != balancedNode) {
-			balancedOffset = node.getEndOffset() + 1;
-			node = document.getNodeForInsertionAt(balancedOffset);
-		}
-		return balancedOffset;
-	}
-
-	private int balanceBackward(final int offset, final INode balancedNode) {
-		int balancedOffset = offset;
-		INode node = document.getNodeForInsertionAt(balancedOffset);
-		while (node != balancedNode) {
-			balancedOffset = node.getStartOffset();
-			node = document.getNodeForInsertionAt(balancedOffset);
-		}
-		return balancedOffset;
-	}
-
-	private void moveCaretTo(final int offset) {
-		selectionStart = offset;
-		selectionEnd = offset;
-		caretOffset = offset;
-		mark = offset;
+	private void moveCaretTo(final ContentPosition position) {
+		selectionStart = position;
+		selectionEnd = position;
+		caretPosition = position;
+		mark = position;
 	}
 
 	@Override
 	public void moveToLineEnd(final boolean select) {
-		this.moveTo(rootBox.getLineEndOffset(getCaretOffset()), select);
+		final ContentPosition position = rootBox.getLineEndPosition(caretPosition.copy());
+		this.moveTo(position, select);
 	}
 
 	@Override
 	public void moveToLineStart(final boolean select) {
-		this.moveTo(rootBox.getLineStartOffset(getCaretOffset()), select);
+		final ContentPosition position = rootBox.getLineStartPosition(caretPosition.copy());
+		this.moveTo(position, select);
 	}
 
 	@Override
@@ -1403,10 +1393,10 @@ public class BaseVexWidget implements IVexWidget {
 		final int x = magicX == -1 ? caret.getBounds().getX() : magicX;
 
 		final Graphics g = hostComponent.createDefaultGraphics();
-		final int offset = rootBox.getNextLineOffset(createLayoutContext(g), getCaretOffset(), x);
+		final ContentPosition position = rootBox.getNextLinePosition(createLayoutContext(g), caretPosition.copy(), x);
 		g.dispose();
 
-		this.moveTo(offset, select);
+		this.moveTo(position, select);
 		magicX = x;
 	}
 
@@ -1430,7 +1420,7 @@ public class BaseVexWidget implements IVexWidget {
 			offset++;
 		}
 
-		this.moveTo(offset, select);
+		this.moveTo(new ContentPosition(null, offset), select);
 	}
 
 	@Override
@@ -1438,10 +1428,10 @@ public class BaseVexWidget implements IVexWidget {
 		final int x = magicX == -1 ? caret.getBounds().getX() : magicX;
 
 		final Graphics g = hostComponent.createDefaultGraphics();
-		final int offset = rootBox.getPreviousLineOffset(createLayoutContext(g), getCaretOffset(), x);
+		final ContentPosition position = rootBox.getPreviousLinePosition(createLayoutContext(g), caretPosition.copy(), x);
 		g.dispose();
 
-		this.moveTo(offset, select);
+		this.moveTo(position, select);
 		magicX = x;
 	}
 
@@ -1464,17 +1454,17 @@ public class BaseVexWidget implements IVexWidget {
 			offset--;
 		}
 
-		this.moveTo(offset, select);
+		this.moveTo(new ContentPosition(null, offset), select);
 	}
 
-	private void select(final ContentRange range) {
-		if (!(Document.isInsertionPointIn(document, range.getStartOffset()) && Document.isInsertionPointIn(document, range.getEndOffset()))) {
+	private void select(final ContentPositionRange range) {
+		if (!range.isInsertionPointIn(document)) {
 			return;
 		}
 
 		beginSelection();
-		moveTo(range.getStartOffset());
-		moveTo(range.getEndOffset(), true);
+		moveTo(range.getStartPosition());
+		moveTo(range.getEndPosition(), true);
 		endSelection();
 	}
 
@@ -1486,7 +1476,7 @@ public class BaseVexWidget implements IVexWidget {
 	}
 
 	public void selectAll() {
-		select(document.getRange().resizeBy(1, -1));
+		select(document.getPositionRange().resizeBy(1, -1));
 	}
 
 	public void selectWord() {
@@ -1500,24 +1490,26 @@ public class BaseVexWidget implements IVexWidget {
 			endOffset++;
 		}
 
+		final INode nodeAtCaret = caretPosition.getNodeAtOffset();
+
 		if (startOffset < endOffset) {
-			select(new ContentRange(startOffset, endOffset));
+			select(new ContentPositionRange(new ContentPosition(nodeAtCaret, startOffset), new ContentPosition(nodeAtCaret, endOffset)));
 		}
 	}
 
 	@Override
 	public void selectContentOf(final INode node) {
 		if (node.isEmpty()) {
-			moveTo(node.getEndOffset());
+			moveTo(node.getEndPosition());
 			return;
 		}
 
-		select(node.getRange().resizeBy(1, 0));
+		select(node.getPositionRange().resizeBy(1, 0));
 	}
 
 	@Override
 	public void select(final INode node) {
-		select(node.getRange());
+		select(node.getPositionRange());
 	}
 
 	/**
@@ -1584,7 +1576,7 @@ public class BaseVexWidget implements IVexWidget {
 			throw new CannotRedoException();
 		}
 		final UndoableAndOffset event = redoList.removeLast();
-		this.moveTo(event.caretOffset, false);
+		this.moveTo(new ContentPosition(null, event.caretOffset), false);
 		event.edit.redo();
 		undoList.add(event);
 	}
@@ -1595,7 +1587,7 @@ public class BaseVexWidget implements IVexWidget {
 		try {
 			runnable.run();
 		} finally {
-			this.moveTo(pos.getOffset());
+			this.moveTo(new ContentPosition(null, pos.getOffset()));
 		}
 	}
 
@@ -1705,9 +1697,11 @@ public class BaseVexWidget implements IVexWidget {
 		beginWorkCount = 0;
 		compoundEdit = null;
 
+		caretPosition = new ContentPosition(document, document.getRootElement().getStartPosition().moveBy(1).getOffset());
+		selectionStart = selectionEnd = caretPosition;
 		createRootBox();
 
-		this.moveTo(this.document.getRootElement().getStartOffset() + 1);
+		this.moveTo(caretPosition);
 		this.document.addDocumentListener(documentListener);
 	}
 
@@ -1820,7 +1814,7 @@ public class BaseVexWidget implements IVexWidget {
 			final IDocumentFragment splittedFragment;
 			final boolean splitAtEnd = getCaretOffset() == element.getEndOffset();
 			if (!splitAtEnd) {
-				this.moveTo(element.getEndOffset(), true);
+				this.moveTo(element.getEndPosition(), true);
 				splittedFragment = getSelectedFragment();
 				deleteSelection();
 			} else {
@@ -1834,9 +1828,9 @@ public class BaseVexWidget implements IVexWidget {
 			// TODO: clone attributes
 
 			if (splittedFragment != null) {
-				final int finalOffset = getCaretOffset();
+				final ContentPosition finalPosition = getCaretPosition();
 				insertFragment(splittedFragment);
-				this.moveTo(finalOffset, false);
+				this.moveTo(finalPosition, false);
 			}
 			success = true;
 		} finally {
@@ -1869,17 +1863,17 @@ public class BaseVexWidget implements IVexWidget {
 		}
 		final UndoableAndOffset event = undoList.removeLast();
 		event.edit.undo();
-		this.moveTo(event.caretOffset, false);
+		this.moveTo(new ContentPosition(document, event.caretOffset), false);
 		redoList.add(event);
 	}
 
 	@Override
-	public int viewToModel(final int x, final int y) {
+	public ContentPosition viewToModel(final int x, final int y) {
 		final Graphics g = hostComponent.createDefaultGraphics();
 		final LayoutContext context = createLayoutContext(g);
-		final int offset = rootBox.viewToModel(context, x, y);
+		final ContentPosition position = rootBox.viewToModel(context, x, y);
 		g.dispose();
-		return offset;
+		return position;
 	}
 
 	@Override
@@ -2007,8 +2001,8 @@ public class BaseVexWidget implements IVexWidget {
 		context.setWhitespacePolicy(whitespacePolicy);
 
 		if (hasSelection()) {
-			context.setSelectionStart(getSelectionStart());
-			context.setSelectionEnd(getSelectionEnd());
+			context.setSelectionStart(getSelectionStart().getOffset());
+			context.setSelectionEnd(getSelectionEnd().getOffset());
 		} else {
 			context.setSelectionStart(getCaretOffset());
 			context.setSelectionEnd(getCaretOffset());
@@ -2036,7 +2030,7 @@ public class BaseVexWidget implements IVexWidget {
 		final BlockBox elementBox = (BlockBox) this.findInnermostBox(new IBoxFilter() {
 			@Override
 			public boolean matches(final Box box) {
-				return box instanceof BlockBox && box.getNode() != null && box.getStartOffset() <= node.getStartOffset() + 1 && box.getEndOffset() >= node.getEndOffset();
+				return box instanceof BlockBox && !box.isAnonymous() && box.getStartOffset() <= node.getStartOffset() + 1 && box.getEndOffset() >= node.getEndOffset();
 			}
 		});
 
@@ -2067,12 +2061,12 @@ public class BaseVexWidget implements IVexWidget {
 	 * @param offset
 	 *            Offset around which we should lay out boxes.
 	 */
-	private void iterateLayout(final int offset) {
+	private void iterateLayout(final ContentPosition position) {
 
 		VerticalRange repaintRange = null;
 		final Graphics g = hostComponent.createDefaultGraphics();
 		final LayoutContext context = createLayoutContext(g);
-		int layoutY = rootBox.getCaret(context, offset).getY();
+		int layoutY = rootBox.getCaret(context, caretPosition).getY();
 
 		while (true) {
 			final int oldLayoutY = layoutY;
@@ -2085,7 +2079,7 @@ public class BaseVexWidget implements IVexWidget {
 				}
 			}
 
-			layoutY = rootBox.getCaret(context, offset).getY();
+			layoutY = rootBox.getCaret(context, position).getY();
 			if (Math.abs(layoutY - oldLayoutY) < LAYOUT_TOLERANCE) {
 				break;
 			}
@@ -2163,7 +2157,7 @@ public class BaseVexWidget implements IVexWidget {
 		}
 
 		final INode firstNode = selectedNodes.first();
-		final int selectionEnd = getSelectionEnd();
+		final ContentPosition selectionEnd = getSelectionEnd();
 
 		boolean success = false;
 		try {
@@ -2185,16 +2179,16 @@ public class BaseVexWidget implements IVexWidget {
 				return;
 			}
 
-			moveTo(firstNode.getEndOffset() + 1);
+			moveTo(firstNode.getEndPosition().moveBy(1));
 			moveTo(selectionEnd, true);
 			deleteSelection();
 
-			moveTo(firstNode.getStartOffset() + 1);
-			moveTo(firstNode.getEndOffset(), true);
+			moveTo(firstNode.getStartPosition().moveBy(1));
+			moveTo(firstNode.getEndPosition(), true);
 			deleteSelection();
 
 			for (final IDocumentFragment preservedContent : contentToJoin) {
-				moveTo(firstNode.getEndOffset());
+				moveTo(firstNode.getEndPosition());
 				insertFragment(preservedContent);
 			}
 
@@ -2205,20 +2199,20 @@ public class BaseVexWidget implements IVexWidget {
 
 	}
 
-	private void joinElementsAt(final int offset) throws DocumentValidationException {
+	private void joinElementsAt(final ContentPosition position) throws DocumentValidationException {
 		boolean success = false;
 		try {
 			beginWork();
 
 			// get the second element
-			moveTo(offset + 1);
+			moveTo(position.moveBy(1));
 			final IElement secondElement = getCurrentElement();
 
 			// preserve the second element's content
 			final boolean shouldMoveContent = !secondElement.isEmpty();
 			final IDocumentFragment preservedContent;
 			if (shouldMoveContent) {
-				moveTo(secondElement.getEndOffset(), true);
+				moveTo(secondElement.getEndPosition(), true);
 				preservedContent = getSelectedFragment();
 				deleteSelection();
 			} else {
@@ -2233,9 +2227,9 @@ public class BaseVexWidget implements IVexWidget {
 			// insert the preserved content into the first element
 			moveBy(-1);
 			if (shouldMoveContent) {
-				final int savedOffset = getCaretOffset();
+				final ContentPosition savedPosition = getCaretPosition();
 				insertFragment(preservedContent);
-				moveTo(savedOffset, false);
+				moveTo(savedPosition, false);
 			}
 			success = true;
 		} finally {
@@ -2255,7 +2249,7 @@ public class BaseVexWidget implements IVexWidget {
 
 		final int oldHeight = rootBox.getHeight();
 
-		iterateLayout(getCaretOffset());
+		iterateLayout(getCaretPosition());
 
 		if (rootBox.getHeight() != oldHeight) {
 			hostComponent.setPreferredSize(rootBox.getWidth(), rootBox.getHeight());
@@ -2263,7 +2257,7 @@ public class BaseVexWidget implements IVexWidget {
 
 		final Graphics g = hostComponent.createDefaultGraphics();
 		final LayoutContext context = createLayoutContext(g);
-		caret = rootBox.getCaret(context, getCaretOffset());
+		caret = rootBox.getCaret(context, getCaretPosition());
 		g.dispose();
 
 		if (isDebugging()) {
@@ -2301,16 +2295,16 @@ public class BaseVexWidget implements IVexWidget {
 		// use this if the caret is visible in the viewport
 		int relCaretY = 0;
 
-		// offset around which we are laying out
+		// position around which we are laying out
 		// this is also where we put the top of the viewport if the caret
 		// isn't visible
-		int offset;
+		ContentPosition position;
 
 		if (caretVisible) {
 			relCaretY = caret.getY() - viewport.getY();
-			offset = getCaretOffset();
+			position = getCaretPosition();
 		} else {
-			offset = rootBox.viewToModel(context, 0, viewport.getY());
+			position = rootBox.viewToModel(context, 0, viewport.getY());
 		}
 
 		layoutWidth = newWidth;
@@ -2321,11 +2315,11 @@ public class BaseVexWidget implements IVexWidget {
 
 		createRootBox();
 
-		iterateLayout(offset);
+		iterateLayout(position);
 
 		hostComponent.setPreferredSize(rootBox.getWidth(), rootBox.getHeight());
 
-		caret = rootBox.getCaret(context, getCaretOffset());
+		caret = rootBox.getCaret(context, getCaretPosition());
 
 		if (caretVisible) {
 			int viewportY = caret.getY() - Math.min(relCaretY, viewport.getHeight());
@@ -2336,7 +2330,7 @@ public class BaseVexWidget implements IVexWidget {
 			hostComponent.scrollTo(viewport.getX(), viewportY);
 			scrollCaretVisible();
 		} else {
-			final int viewportY = rootBox.getCaret(context, offset).getY();
+			final int viewportY = rootBox.getCaret(context, position).getY();
 			hostComponent.scrollTo(viewport.getX(), viewportY);
 		}
 

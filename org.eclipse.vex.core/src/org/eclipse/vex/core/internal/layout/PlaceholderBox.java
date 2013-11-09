@@ -15,6 +15,7 @@ import org.eclipse.vex.core.internal.core.FontMetrics;
 import org.eclipse.vex.core.internal.core.FontResource;
 import org.eclipse.vex.core.internal.core.Graphics;
 import org.eclipse.vex.core.internal.css.Styles;
+import org.eclipse.vex.core.provisional.dom.ContentPosition;
 import org.eclipse.vex.core.provisional.dom.INode;
 
 /**
@@ -72,7 +73,7 @@ public class PlaceholderBox extends AbstractInlineBox {
 	 * @see org.eclipse.vex.core.internal.layout.Box#getCaret(org.eclipse.vex.core.internal.layout.LayoutContext, int)
 	 */
 	@Override
-	public Caret getCaret(final LayoutContext context, final int offset) {
+	public Caret getCaret(final LayoutContext context, final ContentPosition position) {
 		return new TextCaret(0, 0, getHeight());
 	}
 
@@ -125,8 +126,8 @@ public class PlaceholderBox extends AbstractInlineBox {
 	 *      int, int)
 	 */
 	@Override
-	public int viewToModel(final LayoutContext context, final int x, final int y) {
-		return getStartOffset();
+	public ContentPosition viewToModel(final LayoutContext context, final int x, final int y) {
+		return new ContentPosition(getNode(), getStartOffset());
 	}
 
 }

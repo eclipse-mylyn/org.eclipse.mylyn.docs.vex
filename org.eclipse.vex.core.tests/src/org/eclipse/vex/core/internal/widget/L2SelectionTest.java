@@ -45,7 +45,7 @@ public class L2SelectionTest {
 		widget.moveBy(-1, true);
 		assertTrue(widget.hasSelection());
 		assertEquals(titleElement.getRange(), widget.getSelectedRange());
-		assertEquals(titleElement.getStartOffset(), widget.getCaretOffset());
+		assertEquals(titleElement.getStartPosition(), widget.getCaretPosition());
 	}
 
 	@Test
@@ -53,10 +53,10 @@ public class L2SelectionTest {
 		final IElement titleElement = widget.insertElement(TITLE);
 		widget.insertText("Hello World");
 		widget.moveBy(-5, false);
-		widget.moveTo(titleElement.getStartOffset(), true);
+		widget.moveTo(titleElement.getStartPosition(), true);
 		assertTrue(widget.hasSelection());
 		assertEquals(titleElement.getRange(), widget.getSelectedRange());
-		assertEquals(titleElement.getStartOffset(), widget.getCaretOffset());
+		assertEquals(titleElement.getStartPosition(), widget.getCaretPosition());
 	}
 
 	@Test
@@ -66,36 +66,36 @@ public class L2SelectionTest {
 		widget.moveBy(1, true);
 		assertTrue(widget.hasSelection());
 		assertEquals(titleElement.getRange(), widget.getSelectedRange());
-		assertEquals(titleElement.getEndOffset() + 1, widget.getCaretOffset());
+		assertEquals(titleElement.getEndPosition().moveBy(1), widget.getCaretPosition());
 	}
 
 	@Test
 	public void givenCaretInElementAtEndOffset_whenMovedOneBehindStartOffset_shouldNotIncludeEndOffsetInSelectedRange() throws Exception {
 		final IElement titleElement = widget.insertElement(TITLE);
 		widget.insertText("Hello World");
-		widget.moveTo(titleElement.getStartOffset() + 1, true);
+		widget.moveTo(titleElement.getStartPosition().moveBy(1), true);
 		assertEquals(titleElement.getRange().resizeBy(1, -1), widget.getSelectedRange());
-		assertEquals(titleElement.getStartOffset() + 1, widget.getCaretOffset());
+		assertEquals(titleElement.getStartPosition().moveBy(1), widget.getCaretPosition());
 	}
 
 	@Test
 	public void givenCaretAtStartOffsetOfElementWithText_whenMovedByOneForward_shouldExpandSelectionBehindEndOffset() throws Exception {
 		final IElement titleElement = widget.insertElement(TITLE);
 		widget.insertText("Hello World");
-		widget.moveTo(titleElement.getStartOffset(), false);
+		widget.moveTo(titleElement.getStartPosition(), false);
 		widget.moveBy(1, true);
 		assertEquals(titleElement.getRange(), widget.getSelectedRange());
-		assertEquals(titleElement.getEndOffset() + 1, widget.getCaretOffset());
+		assertEquals(titleElement.getEndPosition().moveBy(1), widget.getCaretPosition());
 	}
 
 	@Test
 	public void givenCaretAtStartOffsetOfElementWithText_whenMovedOneForwardAndOneBackward_shouldSelectNothing() throws Exception {
 		final IElement titleElement = widget.insertElement(TITLE);
 		widget.insertText("Hello World");
-		widget.moveTo(titleElement.getStartOffset(), false);
+		widget.moveTo(titleElement.getStartPosition(), false);
 		widget.moveBy(1, true);
 		widget.moveBy(-1, true);
-		assertEquals(titleElement.getStartOffset(), widget.getCaretOffset());
+		assertEquals(titleElement.getStartPosition(), widget.getCaretPosition());
 	}
 
 	@Test
@@ -105,11 +105,11 @@ public class L2SelectionTest {
 		widget.moveBy(1);
 		final IElement paraElement = widget.insertElement(PARA);
 		widget.insertText("Hello Again");
-		widget.moveTo(titleElement.getStartOffset() + 3);
-		widget.moveTo(paraElement.getEndOffset() + 1, true);
+		widget.moveTo(titleElement.getStartPosition().moveBy(3));
+		widget.moveTo(paraElement.getEndPosition().moveBy(1), true);
 		widget.moveBy(-1, true);
 		assertEquals(titleElement.getRange(), widget.getSelectedRange());
-		assertEquals(titleElement.getEndOffset() + 1, widget.getCaretOffset());
+		assertEquals(titleElement.getEndPosition().moveBy(1), widget.getCaretPosition());
 	}
 
 	@Test
@@ -119,12 +119,12 @@ public class L2SelectionTest {
 		widget.moveBy(1);
 		final IElement paraElement = widget.insertElement(PARA);
 		widget.insertText("Hello Again");
-		widget.moveTo(titleElement.getStartOffset() + 3);
-		widget.moveTo(paraElement.getEndOffset() + 1, true);
+		widget.moveTo(titleElement.getStartPosition().moveBy(3));
+		widget.moveTo(paraElement.getEndPosition().moveBy(1), true);
 		widget.moveBy(-1, true);
 		widget.moveBy(-1, true);
 		assertEquals(titleElement.getRange().resizeBy(3, -1), widget.getSelectedRange());
-		assertEquals(titleElement.getEndOffset(), widget.getCaretOffset());
+		assertEquals(titleElement.getEndPosition(), widget.getCaretPosition());
 	}
 
 	@Test
@@ -134,11 +134,11 @@ public class L2SelectionTest {
 		widget.moveBy(1);
 		final IElement paraElement = widget.insertElement(PARA);
 		widget.insertText("Hello Again");
-		widget.moveTo(paraElement.getEndOffset() - 3);
-		widget.moveTo(titleElement.getStartOffset(), true);
+		widget.moveTo(paraElement.getEndPosition().moveBy(-3));
+		widget.moveTo(titleElement.getStartPosition(), true);
 		widget.moveBy(1, true);
 		assertEquals(paraElement.getRange(), widget.getSelectedRange());
-		assertEquals(paraElement.getStartOffset(), widget.getCaretOffset());
+		assertEquals(paraElement.getStartPosition(), widget.getCaretPosition());
 	}
 
 	@Test
@@ -148,12 +148,12 @@ public class L2SelectionTest {
 		widget.moveBy(1);
 		final IElement paraElement = widget.insertElement(PARA);
 		widget.insertText("Hello Again");
-		widget.moveTo(paraElement.getEndOffset() - 3);
-		widget.moveTo(titleElement.getStartOffset(), true);
+		widget.moveTo(paraElement.getEndPosition().moveBy(-3));
+		widget.moveTo(titleElement.getStartPosition(), true);
 		widget.moveBy(1, true);
 		widget.moveBy(1, true);
 		assertEquals(paraElement.getRange().resizeBy(1, -4), widget.getSelectedRange());
-		assertEquals(paraElement.getStartOffset() + 1, widget.getCaretOffset());
+		assertEquals(paraElement.getStartPosition().moveBy(+1), widget.getCaretPosition());
 	}
 
 	@Test
@@ -162,7 +162,7 @@ public class L2SelectionTest {
 		widget.moveBy(-1, true);
 		assertTrue(widget.hasSelection());
 		assertEquals(comment.getRange(), widget.getSelectedRange());
-		assertEquals(comment.getStartOffset(), widget.getCaretOffset());
+		assertEquals(comment.getStartPosition(), widget.getCaretPosition());
 	}
 
 	@Test
@@ -182,7 +182,7 @@ public class L2SelectionTest {
 
 		widget.selectContentOf(title);
 
-		assertEquals(title.getEndOffset(), widget.getCaretOffset());
+		assertEquals(title.getEndPosition(), widget.getCaretPosition());
 		assertFalse(widget.hasSelection());
 	}
 
@@ -202,8 +202,8 @@ public class L2SelectionTest {
 		hostComponent.selectionChanged = false;
 		widget.beginWork();
 		final IElement title = widget.insertElement(TITLE);
-		widget.moveTo(title.getStartOffset());
-		widget.moveTo(title.getEndOffset(), true);
+		widget.moveTo(title.getStartPosition());
+		widget.moveTo(title.getEndPosition(), true);
 		final boolean selectionChangedWhileWorking = hostComponent.selectionChanged;
 		widget.endWork(true);
 

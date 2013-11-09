@@ -55,6 +55,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.vex.core.internal.core.ElementName;
 import org.eclipse.vex.core.internal.widget.swt.VexWidget;
+import org.eclipse.vex.core.provisional.dom.ContentPosition;
 import org.eclipse.vex.core.provisional.dom.IElement;
 import org.eclipse.vex.ui.internal.Icon;
 import org.eclipse.vex.ui.internal.Messages;
@@ -354,8 +355,8 @@ public class ContentAssist extends PopupDialog {
 	private static AbstractVexAction[] computeQuickFixActions(final VexWidget widget) {
 		final ElementName[] names = widget.getValidMorphElements();
 		final AbstractVexAction[] actions = new AbstractVexAction[names.length];
-		final int caretOffset = widget.getCaretOffset();
-		final IElement element = widget.getDocument().getElementForInsertionAt(caretOffset);
+		final ContentPosition caretPosition = widget.getCaretPosition();
+		final IElement element = widget.getDocument().getElementForInsertionAt(caretPosition.getOffset());
 		final String sourceName = element.getPrefixedName();
 		for (int i = 0; i < names.length; i++) {
 			final QualifiedName qualifiedName = names[i].getQualifiedName();

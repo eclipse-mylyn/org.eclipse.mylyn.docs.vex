@@ -14,6 +14,7 @@ import org.eclipse.vex.core.internal.VEXCorePlugin;
 import org.eclipse.vex.core.internal.core.Caret;
 import org.eclipse.vex.core.internal.core.Insets;
 import org.eclipse.vex.core.internal.core.Rectangle;
+import org.eclipse.vex.core.provisional.dom.ContentPosition;
 import org.eclipse.vex.core.provisional.dom.IDocument;
 import org.eclipse.vex.core.provisional.dom.INode;
 
@@ -53,8 +54,8 @@ public class RootBox extends AbstractBox implements BlockBox {
 	 * @see org.eclipse.vex.core.internal.layout.Box#getCaret(org.eclipse.vex.core.internal.layout.LayoutContext, int)
 	 */
 	@Override
-	public Caret getCaret(final LayoutContext context, final int offset) {
-		final Caret caret = childBox.getCaret(context, offset);
+	public Caret getCaret(final LayoutContext context, final ContentPosition position) {
+		final Caret caret = childBox.getCaret(context, position);
 		caret.translate(childBox.getX(), childBox.getY());
 		return caret;
 	}
@@ -94,12 +95,12 @@ public class RootBox extends AbstractBox implements BlockBox {
 		return childBox.getLastLine();
 	}
 
-	public int getLineEndOffset(final int offset) {
-		return childBox.getLineEndOffset(offset);
+	public ContentPosition getLineEndPosition(final ContentPosition linePosition) {
+		return childBox.getLineEndPosition(linePosition);
 	}
 
-	public int getLineStartOffset(final int offset) {
-		return childBox.getLineStartOffset(offset);
+	public ContentPosition getLineStartPosition(final ContentPosition linePosition) {
+		return childBox.getLineStartPosition(linePosition);
 	}
 
 	public int getMarginBottom() {
@@ -110,16 +111,18 @@ public class RootBox extends AbstractBox implements BlockBox {
 		return 0;
 	}
 
-	public int getNextLineOffset(final LayoutContext context, final int offset, final int x) {
-		return childBox.getNextLineOffset(context, offset, x - childBox.getX());
+	public ContentPosition getNextLinePosition(final LayoutContext context, final ContentPosition linePosition, final int x) {
+		final ContentPosition position = childBox.getNextLinePosition(context, linePosition, x - childBox.getX());
+		return position != null ? position : new ContentPosition(getNode(), getEndOffset());
 	}
 
 	public BlockBox getParent() {
 		throw new IllegalStateException("RootBox does not have a parent");
 	}
 
-	public int getPreviousLineOffset(final LayoutContext context, final int offset, final int x) {
-		return childBox.getPreviousLineOffset(context, offset, x - childBox.getX());
+	public ContentPosition getPreviousLinePosition(final LayoutContext context, final ContentPosition linePosition, final int x) {
+		final ContentPosition position = childBox.getPreviousLinePosition(context, linePosition, x - childBox.getX());
+		return position != null ? position : new ContentPosition(getNode(), getStartOffset() + 1);
 	}
 
 	/**
@@ -168,7 +171,7 @@ public class RootBox extends AbstractBox implements BlockBox {
 	 * org.eclipse.vex.core.internal.layout.LayoutContext, int, int)
 	 */
 	@Override
-	public int viewToModel(final LayoutContext context, final int x, final int y) {
+	public ContentPosition viewToModel(final LayoutContext context, final int x, final int y) {
 		return childBox.viewToModel(context, x - childBox.getX(), y - childBox.getY());
 	}
 

@@ -102,6 +102,7 @@ import org.eclipse.vex.core.internal.widget.swt.VexWidget;
 import org.eclipse.vex.core.provisional.dom.AttributeChangeEvent;
 import org.eclipse.vex.core.provisional.dom.BaseNodeVisitorWithResult;
 import org.eclipse.vex.core.provisional.dom.ContentChangeEvent;
+import org.eclipse.vex.core.provisional.dom.ContentPosition;
 import org.eclipse.vex.core.provisional.dom.IComment;
 import org.eclipse.vex.core.provisional.dom.IDocument;
 import org.eclipse.vex.core.provisional.dom.IDocumentListener;
@@ -462,7 +463,7 @@ public class VexEditor extends EditorPart {
 			}
 
 			positionOfCurrentNode = createDocumentWriter().write(document, doc, vexWidget.getCurrentNode());
-			positionOfCurrentNode.setOffsetInNode(vexWidget.getCaretOffset() - vexWidget.getCurrentNode().getStartOffset());
+			positionOfCurrentNode.setOffsetInNode(vexWidget.getCaretPosition().getOffset() - vexWidget.getCurrentNode().getStartPosition().getOffset());
 
 			try {
 				jFaceDoc.addPosition(positionOfCurrentNode);
@@ -803,7 +804,7 @@ public class VexEditor extends EditorPart {
 			final INode nodeAtCaret = reader.getNodeAtCaret();
 			if (nodeAtCaret != null) {
 				final int offsetInNode = Math.min(nodeAtCaret.getStartOffset() + positionOfCurrentNode.getOffsetInNode(), nodeAtCaret.getEndOffset());
-				vexWidget.moveTo(offsetInNode);
+				vexWidget.moveTo(new ContentPosition(null, offsetInNode));
 			}
 
 			loaded = true;
@@ -1147,8 +1148,8 @@ public class VexEditor extends EditorPart {
 
 				@Override
 				protected void setSelection(final int start, final int end) {
-					getVexWidget().moveTo(start);
-					getVexWidget().moveTo(end + 1, true);
+					getVexWidget().moveTo(new ContentPosition(null, start));
+					getVexWidget().moveTo(new ContentPosition(null, end + 1), true);
 				}
 
 				@Override

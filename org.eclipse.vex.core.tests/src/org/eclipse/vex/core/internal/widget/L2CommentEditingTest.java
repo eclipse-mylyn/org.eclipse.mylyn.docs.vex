@@ -50,7 +50,7 @@ public class L2CommentEditingTest {
 		final IComment comment = widget.insertComment();
 		assertTrue(rootElement.getRange().contains(comment.getRange()));
 		assertSame(rootElement, comment.getParent());
-		assertEquals(comment.getEndOffset(), widget.getCaretOffset());
+		assertEquals(comment.getEndPosition(), widget.getCaretPosition());
 	}
 
 	@Test
@@ -91,7 +91,7 @@ public class L2CommentEditingTest {
 		widget.insertElement(TITLE);
 		widget.insertText("1text before comment1");
 		widget.insertComment();
-		final INode comment = widget.getDocument().getChildAt(widget.getCaretOffset());
+		final INode comment = widget.getDocument().getChildAt(widget.getCaretPosition());
 		widget.insertText("2comment text2");
 		widget.moveBy(1);
 		widget.insertText("3text after comment3");
@@ -100,8 +100,8 @@ public class L2CommentEditingTest {
 
 		widget.doWork(new Runnable() {
 			public void run() {
-				widget.moveTo(comment.getStartOffset() + 1, false);
-				widget.moveTo(comment.getEndOffset() - 1, true);
+				widget.moveTo(comment.getStartPosition().moveBy(1), false);
+				widget.moveTo(comment.getEndPosition().moveBy(-1), true);
 				final IDocumentFragment fragment = widget.getSelectedFragment();
 				widget.deleteSelection();
 
@@ -124,8 +124,8 @@ public class L2CommentEditingTest {
 		final String expectedXml = getCurrentXML(widget);
 
 		final IComment comment = widget.insertComment();
-		widget.moveTo(comment.getStartOffset());
-		widget.moveTo(comment.getEndOffset(), true);
+		widget.moveTo(comment.getStartPosition());
+		widget.moveTo(comment.getEndPosition(), true);
 		widget.deleteSelection();
 
 		widget.undo(); // delete

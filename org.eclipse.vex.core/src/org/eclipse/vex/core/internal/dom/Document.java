@@ -30,6 +30,7 @@ import org.eclipse.vex.core.XML;
 import org.eclipse.vex.core.internal.core.ListenerList;
 import org.eclipse.vex.core.provisional.dom.BaseNodeVisitorWithResult;
 import org.eclipse.vex.core.provisional.dom.ContentChangeEvent;
+import org.eclipse.vex.core.provisional.dom.ContentPosition;
 import org.eclipse.vex.core.provisional.dom.ContentRange;
 import org.eclipse.vex.core.provisional.dom.DocumentEvent;
 import org.eclipse.vex.core.provisional.dom.DocumentValidationException;
@@ -633,6 +634,10 @@ public class Document extends Parent implements IDocument {
 			return node.getParent();
 		}
 		return node;
+	}
+
+	public INode getNodeForInsertionAt(final ContentPosition position) {
+		return position.getNodeForInsertion();
 	}
 
 	private Parent getParentForInsertionAt(final int offset) {

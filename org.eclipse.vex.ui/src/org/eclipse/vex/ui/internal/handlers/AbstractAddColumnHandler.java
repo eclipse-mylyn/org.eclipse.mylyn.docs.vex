@@ -19,6 +19,7 @@ import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.vex.core.internal.dom.CopyOfElement;
 import org.eclipse.vex.core.internal.widget.swt.VexWidget;
+import org.eclipse.vex.core.provisional.dom.ContentPosition;
 import org.eclipse.vex.core.provisional.dom.IElement;
 
 /**
@@ -61,18 +62,15 @@ public abstract class AbstractAddColumnHandler extends AbstractHandler {
 			}
 		});
 
-		int finalOffset = -1;
 		for (final IElement element : cellsToDup) {
-			if (finalOffset == -1) {
-				finalOffset = element.getStartOffset() + 1;
-			}
-			widget.moveTo(addBefore() ? element.getStartOffset() : element.getEndOffset() + 1);
+			widget.moveTo(addBefore() ? element.getStartPosition() : element.getEndPosition().moveBy(1));
 			widget.insertElement(element.getQualifiedName()).accept(new CopyOfElement(element));
 		}
 
-		if (finalOffset != -1) {
-			widget.moveTo(finalOffset);
-		}
+		// Place caret in first new cell
+		final IElement firstCell = cellsToDup.get(0);
+		final ContentPosition position = new ContentPosition(firstCell, firstCell.getStartOffset() + 1);
+		widget.moveTo(position);
 	}
 
 	/**

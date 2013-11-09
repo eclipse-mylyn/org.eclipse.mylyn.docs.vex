@@ -94,7 +94,6 @@ public class InlineElementBox extends CompositeInlineBox {
 
 		if (styles.isContentDefined()) {
 			// A CSS 'content' definition overrides the actual content
-			System.out.println(styles.getContent(node));
 			final String content = LayoutUtils.getGeneratedContent(context, styles, node);
 			final InlineBox child = new StaticTextBox(context, node, content);
 			childList.add(child);

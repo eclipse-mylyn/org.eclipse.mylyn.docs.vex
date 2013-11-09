@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.layout;
 
+import org.eclipse.vex.core.provisional.dom.ContentPosition;
 import org.eclipse.vex.core.provisional.dom.INode;
 
 /**
@@ -51,6 +52,11 @@ public class LineBox extends CompositeInlineBox {
 	private LineBox(final LineBox other, final LayoutContext context, final InlineBox[] children) {
 		node = other.node;
 		this.children = children;
+		//		final Box lastLeft = children[children.length - 1];
+		//		if (lastLeft instanceof DocumentTextBox) {
+		//			this.children = Arrays.copyOf(children, children.length + 1);
+		//			this.children[this.children.length - 1] = new PlaceholderBox(context, lastLeft.getNode(), lastLeft.getEndOffset() - lastLeft.getNode().getStartOffset() + 1);
+		//		}
 		layout(context);
 	}
 
@@ -82,12 +88,20 @@ public class LineBox extends CompositeInlineBox {
 		return lastContentChild.getEndOffset();
 	}
 
+	public ContentPosition getEndPosition() {
+		return new ContentPosition(lastContentChild.getNode(), lastContentChild.getEndOffset());
+	}
+
 	/**
 	 * @see org.eclipse.vex.core.internal.layout.Box#getStartOffset()
 	 */
 	@Override
 	public int getStartOffset() {
 		return firstContentChild.getStartOffset();
+	}
+
+	public ContentPosition getStartPosition() {
+		return new ContentPosition(firstContentChild.getNode(), firstContentChild.getStartOffset());
 	}
 
 	/**
