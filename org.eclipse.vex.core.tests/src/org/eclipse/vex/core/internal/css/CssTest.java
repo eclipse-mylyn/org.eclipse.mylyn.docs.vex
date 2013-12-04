@@ -12,6 +12,7 @@ package org.eclipse.vex.core.internal.css;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import java.net.URL;
 
@@ -581,5 +582,11 @@ public class CssTest {
 		assertEquals("Before", styles.getContent(element).get(0));
 		element.setAttribute("attribute", "After");
 		assertEquals("After", styles.getContent(element).get(0));
+	}
+
+	@Test
+	public void testCatalogImport() throws Exception {
+		final StyleSheet ss = parseStyleSheetResource("testCatalog.css");
+		assertTrue(ss.getRules().size() > 0);
 	}
 }

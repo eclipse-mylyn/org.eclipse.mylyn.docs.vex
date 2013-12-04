@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.layout;
 
+import org.eclipse.core.runtime.Assert;
 import org.eclipse.vex.core.internal.core.Caret;
 import org.eclipse.vex.core.internal.core.Color;
 import org.eclipse.vex.core.internal.core.ColorResource;
@@ -141,6 +142,7 @@ public abstract class AbstractBox implements Box {
 	 * @see org.eclipse.vex.core.internal.layout.Box#getWidth()
 	 */
 	public int getWidth() {
+		Assert.isTrue(width > -1); // Make sure width has been calculated
 		return width;
 	}
 

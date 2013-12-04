@@ -74,6 +74,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.commands.ICommandService;
 import org.eclipse.ui.contexts.IContextService;
 import org.eclipse.ui.dialogs.SaveAsDialog;
+import org.eclipse.ui.editors.text.IStorageDocumentProvider;
 import org.eclipse.ui.ide.FileStoreEditorInput;
 import org.eclipse.ui.part.EditorPart;
 import org.eclipse.ui.part.FileEditorInput;
@@ -505,16 +506,6 @@ public class VexEditor extends EditorPart {
 	}
 
 	/**
-	 * Return a reasonable style for the given doctype.
-	 * 
-	 * @param publicId
-	 *            Public ID for which to return the style.
-	 */
-	public Style getPreferredStyle(final String publicId) {
-		return configurationRegistry.getStyle(publicId, preferences.getPreferredStyleId(publicId));
-	}
-
-	/**
 	 * Returns the DocumentType associated with this editor.
 	 */
 	public DocumentType getDocumentType() {
@@ -742,8 +733,20 @@ public class VexEditor extends EditorPart {
 				}
 			}
 
+			String encoding;
+			if (provider instanceof IStorageDocumentProvider) {
+				// Try to get the encoding from the DocumentProvider
+				encoding = ((IStorageDocumentProvider) provider).getEncoding(getEditorInput());
+			} else {
+				encoding = "UTF-8";
+			}
+
+			// A Reader is used here to avoid an in memory copy of the documents content
+			final InputSource is = new InputSource(new DocumentInputReader(jFaceDoc));
+			is.setEncoding(encoding);
+
+			// Set the systemId of the InputSource to resolve relative URIs
 			final IEditorInput input = getEditorInput();
-			final InputSource is = new InputSource(jFaceDoc.get());
 			if (input instanceof IFileEditorInput) {
 				final IFile file = ((IFileEditorInput) input).getFile();
 				is.setSystemId(file.getLocationURI().toString());
@@ -864,7 +867,7 @@ public class VexEditor extends EditorPart {
 		this.style = style;
 		if (vexWidget != null) {
 			vexWidget.setStyleSheet(style.getStyleSheet());
-			preferences.setPreferredStyleId(document.getPublicID(), style.getUniqueId());
+			preferences.setPreferredStyleId(doctype, style.getUniqueId());
 		}
 		vexEditorListeners.fireEvent("styleChanged", new VexEditorEvent(this)); //$NON-NLS-1$
 	}

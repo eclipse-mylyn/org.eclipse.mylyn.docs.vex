@@ -16,8 +16,6 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import java.net.URL;
-
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.vex.core.internal.dom.Element;
 import org.eclipse.vex.core.provisional.dom.DocumentContentModel;
@@ -99,17 +97,24 @@ public class DocumentContentModelTest {
 	}
 
 	@Test
-	public void resolveSchemaIdentifier() throws Exception {
-		final URL resolvedUrl = model.resolveSchemaIdentifier(TestResources.TEST_DTD);
+	public void resolveSchemaBySchemaLocation() throws Exception {
+		final String resolvedUrl = model.resolveResourceURI(null, "http://www.eclipse.org/vex/test/content.xsd");
 		assertNotNull(resolvedUrl);
-		assertTrue(resolvedUrl.toString().contains(VEXCoreTestPlugin.PLUGIN_ID));
+		assertTrue(resolvedUrl.contains(VEXCoreTestPlugin.PLUGIN_ID) && resolvedUrl.endsWith("testResources/content.xsd"));
+	}
+
+	@Test
+	public void resolveSchemaByNamespace() throws Exception {
+		final String resolvedUrl = model.resolveResourceURI(null, "http://www.eclipse.org/vex/test/content");
+		assertNotNull(resolvedUrl);
+		assertTrue(resolvedUrl.contains(VEXCoreTestPlugin.PLUGIN_ID) && resolvedUrl.endsWith("testResources/content.xsd"));
 	}
 
 	@Test
 	public void onlySystemId() throws Exception {
 		model.initialize(null, null, TestResources.get("test1.dtd").toString(), null);
 		assertTrue(model.isDtdAssigned());
-		assertNotNull(model.getDTD());
+		assertNotNull(model.getContentModelDocument());
 	}
 
 	@Test
@@ -117,8 +122,26 @@ public class DocumentContentModelTest {
 		final String baseUri = TestResources.get("test.css").toString();
 		model.initialize(baseUri, null, "test1.dtd", null);
 		assertTrue(model.isDtdAssigned());
-		final CMDocument dtd = model.getDTD();
+		final CMDocument dtd = model.getContentModelDocument();
 		assertNotNull(dtd);
 		assertEquals(11, dtd.getElements().getLength());
+	}
+
+	@Test
+	public void onlyNamespace() throws Exception {
+		model.initialize(null, null, null, new Element(new QualifiedName("http://www.eclipse.org/vex/test/content", "rootElement")));
+		assertFalse(model.isDtdAssigned());
+		final CMDocument schema = model.getContentModelDocument();
+		assertNotNull(schema);
+		assertEquals(1, schema.getElements().getLength());
+	}
+
+	@Test
+	public void testExplicitNamespace() throws Exception {
+		model.setSchemaId(null, "http://www.eclipse.org/vex/test/content");
+		assertFalse(model.isDtdAssigned());
+		final CMDocument schema = model.getContentModelDocument();
+		assertNotNull(schema);
+		assertEquals(1, schema.getElements().getLength());
 	}
 }

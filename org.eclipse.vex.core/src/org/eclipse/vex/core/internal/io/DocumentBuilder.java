@@ -255,7 +255,8 @@ public class DocumentBuilder implements ContentHandler, LexicalHandler {
 			if ("".equals(attrs.getLocalName(i))) {
 				attributeName = new QualifiedName(null, attrs.getQName(i));
 			} else if ("".equals(attrs.getURI(i))) {
-				attributeName = new QualifiedName(elementName.getQualifier(), attrs.getLocalName(i));
+				// Attributes do not inherit the elements namespace (http://www.w3.org/TR/REC-xml-names/#defaulting)
+				attributeName = new QualifiedName(null, attrs.getLocalName(i));
 			} else {
 				attributeName = new QualifiedName(attrs.getURI(i), attrs.getLocalName(i));
 			}
@@ -272,7 +273,7 @@ public class DocumentBuilder implements ContentHandler, LexicalHandler {
 			if (dtdPublicID != null && dtdSystemID != null || previousDocTypeID == null) {
 				// The content model is initialized only if the input document defines a DocType
 				// or if it has not been initialized already.
-				// This way, a user selected is reapplied when the document is reloaded.
+				// This way, a user selected doctype is reapplied when the document is reloaded.
 				documentContentModel.initialize(baseUri, dtdPublicID, dtdSystemID, rootElement);
 			}
 			final StyleSheet styleSheet = styleSheetProvider.getStyleSheet(documentContentModel);

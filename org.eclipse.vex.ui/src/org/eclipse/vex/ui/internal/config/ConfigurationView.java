@@ -77,7 +77,7 @@ public class ConfigurationView extends ViewPart {
 				return VexPlugin.getDefault().getConfigurationRegistry().getDocumentTypes();
 			}
 			if (parentElement instanceof DocumentType) {
-				return VexPlugin.getDefault().getConfigurationRegistry().getStyles(((DocumentType) parentElement).getPublicId());
+				return VexPlugin.getDefault().getConfigurationRegistry().getStyles((DocumentType) parentElement);
 			}
 			return new Object[0];
 		}
@@ -87,7 +87,7 @@ public class ConfigurationView extends ViewPart {
 				return VexPlugin.getDefault().getConfigurationRegistry();
 			}
 			if (element instanceof Style) {
-				return VexPlugin.getDefault().getConfigurationRegistry().getDocumentType(((Style) element).getDocumentTypes().iterator().next());
+				return VexPlugin.getDefault().getConfigurationRegistry().getDocumentType(((Style) element).getDocumentTypes().iterator().next(), null);
 			}
 			return null;
 		}

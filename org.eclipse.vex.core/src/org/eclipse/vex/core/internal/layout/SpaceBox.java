@@ -40,14 +40,6 @@ public class SpaceBox extends AbstractInlineBox {
 	}
 
 	/**
-	 * @see org.eclipse.vex.core.internal.layout.InlineBox#split(org.eclipse.vex.core.internal.layout.LayoutContext,
-	 *      int, boolean)
-	 */
-	public Pair split(final LayoutContext context, final int maxWidth, final boolean force) {
-		return new Pair(null, this);
-	}
-
-	/**
 	 * @see java.lang.Object#toString()
 	 */
 	@Override

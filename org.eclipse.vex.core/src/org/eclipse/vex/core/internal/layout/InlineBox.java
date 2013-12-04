@@ -1,12 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2008 John Krasnay and others.
+ * Copyright (c) 2004, 2013 John Krasnay and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     John Krasnay - initial API and implementation
+ *     Carsten Hiesserich - added remainingWidth to Pair
  *******************************************************************************/
 package org.eclipse.vex.core.internal.layout;
 
@@ -21,6 +22,7 @@ public interface InlineBox extends Box {
 	public class Pair {
 		private final InlineBox left;
 		private final InlineBox right;
+		private final int remainingWidth;
 
 		/**
 		 * Class constructor.
@@ -29,10 +31,13 @@ public interface InlineBox extends Box {
 		 *            box to the left of the split
 		 * @param right
 		 *            box to the right of the split
+		 * @param remaining
+		 *            the remaining layout width after this split
 		 */
-		public Pair(final InlineBox left, final InlineBox right) {
+		public Pair(final InlineBox left, final InlineBox right, final int remaining) {
 			this.left = left;
 			this.right = right;
+			remainingWidth = remaining;
 		}
 
 		/**
@@ -47,6 +52,13 @@ public interface InlineBox extends Box {
 		 */
 		public InlineBox getRight() {
 			return right;
+		}
+
+		/**
+		 * Return the remaining with after the split
+		 */
+		public int getRemaining() {
+			return remainingWidth;
 		}
 	}
 
@@ -64,6 +76,11 @@ public interface InlineBox extends Box {
 	 * Returns true if this inline box must be the last box on the current line.
 	 */
 	public boolean isEOL();
+
+	/**
+	 * @return <code>true</code> if this box can be splitted.
+	 */
+	public boolean isSplitable();
 
 	/**
 	 * Splits this inline box into two. If <code>force</code> is false, this method should find a natural split point
@@ -89,6 +106,7 @@ public interface InlineBox extends Box {
 	 *            Maximum width of the left part of the box.
 	 * @param force
 	 *            if true, force a suboptimal split
+	 * @return A new {@link Pair} of inline boxes, or null if this box is not splitable
 	 */
 	public Pair split(LayoutContext context, int maxWidth, boolean force);
 }

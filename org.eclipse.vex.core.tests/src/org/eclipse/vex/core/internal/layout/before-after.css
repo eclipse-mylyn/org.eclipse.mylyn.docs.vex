@@ -21,6 +21,15 @@ iib:before {
 }
 
 
+iib2 {
+  display: inline;
+}
+
+iib2:before {
+  display: inline;
+  content: 'BEFORE1 BEFORE2 ';
+}
+
 iba {
   display: inline;
 }
@@ -76,5 +85,14 @@ bbb {
 bbb:before {
   display: block;
   content: 'BEFORE';
+}
+
+bbb2 {
+  display: block;
+}
+
+bbb2:before {
+  display: block;
+  content: 'BEFORE1 BEFORE2 ';
 }
 

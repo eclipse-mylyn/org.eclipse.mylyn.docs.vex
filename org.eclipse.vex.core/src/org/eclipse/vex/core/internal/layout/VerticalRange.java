@@ -13,7 +13,7 @@ package org.eclipse.vex.core.internal.layout;
 
 import java.text.MessageFormat;
 
-import org.eclipse.core.runtime.Assert;
+import org.eclipse.core.runtime.AssertionFailedException;
 
 /**
  * Represents a vertical range used in the layouting algorithm. Zero-length ranges (i.e. ranges where top == bottom) are
@@ -33,7 +33,9 @@ public class VerticalRange {
 	 *            bottom of the range, must be >= top
 	 */
 	public VerticalRange(final int top, final int bottom) {
-		Assert.isTrue(top <= bottom, MessageFormat.format("top {0} must not be above bottom {1}", top, bottom));
+		if (top > bottom) {
+			throw new AssertionFailedException(MessageFormat.format("top {0} must not be above bottom {1}", top, bottom));
+		}
 		this.top = top;
 		this.bottom = bottom;
 	}

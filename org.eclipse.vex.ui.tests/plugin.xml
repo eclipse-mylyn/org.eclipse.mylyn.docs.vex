@@ -26,6 +26,14 @@
       </doctype>
    </extension>
    <extension
+         id="test-schema-doctype"
+         name="test schema doctype"
+         point="org.eclipse.vex.ui.doctypes">
+      <schema
+            namespaceName="http://org.eclipse.vex/namespace">
+      </schema>
+   </extension>
+   <extension
          id="test-style"
          name="test style"
          point="org.eclipse.vex.ui.styles">
@@ -35,6 +43,36 @@
                publicId="-//Vex//DTD Test//EN">
          </doctypeRef>
       </style>
+   </extension>
+   <extension
+         id="test-style"
+         name="test style"
+         point="org.eclipse.vex.ui.styles">
+      <style
+            css="testdata/test-schema.css">
+         <doctypeRef
+               publicId="http://org.eclipse.vex/namespace">
+         </doctypeRef>
+      </style>
+   </extension>
+   <extension
+         id="test-style-doctype-id"
+         name="test style doctype id"
+         point="org.eclipse.vex.ui.styles">
+      <style
+            css="testdata/test-doctype-id.css">
+         <doctypeRef
+               publicId="test-schema-doctype2">
+         </doctypeRef>
+      </style>
+   </extension>
+   <extension
+         id="test-schema-doctype2"
+         name="test schema doctype2"
+         point="org.eclipse.vex.ui.doctypes">
+      <schema
+            namespaceName="http://org.eclipse.vex/namespace2">
+      </schema>
    </extension>
 
 </plugin>

@@ -85,14 +85,6 @@ public class DrawableBox extends AbstractInlineBox {
 	}
 
 	/**
-	 * @see org.eclipse.vex.core.internal.layout.InlineBox#split(org.eclipse.vex.core.internal.layout.LayoutContext,
-	 *      int, boolean)
-	 */
-	public Pair split(final LayoutContext context, final int maxWidth, final boolean force) {
-		return new Pair(null, this);
-	}
-
-	/**
 	 * Draw the drawable. The foreground color of the context's Graphics is set before calling the drawable's draw
 	 * method.
 	 */

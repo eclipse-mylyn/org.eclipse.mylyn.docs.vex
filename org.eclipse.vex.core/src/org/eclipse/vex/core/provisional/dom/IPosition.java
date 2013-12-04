@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     John Krasnay - initial API and implementation
  *     Florian Thienel - NULL object
@@ -18,7 +18,7 @@ package org.eclipse.vex.core.provisional.dom;
  * Positions can be invalid if they were removed from their associated Content instance. Invalid positions do not get
  * updated on content modifications. They must not be used for anything anymore.
  */
-public interface IPosition {
+public interface IPosition extends Comparable<IPosition> {
 
 	static IPosition NULL = new IPosition() {
 		public int getOffset() {
@@ -32,6 +32,11 @@ public interface IPosition {
 		@Override
 		public String toString() {
 			return "NULL";
+		}
+
+		@Override
+		public int compareTo(final IPosition other) {
+			return -1;
 		}
 	};
 

@@ -21,7 +21,7 @@ import org.eclipse.vex.core.provisional.dom.IElement;
 import org.junit.Before;
 import org.junit.Test;
 
-public class L1DeletionTests {
+public class L1DeletionTest {
 
 	private IDocument document;
 	private IElement child;

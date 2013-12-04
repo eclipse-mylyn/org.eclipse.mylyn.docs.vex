@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *		Florian Thienel - initial API and implementation
  *		Carsten Hiesserich - extended insert / remove tests for nodes with text (bug 408731)
@@ -450,6 +450,48 @@ public class ParentTest {
 	public void shouldProvideSelfOnOwnBoundaries() throws Exception {
 		assertSame(parent, parent.getChildAt(parent.getStartOffset()));
 		assertSame(parent, parent.getChildAt(parent.getEndOffset()));
+	}
+
+	@Test
+	public void shouldReturnChildAtOffset() throws Exception {
+		content.insertText(parent.getEndOffset(), "Hello ");
+		final TestChild child1 = addTestChild();
+		content.insertText(child1.getEndOffset(), "Child1");
+
+		assertSame(child1, parent.getChildAt(9));
+	}
+
+	@Test
+	public void shouldReturnTextAtOffsetBetweenChildren() throws Exception {
+		content.insertText(parent.getEndOffset(), "Hello ");
+		final TestChild child1 = addTestChild();
+		content.insertText(child1.getEndOffset(), "Child1");
+		content.insertText(parent.getEndOffset(), " Gap ");
+		final TestChild child2 = addTestChild();
+		content.insertText(child2.getEndOffset(), "Child2");
+		content.insertText(parent.getEndOffset(), " World");
+
+		final INode text = parent.children().get(2);
+
+		assertTextNodeEquals(" Gap ", text.getStartOffset(), text.getEndOffset(), parent.getChildAt(text.getStartOffset() + 1));
+	}
+
+	@Test
+	public void shouldReturnTextAtOffsetBeforeFirstChild() throws Exception {
+		setUpChildNodes();
+
+		final INode text = parent.children().get(0);
+
+		assertTextNodeEquals("Hello ", text.getStartOffset(), text.getEndOffset(), parent.getChildAt(text.getStartOffset() + 1));
+	}
+
+	@Test
+	public void shouldReturnTextAtOffsetAfterLastChild() throws Exception {
+		setUpChildNodes();
+
+		final INode text = parent.children().get(3);
+
+		assertTextNodeEquals(" World", text.getStartOffset(), text.getEndOffset(), parent.getChildAt(text.getStartOffset() + 1));
 	}
 
 	@Test

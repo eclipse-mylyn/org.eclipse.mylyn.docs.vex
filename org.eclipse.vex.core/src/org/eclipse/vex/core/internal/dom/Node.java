@@ -16,6 +16,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.core.runtime.Assert;
+import org.eclipse.core.runtime.AssertionFailedException;
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.vex.core.provisional.dom.BaseNodeVisitor;
 import org.eclipse.vex.core.provisional.dom.ContentRange;
@@ -90,12 +91,16 @@ public abstract class Node implements INode {
 	}
 
 	public int getStartOffset() {
-		Assert.isTrue(isAssociated(), "Node must be associated to a ContentRange to have a start offset.");
+		if (!isAssociated()) {
+			throw new AssertionFailedException("Node must be associated to a ContentRange to have a start offset.");
+		}
 		return startPosition.getOffset();
 	}
 
 	public int getEndOffset() {
-		Assert.isTrue(isAssociated(), "Node must be associated to a ContentRange to have an end offset.");
+		if (!isAssociated()) {
+			throw new AssertionFailedException("Node must be associated to a ContentRange to have a start offset.");
+		}
 		return endPosition.getOffset();
 	}
 
@@ -132,7 +137,9 @@ public abstract class Node implements INode {
 	}
 
 	public String getText(final ContentRange range) {
-		Assert.isTrue(isAssociated(), "Node must be associated to a Content region to have textual content.");
+		if (!isAssociated()) {
+			throw new AssertionFailedException("Node must be associated to a Content region to have textual content.");
+		}
 		return content.getText(range.intersection(getRange()));
 	}
 

@@ -27,9 +27,11 @@ public class DoctypeFactory implements IConfigItemFactory {
 	private static final String[] EXTS = new String[] { "dtd" }; //$NON-NLS-1$
 
 	private static final String ELT_DOCTYPE = "doctype"; //$NON-NLS-1$
+	private static final String ELT_SCHEMA = "schema"; //$NON-NLS-1$
 	private static final String ATTR_OUTLINE_PROVIDER = "outlineProvider"; //$NON-NLS-1$
 	private static final String ATTR_SYSTEM_ID = "systemId"; //$NON-NLS-1$
 	private static final String ATTR_PUBLIC_ID = "publicId"; //$NON-NLS-1$
+	private static final String ATTR_NAMESPACE_NAME = "namespaceName"; //$NON-NLS-1$
 
 	private static final String ELT_ROOT_ELEMENT = "rootElement"; //$NON-NLS-1$
 	private static final String ATTR_NAME = "name"; //$NON-NLS-1$
@@ -54,13 +56,23 @@ public class DoctypeFactory implements IConfigItemFactory {
 		if (configElements.length < 1) {
 			return null;
 		}
-		final IConfigElement configElement = configElements[0];
-		final String publicId = configElement.getAttribute(ATTR_PUBLIC_ID);
-		final String systemId = configElement.getAttribute(ATTR_SYSTEM_ID);
 		final DocumentType doctype = new DocumentType(config);
-		doctype.setPublicId(publicId);
-		doctype.setSystemId(systemId);
-		doctype.setResourceUri(newUri(config.resolve(publicId, systemId)));
+		final IConfigElement configElement = configElements[0];
+		if (configElement.getName() == null) {
+			System.out.println("configElement:" + configElement.getName());
+		}
+		if (configElement.getName().equals(ELT_DOCTYPE)) {
+			final String publicId = configElement.getAttribute(ATTR_PUBLIC_ID);
+			final String systemId = configElement.getAttribute(ATTR_SYSTEM_ID);
+			doctype.setPublicId(publicId);
+			doctype.setSystemId(systemId);
+			doctype.setResourceUri(newUri(config.resolve(publicId, systemId)));
+		} else {
+			final String namespaceName = configElement.getAttribute(ATTR_NAMESPACE_NAME);
+			doctype.setNamespaceName(namespaceName);
+			doctype.setResourceUri(newUri(config.resolve(null, namespaceName)));
+		}
+
 		doctype.setOutlineProvider(configElement.getAttribute(ATTR_OUTLINE_PROVIDER));
 
 		final IConfigElement[] rootElementRefs = configElement.getChildren();

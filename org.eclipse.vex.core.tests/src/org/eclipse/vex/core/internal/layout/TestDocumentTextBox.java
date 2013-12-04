@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2008 John Krasnay and others.
+ * Copyright (c) 2004, 2013 John Krasnay and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     John Krasnay - initial API and implementation
+ *     Carsten Hiesserich - adapted tests to optimized split methods
  *******************************************************************************/
 package org.eclipse.vex.core.internal.layout;
 
@@ -25,6 +26,7 @@ import org.eclipse.vex.core.internal.dom.Document;
 import org.eclipse.vex.core.provisional.dom.ContentRange;
 import org.eclipse.vex.core.provisional.dom.IDocument;
 import org.eclipse.vex.core.provisional.dom.IElement;
+import org.eclipse.vex.core.provisional.dom.INode;
 import org.junit.Test;
 
 /**
@@ -57,48 +59,62 @@ public class TestDocumentTextBox {
 
 		final Styles styles = context.getStyleSheet().getStyles(root);
 
-		final int width = g.getCharWidth();
-
 		// 0 6 13 21
 		// / / / /
 		// baggy orange trousers
 
 		doc.insertText(2, "baggy orange trousers");
-		final DocumentTextBox box = new DocumentTextBox(context, root, 2, 23);
-		assertEquals(box.getText().length() * width, box.getWidth());
+		final DocumentTextBox box = new DocumentTextBox(context, root, root.getStartOffset() + 1, root.getEndOffset() - 1);
 		assertEquals(styles.getLineHeight(), box.getHeight());
-		assertSplit(box, 22, false, "baggy orange ", "trousers");
-		assertSplit(box, 21, false, "baggy orange ", "trousers");
-		assertSplit(box, 20, false, "baggy orange ", "trousers");
-		assertSplit(box, 13, false, "baggy orange ", "trousers");
-		assertSplit(box, 12, false, "baggy ", "orange trousers");
-		assertSplit(box, 6, false, "baggy ", "orange trousers");
-		assertSplit(box, 5, false, null, "baggy orange trousers");
-		assertSplit(box, 1, false, null, "baggy orange trousers");
-		assertSplit(box, 0, false, null, "baggy orange trousers");
-		assertSplit(box, -1, false, null, "baggy orange trousers");
 
-		assertSplit(box, 22, true, "baggy orange ", "trousers");
-		assertSplit(box, 21, true, "baggy orange ", "trousers");
-		assertSplit(box, 20, true, "baggy orange ", "trousers");
-		assertSplit(box, 13, true, "baggy orange ", "trousers");
-		assertSplit(box, 12, true, "baggy ", "orange trousers");
-		assertSplit(box, 6, true, "baggy ", "orange trousers");
-		assertSplit(box, 5, true, "baggy ", "orange trousers");
-		assertSplit(box, 4, true, "bagg", "y orange trousers");
-		assertSplit(box, 3, true, "bag", "gy orange trousers");
-		assertSplit(box, 2, true, "ba", "ggy orange trousers");
-		assertSplit(box, 1, true, "b", "aggy orange trousers");
-		assertSplit(box, 0, true, "b", "aggy orange trousers");
-		assertSplit(box, -1, true, "b", "aggy orange trousers");
+		assertSplit(root, 22, false, "baggy orange ", "trousers");
+		assertSplit(root, 21, false, "baggy orange ", "trousers");
+		assertSplit(root, 20, false, "baggy orange ", "trousers");
+		assertSplit(root, 13, false, "baggy orange ", "trousers");
+		assertSplit(root, 12, false, "baggy ", "orange trousers");
+		assertSplit(root, 6, false, "baggy ", "orange trousers");
+		assertSplit(root, 5, false, null, "baggy orange trousers");
+		assertSplit(root, 1, false, null, "baggy orange trousers");
+		assertSplit(root, 0, false, null, "baggy orange trousers");
+		assertSplit(root, -1, false, null, "baggy orange trousers");
+
+		assertSplit(root, 22, true, "baggy orange ", "trousers");
+		assertSplit(root, 21, true, "baggy orange ", "trousers");
+		assertSplit(root, 20, true, "baggy orange ", "trousers");
+		assertSplit(root, 13, true, "baggy orange ", "trousers");
+		assertSplit(root, 12, true, "baggy ", "orange trousers");
+		assertSplit(root, 6, true, "baggy ", "orange trousers");
+		assertSplit(root, 5, true, "baggy ", "orange trousers");
+		assertSplit(root, 4, true, "bagg", "y orange trousers");
+		assertSplit(root, 3, true, "bag", "gy orange trousers");
+		assertSplit(root, 2, true, "ba", "ggy orange trousers");
+		assertSplit(root, 1, true, "b", "aggy orange trousers");
+		assertSplit(root, 0, true, "b", "aggy orange trousers");
+		assertSplit(root, -1, true, "b", "aggy orange trousers");
 
 		doc.delete(new ContentRange(3, 22));
 	}
 
-	private void assertSplit(final DocumentTextBox box, final int splitPos, final boolean force, final String left, final String right) {
+	@Test
+	public void testMultipleSplit() throws Exception {
+		final IDocument doc = new Document(new QualifiedName(null, "root"));
+		doc.insertText(2, "12345 67890 ");
+		final IElement root = doc.getRootElement();
+		final DocumentTextBox box = new DocumentTextBox(context, root, root.getStartOffset() + 1, root.getEndOffset() - 1);
+		final InlineBox.Pair pair = box.split(context, 150, false);
+		assertEquals("12345 ", ((DocumentTextBox) pair.getLeft()).getText());
+		final InlineBox.Pair pair2 = pair.getRight().split(context, 100, false);
+		assertNull(pair2.getLeft());
+		assertEquals("67890 ", ((DocumentTextBox) pair2.getRight()).getText());
+		assertEquals("Last right box should have a width", 36, pair2.getRight().getWidth());
+	}
+
+	private void assertSplit(final INode node, final int splitPos, final boolean force, final String left, final String right) {
+
+		final DocumentTextBox box = new DocumentTextBox(context, node, node.getStartOffset() + 1, node.getEndOffset() - 1);
 
 		final Styles styles = context.getStyleSheet().getStyles(box.getNode());
-
+		final int textLength = box.getText().length();
 		final int width = g.getCharWidth();
 
 		final InlineBox.Pair pair = box.split(context, splitPos * width, force);
@@ -106,9 +122,9 @@ public class TestDocumentTextBox {
 		final DocumentTextBox leftBox = (DocumentTextBox) pair.getLeft();
 		final DocumentTextBox rightBox = (DocumentTextBox) pair.getRight();
 
-		final int leftOffset = 2;
+		final int leftOffset = box.getNode().getStartOffset() + 1;
 		final int midOffset = leftOffset + (left == null ? 0 : left.length());
-		final int rightOffset = leftOffset + box.getText().length();
+		final int rightOffset = leftOffset + textLength;
 
 		if (left == null) {
 			assertNull(leftBox);
@@ -126,10 +142,10 @@ public class TestDocumentTextBox {
 		} else {
 			assertNotNull(rightBox);
 			assertEquals(right, rightBox.getText());
-			assertEquals(right.length() * width, rightBox.getWidth());
+			//assertEquals(right.length() * width, rightBox.getWidth());
 			assertEquals(styles.getLineHeight(), rightBox.getHeight());
 			assertEquals(midOffset, rightBox.getStartOffset());
-			assertEquals(rightOffset, rightBox.getEndOffset());
+			assertEquals(rightOffset - 1, rightBox.getEndOffset());
 		}
 
 	}

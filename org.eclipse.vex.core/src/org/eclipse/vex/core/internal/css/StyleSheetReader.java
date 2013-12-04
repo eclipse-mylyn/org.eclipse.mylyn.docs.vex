@@ -44,7 +44,7 @@ public class StyleSheetReader {
 	private static final URIResolver URI_RESOLVER = URIResolverPlugin.createResolver();
 
 	public static Parser createParser() {
-		return new org.apache.batik.css.parser.Parser() {
+		final Parser parser = new org.apache.batik.css.parser.Parser() {
 
 			/**
 			 * The batik implementation uses hardcoded values. This Override allows custom PseudoElements.
@@ -106,6 +106,9 @@ public class StyleSheetReader {
 			}
 
 		};
+
+		parser.setSelectorFactory(new VexSelectorFactory());
+		return parser;
 	}
 
 	/**

@@ -13,7 +13,6 @@
 package org.eclipse.vex.core.internal.layout;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
@@ -23,7 +22,6 @@ import org.eclipse.vex.core.internal.core.ColorResource;
 import org.eclipse.vex.core.internal.core.FontMetrics;
 import org.eclipse.vex.core.internal.core.Graphics;
 import org.eclipse.vex.core.internal.core.Insets;
-import org.eclipse.vex.core.internal.css.IWhitespacePolicy;
 import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.css.Styles;
 import org.eclipse.vex.core.internal.widget.IBoxFilter;
@@ -706,15 +704,15 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 			final int relOffset = startOffset - node.getStartOffset();
 			pendingInlines.add(new PlaceholderBox(context, node, relOffset));
 		} else if (node instanceof IParent) {
-			final BlockInlineIterator iter = new BlockInlineIterator(context, (IParent) node, startOffset, endOffset);
+			final FormattingPortionIterator iter = new FormattingPortionIterator(context.getWhitespacePolicy(), (IParent) node, startOffset, endOffset);
 			while (true) {
-				Object next = iter.next();
-				if (next == null) {
+				Object formattingPortion = iter.next();
+				if (formattingPortion == null) {
 					break;
 				}
 
-				if (next instanceof ContentRange) {
-					final ContentRange range = (ContentRange) next;
+				if (formattingPortion instanceof ContentRange) {
+					final ContentRange range = (ContentRange) formattingPortion;
 					final InlineElementBox.InlineBoxes inlineBoxes = InlineElementBox.createInlineBoxes(context, node, range);
 					pendingInlines.addAll(inlineBoxes.boxes);
 					pendingInlines.add(new PlaceholderBox(context, node, range.getEndOffset() - node.getStartOffset()));
@@ -724,25 +722,25 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 						pendingInlines.clear();
 					}
 
-					if (isTableChild(context, next)) {
+					if (isTableChild(context, formattingPortion)) {
 						// Consume continguous table children and create an
 						// anonymous table.
-						final int tableStartOffset = ((IElement) next).getStartOffset();
+						final int tableStartOffset = ((IElement) formattingPortion).getStartOffset();
 						int tableEndOffset = -1; // dummy to hide warning
-						while (isTableChild(context, next)) {
-							tableEndOffset = ((IElement) next).getEndOffset() + 1;
-							next = iter.next();
+						while (isTableChild(context, formattingPortion)) {
+							tableEndOffset = ((IElement) formattingPortion).getEndOffset() + 1;
+							formattingPortion = iter.next();
 						}
 
 						// add anonymous table
 						blockBoxes.add(new TableBox(context, this, tableStartOffset, tableEndOffset));
-						if (next == null) {
+						if (formattingPortion == null) {
 							break;
 						} else {
-							iter.push(next);
+							iter.push(formattingPortion);
 						}
 					} else { // next is a block box element
-						final INode blockNode = (INode) next;
+						final INode blockNode = (INode) formattingPortion;
 						blockBoxes.add(context.getBoxFactory().createBox(context, blockNode, this, width));
 					}
 				}
@@ -764,57 +762,6 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 		}
 
 		return blockBoxes;
-	}
-
-	private static class BlockInlineIterator {
-
-		private final LayoutContext context;
-		private final IParent parent;
-		private int startOffset;
-		private final int endOffset;
-		private final LinkedList<Object> pushStack = new LinkedList<Object>();
-
-		public BlockInlineIterator(final LayoutContext context, final IParent parent, final int startOffset, final int endOffset) {
-			this.context = context;
-			this.parent = parent;
-			this.startOffset = startOffset;
-			this.endOffset = endOffset;
-		}
-
-		/**
-		 * Returns the next block element or inline range, or null if we're at the end.
-		 */
-		public Object next() {
-			if (!pushStack.isEmpty()) {
-				return pushStack.removeLast();
-			} else if (startOffset >= endOffset) {
-				return null;
-			} else {
-				final INode blockNode = findNextBlockNode(context, parent, startOffset, endOffset);
-				if (blockNode == null) {
-					if (startOffset < endOffset) {
-						final ContentRange result = new ContentRange(startOffset, endOffset);
-						startOffset = endOffset;
-						return result;
-					} else {
-						return null;
-					}
-				} else if (blockNode.getStartOffset() > startOffset) {
-					pushStack.addLast(blockNode);
-					final ContentRange result = new ContentRange(startOffset, blockNode.getStartOffset());
-					startOffset = blockNode.getEndOffset() + 1;
-					return result;
-				} else {
-					startOffset = blockNode.getEndOffset() + 1;
-					return blockNode;
-				}
-			}
-		}
-
-		public void push(final Object pushed) {
-			pushStack.addLast(pushed);
-		}
-
 	}
 
 	protected boolean hasChildren() {
@@ -891,62 +838,6 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 	}
 
 	// ========================================================= PRIVATE
-
-	/**
-	 * Searches for the next block-formatted child.
-	 * 
-	 * @param context
-	 *            LayoutContext to use.
-	 * @param parent
-	 *            Element within which to search.
-	 * @param startOffset
-	 *            The offset at which to start the search.
-	 * @param endOffset
-	 *            The offset at which to end the search.
-	 */
-	private static INode findNextBlockNode(final LayoutContext context, final IParent parent, final int startOffset, final int endOffset) {
-		final IWhitespacePolicy policy = context.getWhitespacePolicy();
-		for (final INode child : parent.children().in(new ContentRange(startOffset, endOffset)).withoutText()) {
-			final INode nextBlockNode = child.accept(new BaseNodeVisitorWithResult<INode>() {
-				@Override
-				public INode visit(final IElement element) {
-					// found?
-					if (policy.isBlock(element)) {
-						return element;
-					}
-
-					// recursion
-					final INode fromChild = findNextBlockNode(context, element, startOffset, endOffset);
-					if (fromChild != null) {
-						return fromChild;
-					}
-
-					return null;
-				}
-
-				@Override
-				public INode visit(final IComment comment) {
-					if (policy.isBlock(comment)) {
-						return comment;
-					}
-					return null;
-				}
-
-				@Override
-				public INode visit(final IProcessingInstruction pi) {
-					if (policy.isBlock(pi)) {
-						return pi;
-					}
-					return null;
-				}
-			});
-			if (nextBlockNode != null) {
-				return nextBlockNode;
-			}
-		}
-
-		return null;
-	}
 
 	/**
 	 * Return the end position of an anonymous box. The default implementation returns null.

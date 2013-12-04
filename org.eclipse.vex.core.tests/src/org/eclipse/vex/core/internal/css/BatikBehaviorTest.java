@@ -16,7 +16,9 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 
+import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.vex.core.internal.dom.Element;
+import org.eclipse.vex.core.internal.dom.Namespace;
 import org.eclipse.vex.core.provisional.dom.IElement;
 import org.junit.Test;
 
@@ -56,7 +58,7 @@ public class BatikBehaviorTest {
 	public void testNamespace() throws Exception {
 		final StyleSheetReader reader = new StyleSheetReader();
 		final StyleSheet styleSheet = reader.read("vex|plan {font-size: 123px;} vex|plan:before { content: 'test' }");
-		final Element element = new Element("vex|plan");
+		final Element element = new Element(new QualifiedName(Namespace.VEX_NAMESPACE_URI, "plan"));
 		final Styles styles = styleSheet.getStyles(element);
 		assertEquals(123.0f, styles.getFontSize(), 0.0f);
 		final IElement before = styleSheet.getPseudoElement(element, "before", false);
@@ -69,7 +71,7 @@ public class BatikBehaviorTest {
 	public void testNamespaceWithChildSelector() throws Exception {
 		final StyleSheetReader reader = new StyleSheetReader();
 		final StyleSheet styleSheet = reader.read("vex|parent {font-size: 123px;} vex|parent > child { content: 'child' } child {content: 'nochild'}");
-		final Element element = new Element("vex|parent");
+		final Element element = new Element(new QualifiedName(Namespace.VEX_NAMESPACE_URI, "parent"));
 		final Element child = new Element("child");
 		final Element nochild = new Element("child");
 		child.setParent(element);

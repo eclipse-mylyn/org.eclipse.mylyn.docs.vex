@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  * 		Florian Thienel - initial API and implementation
  * 		Carsten Hiesserich - fixed insertion of elements to nodes with text (bug 408731)
@@ -17,6 +17,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.core.runtime.Assert;
+import org.eclipse.core.runtime.AssertionFailedException;
 import org.eclipse.vex.core.provisional.dom.ContentRange;
 import org.eclipse.vex.core.provisional.dom.IAxis;
 import org.eclipse.vex.core.provisional.dom.INode;
@@ -63,15 +64,31 @@ public abstract class Parent extends Node implements IParent {
 		final ContentRange insertionRange = getRange().resizeBy(1, 0);
 		Assert.isTrue(insertionRange.contains(offset), MessageFormat.format("The offset must be within {0}.", insertionRange));
 
-		// We have to return an index in the children List, so Axis withoutText must be used!
-		int i = 0;
-		for (final INode child : children().withoutText()) {
-			if (offset <= child.getStartOffset()) {
-				return i;
-			}
-			i++;
+		if (children.isEmpty()) {
+			return 0;
 		}
-		return children.size();
+
+		int minIndex = -1;
+		int maxIndex = children.size();
+
+		while (minIndex <= maxIndex) {
+			final int pivotIndex = (maxIndex + minIndex) / 2;
+			final INode pivot = children.get(pivotIndex);
+
+			if (pivot.containsOffset(offset)) {
+				return pivotIndex;
+			} else if (maxIndex - minIndex == 1) {
+				return maxIndex;
+			}
+
+			if (pivot.getStartOffset() > offset) {
+				maxIndex = Math.min(pivotIndex, maxIndex);
+			} else if (pivot.getEndOffset() < offset) {
+				minIndex = Math.max(pivotIndex, minIndex);
+			}
+		}
+
+		throw new AssertionError("No child found at offset " + offset);
 	}
 
 	private void insertChildAtIndex(final int index, final Node child) {
@@ -87,17 +104,66 @@ public abstract class Parent extends Node implements IParent {
 	 * @return the node at the given offset
 	 */
 	public INode getChildAt(final int offset) {
-		Assert.isTrue(containsOffset(offset), MessageFormat.format("Offset must be within {0}.", getRange()));
-		for (final INode child : children()) {
-			if (child.containsOffset(offset)) {
-				if (child instanceof IParent) {
-					return ((IParent) child).getChildAt(offset);
-				} else {
-					return child;
-				}
+		if (!containsOffset(offset)) {
+			throw new AssertionFailedException(MessageFormat.format("Offset must be within {0}.", getRange()));
+		}
+
+		if (offset == getStartOffset() || offset == getEndOffset()) {
+			return this;
+		}
+
+		if (children.isEmpty()) {
+			return new Text(this, getContent(), getRange().resizeBy(1, -1));
+		}
+
+		int minIndex = -1;
+		int maxIndex = children.size();
+
+		while (minIndex <= maxIndex) {
+			final int pivotIndex = (maxIndex + minIndex) / 2;
+			final INode pivot = children.get(pivotIndex);
+
+			if (pivot.containsOffset(offset)) {
+				return getChildIn(pivot, offset);
+			} else if (maxIndex - minIndex == 1) {
+				return createTextBetween(minIndex, maxIndex);
+			}
+
+			if (pivot.getStartOffset() > offset) {
+				maxIndex = Math.min(pivotIndex, maxIndex);
+			} else if (pivot.getEndOffset() < offset) {
+				minIndex = Math.max(pivotIndex, minIndex);
 			}
 		}
-		return this;
+
+		throw new AssertionError("No child found at offset " + offset);
+	}
+
+	private INode getChildIn(final INode child, final int offset) {
+		if (child instanceof IParent) {
+			return ((IParent) child).getChildAt(offset);
+		}
+		return child;
+	}
+
+	private Text createTextBetween(final int childIndex1, final int childIndex2) {
+		Assert.isTrue(childIndex1 < childIndex2);
+
+		final int startOffset;
+		if (childIndex1 < 0) {
+			startOffset = getStartOffset() + 1;
+		} else {
+			startOffset = children.get(childIndex1).getEndOffset() + 1;
+		}
+
+		final int endOffset;
+		if (childIndex2 >= children.size()) {
+			endOffset = getEndOffset() - 1;
+		} else {
+			endOffset = children.get(childIndex2).getStartOffset() - 1;
+		}
+
+		return new Text(this, getContent(), new ContentRange(startOffset, endOffset));
 	}
 
 	/**

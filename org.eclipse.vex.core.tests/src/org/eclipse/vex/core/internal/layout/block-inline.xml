@@ -258,7 +258,64 @@
 		</result>
 	</test>
 
+	<test id="Inline With Surrounding Text Split 3" layoutWidth="24">
+		<doc><![CDATA[ <root>hat <b>cat sat</b> bat</root> ]]></doc>
+		<result>
+			<box class="RootBox">
+				<box class="BlockElementBox">
+					<box class="BlockElementBox" element="root">
+						<box class="ParagraphBox">
+							<box class="LineBox">
+								<box class="DocumentTextBox" text="hat " />
+							</box>
+							<box class="LineBox">
+								<box class="PlaceholderBox" />
+								<box class="InlineElementBox">
+									<box class="DrawableBox" />
+									<box class="DocumentTextBox" text="cat " />
+								</box>
+							</box>
+							<box class="LineBox">
+								<box class="InlineElementBox">
+									<box class="DocumentTextBox" text="sat" />
+									<box class="PlaceholderBox" />
+									<box class="DrawableBox" />
+								</box>
+								<box class="DocumentTextBox" text=" " />
+							</box>
+							<box class="LineBox">
+								<box class="DocumentTextBox" text="bat" />
+								<box class="PlaceholderBox" />
+							</box>
+						</box>
+					</box>
+				</box>
+			</box>
+		</result>
+	</test>
 
+	<test id="Inline w/o marker" layoutWidth="100">
+		<doc><![CDATA[ <root><nomarker>cat sat</nomarker></root> ]]></doc>
+		<result>
+			<box class="RootBox">
+				<box class="BlockElementBox">
+					<box class="BlockElementBox" element="root">
+						<box class="ParagraphBox">
+							<box class="LineBox">
+								<box class="PlaceholderBox" />
+								<box class="InlineElementBox">
+									<box class="DocumentTextBox" text="cat " />
+									<box class="DocumentTextBox" text="sat" />
+									<box class="PlaceholderBox" />
+								</box>
+								<box class="PlaceholderBox" />
+							</box>
+						</box>
+					</box>
+				</box>
+			</box>
+		</result>
+	</test>
 
 	<test id="Block Child w/ Inline Before" layoutWidth="75">
 		<doc><![CDATA[ <root>Paris <p>Garters</p></root> ]]></doc>

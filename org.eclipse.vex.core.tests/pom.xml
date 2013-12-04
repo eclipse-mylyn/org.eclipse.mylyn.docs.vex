@@ -19,11 +19,6 @@
 				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>tycho-surefire-plugin</artifactId>
 				<version>${tycho-version}</version>
-				<configuration>
-					<useUIHarness>true</useUIHarness>
-					<testSuite>org.eclipse.vex.core.tests</testSuite>
-					<testClass>org.eclipse.vex.core.tests.VEXCoreTestSuite</testClass>
-				</configuration>
 			</plugin>
 		</plugins>
 	</build>

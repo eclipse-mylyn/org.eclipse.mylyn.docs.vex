@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2008 John Krasnay and others.
+ * Copyright (c) 2004, 2013 John Krasnay and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     John Krasnay - initial API and implementation
+ *     Carsten Hiesserich - performance optimization for split methods
  *******************************************************************************/
 package org.eclipse.vex.core.internal.layout;
 
@@ -46,9 +47,39 @@ public abstract class TextBox extends AbstractInlineBox implements InlineBox {
 	 * initialized.
 	 * 
 	 * @param context
-	 *            LayoutContext used to calculate size.
+	 *            LayoutContext used to calculate size. The correct font has to be set in the context's graphics before
+	 *            calling this method.
 	 */
 	protected void calculateSize(final LayoutContext context) {
+		String s = getText();
+		if (s.endsWith(NEWLINE_STRING)) {
+			s = s.substring(0, s.length() - 1);
+		}
+
+		final Graphics g = context.getGraphics();
+		final Styles styles = context.getStyleSheet().getStyles(getNode());
+
+		final FontMetrics fm = g.getFontMetrics();
+		if (s.length() > 1000) {
+			// g.stringWidth() fails randomly with long strings on windows. Such a long text will be splitted anyway,
+			// so it is safe to return a very long fixed width here instead.
+			setWidth(99999);
+		} else {
+			setWidth(g.stringWidth(s));
+		}
+		setHeight(styles.getLineHeight());
+		final int halfLeading = (getHeight() - (fm.getAscent() + fm.getDescent())) / 2;
+		setBaseline(halfLeading + fm.getAscent());
+	}
+
+	/**
+	 * Causes the box to recalculate its height and baseline. Subclasses should call this from their constructors after
+	 * they are initialized.
+	 * 
+	 * @param context
+	 *            LayoutContext used to calculate size.
+	 */
+	protected void calculateHeight(final LayoutContext context) {
 		String s = getText();
 		if (s.endsWith(NEWLINE_STRING)) {
 			s = s.substring(0, s.length() - 1);
@@ -59,10 +90,9 @@ public abstract class TextBox extends AbstractInlineBox implements InlineBox {
 		final FontResource font = g.createFont(styles.getFont());
 		final FontResource oldFont = g.setFont(font);
 		final FontMetrics fm = g.getFontMetrics();
-		setWidth(g.stringWidth(s));
 		setHeight(styles.getLineHeight());
 		final int halfLeading = (getHeight() - (fm.getAscent() + fm.getDescent())) / 2;
-		baseline = halfLeading + fm.getAscent();
+		setBaseline(halfLeading + fm.getAscent());
 		g.setFont(oldFont);
 		font.dispose();
 	}
@@ -72,6 +102,13 @@ public abstract class TextBox extends AbstractInlineBox implements InlineBox {
 	 */
 	public int getBaseline() {
 		return baseline;
+	}
+
+	/**
+	 * @see org.eclipse.vex.core.internal.layout.InlineBox#getBaseline()
+	 */
+	public void setBaseline(final int baseline) {
+		this.baseline = baseline;
 	}
 
 	/**
@@ -113,11 +150,6 @@ public abstract class TextBox extends AbstractInlineBox implements InlineBox {
 	 */
 	public static boolean isSplitChar(final char c) {
 		return Character.isWhitespace(c);
-	}
-
-	public boolean isEOL() {
-		final String s = getText();
-		return s.length() > 0 && s.charAt(s.length() - 1) == NEWLINE_CHAR;
 	}
 
 	/**
@@ -202,31 +234,44 @@ public abstract class TextBox extends AbstractInlineBox implements InlineBox {
 		g.drawLine(x, y, x + width, y);
 	}
 
+	@Override
+	public boolean isSplitable() {
+		return true;
+	}
+
 	/**
 	 * @see org.eclipse.vex.core.internal.layout.InlineBox#split(org.eclipse.vex.core.internal.layout.LayoutContext,
 	 *      int, boolean)
 	 */
+	@Override
 	public Pair split(final LayoutContext context, final int maxWidth, final boolean force) {
 
-		final char[] chars = getText().toCharArray();
+		final String text = getText();
+		final int length = text.length();
 
-		if (chars.length == 0) {
+		if (text.length() == 0) {
 			throw new IllegalStateException();
 		}
 
 		final Graphics g = context.getGraphics();
 		final Styles styles = context.getStyleSheet().getStyles(node);
+
 		final FontResource font = g.createFont(styles.getFont());
 		final FontResource oldFont = g.setFont(font);
 
 		int split = 0;
 		int next = 1;
+		int width = 0;
+		int splitWidth = 0;
 		boolean eol = false; // end of line found
-		while (next < chars.length) {
-			if (isSplitChar(chars[next - 1])) {
-				if (g.charsWidth(chars, 0, next) <= maxWidth) {
+		while (next < length) {
+			final char nextChar = text.charAt(next - 1);
+			if (isSplitChar(nextChar)) {
+				width += g.stringWidth(text.substring(split, next));
+				if (width <= maxWidth) {
 					split = next;
-					if (chars[next - 1] == NEWLINE_CHAR) {
+					splitWidth = width;
+					if (nextChar == NEWLINE_CHAR) {
 						eol = true;
 						break;
 					}
@@ -240,40 +285,53 @@ public abstract class TextBox extends AbstractInlineBox implements InlineBox {
 		if (force && split == 0) {
 			// find some kind of split
 			split = 1;
-			while (split < chars.length) {
-				if (g.charsWidth(chars, 0, split + 1) > maxWidth) {
+			splitWidth = width = g.stringWidth(text.substring(0, 1));
+			while (split < length) {
+				width += g.stringWidth(text.substring(split, split + 1));
+				if (width > maxWidth) {
 					break;
 				}
 				split++;
+				splitWidth = width;
 			}
-
 		}
 
 		// include any trailing spaces in the split
 		// this also grabs any leading spaces when split==0
+		final int spaceCharWidth = context.getGraphics().stringWidth(" ");
 		if (!eol) {
-			while (split < chars.length - 1 && chars[split] == ' ') {
+			while (split < length && text.charAt(split) == ' ') {
 				split++;
+				splitWidth += spaceCharWidth;
 			}
 		}
 
+		final Pair splitPair = splitAt(context, split, splitWidth, maxWidth);
+
+		// The created font is used by the calculateSize() method, so we have to keep it till after the splitAt method call.
 		g.setFont(oldFont);
 		font.dispose();
 
-		return splitAt(context, split);
+		return splitPair;
 	}
 
 	/**
 	 * Return a pair of boxes representing a split at the given offset. If split is zero, then the returned left box
 	 * should be null. If the split is equal to the length of the text, then the right box should be null.
-	 * 
+	 *
 	 * @param context
-	 *            LayoutContext used to calculate the sizes of the resulting boxes.
+	 *            LayoutContext used to calculate size. The correct font has to be set in the context's graphics before
+	 *            calling this method.
 	 * @param offset
 	 *            location of the split, relative to the start of the text box.
+	 * @param leftWidth
+	 *            Calculated width of the left box. The width has already been calculated by the calling class, so
+	 *            there's no need to calculated it again.
+	 * @param maxWidth
+	 *            The maximal width of the current split. Used to calculate the remaining width of the returned Pair.
 	 * @return
 	 */
-	public abstract Pair splitAt(LayoutContext context, int offset);
+	protected abstract Pair splitAt(LayoutContext context, int offset, int leftWidth, int maxWidth);
 
 	/**
 	 * @see java.lang.Object#toString()

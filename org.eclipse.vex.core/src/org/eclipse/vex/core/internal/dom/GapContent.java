@@ -9,9 +9,11 @@
  *     John Krasnay - initial API and implementation
  *     Igor Jacy Lino Campista - Java 5 warnings fixed (bug 311325)
  *     Florian Thienel - refactoring to full fledged DOM
+ *     Carsten Hiesserich - some optimization in getText methods
  *******************************************************************************/
 package org.eclipse.vex.core.internal.dom;
 
+import java.util.Iterator;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -37,7 +39,7 @@ public class GapContent implements IContent {
 	private char[] content;
 	private int gapStart;
 	private int gapEnd;
-	private TreeSet<GapContentPosition> positions = new TreeSet<GapContentPosition>();
+	private final TreeSet<GapContentPosition> positions = new TreeSet<GapContentPosition>();
 
 	/**
 	 * Create a GapContent with the given initial capacity.
@@ -113,14 +115,9 @@ public class GapContent implements IContent {
 	}
 
 	private void movePositions(final int startOffset, final int delta) {
-		final TreeSet<GapContentPosition> newPositions = new TreeSet<GapContentPosition>();
-		for (final GapContentPosition position : positions) {
-			if (position.getOffset() >= startOffset) {
-				position.setOffset(position.getOffset() + delta);
-			}
-			newPositions.add(position);
+		for (final GapContentPosition position : positions.tailSet(new GapContentPosition(startOffset))) {
+			position.setOffset(position.getOffset() + delta);
 		}
-		positions = newPositions;
 	}
 
 	public void insertTagMarker(final int offset) {
@@ -155,18 +152,17 @@ public class GapContent implements IContent {
 		moveGap(range.getEndOffset() + 1);
 		gapStart -= range.length();
 
-		final TreeSet<GapContentPosition> newPositions = new TreeSet<GapContentPosition>();
-		for (final GapContentPosition position : positions) {
-			if (position.getOffset() > range.getEndOffset()) {
-				position.setOffset(position.getOffset() - range.length());
-				newPositions.add(position);
-			} else if (position.getOffset() >= range.getStartOffset()) {
+		final SortedSet<GapContentPosition> tail = positions.tailSet(new GapContentPosition(range.getStartOffset()));
+		for (final Iterator<GapContentPosition> iterator = tail.iterator(); iterator.hasNext();) {
+			final GapContentPosition position = iterator.next();
+
+			if (position.getOffset() <= range.getEndOffset()) {
 				position.invalidate();
+				iterator.remove();
 			} else {
-				newPositions.add(position);
+				position.setOffset(position.getOffset() - range.length());
 			}
 		}
-		positions = newPositions;
 	}
 
 	public String getText() {
@@ -177,7 +173,8 @@ public class GapContent implements IContent {
 		Assert.isTrue(getRange().contains(range));
 
 		final int delta = gapEnd - gapStart;
-		final StringBuilder result = new StringBuilder();
+		// Use range length as initial capacity. This might be a bit too much, but that's better than having to resize the StringBuilder.
+		final StringBuilder result = new StringBuilder(range.length());
 		if (range.getEndOffset() < gapStart) {
 			appendPlainText(result, range);
 		} else if (range.getStartOffset() >= gapStart) {
@@ -190,7 +187,8 @@ public class GapContent implements IContent {
 	}
 
 	private void appendPlainText(final StringBuilder stringBuilder, final ContentRange range) {
-		for (int i = range.getStartOffset(); range.contains(i); i++) {
+		final int endOffset = range.getEndOffset();
+		for (int i = range.getStartOffset(); i <= endOffset; i++) {
 			final char c = content[i];
 			if (!isTagMarker(c)) {
 				stringBuilder.append(c);
@@ -206,16 +204,16 @@ public class GapContent implements IContent {
 		Assert.isTrue(getRange().contains(range));
 
 		final int delta = gapEnd - gapStart;
-		final StringBuilder result = new StringBuilder();
 		if (range.getEndOffset() < gapStart) {
-			appendRawText(result, range);
+			return new String(content, range.getStartOffset(), range.length());
 		} else if (range.getStartOffset() >= gapStart) {
-			appendRawText(result, range.moveBy(delta));
+			return new String(content, range.getStartOffset() + delta, range.length());
 		} else {
+			final StringBuilder result = new StringBuilder(range.length());
 			appendRawText(result, new ContentRange(range.getStartOffset(), gapStart - 1));
 			appendRawText(result, new ContentRange(gapEnd, range.getEndOffset() + delta));
+			return result.toString();
 		}
-		return result.toString();
 	}
 
 	private void appendRawText(final StringBuilder stringBuilder, final ContentRange range) {
@@ -295,7 +293,7 @@ public class GapContent implements IContent {
 	/*
 	 * Implementation of the Position interface.
 	 */
-	private static class GapContentPosition implements IPosition, Comparable<IPosition> {
+	private static class GapContentPosition implements IPosition {
 
 		private int offset;
 

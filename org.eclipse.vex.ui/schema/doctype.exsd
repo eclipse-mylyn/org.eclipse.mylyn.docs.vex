@@ -17,9 +17,10 @@
          </appinfo>
       </annotation>
       <complexType>
-         <sequence>
+         <choice>
             <element ref="doctype"/>
-         </sequence>
+            <element ref="schema"/>
+         </choice>
          <attribute name="point" type="string" use="required">
             <annotation>
                <documentation>
@@ -93,6 +94,30 @@
       </complexType>
    </element>
 
+   <element name="schema">
+      <complexType>
+         <sequence minOccurs="0" maxOccurs="unbounded">
+            <element ref="rootElement"/>
+         </sequence>
+         <attribute name="namespaceName" type="string" use="required">
+            <annotation>
+               <documentation>
+                  The namespace name that is the target of the defined XML-Schema
+               </documentation>
+            </annotation>
+         </attribute>
+      </complexType>
+   </element>
+
+   <annotation>
+      <appinfo>
+         <meta.section type="apiInfo"/>
+      </appinfo>
+      <documentation>
+         [Enter API information here.]
+      </documentation>
+   </annotation>
+
    <annotation>
       <appinfo>
          <meta.section type="since"/>
@@ -108,15 +133,6 @@
       </appinfo>
       <documentation>
          [Enter extension point usage example here.]
-      </documentation>
-   </annotation>
-
-   <annotation>
-      <appinfo>
-         <meta.section type="apiInfo"/>
-      </appinfo>
-      <documentation>
-         [Enter API information here.]
       </documentation>
    </annotation>
 

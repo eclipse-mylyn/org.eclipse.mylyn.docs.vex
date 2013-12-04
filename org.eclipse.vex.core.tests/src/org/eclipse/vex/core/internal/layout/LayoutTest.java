@@ -30,7 +30,6 @@ import org.eclipse.vex.core.internal.css.CssWhitespacePolicy;
 import org.eclipse.vex.core.internal.css.IStyleSheetProvider;
 import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.css.StyleSheetReader;
-import org.eclipse.vex.core.internal.dom.DummyValidator;
 import org.eclipse.vex.core.internal.io.DocumentReader;
 import org.eclipse.vex.core.provisional.dom.BaseNodeVisitorWithResult;
 import org.eclipse.vex.core.provisional.dom.ContentRange;
@@ -54,6 +53,8 @@ import org.xml.sax.helpers.DefaultHandler;
  * <ul>
  * <li>insertTextAction="someText" - Insert the given text at the end of the element.</li>
  * <li>removeTextAction="5" - Remove given length text from the start of the element.</li>
+ * <li>removeElementAction="1" - Remove the element that defined this box.</li>
+ * <li>shouldBeRemoved="1" - This box is expected to be removed;
  * <li>InvalidateAction="1" - Invalidates the element (only valid in BlockBox instances)</li>
  * </ul>
  * The expected layout state of an box may be checked with the attribute <code>layoutState="LAYOUT_XXX"</code> (
@@ -62,17 +63,18 @@ import org.xml.sax.helpers.DefaultHandler;
  * 
  */
 @RunWith(AllTests.class)
-public class LayoutTestSuite extends TestCase {
+public class LayoutTest extends TestCase {
 
 	public String id;
 	public String documentContent;
 	public int layoutWidth = 100;
 	public boolean performActions = false;
+	public boolean invalidateParentBlock;
 	public BoxSpec result;
 	public String css;
 
 	public static Test suite() throws ParserConfigurationException, FactoryConfigurationError, IOException, SAXException {
-		final TestSuite suite = new TestSuite(LayoutTestSuite.class.getName());
+		final TestSuite suite = new TestSuite(LayoutTest.class.getName());
 		suite.addTest(loadSuite("block-inline.xml"));
 		suite.addTest(loadSuite("before-after.xml"));
 		suite.addTest(loadSuite("linebreaks.xml"));
@@ -87,17 +89,17 @@ public class LayoutTestSuite extends TestCase {
 		final TestCaseBuilder builder = new TestCaseBuilder();
 		xmlReader.setContentHandler(builder);
 		// xmlReader.setEntityResolver(builder);
-		final URL url = LayoutTestSuite.class.getResource(filename);
+		final URL url = LayoutTest.class.getResource(filename);
 		xmlReader.parse(new InputSource(url.toString()));
 
 		final TestSuite suite = new TestSuite(filename);
-		for (final LayoutTestSuite test : builder.testCases) {
+		for (final LayoutTest test : builder.testCases) {
 			suite.addTest(test);
 		}
 		return suite;
 	}
 
-	public LayoutTestSuite() {
+	public LayoutTest() {
 		super("testLayout");
 	}
 
@@ -107,7 +109,7 @@ public class LayoutTestSuite extends TestCase {
 	}
 
 	public void testLayout() throws Exception {
-		final URL url = LayoutTestSuite.class.getResource(css);
+		final URL url = LayoutTest.class.getResource(css);
 		final StyleSheet styleSheet = new StyleSheetReader().read(url);
 
 		final FakeGraphics g = new FakeGraphics();
@@ -119,7 +121,7 @@ public class LayoutTestSuite extends TestCase {
 		context.setWhitespacePolicy(new CssWhitespacePolicy(styleSheet));
 
 		final DocumentReader reader = new DocumentReader();
-		reader.setValidator(new DummyValidator());
+		reader.setValidator(new LayoutTestValidator());
 		reader.setStyleSheetProvider(new IStyleSheetProvider() {
 			public StyleSheet getStyleSheet(final DocumentContentModel documentContentModel) {
 				return styleSheet;
@@ -127,6 +129,7 @@ public class LayoutTestSuite extends TestCase {
 		});
 		reader.setWhitespacePolicyFactory(CssWhitespacePolicy.FACTORY);
 		final IDocument document = reader.read(documentContent);
+		document.setValidator(reader.getValidator());
 		context.setDocument(document);
 
 		final RootBox rootBox = new RootBox(context, document, layoutWidth);
@@ -143,7 +146,8 @@ public class LayoutTestSuite extends TestCase {
 		}
 	}
 
-	private static void performActions(final BoxSpec boxSpec, final Box box, final IDocument doc) {
+	private void performActions(final BoxSpec boxSpec, final Box box, final IDocument doc) {
+
 		if (boxSpec.insertTextAction != null) {
 			doc.insertText(box.getNode().getEndOffset(), boxSpec.insertTextAction);
 		}
@@ -158,12 +162,36 @@ public class LayoutTestSuite extends TestCase {
 			doc.getContent().remove(new ContentRange(startOffset + 1, startOffset + boxSpec.removeTextAction));
 		}
 
+		if (boxSpec.removeElementAction) {
+			if (box.getNode() == null) {
+				fail(String.format("Error in test configuration. Can not remove element for box'%s'", boxSpec.toString()));
+			}
+			System.out.println("Removing element " + box.getNode());
+			final int startOffset = box.getNode().getStartOffset();
+			final int endOffset = box.getNode().getEndOffset();
+			doc.delete(new ContentRange(startOffset, endOffset));
+			invalidateParentBlock = true;
+			return;
+		}
+
 		if (boxSpec.invalidateAction && box instanceof BlockBox) {
 			((BlockBox) box).invalidate(true);
 		}
 
+		final List<BoxSpec> toRemove = new ArrayList<BoxSpec>();
 		for (int i = 0; i < boxSpec.children.size(); i++) {
-			performActions(boxSpec.children.get(i), box.getChildren()[i], doc);
+			final BoxSpec childSpec = boxSpec.children.get(i);
+			performActions(childSpec, box.getChildren()[i], doc);
+			if (childSpec.removeElementAction || childSpec.shouldBeRemoved) {
+				toRemove.add(childSpec);
+			}
+		}
+
+		boxSpec.children.removeAll(toRemove);
+
+		if (invalidateParentBlock && box instanceof BlockBox && box.getNode() != null) {
+			((BlockBox) box).invalidate(true);
+			invalidateParentBlock = false;
 		}
 	}
 
@@ -248,9 +276,9 @@ public class LayoutTestSuite extends TestCase {
 
 	private static class TestCaseBuilder extends DefaultHandler {
 
-		private List<LayoutTestSuite> testCases;
+		private List<LayoutTest> testCases;
 		private String css;
-		private LayoutTestSuite testCase;
+		private LayoutTest testCase;
 		private BoxSpec boxSpec;
 		private Stack<BoxSpec> boxSpecs;
 		private boolean inDoc;
@@ -285,7 +313,7 @@ public class LayoutTestSuite extends TestCase {
 		public void startElement(final String uri, final String localName, final String qName, final Attributes attributes) throws SAXException {
 
 			if (qName.equals("testcases")) {
-				testCases = new ArrayList<LayoutTestSuite>();
+				testCases = new ArrayList<LayoutTest>();
 				css = attributes.getValue("css");
 				if (css == null) {
 					css = "test.css";
@@ -293,7 +321,7 @@ public class LayoutTestSuite extends TestCase {
 				testCase = null;
 				boxSpecs = new Stack<BoxSpec>();
 			} else if (qName.equals("test")) {
-				testCase = new LayoutTestSuite();
+				testCase = new LayoutTest();
 				testCase.id = attributes.getValue("id");
 				testCase.css = css;
 				final String layoutWidth = attributes.getValue("layoutWidth");
@@ -319,7 +347,9 @@ public class LayoutTestSuite extends TestCase {
 				} catch (final NumberFormatException e) {
 					boxSpec.removeTextAction = 0;
 				}
+				boxSpec.removeElementAction = attributes.getValue("removeElementAction") != null;
 				boxSpec.invalidateAction = attributes.getValue("invalidateAction") != null;
+				boxSpec.shouldBeRemoved = attributes.getValue("shouldBeRemoved") != null;
 				String layoutStateAttr = attributes.getValue("layoutState");
 				if (layoutStateAttr != null) {
 					layoutStateAttr = layoutStateAttr.trim().toLowerCase();
@@ -353,6 +383,8 @@ public class LayoutTestSuite extends TestCase {
 		public byte layoutState = -1;
 		public String insertTextAction;
 		public int removeTextAction;
+		public boolean removeElementAction;
+		public boolean shouldBeRemoved;
 		public boolean invalidateAction = false;
 	}
 

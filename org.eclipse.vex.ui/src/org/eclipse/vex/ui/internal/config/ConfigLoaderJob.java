@@ -108,7 +108,7 @@ public class ConfigLoaderJob extends Job implements ConfigurationLoader {
 	}
 
 	public boolean isLoading() {
-		return getState() == Job.RUNNING;
+		return getState() == Job.RUNNING || getState() == Job.WAITING;
 	}
 
 	public void load(final Runnable whenDone) {

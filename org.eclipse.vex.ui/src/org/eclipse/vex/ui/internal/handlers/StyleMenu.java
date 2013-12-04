@@ -20,6 +20,7 @@ import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.vex.ui.internal.VexPlugin;
+import org.eclipse.vex.ui.internal.config.DocumentType;
 import org.eclipse.vex.ui.internal.config.Style;
 import org.eclipse.vex.ui.internal.editor.VexEditor;
 
@@ -37,8 +38,8 @@ public class StyleMenu extends ContributionItem {
 			return;
 		}
 
-		final String publicId = editor.getDocumentType().getPublicId();
-		for (final Style style : VexPlugin.getDefault().getConfigurationRegistry().getStyles(publicId)) {
+		final DocumentType doctype = editor.getDocumentType();
+		for (final Style style : VexPlugin.getDefault().getConfigurationRegistry().getStyles(doctype)) {
 			final MenuItem menuItem = new MenuItem(menu, SWT.RADIO, index);
 			menuItem.setText(style.getName());
 			menuItem.setSelection(style == editor.getStyle());

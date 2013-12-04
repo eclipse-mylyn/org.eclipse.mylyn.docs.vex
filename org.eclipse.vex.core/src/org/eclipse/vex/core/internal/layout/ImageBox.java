@@ -98,7 +98,4 @@ public class ImageBox extends AbstractInlineBox {
 		return false;
 	}
 
-	public Pair split(final LayoutContext context, final int maxWidth, final boolean force) {
-		return new Pair(null, this);
-	}
 }

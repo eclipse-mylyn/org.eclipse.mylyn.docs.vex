@@ -1,18 +1,19 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2008 John Krasnay and others.
+ * Copyright (c) 2004, 2013 John Krasnay and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     John Krasnay - initial API and implementation
+ *     Carsten Hiesserich - performance optimization for split methods
  *******************************************************************************/
 package org.eclipse.vex.core.internal.layout;
 
 import java.text.MessageFormat;
 
-import org.eclipse.core.runtime.Assert;
+import org.eclipse.core.runtime.AssertionFailedException;
 import org.eclipse.vex.core.internal.core.ColorResource;
 import org.eclipse.vex.core.internal.core.FontResource;
 import org.eclipse.vex.core.internal.core.Graphics;
@@ -25,7 +26,7 @@ import org.eclipse.vex.core.provisional.dom.INode;
  */
 public class DocumentTextBox extends TextBox {
 
-	private final int startRelative;
+	private int startRelative;
 	private final int endRelative;
 
 	/**
@@ -42,14 +43,42 @@ public class DocumentTextBox extends TextBox {
 	 */
 	public DocumentTextBox(final LayoutContext context, final INode node, final int startOffset, final int endOffset) {
 		super(node);
-		Assert.isTrue(startOffset <= endOffset, MessageFormat.format("DocumentTextBox for {2}: startOffset {0} > endOffset {1}", startOffset, endOffset, node));
+		if (startOffset > endOffset) {
+			// Do not use Assert.isTrue. This Contructor is called very often and the use of Assert.isTrue would evaluate the Message.format every time.
+			throw new AssertionFailedException(MessageFormat.format("assertion failed: DocumentTextBox for {2}: startOffset {0} > endOffset {1}", startOffset, endOffset, node)); //$NON-NLS-1$
+		}
 
-		startRelative = startOffset - node.getStartOffset();
-		endRelative = endOffset - node.getStartOffset();
-		calculateSize(context);
+		final int nodeStart = node.getStartOffset();
+		startRelative = startOffset - nodeStart;
+		endRelative = endOffset - nodeStart;
 
-		Assert.isTrue(getText().length() >= endOffset - startOffset,
-				MessageFormat.format("DocumentTextBox for {2}: text shorter than range: {0} < {1}", getText().length(), endOffset - startOffset, node));
+		// The box constructed here will be splitted, so there's no need to calculate the width here.
+		calculateHeight(context);
+		setWidth(-1);
+
+		if (startOffset <= nodeStart || endOffset >= node.getEndOffset()) {
+			// Do not use Assert.isTrue. This Contructor is called very often and the use of Assert.isTrue would evaluate the Message.format every time.
+			throw new AssertionFailedException(MessageFormat.format("assertion failed: Range of DocumentTextBox for {0} exceeds content of parent node", node)); //$NON-NLS-1$
+		}
+	}
+
+	/**
+	 * Class constructor used by the splitAt method.
+	 * 
+	 * @param other
+	 *            Instance of DocumentTextBox that should be splitted.
+	 * @param endOffset
+	 *            The endOffset of the new box.
+	 * @param width
+	 *            The calculated layout width of the new box.
+	 */
+	private DocumentTextBox(final DocumentTextBox other, final int endOffset, final int width) {
+		super(other.getNode());
+		startRelative = other.startRelative;
+		endRelative = endOffset - getNode().getStartOffset();
+		setWidth(width);
+		setHeight(other.getHeight());
+		setBaseline(other.getBaseline());
 	}
 
 	/**
@@ -81,7 +110,14 @@ public class DocumentTextBox extends TextBox {
 	 */
 	@Override
 	public String getText() {
-		return getNode().getText(new ContentRange(getStartOffset(), getEndOffset()));
+		// The content range of this box can not include tag markers, so we can use IContent#getRawText here. This
+		// method is dramatically faster than IContent#getText
+		return getNode().getContent().getRawText(new ContentRange(getStartOffset(), getEndOffset()));
+	}
+
+	@Override
+	public boolean isEOL() {
+		return getNode().getContent().charAt(getEndOffset()) == NEWLINE_CHAR;
 	}
 
 	/**
@@ -164,28 +200,36 @@ public class DocumentTextBox extends TextBox {
 	 * @see org.eclipse.vex.core.internal.layout.TextBox#splitAt(int)
 	 */
 	@Override
-	public Pair splitAt(final LayoutContext context, final int offset) {
+	protected Pair splitAt(final LayoutContext context, final int offset, final int leftWidth, final int maxWidth) {
 
 		if (offset < 0 || offset > endRelative - startRelative + 1) {
 			throw new IllegalStateException();
 		}
 
 		final int split = getStartOffset() + offset;
+		int remaining = maxWidth;
 
 		DocumentTextBox left;
 		if (offset == 0) {
 			left = null;
 		} else {
-			left = new DocumentTextBox(context, getNode(), getStartOffset(), split - 1);
+			left = new DocumentTextBox(this, split - 1, leftWidth);
+			remaining -= leftWidth;
 		}
 
 		InlineBox right;
 		if (split > getEndOffset()) {
 			right = null;
 		} else {
-			right = new DocumentTextBox(context, getNode(), split, getEndOffset());
+			// Instead of creating a new box, we reuse this one
+			startRelative = split - getNode().getStartOffset();
+			if (left == null) {
+				calculateSize(context);
+				remaining -= getWidth();
+			}
+			right = this;
 		}
-		return new Pair(left, right);
+		return new Pair(left, right, remaining);
 	}
 
 	/**
