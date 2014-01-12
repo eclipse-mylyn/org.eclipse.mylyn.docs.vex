@@ -24,7 +24,6 @@ import org.eclipse.vex.core.internal.core.Graphics;
 import org.eclipse.vex.core.internal.core.Insets;
 import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.css.Styles;
-import org.eclipse.vex.core.internal.widget.IBoxFilter;
 import org.eclipse.vex.core.provisional.dom.BaseNodeVisitorWithResult;
 import org.eclipse.vex.core.provisional.dom.ContentRange;
 import org.eclipse.vex.core.provisional.dom.IComment;
@@ -412,38 +411,12 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 
 		if (direct) {
 			layoutState = LAYOUT_REDO;
-			if (getParent() instanceof AbstractBlockBox) {
-				// The parent box may contain text elements after the edited offset, that has to be updated
-				((AbstractBlockBox) getParent()).invalidateChildrenAfterOffset(getStartOffset());
-			}
-		} else if (layoutState != LAYOUT_REDO) {
+		} else {
 			layoutState = LAYOUT_PROPAGATE;
 		}
 
 		if (getParent() instanceof AbstractBlockBox) {
 			((AbstractBlockBox) getParent()).invalidate(false);
-		}
-	}
-
-	/**
-	 * Checks if there are any children with content after an invalidated element. If so, the box has to update those
-	 * children.
-	 * 
-	 * @param offset
-	 *            The offset of the edited element
-	 */
-	protected void invalidateChildrenAfterOffset(final int offset) {
-		final IBoxFilter filter = new IBoxFilter() {
-			public boolean matches(final Box box) {
-				return box.hasContent() && box.getStartOffset() > offset;
-			}
-		};
-
-		for (final Box child : getChildren()) {
-			if (filter.matches(child)) {
-				layoutState = LAYOUT_REDO;
-				break;
-			}
 		}
 	}
 
