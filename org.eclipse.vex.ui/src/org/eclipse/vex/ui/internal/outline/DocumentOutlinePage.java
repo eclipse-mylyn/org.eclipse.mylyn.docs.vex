@@ -19,6 +19,8 @@ import java.text.MessageFormat;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.jface.viewers.DoubleClickEvent;
+import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
@@ -245,6 +247,7 @@ public class DocumentOutlinePage extends Page implements IContentOutlinePage {
 		document.addDocumentListener(documentListener);
 
 		treeViewer.addSelectionChangedListener(selectionListener);
+		treeViewer.addDoubleClickListener(doubleClickListener);
 	}
 
 	/**
@@ -317,11 +320,32 @@ public class DocumentOutlinePage extends Page implements IContentOutlinePage {
 						// way to make sure we end up with the
 						// caret at the top of the viewport
 						vexWidget.moveTo(node.getEndPosition());
-						vexWidget.moveTo(node.getStartPosition().moveBy(1));
+						vexWidget.moveTo(node.getStartPosition().moveBy(1), true);
 					}
 				}
 			}
 		}
+	};
+
+	/**
+	 * Receives double click events from our TreeViewer. We simply give focus to the VexWidget here. The first click
+	 * already moved the caret to the selected element.
+	 */
+	private final IDoubleClickListener doubleClickListener = new IDoubleClickListener() {
+
+		@Override
+		public void doubleClick(final DoubleClickEvent event) {
+			if (treeViewer.getTree().isFocusControl()) {
+				final TreeItem[] selected = treeViewer.getTree().getSelection();
+				if (selected.length > 0) {
+					final INode node = (INode) selected[0].getData();
+					final VexWidget vexWidget = vexEditor.getVexWidget();
+					vexWidget.moveTo(node.getStartPosition().moveBy(1));
+					vexWidget.setFocus();
+				}
+			}
+		}
+
 	};
 
 	private final IVexEditorListener vexEditorListener = new EditorEventAdapter() {
