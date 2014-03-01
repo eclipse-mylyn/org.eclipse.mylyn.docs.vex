@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<setup:Project setup:toolVersion="8" xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:setup="http://www.eclipse.org/CDO/releng/setup/1.0" name="Vex" label="Vex">
+  <setupTasks xsi:type="setup:ContextVariableTask" documentation="Location of Vex's Git clone." name="git.clone" value="${setup.branch.dir/git/vex}" stringSubstitution="true" label=""/>
+  <branches name="master">
+    <setupTasks xsi:type="setup:GitCloneTask" location="${git.clone}" remoteURI="ssh://git.eclipse.org:29418/mylyn/org.eclipse.mylyn.docs.vex" checkoutBranch="master"/>
+    <setupTasks xsi:type="setup:TargletTask" name="Vex">
+      <roots id="org.eclipse.vex.releng"/>
+      <sourceLocators rootFolder="${git.clone}"/>
+      <repositoryLists name="Kepler">
+        <p2Repositories url="http://download.eclipse.org/eclipse/updates/4.3"/>
+        <p2Repositories url="http://download.eclipse.org/releases/kepler"/>
+        <p2Repositories url="http://download.eclipse.org/tools/orbit/downloads/drops/R20110523182458/repository"/>
+      </repositoryLists>
+    </setupTasks>
+  </branches>
+</setup:Project>
