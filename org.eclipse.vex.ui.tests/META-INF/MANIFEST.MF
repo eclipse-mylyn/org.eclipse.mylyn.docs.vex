@@ -16,3 +16,8 @@ Require-Bundle: org.eclipse.vex.core;bundle-version="[1.1.0,2.0.0)",
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
 Bundle-Localization: plugin
 Bundle-ClassPath: .
+Export-Package: org.eclipse.vex.ui.internal.config.tests;x-internal:=true,
+ org.eclipse.vex.ui.internal.editor.tests;x-internal:=true,
+ org.eclipse.vex.ui.internal.namespace.tests;x-internal:=true,
+ org.eclipse.vex.ui.internal.outline.tests;x-internal:=true,
+ tests.resources
