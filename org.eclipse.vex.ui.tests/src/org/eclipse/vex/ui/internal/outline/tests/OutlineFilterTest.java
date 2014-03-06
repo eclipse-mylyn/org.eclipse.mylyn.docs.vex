@@ -27,7 +27,6 @@ import org.eclipse.vex.ui.internal.outline.OutlineFilter;
 import org.junit.Before;
 import org.junit.Test;
 
-@SuppressWarnings("restriction")
 public class OutlineFilterTest {
 
 	private OutlineFilter filter;

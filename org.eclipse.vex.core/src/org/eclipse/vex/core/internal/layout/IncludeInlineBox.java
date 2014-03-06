@@ -19,7 +19,6 @@ public class IncludeInlineBox extends CompositeInlineBox {
 	private final INode node;
 	private InlineBox[] children;
 	private InlineBox firstContentChild = null;
-	private InlineBox lastContentChild = null;
 	private int baseline;
 
 	/**
@@ -94,11 +93,8 @@ public class IncludeInlineBox extends CompositeInlineBox {
 		this.children = children;
 		layout(context);
 		for (final InlineBox child : children) {
-			if (child.hasContent()) {
-				if (firstContentChild == null) {
-					firstContentChild = child;
-				}
-				lastContentChild = child;
+			if (child.hasContent() && firstContentChild == null) {
+				firstContentChild = child;
 			}
 		}
 	}

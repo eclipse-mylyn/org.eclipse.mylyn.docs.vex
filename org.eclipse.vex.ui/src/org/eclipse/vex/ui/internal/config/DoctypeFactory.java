@@ -27,7 +27,6 @@ public class DoctypeFactory implements IConfigItemFactory {
 	private static final String[] EXTS = new String[] { "dtd" }; //$NON-NLS-1$
 
 	private static final String ELT_DOCTYPE = "doctype"; //$NON-NLS-1$
-	private static final String ELT_SCHEMA = "schema"; //$NON-NLS-1$
 	private static final String ATTR_OUTLINE_PROVIDER = "outlineProvider"; //$NON-NLS-1$
 	private static final String ATTR_SYSTEM_ID = "systemId"; //$NON-NLS-1$
 	private static final String ATTR_PUBLIC_ID = "publicId"; //$NON-NLS-1$

@@ -30,7 +30,6 @@ import org.eclipse.vex.ui.internal.handlers.VexHandlerUtil;
 import org.junit.Before;
 import org.junit.Test;
 
-@SuppressWarnings("restriction")
 public class HandlerUtilTest {
 
 	private IVexWidget widget;

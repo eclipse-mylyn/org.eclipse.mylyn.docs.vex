@@ -31,7 +31,6 @@ import org.eclipse.vex.ui.internal.outline.DefaultOutlineProvider;
 import org.junit.Before;
 import org.junit.Test;
 
-@SuppressWarnings("restriction")
 public class OutlineProviderTest {
 
 	private DefaultOutlineProvider outlineProvider;
