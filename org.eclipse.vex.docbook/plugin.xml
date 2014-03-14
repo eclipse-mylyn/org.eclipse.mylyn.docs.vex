@@ -3,8 +3,12 @@
 <plugin>
 
 	<extension point="org.eclipse.core.contenttype.contentTypes">
-		<content-type id="org.eclipse.vex.ui.docbook" name="%contentType.name"
-			base-type="org.eclipse.vex.ui.XmlDocument" file-extensions="xml, docbook">
+		<content-type
+        base-type="org.eclipse.vex.ui.XmlDocument"
+        file-extensions="xml,docbook"
+        id="org.eclipse.vex.ui.docbook"
+        name="%contentType.name"
+        priority="low">
 		</content-type>
 	</extension>
  <extension

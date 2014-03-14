@@ -5,10 +5,10 @@
          point="org.eclipse.core.contenttype.contentTypes">
       <content-type
             base-type="org.eclipse.vex.ui.XmlDocument"
-            file-extensions="xml, projectplan"
+            file-extensions="xml,projectplan"
             id="org.eclipse.vex.projectplan"
             name="%contentType.name"
-            priority="normal">
+            priority="low">
       </content-type>
    </extension>
    <extension

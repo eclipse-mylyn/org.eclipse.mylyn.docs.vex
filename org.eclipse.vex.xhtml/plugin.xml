@@ -2,8 +2,12 @@
 <?eclipse version="3.4"?>
 <plugin>
 	<extension point="org.eclipse.core.contenttype.contentTypes">
-		<content-type id="org.eclipse.vex.ui.xhtml" name="%contentType.name"
-			base-type="org.eclipse.vex.ui.XmlDocument" file-extensions="xml, xhtml">
+		<content-type
+        base-type="org.eclipse.vex.ui.XmlDocument"
+        file-extensions="xml,xhtml"
+        id="org.eclipse.vex.ui.xhtml"
+        name="%contentType.name"
+        priority="low">
 		</content-type>
 	</extension>
  <extension
