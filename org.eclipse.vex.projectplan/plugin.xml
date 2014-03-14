@@ -18,10 +18,6 @@
                name="http://www.eclipse.org/project/plan"
                uri="xsd/plan.xsd">
          </uri>
-         <uri
-               name="http://www.w3.org/1999/xhtml"
-               uri="http://www.w3.org/2002/08/xhtml/xhtml1-strict.xsd">
-         </uri>
       </catalogContribution>
    </extension>
    <extension

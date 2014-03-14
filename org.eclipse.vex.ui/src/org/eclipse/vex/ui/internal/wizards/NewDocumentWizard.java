@@ -22,17 +22,11 @@ import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.Wizard;
-import org.eclipse.ui.IEditorDescriptor;
-import org.eclipse.ui.IEditorRegistry;
 import org.eclipse.ui.INewWizard;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
-import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.ide.IDE;
-import org.eclipse.ui.internal.registry.EditorDescriptor;
-import org.eclipse.ui.internal.registry.EditorRegistry;
-import org.eclipse.ui.internal.registry.FileEditorMapping;
 import org.eclipse.ui.wizards.newresource.BasicNewResourceWizard;
 import org.eclipse.vex.core.internal.css.CssWhitespacePolicy;
 import org.eclipse.vex.core.internal.dom.Document;
@@ -95,8 +89,6 @@ public class NewDocumentWizard extends Wizard implements INewWizard {
 			final IFile file = filePage.createNewFile();
 			IDE.setDefaultEditor(file, VexEditor.ID);
 
-			registerEditorForFilename("*." + file.getFileExtension(), VexEditor.ID); //$NON-NLS-1$
-
 			// Open editor on new file.
 			final IWorkbenchWindow activeWorkbenchWindow = workbench.getActiveWorkbenchWindow();
 			if (activeWorkbenchWindow != null) {
@@ -156,76 +148,4 @@ public class NewDocumentWizard extends Wizard implements INewWizard {
 		return document;
 	}
 
-	/*
-	 * NOTE: this method uses internal, undocumented Eclipse functionality. It may therefore break in a future version
-	 * of Eclipse.
-	 */
-	private static void registerEditorForFilename(final String fileName, final String editorId) {
-
-		final EditorDescriptor ed = getEditorDescriptor(editorId);
-		if (ed == null) {
-			return;
-		}
-
-		final IEditorRegistry reg = PlatformUI.getWorkbench().getEditorRegistry();
-		final EditorRegistry ereg = (EditorRegistry) reg;
-		final FileEditorMapping[] mappings = (FileEditorMapping[]) ereg.getFileEditorMappings();
-		FileEditorMapping mapping = null;
-		for (final FileEditorMapping fem : mappings) {
-			if (fem.getLabel().equals(fileName)) {
-				mapping = fem;
-				break;
-			}
-		}
-
-		if (mapping != null) {
-			// found mapping for fileName
-			// make sure it includes our editor
-			for (final IEditorDescriptor editor : mapping.getEditors()) {
-				if (editor.getId().equals(editorId)) {
-					// already mapped
-					return;
-				}
-			}
-
-			// editor not in the list, so add it
-			mapping.addEditor(ed);
-			ereg.setFileEditorMappings(mappings);
-			ereg.saveAssociations();
-
-		} else {
-			// no mapping found for the filename
-			// let's add one
-			String name = null;
-			String ext = null;
-			final int iDot = fileName.lastIndexOf('.');
-			if (iDot == -1) {
-				name = fileName;
-			} else {
-				name = fileName.substring(0, iDot);
-				ext = fileName.substring(iDot + 1);
-			}
-
-			mapping = new FileEditorMapping(name, ext);
-			final FileEditorMapping[] newMappings = new FileEditorMapping[mappings.length + 1];
-			mapping.addEditor(ed);
-
-			System.arraycopy(mappings, 0, newMappings, 0, mappings.length);
-			newMappings[mappings.length] = mapping;
-			ereg.setFileEditorMappings(newMappings);
-			ereg.saveAssociations();
-		}
-
-	}
-
-	private static EditorDescriptor getEditorDescriptor(final String editorId) {
-		final EditorRegistry reg = (EditorRegistry) PlatformUI.getWorkbench().getEditorRegistry();
-		for (final IEditorDescriptor editor : reg.getSortedEditorsFromPlugins()) {
-			if (editor.getId().equals(editorId)) {
-				return (EditorDescriptor) editor;
-			}
-		}
-
-		return null;
-	}
 }

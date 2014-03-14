@@ -42,8 +42,6 @@ import org.eclipse.ui.dialogs.WizardNewProjectReferencePage;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.ide.undo.CreateProjectOperation;
 import org.eclipse.ui.ide.undo.WorkspaceUndoUtil;
-import org.eclipse.ui.internal.ide.IDEWorkbenchPlugin;
-import org.eclipse.ui.internal.ide.StatusUtil;
 import org.eclipse.ui.statushandlers.IStatusAdapterConstants;
 import org.eclipse.ui.statushandlers.StatusAdapter;
 import org.eclipse.ui.statushandlers.StatusManager;
@@ -158,16 +156,15 @@ public class NewPluginProjectWizard extends Wizard implements INewWizard, IExecu
 				final CoreException cause = (CoreException) t.getCause();
 				final StatusAdapter status;
 				if (cause.getStatus().getCode() == IResourceStatus.CASE_VARIANT_EXISTS) {
-					status = new StatusAdapter(StatusUtil.newStatus(IStatus.WARNING,
-							MessageFormat.format("The underlying file system is case insensitive. There is an existing project or directory that conflicts with ''{0}''.", newProjectHandle.getName()),
-							cause));
+					status = new StatusAdapter(new Status(IStatus.WARNING, VexPlugin.ID, MessageFormat.format(
+							"The underlying file system is case insensitive. There is an existing project or directory that conflicts with ''{0}''.", newProjectHandle.getName()), cause));
 				} else {
-					status = new StatusAdapter(StatusUtil.newStatus(cause.getStatus().getSeverity(), "Creation Problems", cause));
+					status = new StatusAdapter(new Status(cause.getStatus().getSeverity(), VexPlugin.ID, "Creation Problems", cause));
 				}
 				status.setProperty(IStatusAdapterConstants.TITLE_PROPERTY, "Creation Problems");
 				StatusManager.getManager().handle(status, StatusManager.BLOCK);
 			} else {
-				final StatusAdapter status = new StatusAdapter(new Status(IStatus.WARNING, IDEWorkbenchPlugin.IDE_WORKBENCH, 0, MessageFormat.format("Internal error: {0}", t.getMessage()), t));
+				final StatusAdapter status = new StatusAdapter(new Status(IStatus.WARNING, VexPlugin.ID, 0, MessageFormat.format("Internal error: {0}", t.getMessage()), t));
 				status.setProperty(IStatusAdapterConstants.TITLE_PROPERTY, "Creation Problems");
 				StatusManager.getManager().handle(status, StatusManager.LOG | StatusManager.BLOCK);
 			}

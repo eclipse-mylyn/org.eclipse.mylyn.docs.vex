@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2009 Holger Voormann and others.
+ * Copyright (c) 2009, 2014 Holger Voormann and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -25,7 +25,7 @@ import org.eclipse.vex.core.provisional.dom.IElement;
 import org.eclipse.vex.ui.internal.Messages;
 
 /**
- * Abstract supper class of all command handlers which can be performed on a {@link VexWidget}.
+ * Abstract super class of all command handlers which can be performed on a {@link VexWidget}.
  * 
  * @see IVexWidgetHandler
  */
@@ -49,7 +49,7 @@ public abstract class AbstractVexWidgetHandler extends AbstractHandler implement
 	 * @param dynamicLabelId
 	 *            the ID of the message where <code>{0}</code> is replaced with the name of the current element
 	 */
-	public void updateElement(final UIElement element, final Map parameters, final String windowScopeDynamicLabelId, final String partsiteScopeDynamicLabelId) {
+	public void updateElement(final UIElement element, @SuppressWarnings("rawtypes") final Map parameters, final String windowScopeDynamicLabelId, final String partsiteScopeDynamicLabelId) {
 		final Object windowObject = parameters.get(IServiceScopes.WINDOW_SCOPE);
 		if (!(windowObject instanceof IWorkbenchWindow)) {
 			return;

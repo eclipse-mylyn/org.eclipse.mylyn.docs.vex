@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2013 John Krasnay and others.
+ * Copyright (c) 2004, 2014 John Krasnay and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -26,14 +26,7 @@ public class RemoveTagHandler extends AbstractVexWidgetHandler implements IEleme
 	/** ID of the corresponding remove element command. */
 	public static final String COMMAND_ID = "org.eclipse.vex.ui.RemoveTagCommand"; //$NON-NLS-1$
 
-	/**
-	 * The message ID of the command label which is in window scope displayed in the 'Remove' menu only.
-	 */
 	private static final String WINDOW_SCOPE_DYNAMIC_LABEL_ID = "command.removeTag.inRemoveMenu.dynamicName"; //$NON-NLS-1$
-
-	/**
-	 * The message ID of the command label which is in partsite scope displayed in the context menu.
-	 */
 	private static final String PARTSITE_SCOPE_DYNAMIC_LABEL_ID = "command.removeTag.dynamicName"; //$NON-NLS-1$
 
 	@Override
@@ -44,7 +37,7 @@ public class RemoveTagHandler extends AbstractVexWidgetHandler implements IEleme
 	}
 
 	@Override
-	public void updateElement(final UIElement element, final Map parameters) {
+	public void updateElement(final UIElement element, @SuppressWarnings("rawtypes") final Map parameters) {
 		updateElement(element, parameters, WINDOW_SCOPE_DYNAMIC_LABEL_ID, PARTSITE_SCOPE_DYNAMIC_LABEL_ID);
 	}
 

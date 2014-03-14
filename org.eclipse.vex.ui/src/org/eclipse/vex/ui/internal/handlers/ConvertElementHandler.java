@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2008 John Krasnay and others.
+ * Copyright (c) 2004, 2014 John Krasnay and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -33,7 +33,7 @@ public class ConvertElementHandler extends AbstractVexWidgetHandler implements I
 		ContentAssist.openQuickFixContentAssist(widget);
 	}
 
-	public void updateElement(final UIElement element, final Map parameters) {
+	public void updateElement(final UIElement element, @SuppressWarnings("rawtypes") final Map parameters) {
 		updateElement(element, parameters, LABEL_ID, LABEL_ID);
 	}
 
