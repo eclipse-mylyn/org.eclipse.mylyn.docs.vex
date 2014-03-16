@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     John Krasnay - initial API and implementation
  *     Igor Jacy Lino Campista - Java 5 warnings fixed (bug 311325)
@@ -130,10 +130,11 @@ public class BlockElementBox extends AbstractBlockBox {
 		final List<Box> childList = new ArrayList<Box>();
 
 		final StyleSheet styleSheet = context.getStyleSheet();
+		final Styles styles = styleSheet.getStyles(node);
 
 		// :before content
 		List<InlineBox> beforeInlines = null;
-		final IElement before = styleSheet.getPseudoElement(node, CSS.PSEUDO_BEFORE, true);
+		final IElement before = styleSheet.getPseudoElementBefore(node);
 		if (before != null) {
 			final Styles beforeStyles = styleSheet.getStyles(before);
 			if (beforeStyles.getDisplay().equals(CSS.INLINE)) {
@@ -145,7 +146,6 @@ public class BlockElementBox extends AbstractBlockBox {
 		}
 
 		// background image
-		final Styles styles = context.getStyleSheet().getStyles(node);
 		if (styles.hasBackgroundImage() && !styles.getDisplay().equalsIgnoreCase(CSS.NONE)) {
 			final InlineBox imageBox = ImageBox.create(node, context, getWidth());
 			if (imageBox != null) {
@@ -160,7 +160,7 @@ public class BlockElementBox extends AbstractBlockBox {
 		Box afterBlock = null;
 		List<InlineBox> afterInlines = null;
 
-		final IElement after = styleSheet.getPseudoElement(node, CSS.PSEUDO_AFTER, true);
+		final IElement after = styleSheet.getPseudoElementAfter(node);
 		if (after != null) {
 			final Styles afterStyles = styleSheet.getStyles(after);
 			if (afterStyles.getDisplay().equals(CSS.INLINE)) {

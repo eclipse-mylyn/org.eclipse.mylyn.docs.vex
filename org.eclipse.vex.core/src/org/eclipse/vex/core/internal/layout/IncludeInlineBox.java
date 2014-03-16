@@ -48,7 +48,7 @@ public class IncludeInlineBox extends CompositeInlineBox {
 			}
 
 			// :before content
-			final IElement beforeElement = context.getStyleSheet().getPseudoElement(node, CSS.PSEUDO_BEFORE, true);
+			final IElement beforeElement = context.getStyleSheet().getPseudoElementBefore(node);
 			if (beforeElement != null) {
 				childList.addAll(LayoutUtils.createGeneratedInlines(context, beforeElement, StaticTextBox.START_MARKER));
 			}
@@ -57,7 +57,7 @@ public class IncludeInlineBox extends CompositeInlineBox {
 
 		if (endOffset > node.getEndOffset()) {
 			// :after content
-			final IElement afterElement = context.getStyleSheet().getPseudoElement(node, CSS.PSEUDO_AFTER, true);
+			final IElement afterElement = context.getStyleSheet().getPseudoElementAfter(node);
 			if (afterElement != null) {
 				childList.addAll(LayoutUtils.createGeneratedInlines(context, afterElement));
 			}

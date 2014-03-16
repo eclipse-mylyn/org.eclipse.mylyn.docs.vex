@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     John Krasnay - initial API and implementation
  *     Dave Holroyd - Implement font-weight:bolder
@@ -13,7 +13,7 @@
  *     Travis Haagen - bug 260806 - enhanced support for 'content' CSS property
  *     Florian Thienel - bug 306639 - remove serializability from StyleSheet
  *                       and dependend classes
- *     Mohamadou Nassourou - Bug 298912 - rudimentary support for images 
+ *     Mohamadou Nassourou - Bug 298912 - rudimentary support for images
  *     Carsten Hiesserich - Styles cache now uses hard references instead of
  *                          WeekReference. PseudoElements are cached.
  *     Carsten Hiesserich - Added OutlineContent property
@@ -34,6 +34,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.WeakHashMap;
 
+import org.eclipse.core.runtime.Assert;
 import org.eclipse.vex.core.internal.core.FontSpec;
 import org.eclipse.vex.core.provisional.dom.IDocument;
 import org.eclipse.vex.core.provisional.dom.IElement;
@@ -155,33 +156,39 @@ public class StyleSheet {
 	}
 
 	/**
-	 * Returns a pseudo-element for the given parent element, or null if there is no such element defined in the
-	 * stylesheet.
-	 * 
 	 * @param parent
-	 *            Parent element of the pseudo-element.
-	 * @param pseudoElementName
-	 *            The name of the PseudoElement to return (case insensitive).
-	 * @param hasContent
-	 *            <code>true</code> will only return a PseudoElement with defined content.
-	 * @return
+	 *            parent element of the pseudo-element
+	 * @return the 'before' pseudo-element for the given parent element, or null if there is no such element defined in
+	 *         the stylesheet
 	 */
-	public IElement getPseudoElement(final INode parent, final String pseudoElementName, final boolean hasContent) {
-		if (parent == null) {
-			System.out.println("Warning! StyleSheet#getPseudoElement Parent is null");
-			return null;
-		}
+	public IElement getPseudoElementBefore(final INode parent) {
+		return getPseudoElement(parent, CSS.PSEUDO_BEFORE);
+	}
+
+	/**
+	 * @param parent
+	 *            parent element of the pseudo-element
+	 * @return the 'after' pseudo-element for the given parent element, or null if there is no such element defined in
+	 *         the stylesheet
+	 */
+	public IElement getPseudoElementAfter(final INode parent) {
+		return getPseudoElement(parent, CSS.PSEUDO_AFTER);
+	}
+
+	private IElement getPseudoElement(final INode parent, final String pseudoElementName) {
+		Assert.isNotNull(parent, "The parent node must not be null!");
 
 		final String name = pseudoElementName.toLowerCase();
-		Styles styles = getStyles(parent);
-		if (!styles.hasPseudoElement(name)) {
+		final Styles parentStyles = getStyles(parent);
+		if (parentStyles == null || !parentStyles.hasPseudoElement(name)) {
 			return null;
 		}
 
-		styles = styles.getPseudoElementStyles(name);
-		if (hasContent && (styles == null || !styles.isContentDefined())) {
+		final Styles pseudoElementStyles = parentStyles.getPseudoElementStyles(name);
+		if (pseudoElementStyles == null || !pseudoElementStyles.isContentDefined()) {
 			return null;
 		}
+
 		return new PseudoElement(parent, name);
 	}
 
@@ -210,7 +217,7 @@ public class StyleSheet {
 
 	private Styles calculateStyles(final INode node) {
 
-		// getApplicableDeclarations returns the elements styles and also pseudo element styles 
+		// getApplicableDeclarations returns the elements styles and also pseudo element styles
 		final Map<String, Map<String, LexicalUnit>> decls = getApplicableDeclarations(node);
 
 		// The null key contains the element's direct styles

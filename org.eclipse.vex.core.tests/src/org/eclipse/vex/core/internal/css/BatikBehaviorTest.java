@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  * 		Florian Thienel - initial API and implementation
  * 		Carsten Hiesserich - additional tests
@@ -30,14 +30,14 @@ public class BatikBehaviorTest {
 	@Test
 	public void pseudoElements() throws Exception {
 		final StyleSheetReader reader = new StyleSheetReader();
-		final StyleSheet styleSheet = reader.read("plan:before { display: block; font-size: 123px; }");
+		final StyleSheet styleSheet = reader.read("plan:before { display: block; font-size: 123px; content: 'test' }");
 		final List<Rule> rules = styleSheet.getRules();
 		assertEquals(1, rules.size());
 		final Rule rule = rules.get(0);
 		final Element element = new Element("plan");
 		// The rule should match the parent of the pseudo element. See StyleSheet#getApplicableDeclarations
 		assertTrue(rule.matches(element));
-		final IElement before = styleSheet.getPseudoElement(element, "before", false);
+		final IElement before = styleSheet.getPseudoElementBefore(element);
 		final Styles beforeStyles = styleSheet.getStyles(before);
 		assertEquals("block", beforeStyles.get("display"));
 		assertEquals(123.0f, beforeStyles.getFontSize(), 0.0f);
@@ -48,7 +48,7 @@ public class BatikBehaviorTest {
 		final StyleSheetReader reader = new StyleSheetReader();
 		final StyleSheet styleSheet = reader.read("plan {font-size: 123px;} plan:before { content: 'test' }");
 		final Element element = new Element("plan");
-		final IElement before = styleSheet.getPseudoElement(element, "before", false);
+		final IElement before = styleSheet.getPseudoElementBefore(element);
 		final Styles beforeStyles = styleSheet.getStyles(before);
 		assertEquals("test", beforeStyles.getContent(element).get(0));
 		assertEquals(123.0f, beforeStyles.getFontSize(), 0.0f);
@@ -61,7 +61,7 @@ public class BatikBehaviorTest {
 		final Element element = new Element(new QualifiedName(Namespace.VEX_NAMESPACE_URI, "plan"));
 		final Styles styles = styleSheet.getStyles(element);
 		assertEquals(123.0f, styles.getFontSize(), 0.0f);
-		final IElement before = styleSheet.getPseudoElement(element, "before", false);
+		final IElement before = styleSheet.getPseudoElementBefore(element);
 		final Styles beforeStyles = styleSheet.getStyles(before);
 		assertEquals("test", beforeStyles.getContent(element).get(0));
 		assertEquals(123.0f, beforeStyles.getFontSize(), 0.0f);

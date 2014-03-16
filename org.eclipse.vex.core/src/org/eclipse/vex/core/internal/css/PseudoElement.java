@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013 Carsten Hiesserich and others.
+ * Copyright (c) 2013, 2014 Carsten Hiesserich and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,7 +17,8 @@ import org.eclipse.vex.core.provisional.dom.INodeVisitorWithResult;
 
 /**
  * The PseudoElement is used to pass CSS pseudo elements to layout functions.<br />
- * To get an instance of this class use {@link StyleSheet#getPseudoElement(INode, String, boolean)}.
+ * To get an instance of this class use {@link StyleSheet#getPseudoElementBefore(INode)} or
+ * {@link StyleSheet#getPseudoElementAfter(INode)}.
  * 
  * @author Carsten Hiesserich
  */

@@ -74,7 +74,7 @@ public class InlineElementBox extends CompositeInlineBox {
 			final boolean showLeftMarker = styles.getInlineMarker().equals(CSS.NORMAL);
 
 			// :before content
-			final IElement beforeElement = context.getStyleSheet().getPseudoElement(node, CSS.PSEUDO_BEFORE, true);
+			final IElement beforeElement = context.getStyleSheet().getPseudoElementBefore(node);
 			if (beforeElement != null) {
 				childList.addAll(LayoutUtils.createGeneratedInlines(context, beforeElement, showLeftMarker ? StaticTextBox.NO_MARKER : StaticTextBox.START_MARKER));
 			}
@@ -116,7 +116,7 @@ public class InlineElementBox extends CompositeInlineBox {
 			}
 
 			// :after content
-			final IElement afterElement = context.getStyleSheet().getPseudoElement(node, CSS.PSEUDO_AFTER, true);
+			final IElement afterElement = context.getStyleSheet().getPseudoElementAfter(node);
 			if (afterElement != null) {
 				childList.addAll(LayoutUtils.createGeneratedInlines(context, afterElement, showRightMarker ? StaticTextBox.NO_MARKER : StaticTextBox.END_MARKER));
 			}

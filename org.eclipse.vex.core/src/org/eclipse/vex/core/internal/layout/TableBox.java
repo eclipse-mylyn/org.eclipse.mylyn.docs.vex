@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     John Krasnay - initial API and implementation
  *     Igor Jacy Lino Campista - Java 5 warnings fixed (bug 311325)
@@ -61,7 +61,7 @@ public class TableBox extends AbstractBlockBox {
 		// :before content
 		if (!isAnonymous()) {
 			// This might be an anonymous box if we have nested TABLE-ROW-GROUP's
-			final IElement before = styleSheet.getPseudoElement(node, CSS.PSEUDO_BEFORE, true);
+			final IElement before = styleSheet.getPseudoElementBefore(node);
 			if (before != null) {
 				// before element of tables is always displayed as block
 				children.add(new BlockPseudoElementBox(context, before, this, width));
@@ -80,7 +80,7 @@ public class TableBox extends AbstractBlockBox {
 
 		// :after content
 		if (!isAnonymous()) {
-			final IElement after = styleSheet.getPseudoElement(node, CSS.PSEUDO_AFTER, true);
+			final IElement after = styleSheet.getPseudoElementAfter(node);
 			if (after != null) {
 				children.add(new BlockPseudoElementBox(context, after, this, width));
 			}
