@@ -1,0 +1,33 @@
+root {
+	display: block;
+}
+
+ul {
+	display: block;
+	list-style-type: disc;
+}
+
+ul ul {
+	list-style-type: square;
+}
+
+ul ul ul {
+	list-style-type: circle;
+}
+
+ol {
+	display: block;
+	list-item-style: decimal;
+}
+
+ol ol {
+  list-style-type: lower-alpha;
+}
+
+ol ol ol {
+  list-style-type: lower-roman;
+}
+
+li {
+  display: list-item;
+}

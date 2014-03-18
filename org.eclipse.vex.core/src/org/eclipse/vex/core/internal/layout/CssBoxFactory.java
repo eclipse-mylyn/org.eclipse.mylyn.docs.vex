@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2008 John Krasnay and others.
+ * Copyright (c) 2004, 2014 John Krasnay and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -48,6 +48,8 @@ public class CssBoxFactory implements BoxFactory {
 					return new TableBox(context, parentBox, element);
 				} else if (displayStyle.equals(CSS.INCLUDE)) {
 					return new IncludeBlockBox(context, parentBox, element);
+				} else if (displayStyle.equals(CSS.LIST_ITEM)) {
+					return new ListItemBox(context, parentBox, node);
 				} else if (context.getWhitespacePolicy().isBlock(element)) {
 					return new BlockElementBox(context, parentBox, node);
 				} else {

@@ -1,0 +1,142 @@
+<?xml version='1.0'?>
+<testcases css="lists.css">
+
+	<test id="UL one level (empty)" layoutWidth="100">
+		<doc><![CDATA[ <root><ul><li></li></ul></root> ]]></doc>
+		<result>
+			<box class="RootBox">
+				<box class="BlockElementBox">
+					<box class="BlockElementBox" element="root">
+						<box class="BlockElementBox" element="ul">
+							<box class="ListItemBox" element="li">
+								<box class="ParagraphBox">
+									<box class="LineBox">
+										<box class="PlaceholderBox" />
+									</box>
+								</box>
+							</box>
+						</box>
+					</box>
+				</box>
+			</box>
+		</result>
+	</test>
+
+	<test id="UL two levels (empty)" layoutWidth="100">
+		<doc><![CDATA[ <root><ul><ul><li></li></ul></ul></root> ]]></doc>
+		<result>
+			<box class="RootBox">
+				<box class="BlockElementBox">
+					<box class="BlockElementBox" element="root">
+						<box class="BlockElementBox" element="ul">
+							<box class="BlockElementBox" element="ul">
+								<box class="ListItemBox" element="li">
+									<box class="ParagraphBox">
+										<box class="LineBox">
+											<box class="PlaceholderBox" />
+										</box>
+									</box>
+								</box>
+							</box>
+						</box>
+					</box>
+				</box>
+			</box>
+		</result>
+	</test>
+
+	<test id="UL three levels (empty)" layoutWidth="100">
+		<doc><![CDATA[ <root><ul><ul><ul><li></li></ul></ul></ul></root> ]]></doc>
+		<result>
+			<box class="RootBox">
+				<box class="BlockElementBox">
+					<box class="BlockElementBox" element="root">
+						<box class="BlockElementBox" element="ul">
+							<box class="BlockElementBox" element="ul">
+								<box class="BlockElementBox" element="ul">
+									<box class="ListItemBox" element="li">
+										<box class="ParagraphBox">
+											<box class="LineBox">
+												<box class="PlaceholderBox" />
+											</box>
+										</box>
+									</box>
+								</box>
+							</box>
+						</box>
+					</box>
+				</box>
+			</box>
+		</result>
+	</test>
+
+	<test id="OL one level (empty)" layoutWidth="100">
+		<doc><![CDATA[ <root><ol><li></li></ol></root> ]]></doc>
+		<result>
+			<box class="RootBox">
+				<box class="BlockElementBox">
+					<box class="BlockElementBox" element="root">
+						<box class="BlockElementBox" element="ol">
+							<box class="ListItemBox" element="li">
+								<box class="ParagraphBox">
+									<box class="LineBox">
+										<box class="PlaceholderBox" />
+									</box>
+								</box>
+							</box>
+						</box>
+					</box>
+				</box>
+			</box>
+		</result>
+	</test>
+
+	<test id="OL two levels (empty)" layoutWidth="100">
+		<doc><![CDATA[ <root><ol><ol><li></li></ol></ol></root> ]]></doc>
+		<result>
+			<box class="RootBox">
+				<box class="BlockElementBox">
+					<box class="BlockElementBox" element="root">
+						<box class="BlockElementBox" element="ol">
+							<box class="BlockElementBox" element="ol">
+								<box class="ListItemBox" element="li">
+									<box class="ParagraphBox">
+										<box class="LineBox">
+											<box class="PlaceholderBox" />
+										</box>
+									</box>
+								</box>
+							</box>
+						</box>
+					</box>
+				</box>
+			</box>
+		</result>
+	</test>
+
+	<test id="OL three levels (empty)" layoutWidth="100">
+		<doc><![CDATA[ <root><ol><ol><ol><li></li></ol></ol></ol></root> ]]></doc>
+		<result>
+			<box class="RootBox">
+				<box class="BlockElementBox">
+					<box class="BlockElementBox" element="root">
+						<box class="BlockElementBox" element="ol">
+							<box class="BlockElementBox" element="ol">
+								<box class="BlockElementBox" element="ol">
+									<box class="ListItemBox" element="li">
+										<box class="ParagraphBox">
+											<box class="LineBox">
+												<box class="PlaceholderBox" />
+											</box>
+										</box>
+									</box>
+								</box>
+							</box>
+						</box>
+					</box>
+				</box>
+			</box>
+		</result>
+	</test>
+
+</testcases>
