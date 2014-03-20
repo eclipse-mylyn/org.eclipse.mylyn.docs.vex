@@ -1148,8 +1148,8 @@ public class VexEditor extends EditorPart {
 
 				@Override
 				protected void setSelection(final int start, final int end) {
-					getVexWidget().moveTo(new ContentPosition(null, start));
-					getVexWidget().moveTo(new ContentPosition(null, end + 1), true);
+					getVexWidget().moveTo(new ContentPosition(document, start));
+					getVexWidget().moveTo(new ContentPosition(document, end), true);
 				}
 
 				@Override
