@@ -4,7 +4,7 @@
 	<extension point="org.eclipse.core.contenttype.contentTypes">
 		<content-type
         base-type="org.eclipse.vex.ui.XmlDocument"
-        file-extensions="xml,xhtml"
+        file-extensions="xhtml"
         id="org.eclipse.vex.ui.xhtml"
         name="%contentType.name"
         priority="low">
