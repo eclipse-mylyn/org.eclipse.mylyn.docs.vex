@@ -14,6 +14,7 @@ import org.eclipse.vex.core.provisional.dom.BaseNodeVisitorWithResult;
 import org.eclipse.vex.core.provisional.dom.DocumentContentModel;
 import org.eclipse.vex.core.provisional.dom.IComment;
 import org.eclipse.vex.core.provisional.dom.IElement;
+import org.eclipse.vex.core.provisional.dom.IIncludeNode;
 import org.eclipse.vex.core.provisional.dom.INode;
 import org.eclipse.vex.core.provisional.dom.IProcessingInstruction;
 import org.eclipse.vex.core.provisional.dom.IText;
@@ -50,60 +51,60 @@ public class CssWhitespacePolicy implements IWhitespacePolicy {
 		return node.accept(new BaseNodeVisitorWithResult<Boolean>(true) {
 			@Override
 			public Boolean visit(final IElement element) {
-				if (isDisplay(node, CSS.BLOCK)) {
+				if (isDisplay(element, CSS.BLOCK)) {
 					return true;
 				}
 
-				if (isDisplay(node, CSS.LIST_ITEM)) {
+				if (isDisplay(element, CSS.LIST_ITEM)) {
 					return true;
 				}
 
-				if (isDisplay(node, CSS.INCLUDE)) {
+				if (isDisplay(element, CSS.INCLUDE)) {
 					// When this method is called by the DocumentBuilder, the note is not yet associated
-					if (!node.isAssociated() || node.getDocument() == null) {
+					if (!element.isAssociated() || element.getDocument() == null) {
 						return false;
 					}
 
-					if (node.getDocument().canInsertText(node.getStartOffset())) {
+					if (element.getDocument().canInsertText(element.getStartOffset())) {
 						return false;
 					}
 
 					return isBlock(element.getParent());
 				}
 
-				if (isDisplay(node, CSS.TABLE)) {
+				if (isDisplay(element, CSS.TABLE)) {
 					return true;
 				}
 
-				if (isDisplay(node, CSS.TABLE_CAPTION, CSS.TABLE)) {
+				if (isDisplay(element, CSS.TABLE_CAPTION, CSS.TABLE)) {
 					return true;
 				}
 
-				if (isDisplay(node, CSS.TABLE_CELL, CSS.TABLE_ROW)) {
+				if (isDisplay(element, CSS.TABLE_CELL, CSS.TABLE_ROW)) {
 					return true;
 				}
 
-				if (isDisplay(node, CSS.TABLE_COLUMN, CSS.TABLE_COLUMN_GROUP)) {
+				if (isDisplay(element, CSS.TABLE_COLUMN, CSS.TABLE_COLUMN_GROUP)) {
 					return true;
 				}
 
-				if (isDisplay(node, CSS.TABLE_COLUMN_GROUP, CSS.TABLE)) {
+				if (isDisplay(element, CSS.TABLE_COLUMN_GROUP, CSS.TABLE)) {
 					return true;
 				}
 
-				if (isDisplay(node, CSS.TABLE_FOOTER_GROUP, CSS.TABLE, CSS.TABLE_ROW_GROUP)) {
+				if (isDisplay(element, CSS.TABLE_FOOTER_GROUP, CSS.TABLE, CSS.TABLE_ROW_GROUP)) {
 					return true;
 				}
 
-				if (isDisplay(node, CSS.TABLE_HEADER_GROUP, CSS.TABLE, CSS.TABLE_ROW_GROUP)) {
+				if (isDisplay(element, CSS.TABLE_HEADER_GROUP, CSS.TABLE, CSS.TABLE_ROW_GROUP)) {
 					return true;
 				}
 
-				if (isDisplay(node, CSS.TABLE_ROW_GROUP, CSS.TABLE, CSS.TABLE_ROW_GROUP)) {
+				if (isDisplay(element, CSS.TABLE_ROW_GROUP, CSS.TABLE, CSS.TABLE_ROW_GROUP)) {
 					return true;
 				}
 
-				if (isDisplay(node, CSS.TABLE_ROW, CSS.TABLE, CSS.TABLE_ROW_GROUP, CSS.TABLE_HEADER_GROUP, CSS.TABLE_FOOTER_GROUP)) {
+				if (isDisplay(element, CSS.TABLE_ROW, CSS.TABLE, CSS.TABLE_ROW_GROUP, CSS.TABLE_HEADER_GROUP, CSS.TABLE_FOOTER_GROUP)) {
 					return true;
 				}
 
@@ -122,6 +123,12 @@ public class CssWhitespacePolicy implements IWhitespacePolicy {
 				final boolean parentIsInline = !isBlock(pi.getParent());
 				final boolean isInline = CSS.INLINE.equals(getDisplay(pi));
 				return !(parentIsInline && isInline);
+			}
+
+			@Override
+			public Boolean visit(final IIncludeNode include) {
+				// TODO Evaluate the included content instead of the element
+				return visit(include.getReference());
 			}
 
 			@Override

@@ -51,12 +51,22 @@ xi|include {
 	background-color: #cccccc;
 	margin-top: 5px;
 	mrgin-bottom: 5px;
-	display: include;
+	display: block;
 	_vex-outline-content: attr(href);
+}
+
+xi|include[parse="text"] {
+	display: inline;
 }
 
 xi|include:before {
 	display: inline;
 	color: blue;
-	content: 'XInclude href: ',attr(href);
+	content: '<XInclude href: ',attr(href);
+}
+
+xi|include:after {
+	display: inline;
+	color: blue;
+	content: '>';
 }

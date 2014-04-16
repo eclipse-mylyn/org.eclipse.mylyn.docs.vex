@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2013 Florian Thienel and others.
+ * Copyright (c) 2012, 2014 Florian Thienel and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,7 +7,7 @@
  *
  * Contributors:
  * 		Florian Thienel - initial API and implementation
- * 		Carsten Hiesserich - added processing instructions
+ * 		Carsten Hiesserich - added processing instructions and include
  *******************************************************************************/
 package org.eclipse.vex.core.internal.dom;
 
@@ -19,6 +19,7 @@ import org.eclipse.vex.core.provisional.dom.IContent;
 import org.eclipse.vex.core.provisional.dom.IDocument;
 import org.eclipse.vex.core.provisional.dom.IDocumentFragment;
 import org.eclipse.vex.core.provisional.dom.IElement;
+import org.eclipse.vex.core.provisional.dom.IIncludeNode;
 import org.eclipse.vex.core.provisional.dom.INode;
 import org.eclipse.vex.core.provisional.dom.INodeVisitor;
 import org.eclipse.vex.core.provisional.dom.IParent;
@@ -95,6 +96,15 @@ public class DeepCopyVisitor implements INodeVisitor {
 		associate(pi, copy);
 	}
 
+	@Override
+	public void visit(final IIncludeNode include) {
+		final IncludeNode copy = (IncludeNode) copy(include);
+		addToParent(copy);
+		associate(include, copy);
+
+		copyChildren(include.getReference(), copy.getReference());
+	}
+
 	@SuppressWarnings("unchecked")
 	private <T extends INode> T copy(final T node) {
 		return (T) node.accept(copyVisitor);
@@ -123,5 +133,4 @@ public class DeepCopyVisitor implements INodeVisitor {
 		}
 		currentParent = lastParent;
 	}
-
 }

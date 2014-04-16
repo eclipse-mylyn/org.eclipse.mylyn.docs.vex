@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2013 Florian Thienel and others.
+ * Copyright (c) 2012, 2014 Florian Thienel and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,7 +7,7 @@
  *
  * Contributors:
  * 		Florian Thienel - initial API and implementation
- * 		Carsten Hiesserich - added processing instruction
+ * 		Carsten Hiesserich - added processing instruction and include
  *******************************************************************************/
 package org.eclipse.vex.core.provisional.dom;
 
@@ -46,6 +46,11 @@ public class BaseNodeVisitor implements INodeVisitor {
 
 	@Override
 	public void visit(final IProcessingInstruction pi) {
+		// ignore
+	}
+
+	@Override
+	public void visit(final IIncludeNode include) {
 		// ignore
 	}
 }

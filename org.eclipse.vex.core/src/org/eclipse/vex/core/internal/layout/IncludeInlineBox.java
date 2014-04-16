@@ -1,3 +1,13 @@
+/*******************************************************************************
+ * Copyright (c) 2014 Carsten Hiesserich and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ *     Carsten Hiesserich - initial API and implementation
+ *******************************************************************************/
 package org.eclipse.vex.core.internal.layout;
 
 import java.util.ArrayList;
@@ -11,6 +21,7 @@ import org.eclipse.vex.core.internal.css.CSS;
 import org.eclipse.vex.core.internal.css.Styles;
 import org.eclipse.vex.core.provisional.dom.ContentPosition;
 import org.eclipse.vex.core.provisional.dom.IElement;
+import org.eclipse.vex.core.provisional.dom.IIncludeNode;
 import org.eclipse.vex.core.provisional.dom.INode;
 
 public class IncludeInlineBox extends CompositeInlineBox {
@@ -34,9 +45,9 @@ public class IncludeInlineBox extends CompositeInlineBox {
 	 * @param endOffset
 	 *            End offset of the range being rendered, which may be arbitrarily after or inside the element.
 	 */
-	public IncludeInlineBox(final LayoutContext context, final INode node, final int startOffset, final int endOffset) {
+	public IncludeInlineBox(final LayoutContext context, final IIncludeNode node, final int startOffset, final int endOffset) {
 		this.node = node;
-		final Styles styles = context.getStyleSheet().getStyles(node);
+		final Styles styles = context.getStyleSheet().getStyles(node.getReference());
 		final List<InlineBox> childList = new ArrayList<InlineBox>();
 
 		if (startOffset <= node.getStartOffset()) {
@@ -48,7 +59,7 @@ public class IncludeInlineBox extends CompositeInlineBox {
 			}
 
 			// :before content
-			final IElement beforeElement = context.getStyleSheet().getPseudoElementBefore(node);
+			final IElement beforeElement = context.getStyleSheet().getPseudoElementBefore(node.getReference());
 			if (beforeElement != null) {
 				childList.addAll(LayoutUtils.createGeneratedInlines(context, beforeElement, StaticTextBox.START_MARKER));
 			}
@@ -57,9 +68,9 @@ public class IncludeInlineBox extends CompositeInlineBox {
 
 		if (endOffset > node.getEndOffset()) {
 			// :after content
-			final IElement afterElement = context.getStyleSheet().getPseudoElementAfter(node);
+			final IElement afterElement = context.getStyleSheet().getPseudoElementAfter(node.getReference());
 			if (afterElement != null) {
-				childList.addAll(LayoutUtils.createGeneratedInlines(context, afterElement));
+				childList.addAll(LayoutUtils.createGeneratedInlines(context, afterElement, StaticTextBox.END_MARKER));
 			}
 
 			// space for the right margin/border/padding
@@ -88,7 +99,7 @@ public class IncludeInlineBox extends CompositeInlineBox {
 	 * @param children
 	 *            Child boxes.
 	 */
-	private IncludeInlineBox(final LayoutContext context, final INode node, final InlineBox[] children) {
+	private IncludeInlineBox(final LayoutContext context, final IIncludeNode node, final InlineBox[] children) {
 		this.node = node;
 		this.children = children;
 		layout(context);
@@ -202,7 +213,7 @@ public class IncludeInlineBox extends CompositeInlineBox {
 		IncludeInlineBox right = null;
 
 		if (lefts.length > 0 || rights.length == 0) {
-			left = new IncludeInlineBox(context, getNode(), lefts);
+			left = new IncludeInlineBox(context, (IIncludeNode) getNode(), lefts);
 		}
 
 		if (rights.length > 0) {

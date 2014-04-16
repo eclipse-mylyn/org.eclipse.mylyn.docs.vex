@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013 Carsten Hiesserich and others.
+ * Copyright (c) 2013, 2014 Carsten Hiesserich and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,6 +17,7 @@ import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.provisional.dom.BaseNodeVisitorWithResult;
 import org.eclipse.vex.core.provisional.dom.IComment;
 import org.eclipse.vex.core.provisional.dom.IElement;
+import org.eclipse.vex.core.provisional.dom.IIncludeNode;
 import org.eclipse.vex.core.provisional.dom.INode;
 import org.eclipse.vex.core.provisional.dom.INodeVisitorWithResult;
 import org.eclipse.vex.core.provisional.dom.IProcessingInstruction;
@@ -96,6 +97,16 @@ public class OutlineFilter extends ViewerFilter {
 		@Override
 		public Boolean visit(final IProcessingInstruction pi) {
 			return hasFilter(FILTER_ID_INCLUDE_PROC_INSTR);
+		}
+
+		@Override
+		public Boolean visit(final IIncludeNode include) {
+			if (!hasFilter(FILTER_ID_INCLUDE_INLINE_ELEMENTS)) {
+				if (styleSheet.getStyles(include.getReference()).getDisplay().equals(CSS.INLINE)) {
+					return false;
+				}
+			}
+			return true;
 		}
 	};
 

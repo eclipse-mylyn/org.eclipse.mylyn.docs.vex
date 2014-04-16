@@ -36,6 +36,7 @@ import org.eclipse.vex.core.provisional.dom.ContentRange;
 import org.eclipse.vex.core.provisional.dom.DocumentContentModel;
 import org.eclipse.vex.core.provisional.dom.IDocument;
 import org.eclipse.vex.core.provisional.dom.IElement;
+import org.eclipse.vex.core.provisional.dom.IIncludeNode;
 import org.eclipse.vex.core.provisional.dom.INode;
 import org.junit.runner.RunWith;
 import org.junit.runners.AllTests;
@@ -273,6 +274,11 @@ public class LayoutTest extends TestCase {
 			@Override
 			public String visit(final IElement element) {
 				return element.getPrefixedName();
+			}
+
+			@Override
+			public String visit(final IIncludeNode include) {
+				return include.getReference().getPrefixedName();
 			}
 		});
 	}

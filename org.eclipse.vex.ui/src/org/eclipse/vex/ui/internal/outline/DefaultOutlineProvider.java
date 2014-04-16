@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2013 John Krasnay and others.
+ * Copyright (c) 2004, 2014 John Krasnay and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -33,6 +33,7 @@ import org.eclipse.vex.core.provisional.dom.IAttribute;
 import org.eclipse.vex.core.provisional.dom.IComment;
 import org.eclipse.vex.core.provisional.dom.IDocument;
 import org.eclipse.vex.core.provisional.dom.IElement;
+import org.eclipse.vex.core.provisional.dom.IIncludeNode;
 import org.eclipse.vex.core.provisional.dom.INode;
 import org.eclipse.vex.core.provisional.dom.INodeVisitorWithResult;
 import org.eclipse.vex.core.provisional.dom.IParent;
@@ -301,6 +302,11 @@ public class DefaultOutlineProvider implements IOutlineProvider, IToolBarContrib
 			public Image visit(final IProcessingInstruction pi) {
 				return PluginImages.get(PluginImages.IMG_XML_PROC_INSTR);
 			}
+
+			@Override
+			public Image visit(final IIncludeNode include) {
+				return visit(include.getReference());
+			}
 		};
 
 		private final INodeVisitorWithResult<String> elementLabelVisitor = new BaseNodeVisitorWithResult<String>(EMPTY_STRING) {
@@ -317,6 +323,11 @@ public class DefaultOutlineProvider implements IOutlineProvider, IToolBarContrib
 			@Override
 			public String visit(final IProcessingInstruction pi) {
 				return pi.getTarget();
+			}
+
+			@Override
+			public String visit(final IIncludeNode include) {
+				return include.getReference().getPrefixedName();
 			}
 		};
 	}

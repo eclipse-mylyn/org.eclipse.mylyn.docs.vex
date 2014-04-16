@@ -17,6 +17,7 @@ import org.eclipse.vex.core.provisional.dom.IComment;
 import org.eclipse.vex.core.provisional.dom.IDocument;
 import org.eclipse.vex.core.provisional.dom.IDocumentFragment;
 import org.eclipse.vex.core.provisional.dom.IElement;
+import org.eclipse.vex.core.provisional.dom.IIncludeNode;
 import org.eclipse.vex.core.provisional.dom.INode;
 import org.eclipse.vex.core.provisional.dom.IProcessingInstruction;
 import org.eclipse.vex.core.provisional.dom.IText;
@@ -47,8 +48,6 @@ public class CssBoxFactory implements BoxFactory {
 				final String displayStyle = styles.getDisplay();
 				if (displayStyle.equals(CSS.TABLE)) {
 					return new TableBox(context, parentBox, element);
-				} else if (displayStyle.equals(CSS.INCLUDE)) {
-					return new IncludeBlockBox(context, parentBox, element);
 				} else if (displayStyle.equals(CSS.LIST_ITEM)) {
 					return new ListItemBox(context, parentBox, node);
 				} else if (context.getWhitespacePolicy().isBlock(element)) {
@@ -66,6 +65,11 @@ public class CssBoxFactory implements BoxFactory {
 			@Override
 			public Box visit(final IProcessingInstruction pi) {
 				return new NodeBlockBox(context, parentBox, pi);
+			}
+
+			@Override
+			public Box visit(final IIncludeNode include) {
+				return new IncludeBlockBox(context, parentBox, include);
 			}
 
 			@Override

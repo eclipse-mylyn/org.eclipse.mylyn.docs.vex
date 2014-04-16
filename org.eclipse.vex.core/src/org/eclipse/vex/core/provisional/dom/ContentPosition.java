@@ -126,6 +126,15 @@ public class ContentPosition implements Comparable<ContentPosition> {
 		}
 
 		final ContentPosition moved = new ContentPosition(newNode, newOffset);
+		if (newNode instanceof IIncludeNode) {
+			// TODO: There's currently no support for editing the content of an include, so we skip it here.
+			if (offset > 0 && moved.isAfter(newNode.getStartPosition())) {
+				return newNode.getEndPosition();
+			}
+			if (offset < 0 && moved.isBefore(newNode.getEndPosition())) {
+				return newNode.getStartPosition();
+			}
+		}
 		return moved;
 	}
 

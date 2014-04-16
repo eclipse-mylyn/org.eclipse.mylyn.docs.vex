@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2013 Florian Thienel and others.
+ * Copyright (c) 2012, 2014 Florian Thienel and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,7 +7,7 @@
  *
  * Contributors:
  * 		Florian Thienel - initial API and implementation
- * 		Carsten Hiesserich - added processing instructions
+ * 		Carsten Hiesserich - added processing instructions and include
  *******************************************************************************/
 package org.eclipse.vex.core.internal.dom;
 
@@ -15,6 +15,7 @@ import org.eclipse.vex.core.provisional.dom.IComment;
 import org.eclipse.vex.core.provisional.dom.IDocument;
 import org.eclipse.vex.core.provisional.dom.IDocumentFragment;
 import org.eclipse.vex.core.provisional.dom.IElement;
+import org.eclipse.vex.core.provisional.dom.IIncludeNode;
 import org.eclipse.vex.core.provisional.dom.INodeVisitorWithResult;
 import org.eclipse.vex.core.provisional.dom.IProcessingInstruction;
 import org.eclipse.vex.core.provisional.dom.IText;
@@ -58,6 +59,15 @@ public class CopyVisitor implements INodeVisitorWithResult<Node> {
 	@Override
 	public ProcessingInstruction visit(final IProcessingInstruction pi) {
 		return new ProcessingInstruction(pi.getTarget());
+	}
+
+	@Override
+	public Node visit(final IIncludeNode include) {
+		// Copy the reference element
+		final Element copyElement = new Element(include.getReference().getQualifiedName());
+		copyElement.accept(new CopyOfElement(include.getReference()));
+
+		return new IncludeNode(copyElement);
 	}
 
 }

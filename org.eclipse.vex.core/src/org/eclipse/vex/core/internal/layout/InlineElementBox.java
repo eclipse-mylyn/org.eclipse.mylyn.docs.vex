@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2013 John Krasnay and others.
+ * Copyright (c) 2004, 2014 John Krasnay and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,7 +8,7 @@
  * Contributors:
  *     John Krasnay - initial API and implementation
  *     Igor Jacy Lino Campista - Java 5 warnings fixed (bug 311325)
- *     Carsten Hiesserich - added support for processing instructions
+ *     Carsten Hiesserich - added support for processing instructions / includes
  *******************************************************************************/
 package org.eclipse.vex.core.internal.layout;
 
@@ -26,6 +26,7 @@ import org.eclipse.vex.core.provisional.dom.BaseNodeVisitor;
 import org.eclipse.vex.core.provisional.dom.ContentRange;
 import org.eclipse.vex.core.provisional.dom.IComment;
 import org.eclipse.vex.core.provisional.dom.IElement;
+import org.eclipse.vex.core.provisional.dom.IIncludeNode;
 import org.eclipse.vex.core.provisional.dom.INode;
 import org.eclipse.vex.core.provisional.dom.IProcessingInstruction;
 import org.eclipse.vex.core.provisional.dom.IText;
@@ -306,12 +307,7 @@ public class InlineElementBox extends CompositeInlineBox {
 						@Override
 						public void visit(final IElement element) {
 							addPlaceholderBox(result, new PlaceholderBox(context, node, element.getStartOffset() - node.getStartOffset()));
-							InlineBox child;
-							if (CSS.INCLUDE.equals(context.getStyleSheet().getStyles(element).getDisplay())) {
-								child = new IncludeInlineBox(context, element, range.getStartOffset(), range.getEndOffset());
-							} else {
-								child = new InlineElementBox(context, element, range.getStartOffset(), range.getEndOffset());
-							}
+							final InlineBox child = new InlineElementBox(context, element, range.getStartOffset(), range.getEndOffset());
 							addChildInlineBox(result, child);
 						}
 
@@ -321,6 +317,13 @@ public class InlineElementBox extends CompositeInlineBox {
 							final InlineBox child = new InlineElementBox(context, comment, range.getStartOffset(), range.getEndOffset());
 							addChildInlineBox(result, child);
 						};
+
+						@Override
+						public void visit(final IIncludeNode include) {
+							addPlaceholderBox(result, new PlaceholderBox(context, node, include.getStartOffset() - node.getStartOffset()));
+							final InlineBox child = new IncludeInlineBox(context, include, range.getStartOffset(), range.getEndOffset());
+							addChildInlineBox(result, child);
+						}
 
 						@Override
 						public void visit(final IProcessingInstruction pi) {

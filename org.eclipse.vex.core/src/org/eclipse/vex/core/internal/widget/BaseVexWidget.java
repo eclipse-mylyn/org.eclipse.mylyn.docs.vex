@@ -803,7 +803,7 @@ public class BaseVexWidget implements IVexWidget {
 
 	@Override
 	public boolean hasSelection() {
-		return getSelectionStart() != getSelectionEnd();
+		return !getSelectionStart().equals(getSelectionEnd());
 	}
 
 	@Override

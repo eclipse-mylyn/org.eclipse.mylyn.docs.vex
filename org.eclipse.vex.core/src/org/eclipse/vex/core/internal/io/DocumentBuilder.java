@@ -30,6 +30,8 @@ import org.eclipse.vex.core.internal.dom.Document;
 import org.eclipse.vex.core.internal.dom.DocumentTextPosition;
 import org.eclipse.vex.core.internal.dom.Element;
 import org.eclipse.vex.core.internal.dom.GapContent;
+import org.eclipse.vex.core.internal.dom.IncludeNode;
+import org.eclipse.vex.core.internal.dom.Namespace;
 import org.eclipse.vex.core.internal.dom.Node;
 import org.eclipse.vex.core.internal.dom.ProcessingInstruction;
 import org.eclipse.vex.core.provisional.dom.BaseNodeVisitorWithResult;
@@ -240,7 +242,16 @@ public class DocumentBuilder implements ContentHandler, LexicalHandler {
 			element = new Element(elementName);
 
 			final Element parent = stack.getLast().element;
-			parent.addChild(element);
+
+			// We have to set the parent before accessing the CSS the first time to enable cascading.
+			element.setParent(parent);
+			if (isInclude(element)) {
+				// Wrap the xml element in an include node
+				final Node include = new IncludeNode(element);
+				parent.addChild(include);
+			} else {
+				parent.addChild(element);
+			}
 		}
 
 		if (nodeAtCaret == null && caretPosition != null) {
@@ -470,6 +481,10 @@ public class DocumentBuilder implements ContentHandler, LexicalHandler {
 
 	private boolean isPre(final Node node) {
 		return whitespacePolicy != null && whitespacePolicy.isPre(node);
+	}
+
+	private boolean isInclude(final Element element) {
+		return element.getQualifiedName().equals(new QualifiedName(Namespace.XINCLUDE_NAMESPACE_URI, "include"));
 	}
 
 	private boolean canInsertText(final INode insertionNode, final int offset) {

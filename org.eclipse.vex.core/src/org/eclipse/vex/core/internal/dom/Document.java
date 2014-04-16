@@ -40,6 +40,7 @@ import org.eclipse.vex.core.provisional.dom.IDocument;
 import org.eclipse.vex.core.provisional.dom.IDocumentFragment;
 import org.eclipse.vex.core.provisional.dom.IDocumentListener;
 import org.eclipse.vex.core.provisional.dom.IElement;
+import org.eclipse.vex.core.provisional.dom.IIncludeNode;
 import org.eclipse.vex.core.provisional.dom.INode;
 import org.eclipse.vex.core.provisional.dom.INodeVisitor;
 import org.eclipse.vex.core.provisional.dom.INodeVisitorWithResult;
@@ -329,6 +330,10 @@ public class Document extends Parent implements IDocument {
 				fireBeforeContentInserted(new ContentChangeEvent(Document.this, pi.getParent(), new ContentRange(offset, offset + adjustedText.length() - 1), false));
 				getContent().insertText(offset, adjustedText);
 				fireContentInserted(new ContentChangeEvent(Document.this, pi.getParent(), new ContentRange(offset, offset + adjustedText.length() - 1), false));
+			}
+
+			public void visit(final IIncludeNode document) {
+				Assert.isTrue(false, "Cannot insert text into an Include.");
 			}
 		});
 	}

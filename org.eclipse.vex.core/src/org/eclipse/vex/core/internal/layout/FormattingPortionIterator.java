@@ -18,6 +18,7 @@ import org.eclipse.vex.core.provisional.dom.BaseNodeVisitorWithResult;
 import org.eclipse.vex.core.provisional.dom.ContentRange;
 import org.eclipse.vex.core.provisional.dom.IComment;
 import org.eclipse.vex.core.provisional.dom.IElement;
+import org.eclipse.vex.core.provisional.dom.IIncludeNode;
 import org.eclipse.vex.core.provisional.dom.INode;
 import org.eclipse.vex.core.provisional.dom.IParent;
 import org.eclipse.vex.core.provisional.dom.IProcessingInstruction;
@@ -128,6 +129,16 @@ public class FormattingPortionIterator {
 				public INode visit(final IProcessingInstruction pi) {
 					if (policy.isBlock(pi)) {
 						return pi;
+					}
+					return null;
+				}
+
+				@Override
+				public INode visit(final IIncludeNode include) {
+					// For exact WYSIWYG, we would have to check included content to determine how to display it.
+					// Currently, the CSS for xi|include decides if we display inline or block.
+					if (policy.isBlock(include)) {
+						return include;
 					}
 					return null;
 				}

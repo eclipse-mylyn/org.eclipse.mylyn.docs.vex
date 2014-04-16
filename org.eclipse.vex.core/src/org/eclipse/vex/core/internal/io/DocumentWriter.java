@@ -30,6 +30,7 @@ import org.eclipse.vex.core.provisional.dom.IComment;
 import org.eclipse.vex.core.provisional.dom.IDocument;
 import org.eclipse.vex.core.provisional.dom.IDocumentFragment;
 import org.eclipse.vex.core.provisional.dom.IElement;
+import org.eclipse.vex.core.provisional.dom.IIncludeNode;
 import org.eclipse.vex.core.provisional.dom.INode;
 import org.eclipse.vex.core.provisional.dom.IProcessingInstruction;
 import org.eclipse.vex.core.provisional.dom.IText;
@@ -331,6 +332,12 @@ public class DocumentWriter {
 			}
 
 			@Override
+			public void visit(final IIncludeNode include) {
+				// Write the element that defines this include
+				visit(include.getReference());
+			}
+
+			@Override
 			public void visit(final IText text) {
 				final TextWrapper wrapper = new TextWrapper();
 				wrapper.add(escape(node.getText()));
@@ -379,6 +386,12 @@ public class DocumentWriter {
 				docPrint(doc, "<?");
 				docPrint(doc, pi.getTarget() + " " + node.getText());
 				docPrint(doc, "?>");
+			}
+
+			@Override
+			public void visit(final IIncludeNode include) {
+				// Write the element that defines this include
+				visit(include.getReference());
 			}
 
 			@Override
@@ -441,6 +454,12 @@ public class DocumentWriter {
 			public void visit(final IProcessingInstruction pi) {
 				// Text in PI's is written as is with no wrapping
 				wrapper.addNoSplit("<?" + pi.getTarget() + " " + node.getText() + "?>");
+			}
+
+			@Override
+			public void visit(final IIncludeNode include) {
+				// Write the element that defines this include
+				visit(include.getReference());
 			}
 
 			@Override
