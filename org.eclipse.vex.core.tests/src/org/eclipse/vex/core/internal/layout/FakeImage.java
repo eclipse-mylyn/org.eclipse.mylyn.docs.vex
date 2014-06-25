@@ -26,4 +26,10 @@ public class FakeImage implements Image {
 	public int getWidth() {
 		return width;
 	}
+
+	@Override
+	public String toString() {
+		return "FakeImage [url=" + url + ", height=" + height + ", width=" + width + "]";
+	}
+
 }

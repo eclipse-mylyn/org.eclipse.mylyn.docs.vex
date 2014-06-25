@@ -4,13 +4,12 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     John Krasnay - initial API and implementation
  *******************************************************************************/
 package org.eclipse.vex.core.internal.layout;
 
-import org.eclipse.vex.core.internal.VEXCorePlugin;
 import org.eclipse.vex.core.internal.core.Caret;
 import org.eclipse.vex.core.internal.core.Insets;
 import org.eclipse.vex.core.internal.core.Rectangle;
@@ -141,19 +140,7 @@ public class RootBox extends AbstractBox implements BlockBox {
 
 		final Insets insets = this.getInsets(context, getWidth());
 
-		long start = 0;
-		if (VEXCorePlugin.getInstance().isDebugging()) {
-			start = System.currentTimeMillis();
-		}
-
 		final VerticalRange repaintRange = childBox.layout(context, top - insets.getTop(), bottom - insets.getBottom());
-
-		if (VEXCorePlugin.getInstance().isDebugging()) {
-			final long end = System.currentTimeMillis();
-			if (end - start > 50) {
-				System.out.println("RootBox.layout took " + (end - start) + "ms");
-			}
-		}
 
 		setHeight(childBox.getHeight() + insets.getTop() + insets.getBottom());
 

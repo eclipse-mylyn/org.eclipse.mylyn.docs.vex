@@ -16,7 +16,6 @@ package org.eclipse.vex.core.internal.layout;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.eclipse.vex.core.internal.VEXCorePlugin;
 import org.eclipse.vex.core.internal.css.CSS;
 import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.css.Styles;
@@ -71,11 +70,6 @@ public class BlockElementBox extends AbstractBlockBox {
 
 	@Override
 	public List<Box> createChildren(final LayoutContext context) {
-		long start = 0;
-		if (VEXCorePlugin.getInstance().isDebugging()) {
-			start = System.currentTimeMillis();
-		}
-
 		final INode node = getNode();
 		final int width = getWidth();
 
@@ -130,13 +124,6 @@ public class BlockElementBox extends AbstractBlockBox {
 
 		if (afterBlock != null) {
 			childList.add(afterBlock);
-		}
-
-		if (VEXCorePlugin.getInstance().isDebugging()) {
-			final long end = System.currentTimeMillis();
-			if (end - start > 10) {
-				System.out.println("BEB.layout for " + getNode() + " took " + (end - start) + "ms");
-			}
 		}
 
 		return childList;
