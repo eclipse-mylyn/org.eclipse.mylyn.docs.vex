@@ -1,4 +1,2 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<setup:ComponentDefinition setup:toolVersion="8" xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:setup="http://www.eclipse.org/CDO/releng/setup/1.0" id="org.eclipse.vex.releng" version="1.0.0.qualifier">
-  <dependencies id="org.eclipse.vex.sdk.feature.feature.group"/>
-</setup:ComponentDefinition>
+<targlets:ComponentDefinition xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:targlets="http://www.eclipse.org/oomph/targlets/1.0" id="org.eclipse.vex.releng"/>

@@ -1,17 +1,138 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<setup:Project setup:toolVersion="8" xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:setup="http://www.eclipse.org/CDO/releng/setup/1.0" name="Vex" label="Vex">
-  <setupTasks xsi:type="setup:ContextVariableTask" documentation="Location of Vex's Git clone." name="git.clone" value="${setup.branch.dir/git/vex}" stringSubstitution="true" label=""/>
-  <setupTasks xsi:type="setup:EclipseIniTask" option="-Dsetup.branch.uri" value="=${git.clone|uri}/org.eclipse.vex.releng/Vex.setup" vm="true"/>
-  <branches name="master">
-    <setupTasks xsi:type="setup:GitCloneTask" location="${git.clone}" remoteURI="ssh://git.eclipse.org:29418/mylyn/org.eclipse.mylyn.docs.vex" checkoutBranch="master"/>
-    <setupTasks xsi:type="setup:TargletTask" name="Vex">
-      <roots id="org.eclipse.vex.releng"/>
-      <sourceLocators rootFolder="${git.clone}"/>
-      <repositoryLists name="Kepler">
-        <p2Repositories url="http://download.eclipse.org/eclipse/updates/4.3"/>
-        <p2Repositories url="http://download.eclipse.org/releases/kepler"/>
-        <p2Repositories url="http://download.eclipse.org/modeling/emf/cdo/orbit/latest-R"/>
-      </repositoryLists>
-    </setupTasks>
-  </branches>
+<setup:Project
+    xmi:version="2.0"
+    xmlns:xmi="http://www.omg.org/XMI"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:git="http://www.eclipse.org/oomph/setup/git/1.0"
+    xmlns:mylyn="http://www.eclipse.org/oomph/setup/mylyn/1.0"
+    xmlns:setup="http://www.eclipse.org/oomph/setup/1.0"
+    xmlns:setup.p2="http://www.eclipse.org/oomph/setup/p2/1.0"
+    xmlns:setup.targlets="http://www.eclipse.org/oomph/setup/targlets/1.0"
+    xsi:schemaLocation="http://www.eclipse.org/oomph/setup/git/1.0 http://git.eclipse.org/c/oomph/org.eclipse.oomph.git/plain/setups/models/Git.ecore http://www.eclipse.org/oomph/setup/mylyn/1.0 http://git.eclipse.org/c/oomph/org.eclipse.oomph.git/plain/setups/models/Mylyn.ecore http://www.eclipse.org/oomph/setup/targlets/1.0 http://git.eclipse.org/c/oomph/org.eclipse.oomph.git/plain/setups/models/SetupTarglets.ecore"
+    name="Vex"
+    label="Vex">
+  <setupTask
+      xsi:type="setup.p2:P2Task">
+    <requirement
+        id="org.eclipse.pde.api.tools.ee.feature.feature.group"/>
+    <requirement
+        id="org.eclipse.oomph.version.feature.group"/>
+    <requirement
+        id="org.eclipse.oomph.launches.feature.group"/>
+    <requirement
+        id="org.eclipse.oomph.manifests.feature.group"/>
+    <requirement
+        id="org.eclipse.oomph.projectconfig.feature.group"/>
+    <requirement
+        id="org.eclipse.oomph.projectcopy.feature.group"/>
+    <requirement
+        id="org.eclipse.oomph.workingsets.feature.group"/>
+    <requirement
+        id="org.eclipse.mylyn.ide_feature.feature.group"/>
+    <requirement
+        id="org.eclipse.mylyn.java_feature.feature.group"/>
+    <requirement
+        id="org.eclipse.mylyn.pde_feature.feature.group"/>
+    <requirement
+        id="org.eclipse.mylyn.team_feature.feature.group"/>
+    <requirement
+        id="org.eclipse.mylyn.gerrit.feature.feature.group"/>
+    <requirement
+        id="org.eclipse.mylyn_feature.feature.group"/>
+    <requirement
+        id="org.eclipse.mylyn.bugzilla_feature.feature.group"/>
+    <requirement
+        id="org.eclipse.mylyn.git.feature.group"/>
+    <requirement
+        id="org.eclipse.mylyn.builds.feature.group"/>
+    <requirement
+        id="org.eclipse.mylyn.hudson.feature.group"/>
+    <requirement
+        id="org.eclipse.egit.feature.group"/>
+    <requirement
+        id="org.eclipse.egit.mylyn.feature.group"/>
+  </setupTask>
+  <setupTask
+      xsi:type="setup:VariableTask"
+      name="tp.materialization.url"
+      label="Target Platform">
+    <choice
+        value="http://download.eclipse.org/releases/kepler"
+        label="Kepler - 4.3"/>
+    <choice
+        value="http://download.eclipse.org/releases/luna"
+        label="Luna - 4.4"/>
+    <description>The release train repository location that will be used to materialize a target platform.  Vex is built and tested with Eclipse 4.3, i.e., Kepler.</description>
+  </setupTask>
+  <stream name="master">
+    <setupTask
+        xsi:type="git:GitCloneTask"
+        id="git.clone.vex"
+        remoteURI="mylyn/org.eclipse.mylyn.docs.vex"
+        checkoutBranch="master">
+      <annotation
+          source="http://www.eclipse.org/oomph/setup/InducedChoices">
+        <detail
+            key="inherit">
+          <value>eclipse.git.gerrit.remoteURIs</value>
+        </detail>
+        <detail
+            key="label">
+          <value>Vex Git or Gerrit Repository</value>
+        </detail>
+        <detail
+            key="target">
+          <value>remoteURI</value>
+        </detail>
+      </annotation>
+      <description>Vex</description>
+    </setupTask>
+    <setupTask
+        xsi:type="setup.targlets:TargletTask">
+      <targlet
+          name="Vex"
+          activeRepositoryList="">
+        <requirement
+            id="org.eclipse.platform.feature.group"/>
+        <requirement
+            id="org.eclipse.jdt.feature.group"/>
+        <requirement
+            id="org.eclipse.wst.xml_ui.feature.feature.group"/>
+        <requirement
+            id="org.eclipse.vex.feature.feature.group"/>
+        <requirement
+            id="org.eclipse.vex.core.tests"/>
+        <requirement
+            id="org.eclipse.vex.ui.tests"/>
+        <requirement
+            id="org.eclipse.vex.releng"/>
+        <requirement
+            id="org.eclipse.vex.repository"/>
+        <sourceLocator
+            rootFolder="${git.clone.vex.location}"/>
+        <repositoryList
+            name="Dependencies">
+          <repository
+              url="${tp.materialization.url}"/>
+          <repository
+              url="http://download.eclipse.org/modeling/emf/cdo/orbit/latest-R"/>
+        </repositoryList>
+      </targlet>
+    </setupTask>
+    <setupTask
+        xsi:type="mylyn:MylynBuildsTask"
+        serverURL="https://hudson.eclipse.org/vex"
+        userID="${bugzilla.id}"
+        password="${eclipse.user.password}">
+      <buildPlan
+          name="mylyn-docs-vex.ci"/>
+      <buildPlan
+          name="mylyn-docs-vex.gerrit"/>
+    </setupTask>
+    <description>The main development stream.</description>
+  </stream>
+  <logicalProjectContainer
+      xsi:type="setup:ProjectCatalog"
+      href="index:/org.eclipse.setup#//@projectCatalogs[name='org.eclipse']"/>
+  <description>The Visual Editor for XML</description>
 </setup:Project>
