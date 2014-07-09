@@ -16,12 +16,15 @@ package org.eclipse.vex.ui.internal.editor;
  */
 public abstract class EditorEventAdapter implements IVexEditorListener {
 
+	@Override
 	public void documentLoaded(final VexEditorEvent event) {
 	}
 
+	@Override
 	public void documentUnloaded(final VexEditorEvent event) {
 	}
 
+	@Override
 	public void styleChanged(final VexEditorEvent event) {
 	}
 

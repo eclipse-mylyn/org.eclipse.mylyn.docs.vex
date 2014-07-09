@@ -34,7 +34,7 @@ public class BlockElementBox extends AbstractBlockBox {
 	/**
 	 * Class constructor. This box's children are not created here but in the first call to layout. Instead, we estimate
 	 * the box's height here based on the given width.
-	 * 
+	 *
 	 * @param context
 	 *            LayoutContext used for this layout.
 	 * @param parent

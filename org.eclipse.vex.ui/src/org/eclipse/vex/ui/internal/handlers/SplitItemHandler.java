@@ -24,7 +24,7 @@ import org.eclipse.vex.core.provisional.dom.IParent;
 /**
  * Splits the nearest enclosing table row or list item (usually by hitting {@code Shift+Return}). If a table row is
  * being split, empty versions of the current row's cells are created.
- * 
+ *
  * @see SplitBlockElementHandler
  */
 public class SplitItemHandler extends SplitBlockElementHandler {
@@ -51,6 +51,7 @@ public class SplitItemHandler extends SplitBlockElementHandler {
 
 	private final IFilter<INode> displayedAsTableRowOrListItem(final StyleSheet stylesheet) {
 		return new IFilter<INode>() {
+			@Override
 			public boolean matches(final INode node) {
 				final String displayStyle = stylesheet.getStyles(node).getDisplay();
 				if (displayStyle.equals(CSS.TABLE_ROW)) {

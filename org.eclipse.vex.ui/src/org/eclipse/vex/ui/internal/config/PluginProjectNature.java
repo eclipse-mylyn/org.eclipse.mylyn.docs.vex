@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     John Krasnay - initial API and implementation
  *******************************************************************************/
@@ -24,19 +24,23 @@ public class PluginProjectNature implements IProjectNature {
 
 	public static final String ID = "org.eclipse.vex.ui.pluginNature"; //$NON-NLS-1$
 
+	@Override
 	public void configure() throws CoreException {
 		registerBuilder();
 	}
 
+	@Override
 	public void deconfigure() throws CoreException {
 		// System.out.println("deconfiguring " + project.getName());
 		project.deleteMarkers(IMarker.PROBLEM, true, 1);
 	}
 
+	@Override
 	public IProject getProject() {
 		return project;
 	}
 
+	@Override
 	public void setProject(final IProject project) {
 		this.project = project;
 	}

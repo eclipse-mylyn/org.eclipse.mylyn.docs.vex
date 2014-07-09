@@ -24,7 +24,7 @@ public class IncludeInlineBox extends CompositeInlineBox {
 	/**
 	 * Class constructor, called by the {@link InlineElementBox#createInlineBoxes} static factory method. The Box
 	 * created here is only temporary, it will be replaced by the split method.
-	 * 
+	 *
 	 * @param context
 	 *            LayoutContext to use.
 	 * @param node
@@ -80,7 +80,7 @@ public class IncludeInlineBox extends CompositeInlineBox {
 
 	/**
 	 * Class constructor. This constructor is called by the split method.
-	 * 
+	 *
 	 * @param context
 	 *            LayoutContext used for the layout.
 	 * @param node
@@ -124,7 +124,7 @@ public class IncludeInlineBox extends CompositeInlineBox {
 
 	/**
 	 * Override to paint background and borders.
-	 * 
+	 *
 	 * @see org.eclipse.vex.core.internal.layout.AbstractBox#paint(org.eclipse.vex.core.internal.layout.LayoutContext,
 	 *      int, int)
 	 */

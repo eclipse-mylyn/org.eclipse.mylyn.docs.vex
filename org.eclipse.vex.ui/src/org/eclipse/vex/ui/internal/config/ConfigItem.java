@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     John Krasnay - initial API and implementation
  *     Igor Jacy Lino Campista - Java 5 warnings fixed (bug 311325)
@@ -20,7 +20,7 @@ public abstract class ConfigItem implements Comparable<ConfigItem> {
 
 	/**
 	 * Class constructor.
-	 * 
+	 *
 	 * @param config
 	 *            VexConfiguration to which this item belongs.
 	 */
@@ -28,6 +28,7 @@ public abstract class ConfigItem implements Comparable<ConfigItem> {
 		this.config = config;
 	}
 
+	@Override
 	public int compareTo(final ConfigItem o) {
 		return getName().compareTo(o.getName());
 	}
@@ -91,7 +92,7 @@ public abstract class ConfigItem implements Comparable<ConfigItem> {
 
 	/**
 	 * Returns true if s is null or empty. Convenience method to be used in isValid().
-	 * 
+	 *
 	 * @param s
 	 *            String to check.
 	 */
@@ -110,7 +111,7 @@ public abstract class ConfigItem implements Comparable<ConfigItem> {
 
 	/**
 	 * Sets the name for this item.
-	 * 
+	 *
 	 * @param name
 	 *            New name for this item.
 	 */
@@ -120,7 +121,7 @@ public abstract class ConfigItem implements Comparable<ConfigItem> {
 
 	/**
 	 * Sets the resource URI for this item.
-	 * 
+	 *
 	 * @param resourceUri
 	 *            New resource URI for this item.
 	 */
@@ -131,7 +132,7 @@ public abstract class ConfigItem implements Comparable<ConfigItem> {
 	/**
 	 * Sets the simple ID for this item. The simple ID should only contain letters and numbers, and must not contain a
 	 * period.
-	 * 
+	 *
 	 * @param id
 	 *            New simple ID for this item.
 	 */

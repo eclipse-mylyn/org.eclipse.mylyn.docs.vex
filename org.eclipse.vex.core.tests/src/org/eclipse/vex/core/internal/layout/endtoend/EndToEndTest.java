@@ -100,6 +100,7 @@ public class EndToEndTest {
 		final DocumentReader reader = new DocumentReader();
 		reader.setValidator(IValidator.NULL);
 		reader.setStyleSheetProvider(new IStyleSheetProvider() {
+			@Override
 			public StyleSheet getStyleSheet(final DocumentContentModel documentContentModel) {
 				return styleSheet;
 			}

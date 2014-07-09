@@ -62,6 +62,7 @@ public class ConfigLoaderJobTest {
 		runnableRun[1] = false;
 		final ConfigLoaderJob job = new ConfigLoaderJob();
 		job.load(new Runnable() {
+			@Override
 			public void run() {
 				runnableRun[0] = true;
 			}
@@ -73,6 +74,7 @@ public class ConfigLoaderJobTest {
 		runnableRun[0] = false;
 		runnableRun[1] = false;
 		job.load(new Runnable() {
+			@Override
 			public void run() {
 				runnableRun[1] = true;
 			}

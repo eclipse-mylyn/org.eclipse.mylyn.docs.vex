@@ -35,7 +35,7 @@ public abstract class TextBox extends AbstractInlineBox implements InlineBox {
 
 	/**
 	 * Class constructor.
-	 * 
+	 *
 	 * @param node
 	 *            Node containing the text. This is used for styling information.
 	 */
@@ -46,7 +46,7 @@ public abstract class TextBox extends AbstractInlineBox implements InlineBox {
 	/**
 	 * Causes the box to recalculate it size. Subclasses should call this from their constructors after they are
 	 * initialized.
-	 * 
+	 *
 	 * @param context
 	 *            LayoutContext used to calculate size. The correct font has to be set in the context's graphics before
 	 *            calling this method.
@@ -76,7 +76,7 @@ public abstract class TextBox extends AbstractInlineBox implements InlineBox {
 	/**
 	 * Causes the box to recalculate its height and baseline. Subclasses should call this from their constructors after
 	 * they are initialized.
-	 * 
+	 *
 	 * @param context
 	 *            LayoutContext used to calculate size.
 	 */
@@ -101,6 +101,7 @@ public abstract class TextBox extends AbstractInlineBox implements InlineBox {
 	/**
 	 * @see org.eclipse.vex.core.internal.layout.InlineBox#getBaseline()
 	 */
+	@Override
 	public int getBaseline() {
 		return baseline;
 	}
@@ -145,7 +146,7 @@ public abstract class TextBox extends AbstractInlineBox implements InlineBox {
 
 	/**
 	 * Returns true if the given character is one where a linebreak should occur, e.g. a space.
-	 * 
+	 *
 	 * @param c
 	 *            the character to test
 	 */
@@ -155,7 +156,7 @@ public abstract class TextBox extends AbstractInlineBox implements InlineBox {
 
 	/**
 	 * Paints a string as selected text.
-	 * 
+	 *
 	 * @param context
 	 *            LayoutContext to be used. It is assumed that the contained Graphics object is set up with the proper
 	 *            font.
@@ -216,7 +217,7 @@ public abstract class TextBox extends AbstractInlineBox implements InlineBox {
 
 	/**
 	 * Paint a line along the baseline of the text, for showing underline, overline and strike-through formatting.
-	 * 
+	 *
 	 * @param context
 	 *            LayoutContext to be used. It is assumed that the contained Graphics object is set up with the proper
 	 *            font.
@@ -319,7 +320,7 @@ public abstract class TextBox extends AbstractInlineBox implements InlineBox {
 	/**
 	 * Return a pair of boxes representing a split at the given offset. If split is zero, then the returned left box
 	 * should be null. If the split is equal to the length of the text, then the right box should be null.
-	 * 
+	 *
 	 * @param context
 	 *            LayoutContext used to calculate size. The correct font has to be set in the context's graphics before
 	 *            calling this method.

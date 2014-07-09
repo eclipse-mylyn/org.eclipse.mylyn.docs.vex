@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     John Krasnay - initial API and implementation
  *     Igor Jacy Lino Campista - Java 5 warnings fixed (bug 311325)
@@ -27,6 +27,7 @@ public class StyleFactory implements IConfigItemFactory {
 
 	private static final String[] EXTS = new String[] { "css" }; //$NON-NLS-1$
 
+	@Override
 	public IConfigElement[] createConfigurationElements(final ConfigItem item) {
 		final Style style = (Style) item;
 		final ConfigurationElement element = new ConfigurationElement("style"); //$NON-NLS-1$
@@ -39,6 +40,7 @@ public class StyleFactory implements IConfigItemFactory {
 		return new IConfigElement[] { element };
 	}
 
+	@Override
 	public ConfigItem createItem(final ConfigSource config, final IConfigElement[] configElements) throws IOException {
 
 		if (configElements.length < 1) {
@@ -66,18 +68,22 @@ public class StyleFactory implements IConfigItemFactory {
 		}
 	}
 
+	@Override
 	public String getExtensionPointId() {
 		return Style.EXTENSION_POINT;
 	}
 
+	@Override
 	public String[] getFileExtensions() {
 		return EXTS;
 	}
 
+	@Override
 	public String getPluralName() {
 		return Messages.getString("StyleFactory.pluralName"); //$NON-NLS-1$
 	}
 
+	@Override
 	public Object parseResource(final ConfigItem item, final URL baseUrl, final String resourcePath, final IBuildProblemHandler problemHandler) throws IOException {
 		try {
 			return new StyleSheetReader().read(new URL(baseUrl, resourcePath));

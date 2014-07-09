@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Carsten Hiesserich - initial API and implementation
  *******************************************************************************/
@@ -27,6 +27,7 @@ public class InlineMarkerProperty extends AbstractProperty {
 		super(CSS.INLINE_MARKER);
 	}
 
+	@Override
 	public Object calculate(final LexicalUnit lu, final Styles parentStyles, final Styles styles, final INode node) {
 		if (isInlineMarker(lu)) {
 			return lu.getStringValue();
@@ -37,7 +38,7 @@ public class InlineMarkerProperty extends AbstractProperty {
 
 	/**
 	 * Returns true if the given lexical unit represents a valid _vex-inline-marker.
-	 * 
+	 *
 	 * @param lu
 	 *            LexicalUnit to check.
 	 */

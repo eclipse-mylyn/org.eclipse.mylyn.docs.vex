@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  * 		Florian Thienel - initial API and implementation
  *******************************************************************************/
@@ -42,7 +42,7 @@ public class DocumentContentModel implements EntityResolver {
 
 	/**
 	 * Initialize the content model.
-	 * 
+	 *
 	 * @param baseUri
 	 *            The base uri of the loaded document
 	 * @param publicId
@@ -66,7 +66,7 @@ public class DocumentContentModel implements EntityResolver {
 
 	/**
 	 * Sets an explicit namespace.
-	 * 
+	 *
 	 * @param baseUri
 	 *            The base uri of the loaded document
 	 * @param rootNamespace
@@ -107,7 +107,7 @@ public class DocumentContentModel implements EntityResolver {
 
 	/**
 	 * Create and return the WTP CMDocument for the DTD or schema defined by this ContentModel.
-	 * 
+	 *
 	 * @return The resolved CMDocument.
 	 */
 	public CMDocument getContentModelDocument() {
@@ -130,7 +130,7 @@ public class DocumentContentModel implements EntityResolver {
 	/**
 	 * Create and return the WTP CMDocument for the XML-Schema at the given URI or namespace. The XML catalog is used to
 	 * resolve the schema URI.
-	 * 
+	 *
 	 * @param schemaID
 	 *            The URI or the namespace of the XML-Schema.
 	 * @return The resolved CMDocument.
@@ -150,7 +150,7 @@ public class DocumentContentModel implements EntityResolver {
 
 	/**
 	 * Create a new CMDocument from the DTD or XML-Schema at the given URI.
-	 * 
+	 *
 	 * @param resourceURI
 	 *            The URI containing the schema or dtd.
 	 * @return
@@ -164,6 +164,7 @@ public class DocumentContentModel implements EntityResolver {
 		return cmDocument;
 	}
 
+	@Override
 	public InputSource resolveEntity(final String publicId, final String systemId) throws SAXException, IOException {
 		final String resolved = resolveResourceURI(publicId, systemId);
 
@@ -178,7 +179,7 @@ public class DocumentContentModel implements EntityResolver {
 
 	/**
 	 * Resolve the URI for a given Resource with the XML-Catalog.
-	 * 
+	 *
 	 * @param publicId
 	 *            The public identifier (DTD) of the resource being referenced, may be null
 	 * @param systemId

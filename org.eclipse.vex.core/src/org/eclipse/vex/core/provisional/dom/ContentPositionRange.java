@@ -48,7 +48,7 @@ public class ContentPositionRange {
 
 	/**
 	 * Resize this range by the given delta. Since ContentPositionRange is immutable, a new resized range is returned.
-	 * 
+	 *
 	 * @return the resized range
 	 */
 	public ContentPositionRange resizeBy(final int deltaStart, final int deltaEnd) {
@@ -57,7 +57,7 @@ public class ContentPositionRange {
 
 	/**
 	 * Checks if this range is completely inside the insertion range of the given node.
-	 * 
+	 *
 	 * @param node
 	 */
 	public boolean isInsertionPointIn(final INode node) {
@@ -70,7 +70,7 @@ public class ContentPositionRange {
 
 	/**
 	 * Indicate whether this range contains the given position.
-	 * 
+	 *
 	 * @return true if this range contains the given position
 	 */
 	public boolean contains(final ContentPosition position) {

@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     John Krasnay - initial API and implementation
  *     Igor Jacy Lino Campista - Java 5 warnings fixed (bug 311325)
@@ -47,6 +47,7 @@ public abstract class CompositeInlineBox extends AbstractInlineBox {
 		return false;
 	}
 
+	@Override
 	public boolean isEOL() {
 		final Box[] children = getChildren();
 		return children.length > 0 && ((InlineBox) children[children.length - 1]).isEOL();
@@ -186,7 +187,7 @@ public abstract class CompositeInlineBox extends AbstractInlineBox {
 
 	/**
 	 * Creates a Pair of InlineBoxes, each with its own set of children.
-	 * 
+	 *
 	 * @param context
 	 *            LayoutContext used for this layout.
 	 * @param lefts

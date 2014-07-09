@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Carsten Hiesserich - initial API and implementation
  *******************************************************************************/
@@ -13,7 +13,7 @@ package org.eclipse.vex.core.internal.undo;
 /**
  * A default implementation of <code>IUndoableEdit</code> that can be used as a base for implementing editing
  * operations.
- * 
+ *
  */
 public abstract class AbstractUndoableEdit implements IUndoableEdit {
 
@@ -23,6 +23,7 @@ public abstract class AbstractUndoableEdit implements IUndoableEdit {
 	 */
 	private boolean hasBeenDone = false;
 
+	@Override
 	public boolean combine(final IUndoableEdit edit) {
 		if (hasBeenDone) {
 			return performCombine(edit);
@@ -33,7 +34,7 @@ public abstract class AbstractUndoableEdit implements IUndoableEdit {
 	/**
 	 * To be implemented by subclasses to perform the actual Combine action. The default implementation always returns
 	 * <code>false</code>.
-	 * 
+	 *
 	 * @param edit
 	 *            The edit to combine with this one
 	 * @return <code>true</code> if the given edit has been combined with this one.
@@ -42,6 +43,7 @@ public abstract class AbstractUndoableEdit implements IUndoableEdit {
 		return false;
 	}
 
+	@Override
 	public void redo() throws CannotRedoException {
 		if (!canRedo()) {
 			throw new CannotRedoException();
@@ -58,11 +60,12 @@ public abstract class AbstractUndoableEdit implements IUndoableEdit {
 
 	/**
 	 * To be implemented by subclasses to perform the actual Redo action.
-	 * 
+	 *
 	 * @throws CannotRedoException
 	 */
 	protected abstract void performRedo() throws CannotRedoException;
 
+	@Override
 	public void undo() throws CannotUndoException {
 		if (!canUndo()) {
 			throw new CannotUndoException();
@@ -78,15 +81,17 @@ public abstract class AbstractUndoableEdit implements IUndoableEdit {
 
 	/**
 	 * To be implemented by subclasses to perform the actual Undo action.
-	 * 
+	 *
 	 * @throws CannotUndoException
 	 */
 	protected abstract void performUndo() throws CannotUndoException;
 
+	@Override
 	public boolean canUndo() {
 		return hasBeenDone;
 	}
 
+	@Override
 	public boolean canRedo() {
 		return !hasBeenDone;
 	}

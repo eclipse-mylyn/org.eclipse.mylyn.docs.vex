@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     John Krasnay - initial API and implementation
  *******************************************************************************/
@@ -19,7 +19,7 @@ public class DocumentValidationException extends RuntimeException {
 
 	/**
 	 * Create a new exception with the given message.
-	 * 
+	 *
 	 * @param message
 	 *            message indicating the nature of the exception
 	 */

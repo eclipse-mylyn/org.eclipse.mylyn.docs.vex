@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     John Krasnay - initial API and implementation
  *     Igor Jacy Lino Campista - Java 5 warnings fixed (bug 311325)
@@ -30,7 +30,7 @@ public class AttributeDefinition implements Comparable<AttributeDefinition> {
 
 	/**
 	 * The attribute's type.
-	 * 
+	 *
 	 * @see <a
 	 *      href="http://www.w3.org/TR/REC-xml/#sec-attribute-types">http://www.w3.org/TR/REC-xml/#sec-attribute-types</a>
 	 */
@@ -64,11 +64,12 @@ public class AttributeDefinition implements Comparable<AttributeDefinition> {
 
 	/**
 	 * Implements <code>Comparable.compareTo</code> to sort alphabetically by name.
-	 * 
+	 *
 	 * @param other
 	 *            The attribute to which this one is to be compared.
 	 * @see Comparable
 	 */
+	@Override
 	public int compareTo(final AttributeDefinition other) {
 		return name.toString().compareTo(other.getQualifiedName().toString());
 	}

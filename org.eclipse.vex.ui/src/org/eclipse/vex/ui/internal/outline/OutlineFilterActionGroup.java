@@ -67,6 +67,7 @@ public class OutlineFilterActionGroup extends ActionGroup {
 			final ISelection currentSelection = viewer.getSelection();
 			viewer.getControl().setRedraw(false);
 			BusyIndicator.showWhile(viewer.getControl().getDisplay(), new Runnable() {
+				@Override
 				public void run() {
 					viewer.refresh();
 					viewer.setSelection(currentSelection, true);

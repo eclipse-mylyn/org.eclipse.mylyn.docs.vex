@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     John Krasnay - initial API and implementation
  *******************************************************************************/
@@ -25,13 +25,14 @@ public class SelectionProvider implements ISelectionProvider, ISelectionChangedL
 	ISelection selection;
 	private final ListenerList<ISelectionChangedListener, SelectionChangedEvent> listeners = new ListenerList<ISelectionChangedListener, SelectionChangedEvent>(ISelectionChangedListener.class);
 
+	@Override
 	public void addSelectionChangedListener(final ISelectionChangedListener listener) {
 		listeners.add(listener);
 	}
 
 	/**
 	 * Fire a SelectionChangedEvent to all registered listeners.
-	 * 
+	 *
 	 * @param e
 	 *            Event to be passed to the listeners' selectionChanged method.
 	 */
@@ -40,18 +41,22 @@ public class SelectionProvider implements ISelectionProvider, ISelectionChangedL
 		listeners.fireEvent("selectionChanged", e); //$NON-NLS-1$
 	}
 
+	@Override
 	public ISelection getSelection() {
 		return selection;
 	}
 
+	@Override
 	public void removeSelectionChangedListener(final ISelectionChangedListener listener) {
 		listeners.remove(listener);
 	}
 
+	@Override
 	public void setSelection(final ISelection selection) {
 		this.selection = selection;
 	}
 
+	@Override
 	public void selectionChanged(final SelectionChangedEvent event) {
 		fireSelectionChanged(event);
 	}

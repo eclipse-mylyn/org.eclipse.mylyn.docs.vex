@@ -16,6 +16,7 @@ import org.eclipse.ui.IPerspectiveFactory;
 
 public class DocumentPerspective implements IPerspectiveFactory {
 
+	@Override
 	public void createInitialLayout(final IPageLayout layout) {
 		defineActions(layout);
 		defineLayout(layout);

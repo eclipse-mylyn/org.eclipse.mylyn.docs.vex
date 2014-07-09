@@ -45,7 +45,7 @@ public class InlineElementBox extends CompositeInlineBox {
 	/**
 	 * Class constructor, called by the createInlineBoxes static factory method. The Box created here is only temporary,
 	 * it will be replaced by the split method.
-	 * 
+	 *
 	 * @param context
 	 *            LayoutContext to use.
 	 * @param node
@@ -134,7 +134,7 @@ public class InlineElementBox extends CompositeInlineBox {
 
 	/**
 	 * Class constructor. This constructor is called by the split method.
-	 * 
+	 *
 	 * @param context
 	 *            LayoutContext used for the layout.
 	 * @param node
@@ -159,6 +159,7 @@ public class InlineElementBox extends CompositeInlineBox {
 	/**
 	 * @see org.eclipse.vex.core.internal.layout.InlineBox#getBaseline()
 	 */
+	@Override
 	public int getBaseline() {
 		return baseline;
 	}
@@ -205,7 +206,7 @@ public class InlineElementBox extends CompositeInlineBox {
 
 	/**
 	 * Override to paint background and borders.
-	 * 
+	 *
 	 * @see org.eclipse.vex.core.internal.layout.AbstractBox#paint(org.eclipse.vex.core.internal.layout.LayoutContext,
 	 *      int, int)
 	 */
@@ -283,7 +284,7 @@ public class InlineElementBox extends CompositeInlineBox {
 	/**
 	 * Creates a list of inline boxes given a range of offsets. This method is used when creating both ParagraphBoxes
 	 * and InlineElementBoxes.
-	 * 
+	 *
 	 * @param context
 	 *            LayoutContext to be used.
 	 * @param node
@@ -380,6 +381,7 @@ public class InlineElementBox extends CompositeInlineBox {
 		final int size = Math.round(0.5f * styles.getFontSize());
 		final int lift = Math.round(0.1f * styles.getFontSize());
 		final Drawable drawable = new Drawable() {
+			@Override
 			public void draw(final Graphics g, final int x, int y) {
 				g.setLineStyle(Graphics.LINE_SOLID);
 				g.setLineWidth(1);
@@ -389,6 +391,7 @@ public class InlineElementBox extends CompositeInlineBox {
 				g.drawLine(x + size - 1, y - size / 2, x, y - size);
 			}
 
+			@Override
 			public Rectangle getBounds() {
 				return new Rectangle(0, -size, size, size);
 			}
@@ -400,6 +403,7 @@ public class InlineElementBox extends CompositeInlineBox {
 		final int size = Math.round(0.5f * styles.getFontSize());
 		final int lift = Math.round(0.1f * styles.getFontSize());
 		final Drawable drawable = new Drawable() {
+			@Override
 			public void draw(final Graphics g, final int x, int y) {
 				g.setLineStyle(Graphics.LINE_SOLID);
 				g.setLineWidth(1);
@@ -409,6 +413,7 @@ public class InlineElementBox extends CompositeInlineBox {
 				g.drawLine(x, y - size / 2, x + size - 1, y - size);
 			}
 
+			@Override
 			public Rectangle getBounds() {
 				return new Rectangle(0, -size, size, size);
 			}

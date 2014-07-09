@@ -28,19 +28,22 @@ import org.eclipse.vex.core.provisional.dom.IText;
 /**
  * This visitor implements a deep search for undeclared namespace URIs. The result is returned as a set of strings
  * containing the undeclared URIs.
- * 
+ *
  * @author Florian Thienel
  */
 public class FindUndeclaredNamespacesVisitor implements INodeVisitorWithResult<Set<String>> {
 
+	@Override
 	public Set<String> visit(final IDocument document) {
 		return visitAll(document.children());
 	}
 
+	@Override
 	public Set<String> visit(final IDocumentFragment fragment) {
 		return visitAll(fragment.children());
 	}
 
+	@Override
 	public Set<String> visit(final IElement element) {
 		final Set<String> result = new HashSet<String>();
 
@@ -61,14 +64,17 @@ public class FindUndeclaredNamespacesVisitor implements INodeVisitorWithResult<S
 		return result;
 	}
 
+	@Override
 	public Set<String> visit(final IText text) {
 		return Collections.emptySet();
 	}
 
+	@Override
 	public Set<String> visit(final IComment comment) {
 		return Collections.emptySet();
 	}
 
+	@Override
 	public Set<String> visit(final IProcessingInstruction pi) {
 		return Collections.emptySet();
 	}

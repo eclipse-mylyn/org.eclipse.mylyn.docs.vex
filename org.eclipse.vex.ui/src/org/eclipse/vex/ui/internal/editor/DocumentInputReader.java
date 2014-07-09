@@ -40,14 +40,14 @@ public class DocumentInputReader extends Reader {
 	/**
 	 * Reads characters into a portion of an array. This method will block until some input is available, an I/O error
 	 * occurs, or the end of the stream is reached.
-	 * 
+	 *
 	 * @param cbuf
 	 *            - Destination buffer
 	 * @param off
 	 *            - Offset at which to start storing characters
 	 * @param length
 	 *            - Maximum number of characters to read
-	 * 
+	 *
 	 * @return The number of characters read, or -1 if the end of the stream has been reached
 	 */
 	@Override

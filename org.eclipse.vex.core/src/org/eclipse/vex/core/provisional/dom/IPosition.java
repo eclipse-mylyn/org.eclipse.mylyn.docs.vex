@@ -21,10 +21,12 @@ package org.eclipse.vex.core.provisional.dom;
 public interface IPosition extends Comparable<IPosition> {
 
 	static IPosition NULL = new IPosition() {
+		@Override
 		public int getOffset() {
 			return -1;
 		}
 
+		@Override
 		public boolean isValid() {
 			return false;
 		};

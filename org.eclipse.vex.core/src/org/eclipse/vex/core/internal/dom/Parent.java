@@ -28,7 +28,7 @@ import org.eclipse.vex.core.provisional.dom.IParent;
  * A Parent node is a Node which can contain other nodes as children. This class defines the tree-like structure of the
  * DOM. It handles the merging of the child nodes and the textual content of one node within the structure of the
  * document.
- * 
+ *
  * @author Florian Thienel
  */
 public abstract class Parent extends Node implements IParent {
@@ -38,7 +38,7 @@ public abstract class Parent extends Node implements IParent {
 	/**
 	 * Append the given child node to the end of the list of children. The parent attribute of the child is set to this
 	 * node.
-	 * 
+	 *
 	 * @param child
 	 *            the new child node
 	 */
@@ -50,7 +50,7 @@ public abstract class Parent extends Node implements IParent {
 	/**
 	 * Insert the given child node into the list of children at the given offset. The parent attribute of the child is
 	 * set to this node.
-	 * 
+	 *
 	 * @param offset
 	 *            the offset within the associated content at which the new child should be inserted
 	 * @param child
@@ -97,17 +97,19 @@ public abstract class Parent extends Node implements IParent {
 		child.setParent(this);
 	}
 
+	@Override
 	public INode getChildAt(final ContentPosition position) {
 		return getChildAt(position.getOffset());
 	}
 
 	/**
 	 * Returns the child node which contains the given offset, or this node, if no child contains the offset.
-	 * 
+	 *
 	 * @param offset
 	 *            the offset
 	 * @return the node at the given offset
 	 */
+	@Override
 	public INode getChildAt(final int offset) {
 		if (!containsOffset(offset)) {
 			throw new AssertionFailedException(MessageFormat.format("Offset must be within {0}.", getRange()));
@@ -174,7 +176,7 @@ public abstract class Parent extends Node implements IParent {
 	/**
 	 * Insert the given child into the list of children before the given node. The parent attribute of the child is set
 	 * to this node.
-	 * 
+	 *
 	 * @param beforeNode
 	 *            the node before which the new child should be inserted
 	 * @param child
@@ -188,7 +190,7 @@ public abstract class Parent extends Node implements IParent {
 
 	/**
 	 * Remove the given child node from the list of children. The parent attribute of the child will be set to null.
-	 * 
+	 *
 	 * @param child
 	 *            the child node to remove
 	 */
@@ -201,6 +203,7 @@ public abstract class Parent extends Node implements IParent {
 	 * @return the children axis of this parent.
 	 * @see IAxis
 	 */
+	@Override
 	public IAxis<INode> children() {
 		return new Axis<INode>(this) {
 			@Override
@@ -215,9 +218,10 @@ public abstract class Parent extends Node implements IParent {
 
 	/**
 	 * Indicates whether this parent node has child nodes, including text nodes.
-	 * 
+	 *
 	 * @return true if this parent node has any child nodes
 	 */
+	@Override
 	public boolean hasChildren() {
 		return !children().isEmpty();
 	}

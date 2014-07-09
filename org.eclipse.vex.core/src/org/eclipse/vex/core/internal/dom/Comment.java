@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  * 		Florian Thienel - initial API and implementation
  *******************************************************************************/
@@ -17,19 +17,22 @@ import org.eclipse.vex.core.provisional.dom.INodeVisitorWithResult;
 
 /**
  * A representation of an XML comment in the DOM. Comments have textual content, a start and an end tag.
- * 
+ *
  * @author Florian Thienel
  */
 public class Comment extends Node implements IComment {
 
+	@Override
 	public void accept(final INodeVisitor visitor) {
 		visitor.visit(this);
 	}
 
+	@Override
 	public <T> T accept(final INodeVisitorWithResult<T> visitor) {
 		return visitor.visit(this);
 	}
 
+	@Override
 	public boolean isKindOf(final INode node) {
 		if (!(node instanceof IComment)) {
 			return false;

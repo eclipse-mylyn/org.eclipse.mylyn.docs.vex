@@ -19,7 +19,7 @@ import org.eclipse.vex.core.provisional.dom.INodeVisitorWithResult;
  * The PseudoElement is used to pass CSS pseudo elements to layout functions.<br />
  * To get an instance of this class use {@link StyleSheet#getPseudoElementBefore(INode)} or
  * {@link StyleSheet#getPseudoElementAfter(INode)}.
- * 
+ *
  * @author Carsten Hiesserich
  */
 public class PseudoElement extends Element {

@@ -23,6 +23,7 @@ public class RootPreferencePage extends FieldEditorPreferencePage implements IWo
 		addField(new IntegerFieldEditor(VexPreferences.INDENTATION_SIZE, "Indentation size:", getFieldEditorParent()));
 	}
 
+	@Override
 	public void init(final IWorkbench workbench) {
 	}
 

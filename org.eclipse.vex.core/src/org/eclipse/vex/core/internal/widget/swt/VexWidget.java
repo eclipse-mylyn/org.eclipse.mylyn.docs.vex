@@ -144,6 +144,7 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 		return impl.canInsertComment();
 	}
 
+	@Override
 	public boolean canInsertProcessingInstruction() {
 		return impl.canInsertProcessingInstruction();
 	}
@@ -190,7 +191,7 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 		final Clipboard clipboard = new Clipboard(getDisplay());
 		final String text = getSelectedText();
 		if (text.isEmpty()) {
-			// Some elements (like XInclude) may not contain textual content. 
+			// Some elements (like XInclude) may not contain textual content.
 			final Object[] data = { getSelectedFragment() };
 			final Transfer[] transfers = { DocumentFragmentTransfer.getInstance() };
 			clipboard.setContents(data, transfers);
@@ -357,10 +358,12 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 		return impl.insertComment();
 	}
 
+	@Override
 	public IProcessingInstruction insertProcessingInstruction(final String target) throws CannotRedoException, ReadOnlyException {
 		return impl.insertProcessingInstruction(target);
 	}
 
+	@Override
 	public void editProcessingInstruction(final String target, final String data) throws CannotRedoException, ReadOnlyException {
 		impl.editProcessingInstruction(target, data);
 	}
@@ -415,6 +418,7 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 		impl.moveTo(position);
 	}
 
+	@Override
 	public void moveTo(final ContentPosition position, final boolean select) {
 		impl.moveTo(position, select);
 	}
@@ -522,10 +526,12 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 		impl.selectContentOf(node);
 	}
 
+	@Override
 	public void select(final INode node) {
 		impl.select(node);
 	}
 
+	@Override
 	public boolean canSetAttribute(final String attributeName, final String value) {
 		return impl.canSetAttribute(attributeName, value);
 	}
@@ -875,7 +881,7 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 	/**
 	 * The DisposedEvent is Fired when this Widget is disposed. The event is used instead of re-implementing
 	 * Wigdet#dispose, which does not work.
-	 * 
+	 *
 	 * @see org.eclipse.swt.widgets.Widget#dispose
 	 */
 	private final DisposeListener disposeListener = new DisposeListener() {
@@ -1067,7 +1073,7 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 
 	/**
 	 * Scrolls to the given position in the widget.
-	 * 
+	 *
 	 * @param x
 	 *            x-coordinate of the position to which to scroll
 	 * @param y

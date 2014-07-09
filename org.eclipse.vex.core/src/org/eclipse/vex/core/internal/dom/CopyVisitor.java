@@ -22,34 +22,40 @@ import org.eclipse.vex.core.provisional.dom.IText;
 /**
  * This visitor creates a simple copy of the visited node. I.e. only the node itself, not its content neither its
  * children are copied. The copy is provided through the getCopy() method.
- * 
+ *
  * @author Florian Thienel
  */
 public class CopyVisitor implements INodeVisitorWithResult<Node> {
 
+	@Override
 	public Document visit(final IDocument document) {
 		throw new UnsupportedOperationException("Document cannot be copied");
 	}
 
+	@Override
 	public DocumentFragment visit(final IDocumentFragment fragment) {
 		throw new UnsupportedOperationException("DocumentFragment cannot be copied");
 	}
 
+	@Override
 	public Element visit(final IElement element) {
 		final Element copyElement = new Element(element.getQualifiedName());
 		copyElement.accept(new CopyOfElement(element));
 		return copyElement;
 	}
 
+	@Override
 	public Text visit(final IText text) {
 		// ignore Text nodes because they are created dynamically in Element.getChildNodes()
 		return null;
 	}
 
+	@Override
 	public Comment visit(final IComment comment) {
 		return new Comment();
 	}
 
+	@Override
 	public ProcessingInstruction visit(final IProcessingInstruction pi) {
 		return new ProcessingInstruction(pi.getTarget());
 	}

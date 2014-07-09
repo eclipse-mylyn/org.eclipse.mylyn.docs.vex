@@ -14,7 +14,7 @@ package org.eclipse.vex.core.provisional.dom;
 /**
  * An incarantion of the <a href="http://en.wikipedia.org/wiki/Visitor_pattern">Visitor pattern</a> which handles the
  * nodes of the structural part of the DOM.
- * 
+ *
  * @author Florian Thienel
  */
 public interface INodeVisitor {

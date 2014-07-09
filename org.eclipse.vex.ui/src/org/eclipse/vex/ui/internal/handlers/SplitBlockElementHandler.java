@@ -21,7 +21,7 @@ import org.eclipse.vex.ui.internal.swt.ContentAssist;
 /**
  * Splits the current block element, for instance to create new block/paragraph or table cell (usually by hitting the
  * {@code Return} key).
- * 
+ *
  * @see SplitItemHandler
  */
 public class SplitBlockElementHandler extends AbstractVexWidgetHandler {
@@ -46,7 +46,7 @@ public class SplitBlockElementHandler extends AbstractVexWidgetHandler {
 
 	/**
 	 * Splits the given element.
-	 * 
+	 *
 	 * @param vexWidget
 	 *            IVexWidget containing the document.
 	 * @param node
@@ -54,6 +54,7 @@ public class SplitBlockElementHandler extends AbstractVexWidgetHandler {
 	 */
 	protected void splitElement(final IVexWidget vexWidget, final INode node) {
 		vexWidget.doWork(new Runnable() {
+			@Override
 			public void run() {
 				final boolean isPreformatted = vexWidget.getWhitespacePolicy().isPre(node);
 				if (isPreformatted) {

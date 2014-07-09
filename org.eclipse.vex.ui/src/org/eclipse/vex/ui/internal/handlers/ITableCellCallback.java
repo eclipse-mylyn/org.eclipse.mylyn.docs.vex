@@ -12,14 +12,14 @@ package org.eclipse.vex.ui.internal.handlers;
 
 /**
  * Callback interface to iterate over table cells (visitor pattern).
- * 
+ *
  * @see TableCellCallbackAdapter
  */
 public interface ITableCellCallback {
 
 	/**
 	 * Called before the first cell in a row is visited.
-	 * 
+	 *
 	 * @param row
 	 *            element or IntRange representing the row
 	 * @param rowIndex
@@ -29,7 +29,7 @@ public interface ITableCellCallback {
 
 	/**
 	 * Called when a cell is visited.
-	 * 
+	 *
 	 * @param row
 	 *            element or IntRange representing the row
 	 * @param cell
@@ -43,7 +43,7 @@ public interface ITableCellCallback {
 
 	/**
 	 * Called after the last cell in a row is visited.
-	 * 
+	 *
 	 * @param row
 	 *            element or IntRange representing the row
 	 * @param rowIndex

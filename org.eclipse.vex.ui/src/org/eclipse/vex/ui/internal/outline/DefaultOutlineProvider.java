@@ -64,6 +64,7 @@ public class DefaultOutlineProvider implements IOutlineProvider, IToolBarContrib
 	/* The maximum length of the shown element content */
 	private static final int MAX_CONTENT_LENGTH = 30;
 
+	@Override
 	public void init(final VexEditor editor) {
 		contentProvider = new OutlineContentProvider();
 		labelProvider = new OutlineLabelProvider(editor);
@@ -76,25 +77,30 @@ public class DefaultOutlineProvider implements IOutlineProvider, IToolBarContrib
 		initStates();
 	}
 
+	@Override
 	public ITreeContentProvider getContentProvider() {
 		return contentProvider;
 	}
 
+	@Override
 	public IBaseLabelProvider getLabelProvider() {
 		return labelProvider;
 	}
 
 	/* This method is only here for compatibility with the interface */
+	@Override
 	public IElement getOutlineElement(final IElement child) {
 		return child;
 	}
 
+	@Override
 	public void setState(final String commandId, final boolean state) {
 		if (commandId.equals(SHOW_ELEMENT_CONTENT)) {
 			showElementContent = state;
 		}
 	}
 
+	@Override
 	public void registerToolBarActions(final DocumentOutlinePage page, final IActionBars actionBars) {
 		actionBars.getToolBarManager().add(new ToolBarToggleAction(page, SHOW_ELEMENT_CONTENT, PluginImages.DESC_SHOW_ELEMENT_CONTENT));
 	}
@@ -124,16 +130,20 @@ public class DefaultOutlineProvider implements IOutlineProvider, IToolBarContrib
 
 	private class OutlineContentProvider implements ITreeContentProvider {
 
+		@Override
 		public void dispose() {
 		}
 
+		@Override
 		public void inputChanged(final Viewer viewer, final Object oldInput, final Object newInput) {
 		}
 
+		@Override
 		public Object[] getChildren(final Object parentElement) {
 			return getOutlineChildren((INode) parentElement);
 		}
 
+		@Override
 		public Object getParent(final Object node) {
 			final INode parent = ((INode) node).getParent();
 			if (parent == null) {
@@ -143,10 +153,12 @@ public class DefaultOutlineProvider implements IOutlineProvider, IToolBarContrib
 			}
 		}
 
+		@Override
 		public boolean hasChildren(final Object node) {
 			return getOutlineChildren((INode) node).length > 0;
 		}
 
+		@Override
 		public Object[] getElements(final Object inputElement) {
 			final IDocument document = (IDocument) inputElement;
 			final IElement root = document.getRootElement();
@@ -260,7 +272,7 @@ public class DefaultOutlineProvider implements IOutlineProvider, IToolBarContrib
 					content = XML.compressWhitespace(content, false, false, false);
 				}
 			}
-			
+
 			if (content != null && content.length() > 0) {
 				if (content.length() > MAX_CONTENT_LENGTH - 3) {
 					content = content.substring(0, Math.min(MAX_CONTENT_LENGTH, content.length())) + "...";

@@ -21,7 +21,7 @@ import org.eclipse.vex.core.provisional.dom.IParent;
 
 /**
  * Moves the current selection or block element above the previous sibling.
- * 
+ *
  * TODO WORK IN PROGRESS.
  */
 public class MoveSelectionUpHandler extends AbstractVexWidgetHandler {
@@ -58,6 +58,7 @@ public class MoveSelectionUpHandler extends AbstractVexWidgetHandler {
 
 	private static IFilter<INode> containingRange(final ContentRange range) {
 		return new IFilter<INode>() {
+			@Override
 			public boolean matches(final INode node) {
 				return node.getRange().contains(range);
 			}
@@ -66,6 +67,7 @@ public class MoveSelectionUpHandler extends AbstractVexWidgetHandler {
 
 	private static IFilter<INode> displayedAsBlock(final IWhitespacePolicy policy) {
 		return new IFilter<INode>() {
+			@Override
 			public boolean matches(final INode node) {
 				return policy.isBlock(node);
 			}

@@ -18,7 +18,7 @@ import org.eclipse.vex.ui.internal.handlers.VexHandlerUtil.SelectedRows;
 
 /**
  * Moves the current table row up above its previous sibling.
- * 
+ *
  * @see AbstractMoveRowHandler
  * @see MoveRowDownHandler
  */

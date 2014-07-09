@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  * 		Florian Thienel - initial API and implementation
  *******************************************************************************/
@@ -24,7 +24,7 @@ import org.eclipse.vex.core.provisional.dom.IParent;
  * instantly when the constructor of DeepCopy is called.
  * <p>
  * DeepCopy means a full copy of all nodes, their children down to the leaf level and the associated content.
- * 
+ *
  * @author Florian Thienel
  */
 public class DeepCopy {
@@ -34,7 +34,7 @@ public class DeepCopy {
 
 	/**
 	 * Creates a deep copy of the given node.
-	 * 
+	 *
 	 * @param node
 	 *            the node to copy
 	 */
@@ -55,7 +55,7 @@ public class DeepCopy {
 
 	/**
 	 * Creates a deep copy of the child nodes of the given parent within the given range.
-	 * 
+	 *
 	 * @param parent
 	 *            the parent
 	 * @param range

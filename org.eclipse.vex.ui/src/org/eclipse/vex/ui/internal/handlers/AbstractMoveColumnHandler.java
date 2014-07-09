@@ -21,12 +21,13 @@ import org.eclipse.vex.core.provisional.dom.ContentPositionRange;
 
 /**
  * Moves the current table column either to the left or to the right.
- * 
+ *
  * @see MoveColumnLeftHandler
  * @see MoveColumnRightHandler
  */
 public abstract class AbstractMoveColumnHandler extends AbstractHandler {
 
+	@Override
 	public Object execute(final ExecutionEvent event) throws ExecutionException {
 		final VexWidget widget = VexHandlerUtil.computeWidget(event);
 		final VexHandlerUtil.RowColumnInfo rcInfo = VexHandlerUtil.getRowColumnInfo(widget);
@@ -36,6 +37,7 @@ public abstract class AbstractMoveColumnHandler extends AbstractHandler {
 		}
 
 		widget.doWork(new Runnable() {
+			@Override
 			public void run() {
 				final List<Object> sourceCells = new ArrayList<Object>();
 				final List<Object> targetCells = new ArrayList<Object>();
@@ -85,6 +87,7 @@ public abstract class AbstractMoveColumnHandler extends AbstractHandler {
 			final ContentPositionRange targetRange = VexHandlerUtil.getOuterRange(target);
 			widget.moveTo(moveRight() ? targetRange.getStartPosition() : targetRange.getEndPosition());
 			widget.savePosition(new Runnable() {
+				@Override
 				public void run() {
 					widget.moveTo(sourceRange.getStartPosition());
 					widget.moveTo(sourceRange.getEndPosition(), true);

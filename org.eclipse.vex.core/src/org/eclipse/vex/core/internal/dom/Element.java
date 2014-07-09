@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     John Krasnay - initial API and implementation
  *     Igor Jacy Lino Campista - Java 5 warnings fixed (bug 311325)
@@ -62,10 +62,12 @@ public class Element extends Parent implements IElement {
 		return super.getBaseURI();
 	}
 
+	@Override
 	public void setBaseURI(final String baseURI) {
 		setAttribute(XML.BASE_ATTRIBUTE, baseURI);
 	}
 
+	@Override
 	public boolean isKindOf(final INode other) {
 		if (!(other instanceof IElement)) {
 			return false;
@@ -73,10 +75,12 @@ public class Element extends Parent implements IElement {
 		return getQualifiedName().equals(((IElement) other).getQualifiedName());
 	}
 
+	@Override
 	public void accept(final INodeVisitor visitor) {
 		visitor.visit(this);
 	}
 
+	@Override
 	public <T> T accept(final INodeVisitorWithResult<T> visitor) {
 		return visitor.visit(this);
 	}
@@ -85,18 +89,22 @@ public class Element extends Parent implements IElement {
 	 * Element Name
 	 */
 
+	@Override
 	public QualifiedName getQualifiedName() {
 		return name;
 	}
 
+	@Override
 	public String getLocalName() {
 		return name.getLocalName();
 	}
 
+	@Override
 	public String getPrefix() {
 		return getNamespacePrefix(name.getQualifier());
 	}
 
+	@Override
 	public String getPrefixedName() {
 		final String prefix = getPrefix();
 		if (prefix == null) {
@@ -105,6 +113,7 @@ public class Element extends Parent implements IElement {
 		return prefix + ":" + getLocalName();
 	}
 
+	@Override
 	public QualifiedName qualify(final String localName) {
 		return new QualifiedName(name.getQualifier(), localName);
 	}
@@ -113,18 +122,22 @@ public class Element extends Parent implements IElement {
 	 * Attributes
 	 */
 
+	@Override
 	public IAttribute getAttribute(final String localName) {
 		return getAttribute(new QualifiedName(null, localName));
 	}
 
+	@Override
 	public IAttribute getAttribute(final QualifiedName name) {
 		return attributes.get(name);
 	}
 
+	@Override
 	public String getAttributeValue(final String localName) {
 		return getAttributeValue(new QualifiedName(null, localName));
 	}
 
+	@Override
 	public String getAttributeValue(final QualifiedName name) {
 		final IAttribute attribute = getAttribute(name);
 		if (attribute == null || "".equals(attribute.getValue().trim())) {
@@ -133,18 +146,22 @@ public class Element extends Parent implements IElement {
 		return attribute.getValue();
 	}
 
+	@Override
 	public boolean canRemoveAttribute(final String localName) {
 		return canRemoveAttribute(qualify(localName));
 	}
 
+	@Override
 	public boolean canRemoveAttribute(final QualifiedName name) {
 		return true; // TODO implement validation for attribute values
 	}
 
+	@Override
 	public void removeAttribute(final String localName) throws DocumentValidationException {
 		removeAttribute(new QualifiedName(null, localName));
 	}
 
+	@Override
 	public void removeAttribute(final QualifiedName name) throws DocumentValidationException {
 		final IAttribute attribute = this.getAttribute(name);
 		if (attribute == null) {
@@ -164,18 +181,22 @@ public class Element extends Parent implements IElement {
 		document.fireAttributeChanged(new AttributeChangeEvent(document, this, name, oldValue, newValue));
 	}
 
+	@Override
 	public boolean canSetAttribute(final String localName, final String value) {
 		return canSetAttribute(qualify(localName), value);
 	}
 
+	@Override
 	public boolean canSetAttribute(final QualifiedName name, final String value) {
 		return true; // TODO implement validation for attribute values
 	}
 
+	@Override
 	public void setAttribute(final String localName, final String value) throws DocumentValidationException {
 		setAttribute(new QualifiedName(null, localName), value);
 	}
 
+	@Override
 	public void setAttribute(final QualifiedName name, final String value) throws DocumentValidationException {
 		final IAttribute oldAttribute = attributes.get(name);
 		final String oldValue = oldAttribute != null ? oldAttribute.getValue() : null;
@@ -203,12 +224,14 @@ public class Element extends Parent implements IElement {
 		}
 	}
 
+	@Override
 	public Collection<IAttribute> getAttributes() {
 		final ArrayList<IAttribute> result = new ArrayList<IAttribute>(attributes.values());
 		Collections.sort(result);
 		return Collections.unmodifiableCollection(result);
 	}
 
+	@Override
 	public Collection<QualifiedName> getAttributeNames() {
 		final ArrayList<QualifiedName> result = new ArrayList<QualifiedName>();
 		for (final IAttribute attribute : attributes.values()) {
@@ -222,6 +245,7 @@ public class Element extends Parent implements IElement {
 	 * Element Structure
 	 */
 
+	@Override
 	public Element getParentElement() {
 		for (final INode ancestor : ancestors()) {
 			if (ancestor instanceof Element) {
@@ -231,6 +255,7 @@ public class Element extends Parent implements IElement {
 		return null;
 	}
 
+	@Override
 	@SuppressWarnings("unchecked")
 	public IAxis<Element> childElements() {
 		return (IAxis<Element>) children().withoutText().matching(Filters.elements());
@@ -240,6 +265,7 @@ public class Element extends Parent implements IElement {
 	 * Namespaces
 	 */
 
+	@Override
 	public String getNamespaceURI(final String namespacePrefix) {
 		if (namespaceDeclarations.containsKey(namespacePrefix)) {
 			return namespaceDeclarations.get(namespacePrefix);
@@ -251,14 +277,17 @@ public class Element extends Parent implements IElement {
 		return null;
 	}
 
+	@Override
 	public String getDefaultNamespaceURI() {
 		return getNamespaceURI(null);
 	}
 
+	@Override
 	public String getDeclaredDefaultNamespaceURI() {
 		return namespaceDeclarations.get(null);
 	}
 
+	@Override
 	public String getNamespacePrefix(final String namespaceURI) {
 		if (namespaceURI == null) {
 			return null;
@@ -284,6 +313,7 @@ public class Element extends Parent implements IElement {
 		return null;
 	}
 
+	@Override
 	public Collection<String> getDeclaredNamespacePrefixes() {
 		final ArrayList<String> result = new ArrayList<String>();
 		for (final String prefix : namespaceDeclarations.keySet()) {
@@ -295,6 +325,7 @@ public class Element extends Parent implements IElement {
 		return result;
 	}
 
+	@Override
 	public Collection<String> getNamespacePrefixes() {
 		final HashSet<String> result = new HashSet<String>();
 		result.addAll(getDeclaredNamespacePrefixes());
@@ -305,6 +336,7 @@ public class Element extends Parent implements IElement {
 		return result;
 	}
 
+	@Override
 	public void declareNamespace(final String namespacePrefix, final String namespaceURI) {
 		if (namespaceURI == null || "".equals(namespaceURI.trim())) {
 			return;
@@ -322,6 +354,7 @@ public class Element extends Parent implements IElement {
 		document.fireNamespaceChanged(new NamespaceDeclarationChangeEvent(document, this));
 	}
 
+	@Override
 	public void removeNamespace(final String namespacePrefix) {
 		final String oldNamespaceURI = namespaceDeclarations.remove(namespacePrefix);
 		final Document document = getDocument();
@@ -336,10 +369,12 @@ public class Element extends Parent implements IElement {
 		document.fireNamespaceChanged(new NamespaceDeclarationChangeEvent(document, this));
 	}
 
+	@Override
 	public void declareDefaultNamespace(final String namespaceURI) {
 		declareNamespace(null, namespaceURI);
 	}
 
+	@Override
 	public void removeDefaultNamespace() {
 		removeNamespace(null);
 	}

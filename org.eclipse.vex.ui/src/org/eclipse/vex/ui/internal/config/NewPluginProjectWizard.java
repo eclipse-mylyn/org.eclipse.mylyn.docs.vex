@@ -135,6 +135,7 @@ public class NewPluginProjectWizard extends Wizard implements INewWizard, IExecu
 
 		// create the new project operation
 		final IRunnableWithProgress createOperation = new IRunnableWithProgress() {
+			@Override
 			public void run(final IProgressMonitor monitor) throws InvocationTargetException {
 				final CreateProjectOperation createProject = new CreateProjectOperation(description, Messages.getString("NewPluginProjectWizard.title"));
 				try {

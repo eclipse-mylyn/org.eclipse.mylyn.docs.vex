@@ -53,7 +53,7 @@ import org.xml.sax.ext.LexicalHandler;
 /**
  * A SAX handler that builds a Vex document. This builder collapses whitespace as it goes, according to the following
  * rules.
- * 
+ *
  * <ul>
  * <li>Elements with style white-space: pre are left alone.</li>
  * <li>Runs of whitespace are replaced with a single space.</li>
@@ -123,6 +123,7 @@ public class DocumentBuilder implements ContentHandler, LexicalHandler {
 
 	// ============================================= ContentHandler methods
 
+	@Override
 	public void characters(final char[] ch, final int start, final int length) throws SAXException {
 		appendPendingCharsFiltered(ch, start, length);
 	}
@@ -142,6 +143,7 @@ public class DocumentBuilder implements ContentHandler, LexicalHandler {
 		return Character.isISOControl(ch) && ch != '\n' && ch != '\r' && ch != '\t';
 	}
 
+	@Override
 	public void endDocument() {
 		if (rootElement == null) {
 			return;
@@ -160,6 +162,7 @@ public class DocumentBuilder implements ContentHandler, LexicalHandler {
 		}
 	}
 
+	@Override
 	public void endElement(final String namespaceURI, final String localName, final String qName) {
 		appendChars(true);
 
@@ -175,12 +178,15 @@ public class DocumentBuilder implements ContentHandler, LexicalHandler {
 		}
 	}
 
+	@Override
 	public void endPrefixMapping(final String prefix) {
 	}
 
+	@Override
 	public void ignorableWhitespace(final char[] ch, final int start, final int length) {
 	}
 
+	@Override
 	public void processingInstruction(final String target, final String data) {
 
 		final ProcessingInstruction pi = new ProcessingInstruction(target);
@@ -204,16 +210,20 @@ public class DocumentBuilder implements ContentHandler, LexicalHandler {
 		trimLeading = false; // Keep a leading whitespace after a processing instruction
 	}
 
+	@Override
 	public void setDocumentLocator(final Locator locator) {
 		this.locator = locator;
 	}
 
+	@Override
 	public void skippedEntity(final java.lang.String name) {
 	}
 
+	@Override
 	public void startDocument() {
 	}
 
+	@Override
 	public void startElement(final String namespaceURI, final String localName, final String qName, final Attributes attrs) throws SAXException {
 
 		final QualifiedName elementName;
@@ -290,6 +300,7 @@ public class DocumentBuilder implements ContentHandler, LexicalHandler {
 		namespaceStack.clear();
 	}
 
+	@Override
 	public void startPrefixMapping(final String prefix, final String uri) {
 		checkPrefix(prefix);
 		if (isDefaultPrefix(prefix)) {
@@ -309,6 +320,7 @@ public class DocumentBuilder implements ContentHandler, LexicalHandler {
 
 	// ============================================== LexicalHandler methods
 
+	@Override
 	public void comment(final char[] ch, final int start, final int length) {
 		if (inDTD) {
 			return;
@@ -375,25 +387,31 @@ public class DocumentBuilder implements ContentHandler, LexicalHandler {
 		return stack.isEmpty() && rootElement != null;
 	}
 
+	@Override
 	public void endCDATA() {
 	}
 
+	@Override
 	public void endDTD() {
 		inDTD = false;
 	}
 
+	@Override
 	public void endEntity(final String name) {
 	}
 
+	@Override
 	public void startCDATA() {
 	}
 
+	@Override
 	public void startDTD(final String name, final String publicId, final String systemId) {
 		dtdPublicID = publicId;
 		dtdSystemID = systemId;
 		inDTD = true;
 	}
 
+	@Override
 	public void startEntity(final String name) {
 	}
 
@@ -494,7 +512,7 @@ public class DocumentBuilder implements ContentHandler, LexicalHandler {
 	/**
 	 * Set the stored caret position. While parsing the document, the node at this position will be stored and returned
 	 * with {@link #getNodeAtCaret}.
-	 * 
+	 *
 	 * @param position
 	 */
 	public void setCaretPosition(final DocumentTextPosition position) {
@@ -502,9 +520,9 @@ public class DocumentBuilder implements ContentHandler, LexicalHandler {
 	}
 
 	/**
-	 * 
+	 *
 	 * @return The node at the given caret position.
-	 * 
+	 *
 	 * @see #setCaretPosition(DocumentTextPosition)
 	 */
 	public INode getNodeAtCaret() {

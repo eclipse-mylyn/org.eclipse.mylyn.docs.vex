@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     John Krasnay - initial API and implementation
  *******************************************************************************/
@@ -31,6 +31,7 @@ public class PluginProjectBuilder extends IncrementalProjectBuilder {
 	public static final String ID = "org.eclipse.vex.ui.pluginBuilder"; //$NON-NLS-1$
 
 	final IBuildProblemHandler buildProblemHandler = new IBuildProblemHandler() {
+		@Override
 		public void foundProblem(final BuildProblem problem) {
 			try {
 				final IResource resource = getProject().getFile(problem.getResourcePath());

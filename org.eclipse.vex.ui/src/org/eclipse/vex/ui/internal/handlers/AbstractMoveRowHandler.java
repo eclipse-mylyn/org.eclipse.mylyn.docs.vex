@@ -18,7 +18,7 @@ import org.eclipse.vex.ui.internal.handlers.VexHandlerUtil.SelectedRows;
 
 /**
  * Moves the current table row either down below its next sibling or up above its previous sibling.
- * 
+ *
  * @see MoveRowUpHandler
  * @see MoveRowDownHandler
  */
@@ -33,6 +33,7 @@ public abstract class AbstractMoveRowHandler extends AbstractVexWidgetHandler {
 		}
 
 		widget.doWork(new Runnable() {
+			@Override
 			public void run() {
 				final ContentPositionRange range = VexHandlerUtil.getOuterRange(targetRow(selected));
 				widget.moveTo(range.getStartPosition());

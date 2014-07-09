@@ -34,7 +34,7 @@ public class DocumentTextBox extends TextBox {
 
 	/**
 	 * Class constructor.
-	 * 
+	 *
 	 * @param context
 	 *            LayoutContext used to calculate the box's size.
 	 * @param node
@@ -67,7 +67,7 @@ public class DocumentTextBox extends TextBox {
 
 	/**
 	 * Class constructor used by the splitAt method.
-	 * 
+	 *
 	 * @param other
 	 *            Instance of DocumentTextBox that should be splitted.
 	 * @param endOffset

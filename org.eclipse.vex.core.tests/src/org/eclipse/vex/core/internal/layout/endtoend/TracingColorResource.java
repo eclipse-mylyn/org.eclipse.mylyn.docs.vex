@@ -34,6 +34,7 @@ public class TracingColorResource implements ColorResource {
 		this.id = id;
 	}
 
+	@Override
 	public void dispose() {
 		tracer.trace("ColorResource[{0}, {1}].dispose()", color, id);
 	}

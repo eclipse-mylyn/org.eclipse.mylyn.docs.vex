@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  * 		Florian Thienel - initial API and implementation
  * 		Carsten Hiesserich - added structuralChange flag
@@ -13,7 +13,7 @@ package org.eclipse.vex.core.provisional.dom;
 
 /**
  * Notification about a change of content: content was either inserted or deleted.
- * 
+ *
  * @author Florian Thienel
  */
 public class ContentChangeEvent extends DocumentEvent {
@@ -25,7 +25,7 @@ public class ContentChangeEvent extends DocumentEvent {
 
 	/**
 	 * Create an event.
-	 * 
+	 *
 	 * @param document
 	 *            the document that changed
 	 * @param parent

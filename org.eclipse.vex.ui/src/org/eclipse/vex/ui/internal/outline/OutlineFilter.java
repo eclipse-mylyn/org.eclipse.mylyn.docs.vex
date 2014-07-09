@@ -67,7 +67,7 @@ public class OutlineFilter extends ViewerFilter {
 
 	/**
 	 * Tests if a filter is active
-	 * 
+	 *
 	 * @param filter
 	 *            The filter id to test.
 	 * @return <code>true</true> if the given filter is active.
@@ -87,14 +87,14 @@ public class OutlineFilter extends ViewerFilter {
 			}
 			return true;
 		}
-		
+
 		@Override
-		public Boolean visit(IComment comment) {
+		public Boolean visit(final IComment comment) {
 			return hasFilter(FILTER_ID_INCLUDE_COMMENTS);
 		}
-		
+
 		@Override
-		public Boolean visit(IProcessingInstruction pi) {
+		public Boolean visit(final IProcessingInstruction pi) {
 			return hasFilter(FILTER_ID_INCLUDE_PROC_INSTR);
 		}
 	};

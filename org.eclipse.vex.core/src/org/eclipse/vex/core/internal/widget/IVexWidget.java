@@ -45,7 +45,7 @@ public interface IVexWidget {
 
 	/**
 	 * Sets a new document for this control.
-	 * 
+	 *
 	 * @param document
 	 *            new Document to display
 	 * @param styleSheet
@@ -62,7 +62,7 @@ public interface IVexWidget {
 	 * Sets the style sheet to be applied to the current document during editing. If no resolver has been set, the style
 	 * sheet will also be used for any subsequently loaded documents. If a resolver has been set, the style sheet
 	 * returned by the resolver will be used for subsequently loaded documents.
-	 * 
+	 *
 	 * @param styleSheet
 	 *            the new StyleSheet to use
 	 */
@@ -75,7 +75,7 @@ public interface IVexWidget {
 
 	/**
 	 * Make this widget read-only.
-	 * 
+	 *
 	 * @param readOnly
 	 *            set to true if this widget should be read-only
 	 */
@@ -88,7 +88,7 @@ public interface IVexWidget {
 
 	/**
 	 * Sets the value of the debugging flag. When debugging, copious information is dumped to stdout.
-	 * 
+	 *
 	 * @param debugging
 	 *            true if debugging is to be enabled.
 	 */
@@ -111,7 +111,7 @@ public interface IVexWidget {
 
 	/**
 	 * Return the offset into the document for the given coordinates.
-	 * 
+	 *
 	 * @param x
 	 *            the x-coordinate
 	 * @param y
@@ -130,7 +130,7 @@ public interface IVexWidget {
 
 	/**
 	 * Redoes the last action on the redo stack.
-	 * 
+	 *
 	 * @throws CannotRedoException
 	 *             if the last action cannot be re-done, or if there is nothing to redo.
 	 */
@@ -143,7 +143,7 @@ public interface IVexWidget {
 
 	/**
 	 * Undoes the last action on the undo stack.
-	 * 
+	 *
 	 * @throws CannotUndoException
 	 *             if the last action cannot be undone, or if there's nothing left to undo.
 	 */
@@ -155,17 +155,17 @@ public interface IVexWidget {
 
 	/**
 	 * Signals the start of a set of operations that should be considered a single unit for undo/redo purposes.
-	 * 
+	 *
 	 * <p>
 	 * <b>It is <i>strongly</i> recommended to use the {@link #doWork(IRunnable)} method instead of manually
 	 * implementing beginWork/endWork.</b>
 	 * </p>
-	 * 
+	 *
 	 * <p>
 	 * Each call to beginWork should be matched with a call to {@link #endWork(boolean)}. The following pattern can be
 	 * used to enforce this rules even in the face of exceptions.
 	 * </p>
-	 * 
+	 *
 	 * <pre>
 	 * VexComponent c = ...;
 	 * boolean success = false;
@@ -177,11 +177,11 @@ public interface IVexWidget {
 	 *     c.endWork(success);
 	 * }
 	 * </pre>
-	 * 
+	 *
 	 * <p>
 	 * In the case of nested beginWork/endWork calls, only the outermost results in an undoable event.
 	 * </p>
-	 * 
+	 *
 	 * @see endWork(boolean)
 	 */
 	void beginWork();
@@ -190,7 +190,7 @@ public interface IVexWidget {
 	 * Perform the runnable's run method within a beginWork/endWork pair. All operations in the runnable are treated as
 	 * a single unit of work, and can be undone in one operation by the user. Also, if a later operation fails, all
 	 * earlier operations are also undone.
-	 * 
+	 *
 	 * @param runnable
 	 *            Runnable implementing the work to be done.
 	 */
@@ -200,7 +200,7 @@ public interface IVexWidget {
 	 * Perform the runnable's run method within a beginWork/endWork pair. All operations in the runnable are treated as
 	 * a single unit of work, and can be undone in one operation by the user. Also, if a later operation fails, all
 	 * earlier operations are also undone.
-	 * 
+	 *
 	 * @param runnable
 	 *            Runnable implementing the work to be done.
 	 * @param savePosition
@@ -210,18 +210,18 @@ public interface IVexWidget {
 
 	/**
 	 * Signals the end of a set of operations that should be treated as a single unit for undo/redo purposes.
-	 * 
+	 *
 	 * @param success
 	 *            If true, an edit is added to the undo stack. If false, all the changes since the matching beginWork
 	 *            call are undone.
-	 * 
+	 *
 	 * @see #beginWork()
 	 */
 	void endWork(boolean success);
 
 	/**
 	 * Execute a Runnable, restoring the caret position to its original position afterward.
-	 * 
+	 *
 	 * @param runnable
 	 *            Runnable to be invoked.
 	 */
@@ -319,7 +319,7 @@ public interface IVexWidget {
 
 	/**
 	 * Selects the content of the given node.
-	 * 
+	 *
 	 * @param node
 	 *            the node
 	 */
@@ -327,7 +327,7 @@ public interface IVexWidget {
 
 	/**
 	 * Selects the given node.
-	 * 
+	 *
 	 * @param node
 	 *            the node to select
 	 */
@@ -349,7 +349,7 @@ public interface IVexWidget {
 
 	/**
 	 * Moves the caret a given distance relative to the current caret offset.
-	 * 
+	 *
 	 * @param distance
 	 *            Amount by which to alter the caret offset. Positive values increase the caret offset.
 	 */
@@ -357,7 +357,7 @@ public interface IVexWidget {
 
 	/**
 	 * Moves the caret a given distance relative to the current caret offset.
-	 * 
+	 *
 	 * @param distance
 	 *            Amount by which to alter the caret offset. Positive values increase the caret offset.
 	 * @param select
@@ -368,7 +368,7 @@ public interface IVexWidget {
 	/**
 	 * Moves the caret to a new offset. The selection is not extended. This is equivalent to
 	 * <code>moveTo(offset, false)</code>.
-	 * 
+	 *
 	 * @param int new offset for the caret. The offset must be >= 1 and less than the document size; if not, it is
 	 *        silently ignored.
 	 */
@@ -376,7 +376,7 @@ public interface IVexWidget {
 
 	/**
 	 * Moves the caret to the new offset, possibly changing the selection.
-	 * 
+	 *
 	 * @param int new offset for the caret. The offset must be >= 1 and less than the document size; if not, it is
 	 *        silently ignored.
 	 * @param select
@@ -386,7 +386,7 @@ public interface IVexWidget {
 
 	/**
 	 * Move the caret to the end of the current line.
-	 * 
+	 *
 	 * @param select
 	 *            If true, the selection is extended.
 	 */
@@ -394,7 +394,7 @@ public interface IVexWidget {
 
 	/**
 	 * Move the caret to the start of the current line.
-	 * 
+	 *
 	 * @param select
 	 *            If true, the selection is extended.
 	 */
@@ -402,7 +402,7 @@ public interface IVexWidget {
 
 	/**
 	 * Move the caret down to the next line. Attempts to preserve the same distance from the left edge of the control.
-	 * 
+	 *
 	 * @param select
 	 *            If true, the selection is extended.
 	 */
@@ -410,7 +410,7 @@ public interface IVexWidget {
 
 	/**
 	 * Move the caret down to the next page. Attempts to preserve the same distance from the left edge of the control.
-	 * 
+	 *
 	 * @param select
 	 *            If true, the selection is extended.
 	 */
@@ -418,7 +418,7 @@ public interface IVexWidget {
 
 	/**
 	 * Moves the caret to the end of the current or next word.
-	 * 
+	 *
 	 * @param select
 	 *            If true, the selection is extended.
 	 */
@@ -426,7 +426,7 @@ public interface IVexWidget {
 
 	/**
 	 * Moves the caret up to the previous line.
-	 * 
+	 *
 	 * @param select
 	 *            If true, the selection is extended
 	 */
@@ -434,7 +434,7 @@ public interface IVexWidget {
 
 	/**
 	 * Moves the caret up to the previous page.
-	 * 
+	 *
 	 * @param select
 	 *            If true, the selection is extended
 	 */
@@ -442,7 +442,7 @@ public interface IVexWidget {
 
 	/**
 	 * Moves the caret to the start of the current or previous word.
-	 * 
+	 *
 	 * @param select
 	 *            If true, the selection is extended.
 	 */
@@ -476,7 +476,7 @@ public interface IVexWidget {
 	/**
 	 * Sets the value of an attribute in the current element. Attributes set in this manner (as opposed to calling
 	 * Element.setAttribute directly) will be subject to undo/redo.
-	 * 
+	 *
 	 * @param attributeName
 	 *            local name of the attribute being changed.
 	 * @param value
@@ -494,7 +494,7 @@ public interface IVexWidget {
 	/**
 	 * Removes an attribute from the current element. Attributes removed in this manner (as opposed to calling
 	 * Element.setAttribute directly) will be subject to undo/redo.
-	 * 
+	 *
 	 * @param attributeName
 	 *            local name of the attribute to remove.
 	 */
@@ -514,7 +514,7 @@ public interface IVexWidget {
 	 * between this method and insertText is that this method does not use beginWork/endWork, so consecutive calls to
 	 * insertChar are collapsed into a single IUndoableEdit. This method should normally only be called in response to a
 	 * user typing a key.
-	 * 
+	 *
 	 * @param c
 	 *            Character to insert.
 	 */
@@ -532,7 +532,7 @@ public interface IVexWidget {
 
 	/**
 	 * Inserts the given text at the current caret position. Any selected content is first deleted.
-	 * 
+	 *
 	 * @param text
 	 *            String to insert.
 	 */
@@ -563,7 +563,7 @@ public interface IVexWidget {
 	/**
 	 * Inserts the given element at the current caret position. Any selected content becomes the new contents of the
 	 * element.
-	 * 
+	 *
 	 * @param elementName
 	 *            Qualified name of the element to insert.
 	 * @return the newly inserted element
@@ -577,7 +577,7 @@ public interface IVexWidget {
 
 	/**
 	 * Inserts a comment a the current caret position. Any selected content is first deleted.
-	 * 
+	 *
 	 * @return the new comment
 	 */
 	IComment insertComment() throws DocumentValidationException;
@@ -590,14 +590,14 @@ public interface IVexWidget {
 
 	/**
 	 * Inserts a processing instruction at the current caret position. Any selected content is first deleted.
-	 * 
+	 *
 	 * @return the new comment
 	 */
 	IProcessingInstruction insertProcessingInstruction(final String target) throws CannotRedoException, ReadOnlyException;
 
 	/**
 	 * Edits the processing instruction at the current caret position. Updates target and data with the given Strings.
-	 * 
+	 *
 	 * @param target
 	 *            The target to set. may be null to keep the old target.
 	 * @param data
@@ -607,7 +607,7 @@ public interface IVexWidget {
 
 	/**
 	 * Inserts the given XML fragment at the current caret position. Any selected content is first deleted.
-	 * 
+	 *
 	 * @param xml
 	 *            XML to insert
 	 * @throws DocumentValidationException
@@ -616,7 +616,7 @@ public interface IVexWidget {
 
 	/**
 	 * Returns true if the given fragment can be inserted at the current caret position.
-	 * 
+	 *
 	 * @param fragment
 	 *            DocumentFragment to be inserted.
 	 */
@@ -624,7 +624,7 @@ public interface IVexWidget {
 
 	/**
 	 * Inserts the given document fragment at the current caret position. Any selected content is deleted.
-	 * 
+	 *
 	 * @param frag
 	 *            DocumentFragment to insert.
 	 */
@@ -639,7 +639,7 @@ public interface IVexWidget {
 
 	/**
 	 * Indicates whether the current element can be morphed into the given element.
-	 * 
+	 *
 	 * @param elementName
 	 *            Qualified name of the element to morph the current element into.
 	 * @return true if the current element can be morphed
@@ -648,7 +648,7 @@ public interface IVexWidget {
 
 	/**
 	 * Replaces the current element with an element with the given name. The content of the element is preserved.
-	 * 
+	 *
 	 * @param elementName
 	 *            Qualified name of the element to replace the current element with.
 	 * @throws DocumentValidationException
@@ -667,7 +667,7 @@ public interface IVexWidget {
 
 	/**
 	 * Indicates whether the current element can be splitted into two elements at the current caret position.
-	 * 
+	 *
 	 * @return true if the current element can be splitted
 	 */
 	boolean canSplit();

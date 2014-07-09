@@ -22,12 +22,14 @@ public class SquareBullet extends Bullet {
 		super(fontSize);
 	}
 
+	@Override
 	public void draw(final Graphics g, final int x, final int y) {
 		g.setLineStyle(Graphics.LINE_SOLID);
 		g.setLineWidth(1);
 		g.drawRect(x, y - size - lift, size, size);
 	}
 
+	@Override
 	public Rectangle getBounds() {
 		return new Rectangle(0, -size - lift, size, size);
 	}

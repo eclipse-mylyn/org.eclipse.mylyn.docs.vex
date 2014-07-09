@@ -28,6 +28,7 @@ public class CssBoxFactory implements BoxFactory {
 
 	private static final long serialVersionUID = -6882526795866485074L;
 
+	@Override
 	public Box createBox(final LayoutContext context, final INode node, final BlockBox parentBox, final int containerWidth) {
 		final Styles styles = context.getStyleSheet().getStyles(node);
 		return node.accept(new BaseNodeVisitorWithResult<Box>() {

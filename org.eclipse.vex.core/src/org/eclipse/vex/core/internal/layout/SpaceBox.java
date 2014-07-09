@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     John Krasnay - initial API and implementation
  *******************************************************************************/
@@ -17,7 +17,7 @@ public class SpaceBox extends AbstractInlineBox {
 
 	/**
 	 * Class constructor.
-	 * 
+	 *
 	 * @param width
 	 *            width of the box
 	 * @param height
@@ -31,10 +31,12 @@ public class SpaceBox extends AbstractInlineBox {
 	/**
 	 * @see org.eclipse.vex.core.internal.layout.InlineBox#getBaseline()
 	 */
+	@Override
 	public int getBaseline() {
 		return getHeight();
 	}
 
+	@Override
 	public boolean isEOL() {
 		return false;
 	}

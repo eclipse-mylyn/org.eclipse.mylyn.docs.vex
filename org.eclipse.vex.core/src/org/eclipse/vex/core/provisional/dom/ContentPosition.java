@@ -14,7 +14,7 @@ import org.eclipse.core.runtime.AssertionFailedException;
 
 /**
  * A ContentPosition wraps an offset in a document's content. The position knows the document and the node it is in.<br />
- * 
+ *
  */
 public class ContentPosition implements Comparable<ContentPosition> {
 	private final int offset;
@@ -23,7 +23,7 @@ public class ContentPosition implements Comparable<ContentPosition> {
 
 	/**
 	 * Create a new position at the given document offset.
-	 * 
+	 *
 	 * @param node
 	 *            The node at the given offset
 	 * @param offset
@@ -47,7 +47,7 @@ public class ContentPosition implements Comparable<ContentPosition> {
 	 * Create a new position at the given offset in the given document.<br />
 	 * This method has to search the document to find the node at the given offset, so when the node is known, it is
 	 * more efficient to use {@link ContentPosition#ContentPosition(INode, int)} instead.
-	 * 
+	 *
 	 * @param document
 	 * @param offset
 	 */
@@ -196,6 +196,7 @@ public class ContentPosition implements Comparable<ContentPosition> {
 		return offset >= other.getOffset();
 	}
 
+	@Override
 	public int compareTo(final ContentPosition other) {
 		return offset - other.getOffset();
 	}
@@ -218,7 +219,7 @@ public class ContentPosition implements Comparable<ContentPosition> {
 
 	/**
 	 * Returns the first ContentPosition after the given one that inserts into the given node.
-	 * 
+	 *
 	 * @param position
 	 * @param balancedNode
 	 * @return
@@ -239,7 +240,7 @@ public class ContentPosition implements Comparable<ContentPosition> {
 
 	/**
 	 * Returns the first ContentPosition before the given one that inserts into the given node.
-	 * 
+	 *
 	 * @param position
 	 * @param balancedNode
 	 * @return

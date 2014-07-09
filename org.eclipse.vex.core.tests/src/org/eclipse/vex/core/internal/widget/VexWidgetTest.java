@@ -110,6 +110,7 @@ public class VexWidgetTest {
 		final String expectedContentStructure = getContentStructure(widget.getDocument().getRootElement());
 
 		widget.doWork(new Runnable() {
+			@Override
 			public void run() {
 				widget.selectContentOf(comment);
 				final IDocumentFragment fragment = widget.getSelectedFragment();

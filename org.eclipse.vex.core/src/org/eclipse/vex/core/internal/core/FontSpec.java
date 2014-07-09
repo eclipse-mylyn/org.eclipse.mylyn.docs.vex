@@ -16,7 +16,7 @@ import java.util.Arrays;
 /**
  * Toolkit-independent specifier of a font. This class does not encapsulate an actual font, but simply the information
  * needed for the toolkit to find an actual font.
- * 
+ *
  * <p>
  * An array of font family names may be specified. If more than one name is specified, the toolkit should select the
  * first name that matches an actual font on the platform.
@@ -37,7 +37,7 @@ public class FontSpec {
 
 	/**
 	 * Class constructor.
-	 * 
+	 *
 	 * @param names
 	 *            Array of names of the font family.
 	 * @param style
@@ -67,7 +67,7 @@ public class FontSpec {
 
 	/**
 	 * Returns a bitwise-OR of the style flags. The following sample checks if the font is bold.
-	 * 
+	 *
 	 * <pre>
 	 * if (font.getStyle | VexFont.BOLD) {
 	 * 	// do something bold...

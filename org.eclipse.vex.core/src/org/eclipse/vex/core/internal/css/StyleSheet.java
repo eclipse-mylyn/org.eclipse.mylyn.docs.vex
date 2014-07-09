@@ -52,6 +52,7 @@ public class StyleSheet {
 	public static final StyleSheet NULL = new StyleSheet(Collections.<Rule> emptyList());
 
 	private static final Comparator<PropertyDecl> PROPERTY_CASCADE_ORDERING = new Comparator<PropertyDecl>() {
+		@Override
 		public int compare(final PropertyDecl propertyDecl1, final PropertyDecl propertyDecl2) {
 			if (propertyDecl1.isImportant() != propertyDecl2.isImportant()) {
 				return (propertyDecl1.isImportant() ? 1 : 0) - (propertyDecl2.isImportant() ? 1 : 0);
@@ -65,25 +66,25 @@ public class StyleSheet {
 	 * Standard CSS properties.
 	 */
 	private static final IProperty[] CSS_PROPERTIES = new IProperty[] { new DisplayProperty(), new LineHeightProperty(), new ListStyleTypeProperty(), new TextAlignProperty(),
-			new WhiteSpaceProperty(),
+		new WhiteSpaceProperty(),
 
-			new FontFamilyProperty(), new FontSizeProperty(), new FontStyleProperty(), new FontWeightProperty(), new TextDecorationProperty(),
+		new FontFamilyProperty(), new FontSizeProperty(), new FontStyleProperty(), new FontWeightProperty(), new TextDecorationProperty(),
 
-			new ColorProperty(CSS.COLOR), new ColorProperty(CSS.BACKGROUND_COLOR),
+		new ColorProperty(CSS.COLOR), new ColorProperty(CSS.BACKGROUND_COLOR),
 
-			new LengthProperty(CSS.MARGIN_BOTTOM, IProperty.Axis.VERTICAL), new LengthProperty(CSS.MARGIN_LEFT, IProperty.Axis.HORIZONTAL),
-			new LengthProperty(CSS.MARGIN_RIGHT, IProperty.Axis.HORIZONTAL), new LengthProperty(CSS.MARGIN_TOP, IProperty.Axis.VERTICAL),
+		new LengthProperty(CSS.MARGIN_BOTTOM, IProperty.Axis.VERTICAL), new LengthProperty(CSS.MARGIN_LEFT, IProperty.Axis.HORIZONTAL),
+		new LengthProperty(CSS.MARGIN_RIGHT, IProperty.Axis.HORIZONTAL), new LengthProperty(CSS.MARGIN_TOP, IProperty.Axis.VERTICAL),
 
-			new LengthProperty(CSS.PADDING_BOTTOM, IProperty.Axis.VERTICAL), new LengthProperty(CSS.PADDING_LEFT, IProperty.Axis.HORIZONTAL),
-			new LengthProperty(CSS.PADDING_RIGHT, IProperty.Axis.HORIZONTAL), new LengthProperty(CSS.PADDING_TOP, IProperty.Axis.VERTICAL),
+		new LengthProperty(CSS.PADDING_BOTTOM, IProperty.Axis.VERTICAL), new LengthProperty(CSS.PADDING_LEFT, IProperty.Axis.HORIZONTAL),
+		new LengthProperty(CSS.PADDING_RIGHT, IProperty.Axis.HORIZONTAL), new LengthProperty(CSS.PADDING_TOP, IProperty.Axis.VERTICAL),
 
-			new ColorProperty(CSS.BORDER_BOTTOM_COLOR), new ColorProperty(CSS.BORDER_LEFT_COLOR), new ColorProperty(CSS.BORDER_RIGHT_COLOR), new ColorProperty(CSS.BORDER_TOP_COLOR),
-			new BorderStyleProperty(CSS.BORDER_BOTTOM_STYLE), new BorderStyleProperty(CSS.BORDER_LEFT_STYLE), new BorderStyleProperty(CSS.BORDER_RIGHT_STYLE),
-			new BorderStyleProperty(CSS.BORDER_TOP_STYLE), new BorderWidthProperty(CSS.BORDER_BOTTOM_WIDTH, CSS.BORDER_BOTTOM_STYLE, IProperty.Axis.VERTICAL),
-			new BorderWidthProperty(CSS.BORDER_LEFT_WIDTH, CSS.BORDER_LEFT_STYLE, IProperty.Axis.HORIZONTAL),
-			new BorderWidthProperty(CSS.BORDER_RIGHT_WIDTH, CSS.BORDER_RIGHT_STYLE, IProperty.Axis.HORIZONTAL),
-			new BorderWidthProperty(CSS.BORDER_TOP_WIDTH, CSS.BORDER_TOP_STYLE, IProperty.Axis.VERTICAL), new BorderSpacingProperty(), new LengthProperty(CSS.HEIGHT, IProperty.Axis.VERTICAL),
-			new LengthProperty(CSS.WIDTH, IProperty.Axis.HORIZONTAL), new BackgroundImageProperty(), new OutlineContentProperty(), new InlineMarkerProperty() };
+		new ColorProperty(CSS.BORDER_BOTTOM_COLOR), new ColorProperty(CSS.BORDER_LEFT_COLOR), new ColorProperty(CSS.BORDER_RIGHT_COLOR), new ColorProperty(CSS.BORDER_TOP_COLOR),
+		new BorderStyleProperty(CSS.BORDER_BOTTOM_STYLE), new BorderStyleProperty(CSS.BORDER_LEFT_STYLE), new BorderStyleProperty(CSS.BORDER_RIGHT_STYLE),
+		new BorderStyleProperty(CSS.BORDER_TOP_STYLE), new BorderWidthProperty(CSS.BORDER_BOTTOM_WIDTH, CSS.BORDER_BOTTOM_STYLE, IProperty.Axis.VERTICAL),
+		new BorderWidthProperty(CSS.BORDER_LEFT_WIDTH, CSS.BORDER_LEFT_STYLE, IProperty.Axis.HORIZONTAL),
+		new BorderWidthProperty(CSS.BORDER_RIGHT_WIDTH, CSS.BORDER_RIGHT_STYLE, IProperty.Axis.HORIZONTAL),
+		new BorderWidthProperty(CSS.BORDER_TOP_WIDTH, CSS.BORDER_TOP_STYLE, IProperty.Axis.VERTICAL), new BorderSpacingProperty(), new LengthProperty(CSS.HEIGHT, IProperty.Axis.VERTICAL),
+		new LengthProperty(CSS.WIDTH, IProperty.Axis.HORIZONTAL), new BackgroundImageProperty(), new OutlineContentProperty(), new InlineMarkerProperty() };
 
 	/**
 	 * The rules that comprise the stylesheet.
@@ -116,7 +117,7 @@ public class StyleSheet {
 
 	/**
 	 * Class constructor.
-	 * 
+	 *
 	 * @param rules
 	 *            Rules that constitute the style sheet.
 	 */
@@ -126,7 +127,7 @@ public class StyleSheet {
 
 	/**
 	 * Flush any cached styles for the given element.
-	 * 
+	 *
 	 * @param element
 	 *            INode for which styles are to be flushed.
 	 */
@@ -137,7 +138,7 @@ public class StyleSheet {
 	/**
 	 * Flush all styles used by the given document. A StyleSheet may be shared by multiple documents, so we only remove
 	 * elements for the specific document.
-	 * 
+	 *
 	 * @param document
 	 *            The document for which to flush cached styles.
 	 */
@@ -194,7 +195,7 @@ public class StyleSheet {
 
 	/**
 	 * Returns the styles for the given element. The styles are cached to ensure reasonable performance.
-	 * 
+	 *
 	 * @param node
 	 *            Node for which to calculate the styles.
 	 */
@@ -305,7 +306,7 @@ public class StyleSheet {
 
 	/**
 	 * Returns all the declarations that apply to the given element and defined pseudo elements.
-	 * 
+	 *
 	 * @return The key 'null' in the returned Map contains the node's declarations. Names keys contain the declarations
 	 *         for pseudo elements.
 	 */
@@ -386,7 +387,7 @@ public class StyleSheet {
 
 	/**
 	 * This method is only public to be available for unit testing. It is not meant to be used in an implementation.
-	 * 
+	 *
 	 * @param node
 	 * @return
 	 */

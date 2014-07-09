@@ -29,7 +29,7 @@ public abstract class AbstractRegExFindReplaceTarget implements IFindReplaceTarg
 
 	/**
 	 * @return the beginning index, inclusive, of the selection or {@code -1} if nothing is selected
-	 * 
+	 *
 	 * @see #getSelectionEnd()
 	 * @see #setSelection(int, int)
 	 */
@@ -37,7 +37,7 @@ public abstract class AbstractRegExFindReplaceTarget implements IFindReplaceTarg
 
 	/**
 	 * @return the ending index, exclusive, of the selection or {@code -1} if nothing is selected
-	 * 
+	 *
 	 * @see #getSelectionStart()
 	 * @see #setSelection(int, int)
 	 */
@@ -47,21 +47,21 @@ public abstract class AbstractRegExFindReplaceTarget implements IFindReplaceTarg
 	 * Selects the specified continuous range of text or {@code setSelection(-1, -1)} to deselect.
 	 * <p/>
 	 * Examples: <blockquote>
-	 * 
+	 *
 	 * <pre>
 	 * setSelection(2, 3) selects "c" in "abcde"
 	 * setSelection(0, 4) selects "abcd" in "abcde"
 	 * setSelection(4, 5) selects "e" in "abcde"
 	 * setSelection(-1, -1) deselects
 	 * </pre>
-	 * 
+	 *
 	 * </blockquote>
-	 * 
+	 *
 	 * @param start
 	 *            the beginning index, inclusive, of the text to select
 	 * @param end
 	 *            the ending index, exclusive, of the text to select
-	 * 
+	 *
 	 * @see #getSelectionStart()
 	 * @see #getSelectionEnd()
 	 */
@@ -74,40 +74,47 @@ public abstract class AbstractRegExFindReplaceTarget implements IFindReplaceTarg
 
 	/**
 	 * In the document in which to find/replace replaces the current selected text with the given text.
-	 * 
+	 *
 	 * @param text
 	 *            the text to replace with; not {@code null}
 	 */
 	protected abstract void inDocumentReplaceSelection(CharSequence text);
 
+	@Override
 	public boolean canPerformFind() {
 		return true; // enable find
 	}
 
+	@Override
 	public int findAndSelect(final int offset, final String findString, final boolean searchForward, final boolean caseSensitive, final boolean wholeWord) {
 		return findAndSelect(offset, findString, searchForward, caseSensitive, wholeWord, false);
 	}
 
+	@Override
 	public Point getSelection() {
 		final int offset = getSelectionStart();
 		final int length = getSelectionEnd() - getSelectionStart();
 		return new Point(offset, length);
 	}
 
+	@Override
 	public String getSelectionText() {
 		final int start = getSelectionStart();
 		final int end = getSelectionEnd();
 		return getDocument().subSequence(start, end).toString();
 	}
 
+	@Override
 	public boolean isEditable() {
 		return true; // = 'replace' enablement
 	}
 
+	@Override
 	public void replaceSelection(final String text) {
 		replaceSelection(text, false);
 	}
 
+	@Override
 	public int findAndSelect(final int offset, final String findString, final boolean searchForward, final boolean caseSensitive, final boolean wholeWord, final boolean regExSearch) {
 		replacer = null;
 
@@ -164,6 +171,7 @@ public abstract class AbstractRegExFindReplaceTarget implements IFindReplaceTarg
 
 	}
 
+	@Override
 	public void replaceSelection(final String text, final boolean regExReplace) {
 
 		// precondition: editable?

@@ -25,6 +25,7 @@ public class DisplayProperty extends AbstractProperty {
 		super(CSS.DISPLAY);
 	}
 
+	@Override
 	public Object calculate(final LexicalUnit lu, final Styles parentStyles, final Styles styles, final INode node) {
 
 		if (isDisplay(lu)) {
@@ -41,7 +42,7 @@ public class DisplayProperty extends AbstractProperty {
 
 	/**
 	 * Returns true if the value of the given LexicalUnit represents a valid value for this property.
-	 * 
+	 *
 	 * @param lu
 	 *            LexicalUnit to inspect.
 	 */

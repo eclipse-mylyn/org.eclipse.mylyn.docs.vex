@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     John Krasnay - initial API and implementation
  *******************************************************************************/
@@ -20,7 +20,7 @@ public abstract class AbstractProperty implements IProperty {
 
 	/**
 	 * Class constructor.
-	 * 
+	 *
 	 * @param name
 	 *            Name of the property.
 	 */
@@ -35,6 +35,7 @@ public abstract class AbstractProperty implements IProperty {
 		return lu != null && lu.getLexicalUnitType() == LexicalUnit.SAC_INHERIT;
 	}
 
+	@Override
 	public String getName() {
 		return name;
 	}

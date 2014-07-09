@@ -13,7 +13,7 @@ package org.eclipse.vex.ui.internal.handlers;
 /**
  * Inserts one or more table rows above the currently selected one(s). If more than one row is selected the same number
  * of new rows will be created.
- * 
+ *
  * @see AbstractAddRowHandler
  * @see AddRowBelowHandler
  */

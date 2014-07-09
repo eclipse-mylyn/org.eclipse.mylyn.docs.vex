@@ -24,15 +24,17 @@ import org.eclipse.vex.core.provisional.dom.IElement;
 
 /**
  * Inserts a single table column before (left of) or after (right of) the current one.
- * 
+ *
  * @see AddColumnLeftHandler
  * @see AddColumnRightHandler
  */
 public abstract class AbstractAddColumnHandler extends AbstractHandler {
 
+	@Override
 	public Object execute(final ExecutionEvent event) throws ExecutionException {
 		final VexWidget widget = VexHandlerUtil.computeWidget(event);
 		widget.doWork(new Runnable() {
+			@Override
 			public void run() {
 				try {
 					addColumn(widget);

@@ -32,7 +32,7 @@ public class TableBox extends AbstractBlockBox {
 
 	/**
 	 * Class constructor.
-	 * 
+	 *
 	 * @param node
 	 *            Element represented by this box.
 	 */
@@ -69,10 +69,12 @@ public class TableBox extends AbstractBlockBox {
 		}
 
 		iterateChildrenByDisplayStyle(context.getStyleSheet(), captionOrColumnStyles, new ElementOrRangeCallback() {
+			@Override
 			public void onElement(final IElement child, final String displayStyle) {
 				children.add(new BlockElementBox(context, TableBox.this, child));
 			}
 
+			@Override
 			public void onRange(final IParent parent, final int startOffset, final int endOffset) {
 				children.add(new TableBodyBox(context, TableBox.this, startOffset, endOffset));
 			}
@@ -167,10 +169,12 @@ public class TableBox extends AbstractBlockBox {
 			count = 0;
 		}
 
+		@Override
 		public void onElement(final IElement child, final String displayStyle) {
 			count++;
 		}
 
+		@Override
 		public void onRange(final IParent parent, final int startOffset, final int endOffset) {
 			count++;
 		}
@@ -185,17 +189,19 @@ public class TableBox extends AbstractBlockBox {
 
 		final IParent tableElement = findContainingParent();
 		final int[] columnCounts = new int[1]; // work around Java's insistence
-												// on final
+		// on final
 		columnCounts[0] = 0;
 		final StyleSheet styleSheet = context.getStyleSheet();
 		final CountingCallback callback = new CountingCallback();
 		LayoutUtils.iterateTableRows(styleSheet, tableElement, getStartOffset(), getEndOffset(), new ElementOrRangeCallback() {
+			@Override
 			public void onElement(final IElement child, final String displayStyle) {
 				LayoutUtils.iterateTableCells(styleSheet, child, callback);
 				columnCounts[0] = Math.max(columnCounts[0], callback.getCount());
 				callback.reset();
 			}
 
+			@Override
 			public void onRange(final IParent parent, final int startOffset, final int endOffset) {
 				LayoutUtils.iterateTableCells(styleSheet, parent, startOffset, endOffset, callback);
 				columnCounts[0] = Math.max(columnCounts[0], callback.getCount());

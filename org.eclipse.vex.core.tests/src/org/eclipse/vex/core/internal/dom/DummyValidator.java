@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  * 		Florian Thienel - initial API and implementation
  *******************************************************************************/
@@ -36,30 +36,37 @@ public class DummyValidator implements IValidator {
 		this.documentContentModel = documentContentModel;
 	}
 
+	@Override
 	public DocumentContentModel getDocumentContentModel() {
 		return documentContentModel;
 	}
 
+	@Override
 	public AttributeDefinition getAttributeDefinition(final IAttribute attribute) {
 		return null;
 	}
 
+	@Override
 	public List<AttributeDefinition> getAttributeDefinitions(final IElement element) {
 		return Collections.emptyList();
 	}
 
+	@Override
 	public Set<QualifiedName> getValidRootElements() {
 		return Collections.emptySet();
 	}
 
+	@Override
 	public Set<QualifiedName> getValidItems(final IElement element) {
 		return Collections.emptySet();
 	}
 
+	@Override
 	public boolean isValidSequence(final QualifiedName element, final List<QualifiedName> nodes, final boolean partial) {
 		return false;
 	}
 
+	@Override
 	public boolean isValidSequence(final QualifiedName element, final List<QualifiedName> sequence1, final List<QualifiedName> sequence2, final List<QualifiedName> sequence3, final boolean partial) {
 		return false;
 	}
@@ -69,6 +76,7 @@ public class DummyValidator implements IValidator {
 		return false;
 	}
 
+	@Override
 	public Set<String> getRequiredNamespaces() {
 		return Collections.emptySet();
 	}

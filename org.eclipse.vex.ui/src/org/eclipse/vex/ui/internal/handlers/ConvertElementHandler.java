@@ -33,6 +33,7 @@ public class ConvertElementHandler extends AbstractVexWidgetHandler implements I
 		ContentAssist.openQuickFixContentAssist(widget);
 	}
 
+	@Override
 	public void updateElement(final UIElement element, @SuppressWarnings("rawtypes") final Map parameters) {
 		updateElement(element, parameters, LABEL_ID, LABEL_ID);
 	}

@@ -24,7 +24,7 @@ public class ValidationResult implements IValidationResult {
 
 	/**
 	 * Create a new error result.
-	 * 
+	 *
 	 * @param message
 	 *            The validation message.
 	 * @return A new ValidationResult with the given message and severity set to {@link IStatus#ERROR}.

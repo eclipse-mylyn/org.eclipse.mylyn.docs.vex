@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     John Krasnay - initial API and implementation
  *     Igor Jacy Lino Campista - Java 5 warnings fixed (bug 311325)
@@ -79,7 +79,7 @@ public class DocumentType extends ConfigItem {
 
 	/**
 	 * Sets the name of the class that defines the content outline of the document.
-	 * 
+	 *
 	 * @param contentOutlinePage
 	 *            Name of a class implementing IContentOutlinePage.
 	 */
@@ -89,7 +89,7 @@ public class DocumentType extends ConfigItem {
 
 	/**
 	 * Sets the public ID of the document type. The public ID is the unique identifier of the document type.
-	 * 
+	 *
 	 * @param publicId
 	 *            new public ID of the document type.
 	 */
@@ -99,7 +99,7 @@ public class DocumentType extends ConfigItem {
 
 	/**
 	 * Sets the system ID of the document type. This is used when creating new documents but ignored otherwise.
-	 * 
+	 *
 	 * @param systemId
 	 *            new system ID for the document type.
 	 */
@@ -109,7 +109,7 @@ public class DocumentType extends ConfigItem {
 
 	/**
 	 * Sets the namespace name of the document type. This is used when creating new documents but ignored otherwise.
-	 * 
+	 *
 	 * @param namespaceName
 	 *            new namespace name for the document type.
 	 */

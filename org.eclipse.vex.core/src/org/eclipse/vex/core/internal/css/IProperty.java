@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     John Krasnay - initial API and implementation
  *******************************************************************************/
@@ -29,7 +29,7 @@ public interface IProperty {
 
 	/**
 	 * Calculates the value of a property given a LexicalUnit.
-	 * 
+	 *
 	 * @param lu
 	 *            LexicalUnit to interpret.
 	 * @param parentStyles

@@ -23,6 +23,7 @@ public class DuplicateSelectionHandler extends AbstractVexWidgetHandler {
 	@Override
 	public void execute(final VexWidget widget) throws ExecutionException {
 		widget.doWork(new Runnable() {
+			@Override
 			public void run() {
 				if (!widget.hasSelection()) {
 					final INode node = widget.getCurrentNode();

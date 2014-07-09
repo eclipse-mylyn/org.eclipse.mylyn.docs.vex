@@ -104,6 +104,7 @@ public class DocumentReaderTest {
 			}
 		}));
 		reader.setEntityResolver(new EntityResolver() {
+			@Override
 			public InputSource resolveEntity(final String publicId, final String systemId) throws SAXException, IOException {
 				if (TestResources.TEST_DTD.equals(publicId)) {
 					entityResolverCalled[0] = true;
@@ -132,6 +133,7 @@ public class DocumentReaderTest {
 			}
 		}));
 		reader.setEntityResolver(new EntityResolver() {
+			@Override
 			public InputSource resolveEntity(final String publicId, final String systemId) throws SAXException, IOException {
 				if (TestResources.TEST_DTD.equals(publicId)) {
 					entityResolverPosition[0] = ++callPosition[0];
@@ -214,6 +216,7 @@ public class DocumentReaderTest {
 		final IElement rootElement = document.getRootElement();
 
 		final IFilter<INode> recursiveWhitespaceTextNodeFilter = new IFilter<INode>() {
+			@Override
 			public boolean matches(final INode node) {
 				return node.accept(new BaseNodeVisitorWithResult<Boolean>(false) {
 					@Override

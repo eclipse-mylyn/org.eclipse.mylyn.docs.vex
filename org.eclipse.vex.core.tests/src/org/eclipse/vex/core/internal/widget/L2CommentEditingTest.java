@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  * 		Florian Thienel - initial API and implementation
  *******************************************************************************/
@@ -99,6 +99,7 @@ public class L2CommentEditingTest {
 		final String expectedContentStructure = getContentStructure(widget.getDocument().getRootElement());
 
 		widget.doWork(new Runnable() {
+			@Override
 			public void run() {
 				widget.moveTo(comment.getStartPosition().moveBy(1), false);
 				widget.moveTo(comment.getEndPosition().moveBy(-1), true);

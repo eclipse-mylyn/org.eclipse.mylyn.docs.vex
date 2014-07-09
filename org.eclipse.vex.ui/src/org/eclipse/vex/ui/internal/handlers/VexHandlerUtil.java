@@ -98,7 +98,7 @@ public final class VexHandlerUtil {
 	/**
 	 * Duplicate the given table row, inserting a new empty one aove or below it. The new row contains empty children
 	 * corresponding to the given row's children.
-	 * 
+	 *
 	 * @param vexWidget
 	 *            IVexWidget with which we're working
 	 * @param tableRow
@@ -161,7 +161,7 @@ public final class VexHandlerUtil {
 
 	/**
 	 * Returns true if the given element or range is at least partially selected.
-	 * 
+	 *
 	 * @param widget
 	 *            IVexWidget being tested.
 	 * @param elementOrRange
@@ -190,6 +190,7 @@ public final class VexHandlerUtil {
 		LayoutUtils.iterateTableCells(vexWidget.getStyleSheet(), row, new ElementOrRangeCallback() {
 			private int i = 0;
 
+			@Override
 			public void onElement(final IElement child, final String displayStyle) {
 				if (offset.isAfter(child.getStartPosition()) && offset.isBeforeOrEquals(child.getEndPosition())) {
 					column[0] = i;
@@ -197,6 +198,7 @@ public final class VexHandlerUtil {
 				i++;
 			}
 
+			@Override
 			public void onRange(final IParent parent, final int startOffset, final int endOffset) {
 				i++;
 			}
@@ -207,7 +209,7 @@ public final class VexHandlerUtil {
 
 	/**
 	 * Returns the innermost Element with style table-row containing the caret, or null if no such element exists.
-	 * 
+	 *
 	 * @param vexWidget
 	 *            IVexWidget to use.
 	 */
@@ -228,7 +230,7 @@ public final class VexHandlerUtil {
 	/**
 	 * Returns the currently selected table rows, or the current row if ther is no selection. If no row can be found,
 	 * returns an empty array.
-	 * 
+	 *
 	 * @param vexWidget
 	 *            IVexWidget to use.
 	 */
@@ -266,6 +268,7 @@ public final class VexHandlerUtil {
 
 			final private int[] rowIndex = { 0 };
 
+			@Override
 			public void onElement(final IElement row, final String displayStyle) {
 
 				callback.startRow(row, rowIndex[0]);
@@ -273,11 +276,13 @@ public final class VexHandlerUtil {
 				LayoutUtils.iterateTableCells(ss, row, new ElementOrRangeCallback() {
 					private int cellIndex = 0;
 
+					@Override
 					public void onElement(final IElement cell, final String displayStyle) {
 						callback.onCell(row, cell, rowIndex[0], cellIndex);
 						cellIndex++;
 					}
 
+					@Override
 					public void onRange(final IParent parent, final int startOffset, final int endOffset) {
 						callback.onCell(row, new ContentRange(startOffset, endOffset), rowIndex[0], cellIndex);
 						cellIndex++;
@@ -289,6 +294,7 @@ public final class VexHandlerUtil {
 				rowIndex[0]++;
 			}
 
+			@Override
 			public void onRange(final IParent parent, final int startOffset, final int endOffset) {
 
 				final ContentRange row = new ContentRange(startOffset, endOffset);
@@ -297,11 +303,13 @@ public final class VexHandlerUtil {
 				LayoutUtils.iterateTableCells(ss, parent, startOffset, endOffset, new ElementOrRangeCallback() {
 					private int cellIndex = 0;
 
+					@Override
 					public void onElement(final IElement cell, final String displayStyle) {
 						callback.onCell(row, cell, rowIndex[0], cellIndex);
 						cellIndex++;
 					}
 
+					@Override
 					public void onRange(final IParent parent, final int startOffset, final int endOffset) {
 						callback.onCell(row, new ContentRange(startOffset, endOffset), rowIndex[0], cellIndex);
 						cellIndex++;
@@ -318,7 +326,7 @@ public final class VexHandlerUtil {
 	/**
 	 * Returns a RowColumnInfo structure containing information about the table containing the caret. Returns null if
 	 * the caret is not currently inside a table.
-	 * 
+	 *
 	 * @param vexWidget
 	 *            IVexWidget to inspect.
 	 */
@@ -335,10 +343,12 @@ public final class VexHandlerUtil {
 
 			private int rowColumnCount;
 
+			@Override
 			public void startRow(final Object row, final int rowIndex) {
 				rowColumnCount = 0;
 			}
 
+			@Override
 			public void onCell(final Object row, final Object cell, final int rowIndex, final int cellIndex) {
 				found[0] = true;
 				if (LayoutUtils.elementOrRangeContains(row, position)) {
@@ -355,6 +365,7 @@ public final class VexHandlerUtil {
 				rowColumnCount++;
 			}
 
+			@Override
 			public void endRow(final Object row, final int rowIndex) {
 				rcInfo[0].rowCount++;
 				rcInfo[0].maxColumnCount = Math.max(rcInfo[0].maxColumnCount, rowColumnCount);
@@ -370,7 +381,7 @@ public final class VexHandlerUtil {
 
 	/**
 	 * Iterate over all rows in the table containing the caret.
-	 * 
+	 *
 	 * @param vexWidget
 	 *            IVexWidget to iterate over.
 	 * @param callback
@@ -402,6 +413,7 @@ public final class VexHandlerUtil {
 		final List<IElement> tableChildren = new ArrayList<IElement>();
 		final boolean[] found = new boolean[] { false };
 		LayoutUtils.iterateChildrenByDisplayStyle(ss, LayoutUtils.TABLE_CHILD_STYLES, table, new ElementOrRangeCallback() {
+			@Override
 			public void onElement(final IElement child, final String displayStyle) {
 				if (position.isAfterOrEquals(child.getStartPosition()) && position.isBeforeOrEquals(child.getEndPosition())) {
 					found[0] = true;
@@ -409,6 +421,7 @@ public final class VexHandlerUtil {
 				tableChildren.add(child);
 			}
 
+			@Override
 			public void onRange(final IParent parent, final int startOffset, final int endOffset) {
 				if (!found[0]) {
 					tableChildren.clear();
@@ -428,7 +441,7 @@ public final class VexHandlerUtil {
 	/**
 	 * Returns an IntRange representing the offsets inside the given Element or IntRange. If an Element is passed,
 	 * returns the offsets inside the sentinels. If an IntRange is passed it is returned directly.
-	 * 
+	 *
 	 * @param elementOrRange
 	 *            Element or IntRange to be inspected.
 	 */
@@ -444,7 +457,7 @@ public final class VexHandlerUtil {
 	/**
 	 * Returns an ContentPositionRange representing the offsets outside the given Element or IntRange. If an Element is
 	 * passed, returns the offsets outside the sentinels. If an PositionRange is passed it is returned directly.
-	 * 
+	 *
 	 * @param elementOrRange
 	 *            Element or PositionRange to be inspected.
 	 */

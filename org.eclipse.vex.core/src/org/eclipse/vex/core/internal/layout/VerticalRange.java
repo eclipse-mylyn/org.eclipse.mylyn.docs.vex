@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     John Krasnay - initial API and implementation
  *     Florian Thienel - inroduce specific implementations for layout and content to separate both domains
@@ -26,7 +26,7 @@ public class VerticalRange {
 
 	/**
 	 * Create a new VerticalRange from top to bottom.
-	 * 
+	 *
 	 * @param top
 	 *            top of the range
 	 * @param bottom
@@ -61,7 +61,7 @@ public class VerticalRange {
 
 	/**
 	 * Indicates if this range fully contains the given range.
-	 * 
+	 *
 	 * @param other
 	 *            the other range
 	 * @return true if this range fully contains the other range
@@ -72,7 +72,7 @@ public class VerticalRange {
 
 	/**
 	 * Indicates if this range contains the given y coordinate.
-	 * 
+	 *
 	 * @param y
 	 *            the coordinate
 	 * @return true if this range contains the y coordinate
@@ -83,7 +83,7 @@ public class VerticalRange {
 
 	/**
 	 * Indicates if this range intersects with the given range, even if the given range is only adjacent.
-	 * 
+	 *
 	 * @param other
 	 *            the other range
 	 * @return true if this range intersects with the other range
@@ -95,7 +95,7 @@ public class VerticalRange {
 	/**
 	 * Create a range that represents the intersection of this range and the given range. If the ranges do not
 	 * intersect, returns null. May return an empty range if this and the other range are only adjacent.
-	 * 
+	 *
 	 * @param other
 	 *            the other range
 	 * @return the intersection of this range and the other range
@@ -112,7 +112,7 @@ public class VerticalRange {
 	/**
 	 * Create a range that is the union of this range and the given range. If the ranges are disjoint, the gap between
 	 * the ranges is included in the result.
-	 * 
+	 *
 	 * @param other
 	 *            the other range
 	 * @return the union of this and the other range
@@ -123,7 +123,7 @@ public class VerticalRange {
 
 	/**
 	 * Create a copy of this range moved by the given distance.
-	 * 
+	 *
 	 * @param distance
 	 *            the distance to move
 	 * @return the moved range
@@ -134,7 +134,7 @@ public class VerticalRange {
 
 	/**
 	 * Create a resized copy of this range.
-	 * 
+	 *
 	 * @param deltaTop
 	 *            the amount by which the top of this range should be moved
 	 * @param deltaBottom

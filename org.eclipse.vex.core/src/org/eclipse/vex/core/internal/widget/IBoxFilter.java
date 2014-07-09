@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     John Krasnay - initial API and implementation
  *******************************************************************************/
@@ -14,18 +14,20 @@ import org.eclipse.vex.core.internal.layout.Box;
 
 /**
  * Interface implemented by classes that determine whether a Box matches certain criteria.
- * 
+ *
  * @see IVexWidget#
  */
 public interface IBoxFilter {
 
 	IBoxFilter TRUE = new IBoxFilter() {
+		@Override
 		public boolean matches(final Box box) {
 			return true;
 		}
 	};
 
 	IBoxFilter FALSE = new IBoxFilter() {
+		@Override
 		public boolean matches(final Box box) {
 			return false;
 		}
@@ -33,7 +35,7 @@ public interface IBoxFilter {
 
 	/**
 	 * Returns <code>true</code> if the given box matches the criteria.
-	 * 
+	 *
 	 * @param box
 	 *            Box to be tested.
 	 */

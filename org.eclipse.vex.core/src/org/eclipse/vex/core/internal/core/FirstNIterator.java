@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  * 		Florian Thienel - initial API and implementation
  *******************************************************************************/
@@ -15,7 +15,7 @@ import java.util.NoSuchElementException;
 
 /**
  * This iterator provides the first n elements of the sequence of a given source iterator.
- * 
+ *
  * @author Florian Thienel
  */
 public class FirstNIterator<T> implements Iterator<T> {
@@ -36,10 +36,12 @@ public class FirstNIterator<T> implements Iterator<T> {
 		cursor = 0;
 	}
 
+	@Override
 	public boolean hasNext() {
 		return cursor < n && source.hasNext();
 	}
 
+	@Override
 	public T next() {
 		if (!hasNext()) {
 			throw new NoSuchElementException();
@@ -48,6 +50,7 @@ public class FirstNIterator<T> implements Iterator<T> {
 		return source.next();
 	}
 
+	@Override
 	public void remove() {
 		source.remove();
 	}

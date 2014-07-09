@@ -24,10 +24,12 @@ public class SwtImage implements Image {
 		this.imageData = imageData;
 	}
 
+	@Override
 	public int getHeight() {
 		return imageData.height;
 	}
 
+	@Override
 	public int getWidth() {
 		return imageData.width;
 	}

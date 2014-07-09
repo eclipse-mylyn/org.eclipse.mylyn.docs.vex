@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     John Krasnay - initial API and implementation
  *******************************************************************************/
@@ -43,7 +43,7 @@ public interface IHostComponent {
 
 	/**
 	 * Flag a rectangular area of the component to be repainted.
-	 * 
+	 *
 	 * @param x
 	 *            X-coordinate of the region to be repainted.
 	 * @param y
@@ -57,7 +57,7 @@ public interface IHostComponent {
 
 	/**
 	 * Move the viewport to a new location
-	 * 
+	 *
 	 * @param left
 	 *            New left-side of the viewport
 	 * @param top
@@ -67,7 +67,7 @@ public interface IHostComponent {
 
 	/**
 	 * Sets the preferred size of the component.
-	 * 
+	 *
 	 * @param width
 	 *            Preferred width of the component.
 	 * @param height

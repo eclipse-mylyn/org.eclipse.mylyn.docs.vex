@@ -12,7 +12,7 @@ package org.eclipse.vex.ui.internal.handlers;
 
 /**
  * Inserts a single table column before (left of) the current one.
- * 
+ *
  * @see AbstractAddColumnHandler
  * @see AddColumnRightHandler
  */

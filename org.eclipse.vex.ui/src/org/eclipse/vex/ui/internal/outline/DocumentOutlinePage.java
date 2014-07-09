@@ -112,10 +112,12 @@ public class DocumentOutlinePage extends Page implements IContentOutlinePage {
 		}
 	}
 
+	@Override
 	public void addSelectionChangedListener(final ISelectionChangedListener listener) {
 		selectionProvider.addSelectionChangedListener(listener);
 	}
 
+	@Override
 	public ISelection getSelection() {
 		return selectionProvider.getSelection();
 	}
@@ -128,17 +130,19 @@ public class DocumentOutlinePage extends Page implements IContentOutlinePage {
 		return treeViewer;
 	}
 
+	@Override
 	public void removeSelectionChangedListener(final ISelectionChangedListener listener) {
 		selectionProvider.removeSelectionChangedListener(listener);
 	}
 
+	@Override
 	public void setSelection(final ISelection selection) {
 		selectionProvider.setSelection(selection);
 	}
 
 	/**
 	 * Updates the state of the outline view and refreshes the tree viewer.
-	 * 
+	 *
 	 * @see IToolBarContributor
 	 */
 	public void setViewState(final String stateId, final boolean newValue) {
@@ -149,6 +153,7 @@ public class DocumentOutlinePage extends Page implements IContentOutlinePage {
 		if (treeViewer != null) {
 			treeViewer.getControl().setRedraw(false);
 			BusyIndicator.showWhile(treeViewer.getControl().getDisplay(), new Runnable() {
+				@Override
 				public void run() {
 					treeViewer.refresh();
 				}
@@ -253,16 +258,17 @@ public class DocumentOutlinePage extends Page implements IContentOutlinePage {
 	/**
 	 * Receives selection changed events from both our TreeViewer and the VexWidget. Generally, we use this to
 	 * synchronize the selection between the two, but we also do the following...
-	 * 
+	 *
 	 * - when a notification comes from VexWidget, we create the treeViewer if needed (that is, if the part was created
 	 * before VexPlugin was done loading its configuration.
-	 * 
+	 *
 	 * - notifications from the TreeViewer are passed on to our SelectionChangedListeners.
 	 */
 	private final ISelectionChangedListener selectionListener = new ISelectionChangedListener() {
 		private Object[] lastExpandedElements = null;
 		private INode selectedTreeNode;
 
+		@Override
 		public void selectionChanged(final SelectionChangedEvent event) {
 			if (event.getSource() instanceof VexWidget) {
 				final VexWidget vexWidget = (VexWidget) event.getSource();
@@ -286,6 +292,7 @@ public class DocumentOutlinePage extends Page implements IContentOutlinePage {
 					if (selectedTreeNode != null) {
 						getTreeViewer().getControl().setRedraw(false);
 						BusyIndicator.showWhile(getTreeViewer().getControl().getDisplay(), new Runnable() {
+							@Override
 							public void run() {
 								// restore the expanded state
 								if (lastExpandedElements != null) {
@@ -368,6 +375,7 @@ public class DocumentOutlinePage extends Page implements IContentOutlinePage {
 
 	private final IDocumentListener documentListener = new IDocumentListener() {
 
+		@Override
 		public void attributeChanged(final AttributeChangeEvent event) {
 
 			// This cast is save because this event is only fired due to the attribute changes of elements.
@@ -379,20 +387,25 @@ public class DocumentOutlinePage extends Page implements IContentOutlinePage {
 			}
 		}
 
+		@Override
 		public void namespaceChanged(final NamespaceDeclarationChangeEvent event) {
 		}
 
+		@Override
 		public void beforeContentDeleted(final ContentChangeEvent event) {
 		}
 
+		@Override
 		public void beforeContentInserted(final ContentChangeEvent event) {
 		}
 
+		@Override
 		public void contentDeleted(final ContentChangeEvent event) {
 			final IParent outlineElement = event.getParent();
 			refreshOutlineElement(outlineElement);
 		}
 
+		@Override
 		public void contentInserted(final ContentChangeEvent event) {
 			final IParent outlineElement = event.getParent();
 			refreshOutlineElement(outlineElement);

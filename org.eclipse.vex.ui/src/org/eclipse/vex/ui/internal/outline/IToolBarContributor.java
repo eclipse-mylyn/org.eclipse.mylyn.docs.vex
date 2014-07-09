@@ -19,7 +19,7 @@ public interface IToolBarContributor {
 
 	/**
 	 * Handler for toggle states.
-	 * 
+	 *
 	 * @param commandId
 	 *            The commandId that defines the state
 	 * @param state
@@ -29,7 +29,7 @@ public interface IToolBarContributor {
 
 	/**
 	 * Register the ToolBarActions supoorted by this OutlineProvider
-	 * 
+	 *
 	 * @param page
 	 *            The DocumentOutlinePage
 	 * @param actionBars

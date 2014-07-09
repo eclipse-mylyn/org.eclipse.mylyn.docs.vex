@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     John Krasnay - initial API and implementation
  *******************************************************************************/
@@ -32,6 +32,7 @@ public class LineHeightProperty extends AbstractProperty {
 	 * Calculates the value of the property given a LexicalUnit. Returns a RelativeLength that is relative to the
 	 * current font size.
 	 */
+	@Override
 	public Object calculate(final LexicalUnit lu, final Styles parentStyles, final Styles styles, final INode node) {
 
 		final int ppi = DisplayDevice.getCurrent().getVerticalPPI();

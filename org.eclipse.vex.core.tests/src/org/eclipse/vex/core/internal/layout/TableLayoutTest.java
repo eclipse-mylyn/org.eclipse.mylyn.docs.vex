@@ -238,6 +238,7 @@ public class TableLayoutTest {
 		mutableInteger[0] = 0;
 		travelLayoutStack(new StackVisitor() {
 
+			@Override
 			public void visit(final StackElement element) {
 				if (element.box.getClass().equals(blockClass)) {
 					mutableInteger[0]++;
@@ -252,6 +253,7 @@ public class TableLayoutTest {
 		final StringBuilder result = new StringBuilder();
 		travelLayoutStack(new StackVisitor() {
 
+			@Override
 			public void visit(final StackElement element) {
 				if (element.indent > 0) {
 					final char[] indentChars = new char[element.indent * 2];

@@ -20,7 +20,7 @@ import org.eclipse.vex.core.provisional.dom.IProcessingInstruction;
 
 /**
  * A representation of an XML processing insctruction in the DOM. PI's have textual content, a start and an end tag.
- * 
+ *
  * @author Carsten Hiesserich
  */
 public class ProcessingInstruction extends Node implements IProcessingInstruction {
@@ -29,7 +29,7 @@ public class ProcessingInstruction extends Node implements IProcessingInstructio
 
 	/**
 	 * Create a new processing instruction.
-	 * 
+	 *
 	 * @param target
 	 *            The target for this processing instruction.
 	 * @throws DocumentValidationException

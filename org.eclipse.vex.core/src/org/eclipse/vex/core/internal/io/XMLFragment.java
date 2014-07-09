@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Carsten Hiesserich - initial API and implementation
  *******************************************************************************/
@@ -114,6 +114,7 @@ public class XMLFragment {
 			final DocumentReader reader = new DocumentReader();
 
 			reader.setWhitespacePolicyFactory(new IWhitespacePolicyFactory() {
+				@Override
 				public IWhitespacePolicy createPolicy(final IValidator validator, final DocumentContentModel documentContentModel, final StyleSheet styleSheet) {
 					return whitespacePolicy;
 				}

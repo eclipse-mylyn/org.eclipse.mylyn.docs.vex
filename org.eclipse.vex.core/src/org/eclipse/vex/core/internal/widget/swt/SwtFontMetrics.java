@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     John Krasnay - initial API and implementation
  *******************************************************************************/
@@ -26,6 +26,7 @@ public class SwtFontMetrics implements FontMetrics {
 	/**
 	 * @see org.eclipse.vex.core.internal.core.FontMetrics#getAscent()
 	 */
+	@Override
 	public int getAscent() {
 		return swtFontMetrics.getAscent();
 	}
@@ -33,6 +34,7 @@ public class SwtFontMetrics implements FontMetrics {
 	/**
 	 * @see org.eclipse.vex.core.internal.core.FontMetrics#getDescent()
 	 */
+	@Override
 	public int getDescent() {
 		return swtFontMetrics.getDescent();
 	}
@@ -40,6 +42,7 @@ public class SwtFontMetrics implements FontMetrics {
 	/**
 	 * @see org.eclipse.vex.core.internal.core.FontMetrics#getHeight()
 	 */
+	@Override
 	public int getHeight() {
 		return swtFontMetrics.getHeight();
 	}
@@ -47,6 +50,7 @@ public class SwtFontMetrics implements FontMetrics {
 	/**
 	 * @see org.eclipse.vex.core.internal.core.FontMetrics#getLeading()
 	 */
+	@Override
 	public int getLeading() {
 		return swtFontMetrics.getLeading();
 	}

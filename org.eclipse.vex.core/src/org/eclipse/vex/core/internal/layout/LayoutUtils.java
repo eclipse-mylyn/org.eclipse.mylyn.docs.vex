@@ -34,7 +34,7 @@ public class LayoutUtils {
 
 	/**
 	 * Creates a list of generated inline boxes for the given pseudo-element.
-	 * 
+	 *
 	 * @param context
 	 *            LayoutContext in use
 	 * @param pseudoElement
@@ -56,7 +56,7 @@ public class LayoutUtils {
 
 	/**
 	 * Creates a list of generated inline boxes for the given pseudo-element.
-	 * 
+	 *
 	 * @param context
 	 *            LayoutContext in use
 	 * @param pseudoElement
@@ -68,7 +68,7 @@ public class LayoutUtils {
 
 	/**
 	 * Returns <code>true</code> if the given offset falls within the given element or range.
-	 * 
+	 *
 	 * @param elementOrRange
 	 *            Element or IntRange object representing a range of offsets.
 	 * @param position
@@ -86,7 +86,7 @@ public class LayoutUtils {
 
 	/**
 	 * Creates a string representing the generated content for the given node.
-	 * 
+	 *
 	 * @param context
 	 *            LayoutContext in use
 	 * @param styles
@@ -107,7 +107,7 @@ public class LayoutUtils {
 	 * Call the given callback for each child matching one of the given display styles. Any nodes that do not match one
 	 * of the given display types cause the onRange callback to be called, with a range covering all such contiguous
 	 * nodes.
-	 * 
+	 *
 	 * @param context
 	 *            LayoutContext to use.
 	 * @param displayStyles
@@ -172,7 +172,7 @@ public class LayoutUtils {
 	 * Call the given callback for each child matching one of the given display styles. Any nodes that do not match one
 	 * of the given display types cause the onRange callback to be called, with a range covering all such contiguous
 	 * nodes.
-	 * 
+	 *
 	 * @param context
 	 *            LayoutContext to use.
 	 * @param displayStyles
@@ -189,7 +189,7 @@ public class LayoutUtils {
 
 	/**
 	 * Returns true if the given styles represent an element that can be the child of a table element.
-	 * 
+	 *
 	 * @param styleSheet
 	 *            StyleSheet to use.
 	 * @param element
@@ -203,6 +203,7 @@ public class LayoutUtils {
 	public static void iterateTableRows(final StyleSheet styleSheet, final IParent element, final int startOffset, final int endOffset, final ElementOrRangeCallback callback) {
 
 		iterateChildrenByDisplayStyle(styleSheet, NON_ROW_STYLES, element, startOffset, endOffset, new ElementOrRangeCallback() {
+			@Override
 			public void onElement(final IElement child, final String displayStyle) {
 				if (displayStyle.equals(CSS.TABLE_ROW_GROUP) || displayStyle.equals(CSS.TABLE_HEADER_GROUP) || displayStyle.equals(CSS.TABLE_FOOTER_GROUP)) {
 
@@ -213,6 +214,7 @@ public class LayoutUtils {
 				}
 			}
 
+			@Override
 			public void onRange(final IParent parent, final int startOffset, final int endOffset) {
 				// iterate over rows in range
 				iterateChildrenByDisplayStyle(styleSheet, ROW_STYLES, element, startOffset, endOffset, callback);

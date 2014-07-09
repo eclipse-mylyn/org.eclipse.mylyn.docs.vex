@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     John Krasnay - initial API and implementation
  *******************************************************************************/
@@ -46,17 +46,17 @@ public class ColorProperty extends AbstractProperty {
 
 	/**
 	 * Class constructor. The names CSS.COLOR and CSS.BACKGROUND_COLOR are treated specially, as follows.
-	 * 
+	 *
 	 * <ul>
 	 * <li>If name is CSS.COLOR, it is inherited and defaults to black.</li>
 	 * <li>If name is CSS.BACKGROUND_COLOR, it is not inherited and defaults to transparent (null).</li>
 	 * <li>Otherwise, it is not inherited and defaults to the current color.</li>
 	 * </ul>
-	 * 
+	 *
 	 * <p>
 	 * Because of the default in the third case, the ColorProperty for CSS.COLOR must be processed before any others.
 	 * </p>
-	 * 
+	 *
 	 * @param name
 	 *            Name of the element.
 	 */
@@ -64,6 +64,7 @@ public class ColorProperty extends AbstractProperty {
 		super(name);
 	}
 
+	@Override
 	public Object calculate(final LexicalUnit lu, final Styles parentStyles, final Styles styles, final INode node) {
 
 		final boolean inherit = isInherit(lu) || getName().equals(CSS.COLOR);
@@ -85,7 +86,7 @@ public class ColorProperty extends AbstractProperty {
 
 	/**
 	 * Returns true if the given lexical unit represents a color.
-	 * 
+	 *
 	 * @param lu
 	 *            LexicalUnit to check.
 	 */

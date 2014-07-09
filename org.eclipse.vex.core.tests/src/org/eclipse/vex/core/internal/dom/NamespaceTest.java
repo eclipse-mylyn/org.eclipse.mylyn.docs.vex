@@ -8,7 +8,7 @@
  * Contributors:
  * 		Florian Thienel - initial API and implementation
  * 		Carsten Hiesserich - test for handling of attribute namespaces in FindUndeclaredNamespacesVisitor
- * 
+ *
  *******************************************************************************/
 package org.eclipse.vex.core.internal.dom;
 

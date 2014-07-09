@@ -18,7 +18,7 @@ import org.eclipse.vex.core.provisional.dom.IElement;
 
 /**
  * Navigates to the previous table cell (usual shortcut: {@code Shift+Tab}).
- * 
+ *
  * @see NextTableCellHandler
  */
 public class PreviousTableCellHandler extends AbstractNavigateTableCellHandler {

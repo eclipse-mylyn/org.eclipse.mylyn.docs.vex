@@ -19,10 +19,12 @@ public class FakeImage implements Image {
 		this.width = width;
 	}
 
+	@Override
 	public int getHeight() {
 		return height;
 	}
 
+	@Override
 	public int getWidth() {
 		return width;
 	}

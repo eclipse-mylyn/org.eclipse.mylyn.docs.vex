@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     John Krasnay - initial API and implementation
  *     Igor Jacy Lino Campista - Java 5 warnings fixed (bug 311325)
@@ -32,7 +32,7 @@ public class ParagraphBox extends AbstractBox implements BlockBox {
 
 	/**
 	 * Class constructor.
-	 * 
+	 *
 	 * @param children
 	 *            Line boxes that comprise the paragraph.
 	 * @param node
@@ -53,7 +53,7 @@ public class ParagraphBox extends AbstractBox implements BlockBox {
 
 	/**
 	 * Create a paragraph by word-wrapping a list of inline boxes.
-	 * 
+	 *
 	 * @param context
 	 *            LayoutContext used for this layout.
 	 * @param node
@@ -70,7 +70,7 @@ public class ParagraphBox extends AbstractBox implements BlockBox {
 
 	/**
 	 * Create a paragraph by word-wrapping a list of inline boxes.
-	 * 
+	 *
 	 * @param context
 	 *            LayoutContext used for this layout
 	 * @param node
@@ -158,6 +158,7 @@ public class ParagraphBox extends AbstractBox implements BlockBox {
 	/**
 	 * @see org.eclipse.vex.core.internal.layout.BlockBox#getFirstLine()
 	 */
+	@Override
 	public LineBox getFirstLine() {
 		if (children.length == 0) {
 			return null;
@@ -169,6 +170,7 @@ public class ParagraphBox extends AbstractBox implements BlockBox {
 	/**
 	 * @see org.eclipse.vex.core.internal.layout.BlockBox#getLastLine()
 	 */
+	@Override
 	public LineBox getLastLine() {
 		if (children.length == 0) {
 			return null;
@@ -179,7 +181,7 @@ public class ParagraphBox extends AbstractBox implements BlockBox {
 
 	/**
 	 * Returns the LineBox at the given offset.
-	 * 
+	 *
 	 * @param offset
 	 *            the offset to check.
 	 */
@@ -195,22 +197,27 @@ public class ParagraphBox extends AbstractBox implements BlockBox {
 		return lastContentLine;
 	}
 
+	@Override
 	public ContentPosition getLineEndPosition(final ContentPosition linePosition) {
 		return getLineAt(linePosition).getEndPosition();
 	}
 
+	@Override
 	public ContentPosition getLineStartPosition(final ContentPosition linePosition) {
 		return getLineAt(linePosition).getStartPosition();
 	}
 
+	@Override
 	public int getMarginBottom() {
 		return 0;
 	}
 
+	@Override
 	public int getMarginTop() {
 		return 0;
 	}
 
+	@Override
 	public ContentPosition getNextLinePosition(final LayoutContext context, final ContentPosition linePosition, final int x) {
 		LineBox nextLine = null;
 		final LineBox[] children = this.children;
@@ -229,10 +236,12 @@ public class ParagraphBox extends AbstractBox implements BlockBox {
 		return null;
 	}
 
+	@Override
 	public BlockBox getParent() {
 		throw new IllegalStateException("ParagraphBox does not currently track parent");
 	}
 
+	@Override
 	public ContentPosition getPreviousLinePosition(final LayoutContext context, final ContentPosition linePosition, final int x) {
 		LineBox prevLine = null;
 		final LineBox[] children = this.children;
@@ -261,10 +270,12 @@ public class ParagraphBox extends AbstractBox implements BlockBox {
 		return firstContentLine != null && firstContentLine.hasContent();
 	}
 
+	@Override
 	public VerticalRange layout(final LayoutContext context, final int top, final int bottom) {
 		return null;
 	}
 
+	@Override
 	public void invalidate(final boolean direct) {
 		throw new IllegalStateException("invalidate called on a non-element BlockBox");
 	}
@@ -275,6 +286,7 @@ public class ParagraphBox extends AbstractBox implements BlockBox {
 		return true;
 	}
 
+	@Override
 	public void setInitialSize(final LayoutContext context) {
 		// NOP - size calculated in factory method
 	}

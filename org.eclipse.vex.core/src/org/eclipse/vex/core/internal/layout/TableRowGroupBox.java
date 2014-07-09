@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     John Krasnay - initial API and implementation
  *     Igor Jacy Lino Campista - Java 5 warnings fixed (bug 311325)
@@ -31,7 +31,7 @@ public class TableRowGroupBox extends AbstractBlockBox {
 
 	/**
 	 * Class constructor for non-anonymous table row groups.
-	 * 
+	 *
 	 * @param context
 	 *            LayoutContext to use.
 	 * @param parent
@@ -45,7 +45,7 @@ public class TableRowGroupBox extends AbstractBlockBox {
 
 	/**
 	 * Class constructor for anonymous table row groups.
-	 * 
+	 *
 	 * @param context
 	 *            LayoutContext to use.
 	 * @param parent
@@ -71,10 +71,12 @@ public class TableRowGroupBox extends AbstractBlockBox {
 		final List<Box> children = new ArrayList<Box>();
 
 		iterateChildrenByDisplayStyle(context.getStyleSheet(), childDisplayStyles, new ElementOrRangeCallback() {
+			@Override
 			public void onElement(final IElement child, final String displayStyle) {
 				children.add(new TableRowBox(context, TableRowGroupBox.this, child));
 			}
 
+			@Override
 			public void onRange(final IParent parent, final int startOffset, final int endOffset) {
 				children.add(new TableRowBox(context, TableRowGroupBox.this, startOffset, endOffset));
 			}

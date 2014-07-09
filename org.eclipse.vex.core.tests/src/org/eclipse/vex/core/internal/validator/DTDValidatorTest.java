@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     John Krasnay - initial API and implementation
  *     Igor Jacy Lino Campista - Java 5 warnings fixed (bug 311325)
@@ -87,7 +87,7 @@ public class DTDValidatorTest {
 	// anySet.add("para");
 	// anySet.add("emphasis");
 	// assertEquals(anySet, getValidItemsAt(doc, 1));
-	//		
+	//
 	// }
 
 	@Test

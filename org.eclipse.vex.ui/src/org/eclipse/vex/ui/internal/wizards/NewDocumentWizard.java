@@ -51,6 +51,7 @@ public class NewDocumentWizard extends Wizard implements INewWizard {
 	private DocumentTypeSelectionPage typePage;
 	private DocumentFileCreationPage filePage;
 
+	@Override
 	public void init(final IWorkbench workbench, final IStructuredSelection currentSelection) {
 		this.workbench = workbench;
 		selection = currentSelection;

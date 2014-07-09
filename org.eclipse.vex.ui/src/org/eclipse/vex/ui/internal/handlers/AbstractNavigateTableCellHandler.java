@@ -25,7 +25,7 @@ import org.eclipse.vex.core.provisional.dom.IParent;
 
 /**
  * Navigates either to the next or previous table cell (usual shortcut: {@code Tab} or {@code Shift+Tab}).
- * 
+ *
  * @see PreviousTableCellHandler
  */
 public abstract class AbstractNavigateTableCellHandler extends AbstractVexWidgetHandler {
@@ -46,7 +46,7 @@ public abstract class AbstractNavigateTableCellHandler extends AbstractVexWidget
 
 	/**
 	 * Navigates either to the next or previous table cell.
-	 * 
+	 *
 	 * @param widget
 	 *            the Vex widget containing the document
 	 * @param tableRow
@@ -58,6 +58,7 @@ public abstract class AbstractNavigateTableCellHandler extends AbstractVexWidget
 
 	private static IFilter<INode> displayedAsTableRow(final StyleSheet stylesheet) {
 		return new IFilter<INode>() {
+			@Override
 			public boolean matches(final INode node) {
 				return stylesheet.getStyles(node).getDisplay().equals(CSS.TABLE_ROW);
 			}

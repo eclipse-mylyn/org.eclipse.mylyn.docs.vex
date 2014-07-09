@@ -26,22 +26,24 @@ import org.eclipse.vex.ui.internal.Messages;
 
 /**
  * Abstract super class of all command handlers which can be performed on a {@link VexWidget}.
- * 
+ *
  * @see IVexWidgetHandler
  */
 public abstract class AbstractVexWidgetHandler extends AbstractHandler implements IVexWidgetHandler {
 
+	@Override
 	public Object execute(final ExecutionEvent event) throws ExecutionException {
 		execute(VexHandlerUtil.computeWidget(event));
 		return null;
 	}
 
+	@Override
 	public abstract void execute(VexWidget widget) throws ExecutionException;
 
 	/**
 	 * Helper method to implement {@link org.eclipse.ui.commands.IElementUpdater}: Updates the name of the UI element
 	 * with the specified message where <code>{0}</code> is replaced with the name of the current element.
-	 * 
+	 *
 	 * @param element
 	 *            the UI element to be update
 	 * @param parameters

@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  * 		 Mohamadou Nassourou - initial API and implementation
  *******************************************************************************/
@@ -31,6 +31,7 @@ public class BackgroundImageProperty extends AbstractProperty {
 		super(CSS.BACKGROUND_IMAGE);
 	}
 
+	@Override
 	public Object calculate(final LexicalUnit lexicalUnit, final Styles parentStyles, final Styles styles, final INode node) {
 		if (lexicalUnit == null) {
 			return DEFAULT;
@@ -51,10 +52,10 @@ public class BackgroundImageProperty extends AbstractProperty {
 			});
 		default:
 			VEXCorePlugin
-					.getInstance()
-					.getLog()
-					.log(new Status(IStatus.WARNING, VEXCorePlugin.ID, MessageFormat.format("Unsupported lexical unit type in ''background-image: {0}'' (type: {1})", lexicalUnit.toString(),
-							lexicalUnit.getLexicalUnitType())));
+			.getInstance()
+			.getLog()
+			.log(new Status(IStatus.WARNING, VEXCorePlugin.ID, MessageFormat.format("Unsupported lexical unit type in ''background-image: {0}'' (type: {1})", lexicalUnit.toString(),
+					lexicalUnit.getLexicalUnitType())));
 			return DEFAULT;
 		}
 	}

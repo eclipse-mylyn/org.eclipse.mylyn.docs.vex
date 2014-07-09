@@ -82,7 +82,7 @@ public class LayoutContext {
 
 	/**
 	 * Helper method that returns true if the given node is in the selected range.
-	 * 
+	 *
 	 * @param node
 	 *            Node to test. May be null, in which case this method returns false.
 	 */
@@ -141,7 +141,7 @@ public class LayoutContext {
 
 	/**
 	 * Sets the offset where the current selection ends.
-	 * 
+	 *
 	 * @param i
 	 *            the new value for selectionEnd
 	 */
@@ -151,7 +151,7 @@ public class LayoutContext {
 
 	/**
 	 * Sets the offset where the current selection starts.
-	 * 
+	 *
 	 * @param i
 	 *            the new value for selectionStart
 	 */

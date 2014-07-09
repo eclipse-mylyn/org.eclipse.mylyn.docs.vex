@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     John Krasnay - initial API and implementation
  *******************************************************************************/
@@ -26,7 +26,7 @@ public class LineBox extends CompositeInlineBox {
 
 	/**
 	 * Class constructor.
-	 * 
+	 *
 	 * @param context
 	 *            LayoutContext for this layout.
 	 * @param children
@@ -39,7 +39,7 @@ public class LineBox extends CompositeInlineBox {
 
 	/**
 	 * Class constructor used by the split method.
-	 * 
+	 *
 	 * @param other
 	 *            Instance of LineBox that should be splitted.
 	 * @param context
@@ -63,6 +63,7 @@ public class LineBox extends CompositeInlineBox {
 	/**
 	 * @see org.eclipse.vex.core.internal.layout.InlineBox#getBaseline()
 	 */
+	@Override
 	public int getBaseline() {
 		return baseline;
 	}

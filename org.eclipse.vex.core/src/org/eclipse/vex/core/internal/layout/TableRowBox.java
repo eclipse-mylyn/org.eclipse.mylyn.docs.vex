@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     John Krasnay - initial API and implementation
  *     Igor Jacy Lino Campista - Java 5 warnings fixed (bug 311325)
@@ -44,10 +44,12 @@ public class TableRowBox extends AbstractBlockBox {
 		LayoutUtils.iterateTableCells(context.getStyleSheet(), parent, getStartOffset(), getEndOffset(), new ElementOrRangeCallback() {
 			private int column = 0;
 
+			@Override
 			public void onElement(final IElement child, final String displayStyle) {
 				children.add(new TableCellBox(context, TableRowBox.this, child, widths[column++]));
 			}
 
+			@Override
 			public void onRange(final IParent parent, final int startOffset, final int endOffset) {
 				children.add(new TableCellBox(context, TableRowBox.this, startOffset, endOffset, widths[column++]));
 			}

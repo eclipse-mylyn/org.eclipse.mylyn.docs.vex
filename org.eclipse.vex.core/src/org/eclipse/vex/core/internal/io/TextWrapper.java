@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     John Krasnay - initial API and implementation
  *     David Carver unit tests fixes
@@ -32,7 +32,7 @@ public class TextWrapper {
 
 	/**
 	 * Adds text to the list of things to be wrapped.
-	 * 
+	 *
 	 * @param s
 	 *            Text to be added.
 	 */
@@ -68,7 +68,7 @@ public class TextWrapper {
 	/**
 	 * Adds text to the list of things to be wrapped. The given text will be treated as a single unit and will not be
 	 * split across lines.
-	 * 
+	 *
 	 * @param s
 	 *            Text to be added.
 	 */
@@ -86,7 +86,7 @@ public class TextWrapper {
 	/**
 	 * Wraps the text into the given width. The text is only broken at spaces, meaning the returned lines will not
 	 * necessarily fit within width.
-	 * 
+	 *
 	 * @param width
 	 */
 	public String[] wrap(final int width) {

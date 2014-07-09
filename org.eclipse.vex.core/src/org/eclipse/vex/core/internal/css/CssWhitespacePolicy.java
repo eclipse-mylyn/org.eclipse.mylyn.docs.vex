@@ -21,12 +21,13 @@ import org.eclipse.vex.core.provisional.dom.IValidator;
 
 /**
  * Implementation of IWhitespacePolicy using a CSS stylesheet.
- * 
+ *
  * @see IWhitespacePolicy
  */
 public class CssWhitespacePolicy implements IWhitespacePolicy {
 
 	public static final IWhitespacePolicyFactory FACTORY = new IWhitespacePolicyFactory() {
+		@Override
 		public IWhitespacePolicy createPolicy(final IValidator validator, final DocumentContentModel documentContentModel, final StyleSheet styleSheet) {
 			return new CssWhitespacePolicy(styleSheet);
 		}
@@ -36,7 +37,7 @@ public class CssWhitespacePolicy implements IWhitespacePolicy {
 
 	/**
 	 * Create a whitespace policy based on the given stylesheet.
-	 * 
+	 *
 	 * @param styleSheet
 	 *            the stylesheet used for the policy
 	 */
@@ -44,6 +45,7 @@ public class CssWhitespacePolicy implements IWhitespacePolicy {
 		this.styleSheet = styleSheet;
 	}
 
+	@Override
 	public boolean isBlock(final INode node) {
 		return node.accept(new BaseNodeVisitorWithResult<Boolean>(true) {
 			@Override
@@ -162,6 +164,7 @@ public class CssWhitespacePolicy implements IWhitespacePolicy {
 		return styles.getDisplay();
 	}
 
+	@Override
 	public boolean isPre(final INode node) {
 		return CSS.PRE.equals(styleSheet.getStyles(node).getWhiteSpace());
 	}

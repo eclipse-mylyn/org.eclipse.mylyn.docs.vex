@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     John Krasnay - initial API and implementation
  *******************************************************************************/
@@ -23,7 +23,7 @@ public class RelativeLength {
 
 	/**
 	 * Create a relative length representing an absolute value.
-	 * 
+	 *
 	 * @return the new RelativeLength value.
 	 */
 	public static RelativeLength createAbsolute(final int value) {
@@ -36,7 +36,7 @@ public class RelativeLength {
 
 	/**
 	 * Create a relative length representing a relative value.
-	 * 
+	 *
 	 * @return the new RelativeLength value.
 	 */
 	public static RelativeLength createRelative(final float percentage) {
@@ -47,7 +47,7 @@ public class RelativeLength {
 	 * Return the value of the length given a reference value. If this object represents an absolute value, that value
 	 * is simply returned. Otherwise, returns the given reference length multiplied by the given percentage and rounded
 	 * to the nearest integer.
-	 * 
+	 *
 	 * @param referenceLength
 	 *            reference length by which percentage lengths will by multiplied.
 	 * @return the actual value

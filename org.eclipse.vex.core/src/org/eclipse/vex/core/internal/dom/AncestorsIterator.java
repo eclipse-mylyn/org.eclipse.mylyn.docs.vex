@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  * 		Florian Thienel - initial API and implementation
  *******************************************************************************/
@@ -27,10 +27,12 @@ public class AncestorsIterator implements Iterator<IParent> {
 		current = startNode;
 	}
 
+	@Override
 	public boolean hasNext() {
 		return current.getParent() != null;
 	}
 
+	@Override
 	public IParent next() {
 		if (!hasNext()) {
 			throw new NoSuchElementException();
@@ -39,6 +41,7 @@ public class AncestorsIterator implements Iterator<IParent> {
 		return (IParent) current;
 	}
 
+	@Override
 	public void remove() {
 		throw new UnsupportedOperationException();
 	}

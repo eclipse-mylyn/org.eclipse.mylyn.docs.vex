@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     John Krasnay - initial API and implementation
  *     Igor Jacy Lino Campista - Java 5 warnings fixed (bug 311325)
@@ -20,7 +20,7 @@ import org.eclipse.vex.core.provisional.dom.INode;
 
 /**
  * Implements a Block
- * 
+ *
  * XXX REMOVE THIS HACK!!!
  */
 public class BlockPseudoElementBox extends AbstractBox implements BlockBox {
@@ -57,7 +57,7 @@ public class BlockPseudoElementBox extends AbstractBox implements BlockBox {
 
 	/**
 	 * Provide children for {@link AbstractBox#paint}.
-	 * 
+	 *
 	 * @see org.eclipse.vex.core.internal.layout.Box#getChildren()
 	 */
 	@Override
@@ -76,6 +76,7 @@ public class BlockPseudoElementBox extends AbstractBox implements BlockBox {
 	/**
 	 * @see org.eclipse.vex.core.internal.layout.BlockBox#getFirstLine()
 	 */
+	@Override
 	public LineBox getFirstLine() {
 		throw new IllegalStateException();
 	}
@@ -83,6 +84,7 @@ public class BlockPseudoElementBox extends AbstractBox implements BlockBox {
 	/**
 	 * @see org.eclipse.vex.core.internal.layout.BlockBox#getLastLine()
 	 */
+	@Override
 	public LineBox getLastLine() {
 		throw new IllegalStateException();
 	}
@@ -90,6 +92,7 @@ public class BlockPseudoElementBox extends AbstractBox implements BlockBox {
 	/**
 	 * @see org.eclipse.vex.core.internal.layout.BlockBox#getLineEndOffset(int)
 	 */
+	@Override
 	public ContentPosition getLineEndPosition(final ContentPosition position) {
 		throw new IllegalStateException();
 	}
@@ -97,14 +100,17 @@ public class BlockPseudoElementBox extends AbstractBox implements BlockBox {
 	/**
 	 * @see org.eclipse.vex.core.internal.layout.BlockBox#getLineStartOffset(int)
 	 */
+	@Override
 	public ContentPosition getLineStartPosition(final ContentPosition position) {
 		throw new IllegalStateException();
 	}
 
+	@Override
 	public int getMarginBottom() {
 		return marginBottom;
 	}
 
+	@Override
 	public int getMarginTop() {
 		return marginTop;
 	}
@@ -113,6 +119,7 @@ public class BlockPseudoElementBox extends AbstractBox implements BlockBox {
 	 * @see org.eclipse.vex.core.internal.layout.BlockBox#getNextLineOffset(org.eclipse.vex.core.internal.layout.LayoutContext,
 	 *      int, int)
 	 */
+	@Override
 	public ContentPosition getNextLinePosition(final LayoutContext context, final ContentPosition position, final int x) {
 		throw new IllegalStateException();
 	}
@@ -120,6 +127,7 @@ public class BlockPseudoElementBox extends AbstractBox implements BlockBox {
 	/**
 	 * Returns this box's parent.
 	 */
+	@Override
 	public BlockBox getParent() {
 		return parent;
 	}
@@ -128,21 +136,24 @@ public class BlockPseudoElementBox extends AbstractBox implements BlockBox {
 	 * @see org.eclipse.vex.core.internal.layout.BlockBox#getPreviousLineOffset(org.eclipse.vex.core.internal.layout.LayoutContext,
 	 *      int, int)
 	 */
+	@Override
 	public ContentPosition getPreviousLinePosition(final LayoutContext context, final ContentPosition position, final int x) {
 		throw new IllegalStateException();
 	}
 
+	@Override
 	public VerticalRange layout(final LayoutContext context, final int top, final int bottom) {
 		return null;
 	}
 
+	@Override
 	public void invalidate(final boolean direct) {
 		throw new IllegalStateException("invalidate called on a non-element BlockBox");
 	}
 
 	/**
 	 * Draw boxes before painting our child.
-	 * 
+	 *
 	 * @see org.eclipse.vex.core.internal.layout.Box#paint(org.eclipse.vex.core.internal.layout.LayoutContext, int, int)
 	 */
 	@Override
@@ -151,6 +162,7 @@ public class BlockPseudoElementBox extends AbstractBox implements BlockBox {
 		super.paint(context, x, y);
 	}
 
+	@Override
 	public void setInitialSize(final LayoutContext context) {
 		// NOP - size calculated in the ctor
 	}

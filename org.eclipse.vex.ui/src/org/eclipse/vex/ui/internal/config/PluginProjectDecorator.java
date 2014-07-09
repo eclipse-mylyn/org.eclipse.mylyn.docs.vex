@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     John Krasnay - initial API and implementation
  *******************************************************************************/
@@ -27,6 +27,7 @@ import org.eclipse.vex.ui.internal.VexPlugin;
  */
 public class PluginProjectDecorator implements ILightweightLabelDecorator {
 
+	@Override
 	public void decorate(final Object element, final IDecoration decoration) {
 
 		if (vexIcon == null) {
@@ -44,16 +45,20 @@ public class PluginProjectDecorator implements ILightweightLabelDecorator {
 		}
 	}
 
+	@Override
 	public void addListener(final ILabelProviderListener listener) {
 	}
 
+	@Override
 	public void dispose() {
 	}
 
+	@Override
 	public boolean isLabelProperty(final Object element, final String property) {
 		return false;
 	}
 
+	@Override
 	public void removeListener(final ILabelProviderListener listener) {
 	}
 

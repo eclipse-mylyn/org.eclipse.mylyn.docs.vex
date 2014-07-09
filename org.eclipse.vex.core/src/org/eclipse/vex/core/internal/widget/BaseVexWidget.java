@@ -234,7 +234,7 @@ public class BaseVexWidget implements IVexWidget {
 
 	/**
 	 * @see org.eclipse.swt.widgets.Widget#dispose()
-	 * 
+	 *
 	 */
 	public void dispose() {
 		if (document != null) {
@@ -257,6 +257,7 @@ public class BaseVexWidget implements IVexWidget {
 		beginWorkCount++;
 	}
 
+	@Override
 	public void endWork(final boolean success) {
 		beginWorkCount--;
 		if (beginWorkCount == 0) {
@@ -543,7 +544,7 @@ public class BaseVexWidget implements IVexWidget {
 
 	/**
 	 * Returns the innermost box containing the given offset that matches the given filter.
-	 * 
+	 *
 	 * @param filter
 	 *            IBoxFilter that determines which box to return
 	 * @param offset
@@ -591,6 +592,7 @@ public class BaseVexWidget implements IVexWidget {
 		return caret;
 	}
 
+	@Override
 	public ContentPosition getCaretPosition() {
 		return caretPosition;
 	}
@@ -1291,6 +1293,7 @@ public class BaseVexWidget implements IVexWidget {
 		this.moveTo(position, false);
 	}
 
+	@Override
 	public void moveTo(final ContentPosition position, final boolean select) {
 		if (!Document.isInsertionPointIn(document, position.getOffset())) {
 			return;
@@ -1475,10 +1478,12 @@ public class BaseVexWidget implements IVexWidget {
 		hostComponent.fireSelectionChanged();
 	}
 
+	@Override
 	public void selectAll() {
 		select(document.getPositionRange().resizeBy(1, -1));
 	}
 
+	@Override
 	public void selectWord() {
 		int startOffset = getCaretOffset();
 		int endOffset = getCaretOffset();
@@ -1514,7 +1519,7 @@ public class BaseVexWidget implements IVexWidget {
 
 	/**
 	 * Paints the contents of the widget in the given Graphics at the given point.
-	 * 
+	 *
 	 * @param g
 	 *            Graphics in which to draw the widget contents
 	 * @param x
@@ -1593,7 +1598,7 @@ public class BaseVexWidget implements IVexWidget {
 
 	/**
 	 * Sets the value of the antiAliased flag.
-	 * 
+	 *
 	 * @param antiAliased
 	 *            if true, text is rendered using antialiasing.
 	 */
@@ -1707,7 +1712,7 @@ public class BaseVexWidget implements IVexWidget {
 
 	/**
 	 * Called by the host component when it gains or loses focus.
-	 * 
+	 *
 	 * @param focus
 	 *            true if the host component has focus
 	 */
@@ -1959,7 +1964,7 @@ public class BaseVexWidget implements IVexWidget {
 
 	/**
 	 * Processes the given edit, adding it to the undo stack.
-	 * 
+	 *
 	 * @param edit
 	 *            The edit to process.
 	 * @param caretOffset
@@ -1987,7 +1992,7 @@ public class BaseVexWidget implements IVexWidget {
 
 	/**
 	 * Creates a layout context given a particular graphics context.
-	 * 
+	 *
 	 * @param g
 	 *            The graphics context to use for the layout context.
 	 * @return the new layout context
@@ -2021,7 +2026,7 @@ public class BaseVexWidget implements IVexWidget {
 	/**
 	 * Invalidates the box tree due to document changes. The lowest box that completely encloses the changed node is
 	 * invalidated.
-	 * 
+	 *
 	 * @param node
 	 *            Node for which to search.
 	 */
@@ -2042,7 +2047,7 @@ public class BaseVexWidget implements IVexWidget {
 	/**
 	 * Returns true if the given offset represents the boundary between two different elements with the same name and
 	 * parent. This is used to determine if the elements can be joined via joinElementsAt.
-	 * 
+	 *
 	 * @param int offset The offset to check.
 	 */
 	private boolean isBetweenMatchingElements(final int offset) {
@@ -2057,7 +2062,7 @@ public class BaseVexWidget implements IVexWidget {
 	/**
 	 * Calls layout() on the rootBox until the y-coordinate of a caret at the given offset converges, i.e. is less than
 	 * LAYOUT_TOLERANCE pixels from the last call.
-	 * 
+	 *
 	 * @param offset
 	 *            Offset around which we should lay out boxes.
 	 */
@@ -2270,7 +2275,7 @@ public class BaseVexWidget implements IVexWidget {
 	 * Re-layout the entire widget, due to either a layout width change or a stylesheet range. This method does the
 	 * actual setting of the width and stylesheet, since it needs to know where the caret is <i>before</i> the change,
 	 * so that it can do a reasonable job of restoring the position of the viewport after the change.
-	 * 
+	 *
 	 * @param newWidth
 	 *            New width for the widget.
 	 * @param newStyleSheet
@@ -2325,7 +2330,7 @@ public class BaseVexWidget implements IVexWidget {
 			int viewportY = caret.getY() - Math.min(relCaretY, viewport.getHeight());
 			viewportY = Math.min(rootBox.getHeight() - viewport.getHeight(), viewportY);
 			viewportY = Math.max(0, viewportY); // this must appear after the
-												// above line, since
+			// above line, since
 			// that line might set viewportY negative
 			hostComponent.scrollTo(viewport.getX(), viewportY);
 			scrollCaretVisible();

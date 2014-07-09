@@ -43,7 +43,7 @@ public class GapContent implements IContent {
 
 	/**
 	 * Create a GapContent with the given initial capacity.
-	 * 
+	 *
 	 * @param initialCapacity
 	 *            initial capacity of the content.
 	 */
@@ -55,6 +55,7 @@ public class GapContent implements IContent {
 		gapEnd = initialCapacity;
 	}
 
+	@Override
 	public IPosition createPosition(final int offset) {
 
 		assertOffset(offset, 0, length());
@@ -70,6 +71,7 @@ public class GapContent implements IContent {
 		return newPosition;
 	}
 
+	@Override
 	public void removePosition(final IPosition position) {
 		if (positions.contains(position)) {
 			/*
@@ -89,6 +91,7 @@ public class GapContent implements IContent {
 		return positions.size();
 	}
 
+	@Override
 	public void insertText(final int offset, final String text) {
 		assertOffset(offset, 0, length());
 
@@ -120,12 +123,14 @@ public class GapContent implements IContent {
 		}
 	}
 
+	@Override
 	public void insertTagMarker(final int offset) {
 		assertOffset(offset, 0, length());
 
 		insertText(offset, Character.toString(TAG_MARKER));
 	}
 
+	@Override
 	public boolean isTagMarker(final int offset) {
 		if (offset < 0 || offset >= length()) {
 			return false;
@@ -145,6 +150,7 @@ public class GapContent implements IContent {
 		return c == TAG_MARKER;
 	}
 
+	@Override
 	public void remove(final ContentRange range) {
 		assertOffset(range.getStartOffset(), 0, length() - range.length());
 		assertPositive(range.length());
@@ -165,10 +171,12 @@ public class GapContent implements IContent {
 		}
 	}
 
+	@Override
 	public String getText() {
 		return getText(getRange());
 	}
 
+	@Override
 	public String getText(final ContentRange range) {
 		Assert.isTrue(getRange().contains(range));
 
@@ -196,10 +204,12 @@ public class GapContent implements IContent {
 		}
 	}
 
+	@Override
 	public String getRawText() {
 		return getRawText(getRange());
 	}
 
+	@Override
 	public String getRawText(final ContentRange range) {
 		Assert.isTrue(getRange().contains(range));
 
@@ -220,16 +230,19 @@ public class GapContent implements IContent {
 		stringBuilder.append(content, range.getStartOffset(), range.length());
 	}
 
+	@Override
 	public void insertContent(final int offset, final IContent content) {
 		assertOffset(offset, 0, length());
 
 		copyContent(content, this, content.getRange(), offset);
 	}
 
+	@Override
 	public IContent getContent() {
 		return getContent(getRange());
 	}
 
+	@Override
 	public IContent getContent(final ContentRange range) {
 		Assert.isTrue(getRange().contains(range));
 
@@ -254,10 +267,12 @@ public class GapContent implements IContent {
 	 * @see CharSequence#length()
 	 * @return the length of the raw textual content, including tag markers.
 	 */
+	@Override
 	public int length() {
 		return content.length - (gapEnd - gapStart);
 	}
 
+	@Override
 	public ContentRange getRange() {
 		return new ContentRange(0, length() - 1);
 	}
@@ -268,6 +283,7 @@ public class GapContent implements IContent {
 	 *            the offset of the character within the raw textual content
 	 * @return the character at the given offset (tag markers included)
 	 */
+	@Override
 	public char charAt(final int offset) {
 		if (offset < gapStart) {
 			return content[offset];
@@ -278,7 +294,7 @@ public class GapContent implements IContent {
 
 	/**
 	 * Get the raw text of a region of this content. The plain text does also contain the tag markers in this content.
-	 * 
+	 *
 	 * @see CharSequence#subSequence(int, int)
 	 * @param startOffset
 	 *            Offset at which the substring begins.
@@ -286,6 +302,7 @@ public class GapContent implements IContent {
 	 *            Offset at which the substring ends.
 	 * @return the text of the given region including tag markers
 	 */
+	@Override
 	public CharSequence subSequence(final int startOffset, final int endOffset) {
 		return getRawText(new ContentRange(startOffset, endOffset));
 	}
@@ -303,6 +320,7 @@ public class GapContent implements IContent {
 			this.offset = offset;
 		}
 
+		@Override
 		public int getOffset() {
 			return offset;
 		}
@@ -319,6 +337,7 @@ public class GapContent implements IContent {
 			useCount--;
 		}
 
+		@Override
 		public boolean isValid() {
 			return useCount > 0;
 		};
@@ -358,6 +377,7 @@ public class GapContent implements IContent {
 			return Integer.toString(offset);
 		}
 
+		@Override
 		public int compareTo(final IPosition other) {
 			return offset - other.getOffset();
 		}

@@ -29,7 +29,7 @@ import org.eclipse.vex.core.provisional.dom.IText;
  * This visitor creates a deep copy of the visited nodes. Deep copy means a full copy of each visited node and its
  * children down to the leaf level. All copied nodes are associated with a given content. The copied nodes on the root
  * level are collected in a given List.
- * 
+ *
  * @author Florian Thienel
  */
 public class DeepCopyVisitor implements INodeVisitor {
@@ -57,14 +57,17 @@ public class DeepCopyVisitor implements INodeVisitor {
 		this.delta = delta;
 	}
 
+	@Override
 	public void visit(final IDocument document) {
 		throw new UnsupportedOperationException("Document cannot be deep copied");
 	}
 
+	@Override
 	public void visit(final IDocumentFragment fragment) {
 		copyChildren(fragment, null);
 	}
 
+	@Override
 	public void visit(final IElement element) {
 		final Element copy = (Element) copy(element);
 		addToParent(copy);
@@ -73,16 +76,19 @@ public class DeepCopyVisitor implements INodeVisitor {
 		copyChildren(element, copy);
 	}
 
+	@Override
 	public void visit(final IText text) {
 		// ignore Text nodes because they are created dynamically in Element.getChildNodes()
 	}
 
+	@Override
 	public void visit(final IComment comment) {
 		final Comment copy = (Comment) copy(comment);
 		addToParent(copy);
 		associate(comment, copy);
 	}
 
+	@Override
 	public void visit(final IProcessingInstruction pi) {
 		final ProcessingInstruction copy = (ProcessingInstruction) copy(pi);
 		addToParent(copy);

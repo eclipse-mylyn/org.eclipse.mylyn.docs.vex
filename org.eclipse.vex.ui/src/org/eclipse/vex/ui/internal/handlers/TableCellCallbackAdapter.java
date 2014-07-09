@@ -16,14 +16,17 @@ package org.eclipse.vex.ui.internal.handlers;
  */
 public abstract class TableCellCallbackAdapter implements ITableCellCallback {
 
+	@Override
 	public void endRow(final Object row, final int rowIndex) {
 		// NOP (adapter pattern)
 	}
 
+	@Override
 	public void onCell(final Object row, final Object cell, final int rowIndex, final int cellIndex) {
 		// NOP (adapter pattern)
 	}
 
+	@Override
 	public void startRow(final Object row, final int rowIndex) {
 		// NOP (adapter pattern)
 	}

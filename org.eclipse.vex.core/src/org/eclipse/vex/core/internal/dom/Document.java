@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     John Krasnay - initial API and implementation
  *     Igor Jacy Lino Campista - Java 5 warnings fixed (bug 311325)
@@ -69,7 +69,7 @@ public class Document extends Parent implements IDocument {
 	/**
 	 * Create a new document with the given root element. This constructor creates a Content object and associates both
 	 * the root element and the document with it.
-	 * 
+	 *
 	 * @param rootElementName
 	 *            the name of the root element of the document
 	 */
@@ -89,12 +89,12 @@ public class Document extends Parent implements IDocument {
 	/**
 	 * Create a new document with the given content and root element. This constructor assumes that the content and root
 	 * element have bee properly set up and are already associated. It associates the document with the given content.
-	 * 
+	 *
 	 * @param content
 	 *            Content object used to store the document's content
 	 * @param rootElement
 	 *            root element of the document
-	 * 
+	 *
 	 */
 	public Document(final IContent content, final Element rootElement) {
 		Assert.isTrue(content == rootElement.getContent(), "The given root element must already be associated with the given content.");
@@ -120,10 +120,12 @@ public class Document extends Parent implements IDocument {
 		return getContent().length() - 1;
 	}
 
+	@Override
 	public void accept(final INodeVisitor visitor) {
 		visitor.visit(this);
 	}
 
+	@Override
 	public <T> T accept(final INodeVisitorWithResult<T> visitor) {
 		return visitor.visit(this);
 	}
@@ -133,6 +135,7 @@ public class Document extends Parent implements IDocument {
 		return getDocumentURI();
 	}
 
+	@Override
 	public boolean isKindOf(final INode node) {
 		return false;
 	}
@@ -141,58 +144,72 @@ public class Document extends Parent implements IDocument {
 	 * Document
 	 */
 
+	@Override
 	public void setDocumentURI(final String documentURI) {
 		this.documentURI = documentURI;
 	}
 
+	@Override
 	public String getDocumentURI() {
 		return documentURI;
 	}
 
+	@Override
 	public String getEncoding() {
 		return encoding;
 	}
 
+	@Override
 	public void setEncoding(final String encoding) {
 		this.encoding = encoding;
 	}
 
+	@Override
 	public String getPublicID() {
 		return publicID;
 	}
 
+	@Override
 	public void setPublicID(final String publicID) {
 		this.publicID = publicID;
 	}
 
+	@Override
 	public String getSystemID() {
 		return systemID;
 	}
 
+	@Override
 	public void setSystemID(final String systemID) {
 		this.systemID = systemID;
 	}
 
+	@Override
 	public IValidator getValidator() {
 		return validator;
 	}
 
+	@Override
 	public void setValidator(final IValidator validator) {
 		this.validator = validator;
 	}
 
+	@Override
 	public Element getRootElement() {
 		return rootElement;
 	}
 
+	@Override
 	public int getLength() {
 		return getContent().length();
 	}
 
+	@Override
 	public IPosition createPosition(final int offset) {
 		return getContent().createPosition(offset);
 	}
 
+	@Override
 	public void removePosition(final IPosition position) {
 		getContent().removePosition(position);
 	}
@@ -250,24 +267,29 @@ public class Document extends Parent implements IDocument {
 		});
 	}
 
+	@Override
 	public boolean canInsertText(final int offset) {
 		return canInsertAt(getNodeForInsertionAt(offset), offset, IValidator.PCDATA);
 	}
 
+	@Override
 	public void insertText(final int offset, final String text) throws DocumentValidationException {
 		Assert.isTrue(offset > getStartOffset() && offset <= getEndOffset(), MessageFormat.format("Offset must be in [{0}, {1}]", getStartOffset() + 1, getEndOffset()));
 
 		final String adjustedText = convertControlCharactersToSpaces(text);
 		final INode insertionNode = getNodeForInsertionAt(offset);
 		insertionNode.accept(new INodeVisitor() {
+			@Override
 			public void visit(final IDocument document) {
 				Assert.isTrue(false, "Cannot insert text directly into Document.");
 			}
 
+			@Override
 			public void visit(final IDocumentFragment fragment) {
 				Assert.isTrue(false, "DocumentFragment is never a child of Document.");
 			}
 
+			@Override
 			public void visit(final IElement element) {
 				if (!canInsertAt(element, offset, IValidator.PCDATA)) {
 					throw new DocumentValidationException(MessageFormat.format("Cannot insert text ''{0}'' at offset {1}.", text, offset));
@@ -278,18 +300,21 @@ public class Document extends Parent implements IDocument {
 				fireContentInserted(new ContentChangeEvent(Document.this, element, new ContentRange(offset, offset + adjustedText.length() - 1), false));
 			}
 
+			@Override
 			public void visit(final IText text) {
 				fireBeforeContentInserted(new ContentChangeEvent(Document.this, text.getParent(), new ContentRange(offset, offset + adjustedText.length() - 1), false));
 				getContent().insertText(offset, adjustedText);
 				fireContentInserted(new ContentChangeEvent(Document.this, text.getParent(), new ContentRange(offset, offset + adjustedText.length() - 1), false));
 			}
 
+			@Override
 			public void visit(final IComment comment) {
 				fireBeforeContentInserted(new ContentChangeEvent(Document.this, comment.getParent(), new ContentRange(offset, offset + adjustedText.length() - 1), false));
 				getContent().insertText(offset, adjustedText);
 				fireContentInserted(new ContentChangeEvent(Document.this, comment.getParent(), new ContentRange(offset, offset + adjustedText.length() - 1), false));
 			}
 
+			@Override
 			public void visit(final IProcessingInstruction pi) {
 				// The target is validated to ensure the instruction is valid after the insertion
 				final String charBefore = pi.getText(new ContentRange(offset - 1, offset - 1));
@@ -320,7 +345,7 @@ public class Document extends Parent implements IDocument {
 
 	/**
 	 * Inserts a node at the given offset. There is no check that the insertion is valid.
-	 * 
+	 *
 	 * @param node
 	 *            The node to insert
 	 * @param offset
@@ -352,6 +377,7 @@ public class Document extends Parent implements IDocument {
 		return false;
 	}
 
+	@Override
 	public IComment insertComment(final int offset) throws DocumentValidationException {
 		if (!canInsertComment(offset)) {
 			throw new DocumentValidationException(MessageFormat.format("Cannot insert a comment at offset {0}.", offset));
@@ -419,10 +445,12 @@ public class Document extends Parent implements IDocument {
 		fireContentInserted(new ContentChangeEvent(this, node.getParent(), new ContentRange(node.getStartOffset(), node.getEndOffset()), false));
 	}
 
+	@Override
 	public boolean canInsertElement(final int offset, final QualifiedName elementName) {
 		return canInsertAt(getNodeForInsertionAt(offset), offset, elementName);
 	}
 
+	@Override
 	public Element insertElement(final int offset, final QualifiedName elementName) throws DocumentValidationException {
 		Assert.isTrue(offset > rootElement.getStartOffset() && offset <= rootElement.getEndOffset(),
 				MessageFormat.format("Offset must be in [{0}, {1}]", rootElement.getStartOffset() + 1, rootElement.getEndOffset()));
@@ -438,10 +466,12 @@ public class Document extends Parent implements IDocument {
 		return element;
 	}
 
+	@Override
 	public boolean canInsertFragment(final int offset, final IDocumentFragment fragment) {
 		return canInsertAt(getNodeForInsertionAt(offset), offset, fragment.getNodeNames());
 	}
 
+	@Override
 	public void insertFragment(final int offset, final IDocumentFragment fragment) throws DocumentValidationException {
 		Assert.isTrue(isInsertionPointIn(this, offset), "Cannot insert fragment outside of the document range.");
 
@@ -492,6 +522,7 @@ public class Document extends Parent implements IDocument {
 		}
 	}
 
+	@Override
 	public boolean canDelete(final ContentRange range) {
 		final IParent surroundingParent = getParentAt(range.getStartOffset());
 		final IParent parentAtEndOffset = getParentAt(range.getEndOffset());
@@ -530,6 +561,7 @@ public class Document extends Parent implements IDocument {
 		return deletionIsValid;
 	}
 
+	@Override
 	public void delete(final ContentRange range) throws DocumentValidationException {
 		IParent surroundingParent = getParentAt(range.getStartOffset());
 		if (range.getStartOffset() == surroundingParent.getStartOffset()) {
@@ -587,6 +619,7 @@ public class Document extends Parent implements IDocument {
 	 * Miscellaneous
 	 */
 
+	@Override
 	public char getCharacterAt(final int offset) {
 		final String text = getContent().getText(new ContentRange(offset, offset));
 		if (text.length() == 0) {
@@ -600,6 +633,7 @@ public class Document extends Parent implements IDocument {
 		return text.charAt(0);
 	}
 
+	@Override
 	public INode findCommonNode(final int offset1, final int offset2) {
 		Assert.isTrue(containsOffset(offset1) && containsOffset(offset2));
 		return findCommonNodeIn(this, offset1, offset2);
@@ -625,6 +659,7 @@ public class Document extends Parent implements IDocument {
 		return node.getRange().resizeBy(1, 0).contains(offset);
 	}
 
+	@Override
 	public INode getNodeForInsertionAt(final int offset) {
 		final INode node = getChildAt(offset);
 		if (node instanceof IText) {
@@ -636,6 +671,7 @@ public class Document extends Parent implements IDocument {
 		return node;
 	}
 
+	@Override
 	public INode getNodeForInsertionAt(final ContentPosition position) {
 		return position.getNodeForInsertion();
 	}
@@ -652,6 +688,7 @@ public class Document extends Parent implements IDocument {
 		return (Parent) node;
 	}
 
+	@Override
 	public Element getElementForInsertionAt(final int offset) {
 		final Element parent = getParentElement(getChildAt(offset));
 		if (parent == null) {
@@ -681,10 +718,12 @@ public class Document extends Parent implements IDocument {
 		return child.getParent();
 	}
 
+	@Override
 	public boolean isTagAt(final int offset) {
 		return getContent().isTagMarker(offset);
 	}
 
+	@Override
 	public DocumentFragment getFragment(final ContentRange range) {
 		final IParent parent = getParentOfRange(range);
 		final DeepCopy deepCopy = new DeepCopy(parent, range);
@@ -703,6 +742,7 @@ public class Document extends Parent implements IDocument {
 		return parent;
 	}
 
+	@Override
 	public List<? extends INode> getNodes(final ContentRange range) {
 		return getParentOfRange(range).children().in(range).asList();
 	}
@@ -711,10 +751,12 @@ public class Document extends Parent implements IDocument {
 	 * Events
 	 */
 
+	@Override
 	public void addDocumentListener(final IDocumentListener listener) {
 		listeners.add(listener);
 	}
 
+	@Override
 	public void removeDocumentListener(final IDocumentListener listener) {
 		listeners.remove(listener);
 	}
@@ -757,10 +799,12 @@ public class Document extends Parent implements IDocument {
 			this.prefix = prefix;
 		}
 
+		@Override
 		public boolean hasNext() {
 			return true;
 		}
 
+		@Override
 		public String next() {
 			final String result = prefix + namespaceIndex++;
 			if (!element.getNamespacePrefixes().contains(result)) {
@@ -769,6 +813,7 @@ public class Document extends Parent implements IDocument {
 			return next();
 		}
 
+		@Override
 		public void remove() {
 			throw new UnsupportedOperationException("remove not supported");
 		}

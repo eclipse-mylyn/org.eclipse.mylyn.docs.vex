@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  * 		Florian Thienel - initial API and implementation
  *******************************************************************************/
@@ -17,7 +17,7 @@ import org.eclipse.core.runtime.QualifiedName;
 /**
  * A representation of an XML element in the DOM. Elements have attributes, namespace declarations and children, as well
  * as a start and an end tag. The textual content of an element is represented by its child text nodes.
- * 
+ *
  * @author Florian Thienel
  */
 public interface IElement extends IParent {
@@ -25,16 +25,17 @@ public interface IElement extends IParent {
 	/**
 	 * This element is the same kind as the given node if the node is also an element and both have the same qualified
 	 * name.
-	 * 
+	 *
 	 * @see INode#isKindOf(INode)
 	 * @return true if this element and the given node are of the same kind
 	 */
+	@Override
 	boolean isKindOf(INode node);
 
 	/**
 	 * Set the base URI of this element. The xml:base attribute re-defines the base URI for a part of an XML document,
 	 * according to the XML Base Recommendation.
-	 * 
+	 *
 	 * @param baseURI
 	 *            the base URI of this element
 	 * @see http://www.w3.org/TR/xmlbase/
@@ -64,7 +65,7 @@ public interface IElement extends IParent {
 
 	/**
 	 * Qualify the given local name with the namespace qualifier of this element.
-	 * 
+	 *
 	 * @param localName
 	 *            the local name to be qualified
 	 * @return the qualified variant of the given local name
@@ -107,7 +108,7 @@ public interface IElement extends IParent {
 
 	/**
 	 * Remove the attribute with the given local name.
-	 * 
+	 *
 	 * @param localName
 	 *            the local name of the attribute to be removed
 	 * @throws DocumentValidationException
@@ -117,7 +118,7 @@ public interface IElement extends IParent {
 
 	/**
 	 * Remove the attribute with the given qualified name.
-	 * 
+	 *
 	 * @param name
 	 *            the qualified name of the attribute to be removed
 	 * @throws DocumentValidationException
@@ -145,7 +146,7 @@ public interface IElement extends IParent {
 
 	/**
 	 * Set the attribute with the given local name to the given value.
-	 * 
+	 *
 	 * @param localName
 	 *            the local name of the attribute
 	 * @param value
@@ -157,7 +158,7 @@ public interface IElement extends IParent {
 
 	/**
 	 * Set the attribute with the given qualified name to the given value.
-	 * 
+	 *
 	 * @param name
 	 *            the qualified name of the attribute
 	 * @param value
@@ -223,7 +224,7 @@ public interface IElement extends IParent {
 
 	/**
 	 * Declare a namespace with the given prefix and URI on this element.
-	 * 
+	 *
 	 * @param namespacePrefix
 	 *            the prefix of the namespace to be declared
 	 * @param namespaceURI
@@ -233,7 +234,7 @@ public interface IElement extends IParent {
 
 	/**
 	 * Remove the namespace declaration with the given prefix from this element.
-	 * 
+	 *
 	 * @param namespacePrefix
 	 *            the prefix of the namespace to be removed
 	 */
@@ -241,7 +242,7 @@ public interface IElement extends IParent {
 
 	/**
 	 * Declare the default namespace with the given URI on this element.
-	 * 
+	 *
 	 * @param namespaceURI
 	 *            the URI of the default namespace
 	 */

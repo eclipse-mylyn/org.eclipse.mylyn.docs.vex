@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  * 		Florian Thienel - initial API and implementation
  *******************************************************************************/
@@ -91,6 +91,7 @@ public class EditNamespacesDialog extends TitleAreaDialog {
 		defaultNamespaceText = new Text(root, SWT.SINGLE | SWT.BORDER);
 		defaultNamespaceText.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, false, 1, 1));
 		defaultNamespaceText.addModifyListener(new ModifyListener() {
+			@Override
 			public void modifyText(final ModifyEvent e) {
 				controller.setDefaultNamespaceURI(defaultNamespaceText.getText());
 			}

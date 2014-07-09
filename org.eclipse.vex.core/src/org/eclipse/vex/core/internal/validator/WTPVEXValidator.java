@@ -83,6 +83,7 @@ public class WTPVEXValidator implements IValidator {
 		this.documentContentModel = documentContentModel;
 	}
 
+	@Override
 	public DocumentContentModel getDocumentContentModel() {
 		return documentContentModel;
 	}
@@ -110,6 +111,7 @@ public class WTPVEXValidator implements IValidator {
 		return contentModel;
 	}
 
+	@Override
 	public AttributeDefinition getAttributeDefinition(final IAttribute attribute) {
 		final String attributeName = attribute.getLocalName();
 		final CMElementDeclaration cmElement = getElementDeclaration(attribute.getParent());
@@ -140,6 +142,7 @@ public class WTPVEXValidator implements IValidator {
 		return new AttributeDefinition(new QualifiedName(null, attributeName), Type.CDATA, /* default value */"", /* values */new String[0], /* required */false, /* fixed */true);
 	}
 
+	@Override
 	public List<AttributeDefinition> getAttributeDefinitions(final IElement element) {
 		final CMElementDeclaration cmElement = getElementDeclaration(element);
 		/*
@@ -257,6 +260,7 @@ public class WTPVEXValidator implements IValidator {
 		}
 	}
 
+	@Override
 	public Set<QualifiedName> getValidItems(final IElement element) {
 		return getValidItems(getElementDeclaration(element));
 	}
@@ -333,6 +337,7 @@ public class WTPVEXValidator implements IValidator {
 		return result;
 	}
 
+	@Override
 	public Set<QualifiedName> getValidRootElements() {
 		final HashSet<QualifiedName> result = new HashSet<QualifiedName>();
 		for (final CMElementDeclaration element : getValidRootElements(null)) {
@@ -341,6 +346,7 @@ public class WTPVEXValidator implements IValidator {
 		return result;
 	}
 
+	@Override
 	public boolean isValidSequence(final QualifiedName element, final List<QualifiedName> nodes, final boolean partial) {
 		if (partial && nodes.isEmpty()) {
 			return true;
@@ -384,6 +390,7 @@ public class WTPVEXValidator implements IValidator {
 		return validationResult.isValid;
 	}
 
+	@Override
 	public boolean isValidSequence(final QualifiedName element, final List<QualifiedName> seq1, final List<QualifiedName> seq2, final List<QualifiedName> seq3, final boolean partial) {
 		final List<QualifiedName> joinedSequence = new ArrayList<QualifiedName>();
 		if (seq1 != null) {
@@ -398,10 +405,12 @@ public class WTPVEXValidator implements IValidator {
 		return isValidSequence(element, joinedSequence, partial);
 	}
 
+	@Override
 	public boolean isValidSequenceXInclude(final List<QualifiedName> nodes, final boolean partial) {
 		return false;
 	}
 
+	@Override
 	public Set<String> getRequiredNamespaces() {
 		if (documentContentModel.isDtdAssigned()) {
 			return Collections.emptySet();

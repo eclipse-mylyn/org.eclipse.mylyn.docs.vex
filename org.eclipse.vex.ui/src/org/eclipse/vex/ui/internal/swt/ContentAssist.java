@@ -79,7 +79,7 @@ public class ContentAssist extends PopupDialog {
 
 	/**
 	 * Constructs a new content assist dialog which can be opened by {@link #open()}.
-	 * 
+	 *
 	 * @param vexWidget
 	 *            the vex widget this content assist belongs to
 	 * @param actions
@@ -142,6 +142,7 @@ public class ContentAssist extends PopupDialog {
 		textWidget = new Text(composite, SWT.SINGLE);
 		GridDataFactory.fillDefaults().grab(true, false).applyTo(textWidget);
 		textWidget.addModifyListener(new ModifyListener() {
+			@Override
 			public void modifyText(final ModifyEvent e) {
 				repopulateList();
 			}
@@ -229,6 +230,7 @@ public class ContentAssist extends PopupDialog {
 		// primary order: "start with" before "contains" filter text
 		if (filterText.length() > 0) {
 			Collections.sort(actionList, new Comparator<AbstractVexAction>() {
+				@Override
 				public int compare(final AbstractVexAction action1, final AbstractVexAction action2) {
 					final String actionText1 = action1.getElementName().getLocalName().toLowerCase();
 					final String actionText2 = action2.getElementName().getLocalName().toLowerCase();
@@ -315,7 +317,7 @@ public class ContentAssist extends PopupDialog {
 
 	/**
 	 * Shows the content assist to add a new element.
-	 * 
+	 *
 	 * @param widget
 	 *            the VexWidget which hosts the content assist
 	 */
@@ -327,7 +329,7 @@ public class ContentAssist extends PopupDialog {
 
 	/**
 	 * Shows the content assist to convert current element.
-	 * 
+	 *
 	 * @param widget
 	 *            the VexWidget which hosts the content assist
 	 */

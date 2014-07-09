@@ -28,7 +28,7 @@ public class RootBox extends AbstractBox implements BlockBox {
 
 	/**
 	 * Class constructor.
-	 * 
+	 *
 	 * @param context
 	 *            LayoutContext used to create children.
 	 * @param document
@@ -83,6 +83,7 @@ public class RootBox extends AbstractBox implements BlockBox {
 	/**
 	 * @see org.eclipse.vex.core.internal.layout.BlockBox#getFirstLine()
 	 */
+	@Override
 	public LineBox getFirstLine() {
 		return childBox.getFirstLine();
 	}
@@ -90,35 +91,43 @@ public class RootBox extends AbstractBox implements BlockBox {
 	/**
 	 * @see org.eclipse.vex.core.internal.layout.BlockBox#getLastLine()
 	 */
+	@Override
 	public LineBox getLastLine() {
 		return childBox.getLastLine();
 	}
 
+	@Override
 	public ContentPosition getLineEndPosition(final ContentPosition linePosition) {
 		return childBox.getLineEndPosition(linePosition);
 	}
 
+	@Override
 	public ContentPosition getLineStartPosition(final ContentPosition linePosition) {
 		return childBox.getLineStartPosition(linePosition);
 	}
 
+	@Override
 	public int getMarginBottom() {
 		return 0;
 	}
 
+	@Override
 	public int getMarginTop() {
 		return 0;
 	}
 
+	@Override
 	public ContentPosition getNextLinePosition(final LayoutContext context, final ContentPosition linePosition, final int x) {
 		final ContentPosition position = childBox.getNextLinePosition(context, linePosition, x - childBox.getX());
 		return position != null ? position : new ContentPosition(getNode(), getEndOffset());
 	}
 
+	@Override
 	public BlockBox getParent() {
 		throw new IllegalStateException("RootBox does not have a parent");
 	}
 
+	@Override
 	public ContentPosition getPreviousLinePosition(final LayoutContext context, final ContentPosition linePosition, final int x) {
 		final ContentPosition position = childBox.getPreviousLinePosition(context, linePosition, x - childBox.getX());
 		return position != null ? position : new ContentPosition(getNode(), getStartOffset() + 1);
@@ -132,10 +141,12 @@ public class RootBox extends AbstractBox implements BlockBox {
 		return childBox.getStartOffset();
 	}
 
+	@Override
 	public void invalidate(final boolean direct) {
 		// do nothing. layout is always propagated to our child box.
 	}
 
+	@Override
 	public VerticalRange layout(final LayoutContext context, final int top, final int bottom) {
 
 		final Insets insets = this.getInsets(context, getWidth());
@@ -153,7 +164,7 @@ public class RootBox extends AbstractBox implements BlockBox {
 
 	/*
 	 * (non-Javadoc)
-	 * 
+	 *
 	 * @see org.eclipse.vex.core.internal.layout.AbstractBox#viewToModel(
 	 * org.eclipse.vex.core.internal.layout.LayoutContext, int, int)
 	 */
@@ -173,6 +184,7 @@ public class RootBox extends AbstractBox implements BlockBox {
 		}
 	}
 
+	@Override
 	public void setInitialSize(final LayoutContext context) {
 		throw new IllegalStateException();
 	}

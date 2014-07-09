@@ -19,7 +19,7 @@ import org.eclipse.vex.core.provisional.dom.IElement;
 
 /**
  * Navigates to the next table cell (usual shortcut: {@code Tab}).
- * 
+ *
  * @see PreviousTableCellHandler
  */
 public class NextTableCellHandler extends AbstractNavigateTableCellHandler {

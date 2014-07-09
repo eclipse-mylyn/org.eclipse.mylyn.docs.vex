@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     John Krasnay - initial API and implementation
  *******************************************************************************/
@@ -20,7 +20,7 @@ public abstract class Caret {
 
 	/**
 	 * Class constructor
-	 * 
+	 *
 	 * @param x
 	 *            x-coordinate of the top left corner of the caret
 	 * @param y
@@ -33,7 +33,7 @@ public abstract class Caret {
 
 	/**
 	 * Draws the caret in the given Graphics context.
-	 * 
+	 *
 	 * @param g
 	 *            Graphics within which the caret should be drawn.
 	 * @param color
@@ -62,7 +62,7 @@ public abstract class Caret {
 
 	/**
 	 * Moves the caret by the given x and y distance.
-	 * 
+	 *
 	 * @param x
 	 *            amount by which to move the caret to the right
 	 * @param y

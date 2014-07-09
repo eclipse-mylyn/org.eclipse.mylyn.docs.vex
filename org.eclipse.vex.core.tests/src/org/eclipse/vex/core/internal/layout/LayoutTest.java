@@ -60,7 +60,7 @@ import org.xml.sax.helpers.DefaultHandler;
  * The expected layout state of an box may be checked with the attribute <code>layoutState="LAYOUT_XXX"</code> (
  * {@link AbstractBlockBox#LAYOUT_OK}, {@link AbstractBlockBox#LAYOUT_REDO}, {@link AbstractBlockBox#LAYOUT_PROPAGATE}).<br />
  * The expected text after actions are performed is defined with the attribute <code>textAfter</code>.
- * 
+ *
  */
 @RunWith(AllTests.class)
 public class LayoutTest extends TestCase {
@@ -125,6 +125,7 @@ public class LayoutTest extends TestCase {
 		final DocumentReader reader = new DocumentReader();
 		reader.setValidator(new LayoutTestValidator());
 		reader.setStyleSheetProvider(new IStyleSheetProvider() {
+			@Override
 			public StyleSheet getStyleSheet(final DocumentContentModel documentContentModel) {
 				return styleSheet;
 			}

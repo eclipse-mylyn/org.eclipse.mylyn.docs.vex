@@ -37,13 +37,13 @@ import org.eclipse.vex.core.provisional.dom.IValidator;
 
 /**
  * Writes a document to an output stream, using a stylesheet to provide formatting hints.
- * 
+ *
  * <ul>
  * <li>Children of an element are indented by a configurable amount.</li>
  * <li>Text is wrapped to fit within a configurable width.
  * <li>
  * </ul>
- * 
+ *
  * <p>
  * Documents are currently saved UTF-8 encoding, with no encoding specified in the XML declaration.
  * </p>
@@ -67,13 +67,13 @@ public class DocumentWriter {
 		whitespacePolicy = IWhitespacePolicy.NULL;
 	}
 
-/**
-     * Escapes special XML characters. Changes '<', '>', and '&' to
-     * '&lt;', '&gt;' and '&amp;', respectively.
-     *
-     * @param s the string to be escaped.
-     * @return the escaped string
-     */
+	/**
+	 * Escapes special XML characters. Changes '<', '>', and '&' to
+	 * '&lt;', '&gt;' and '&amp;', respectively.
+	 *
+	 * @param s the string to be escaped.
+	 * @return the escaped string
+	 */
 	public static String escape(final String s) {
 		final StringBuilder result = new StringBuilder(s.length());
 
@@ -105,7 +105,7 @@ public class DocumentWriter {
 
 	/**
 	 * Sets the value of the indent string.
-	 * 
+	 *
 	 * @param indent
 	 *            new value for the indent string.
 	 */
@@ -123,7 +123,7 @@ public class DocumentWriter {
 	/**
 	 * Sets the whitespace policy for this writer. The whitespace policy tells the writer which elements are
 	 * block-formatted and which are pre-formatted.
-	 * 
+	 *
 	 * @param whitespacePolicy
 	 *            The whitespacePolicy to set.
 	 */
@@ -144,7 +144,7 @@ public class DocumentWriter {
 
 	/**
 	 * Sets the value of the wrap column.
-	 * 
+	 *
 	 * @param wrapColumn
 	 *            new value for the wrap column.
 	 */
@@ -182,7 +182,7 @@ public class DocumentWriter {
 	 * Write the document to the given {@link org.eclipse.jface.text.IDocument}. The document is cleaed before the
 	 * content written.<br />
 	 * While writing the document a Position is created to track the caret when external changes occur.
-	 * 
+	 *
 	 * @param document
 	 * @param doc
 	 * @param nodeAtCaret

@@ -4,10 +4,10 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     John Krasnay - initial API and implementation
- *     Mohamadou Nassourou - Bug 298912 - rudimentary support for images 
+ *     Mohamadou Nassourou - Bug 298912 - rudimentary support for images
  *******************************************************************************/
 package org.eclipse.vex.core.internal.core;
 
@@ -37,7 +37,7 @@ public interface Graphics {
 
 	/**
 	 * Draw the given string at the given point using the current font.
-	 * 
+	 *
 	 * @param s
 	 *            string to draw
 	 * @param x

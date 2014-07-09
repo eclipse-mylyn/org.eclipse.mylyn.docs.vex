@@ -54,6 +54,7 @@ public class TextEditingHandlerFactory implements IExecutableExtensionFactory, I
 
 	private String id;
 
+	@Override
 	public Object create() throws CoreException {
 
 		// go to handlers
@@ -170,6 +171,7 @@ public class TextEditingHandlerFactory implements IExecutableExtensionFactory, I
 		throw new CoreException(new Status(IStatus.ERROR, VexPlugin.ID, 0, "Unknown id in data argument for " + getClass(), null)); //$NON-NLS-1$
 	}
 
+	@Override
 	public void setInitializationData(final IConfigurationElement config, final String propertyName, final Object data) throws CoreException {
 		if (data instanceof String) {
 			id = (String) data;

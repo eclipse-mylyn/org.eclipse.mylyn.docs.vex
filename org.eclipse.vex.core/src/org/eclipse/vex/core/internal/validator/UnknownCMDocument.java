@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  * 		Florian Thienel - initial API and implementation
  *******************************************************************************/
@@ -25,32 +25,39 @@ public class UnknownCMDocument implements CMDocument {
 	private static final String TARGET_NAMESPACE_PROPERTY = "http://org.eclipse.wst/cm/properties/targetNamespaceURI";
 
 	private static final Iterator<?> EMPTY_ITERATOR = new Iterator<Object>() {
+		@Override
 		public boolean hasNext() {
 			return false;
 		}
 
+		@Override
 		public Object next() {
 			throw new UnsupportedOperationException();
 		}
 
+		@Override
 		public void remove() {
 			throw new UnsupportedOperationException();
 		}
 	};
 
 	private static final CMNamedNodeMap EMPTY_NODE_MAP = new CMNamedNodeMap() {
+		@Override
 		public Iterator<?> iterator() {
 			return EMPTY_ITERATOR;
 		}
 
+		@Override
 		public CMNode item(final int index) {
 			return null;
 		}
 
+		@Override
 		public CMNode getNamedItem(final String name) {
 			return null;
 		}
 
+		@Override
 		public int getLength() {
 			return 0;
 		}
@@ -62,14 +69,17 @@ public class UnknownCMDocument implements CMDocument {
 		this.targetNamespace = targetNamespace;
 	}
 
+	@Override
 	public String getNodeName() {
 		return "";
 	}
 
+	@Override
 	public int getNodeType() {
 		return DOCUMENT;
 	}
 
+	@Override
 	public boolean supports(final String propertyName) {
 		if (TARGET_NAMESPACE_PROPERTY.equals(propertyName)) {
 			return true;
@@ -77,6 +87,7 @@ public class UnknownCMDocument implements CMDocument {
 		return false;
 	}
 
+	@Override
 	public Object getProperty(final String propertyName) {
 		if (propertyName.equals(TARGET_NAMESPACE_PROPERTY)) {
 			return targetNamespace;
@@ -84,14 +95,17 @@ public class UnknownCMDocument implements CMDocument {
 		return null;
 	}
 
+	@Override
 	public CMNamedNodeMap getElements() {
 		return EMPTY_NODE_MAP;
 	}
 
+	@Override
 	public CMNamedNodeMap getEntities() {
 		return EMPTY_NODE_MAP;
 	}
 
+	@Override
 	public CMNamespace getNamespace() {
 		return null;
 	}

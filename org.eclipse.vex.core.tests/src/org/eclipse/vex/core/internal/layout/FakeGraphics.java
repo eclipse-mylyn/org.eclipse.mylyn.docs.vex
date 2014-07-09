@@ -48,59 +48,75 @@ public class FakeGraphics implements Graphics {
 	}
 
 	private final FontMetrics fontMetrics = new FontMetrics() {
+		@Override
 		public int getAscent() {
 			return 10;
 		}
 
+		@Override
 		public int getDescent() {
 			return 3;
 		}
 
+		@Override
 		public int getHeight() {
 			return 13;
 		}
 
+		@Override
 		public int getLeading() {
 			return 2;
 		}
 	};
 
+	@Override
 	public int charsWidth(final char[] data, final int offset, final int length) {
 		return length * charWidth;
 	}
 
+	@Override
 	public ColorResource createColor(final Color rgb) {
 		return new ColorResource() {
+			@Override
 			public void dispose() {
 			}
 		};
 	}
 
+	@Override
 	public FontResource createFont(final FontSpec fontSpec) {
 		return new FontResource() {
+			@Override
 			public void dispose() {
 			}
 		};
 	}
 
+	@Override
 	public void dispose() {
 	}
 
+	@Override
 	public void drawChars(final char[] chars, final int offset, final int length, final int x, final int y) {
 	}
 
+	@Override
 	public void drawLine(final int x1, final int y1, final int x2, final int y2) {
 	}
 
+	@Override
 	public void drawString(final String s, final int x, final int y) {
 	}
 
+	@Override
 	public void drawOval(final int x, final int y, final int width, final int height) {
 	}
 
+	@Override
 	public void drawRect(final int x, final int y, final int width, final int height) {
 	}
 
+	@Override
 	public void drawImage(final Image image, final int x, final int y, final int width, final int height) {
 		Assert.isTrue(image instanceof FakeImage);
 		lastDrawnImageUrl = ((FakeImage) image).url;
@@ -110,12 +126,15 @@ public class FakeGraphics implements Graphics {
 		return lastDrawnImageUrl;
 	}
 
+	@Override
 	public void fillOval(final int x, final int y, final int width, final int height) {
 	}
 
+	@Override
 	public void fillRect(final int x, final int y, final int width, final int height) {
 	}
 
+	@Override
 	public Rectangle getClipBounds() {
 		return new Rectangle(0, 0, Integer.MAX_VALUE, Integer.MAX_VALUE);
 	}
@@ -124,38 +143,47 @@ public class FakeGraphics implements Graphics {
 		return null;
 	}
 
+	@Override
 	public ColorResource getColor() {
 		return null;
 	}
 
+	@Override
 	public FontResource getFont() {
 		return null;
 	}
 
+	@Override
 	public int getLineStyle() {
 		return 0;
 	}
 
+	@Override
 	public int getLineWidth() {
 		return 0;
 	}
 
+	@Override
 	public ColorResource getSystemColor(final int id) {
 		return null;
 	}
 
+	@Override
 	public FontMetrics getFontMetrics() {
 		return fontMetrics;
 	}
 
+	@Override
 	public Image getImage(final URL url) {
 		return new FakeImage(url);
 	}
 
+	@Override
 	public boolean isAntiAliased() {
 		return false;
 	}
 
+	@Override
 	public void setAntiAliased(final boolean antiAliased) {
 	}
 
@@ -163,20 +191,25 @@ public class FakeGraphics implements Graphics {
 		return null;
 	}
 
+	@Override
 	public ColorResource setColor(final ColorResource color) {
 		return null;
 	}
 
+	@Override
 	public FontResource setFont(final FontResource font) {
 		return null;
 	}
 
+	@Override
 	public void setLineStyle(final int style) {
 	}
 
+	@Override
 	public void setLineWidth(final int width) {
 	}
 
+	@Override
 	public int stringWidth(final String s) {
 		return charWidth * s.length();
 	}
