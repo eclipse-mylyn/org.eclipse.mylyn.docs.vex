@@ -160,7 +160,7 @@ public class BaseVexWidget implements IVexWidget {
 
 			/*
 			 * Flush cached styles, since they might depend attribute values via conditional selectors.
-			 * 
+			 *
 			 * This cast is save because this event is only fired due to the attribute changes of elements.
 			 */
 			getStyleSheet().flushStyles(e.getParent());
@@ -482,8 +482,10 @@ public class BaseVexWidget implements IVexWidget {
 
 		try {
 			if (hasSelection()) {
+				// The position has to be moved here, because selectionStart may be invalid after the deletion.
+				final ContentPosition positionAfterDelete = getSelectionStart().moveBy(-1);
 				applyEdit(new DeleteEdit(document, getSelectedRange()), getSelectionEnd().getOffset());
-				this.moveTo(getSelectionStart());
+				this.moveTo(positionAfterDelete.moveBy(1));
 			}
 		} catch (final DocumentValidationException e) {
 			e.printStackTrace(); // This should never happen, because we constrain the selection
