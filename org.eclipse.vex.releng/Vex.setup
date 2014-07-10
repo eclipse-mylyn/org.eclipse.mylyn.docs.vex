@@ -9,8 +9,13 @@
     xmlns:setup.p2="http://www.eclipse.org/oomph/setup/p2/1.0"
     xmlns:setup.targlets="http://www.eclipse.org/oomph/setup/targlets/1.0"
     xsi:schemaLocation="http://www.eclipse.org/oomph/setup/git/1.0 http://git.eclipse.org/c/oomph/org.eclipse.oomph.git/plain/setups/models/Git.ecore http://www.eclipse.org/oomph/setup/mylyn/1.0 http://git.eclipse.org/c/oomph/org.eclipse.oomph.git/plain/setups/models/Mylyn.ecore http://www.eclipse.org/oomph/setup/targlets/1.0 http://git.eclipse.org/c/oomph/org.eclipse.oomph.git/plain/setups/models/SetupTarglets.ecore"
-    name="Vex"
+    name="vex"
     label="Vex">
+  <setupTask
+      xsi:type="setup:EclipseIniTask"
+      option="-Doomph.redirection.vex="
+      value="http://git.eclipse.org/c/mylyn/org.eclipse.mylyn.docs.vex.git/plain/org.eclipse.vex.releng/Vex.setup->${git.clone.vex.location|uri}/org.eclipse.vex.releng/Vex.setup"
+      vm="true"/>
   <setupTask
       xsi:type="setup.p2:P2Task">
     <requirement
@@ -68,8 +73,7 @@
     <setupTask
         xsi:type="git:GitCloneTask"
         id="git.clone.vex"
-        remoteURI="mylyn/org.eclipse.mylyn.docs.vex"
-        checkoutBranch="master">
+        remoteURI="mylyn/org.eclipse.mylyn.docs.vex">
       <annotation
           source="http://www.eclipse.org/oomph/setup/InducedChoices">
         <detail
