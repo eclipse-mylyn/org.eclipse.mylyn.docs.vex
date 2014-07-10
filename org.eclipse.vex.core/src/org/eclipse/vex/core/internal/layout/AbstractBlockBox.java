@@ -139,47 +139,72 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 
 	@Override
 	public Caret getCaret(final LayoutContext context, final ContentPosition position) {
-
-		// If we haven't yet laid out this block, estimate the caret.
 		if (getLayoutState() != LAYOUT_OK) {
-			final int relative = position.getOffset() - getStartOffset();
-			final int size = getEndOffset() - getStartOffset();
-			int y = 0;
-			if (size > 0) {
-				y = getHeight() * relative / size;
-			}
-			return new HCaret(0, y, getHCaretWidth());
+			return newHCaret(estimateCaretPosition(position));
 		}
 
-		int y;
-
-		final Box[] children = getContentChildren();
-		for (int i = 0; i < children.length; i++) {
-
-			if (position.getOffset() < children[i].getStartOffset()) {
-				if (i > 0) {
-					y = (children[i - 1].getY() + children[i - 1].getHeight() + children[i].getY()) / 2;
-				} else {
-					y = 0;
-				}
-				return new HCaret(0, y, getHCaretWidth());
+		Box lastBox = null;
+		for (final Box box : getChildrenWithContent()) {
+			if (isPositionBefore(position, box)) {
+				return newHCaret(caretPositionBetween(lastBox, box));
 			}
 
-			if (position.getOffset() >= children[i].getStartOffset() && position.getOffset() <= children[i].getEndOffset()) {
-
-				final Caret caret = children[i].getCaret(context, position);
-				caret.translate(children[i].getX(), children[i].getY());
-				return caret;
+			if (isPositionWithin(position, box)) {
+				return getChildCaret(context, position, box);
 			}
+
+			lastBox = box;
 		}
 
+		return newHCaret(caretPositionAtEnd());
+	}
+
+	private HCaret newHCaret(final int y) {
+		return new HCaret(0, y, getHCaretWidth());
+	}
+
+	private int estimateCaretPosition(final ContentPosition position) {
+		final int relativeOffset = position.getOffset() - getStartOffset();
+		final int charCount = getCharCount();
+		if (charCount > 0) {
+			return getHeight() * relativeOffset / charCount;
+		}
+		return 0;
+	}
+
+	private static int caretPositionBetween(final Box box1, final Box box2) {
+		if (box1 == null || box2 == null) {
+			return 0;
+		}
+		return (box1.getY() + box1.getHeight() + box2.getY()) / 2;
+	}
+
+	private static Caret getChildCaret(final LayoutContext context, final ContentPosition position, final Box box) {
+		final Caret caret = box.getCaret(context, position);
+		caret.translate(box.getX(), box.getY());
+		return caret;
+	}
+
+	private int caretPositionAtEnd() {
+		final int y;
 		if (hasChildren()) {
 			y = getHeight();
 		} else {
 			y = getHeight() / 2;
 		}
+		return y;
+	}
 
-		return new HCaret(0, y, getHCaretWidth());
+	private static boolean isPositionBefore(final ContentPosition position, final Box box) {
+		return position.getOffset() < box.getStartOffset();
+	}
+
+	private static boolean isPositionWithin(final ContentPosition position, final Box box) {
+		return position.getOffset() >= box.getStartOffset() && position.getOffset() <= box.getEndOffset();
+	}
+
+	private int getCharCount() {
+		return getEndOffset() - getStartOffset();
 	}
 
 	@Override
@@ -187,10 +212,7 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 		return children;
 	}
 
-	/**
-	 * Return an array of children that contain content.
-	 */
-	protected BlockBox[] getContentChildren() {
+	protected BlockBox[] getChildrenWithContent() {
 		final Box[] children = getChildren();
 		final List<BlockBox> result = new ArrayList<BlockBox>(children.length);
 		for (final Box child : children) {
@@ -230,7 +252,7 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 
 		final INode node = findContainingParent();
 		final Styles styles = context.getStyleSheet().getStyles(node);
-		final int charCount = getEndOffset() - getStartOffset();
+		final int charCount = getCharCount();
 
 		final float fontSize = styles.getFontSize();
 		final float lineHeight = styles.getLineHeight();
@@ -296,7 +318,7 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 
 	@Override
 	public ContentPosition getLineEndPosition(final ContentPosition linePosition) {
-		final BlockBox[] children = getContentChildren();
+		final BlockBox[] children = getChildrenWithContent();
 		for (final BlockBox element2 : children) {
 			if (element2.containsPosition(linePosition)) {
 				return element2.getLineEndPosition(linePosition);
@@ -307,7 +329,7 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 
 	@Override
 	public ContentPosition getLineStartPosition(final ContentPosition linePosition) {
-		final BlockBox[] children = getContentChildren();
+		final BlockBox[] children = getChildrenWithContent();
 		for (final BlockBox element2 : children) {
 			if (element2.containsPosition(linePosition)) {
 				return element2.getLineStartPosition(linePosition);
@@ -339,7 +361,7 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 			return null;
 		}
 
-		final BlockBox[] children = getContentChildren();
+		final BlockBox[] children = getChildrenWithContent();
 
 		if (linePosition.getOffset() < getStartOffset() && children.length > 0 && children[0].getStartOffset() > getStartOffset()) {
 			// If there's an offset before the first child, put the caret there.
@@ -384,7 +406,7 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 			return null;
 		}
 
-		final BlockBox[] children = getContentChildren();
+		final BlockBox[] children = getChildrenWithContent();
 
 		if (linePosition.getOffset() > getEndOffset() && children.length > 0 && children[children.length - 1].getEndOffset() < getEndOffset()) {
 			// If there's an offset after the last child, put the caret there.
@@ -507,7 +529,7 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 		final Box[] children = getChildren();
 
 		if (children == null) {
-			final int charCount = getEndOffset() - getStartOffset() - 1;
+			final int charCount = getCharCount() - 1;
 			if (charCount == 0 || getHeight() == 0) {
 				return getNode().getEndPosition();
 			}

@@ -141,7 +141,7 @@ public class TableRowBox extends AbstractBlockBox {
 	@Override
 	public ContentPosition getNextLinePosition(final LayoutContext context, final ContentPosition linePosition, final int x) {
 
-		final BlockBox[] children = getContentChildren();
+		final BlockBox[] children = getChildrenWithContent();
 		final int[] widths = getTableBox().getColumnWidths();
 		int leftEdge = 0;
 
@@ -164,7 +164,7 @@ public class TableRowBox extends AbstractBlockBox {
 	@Override
 	public ContentPosition getPreviousLinePosition(final LayoutContext context, final ContentPosition linePosition, final int x) {
 
-		final BlockBox[] children = getContentChildren();
+		final BlockBox[] children = getChildrenWithContent();
 		final int[] widths = getTableBox().getColumnWidths();
 		int leftEdge = 0;
 
