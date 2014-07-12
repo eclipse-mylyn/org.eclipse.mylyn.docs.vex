@@ -17,6 +17,10 @@
       value="http://git.eclipse.org/c/mylyn/org.eclipse.mylyn.docs.vex.git/plain/org.eclipse.vex.releng/Vex.setup->${git.clone.vex.location|uri}/org.eclipse.vex.releng/Vex.setup"
       vm="true"/>
   <setupTask
+      xsi:type="setup:PreferenceTask"
+      key="instance/org.eclipse.jdt.launching/org.eclipse.jdt.launching.PREF_STRICTLY_COMPATIBLE_JRE_NOT_AVAILABLE"
+      value="ignore"/>
+  <setupTask
       xsi:type="setup.p2:P2Task">
     <requirement
         id="org.eclipse.pde.api.tools.ee.feature.feature.group"/>
@@ -122,6 +126,37 @@
               url="http://download.eclipse.org/modeling/emf/cdo/orbit/latest-R"/>
         </repositoryList>
       </targlet>
+    </setupTask>
+    <setupTask
+        xsi:type="mylyn:MylynQueriesTask"
+        repositoryURL="https://bugs.eclipse.org/bugs"
+        userID="${bugzilla.id}"
+        password="${eclipse.user.password}">
+      <query
+          summary="Open Issues"
+          url="https://bugs.eclipse.org/bugs/buglist.cgi?product=Mylyn+Docs+Vex&amp;bug_status=UNCONFIRMED&amp;bug_status=NEW&amp;bug_status=ASSIGNED&amp;bug_status=REOPENED&amp;order=Importance"/>
+      <query
+          summary="Unspecified Version"
+          url="https://bugs.eclipse.org/bugs/buglist.cgi?product=Mylyn+Docs+Vex&amp;bug_status=UNCONFIRMED&amp;bug_status=NEW&amp;bug_status=ASSIGNED&amp;bug_status=REOPENED&amp;version=unspecified&amp;order=Importance"/>
+    </setupTask>
+    <setupTask
+        xsi:type="mylyn:MylynQueriesTask"
+        connectorKind="org.eclipse.mylyn.gerrit"
+        repositoryURL="https://git.eclipse.org/r"
+        userID="${bugzilla.id}"
+        password="${eclipse.user.password}">
+      <query
+          summary="Open Reviews">
+        <attribute
+            key="gerrit query type"
+            value="custom"/>
+        <attribute
+            key="gerrit query project"
+            value=" mylyn/org.eclipse.mylyn.docs.vex"/>
+        <attribute
+            key="gerrit query string"
+            value="project:mylyn/org.eclipse.mylyn.docs.vex status:open"/>
+      </query>
     </setupTask>
     <setupTask
         xsi:type="mylyn:MylynBuildsTask"
