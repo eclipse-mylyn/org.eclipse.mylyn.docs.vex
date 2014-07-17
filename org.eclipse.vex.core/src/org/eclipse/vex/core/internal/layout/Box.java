@@ -54,8 +54,9 @@ public interface Box {
 	public Box[] getChildren();
 
 	/**
-	 * Returns the Element with which this box is associated, or null if there is no such box. The box may directly
-	 * represent the Element, or simply use it for formatting information.
+	 * Returns the Element with which this box is associated, or the surrounding element if this is an anonymous box.
+	 * The box may directly represent the Element, or simply use it for formatting information.<br>
+	 * To check if this box is directly associated to an Element, use {@link #isAnonymous()}
 	 */
 	public INode getNode();
 

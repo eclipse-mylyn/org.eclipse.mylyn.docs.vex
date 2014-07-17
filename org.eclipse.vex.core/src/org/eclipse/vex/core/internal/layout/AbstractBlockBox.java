@@ -121,11 +121,9 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 	 * Walks the box tree and returns the nearest enclosing element.
 	 */
 	protected IParent findContainingParent() {
-		BlockBox box = this;
-		INode node = box.getNode();
+		INode node = getNode();
 		while (!(node instanceof IParent)) {
-			box = box.getParent();
-			node = box.getNode();
+			node = node.getParent();
 		}
 		return (IParent) node;
 	}
@@ -225,14 +223,17 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 
 	@Override
 	public INode getNode() {
+		if (isAnonymous()) {
+			return parent.getNode();
+		}
+
 		return node;
 	}
 
 	@Override
 	public int getEndOffset() {
-		final INode element = getNode();
-		if (element != null) {
-			return element.getEndOffset();
+		if (!isAnonymous()) {
+			return getNode().getEndOffset();
 		} else if (getEndPosition() != null) {
 			return getEndPosition().getOffset();
 		} else {
@@ -442,9 +443,8 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 
 	@Override
 	public int getStartOffset() {
-		final INode node = getNode();
-		if (node != null) {
-			return node.getStartOffset() + 1;
+		if (!isAnonymous()) {
+			return getNode().getStartOffset() + 1;
 		} else if (getStartPosition() != null) {
 			return getStartPosition().getOffset();
 		} else {
@@ -476,7 +476,7 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 
 	@Override
 	public boolean isAnonymous() {
-		return getNode() == null;
+		return node == null;
 	}
 
 	/**

@@ -38,6 +38,30 @@ public class ContentPositionTableTest {
 	}
 
 	@Test
+	public void testViewToModel() throws Exception {
+		final Document doc = new Document(new QualifiedName(null, "root"));
+		final IElement root = doc.getRootElement();
+
+		final IElement table = doc.insertElement(root.getEndOffset(), new QualifiedName(null, "table"));
+		final IElement row1 = doc.insertElement(table.getEndOffset(), new QualifiedName(null, "tr"));
+		final IElement col11 = doc.insertElement(row1.getEndOffset(), new QualifiedName(null, "td"));
+		final IElement row2 = doc.insertElement(table.getEndOffset(), new QualifiedName(null, "tr"));
+		final IElement col21 = doc.insertElement(row2.getEndOffset(), new QualifiedName(null, "td"));
+		doc.insertText(col11.getEndOffset(), "line1 line2 line3");
+		doc.insertText(col21.getEndOffset(), "line1 line2 line3");
+
+		context.setDocument(doc);
+
+		final RootBox rootBox = new RootBox(context, doc, 36);
+		rootBox.layout(context, 0, Integer.MAX_VALUE);
+
+		assertEquals(col11.getStartPosition().moveBy(1), rootBox.viewToModel(context, 0, 0));
+		assertEquals(row1.getEndPosition(), rootBox.viewToModel(context, 100, 0));
+		assertEquals(col21.getStartPosition().moveBy(1), rootBox.viewToModel(context, 0, 45));
+		assertEquals(row2.getEndPosition(), rootBox.viewToModel(context, 100, 45));
+	}
+
+	@Test
 	public void testGetNextLinePositionXLeft() throws Exception {
 
 		final Document doc = new Document(new QualifiedName(null, "root"));
