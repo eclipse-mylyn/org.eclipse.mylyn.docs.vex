@@ -13,6 +13,7 @@ package org.eclipse.vex.ui.internal.handlers;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.eclipse.vex.core.internal.layout.LayoutUtils.ElementOrRange;
 import org.eclipse.vex.core.internal.widget.swt.VexWidget;
 
 /**
@@ -25,7 +26,7 @@ public class RemoveColumnHandler extends AbstractRemoveTableCellsHandler {
 		final List<Object> cellsToDelete = new ArrayList<Object>();
 		VexHandlerUtil.iterateTableCells(widget, new TableCellCallbackAdapter() {
 			@Override
-			public void onCell(final Object row, final Object cell, final int rowIndex, final int cellIndex) {
+			public void onCell(final ElementOrRange row, final ElementOrRange cell, final int rowIndex, final int cellIndex) {
 				if (cellIndex == rcInfo.cellIndex) {
 					cellsToDelete.add(cell);
 				}

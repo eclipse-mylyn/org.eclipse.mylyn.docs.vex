@@ -16,6 +16,7 @@ import java.util.List;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.vex.core.internal.layout.LayoutUtils.ElementOrRange;
 import org.eclipse.vex.core.internal.widget.swt.VexWidget;
 import org.eclipse.vex.core.provisional.dom.ContentPositionRange;
 
@@ -60,7 +61,7 @@ public abstract class AbstractMoveColumnHandler extends AbstractHandler {
 			private Object leftCell;
 
 			@Override
-			public void onCell(final Object row, final Object cell, final int rowIndex, final int cellIndex) {
+			public void onCell(final ElementOrRange row, final ElementOrRange cell, final int rowIndex, final int cellIndex) {
 
 				if (leftCell(cellIndex, rcInfo.cellIndex)) {
 					leftCell = cell;

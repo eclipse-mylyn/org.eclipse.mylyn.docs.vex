@@ -24,8 +24,10 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.handlers.HandlerUtil;
 import org.eclipse.vex.core.internal.css.CSS;
 import org.eclipse.vex.core.internal.css.StyleSheet;
+import org.eclipse.vex.core.internal.layout.ElementOrPositionRangeCallback;
 import org.eclipse.vex.core.internal.layout.ElementOrRangeCallback;
 import org.eclipse.vex.core.internal.layout.LayoutUtils;
+import org.eclipse.vex.core.internal.layout.LayoutUtils.ElementOrRange;
 import org.eclipse.vex.core.internal.widget.IVexWidget;
 import org.eclipse.vex.core.internal.widget.swt.VexWidget;
 import org.eclipse.vex.core.provisional.dom.BaseNodeVisitor;
@@ -264,7 +266,7 @@ public final class VexHandlerUtil {
 
 		final StyleSheet ss = vexWidget.getStyleSheet();
 
-		iterateTableRows(vexWidget, new ElementOrRangeCallback() {
+		iterateTableRows(vexWidget, new ElementOrPositionRangeCallback() {
 
 			final private int[] rowIndex = { 0 };
 
@@ -273,18 +275,19 @@ public final class VexHandlerUtil {
 
 				callback.startRow(row, rowIndex[0]);
 
-				LayoutUtils.iterateTableCells(ss, row, new ElementOrRangeCallback() {
+				LayoutUtils.iterateTableCells(ss, row, new ElementOrPositionRangeCallback() {
 					private int cellIndex = 0;
 
 					@Override
 					public void onElement(final IElement cell, final String displayStyle) {
-						callback.onCell(row, cell, rowIndex[0], cellIndex);
+						callback.onCell(new ElementOrRange(row), new ElementOrRange(cell), rowIndex[0], cellIndex);
 						cellIndex++;
 					}
 
 					@Override
-					public void onRange(final IParent parent, final int startOffset, final int endOffset) {
-						callback.onCell(row, new ContentRange(startOffset, endOffset), rowIndex[0], cellIndex);
+					public void onRange(final IParent parent, final ContentPosition startPosition, final ContentPosition endPosition) {
+						final ContentPositionRange range = new ContentPositionRange(startPosition, endPosition);
+						callback.onCell(new ElementOrRange(row), new ElementOrRange(range), rowIndex[0], cellIndex);
 						cellIndex++;
 					}
 				});
@@ -295,23 +298,24 @@ public final class VexHandlerUtil {
 			}
 
 			@Override
-			public void onRange(final IParent parent, final int startOffset, final int endOffset) {
+			public void onRange(final IParent parent, final ContentPosition startPosition, final ContentPosition endPosition) {
 
-				final ContentRange row = new ContentRange(startOffset, endOffset);
+				final ContentPositionRange row = new ContentPositionRange(startPosition, endPosition);
 				callback.startRow(row, rowIndex[0]);
 
-				LayoutUtils.iterateTableCells(ss, parent, startOffset, endOffset, new ElementOrRangeCallback() {
+				LayoutUtils.iterateTableCells(ss, parent, startPosition, endPosition, new ElementOrPositionRangeCallback() {
 					private int cellIndex = 0;
 
 					@Override
 					public void onElement(final IElement cell, final String displayStyle) {
-						callback.onCell(row, cell, rowIndex[0], cellIndex);
+						callback.onCell(new ElementOrRange(row), new ElementOrRange(cell), rowIndex[0], cellIndex);
 						cellIndex++;
 					}
 
 					@Override
-					public void onRange(final IParent parent, final int startOffset, final int endOffset) {
-						callback.onCell(row, new ContentRange(startOffset, endOffset), rowIndex[0], cellIndex);
+					public void onRange(final IParent parent, final ContentPosition startPosition, final ContentPosition endPosition) {
+						final ContentPositionRange range = new ContentPositionRange(startPosition, endPosition);
+						callback.onCell(new ElementOrRange(row), new ElementOrRange(range), rowIndex[0], cellIndex);
 						cellIndex++;
 					}
 				});
@@ -349,14 +353,14 @@ public final class VexHandlerUtil {
 			}
 
 			@Override
-			public void onCell(final Object row, final Object cell, final int rowIndex, final int cellIndex) {
+			public void onCell(final ElementOrRange row, final ElementOrRange cell, final int rowIndex, final int cellIndex) {
 				found[0] = true;
-				if (LayoutUtils.elementOrRangeContains(row, position)) {
+				if (row.contains(position)) {
 					rcInfo[0].row = row;
 					rcInfo[0].rowIndex = rowIndex;
 					rcInfo[0].columnCount++;
 
-					if (LayoutUtils.elementOrRangeContains(cell, position)) {
+					if (cell.contains(position)) {
 						rcInfo[0].cell = cell;
 						rcInfo[0].cellIndex = cellIndex;
 					}
@@ -387,7 +391,7 @@ public final class VexHandlerUtil {
 	 * @param callback
 	 *            Caller-provided callback that this method calls for each row in the current table.
 	 */
-	public static void iterateTableRows(final IVexWidget vexWidget, final ElementOrRangeCallback callback) {
+	public static void iterateTableRows(final IVexWidget vexWidget, final ElementOrPositionRangeCallback callback) {
 
 		final StyleSheet ss = vexWidget.getStyleSheet();
 		final IDocument doc = vexWidget.getDocument();
@@ -433,8 +437,8 @@ public final class VexHandlerUtil {
 			return;
 		}
 
-		final int startOffset = tableChildren.get(0).getStartOffset();
-		final int endOffset = tableChildren.get(tableChildren.size() - 1).getEndOffset() + 1;
+		final ContentPosition startOffset = tableChildren.get(0).getStartPosition();
+		final ContentPosition endOffset = tableChildren.get(tableChildren.size() - 1).getEndPosition().moveBy(1);
 		LayoutUtils.iterateTableRows(ss, table, startOffset, endOffset, callback);
 	}
 
