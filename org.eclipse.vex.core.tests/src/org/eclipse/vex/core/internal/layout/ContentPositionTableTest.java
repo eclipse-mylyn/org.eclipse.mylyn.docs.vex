@@ -82,13 +82,13 @@ public class ContentPositionTableTest {
 
 		final ContentPosition linePosition = col11.getStartPosition().moveBy(1);
 		ContentPosition nextLinePos = rootBox.getNextLinePosition(context, linePosition, 0);
-		assertEquals(col11.getStartOffset() + 7, nextLinePos.getOffset()); // line2
+		assertEquals(col11.getStartPosition().moveBy(7), nextLinePos); // line2
 		nextLinePos = rootBox.getNextLinePosition(context, nextLinePos, 0);
-		assertEquals(col11.getStartOffset() + 13, nextLinePos.getOffset()); // line3
+		assertEquals(col11.getStartPosition().moveBy(13), nextLinePos); // line3
 		nextLinePos = rootBox.getNextLinePosition(context, nextLinePos, 0);
-		assertEquals(row1.getEndOffset() + 1, nextLinePos.getOffset()); // Between row1 and row2
+		assertEquals(table.getStartPosition().moveBy(22), nextLinePos); // Between row1 and row2
 		nextLinePos = rootBox.getNextLinePosition(context, nextLinePos, 0);
-		assertEquals(col21.getStartOffset() + 1, nextLinePos.getOffset()); // row2 - line1
+		assertEquals(col21.getStartPosition().moveBy(1), nextLinePos); // row2 - line1
 	}
 
 	@Test
@@ -146,13 +146,13 @@ public class ContentPositionTableTest {
 		// We test here with a x position inside the table cell.
 		final ContentPosition linePosition = col21.getEndPosition().moveBy(-1);
 		ContentPosition prevLinePos = rootBox.getPreviousLinePosition(context, linePosition, 2);
-		assertEquals(col21.getEndOffset() - 11, prevLinePos.getOffset()); // start of line2
+		assertEquals(col21.getEndPosition().moveBy(-11), prevLinePos); // start of line2
 		prevLinePos = rootBox.getPreviousLinePosition(context, prevLinePos, 2);
-		assertEquals(col21.getStartOffset() + 1, prevLinePos.getOffset()); // start of line 1
+		assertEquals(col21.getStartPosition().moveBy(1), prevLinePos); // start of line 1
 		prevLinePos = rootBox.getPreviousLinePosition(context, prevLinePos, 2);
-		assertEquals(row1.getEndOffset() + 1, prevLinePos.getOffset()); // Between row1 and row2
+		assertEquals(row1.getEndPosition().moveBy(1), prevLinePos); // Between row1 and row2
 		prevLinePos = rootBox.getPreviousLinePosition(context, prevLinePos, 2);
-		assertEquals(col11.getEndOffset() - 5, prevLinePos.getOffset());
+		assertEquals(col11.getEndPosition().moveBy(-5), prevLinePos);
 	}
 
 	@Test

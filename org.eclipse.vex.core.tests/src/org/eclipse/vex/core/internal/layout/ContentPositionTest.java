@@ -57,7 +57,6 @@ public class ContentPositionTest {
 
 		caretPosition = rootBox.viewToModel(context, 0, 18); // begin of line 2
 		assertEquals(block1.getStartPosition().moveBy(7), caretPosition);
-		System.out.println(caretPosition);
 	}
 
 	@Test
@@ -132,15 +131,15 @@ public class ContentPositionTest {
 		final RootBox rootBox = new RootBox(context, doc, 36);
 		rootBox.layout(context, 0, Integer.MAX_VALUE);
 
-		final ContentPosition linePosition = new ContentPosition(block1, block1.getStartOffset() + 1);
+		final ContentPosition linePosition = block1.getStartPosition().moveBy(1);
 		ContentPosition nextLinePos = rootBox.getNextLinePosition(context, linePosition, 0);
-		assertEquals(block1.getStartOffset() + 7, nextLinePos.getOffset()); // line2
+		assertEquals(block1.getStartPosition().moveBy(7), nextLinePos); // line2
 		nextLinePos = rootBox.getNextLinePosition(context, nextLinePos, 0);
-		assertEquals(block1.getStartOffset() + 14, nextLinePos.getOffset()); // line3
+		assertEquals(block1.getStartPosition().moveBy(14), nextLinePos); // line3
 		nextLinePos = rootBox.getNextLinePosition(context, nextLinePos, 0);
-		assertEquals(block1.getEndOffset() + 1, nextLinePos.getOffset()); // Between block1 and block2
+		assertEquals(block2.getStartPosition(), nextLinePos); // Between block1 and block2
 		nextLinePos = rootBox.getNextLinePosition(context, nextLinePos, 0);
-		assertEquals(block2.getStartOffset() + 1, nextLinePos.getOffset()); // block2 - line1
+		assertEquals(block2.getStartPosition().moveBy(1), nextLinePos); // block2 - line1
 	}
 
 	@Test
@@ -172,7 +171,7 @@ public class ContentPositionTest {
 		nextLinePos = rootBox.getNextLinePosition(context, nextLinePos, 100);
 		assertEquals(block1.getEndPosition(), nextLinePos); // line3
 		nextLinePos = rootBox.getNextLinePosition(context, nextLinePos, 100);
-		assertEquals(block1.getEndOffset() + 1, nextLinePos.getOffset()); // Between block1 and block2
+		assertEquals(block2.getStartPosition(), nextLinePos); // Between block1 and block2
 		nextLinePos = rootBox.getNextLinePosition(context, nextLinePos, 100);
 		assertEquals(block2.getStartOffset() + 7, nextLinePos.getOffset()); // block2 - end of line1
 	}
@@ -193,15 +192,15 @@ public class ContentPositionTest {
 		final RootBox rootBox = new RootBox(context, doc, 36);
 		rootBox.layout(context, 0, Integer.MAX_VALUE);
 
-		final ContentPosition linePosition = new ContentPosition(block2, block2.getEndOffset() - 1);
+		final ContentPosition linePosition = block2.getEndPosition().moveBy(-1);
 		ContentPosition prevLinePos = rootBox.getPreviousLinePosition(context, linePosition, 0);
-		assertEquals(block2.getEndOffset() - 11, prevLinePos.getOffset()); // start of line2
+		assertEquals(block2.getEndPosition().moveBy(-11), prevLinePos); // start of line2
 		prevLinePos = rootBox.getPreviousLinePosition(context, prevLinePos, 0);
-		assertEquals(block2.getStartOffset() + 1, prevLinePos.getOffset()); // start of line 1
+		assertEquals(block2.getStartPosition().moveBy(1), prevLinePos); // start of line 1
 		prevLinePos = rootBox.getPreviousLinePosition(context, prevLinePos, 0);
-		assertEquals(block1.getEndOffset() + 1, prevLinePos.getOffset()); // Between block1 and block2
+		assertEquals(block2.getStartPosition(), prevLinePos); // Between block1 and block2
 		prevLinePos = rootBox.getPreviousLinePosition(context, prevLinePos, 0);
-		assertEquals(block1.getEndOffset() - 5, prevLinePos.getOffset()); // block1 - start of line3
+		assertEquals(block1.getEndPosition().moveBy(-5), prevLinePos); // block1 - start of line3
 	}
 
 }

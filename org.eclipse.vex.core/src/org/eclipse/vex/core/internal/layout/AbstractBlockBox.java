@@ -366,25 +366,16 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 
 		if (linePosition.getOffset() < getStartOffset() && children.length > 0 && children[0].getStartOffset() > getStartOffset()) {
 			// If there's an offset before the first child, put the caret there.
-			// This may be an anonymous box without an associated node - Find a parent with an associated node
-			BlockBox parent = this;
-			while (parent.isAnonymous()) {
-				parent = parent.getParent();
-			}
-			return new ContentPosition(parent.getNode(), getStartOffset());
+			return getNode().getStartPosition();
 		}
 
 		for (final BlockBox child : children) {
 			if (linePosition.getOffset() <= child.getEndOffset()) {
 				final ContentPosition newPosition = child.getNextLinePosition(context, linePosition, x - child.getX());
 				if (newPosition == null) {
-					// No next line in child box - Return a position in this box (if it is not anonymous) after the child
-					// This may be an anonymous box without an associated node - Find a parent with an associated node
-					BlockBox parent = this;
-					while (parent.isAnonymous()) {
-						parent = parent.getParent();
-					}
-					return new ContentPosition(parent.getNode(), child.getEndOffset() + 1);
+					// No next line in child box
+					// Return the start position of the next node
+					return child.getNode().getEndPosition().moveBy(1);
 				} else {
 					return newPosition;
 				}
@@ -412,11 +403,7 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 		if (linePosition.getOffset() > getEndOffset() && children.length > 0 && children[children.length - 1].getEndOffset() < getEndOffset()) {
 			// If there's an offset after the last child, put the caret there.
 			// This may be an anonymous box without an associated node - Find a parent with an associated node
-			BlockBox parent = this;
-			while (parent.isAnonymous()) {
-				parent = parent.getParent();
-			}
-			return new ContentPosition(parent.getNode(), getEndOffset());
+			return getNode().getEndPosition();
 		}
 
 		for (int i = children.length; i > 0; i--) {
@@ -424,13 +411,9 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 			if (linePosition.getOffset() >= child.getStartOffset()) {
 				final ContentPosition newPosition = child.getPreviousLinePosition(context, linePosition, x - child.getX());
 				if (newPosition == null && i > 0) {
-					// No previous line in child box - Return a position in this box (if it is not anonymous) before the child
-					// This may be an anonymous box without an associated node - Find a parent with an associated node
-					BlockBox parent = this;
-					while (parent.isAnonymous()) {
-						parent = parent.getParent();
-					}
-					return new ContentPosition(parent.getNode(), child.getStartOffset() - 1);
+					// No previous line in child box
+					// Return the child's start position. Insertions at this position will insert before the node.
+					return child.getNode().getStartPosition();
 				} else {
 					return newPosition;
 				}
