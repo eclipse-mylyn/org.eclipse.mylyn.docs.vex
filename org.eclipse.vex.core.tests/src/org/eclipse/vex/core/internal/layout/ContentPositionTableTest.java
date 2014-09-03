@@ -10,7 +10,6 @@ import org.eclipse.vex.core.internal.dom.Document;
 import org.eclipse.vex.core.provisional.dom.ContentPosition;
 import org.eclipse.vex.core.provisional.dom.IElement;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class ContentPositionTableTest {
@@ -92,8 +91,6 @@ public class ContentPositionTableTest {
 	}
 
 	@Test
-	@Ignore
-	// CHI: currently ignored (see bug 421401)
 	public void testGetNextLinePositionXRight() throws Exception {
 		// This is the same test as before, but with a x position at the rigth of the table cells
 
@@ -115,7 +112,7 @@ public class ContentPositionTableTest {
 
 		final ContentPosition linePosition = col11.getStartPosition().moveBy(6); // end of line 1
 		ContentPosition nextLinePos = rootBox.getNextLinePosition(context, linePosition, 35); // X=35 is inside the space
-		assertEquals(col11.getStartOffset() + 13, nextLinePos.getOffset()); // end of line2 (after the space)
+		assertEquals(col11.getStartOffset() + 12, nextLinePos.getOffset()); // end of line2 (after the space)
 		nextLinePos = rootBox.getNextLinePosition(context, nextLinePos, 35);
 		assertEquals(col11.getStartOffset() + 18, nextLinePos.getOffset()); // placeholder at end of line3
 		nextLinePos = rootBox.getNextLinePosition(context, nextLinePos, 35);
@@ -156,8 +153,6 @@ public class ContentPositionTableTest {
 	}
 
 	@Test
-	@Ignore
-	// CHI: currently ignored (see bug 421401)
 	public void testGetPreviousLinePositionNoSpace() throws Exception {
 		// Same test as before, but this time there is no space to split at
 
@@ -181,13 +176,13 @@ public class ContentPositionTableTest {
 		// move between the rows
 		final ContentPosition linePosition = col21.getEndPosition().moveBy(-1);
 		ContentPosition prevLinePos = rootBox.getPreviousLinePosition(context, linePosition, 35);
-		assertEquals(col21.getEndOffset() - 6, prevLinePos.getOffset()); // end of line2
+		assertEquals(col21.getEndOffset() - 7, prevLinePos.getOffset()); // end of line2
 		prevLinePos = rootBox.getPreviousLinePosition(context, prevLinePos, 35);
-		assertEquals(col21.getEndOffset() - 12, prevLinePos.getOffset()); // end of line 1
+		assertEquals(col21.getEndOffset() - 13, prevLinePos.getOffset()); // end of line 1
 		prevLinePos = rootBox.getPreviousLinePosition(context, prevLinePos, 35);
 		assertEquals(row1.getEndOffset() + 1, prevLinePos.getOffset()); // Between row1 and row2
 		prevLinePos = rootBox.getPreviousLinePosition(context, prevLinePos, 35);
-		assertEquals(col11.getEndOffset(), prevLinePos.getOffset()); // row1 - placeholder at end of line3
+		assertEquals(col11.getEndOffset() - 1, prevLinePos.getOffset()); // row1 - placeholder at end of line3
 	}
 
 }

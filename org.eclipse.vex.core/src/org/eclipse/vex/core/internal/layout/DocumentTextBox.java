@@ -271,7 +271,7 @@ public class DocumentTextBox extends TextBox {
 		}
 
 		// Search forwards
-		while (offset < chars.length) {
+		while (offset < chars.length - 1) {
 			final int newDelta = Math.abs(x - g.charsWidth(chars, 0, offset + 1));
 			if (newDelta > delta) {
 				break;

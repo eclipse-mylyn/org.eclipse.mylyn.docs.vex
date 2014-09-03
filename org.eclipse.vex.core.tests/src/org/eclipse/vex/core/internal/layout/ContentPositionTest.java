@@ -13,7 +13,6 @@ import org.eclipse.vex.core.internal.dom.Document;
 import org.eclipse.vex.core.provisional.dom.ContentPosition;
 import org.eclipse.vex.core.provisional.dom.IElement;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public class ContentPositionTest {
@@ -60,8 +59,6 @@ public class ContentPositionTest {
 	}
 
 	@Test
-	@Ignore
-	// CHI: currently ignored (see bug 421401)
 	public void testPositionAtLineEnd() throws Exception {
 
 		final Document doc = new Document(new QualifiedName(null, "root"));
@@ -79,12 +76,12 @@ public class ContentPositionTest {
 
 		ContentPosition caretPosition = rootBox.viewToModel(context, 100, 6); // end of line 1
 
-		assertEquals(block1.getStartPosition().moveBy(7), caretPosition);
+		assertEquals(block1.getStartPosition().moveBy(6), caretPosition);
 		Caret caret = rootBox.getCaret(context, caretPosition);
 		assertEquals(0, caret.getY());
 
 		caretPosition = rootBox.viewToModel(context, 100, 18); // end of line 2
-		assertEquals(block1.getStartPosition().moveBy(13), caretPosition);
+		assertEquals(block1.getStartPosition().moveBy(12), caretPosition);
 		caret = rootBox.getCaret(context, caretPosition);
 		assertEquals(12, caret.getY());
 
@@ -143,11 +140,17 @@ public class ContentPositionTest {
 	}
 
 	@Test
-	@Ignore
-	// CHI: currently ignored (see bug 421401)
 	public void testGetNextLinePosition_CaretAtLineEnd() throws Exception {
-		// The same test as before, but this time the caret is at the end of the line thus the content offset
-		// is AFTER the lines last content element
+		/*
+		 * The same test as before, but this time there is no space character to split the first block a second time. In
+		 * this case, the last caret position in the second line will be before the last character of the second line.
+		 * The position after that character is not reachable on the second line. It is actually at the beginning of the
+		 * third line.
+		 * 
+		 * In fact there is no common behaviour among other editors (like Word, Open Office or Notepad++), so we stick
+		 * with this solution as it works fine for the moment and the case (no spaces in one line of text) is really
+		 * rare.
+		 */
 
 		final Document doc = new Document(new QualifiedName(null, "root"));
 		final IElement root = doc.getRootElement();
@@ -163,9 +166,9 @@ public class ContentPositionTest {
 		rootBox.layout(context, 0, Integer.MAX_VALUE);
 
 		final ContentPosition linePosition = rootBox.viewToModel(context, 100, 6); // x=100 -> after end of line 1
-		assertEquals(block1.getStartOffset() + 7, linePosition.getOffset()); // line2
+		assertEquals(block1.getStartOffset() + 6, linePosition.getOffset()); // line2
 		ContentPosition nextLinePos = rootBox.getNextLinePosition(context, linePosition, 100);
-		assertEquals(block1.getStartOffset() + 13, nextLinePos.getOffset()); // line2
+		assertEquals(block1.getStartOffset() + 12, nextLinePos.getOffset()); // actually before the last character of the second line
 		final Caret caret = rootBox.getCaret(context, nextLinePos);
 		assertEquals(12, caret.getY()); // line height is 12, so this is line 2
 		nextLinePos = rootBox.getNextLinePosition(context, nextLinePos, 100);
@@ -173,7 +176,7 @@ public class ContentPositionTest {
 		nextLinePos = rootBox.getNextLinePosition(context, nextLinePos, 100);
 		assertEquals(block2.getStartPosition(), nextLinePos); // Between block1 and block2
 		nextLinePos = rootBox.getNextLinePosition(context, nextLinePos, 100);
-		assertEquals(block2.getStartOffset() + 7, nextLinePos.getOffset()); // block2 - end of line1
+		assertEquals(block2.getStartOffset() + 6, nextLinePos.getOffset()); // block2 - end of line1
 	}
 
 	@Test
