@@ -366,7 +366,7 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 
 		if (linePosition.getOffset() < getStartOffset() && children.length > 0 && children[0].getStartOffset() > getStartOffset()) {
 			// If there's an offset before the first child, put the caret there.
-			return getNode().getStartPosition();
+			return getNode().getStartPosition().moveBy(1);
 		}
 
 		for (final BlockBox child : children) {

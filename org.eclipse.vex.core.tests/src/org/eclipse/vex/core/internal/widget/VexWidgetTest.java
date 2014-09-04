@@ -145,6 +145,18 @@ public class VexWidgetTest {
 		assertEquals("first position", 31, firstPositionInSecondLine.getOffset());
 	}
 
+	@Test
+	public void whenMovingCursorUp_shouldNotGetStuckInHigherLevelElement() throws Exception {
+		final IDocument document = createDocument(STRUCTURE_NS, "chapter");
+		widget.setDocument(document, StyleSheet.NULL);
+		widget.insertElement(new QualifiedName(CONTENT_NS, "p"));
+		widget.insertText("para 1");
+		widget.moveTo(new ContentPosition(document, 1));
+
+		widget.moveToNextLine(false);
+		assertEquals(2, widget.getCaretPosition().getOffset());
+	}
+
 	public static IDocument createDocumentWithDTD(final String dtdIdentifier, final String rootElementName) {
 		final IValidator validator = new WTPVEXValidator(dtdIdentifier);
 		final Document document = new Document(new QualifiedName(null, rootElementName));
