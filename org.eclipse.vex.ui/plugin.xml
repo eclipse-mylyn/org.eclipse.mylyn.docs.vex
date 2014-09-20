@@ -189,6 +189,12 @@
             id="org.eclipse.vex.ui.SetProcessingInstructionTargetCommand"
             name="%command.setProcessingInstructionTarget.name">
       </command>
+      <command
+            categoryId="org.eclipse.vex.ui.commands.category"
+            defaultHandler="org.eclipse.vex.ui.boxview.RefreshHandler"
+            id="org.eclipse.vex.ui.RefreshBoxViewCommand"
+            name="Refresh Box View">
+      </command>
 
    </extension>
    <extension
@@ -808,6 +814,12 @@
             id="org.eclipse.vex.ui.views.configuration"
             name="%ConfigurationView.name">
       </view>
+      <view
+            category="org.eclipse.vex.ui.views.VexViewCategory"
+            class="org.eclipse.vex.ui.boxview.BoxView"
+            id="org.eclipse.vex.ui.views.box"
+            name="Vex Box Viewer">
+      </view>
    </extension>
    <extension
          id="pluginNature"
@@ -1253,6 +1265,17 @@
                name="org.eclipse.vex.ui.popup.any"
                visible="true">
          </separator>
+      </menuContribution>
+      <menuContribution
+            allPopups="false"
+            locationURI="menu:org.eclipse.vex.ui.views.box">
+         <command
+               commandId="org.eclipse.vex.ui.RefreshBoxViewCommand"
+               icon="icons/vex16.png"
+               label="Refresh"
+               style="push"
+               tooltip="Refresh the BoxView">
+         </command>
       </menuContribution>
    </extension>
    <extension
