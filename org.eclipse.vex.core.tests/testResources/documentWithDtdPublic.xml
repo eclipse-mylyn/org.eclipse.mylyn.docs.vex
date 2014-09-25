@@ -2,5 +2,5 @@
 <!DOCTYPE section PUBLIC "-//Eclipse Foundation//DTD Vex Test//EN" "test1.dtd">
 <section>
 	<title>Testdocument with DTD (Public Identifier)</title>
-	<para>This is a Testdocument using a DTD which is referenced by a public identifier.</para>
+	<para>This is a Test<emphasis>document</emphasis> using a DTD which is referenced by a public identifier.</para>
 </section>

@@ -4,6 +4,7 @@
     <p>This should be a complex document with some <a href="here is a
     URL">elements with attributes</a>. The more complex, the more
     thorough the check will be.</p>
+    <p>Here we test in<b>line</b> elements.</p>
     
     <img src="http://myhost.com/really/long/path/to/a/jpeg.jpg" alt="&lt;pickin &amp; grinnin&gt;"/>
     

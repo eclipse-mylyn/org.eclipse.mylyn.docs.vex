@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2008 John Krasnay and others.
+ * Copyright (c) 2004, 2014 John Krasnay and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@
  *     John Krasnay - initial API and implementation
  *     David Carver unit tests fixes
  *     Igor Jacy Lino Campista - Java 5 warnings fixed (bug 311325)
+ *     Carsten Hiesserich - fix wrapping in addNoSplit
  *******************************************************************************/
 package org.eclipse.vex.core.internal.io;
 
@@ -73,7 +74,19 @@ public class TextWrapper {
 	 *            Text to be added.
 	 */
 	public void addNoSplit(final String s) {
-		parts.add(s);
+
+		if (s.length() == 0) {
+			return;
+		}
+
+		if (lastIsWhite || parts.isEmpty()) {
+			parts.add(s);
+		} else {
+			// Last char is not a whitespace - we must not split here
+			parts.add(parts.remove(parts.size() - 1) + s);
+		}
+
+		lastIsWhite = Character.isWhitespace(s.charAt(s.length() - 1));
 	}
 
 	/**

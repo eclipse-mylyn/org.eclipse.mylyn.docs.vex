@@ -298,8 +298,8 @@ public class NamespaceTest {
 	@Test
 	public void readWriteCycle() throws Exception {
 		// Caution: Vex sorts attributes on writing, so the order of attributes may change
-		final String inputContent = "<?xml version='1.0' encoding='UTF-8'?> <ns1:a xmlns=\"http://namespace/default\" xmlns:ns1=\"http://namespace/uri/1\" attr1=\"value1\"> "
-				+ "<ns2:b xmlns:ns2=\"http://namespace/uri/2\" ns1:attr2=\"value2\" ns2:attr3=\"value3\"/> " + "<c attr4=\"value4\" ns1:attr5=\"value5\"/>" + "</ns1:a> ";
+		final String inputContent = "<?xml version='1.0' encoding='UTF-8'?> <ns1:a xmlns=\"http://namespace/default\" xmlns:ns1=\"http://namespace/uri/1\" attr1=\"value1\">"
+				+ "<ns2:b xmlns:ns2=\"http://namespace/uri/2\" ns1:attr2=\"value2\" ns2:attr3=\"value3\"/>" + "<c attr4=\"value4\" ns1:attr5=\"value5\"/>" + "</ns1:a> ";
 		final IDocument document = readDocumentFromString(inputContent);
 
 		final DocumentWriter documentWriter = new DocumentWriter();
