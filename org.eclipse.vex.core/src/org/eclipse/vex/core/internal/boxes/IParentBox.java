@@ -13,9 +13,10 @@ package org.eclipse.vex.core.internal.boxes;
 /**
  * @author Florian Thienel
  */
-public interface IBoxVisitor {
+public interface IParentBox extends IBox {
 
-	void visit(RootBox box);
+	boolean hasChildren();
 
-	void visit(VerticalBlock box);
+	void appendChild(IChildBox box);
+
 }

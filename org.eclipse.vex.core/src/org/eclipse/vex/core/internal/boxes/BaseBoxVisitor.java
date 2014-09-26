@@ -20,4 +20,8 @@ public class BaseBoxVisitor implements IBoxVisitor {
 		// ignore
 	}
 
+	@Override
+	public void visit(final VerticalBlock box) {
+		// ignore
+	}
 }
