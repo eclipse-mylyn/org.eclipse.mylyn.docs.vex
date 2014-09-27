@@ -11,6 +11,8 @@
 package org.eclipse.vex.core.internal.boxes;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -33,9 +35,21 @@ public class TestRootBox {
 	}
 
 	@Test
-	public void widthIsSetable() throws Exception {
+	public void widthIsMutable() throws Exception {
 		box.setWidth(100);
 		assertEquals(100, box.getWidth());
+	}
+
+	@Test
+	public void whenCreatedHasNoChildren() throws Exception {
+		assertFalse(box.hasChildren());
+	}
+
+	@Test
+	public void canAppendChild() throws Exception {
+		final VerticalBlock child = new VerticalBlock();
+		box.appendChild(child);
+		assertTrue(box.hasChildren());
 	}
 
 }

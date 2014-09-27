@@ -17,6 +17,6 @@ public interface IParentBox extends IBox {
 
 	boolean hasChildren();
 
-	void appendChild(IChildBox box);
+	void appendChild(IChildBox child);
 
 }

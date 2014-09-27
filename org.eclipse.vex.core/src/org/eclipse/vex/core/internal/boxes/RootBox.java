@@ -10,12 +10,15 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.boxes;
 
+import java.util.ArrayList;
+
 /**
  * @author Florian Thienel
  */
-public class RootBox implements IBox {
+public class RootBox implements IParentBox {
 
 	private int width;
+	private final ArrayList<IChildBox> children = new ArrayList<IChildBox>();
 
 	public int getWidth() {
 		return width;
@@ -31,6 +34,16 @@ public class RootBox implements IBox {
 
 	public void accept(final IBoxVisitor visitor) {
 		visitor.visit(this);
+	}
+
+	@Override
+	public boolean hasChildren() {
+		return !children.isEmpty();
+	}
+
+	@Override
+	public void appendChild(final IChildBox child) {
+		children.add(child);
 	}
 
 }
