@@ -1,0 +1,74 @@
+/*******************************************************************************
+ * Copyright (c) 2014 Florian Thienel and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ * 		Florian Thienel - initial API and implementation
+ *******************************************************************************/
+package org.eclipse.vex.core.internal.boxes;
+
+import org.eclipse.vex.core.internal.core.Color;
+
+/**
+ * @author Florian Thienel
+ */
+public class HorizontalBar implements IChildBox {
+
+	private int top;
+	private int left;
+	private int width;
+	private int height;
+	private Color color;
+
+	@Override
+	public void setPosition(final int top, final int left) {
+		this.top = top;
+		this.left = left;
+	}
+
+	@Override
+	public int getTop() {
+		return top;
+	}
+
+	@Override
+	public int getLeft() {
+		return left;
+	}
+
+	@Override
+	public int getWidth() {
+		return width;
+	}
+
+	@Override
+	public void setWidth(final int width) {
+		this.width = width;
+	}
+
+	@Override
+	public int getHeight() {
+		return height;
+	}
+
+	public void setHeight(final int height) {
+		this.height = height;
+	}
+
+	public Color getColor() {
+		return color;
+	}
+
+	public void setColor(final Color color) {
+		this.color = color;
+	}
+
+	@Override
+	public void accept(final IBoxVisitor visitor) {
+		visitor.visit(this);
+	}
+
+}

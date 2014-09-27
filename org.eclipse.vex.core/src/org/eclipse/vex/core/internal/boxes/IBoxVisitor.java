@@ -18,4 +18,6 @@ public interface IBoxVisitor {
 	void visit(RootBox box);
 
 	void visit(VerticalBlock box);
+
+	void visit(HorizontalBar box);
 }

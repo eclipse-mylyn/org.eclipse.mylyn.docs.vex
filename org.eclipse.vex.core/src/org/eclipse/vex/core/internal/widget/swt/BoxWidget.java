@@ -20,7 +20,10 @@ import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.vex.core.internal.boxes.HorizontalBar;
 import org.eclipse.vex.core.internal.boxes.RootBox;
+import org.eclipse.vex.core.internal.boxes.VerticalBlock;
+import org.eclipse.vex.core.internal.core.Color;
 
 /**
  * A widget to show the new box model.
@@ -40,6 +43,12 @@ public class BoxWidget extends Canvas {
 		}
 
 		rootBox = new RootBox();
+		final HorizontalBar bar = new HorizontalBar();
+		bar.setHeight(10);
+		bar.setColor(Color.BLACK);
+		final VerticalBlock block = new VerticalBlock();
+		block.appendChild(bar);
+		rootBox.appendChild(block);
 	}
 
 	private void connectPaintControl() {
