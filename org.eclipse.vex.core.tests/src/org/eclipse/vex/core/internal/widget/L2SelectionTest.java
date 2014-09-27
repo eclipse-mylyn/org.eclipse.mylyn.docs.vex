@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2012 Florian Thienel and others.
+ * Copyright (c) 2012, 2014 Florian Thienel and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,10 +7,12 @@
  *
  * Contributors:
  * 		Florian Thienel - initial API and implementation
+ *      Carsten Hiesserich - additional tests
  *******************************************************************************/
 package org.eclipse.vex.core.internal.widget;
 
 import static org.eclipse.vex.core.internal.widget.VexWidgetTest.PARA;
+import static org.eclipse.vex.core.internal.widget.VexWidgetTest.PRE;
 import static org.eclipse.vex.core.internal.widget.VexWidgetTest.TITLE;
 import static org.eclipse.vex.core.internal.widget.VexWidgetTest.createDocumentWithDTD;
 import static org.eclipse.vex.core.tests.TestResources.TEST_DTD;
@@ -57,6 +59,39 @@ public class L2SelectionTest {
 		assertTrue(widget.hasSelection());
 		assertEquals(titleElement.getRange(), widget.getSelectedRange());
 		assertEquals(titleElement.getStartPosition(), widget.getCaretPosition());
+	}
+
+	@Test
+	public void givenCaretInElementWith_whenSelectionForwardIncludesStartOffset_shouldExpandSelectionToEndOffset() throws Exception {
+		widget.insertElement(PARA);
+		widget.insertText("before");
+		final IElement innerElement = widget.insertElement(PRE);
+		widget.insertText("Selection");
+		widget.moveTo(innerElement.getEndPosition().moveBy(1));
+		widget.insertText("after");
+
+		widget.moveTo(innerElement.getStartPosition().moveBy(-1));
+		widget.moveTo(innerElement.getStartPosition().moveBy(1), true);
+
+		assertTrue(widget.hasSelection());
+		assertEquals(innerElement.getStartPosition().moveBy(-1), widget.getSelectedPositionRange().getStartPosition());
+		assertEquals(innerElement.getEndPosition().moveBy(1), widget.getSelectedPositionRange().getEndPosition());
+		assertEquals(innerElement.getEndPosition().moveBy(1), widget.getCaretPosition());
+	}
+
+	@Test
+	public void givenCaretInElementWith_whenSelectionBackwardIncludesStartOffset_shouldExpandSelectionToEndOffset() throws Exception {
+		widget.insertElement(PARA);
+		final IElement innerElement = widget.insertElement(PRE);
+		widget.insertText("Selection");
+		widget.moveTo(innerElement.getEndPosition().moveBy(1));
+		widget.insertText("after");
+		widget.moveTo(innerElement.getEndPosition().moveBy(-1));
+		widget.moveTo(innerElement.getStartPosition(), true);
+
+		assertTrue(widget.hasSelection());
+		assertEquals(innerElement.getRange(), widget.getSelectedRange());
+		assertEquals(innerElement.getStartPosition(), widget.getCaretPosition());
 	}
 
 	@Test

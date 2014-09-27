@@ -139,7 +139,7 @@ public class ContentPosition implements Comparable<ContentPosition> {
 			return nodeAtOffset.getStartPosition();
 		}
 
-		final IAxis<? extends INode> siblings = parent.children().before(nodeAtOffset.getStartOffset()).withoutText();
+		final IAxis<? extends INode> siblings = parent.children().before(nodeAtOffset.getStartOffset());
 		if (!siblings.isEmpty()) {
 			return siblings.last().getEndPosition();
 		} else {
@@ -156,7 +156,7 @@ public class ContentPosition implements Comparable<ContentPosition> {
 			// No parent, so return the end of the current node
 			return nodeAtOffset.getEndPosition();
 		}
-		final IAxis<? extends INode> siblings = parent.children().after(offset).withoutText();
+		final IAxis<? extends INode> siblings = parent.children().after(offset);
 		if (!siblings.isEmpty()) {
 			return siblings.first().getStartPosition();
 		} else {
