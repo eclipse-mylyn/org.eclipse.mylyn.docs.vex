@@ -18,6 +18,7 @@ import java.util.ArrayList;
 public class RootBox implements IParentBox {
 
 	private int width;
+	private int height;
 	private final ArrayList<IChildBox> children = new ArrayList<IChildBox>();
 
 	public int getWidth() {
@@ -29,7 +30,7 @@ public class RootBox implements IParentBox {
 	}
 
 	public int getHeight() {
-		return 0;
+		return height;
 	}
 
 	public void accept(final IBoxVisitor visitor) {
@@ -46,4 +47,13 @@ public class RootBox implements IParentBox {
 		children.add(child);
 	}
 
+	public void layout() {
+		height = 0;
+		for (final IChildBox child : children) {
+			child.setPosition(height, 0);
+			child.setWidth(width);
+			child.layout();
+			height += child.getHeight();
+		}
+	}
 }

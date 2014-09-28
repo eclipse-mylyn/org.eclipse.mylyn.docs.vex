@@ -49,6 +49,8 @@ public class BoxWidget extends Canvas {
 		final VerticalBlock block = new VerticalBlock();
 		block.appendChild(bar);
 		rootBox.appendChild(block);
+
+		rootBox.layout();
 	}
 
 	private void connectPaintControl() {

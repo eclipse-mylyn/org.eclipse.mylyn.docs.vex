@@ -71,4 +71,8 @@ public class HorizontalBar implements IChildBox {
 		visitor.visit(this);
 	}
 
+	public void layout() {
+		// ignore, everything is static
+	}
+
 }

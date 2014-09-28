@@ -23,6 +23,7 @@ public class VerticalBlock implements IChildBox, IParentBox {
 	private int top;
 	private int left;
 	private int width;
+	private int height;
 	private final ArrayList<IChildBox> children = new ArrayList<IChildBox>();
 	private Margin margin = Margin.NULL;
 	private Border border = Border.NULL;
@@ -52,7 +53,7 @@ public class VerticalBlock implements IChildBox, IParentBox {
 
 	@Override
 	public int getHeight() {
-		return 0;
+		return height;
 	}
 
 	@Override
@@ -90,6 +91,19 @@ public class VerticalBlock implements IChildBox, IParentBox {
 
 	public void setPadding(final Padding padding) {
 		this.padding = padding;
+	}
+
+	public void layout() {
+		height = margin.top + border.top + padding.top;
+		final int left = margin.left + border.left + padding.left;
+		final int childrenWidth = width - (margin.left + margin.right + border.left + border.right + padding.left + padding.right);
+		for (final IChildBox child : children) {
+			child.setPosition(height, left);
+			child.setWidth(childrenWidth);
+			child.layout();
+			height += child.getHeight();
+		}
+		height += margin.bottom + border.bottom + padding.bottom;
 	}
 
 }

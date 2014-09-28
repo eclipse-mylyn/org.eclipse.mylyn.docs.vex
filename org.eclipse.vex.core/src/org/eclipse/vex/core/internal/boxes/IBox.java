@@ -20,4 +20,6 @@ public interface IBox {
 	int getHeight();
 
 	void accept(IBoxVisitor visitor);
+
+	void layout();
 }
