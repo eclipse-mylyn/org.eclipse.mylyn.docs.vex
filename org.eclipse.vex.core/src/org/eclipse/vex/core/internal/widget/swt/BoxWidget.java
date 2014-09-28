@@ -19,8 +19,10 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
+import org.eclipse.vex.core.internal.boxes.Border;
 import org.eclipse.vex.core.internal.boxes.HorizontalBar;
+import org.eclipse.vex.core.internal.boxes.Margin;
+import org.eclipse.vex.core.internal.boxes.Padding;
 import org.eclipse.vex.core.internal.boxes.RootBox;
 import org.eclipse.vex.core.internal.boxes.VerticalBlock;
 import org.eclipse.vex.core.internal.core.Color;
@@ -43,14 +45,17 @@ public class BoxWidget extends Canvas {
 		}
 
 		rootBox = new RootBox();
-		final HorizontalBar bar = new HorizontalBar();
-		bar.setHeight(10);
-		bar.setColor(Color.BLACK);
-		final VerticalBlock block = new VerticalBlock();
-		block.appendChild(bar);
-		rootBox.appendChild(block);
-
-		rootBox.layout();
+		for (int i = 0; i < 5000; i += 1) {
+			final HorizontalBar bar = new HorizontalBar();
+			bar.setHeight(10);
+			bar.setColor(Color.BLACK);
+			final VerticalBlock block = new VerticalBlock();
+			block.appendChild(bar);
+			block.setMargin(new Margin(10, 20, 30, 40));
+			block.setBorder(new Border(10));
+			block.setPadding(new Padding(15, 25, 35, 45));
+			rootBox.appendChild(block);
+		}
 	}
 
 	private void connectPaintControl() {
@@ -91,12 +96,13 @@ public class BoxWidget extends Canvas {
 	}
 
 	private void paintControl(final PaintEvent event) {
-		event.gc.setBackground(Display.getCurrent().getSystemColor(SWT.COLOR_CYAN));
-		event.gc.fillRectangle(getClientArea());
+		final SwtGraphics graphics = new SwtGraphics(event.gc);
+		rootBox.paint(graphics);
 	}
 
 	private void resize(final ControlEvent event) {
 		rootBox.setWidth(getClientArea().width);
+		rootBox.layout();
 	}
 
 	private void scrollVertically(final SelectionEvent event) {

@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.boxes;
 
+import org.eclipse.vex.core.internal.core.Graphics;
+
 /**
  * @author Florian Thienel
  */
@@ -22,4 +24,6 @@ public interface IBox {
 	void accept(IBoxVisitor visitor);
 
 	void layout();
+
+	void paint(Graphics graphics);
 }

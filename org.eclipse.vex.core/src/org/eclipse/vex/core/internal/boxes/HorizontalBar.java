@@ -11,6 +11,8 @@
 package org.eclipse.vex.core.internal.boxes;
 
 import org.eclipse.vex.core.internal.core.Color;
+import org.eclipse.vex.core.internal.core.ColorResource;
+import org.eclipse.vex.core.internal.core.Graphics;
 
 /**
  * @author Florian Thienel
@@ -75,4 +77,11 @@ public class HorizontalBar implements IChildBox {
 		// ignore, everything is static
 	}
 
+	@Override
+	public void paint(final Graphics graphics) {
+		final ColorResource colorResource = graphics.createColor(color);
+		graphics.setColor(colorResource);
+		graphics.fillRect(0, 0, width, height);
+		colorResource.dispose();
+	}
 }

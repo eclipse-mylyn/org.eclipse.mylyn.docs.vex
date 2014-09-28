@@ -12,6 +12,11 @@ package org.eclipse.vex.core.internal.boxes;
 
 import java.util.ArrayList;
 
+import org.eclipse.vex.core.internal.core.Color;
+import org.eclipse.vex.core.internal.core.ColorResource;
+import org.eclipse.vex.core.internal.core.Graphics;
+import org.eclipse.vex.core.internal.core.RelocatedGraphics;
+
 /**
  * This box arranges child boxes in one vertical column of given width. It has a margin, a border and padding, which
  * reduce the children's width. This box's height depends on the sum of the height of its children.
@@ -106,4 +111,33 @@ public class VerticalBlock implements IChildBox, IParentBox {
 		height += margin.bottom + border.bottom + padding.bottom;
 	}
 
+	@Override
+	public void paint(final Graphics graphics) {
+		drawBorder(graphics);
+		for (final IChildBox child : children) {
+			final Graphics childGraphics = new RelocatedGraphics(graphics, child.getLeft(), child.getTop());
+			child.paint(childGraphics);
+		}
+	}
+
+	private void drawBorder(final Graphics graphics) {
+
+		final ColorResource colorResource = graphics.createColor(Color.BLACK); // TODO store border color
+		graphics.setColor(colorResource);
+
+		drawBorderLine(graphics, border.top, margin.top, margin.left - border.left / 2, margin.top, width - margin.right + border.right / 2);
+		drawBorderLine(graphics, border.left, margin.top - border.top / 2, margin.left, height - margin.bottom + border.bottom / 2, margin.left);
+		drawBorderLine(graphics, border.bottom, height - margin.bottom, margin.left - border.left / 2, height - margin.bottom, width - margin.right + border.right / 2);
+		drawBorderLine(graphics, border.right, margin.top - border.top / 2, width - margin.right, height - margin.bottom + border.bottom / 2, width - margin.right);
+
+		colorResource.dispose();
+	}
+
+	private void drawBorderLine(final Graphics graphics, final int lineWidth, final int top, final int left, final int bottom, final int right) {
+		if (lineWidth <= 0) {
+			return;
+		}
+		graphics.setLineWidth(lineWidth);
+		graphics.drawLine(left, top, right, bottom);
+	}
 }
