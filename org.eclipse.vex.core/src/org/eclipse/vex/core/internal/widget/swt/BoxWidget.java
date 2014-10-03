@@ -31,7 +31,6 @@ import org.eclipse.vex.core.internal.boxes.RootBox;
 import org.eclipse.vex.core.internal.boxes.VerticalBlock;
 import org.eclipse.vex.core.internal.core.Color;
 import org.eclipse.vex.core.internal.core.Graphics;
-import org.eclipse.vex.core.internal.core.RelocatedGraphics;
 
 /**
  * A widget to show the new box model.
@@ -52,7 +51,7 @@ public class BoxWidget extends Canvas {
 		}
 
 		rootBox = new RootBox();
-		for (int i = 0; i < 5000; i += 1) {
+		for (int i = 0; i < 500000; i += 1) {
 			final HorizontalBar bar = new HorizontalBar();
 			bar.setHeight(10);
 			bar.setColor(Color.BLACK);
@@ -127,7 +126,9 @@ public class BoxWidget extends Canvas {
 		final Image bufferImage = new Image(getDisplay(), getSize().x, getSize().y);
 		final GC bufferGC = new GC(bufferImage);
 
-		final Graphics graphics = new RelocatedGraphics(new SwtGraphics(bufferGC), 0, -getVerticalBar().getSelection());
+		final Graphics graphics = new SwtGraphics(bufferGC);
+		graphics.moveOrigin(0, -getVerticalBar().getSelection());
+
 		System.out.print("Painting ");
 		final long start = System.currentTimeMillis();
 		rootBox.paint(graphics);
@@ -135,6 +136,7 @@ public class BoxWidget extends Canvas {
 
 		event.gc.drawImage(bufferImage, 0, 0);
 
+		graphics.dispose();
 		bufferGC.dispose();
 		bufferImage.dispose();
 	}

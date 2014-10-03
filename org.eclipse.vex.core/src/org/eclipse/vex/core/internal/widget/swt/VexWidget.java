@@ -845,7 +845,7 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 		public void paintControl(final PaintEvent e) {
 
 			final SwtGraphics g = new SwtGraphics(e.gc);
-			g.setOrigin(originX, originY);
+			g.moveOrigin(originX, originY);
 
 			Color bgColor = impl.getBackgroundColor();
 			if (bgColor == null) {

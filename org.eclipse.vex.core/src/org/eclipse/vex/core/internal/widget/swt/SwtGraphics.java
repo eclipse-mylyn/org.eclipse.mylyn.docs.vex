@@ -49,8 +49,8 @@ import org.eclipse.vex.core.internal.core.Rectangle;
 public class SwtGraphics implements Graphics {
 
 	private final GC gc;
-	private int originX;
-	private int originY;
+	private int offsetX;
+	private int offsetY;
 
 	/**
 	 * Class constructor.
@@ -64,7 +64,14 @@ public class SwtGraphics implements Graphics {
 
 	@Override
 	public void dispose() {
+		// TODO should not dispose something that comes from outside!
 		gc.dispose();
+	}
+
+	@Override
+	public void moveOrigin(final int offsetX, final int offsetY) {
+		this.offsetX += offsetX;
+		this.offsetY += offsetY;
 	}
 
 	@Override
@@ -75,22 +82,22 @@ public class SwtGraphics implements Graphics {
 
 	@Override
 	public void drawLine(final int x1, final int y1, final int x2, final int y2) {
-		gc.drawLine(x1 + originX, y1 + originY, x2 + originX, y2 + originY);
+		gc.drawLine(x1 + offsetX, y1 + offsetY, x2 + offsetX, y2 + offsetY);
 	}
 
 	@Override
 	public void drawOval(final int x, final int y, final int width, final int height) {
-		gc.drawOval(x + originX, y + originY, width, height);
+		gc.drawOval(x + offsetX, y + offsetY, width, height);
 	}
 
 	@Override
 	public void drawRect(final int x, final int y, final int width, final int height) {
-		gc.drawRectangle(x + originX, y + originY, width, height);
+		gc.drawRectangle(x + offsetX, y + offsetY, width, height);
 	}
 
 	@Override
 	public void drawString(final String s, final int x, final int y) {
-		gc.drawString(s, x + originX, y + originY, true);
+		gc.drawString(s, x + offsetX, y + offsetY, true);
 	}
 
 	@Override
@@ -98,7 +105,7 @@ public class SwtGraphics implements Graphics {
 		Assert.isTrue(image instanceof SwtImage);
 		final org.eclipse.swt.graphics.Image swtImage = new org.eclipse.swt.graphics.Image(gc.getDevice(), ((SwtImage) image).imageData);
 		try {
-			gc.drawImage(swtImage, 0, 0, image.getWidth(), image.getHeight(), x + originX, y + originY, width, height);
+			gc.drawImage(swtImage, 0, 0, image.getWidth(), image.getHeight(), x + offsetX, y + offsetY, width, height);
 		} finally {
 			swtImage.dispose();
 		}
@@ -110,7 +117,7 @@ public class SwtGraphics implements Graphics {
 	 */
 	@Override
 	public void fillOval(final int x, final int y, final int width, final int height) {
-		gc.fillOval(x + originX, y + originY, width, height);
+		gc.fillOval(x + offsetX, y + offsetY, width, height);
 	}
 
 	/**
@@ -119,13 +126,13 @@ public class SwtGraphics implements Graphics {
 	 */
 	@Override
 	public void fillRect(final int x, final int y, final int width, final int height) {
-		gc.fillRectangle(x + originX, y + originY, width, height);
+		gc.fillRectangle(x + offsetX, y + offsetY, width, height);
 	}
 
 	@Override
 	public Rectangle getClipBounds() {
 		final org.eclipse.swt.graphics.Rectangle r = gc.getClipping();
-		return new Rectangle(r.x - originX, r.y - originY, r.width, r.height);
+		return new Rectangle(r.x - offsetX, r.y - offsetY, r.width, r.height);
 	}
 
 	@Override
@@ -266,19 +273,6 @@ public class SwtGraphics implements Graphics {
 		} else {
 			return new SwtColor(Display.getCurrent().getSystemColor(-1));
 		}
-	}
-
-	/**
-	 * Sets the origin of this graphics object. See the class description for more details.
-	 *
-	 * @param x
-	 *            x-coordinate of the origin, relative to the viewport.
-	 * @param y
-	 *            y-coordinate of the origin, relative to the viewport.
-	 */
-	public void setOrigin(final int x, final int y) {
-		originX = x;
-		originY = y;
 	}
 
 	@Override

@@ -14,7 +14,6 @@ import java.util.List;
 
 import org.eclipse.vex.core.internal.core.Graphics;
 import org.eclipse.vex.core.internal.core.Rectangle;
-import org.eclipse.vex.core.internal.core.RelocatedGraphics;
 
 /**
  * @author Florian Thienel
@@ -30,10 +29,16 @@ public class ChildBoxPainter {
 				break;
 			}
 
-			final Graphics childGraphics = new RelocatedGraphics(graphics, child.getLeft(), child.getTop());
-			child.paint(childGraphics);
+			paint(child, graphics);
+
 			i += 1;
 		}
+	}
+
+	private void paint(final IChildBox child, final Graphics graphics) {
+		graphics.moveOrigin(child.getLeft(), child.getTop());
+		child.paint(graphics);
+		graphics.moveOrigin(-child.getLeft(), -child.getTop());
 	}
 
 	private int findIndexOfFirstVisibleChild(final List<IChildBox> children, final Rectangle clipBounds) {

@@ -31,6 +31,8 @@ public interface Graphics {
 
 	public void dispose();
 
+	public void moveOrigin(int offsetX, int offsetY);
+
 	public void drawChars(char[] chars, int offset, int length, int x, int y);
 
 	public void drawLine(int x1, int y1, int x2, int y2);

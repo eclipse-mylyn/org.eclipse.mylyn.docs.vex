@@ -69,6 +69,9 @@ public class FakeGraphics implements Graphics {
 		}
 	};
 
+	public void moveOrigin(final int offsetX, final int offsetY) {
+	}
+
 	@Override
 	public int charsWidth(final char[] data, final int offset, final int length) {
 		return length * charWidth;
