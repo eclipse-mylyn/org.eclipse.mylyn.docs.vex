@@ -142,14 +142,19 @@ public class BoxWidget extends Canvas {
 	}
 
 	private void resize(final ControlEvent event) {
+		if (rootBox.getWidth() != getClientArea().width) {
+			updateRootBoxWidth();
+		}
+		updateVerticalBar();
+	}
+
+	private void updateRootBoxWidth() {
 		rootBox.setWidth(getClientArea().width);
 
 		System.out.print("Layout ");
 		final long start = System.currentTimeMillis();
 		rootBox.layout();
 		System.out.println("took " + (System.currentTimeMillis() - start));
-
-		updateVerticalBar();
 	}
 
 	private void updateVerticalBar() {
