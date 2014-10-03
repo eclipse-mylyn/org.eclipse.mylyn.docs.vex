@@ -42,17 +42,6 @@ public class EndToEndTest {
 
 	private static final String UNIX_SEPARATOR = "\n";
 	private static final String LINE_SEPARATOR = "line.separator";
-	private static final DisplayDevice DD_72DPI = new DisplayDevice() {
-		@Override
-		public int getHorizontalPPI() {
-			return 72;
-		}
-
-		@Override
-		public int getVerticalPPI() {
-			return 72;
-		}
-	};
 
 	@Rule
 	public TestName name = new TestName();
@@ -76,7 +65,7 @@ public class EndToEndTest {
 		final ByteArrayOutputStream traceBuffer = new ByteArrayOutputStream();
 		final PrintStream printStream = createUnixPrintStream(traceBuffer);
 
-		DisplayDevice.setCurrent(DD_72DPI);
+		DisplayDevice.setCurrent(DisplayDevice._72DPI);
 		final TracingHostComponent hostComponent = new TracingHostComponent(printStream);
 		final BaseVexWidget widget = new BaseVexWidget(hostComponent);
 		widget.setDocument(document, styleSheet);

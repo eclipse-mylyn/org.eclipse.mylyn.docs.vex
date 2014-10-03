@@ -27,6 +27,18 @@ public abstract class DisplayDevice {
 		}
 	};
 
+	public static final DisplayDevice _72DPI = new DisplayDevice() {
+		@Override
+		public int getHorizontalPPI() {
+			return 72;
+		}
+
+		@Override
+		public int getVerticalPPI() {
+			return 72;
+		}
+	};
+
 	/**
 	 * Class constructor.
 	 */
