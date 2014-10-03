@@ -189,12 +189,6 @@
             id="org.eclipse.vex.ui.SetProcessingInstructionTargetCommand"
             name="%command.setProcessingInstructionTarget.name">
       </command>
-      <command
-            categoryId="org.eclipse.vex.ui.commands.category"
-            defaultHandler="org.eclipse.vex.ui.boxview.RefreshHandler"
-            id="org.eclipse.vex.ui.RefreshBoxViewCommand"
-            name="Refresh Box View">
-      </command>
 
    </extension>
    <extension
@@ -780,6 +774,15 @@
             <reference definitionId="org.eclipse.vex.ui.activeVexEditor"/>
          </activeWhen>
       </handler>
+      <handler
+            class="org.eclipse.vex.ui.boxview.RefreshHandler"
+            commandId="org.eclipse.ui.file.refresh">
+         <activeWhen>
+            <reference
+                  definitionId="org.eclipse.vex.ui.activeBoxView">
+            </reference>
+         </activeWhen>
+      </handler>
 
       <!-- TODO:
 		   - org.eclipse.ui.edit.text.join.lines
@@ -955,6 +958,15 @@
                </equals>
             </with>
          </or>
+      </definition>
+      <definition
+            id="org.eclipse.vex.ui.activeBoxView">
+         <with
+               variable="activePartId">
+            <equals
+                  value="org.eclipse.vex.ui.views.box">
+            </equals>
+         </with>
       </definition>
    </extension>
    <extension
@@ -1268,10 +1280,10 @@
       </menuContribution>
       <menuContribution
             allPopups="false"
-            locationURI="menu:org.eclipse.vex.ui.views.box">
+            locationURI="toolbar:org.eclipse.vex.ui.views.box">
          <command
-               commandId="org.eclipse.vex.ui.RefreshBoxViewCommand"
-               icon="icons/vex16.png"
+               commandId="org.eclipse.ui.file.refresh"
+               icon="icons/refresh.gif"
                label="Refresh"
                style="push"
                tooltip="Refresh the BoxView">
