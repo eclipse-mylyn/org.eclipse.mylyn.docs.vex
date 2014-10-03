@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.boxes;
 
+import org.eclipse.vex.core.internal.core.Rectangle;
+
 /**
  * @author Florian Thienel
  */
@@ -22,5 +24,10 @@ public interface IChildBox extends IBox {
 	int getLeft();
 
 	void setWidth(int width);
+
+	/**
+	 * The bounds are always relative to the parent box.
+	 */
+	Rectangle getBounds();
 
 }

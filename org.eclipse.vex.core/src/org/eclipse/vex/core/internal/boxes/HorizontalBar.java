@@ -13,6 +13,7 @@ package org.eclipse.vex.core.internal.boxes;
 import org.eclipse.vex.core.internal.core.Color;
 import org.eclipse.vex.core.internal.core.ColorResource;
 import org.eclipse.vex.core.internal.core.Graphics;
+import org.eclipse.vex.core.internal.core.Rectangle;
 
 /**
  * @author Florian Thienel
@@ -58,6 +59,11 @@ public class HorizontalBar implements IChildBox {
 
 	public void setHeight(final int height) {
 		this.height = height;
+	}
+
+	@Override
+	public Rectangle getBounds() {
+		return new Rectangle(left, top, width, height);
 	}
 
 	public Color getColor() {

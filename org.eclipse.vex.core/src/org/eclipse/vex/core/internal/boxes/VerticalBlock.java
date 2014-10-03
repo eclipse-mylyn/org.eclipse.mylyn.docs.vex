@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import org.eclipse.vex.core.internal.core.Color;
 import org.eclipse.vex.core.internal.core.ColorResource;
 import org.eclipse.vex.core.internal.core.Graphics;
+import org.eclipse.vex.core.internal.core.Rectangle;
 import org.eclipse.vex.core.internal.core.RelocatedGraphics;
 
 /**
@@ -59,6 +60,11 @@ public class VerticalBlock implements IChildBox, IParentBox {
 	@Override
 	public int getHeight() {
 		return height;
+	}
+
+	@Override
+	public Rectangle getBounds() {
+		return new Rectangle(left, top, width, height);
 	}
 
 	@Override
