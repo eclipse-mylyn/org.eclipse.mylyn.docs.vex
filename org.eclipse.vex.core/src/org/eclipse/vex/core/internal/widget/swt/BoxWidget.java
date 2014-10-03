@@ -13,6 +13,8 @@ package org.eclipse.vex.core.internal.widget.swt;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.ControlListener;
+import org.eclipse.swt.events.DisposeEvent;
+import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.events.SelectionEvent;
@@ -34,10 +36,11 @@ import org.eclipse.vex.core.internal.core.Color;
  */
 public class BoxWidget extends Canvas {
 
-	private final RootBox rootBox;
+	private/* final */RootBox rootBox;
 
 	public BoxWidget(final Composite parent, final int style) {
 		super(parent, style);
+		connectDispose();
 		connectPaintControl();
 		connectResize();
 		if ((style & SWT.V_SCROLL) == SWT.V_SCROLL) {
@@ -45,7 +48,7 @@ public class BoxWidget extends Canvas {
 		}
 
 		rootBox = new RootBox();
-		for (int i = 0; i < 5000; i += 1) {
+		for (int i = 0; i < 900000; i += 1) {
 			final HorizontalBar bar = new HorizontalBar();
 			bar.setHeight(10);
 			bar.setColor(Color.BLACK);
@@ -56,6 +59,15 @@ public class BoxWidget extends Canvas {
 			block.setPadding(new Padding(15, 25, 35, 45));
 			rootBox.appendChild(block);
 		}
+	}
+
+	private void connectDispose() {
+		addDisposeListener(new DisposeListener() {
+			@Override
+			public void widgetDisposed(final DisposeEvent e) {
+				BoxWidget.this.widgetDisposed();
+			}
+		});
 	}
 
 	private void connectPaintControl() {
@@ -93,6 +105,10 @@ public class BoxWidget extends Canvas {
 				// ignore
 			}
 		});
+	}
+
+	private void widgetDisposed() {
+		rootBox = null;
 	}
 
 	private void paintControl(final PaintEvent event) {

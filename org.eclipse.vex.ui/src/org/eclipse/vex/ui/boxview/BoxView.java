@@ -32,6 +32,12 @@ public class BoxView extends ViewPart {
 	}
 
 	@Override
+	public void dispose() {
+		super.dispose();
+		boxWidget = null;
+	}
+
+	@Override
 	public void setFocus() {
 		boxWidget.setFocus();
 	}
@@ -39,8 +45,18 @@ public class BoxView extends ViewPart {
 	public void refresh() {
 		if (boxWidget != null) {
 			boxWidget.dispose();
+			boxWidget = null;
+			cleanStaleReferenceInShell();
 		}
 		boxWidget = new BoxWidget(parent, SWT.V_SCROLL);
 		parent.layout();
+	}
+
+	private void cleanStaleReferenceInShell() {
+		/*
+		 * Shell keeps a reference to the boxWidget in Shell.savedFocus. parent.setFocus() forces Shell to store a
+		 * reference to parent instead.
+		 */
+		parent.setFocus();
 	}
 }
