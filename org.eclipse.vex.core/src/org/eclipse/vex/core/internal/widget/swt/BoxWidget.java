@@ -19,6 +19,8 @@ import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
+import org.eclipse.swt.graphics.GC;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.vex.core.internal.boxes.Border;
@@ -41,7 +43,7 @@ public class BoxWidget extends Canvas {
 	private/* final */RootBox rootBox;
 
 	public BoxWidget(final Composite parent, final int style) {
-		super(parent, style);
+		super(parent, style | SWT.NO_BACKGROUND);
 		connectDispose();
 		connectPaintControl();
 		connectResize();
@@ -50,7 +52,7 @@ public class BoxWidget extends Canvas {
 		}
 
 		rootBox = new RootBox();
-		for (int i = 0; i < 900000; i += 1) {
+		for (int i = 0; i < 5000; i += 1) {
 			final HorizontalBar bar = new HorizontalBar();
 			bar.setHeight(10);
 			bar.setColor(Color.BLACK);
@@ -114,11 +116,27 @@ public class BoxWidget extends Canvas {
 	}
 
 	private void paintControl(final PaintEvent event) {
-		final Graphics graphics = new RelocatedGraphics(new SwtGraphics(event.gc), 0, -getVerticalBar().getSelection());
+		/*
+		 * Use double buffering to render the box model to prevent flickering e.g. while scrolling. This works only in
+		 * conjunction with the style bit SWT.NO_BACKGROUND.
+		 * 
+		 * @see
+		 * http://git.eclipse.org/c/platform/eclipse.platform.swt.git/tree/examples/org.eclipse.swt.snippets/src/org
+		 * /eclipse/swt/snippets/Snippet48.java
+		 */
+		final Image bufferImage = new Image(getDisplay(), getSize().x, getSize().y);
+		final GC bufferGC = new GC(bufferImage);
+
+		final Graphics graphics = new RelocatedGraphics(new SwtGraphics(bufferGC), 0, -getVerticalBar().getSelection());
 		System.out.print("Painting ");
 		final long start = System.currentTimeMillis();
 		rootBox.paint(graphics);
 		System.out.println("took " + (System.currentTimeMillis() - start));
+
+		event.gc.drawImage(bufferImage, 0, 0);
+
+		bufferGC.dispose();
+		bufferImage.dispose();
 	}
 
 	private void resize(final ControlEvent event) {
