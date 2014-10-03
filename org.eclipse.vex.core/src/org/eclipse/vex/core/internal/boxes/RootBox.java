@@ -13,7 +13,6 @@ package org.eclipse.vex.core.internal.boxes;
 import java.util.ArrayList;
 
 import org.eclipse.vex.core.internal.core.Graphics;
-import org.eclipse.vex.core.internal.core.RelocatedGraphics;
 
 /**
  * @author Florian Thienel
@@ -23,6 +22,7 @@ public class RootBox implements IParentBox {
 	private int width;
 	private int height;
 	private final ArrayList<IChildBox> children = new ArrayList<IChildBox>();
+	private final ChildBoxPainter childBoxPainter = new ChildBoxPainter();
 
 	public int getWidth() {
 		return width;
@@ -62,9 +62,6 @@ public class RootBox implements IParentBox {
 
 	@Override
 	public void paint(final Graphics graphics) {
-		for (final IChildBox child : children) {
-			final Graphics childGraphics = new RelocatedGraphics(graphics, child.getLeft(), child.getTop());
-			child.paint(childGraphics);
-		}
+		childBoxPainter.paint(children, graphics);
 	}
 }

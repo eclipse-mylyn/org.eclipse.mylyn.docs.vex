@@ -16,7 +16,6 @@ import org.eclipse.vex.core.internal.core.Color;
 import org.eclipse.vex.core.internal.core.ColorResource;
 import org.eclipse.vex.core.internal.core.Graphics;
 import org.eclipse.vex.core.internal.core.Rectangle;
-import org.eclipse.vex.core.internal.core.RelocatedGraphics;
 
 /**
  * This box arranges child boxes in one vertical column of given width. It has a margin, a border and padding, which
@@ -34,6 +33,8 @@ public class VerticalBlock implements IChildBox, IParentBox {
 	private Margin margin = Margin.NULL;
 	private Border border = Border.NULL;
 	private Padding padding = Padding.NULL;
+
+	private final ChildBoxPainter childBoxPainter = new ChildBoxPainter();
 
 	public int getTop() {
 		return top;
@@ -120,10 +121,7 @@ public class VerticalBlock implements IChildBox, IParentBox {
 	@Override
 	public void paint(final Graphics graphics) {
 		drawBorder(graphics);
-		for (final IChildBox child : children) {
-			final Graphics childGraphics = new RelocatedGraphics(graphics, child.getLeft(), child.getTop());
-			child.paint(childGraphics);
-		}
+		childBoxPainter.paint(children, graphics);
 	}
 
 	private void drawBorder(final Graphics graphics) {
