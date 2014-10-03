@@ -97,12 +97,18 @@ public class BoxWidget extends Canvas {
 
 	private void paintControl(final PaintEvent event) {
 		final SwtGraphics graphics = new SwtGraphics(event.gc);
+		System.out.print("Painting ");
+		final long start = System.currentTimeMillis();
 		rootBox.paint(graphics);
+		System.out.println("took " + (System.currentTimeMillis() - start));
 	}
 
 	private void resize(final ControlEvent event) {
 		rootBox.setWidth(getClientArea().width);
+		System.out.print("Layouting ");
+		final long start = System.currentTimeMillis();
 		rootBox.layout();
+		System.out.println("took " + (System.currentTimeMillis() - start));
 	}
 
 	private void scrollVertically(final SelectionEvent event) {

@@ -51,7 +51,6 @@ public class RootBox implements IParentBox {
 	}
 
 	public void layout() {
-		final long start = System.currentTimeMillis();
 		height = 0;
 		for (final IChildBox child : children) {
 			child.setPosition(height, 0);
@@ -59,16 +58,13 @@ public class RootBox implements IParentBox {
 			child.layout();
 			height += child.getHeight();
 		}
-		System.out.println("layout took " + (System.currentTimeMillis() - start));
 	}
 
 	@Override
 	public void paint(final Graphics graphics) {
-		final long start = System.currentTimeMillis();
 		for (final IChildBox child : children) {
 			final Graphics childGraphics = new RelocatedGraphics(graphics, child.getLeft(), child.getTop());
 			child.paint(childGraphics);
 		}
-		System.out.println("Painting took " + (System.currentTimeMillis() - start));
 	}
 }
