@@ -109,7 +109,8 @@ public class VerticalBlock implements IChildBox, IParentBox {
 		height = margin.top + border.top + padding.top;
 		final int left = margin.left + border.left + padding.left;
 		final int childrenWidth = width - (margin.left + margin.right + border.left + border.right + padding.left + padding.right);
-		for (final IChildBox child : children) {
+		for (int i = 0; i < children.size(); i += 1) {
+			final IChildBox child = children.get(i);
 			child.setPosition(height, left);
 			child.setWidth(childrenWidth);
 			child.layout();

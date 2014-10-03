@@ -52,7 +52,8 @@ public class RootBox implements IParentBox {
 
 	public void layout() {
 		height = 0;
-		for (final IChildBox child : children) {
+		for (int i = 0; i < children.size(); i += 1) {
+			final IChildBox child = children.get(i);
 			child.setPosition(height, 0);
 			child.setWidth(width);
 			child.layout();
