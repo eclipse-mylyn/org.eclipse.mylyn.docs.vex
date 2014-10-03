@@ -31,6 +31,14 @@ public class Rectangle {
 		return rect.x < x + width && rect.x + rect.width > x && rect.y < y + height && rect.y + rect.height > y;
 	}
 
+	public boolean below(final Rectangle rect) {
+		return y >= rect.y + rect.height;
+	}
+
+	public boolean above(final Rectangle rect) {
+		return y + height <= rect.y;
+	}
+
 	@Override
 	public String toString() {
 		final StringBuffer sb = new StringBuffer(80);
