@@ -28,6 +28,8 @@ import org.eclipse.vex.core.internal.boxes.Padding;
 import org.eclipse.vex.core.internal.boxes.RootBox;
 import org.eclipse.vex.core.internal.boxes.VerticalBlock;
 import org.eclipse.vex.core.internal.core.Color;
+import org.eclipse.vex.core.internal.core.Graphics;
+import org.eclipse.vex.core.internal.core.RelocatedGraphics;
 
 /**
  * A widget to show the new box model.
@@ -112,7 +114,7 @@ public class BoxWidget extends Canvas {
 	}
 
 	private void paintControl(final PaintEvent event) {
-		final SwtGraphics graphics = new SwtGraphics(event.gc);
+		final Graphics graphics = new RelocatedGraphics(new SwtGraphics(event.gc), 0, -getVerticalBar().getSelection());
 		System.out.print("Painting ");
 		final long start = System.currentTimeMillis();
 		rootBox.paint(graphics);
@@ -121,13 +123,22 @@ public class BoxWidget extends Canvas {
 
 	private void resize(final ControlEvent event) {
 		rootBox.setWidth(getClientArea().width);
-		System.out.print("Layouting ");
+
+		System.out.print("Layout ");
 		final long start = System.currentTimeMillis();
 		rootBox.layout();
 		System.out.println("took " + (System.currentTimeMillis() - start));
+
+		updateVerticalBar();
+	}
+
+	private void updateVerticalBar() {
+		final int maximum = rootBox.getHeight();
+		final int pageSize = getClientArea().height;
+		getVerticalBar().setValues(0, 0, maximum, pageSize, 1, pageSize);
 	}
 
 	private void scrollVertically(final SelectionEvent event) {
-
+		redraw();
 	}
 }
