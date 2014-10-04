@@ -10,33 +10,27 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.boxes;
 
+import org.eclipse.vex.core.internal.core.Rectangle;
+
 /**
  * @author Florian Thienel
  */
-public class BaseBoxVisitor implements IBoxVisitor {
+public interface IInlineBox extends IBox {
 
-	@Override
-	public void visit(final RootBox box) {
-		// ignore
-	}
+	void setPosition(int top, int left);
 
-	@Override
-	public void visit(final VerticalBlock box) {
-		// ignore
-	}
+	int getTop();
 
-	@Override
-	public void visit(final HorizontalBar box) {
-		// ignore
-	}
+	int getLeft();
 
-	@Override
-	public void visit(final Paragraph box) {
-		// ignore
-	}
+	/**
+	 * The baseline is relative to the top of this box.
+	 */
+	int getBaseline();
 
-	@Override
-	public void visit(final StaticText box) {
-		// ignore
-	}
+	/**
+	 * The bounds are always relative to the parent box.
+	 */
+	Rectangle getBounds();
+
 }

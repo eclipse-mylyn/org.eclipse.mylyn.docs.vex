@@ -71,16 +71,32 @@ public class BoxWidget extends Canvas {
 		}
 
 		rootBox = new RootBox();
-		for (int i = 0; i < 500000; i += 1) {
-			final HorizontalBar bar = new HorizontalBar();
-			bar.setHeight(10);
-			bar.setColor(Color.BLACK);
+		for (int i = 0; i < 50000; i += 1) {
 			final VerticalBlock block = new VerticalBlock();
-			block.appendChild(bar);
 			block.setMargin(new Margin(10, 20, 30, 40));
 			block.setBorder(new Border(10));
 			block.setPadding(new Padding(15, 25, 35, 45));
 			rootBox.appendChild(block);
+
+			final HorizontalBar upperBar = new HorizontalBar();
+			upperBar.setHeight(2);
+			upperBar.setColor(Color.BLACK);
+			block.appendChild(upperBar);
+
+			final Paragraph paragraph = new Paragraph();
+			block.appendChild(paragraph);
+
+			for (int j = 0; j < 20; j += 1) {
+				final StaticText lorem = new StaticText();
+				lorem.setText("Lorem ipsum " + i + " ");
+				lorem.setFont(new FontSpec(new String[] { "Arial" }, 0, 10.0f + j));
+				paragraph.appendChild(lorem);
+			}
+
+			final HorizontalBar lowerBar = new HorizontalBar();
+			lowerBar.setHeight(2);
+			lowerBar.setColor(Color.BLACK);
+			block.appendChild(lowerBar);
 		}
 	}
 

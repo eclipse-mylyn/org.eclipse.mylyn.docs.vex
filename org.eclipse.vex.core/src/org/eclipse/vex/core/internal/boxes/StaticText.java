@@ -1,0 +1,118 @@
+/*******************************************************************************
+ * Copyright (c) 2014 Florian Thienel and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ * 		Florian Thienel - initial API and implementation
+ *******************************************************************************/
+package org.eclipse.vex.core.internal.boxes;
+
+import org.eclipse.vex.core.internal.core.FontMetrics;
+import org.eclipse.vex.core.internal.core.FontResource;
+import org.eclipse.vex.core.internal.core.FontSpec;
+import org.eclipse.vex.core.internal.core.Graphics;
+import org.eclipse.vex.core.internal.core.Rectangle;
+
+/**
+ * @author Florian Thienel
+ */
+public class StaticText implements IInlineBox {
+
+	private int top;
+	private int left;
+	private int width;
+	private int height;
+	private int baseline;
+
+	private String text;
+	private FontSpec fontSpec;
+
+	private boolean layoutValid;
+
+	@Override
+	public void setPosition(final int top, final int left) {
+		this.top = top;
+		this.left = left;
+	}
+
+	@Override
+	public Rectangle getBounds() {
+		return new Rectangle(left, top, width, height);
+	}
+
+	@Override
+	public int getTop() {
+		return top;
+	}
+
+	@Override
+	public int getLeft() {
+		return left;
+	}
+
+	@Override
+	public int getWidth() {
+		return width;
+	}
+
+	@Override
+	public int getHeight() {
+		return height;
+	}
+
+	@Override
+	public int getBaseline() {
+		return baseline;
+	}
+
+	public String getText() {
+		return text;
+	}
+
+	public void setText(final String text) {
+		this.text = text;
+		layoutValid = false;
+	}
+
+	public FontSpec getFont() {
+		return fontSpec;
+	}
+
+	public void setFont(final FontSpec fontSpec) {
+		this.fontSpec = fontSpec;
+		layoutValid = false;
+	}
+
+	@Override
+	public void accept(final IBoxVisitor visitor) {
+		visitor.visit(this);
+	}
+
+	@Override
+	public void layout(final Graphics graphics) {
+		if (layoutValid) {
+			return;
+		}
+
+		final FontResource font = graphics.getFont(fontSpec);
+		graphics.setCurrentFont(font);
+		width = graphics.stringWidth(text);
+
+		final FontMetrics fontMetrics = graphics.getFontMetrics();
+		height = fontMetrics.getHeight();
+		baseline = fontMetrics.getAscent() + fontMetrics.getLeading();
+
+		layoutValid = true;
+	}
+
+	@Override
+	public void paint(final Graphics graphics) {
+		final FontResource font = graphics.getFont(fontSpec);
+		graphics.setCurrentFont(font);
+		graphics.drawString(text, 0, 0);
+	}
+
+}
