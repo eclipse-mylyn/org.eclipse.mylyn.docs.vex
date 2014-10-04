@@ -92,12 +92,11 @@ public abstract class CompositeInlineBox extends AbstractInlineBox {
 		final Graphics g = context.getGraphics();
 		final Styles styles = context.getStyleSheet().getStyles(getNode());
 
-		final FontResource font = g.createFont(styles.getFont());
-		final FontResource oldFont = g.setFont(font);
+		final FontResource font = g.getFont(styles.getFont());
+		final FontResource oldFont = g.setCurrentFont(font);
 		final FontMetrics fm = g.getFontMetrics();
 		final int height = fm.getAscent() + fm.getDescent();
-		g.setFont(oldFont);
-		font.dispose();
+		g.setCurrentFont(oldFont);
 
 		final int lineHeight = styles.getLineHeight();
 		final int y = (lineHeight - height) / 2;

@@ -27,7 +27,7 @@ public interface Graphics {
 
 	public ColorResource createColor(Color rgb);
 
-	public FontResource createFont(FontSpec fontSpec);
+	public FontResource getFont(FontSpec fontSpec);
 
 	public void dispose();
 
@@ -63,7 +63,7 @@ public interface Graphics {
 
 	public ColorResource getColor();
 
-	public FontResource getFont();
+	public FontResource getCurrentFont();
 
 	public int getLineStyle();
 
@@ -81,7 +81,7 @@ public interface Graphics {
 
 	public ColorResource setColor(ColorResource color);
 
-	public FontResource setFont(FontResource font);
+	public FontResource setCurrentFont(FontResource font);
 
 	public void setLineStyle(int style);
 

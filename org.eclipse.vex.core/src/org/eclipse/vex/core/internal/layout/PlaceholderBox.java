@@ -48,8 +48,8 @@ public class PlaceholderBox extends AbstractInlineBox {
 
 		final Graphics g = context.getGraphics();
 		final Styles styles = context.getStyleSheet().getStyles(node);
-		final FontResource font = g.createFont(styles.getFont());
-		final FontResource oldFont = g.setFont(font);
+		final FontResource font = g.getFont(styles.getFont());
+		final FontResource oldFont = g.setCurrentFont(font);
 		final FontMetrics fm = g.getFontMetrics();
 		final int height = fm.getAscent() + fm.getDescent();
 
@@ -58,8 +58,7 @@ public class PlaceholderBox extends AbstractInlineBox {
 
 		baseline = textTop + fm.getAscent();
 		setHeight(lineHeight);
-		g.setFont(oldFont);
-		font.dispose();
+		g.setCurrentFont(oldFont);
 	}
 
 	/**

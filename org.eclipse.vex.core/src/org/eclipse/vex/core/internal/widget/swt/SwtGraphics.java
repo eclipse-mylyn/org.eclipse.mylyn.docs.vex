@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.text.MessageFormat;
+import java.util.HashMap;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IStatus;
@@ -52,6 +53,11 @@ public class SwtGraphics implements Graphics {
 	private int offsetX;
 	private int offsetY;
 
+	private final HashMap<FontSpec, FontResource> fonts = new HashMap<FontSpec, FontResource>();
+
+	private SwtFont currentFont;
+	private SwtFontMetrics currentFontMetrics;
+
 	/**
 	 * Class constructor.
 	 *
@@ -60,10 +66,16 @@ public class SwtGraphics implements Graphics {
 	 */
 	public SwtGraphics(final GC gc) {
 		this.gc = gc;
+		currentFont = new SwtFont(gc.getFont());
 	}
 
 	@Override
 	public void dispose() {
+		for (final FontResource font : fonts.values()) {
+			font.dispose();
+		}
+		fonts.clear();
+
 		// TODO should not dispose something that comes from outside!
 		gc.dispose();
 	}
@@ -141,13 +153,26 @@ public class SwtGraphics implements Graphics {
 	}
 
 	@Override
-	public FontResource getFont() {
-		return new SwtFont(gc.getFont());
+	public FontResource getCurrentFont() {
+		return currentFont;
+	}
+
+	@Override
+	public FontResource setCurrentFont(final FontResource font) {
+		if (font == currentFont) {
+			return currentFont;
+		}
+
+		final FontResource oldFont = getCurrentFont();
+		currentFont = (SwtFont) font;
+		gc.setFont(currentFont.getSwtFont());
+		currentFontMetrics = new SwtFontMetrics(gc.getFontMetrics());
+		return oldFont;
 	}
 
 	@Override
 	public FontMetrics getFontMetrics() {
-		return new SwtFontMetrics(gc.getFontMetrics());
+		return currentFontMetrics;
 	}
 
 	@Override
@@ -205,13 +230,6 @@ public class SwtGraphics implements Graphics {
 	}
 
 	@Override
-	public FontResource setFont(final FontResource font) {
-		final FontResource oldFont = getFont();
-		gc.setFont(((SwtFont) font).getSwtFont());
-		return oldFont;
-	}
-
-	@Override
 	public void setLineStyle(final int lineStyle) {
 		this.lineStyle = lineStyle;
 		switch (lineStyle) {
@@ -243,7 +261,16 @@ public class SwtGraphics implements Graphics {
 	}
 
 	@Override
-	public FontResource createFont(final FontSpec fontSpec) {
+	public FontResource getFont(final FontSpec fontSpec) {
+		FontResource font = fonts.get(fontSpec);
+		if (font == null) {
+			font = createFont(fontSpec);
+			fonts.put(fontSpec, font);
+		}
+		return font;
+	}
+
+	private FontResource createFont(final FontSpec fontSpec) {
 		int style = SWT.NORMAL;
 		if ((fontSpec.getStyle() & FontSpec.BOLD) > 0) {
 			style |= SWT.BOLD;

@@ -135,10 +135,10 @@ public class StaticTextBox extends TextBox {
 			drawSelected = getNode().getEndOffset() >= context.getSelectionStart() && getNode().getEndOffset() + 1 <= context.getSelectionEnd();
 		}
 
-		final FontResource font = g.createFont(styles.getFont());
+		final FontResource font = g.getFont(styles.getFont());
 		final ColorResource color = g.createColor(styles.getColor());
 
-		final FontResource oldFont = g.setFont(font);
+		final FontResource oldFont = g.setCurrentFont(font);
 		final ColorResource oldColor = g.setColor(color);
 
 		if (drawSelected) {
@@ -148,9 +148,8 @@ public class StaticTextBox extends TextBox {
 		}
 		paintTextDecoration(context, styles, getText(), x, y);
 
-		g.setFont(oldFont);
+		g.setCurrentFont(oldFont);
 		g.setColor(oldColor);
-		font.dispose();
 		color.dispose();
 	}
 

@@ -427,14 +427,13 @@ public class InlineElementBox extends CompositeInlineBox {
 	private void layout(final LayoutContext context) {
 		final Graphics g = context.getGraphics();
 		final Styles styles = context.getStyleSheet().getStyles(node);
-		final FontResource font = g.createFont(styles.getFont());
-		final FontResource oldFont = g.setFont(font);
+		final FontResource font = g.getFont(styles.getFont());
+		final FontResource oldFont = g.setCurrentFont(font);
 		final FontMetrics fm = g.getFontMetrics();
 		setHeight(styles.getLineHeight());
 		halfLeading = (styles.getLineHeight() - fm.getAscent() - fm.getDescent()) / 2;
 		baseline = halfLeading + fm.getAscent();
-		g.setFont(oldFont);
-		font.dispose();
+		g.setCurrentFont(oldFont);
 
 		int x = 0;
 		for (final InlineBox child : children) {

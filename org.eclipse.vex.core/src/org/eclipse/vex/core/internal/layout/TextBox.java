@@ -88,14 +88,13 @@ public abstract class TextBox extends AbstractInlineBox implements InlineBox {
 
 		final Graphics g = context.getGraphics();
 		final Styles styles = context.getStyleSheet().getStyles(getNode());
-		final FontResource font = g.createFont(styles.getFont());
-		final FontResource oldFont = g.setFont(font);
+		final FontResource font = g.getFont(styles.getFont());
+		final FontResource oldFont = g.setCurrentFont(font);
 		final FontMetrics fm = g.getFontMetrics();
 		setHeight(styles.getLineHeight());
 		final int halfLeading = (getHeight() - (fm.getAscent() + fm.getDescent())) / 2;
 		setBaseline(halfLeading + fm.getAscent());
-		g.setFont(oldFont);
-		font.dispose();
+		g.setCurrentFont(oldFont);
 	}
 
 	/**
@@ -120,13 +119,12 @@ public abstract class TextBox extends AbstractInlineBox implements InlineBox {
 	public Caret getCaret(final LayoutContext context, final ContentPosition position) {
 		final Graphics g = context.getGraphics();
 		final Styles styles = context.getStyleSheet().getStyles(node);
-		final FontResource oldFont = g.getFont();
-		final FontResource font = g.createFont(styles.getFont());
-		g.setFont(font);
+		final FontResource oldFont = g.getCurrentFont();
+		final FontResource font = g.getFont(styles.getFont());
+		g.setCurrentFont(font);
 		final char[] chars = getText().toCharArray();
 		final int x = g.charsWidth(chars, 0, position.getOffset() - getStartOffset());
-		g.setFont(oldFont);
-		font.dispose();
+		g.setCurrentFont(oldFont);
 		return new TextCaret(x, 0, getHeight());
 	}
 
@@ -258,8 +256,8 @@ public abstract class TextBox extends AbstractInlineBox implements InlineBox {
 		final Graphics g = context.getGraphics();
 		final Styles styles = context.getStyleSheet().getStyles(node);
 
-		final FontResource font = g.createFont(styles.getFont());
-		final FontResource oldFont = g.setFont(font);
+		final FontResource font = g.getFont(styles.getFont());
+		final FontResource oldFont = g.setCurrentFont(font);
 
 		int split = 0;
 		int next = 1;
@@ -311,8 +309,7 @@ public abstract class TextBox extends AbstractInlineBox implements InlineBox {
 		final Pair splitPair = splitAt(context, split, splitWidth, maxWidth);
 
 		// The created font is used by the calculateSize() method, so we have to keep it till after the splitAt method call.
-		g.setFont(oldFont);
-		font.dispose();
+		g.setCurrentFont(oldFont);
 
 		return splitPair;
 	}

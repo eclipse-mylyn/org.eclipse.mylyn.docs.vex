@@ -104,4 +104,39 @@ public class FontSpec {
 			builder.append(representation);
 		}
 	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + Arrays.hashCode(names);
+		result = prime * result + Float.floatToIntBits(size);
+		result = prime * result + style;
+		return result;
+	}
+
+	@Override
+	public boolean equals(final Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		final FontSpec other = (FontSpec) obj;
+		if (!Arrays.equals(names, other.names)) {
+			return false;
+		}
+		if (Float.floatToIntBits(size) != Float.floatToIntBits(other.size)) {
+			return false;
+		}
+		if (style != other.style) {
+			return false;
+		}
+		return true;
+	}
+
 }

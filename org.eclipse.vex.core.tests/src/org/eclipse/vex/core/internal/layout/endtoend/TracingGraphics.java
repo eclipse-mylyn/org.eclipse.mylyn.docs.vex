@@ -80,7 +80,7 @@ public class TracingGraphics implements Graphics {
 	}
 
 	@Override
-	public FontResource createFont(final FontSpec fontSpec) {
+	public FontResource getFont(final FontSpec fontSpec) {
 		tracer.trace("Graphics.createFont({0})", fontSpec);
 		return new TracingFontResource(tracer, fontSpec);
 	}
@@ -141,7 +141,7 @@ public class TracingGraphics implements Graphics {
 	}
 
 	@Override
-	public FontResource getFont() {
+	public FontResource getCurrentFont() {
 		return font;
 	}
 
@@ -192,9 +192,9 @@ public class TracingGraphics implements Graphics {
 	}
 
 	@Override
-	public FontResource setFont(final FontResource font) {
+	public FontResource setCurrentFont(final FontResource font) {
 		tracer.trace("Graphics.setFont({0})", font);
-		final FontResource oldFont = getFont();
+		final FontResource oldFont = getCurrentFont();
 		this.font = font;
 		return oldFont;
 	}

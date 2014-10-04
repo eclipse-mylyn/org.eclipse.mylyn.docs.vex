@@ -87,7 +87,7 @@ public class FakeGraphics implements Graphics {
 	}
 
 	@Override
-	public FontResource createFont(final FontSpec fontSpec) {
+	public FontResource getFont(final FontSpec fontSpec) {
 		return new FontResource() {
 			@Override
 			public void dispose() {
@@ -152,7 +152,7 @@ public class FakeGraphics implements Graphics {
 	}
 
 	@Override
-	public FontResource getFont() {
+	public FontResource getCurrentFont() {
 		return null;
 	}
 
@@ -200,7 +200,7 @@ public class FakeGraphics implements Graphics {
 	}
 
 	@Override
-	public FontResource setFont(final FontResource font) {
+	public FontResource setCurrentFont(final FontResource font) {
 		return null;
 	}
 

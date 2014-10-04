@@ -141,8 +141,8 @@ public class DocumentTextBox extends TextBox {
 		final Styles styles = context.getStyleSheet().getStyles(getNode());
 		final Graphics g = context.getGraphics();
 
-		final FontResource font = g.createFont(styles.getFont());
-		final FontResource oldFont = g.setFont(font);
+		final FontResource font = g.getFont(styles.getFont());
+		final FontResource oldFont = g.setCurrentFont(font);
 		final ColorResource foreground = g.createColor(styles.getColor());
 		final ColorResource oldForeground = g.setColor(foreground);
 		// ColorResource background =
@@ -192,10 +192,9 @@ public class DocumentTextBox extends TextBox {
 			paintTextDecoration(context, styles, s, x1, y);
 		}
 
-		g.setFont(oldFont);
+		g.setCurrentFont(oldFont);
 		g.setColor(oldForeground);
 		// g.setBackgroundColor(oldBackground);
-		font.dispose();
 		foreground.dispose();
 		// background.dispose();
 	}
@@ -245,8 +244,8 @@ public class DocumentTextBox extends TextBox {
 
 		final Graphics g = context.getGraphics();
 		final Styles styles = context.getStyleSheet().getStyles(getNode());
-		final FontResource font = g.createFont(styles.getFont());
-		final FontResource oldFont = g.setFont(font);
+		final FontResource font = g.getFont(styles.getFont());
+		final FontResource oldFont = g.setCurrentFont(font);
 		final char[] chars = getText().toCharArray();
 
 		if (getWidth() <= 0) {
@@ -280,8 +279,7 @@ public class DocumentTextBox extends TextBox {
 			offset++;
 		}
 
-		g.setFont(oldFont);
-		font.dispose();
+		g.setCurrentFont(oldFont);
 		return new ContentPosition(getNode(), getStartOffset() + offset);
 	}
 
