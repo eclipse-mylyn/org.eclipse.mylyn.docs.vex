@@ -50,13 +50,13 @@ public class RootBox implements IParentBox {
 		children.add(child);
 	}
 
-	public void layout() {
+	public void layout(Graphics graphics) {
 		height = 0;
 		for (int i = 0; i < children.size(); i += 1) {
 			final IChildBox child = children.get(i);
 			child.setPosition(height, 0);
 			child.setWidth(width);
-			child.layout();
+			child.layout(graphics);
 			height += child.getHeight();
 		}
 	}

@@ -105,7 +105,7 @@ public class VerticalBlock implements IChildBox, IParentBox {
 		this.padding = padding;
 	}
 
-	public void layout() {
+	public void layout(Graphics graphics) {
 		height = margin.top + border.top + padding.top;
 		final int left = margin.left + border.left + padding.left;
 		final int childrenWidth = width - (margin.left + margin.right + border.left + border.right + padding.left + padding.right);
@@ -113,7 +113,7 @@ public class VerticalBlock implements IChildBox, IParentBox {
 			final IChildBox child = children.get(i);
 			child.setPosition(height, left);
 			child.setWidth(childrenWidth);
-			child.layout();
+			child.layout(graphics);
 			height += child.getHeight();
 		}
 		height += margin.bottom + border.bottom + padding.bottom;

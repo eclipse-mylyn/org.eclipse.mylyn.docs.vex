@@ -20,6 +20,7 @@ import java.io.PrintStream;
 
 import org.eclipse.vex.core.internal.core.Color;
 import org.eclipse.vex.core.internal.core.DisplayDevice;
+import org.eclipse.vex.core.internal.core.Graphics;
 import org.eclipse.vex.core.internal.layout.endtoend.TracingHostComponent;
 import org.junit.Before;
 import org.junit.Rule;
@@ -56,7 +57,6 @@ public class TestWithTracing {
 		block.setPadding(new Padding(15, 25, 35, 45));
 		rootBox.appendChild(block);
 		rootBox.setWidth(100);
-		rootBox.layout();
 
 		final String expected = readExpectedTrace();
 		final String actual = traceRendering(rootBox);
@@ -70,7 +70,9 @@ public class TestWithTracing {
 
 		DisplayDevice.setCurrent(DisplayDevice._72DPI);
 		final TracingHostComponent hostComponent = new TracingHostComponent(printStream);
-		rootBox.paint(hostComponent.createDefaultGraphics());
+		final Graphics graphics = hostComponent.createDefaultGraphics();
+		rootBox.layout(graphics);
+		rootBox.paint(graphics);
 		return new String(traceBuffer.toByteArray());
 	}
 

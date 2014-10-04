@@ -200,10 +200,10 @@ public class BoxWidget extends Canvas {
 		});
 	}
 
-	private void layoutRootBox() {
+	private void layoutRootBox(final Graphics graphics) {
 		System.out.print("Layout ");
 		final long start = System.currentTimeMillis();
-		rootBox.layout();
+		rootBox.layout(graphics);
 		System.out.println("took " + (System.currentTimeMillis() - start));
 	}
 
@@ -242,7 +242,7 @@ public class BoxWidget extends Canvas {
 			final Graphics graphics = new SwtGraphics(gc);
 			graphics.moveOrigin(0, -top);
 
-			layoutRootBox();
+			layoutRootBox(graphics);
 			paintRootBox(graphics);
 
 			graphics.dispose();

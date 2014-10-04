@@ -23,7 +23,7 @@ public interface IBox {
 
 	void accept(IBoxVisitor visitor);
 
-	void layout();
+	void layout(Graphics graphics);
 
 	void paint(Graphics graphics);
 }
