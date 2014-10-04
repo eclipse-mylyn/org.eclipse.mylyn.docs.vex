@@ -23,13 +23,17 @@ import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.vex.core.internal.boxes.Border;
 import org.eclipse.vex.core.internal.boxes.HorizontalBar;
 import org.eclipse.vex.core.internal.boxes.Margin;
 import org.eclipse.vex.core.internal.boxes.Padding;
+import org.eclipse.vex.core.internal.boxes.Paragraph;
 import org.eclipse.vex.core.internal.boxes.RootBox;
+import org.eclipse.vex.core.internal.boxes.StaticText;
 import org.eclipse.vex.core.internal.boxes.VerticalBlock;
 import org.eclipse.vex.core.internal.core.Color;
+import org.eclipse.vex.core.internal.core.FontSpec;
 import org.eclipse.vex.core.internal.core.Graphics;
 
 /**
@@ -40,6 +44,22 @@ import org.eclipse.vex.core.internal.core.Graphics;
 public class BoxWidget extends Canvas {
 
 	private/* final */RootBox rootBox;
+
+	/*
+	 * Use double buffering with a dedicated render thread to render the box model: This prevents flickering and keeps
+	 * the UI responsive even for big box models.
+	 * 
+	 * The prevention of flickering works only in conjunction with the style bit SWT.NO_BACKGROUND.
+	 * 
+	 * @see http://git.eclipse.org/c/platform/eclipse.platform.swt.git/tree/examples/org.eclipse.swt.snippets/src/org
+	 * /eclipse/swt/snippets/Snippet48.java
+	 */
+	private Image bufferImage;
+	private final Object bufferMonitor = new Object();
+
+	private Runnable currentRenderer;
+	private Runnable nextRenderer;
+	private final Object rendererMonitor = new Object();
 
 	public BoxWidget(final Composite parent, final int style) {
 		super(parent, style | SWT.NO_BACKGROUND);
@@ -112,58 +132,152 @@ public class BoxWidget extends Canvas {
 
 	private void widgetDisposed() {
 		rootBox = null;
+		if (bufferImage != null) {
+			bufferImage.dispose();
+		}
 	}
 
 	private void paintControl(final PaintEvent event) {
-		/*
-		 * Use double buffering to render the box model to prevent flickering e.g. while scrolling. This works only in
-		 * conjunction with the style bit SWT.NO_BACKGROUND.
-		 * 
-		 * @see
-		 * http://git.eclipse.org/c/platform/eclipse.platform.swt.git/tree/examples/org.eclipse.swt.snippets/src/org
-		 * /eclipse/swt/snippets/Snippet48.java
-		 */
-		final Image bufferImage = new Image(getDisplay(), getSize().x, getSize().y);
-		final GC bufferGC = new GC(bufferImage);
-
-		final Graphics graphics = new SwtGraphics(bufferGC);
-		graphics.moveOrigin(0, -getVerticalBar().getSelection());
-
-		System.out.print("Painting ");
-		final long start = System.currentTimeMillis();
-		rootBox.paint(graphics);
-		System.out.println("took " + (System.currentTimeMillis() - start));
-
-		event.gc.drawImage(bufferImage, 0, 0);
-
-		graphics.dispose();
-		bufferGC.dispose();
-		bufferImage.dispose();
+		event.gc.drawImage(getBufferImage(), 0, 0);
 	}
 
 	private void resize(final ControlEvent event) {
-		if (rootBox.getWidth() != getClientArea().width) {
-			updateRootBoxWidth();
-		}
-		updateVerticalBar();
+		rootBox.setWidth(getClientArea().width);
+		scheduleRenderer(new Layouter(getDisplay(), getVerticalBar().getSelection(), getSize().x, getSize().y));
 	}
 
-	private void updateRootBoxWidth() {
-		rootBox.setWidth(getClientArea().width);
+	private void scrollVertically(final SelectionEvent event) {
+		scheduleRenderer(new Painter(getDisplay(), getVerticalBar().getSelection(), getSize().x, getSize().y));
+	}
 
+	private void scheduleRenderer(final Runnable renderer) {
+		synchronized (rendererMonitor) {
+			if (currentRenderer != null) {
+				nextRenderer = renderer;
+				return;
+			}
+			currentRenderer = renderer;
+		}
+		new Thread(renderer).start();
+	}
+
+	private void rendererFinished() {
+		final Runnable renderer;
+		synchronized (rendererMonitor) {
+			currentRenderer = nextRenderer;
+			nextRenderer = null;
+			renderer = currentRenderer;
+		}
+		if (renderer != null) {
+			new Thread(renderer).start();
+		}
+	}
+
+	private Image getBufferImage() {
+		synchronized (bufferMonitor) {
+			if (bufferImage == null) {
+				bufferImage = new Image(getDisplay(), getSize().x, getSize().y);
+			}
+			return bufferImage;
+		}
+	}
+
+	private void swapBufferImage(final Image newImage) {
+		final Image oldImage;
+		synchronized (bufferMonitor) {
+			oldImage = bufferImage;
+			bufferImage = newImage;
+		}
+
+		if (oldImage != null) {
+			oldImage.dispose();
+		}
+		getDisplay().asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				redraw();
+			}
+		});
+	}
+
+	private void layoutRootBox() {
 		System.out.print("Layout ");
 		final long start = System.currentTimeMillis();
 		rootBox.layout();
 		System.out.println("took " + (System.currentTimeMillis() - start));
 	}
 
-	private void updateVerticalBar() {
-		final int maximum = rootBox.getHeight();
-		final int pageSize = getClientArea().height;
-		getVerticalBar().setValues(0, 0, maximum, pageSize, 1, pageSize);
+	private void paintRootBox(final Graphics graphics) {
+		System.out.print("Painting ");
+		final long start = System.currentTimeMillis();
+		rootBox.paint(graphics);
+		System.out.println("took " + (System.currentTimeMillis() - start));
 	}
 
-	private void scrollVertically(final SelectionEvent event) {
-		redraw();
+	private void updateVerticalBar() {
+		getDisplay().asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				final int maximum = rootBox.getHeight();
+				final int pageSize = getClientArea().height;
+				final int selection = getVerticalBar().getSelection();
+				getVerticalBar().setValues(selection, 0, maximum, pageSize, pageSize / 4, pageSize);
+			}
+		});
+	}
+
+	private class Layouter implements Runnable {
+
+		private final int top;
+		private final Image image;
+
+		public Layouter(final Display display, final int top, final int width, final int height) {
+			this.top = top;
+			image = new Image(display, width, height);
+		}
+
+		@Override
+		public void run() {
+			final GC gc = new GC(image);
+			final Graphics graphics = new SwtGraphics(gc);
+			graphics.moveOrigin(0, -top);
+
+			layoutRootBox();
+			paintRootBox(graphics);
+
+			graphics.dispose();
+			gc.dispose();
+
+			updateVerticalBar();
+			swapBufferImage(image);
+			rendererFinished();
+		}
+
+	}
+
+	private class Painter implements Runnable {
+
+		private final int top;
+		private final Image image;
+
+		public Painter(final Display display, final int top, final int width, final int height) {
+			this.top = top;
+			image = new Image(display, width, height);
+		}
+
+		@Override
+		public void run() {
+			final GC gc = new GC(image);
+			final Graphics graphics = new SwtGraphics(gc);
+			graphics.moveOrigin(0, -top);
+
+			paintRootBox(graphics);
+
+			graphics.dispose();
+			gc.dispose();
+
+			swapBufferImage(image);
+			rendererFinished();
+		}
 	}
 }
