@@ -115,4 +115,38 @@ public class StaticText implements IInlineBox {
 		graphics.drawString(text, 0, 0);
 	}
 
+	public boolean canJoin(final IInlineBox other) {
+		if (!(other instanceof StaticText)) {
+			return false;
+		}
+		if (!hasEqualFont((StaticText) other)) {
+			return false;
+		}
+
+		return true;
+	}
+
+	private boolean hasEqualFont(final StaticText other) {
+		if (fontSpec != null && !fontSpec.equals(other.fontSpec)) {
+			return false;
+		}
+		if (fontSpec == null && other.fontSpec != null) {
+			return false;
+		}
+
+		return true;
+	}
+
+	public boolean join(final IInlineBox other) {
+		if (!canJoin(other)) {
+			return false;
+		}
+		final StaticText otherText = (StaticText) other;
+
+		text = text + otherText.text;
+		width += otherText.width;
+
+		return true;
+	}
+
 }

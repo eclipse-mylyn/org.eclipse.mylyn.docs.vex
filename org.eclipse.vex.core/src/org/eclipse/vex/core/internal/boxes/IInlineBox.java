@@ -33,4 +33,8 @@ public interface IInlineBox extends IBox {
 	 */
 	Rectangle getBounds();
 
+	boolean canJoin(IInlineBox other);
+
+	boolean join(IInlineBox other);
+
 }

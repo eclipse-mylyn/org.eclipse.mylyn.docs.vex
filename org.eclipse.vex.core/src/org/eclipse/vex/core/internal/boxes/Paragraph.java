@@ -75,7 +75,18 @@ public class Paragraph implements IChildBox {
 	}
 
 	public void appendChild(final IInlineBox box) {
-		children.add(box);
+		if (!joinWithLastChild(box)) {
+			children.add(box);
+		}
+	}
+
+	private boolean joinWithLastChild(final IInlineBox box) {
+		if (!hasChildren()) {
+			return false;
+		}
+		final IInlineBox lastChild = children.get(children.size() - 1);
+		final boolean joined = lastChild.join(box);
+		return joined;
 	}
 
 	@Override
