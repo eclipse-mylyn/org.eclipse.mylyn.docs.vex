@@ -39,4 +39,9 @@ public class BaseBoxVisitor implements IBoxVisitor {
 	public void visit(final StaticText box) {
 		// ignore
 	}
+
+	@Override
+	public void visit(final Square box) {
+		// ignore
+	}
 }
