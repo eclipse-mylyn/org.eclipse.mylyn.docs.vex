@@ -11,8 +11,6 @@
 package org.eclipse.vex.core.internal.boxes;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 import org.eclipse.vex.core.internal.core.Graphics;
 import org.eclipse.vex.core.internal.core.Rectangle;
@@ -20,65 +18,73 @@ import org.eclipse.vex.core.internal.core.Rectangle;
 /**
  * @author Florian Thienel
  */
-public class Paragraph implements IChildBox {
+public class Line {
 
 	private int top;
 	private int left;
 	private int width;
 	private int height;
+	private int baseline;
 
-	private final List<IInlineBox> children = new ArrayList<IInlineBox>();
-	private List<Line> lines = Collections.emptyList();
+	private final ArrayList<IInlineBox> children = new ArrayList<IInlineBox>();
 
-	@Override
 	public void setPosition(final int top, final int left) {
 		this.top = top;
 		this.left = left;
 	}
 
-	@Override
 	public Rectangle getBounds() {
 		return new Rectangle(left, top, width, height);
 	}
 
-	@Override
 	public int getTop() {
 		return top;
 	}
 
-	@Override
 	public int getLeft() {
 		return left;
 	}
 
-	@Override
 	public int getWidth() {
 		return width;
 	}
 
-	@Override
-	public void setWidth(final int width) {
-		this.width = width;
-	}
-
-	@Override
 	public int getHeight() {
 		return height;
 	}
 
-	@Override
-	public void accept(final IBoxVisitor visitor) {
-		visitor.visit(this);
+	public int getBaseline() {
+		return baseline;
 	}
 
 	public boolean hasChildren() {
 		return !children.isEmpty();
 	}
 
+	public void prependChild(final IInlineBox box) {
+		if (!joinWithFirstChild(box)) {
+			children.add(0, box);
+		}
+		width += box.getWidth();
+	}
+
+	private boolean joinWithFirstChild(final IInlineBox box) {
+		if (!hasChildren()) {
+			return false;
+		}
+		final IInlineBox firstChild = children.get(0);
+		final boolean joined = box.join(firstChild);
+		if (joined) {
+			children.set(0, box);
+		}
+		return joined;
+	}
+
 	public void appendChild(final IInlineBox box) {
 		if (!joinWithLastChild(box)) {
 			children.add(box);
 		}
+		width += box.getWidth();
 	}
 
 	private boolean joinWithLastChild(final IInlineBox box) {
@@ -90,39 +96,39 @@ public class Paragraph implements IChildBox {
 		return joined;
 	}
 
-	@Override
-	public void layout(final Graphics graphics) {
-		clearLines();
+	public void arrangeChildren() {
+		calculateBoundsAndBaseline();
+		arrangeChildrenOnBaseline();
+	}
+
+	private void calculateBoundsAndBaseline() {
+		width = 0;
 		height = 0;
-		Line line = new Line();
+		baseline = 0;
 		for (int i = 0; i < children.size(); i += 1) {
 			final IInlineBox child = children.get(i);
-
-			child.layout(graphics);
-
-			if (line.getWidth() + child.getWidth() >= width) {
-				line.arrangeChildren();
-				line.setPosition(height, 0);
-				height += line.getHeight();
-				lines.add(line);
-				line = new Line();
-			}
-			line.appendChild(child);
+			width += child.getWidth();
+			height = Math.max(height, child.getHeight());
+			baseline = Math.max(baseline, child.getBaseline());
 		}
 	}
 
-	private void clearLines() {
-		lines = new ArrayList<Line>();
+	private void arrangeChildrenOnBaseline() {
+		int childLeft = 0;
+		for (int i = 0; i < children.size(); i += 1) {
+			final IInlineBox child = children.get(i);
+			final int childTop = baseline - child.getBaseline();
+			child.setPosition(childTop, childLeft);
+			childLeft += child.getWidth();
+		}
 	}
 
-	@Override
 	public void paint(final Graphics graphics) {
-		for (int i = 0; i < lines.size(); i += 1) {
-			final Line line = lines.get(i);
-			graphics.moveOrigin(line.getLeft(), line.getTop());
-			line.paint(graphics);
-			graphics.moveOrigin(-line.getLeft(), -line.getTop());
+		for (int i = 0; i < children.size(); i += 1) {
+			final IInlineBox child = children.get(i);
+			graphics.moveOrigin(child.getLeft(), child.getTop());
+			child.paint(graphics);
+			graphics.moveOrigin(-child.getLeft(), -child.getTop());
 		}
 	}
-
 }
