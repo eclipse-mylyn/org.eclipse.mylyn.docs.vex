@@ -149,4 +149,41 @@ public class StaticText implements IInlineBox {
 		return true;
 	}
 
+	public boolean canSplit() {
+		return true;
+	}
+
+	public StaticText splitTail(final Graphics graphics, final int splittingWidth) {
+		final int splittingPosition = findPositionAtWidth(graphics, splittingWidth);
+		final StaticText tail = new StaticText();
+		tail.setText(text.substring(splittingPosition, text.length()));
+		tail.layout(graphics);
+		text = text.substring(0, splittingPosition);
+		width -= tail.width;
+		return tail;
+	}
+
+	private int findPositionAtWidth(final Graphics graphics, final int positionWidth) {
+		if (positionWidth >= width) {
+			return text.length();
+		}
+
+		final float splittingRatio = (float) positionWidth / width;
+		int begin = 0;
+		int end = text.length();
+		int pivot = Math.round(splittingRatio * text.length());
+		while (begin < end - 1) {
+			final int stringWidth = graphics.stringWidth(text.substring(0, pivot));
+			if (stringWidth > positionWidth) {
+				end = pivot;
+			} else if (stringWidth < positionWidth) {
+				begin = pivot;
+			} else {
+				return pivot;
+			}
+			pivot = (begin + end) / 2;
+		}
+		return pivot;
+	}
+
 }

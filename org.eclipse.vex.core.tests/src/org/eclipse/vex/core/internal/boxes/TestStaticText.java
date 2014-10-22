@@ -87,4 +87,72 @@ public class TestStaticText {
 
 		assertFalse(front.join(back));
 	}
+
+	@Test
+	public void splitAtCharacterBoundary() throws Exception {
+		final FakeGraphics graphics = new FakeGraphics();
+		final StaticText text = new StaticText();
+		text.setText("1234567890");
+		text.layout(graphics);
+
+		final StaticText tail = text.splitTail(graphics, 6);
+
+		assertSplitEquals("1", "234567890", text, tail);
+		assertEquals(6, text.getWidth());
+		assertEquals(54, tail.getWidth());
+	}
+
+	@Test
+	public void whenSplitting_shouldAdaptWidth() throws Exception {
+		final FakeGraphics graphics = new FakeGraphics();
+		final StaticText text = new StaticText();
+		text.setText("1234567890");
+		text.layout(graphics);
+
+		final StaticText tail = text.splitTail(graphics, 11);
+
+		assertEquals(6, text.getWidth());
+		assertEquals(54, tail.getWidth());
+	}
+
+	@Test
+	public void whenSplittingLeftOfTheFirstCharacter_shouldMoveAllContentToTheTail() throws Exception {
+		final FakeGraphics graphics = new FakeGraphics();
+		final StaticText text = new StaticText();
+		text.setText("1234567890");
+		text.layout(graphics);
+
+		final StaticText tail = text.splitTail(graphics, 5);
+
+		assertSplitEquals("", "1234567890", text, tail);
+	}
+
+	@Test
+	public void whenSplittingBeforeNextCharacterBoundary_shouldMoveNextCharacterToTheTail() throws Exception {
+		final FakeGraphics graphics = new FakeGraphics();
+		final StaticText text = new StaticText();
+		text.setText("1234567890");
+		text.layout(graphics);
+
+		final StaticText tail = text.splitTail(graphics, 11);
+
+		assertSplitEquals("1", "234567890", text, tail);
+	}
+
+	@Test
+	public void whenSplittingWayBehindTheBox_shouldReturnEmptyTail() throws Exception {
+		final FakeGraphics graphics = new FakeGraphics();
+		final StaticText text = new StaticText();
+		text.setText("1234567890");
+		text.layout(graphics);
+
+		final StaticText tail = text.splitTail(graphics, 100);
+
+		assertSplitEquals("1234567890", "", text, tail);
+	}
+
+	private static void assertSplitEquals(final String head, final String tail, final StaticText headBox, final StaticText tailBox) {
+		assertEquals(head, headBox.getText());
+		assertEquals(tail, tailBox.getText());
+	}
 }
