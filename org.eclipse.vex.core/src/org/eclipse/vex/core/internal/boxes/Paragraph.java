@@ -98,6 +98,7 @@ public class Paragraph implements IChildBox {
 		compressChildren();
 
 		height = 0;
+		boolean removedLastChild = false;
 		Line line = new Line();
 		final ListIterator<IInlineBox> iterator = children.listIterator();
 		while (iterator.hasNext()) {
@@ -108,21 +109,28 @@ public class Paragraph implements IChildBox {
 			if (line.getWidth() + child.getWidth() >= width) {
 				if (child.canSplit()) {
 					final IInlineBox tail = child.splitTail(graphics, width - line.getWidth());
+					boolean removedChild = false;
 					if (child.getWidth() > 0) {
 						line.appendChild(child);
+						removedLastChild = false;
 					} else {
 						iterator.remove();
+						removedChild = true;
 					}
 					if (tail.getWidth() > 0) {
 						iterator.add(tail);
-						iterator.previous();
+						if (!removedLastChild) {
+							iterator.previous();
+						}
 					}
+					removedLastChild = removedChild;
 				}
 
 				finalizeLine(line);
 				line = new Line();
 			} else {
 				line.appendChild(child);
+				removedLastChild = false;
 			}
 		}
 
