@@ -10,9 +10,11 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.boxes;
 
-import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.ListIterator;
 
 import org.eclipse.vex.core.internal.core.Graphics;
 import org.eclipse.vex.core.internal.core.Rectangle;
@@ -27,7 +29,7 @@ public class Paragraph implements IChildBox {
 	private int width;
 	private int height;
 
-	private final List<IInlineBox> children = new ArrayList<IInlineBox>();
+	private final List<IInlineBox> children = new LinkedList<IInlineBox>();
 	private List<Line> lines = Collections.emptyList();
 
 	@Override
@@ -93,32 +95,73 @@ public class Paragraph implements IChildBox {
 	@Override
 	public void layout(final Graphics graphics) {
 		clearLines();
+		compressChildren();
+
 		height = 0;
 		Line line = new Line();
-		for (int i = 0; i < children.size(); i += 1) {
-			final IInlineBox child = children.get(i);
+		final ListIterator<IInlineBox> iterator = children.listIterator();
+		while (iterator.hasNext()) {
+			final IInlineBox child = iterator.next();
 
 			child.layout(graphics);
 
 			if (line.getWidth() + child.getWidth() >= width) {
-				line.arrangeChildren();
-				line.setPosition(height, 0);
-				height += line.getHeight();
-				lines.add(line);
+				if (child.canSplit()) {
+					final IInlineBox tail = child.splitTail(graphics, width - line.getWidth());
+					if (child.getWidth() > 0) {
+						line.appendChild(child);
+					} else {
+						iterator.remove();
+					}
+					if (tail.getWidth() > 0) {
+						iterator.add(tail);
+						iterator.previous();
+					}
+				}
+
+				finalizeLine(line);
 				line = new Line();
+			} else {
+				line.appendChild(child);
 			}
-			line.appendChild(child);
+		}
+
+		if (line.getWidth() > 0) {
+			finalizeLine(line);
 		}
 	}
 
 	private void clearLines() {
-		lines = new ArrayList<Line>();
+		lines = new LinkedList<Line>();
+	}
+
+	private void compressChildren() {
+		final Iterator<IInlineBox> iterator = children.iterator();
+		if (!iterator.hasNext()) {
+			return;
+		}
+
+		IInlineBox lastChild = iterator.next();
+		while (iterator.hasNext()) {
+			final IInlineBox child = iterator.next();
+			if (lastChild.join(child)) {
+				iterator.remove();
+			} else {
+				lastChild = child;
+			}
+		}
+	}
+
+	private void finalizeLine(final Line line) {
+		line.arrangeChildren();
+		line.setPosition(height, 0);
+		height += line.getHeight();
+		lines.add(line);
 	}
 
 	@Override
 	public void paint(final Graphics graphics) {
-		for (int i = 0; i < lines.size(); i += 1) {
-			final Line line = lines.get(i);
+		for (final Line line : lines) {
 			graphics.moveOrigin(line.getLeft(), line.getTop());
 			line.paint(graphics);
 			graphics.moveOrigin(-line.getLeft(), -line.getTop());
