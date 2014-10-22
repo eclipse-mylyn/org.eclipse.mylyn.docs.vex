@@ -94,4 +94,13 @@ public class Square implements IInlineBox {
 		return false;
 	}
 
+	@Override
+	public boolean canSplit() {
+		return false;
+	}
+
+	@Override
+	public IInlineBox splitTail(final Graphics graphics, final int splittingWidth) {
+		throw new UnsupportedOperationException("Splitting is not supported for Square.");
+	}
 }
