@@ -157,6 +157,7 @@ public class StaticText implements IInlineBox {
 		final int splittingPosition = findPositionAtWidth(graphics, splittingWidth);
 		final StaticText tail = new StaticText();
 		tail.setText(text.substring(splittingPosition, text.length()));
+		tail.setFont(fontSpec);
 		tail.layout(graphics);
 		text = text.substring(0, splittingPosition);
 		width -= tail.width;

@@ -12,6 +12,7 @@ package org.eclipse.vex.core.internal.boxes;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
 import org.eclipse.vex.core.internal.core.FontSpec;
@@ -113,6 +114,18 @@ public class TestStaticText {
 
 		assertEquals(6, text.getWidth());
 		assertEquals(54, tail.getWidth());
+	}
+
+	@Test
+	public void whenSplitting_shouldApplyFontToTheTail() throws Exception {
+		final FakeGraphics graphics = new FakeGraphics();
+		final StaticText text = new StaticText();
+		text.setText("1234567890");
+		text.layout(graphics);
+
+		final StaticText tail = text.splitTail(graphics, 15);
+
+		assertSame(text.getFont(), tail.getFont());
 	}
 
 	@Test
