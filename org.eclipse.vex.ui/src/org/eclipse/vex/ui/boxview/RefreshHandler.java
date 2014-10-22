@@ -12,6 +12,7 @@ public class RefreshHandler extends AbstractHandler {
 	public Object execute(final ExecutionEvent event) throws ExecutionException {
 		final BoxView boxView = (BoxView) ((IEvaluationContext) event.getApplicationContext()).getVariable(ISources.ACTIVE_PART_NAME);
 		boxView.refresh();
+		System.gc();
 
 		return null;
 	}
