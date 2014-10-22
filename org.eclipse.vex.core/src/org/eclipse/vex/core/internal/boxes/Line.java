@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.boxes;
 
-import java.util.ArrayList;
+import java.util.LinkedList;
 
 import org.eclipse.vex.core.internal.core.Graphics;
 import org.eclipse.vex.core.internal.core.Rectangle;
@@ -26,7 +26,7 @@ public class Line {
 	private int height;
 	private int baseline;
 
-	private final ArrayList<IInlineBox> children = new ArrayList<IInlineBox>();
+	private final LinkedList<IInlineBox> children = new LinkedList<IInlineBox>();
 
 	public void setPosition(final int top, final int left) {
 		this.top = top;
@@ -63,7 +63,7 @@ public class Line {
 
 	public void prependChild(final IInlineBox box) {
 		if (!joinWithFirstChild(box)) {
-			children.add(0, box);
+			children.addFirst(box);
 		}
 		width += box.getWidth();
 	}
@@ -72,17 +72,19 @@ public class Line {
 		if (!hasChildren()) {
 			return false;
 		}
-		final IInlineBox firstChild = children.get(0);
+		final IInlineBox firstChild = children.removeFirst();
 		final boolean joined = box.join(firstChild);
 		if (joined) {
-			children.set(0, box);
+			children.addFirst(box);
+		} else {
+			children.addFirst(firstChild);
 		}
 		return joined;
 	}
 
 	public void appendChild(final IInlineBox box) {
 		if (!joinWithLastChild(box)) {
-			children.add(box);
+			children.addLast(box);
 		}
 		width += box.getWidth();
 	}
@@ -91,7 +93,7 @@ public class Line {
 		if (!hasChildren()) {
 			return false;
 		}
-		final IInlineBox lastChild = children.get(children.size() - 1);
+		final IInlineBox lastChild = children.getLast();
 		final boolean joined = lastChild.join(box);
 		return joined;
 	}
@@ -105,8 +107,7 @@ public class Line {
 		width = 0;
 		height = 0;
 		baseline = 0;
-		for (int i = 0; i < children.size(); i += 1) {
-			final IInlineBox child = children.get(i);
+		for (final IInlineBox child : children) {
 			width += child.getWidth();
 			height = Math.max(height, child.getHeight());
 			baseline = Math.max(baseline, child.getBaseline());
@@ -115,8 +116,7 @@ public class Line {
 
 	private void arrangeChildrenOnBaseline() {
 		int childLeft = 0;
-		for (int i = 0; i < children.size(); i += 1) {
-			final IInlineBox child = children.get(i);
+		for (final IInlineBox child : children) {
 			final int childTop = baseline - child.getBaseline();
 			child.setPosition(childTop, childLeft);
 			childLeft += child.getWidth();
@@ -124,8 +124,7 @@ public class Line {
 	}
 
 	public void paint(final Graphics graphics) {
-		for (int i = 0; i < children.size(); i += 1) {
-			final IInlineBox child = children.get(i);
+		for (final IInlineBox child : children) {
 			graphics.moveOrigin(child.getLeft(), child.getTop());
 			child.paint(graphics);
 			graphics.moveOrigin(-child.getLeft(), -child.getTop());
