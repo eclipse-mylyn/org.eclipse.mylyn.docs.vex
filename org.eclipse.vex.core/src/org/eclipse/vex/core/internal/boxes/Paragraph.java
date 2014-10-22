@@ -58,7 +58,7 @@ public class Paragraph implements IChildBox {
 
 	@Override
 	public void setWidth(final int width) {
-		this.width = width;
+		this.width = Math.max(0, width);
 	}
 
 	@Override

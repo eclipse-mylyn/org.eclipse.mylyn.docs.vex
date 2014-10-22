@@ -49,7 +49,7 @@ public class HorizontalBar implements IChildBox {
 
 	@Override
 	public void setWidth(final int width) {
-		this.width = width;
+		this.width = Math.max(0, width);
 	}
 
 	@Override
@@ -79,7 +79,7 @@ public class HorizontalBar implements IChildBox {
 		visitor.visit(this);
 	}
 
-	public void layout(Graphics graphics) {
+	public void layout(final Graphics graphics) {
 		// ignore, everything is static
 	}
 

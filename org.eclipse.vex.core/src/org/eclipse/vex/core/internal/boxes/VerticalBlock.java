@@ -55,7 +55,7 @@ public class VerticalBlock implements IChildBox, IParentBox {
 	}
 
 	public void setWidth(final int width) {
-		this.width = width;
+		this.width = Math.max(0, width);
 	}
 
 	@Override
@@ -105,7 +105,7 @@ public class VerticalBlock implements IChildBox, IParentBox {
 		this.padding = padding;
 	}
 
-	public void layout(Graphics graphics) {
+	public void layout(final Graphics graphics) {
 		height = margin.top + border.top + padding.top;
 		final int left = margin.left + border.left + padding.left;
 		final int childrenWidth = width - (margin.left + margin.right + border.left + border.right + padding.left + padding.right);
