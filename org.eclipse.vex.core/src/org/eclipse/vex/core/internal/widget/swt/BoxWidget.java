@@ -71,7 +71,7 @@ public class BoxWidget extends Canvas {
 		}
 
 		rootBox = new RootBox();
-		for (int i = 0; i < 40000; i += 1) {
+		for (int i = 0; i < 20000; i += 1) {
 			final VerticalBlock block = new VerticalBlock();
 			block.setMargin(new Margin(10, 20, 30, 40));
 			block.setBorder(new Border(10));
@@ -158,6 +158,7 @@ public class BoxWidget extends Canvas {
 	}
 
 	private void resize(final ControlEvent event) {
+		System.out.println("Width: " + getClientArea().width);
 		rootBox.setWidth(getClientArea().width);
 		scheduleRenderer(new Layouter(getDisplay(), getVerticalBar().getSelection(), getSize().x, getSize().y));
 	}
