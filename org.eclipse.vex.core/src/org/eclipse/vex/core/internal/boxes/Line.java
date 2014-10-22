@@ -62,40 +62,13 @@ public class Line {
 	}
 
 	public void prependChild(final IInlineBox box) {
-		if (!joinWithFirstChild(box)) {
-			children.addFirst(box);
-		}
+		children.addFirst(box);
 		width += box.getWidth();
-	}
-
-	private boolean joinWithFirstChild(final IInlineBox box) {
-		if (!hasChildren()) {
-			return false;
-		}
-		final IInlineBox firstChild = children.removeFirst();
-		final boolean joined = box.join(firstChild);
-		if (joined) {
-			children.addFirst(box);
-		} else {
-			children.addFirst(firstChild);
-		}
-		return joined;
 	}
 
 	public void appendChild(final IInlineBox box) {
-		if (!joinWithLastChild(box)) {
-			children.addLast(box);
-		}
+		children.addLast(box);
 		width += box.getWidth();
-	}
-
-	private boolean joinWithLastChild(final IInlineBox box) {
-		if (!hasChildren()) {
-			return false;
-		}
-		final IInlineBox lastChild = children.getLast();
-		final boolean joined = lastChild.join(box);
-		return joined;
 	}
 
 	public void arrangeChildren() {
