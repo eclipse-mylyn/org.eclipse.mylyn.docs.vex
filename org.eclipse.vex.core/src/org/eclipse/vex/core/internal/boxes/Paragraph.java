@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.boxes;
 
-import java.util.Collections;
+import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -30,7 +30,7 @@ public class Paragraph implements IChildBox {
 	private int height;
 
 	private final List<IInlineBox> children = new LinkedList<IInlineBox>();
-	private List<Line> lines = Collections.emptyList();
+	private final List<Line> lines = new LinkedList<Line>();
 
 	@Override
 	public void setPosition(final int top, final int left) {
@@ -94,56 +94,12 @@ public class Paragraph implements IChildBox {
 
 	@Override
 	public void layout(final Graphics graphics) {
-		clearLines();
-		compressChildren();
-
-		height = 0;
-		boolean removedLastChild = false;
-		Line line = new Line();
-		final ListIterator<IInlineBox> iterator = children.listIterator();
-		while (iterator.hasNext()) {
-			final IInlineBox child = iterator.next();
-
-			child.layout(graphics);
-
-			if (line.getWidth() + child.getWidth() >= width) {
-				if (child.canSplit()) {
-					final IInlineBox tail = child.splitTail(graphics, width - line.getWidth());
-					boolean removedChild = false;
-					if (child.getWidth() > 0) {
-						line.appendChild(child);
-						removedLastChild = false;
-					} else {
-						iterator.remove();
-						removedChild = true;
-					}
-					if (tail.getWidth() > 0) {
-						iterator.add(tail);
-						if (!removedLastChild) {
-							iterator.previous();
-						}
-					}
-					removedLastChild = removedChild;
-				}
-
-				finalizeLine(line);
-				line = new Line();
-			} else {
-				line.appendChild(child);
-				removedLastChild = false;
-			}
-		}
-
-		if (line.getWidth() > 0) {
-			finalizeLine(line);
-		}
+		lines.clear();
+		joinSplitChildren();
+		appendChildrenToLines(graphics);
 	}
 
-	private void clearLines() {
-		lines = new LinkedList<Line>();
-	}
-
-	private void compressChildren() {
+	private void joinSplitChildren() {
 		final Iterator<IInlineBox> iterator = children.iterator();
 		if (!iterator.hasNext()) {
 			return;
@@ -160,11 +116,16 @@ public class Paragraph implements IChildBox {
 		}
 	}
 
-	private void finalizeLine(final Line line) {
-		line.arrangeChildren();
-		line.setPosition(height, 0);
-		height += line.getHeight();
-		lines.add(line);
+	private void appendChildrenToLines(final Graphics graphics) {
+		final ListIterator<IInlineBox> iterator = children.listIterator();
+		final LineAppender appender = new LineAppender(iterator, lines, width);
+		while (iterator.hasNext()) {
+			final IInlineBox child = iterator.next();
+			child.layout(graphics);
+			appender.appendChild(graphics, child);
+		}
+		appender.finalizeLastLine();
+		height = appender.getHeight();
 	}
 
 	@Override
@@ -176,4 +137,89 @@ public class Paragraph implements IChildBox {
 		}
 	}
 
+	public static class LineAppender {
+		private final ListIterator<IInlineBox> childIterator;
+		private final Collection<Line> lines;
+		private final int width;
+		private int height;
+		private boolean lastChildWrappedCompletely;
+		private Line currentLine = new Line();
+
+		public LineAppender(final ListIterator<IInlineBox> childIterator, final Collection<Line> lines, final int width) {
+			this.childIterator = childIterator;
+			this.lines = lines;
+			this.width = width;
+		}
+
+		public void appendChild(final Graphics graphics, final IInlineBox child) {
+			if (childFitsIntoCurrentLine(currentLine, child)) {
+				appendChildToCurrentLine(child);
+			} else {
+				final boolean childWrappedCompletely;
+				if (child.canSplit()) {
+					final IInlineBox tail = child.splitTail(graphics, width - currentLine.getWidth());
+					childWrappedCompletely = child.getWidth() == 0;
+					if (childWrappedCompletely) {
+						removeEmptyChild();
+					} else {
+						appendChildToCurrentLine(child);
+					}
+
+					if (tail.getWidth() > 0) {
+						insertNextChild(tail);
+					}
+				} else {
+					backupChildIterator();
+					childWrappedCompletely = true;
+				}
+
+				lastChildWrappedCompletely = childWrappedCompletely;
+
+				finalizeCurrentLine();
+				currentLine = new Line();
+			}
+		}
+
+		private void appendChildToCurrentLine(final IInlineBox child) {
+			currentLine.appendChild(child);
+			lastChildWrappedCompletely = false;
+		}
+
+		private void removeEmptyChild() {
+			childIterator.remove();
+		}
+
+		private void insertNextChild(final IInlineBox tail) {
+			childIterator.add(tail);
+			backupChildIterator();
+		}
+
+		private void backupChildIterator() {
+			if (!lastChildWrappedCompletely) {
+				childIterator.previous();
+			}
+		}
+
+		private boolean childFitsIntoCurrentLine(final Line line, final IInlineBox child) {
+			return line.getWidth() + child.getWidth() < width;
+		}
+
+		private void finalizeCurrentLine() {
+			if (currentLine.getWidth() <= 0) {
+				return;
+			}
+			currentLine.arrangeChildren();
+			currentLine.setPosition(height, 0);
+			height += currentLine.getHeight();
+			lines.add(currentLine);
+		}
+
+		public void finalizeLastLine() {
+			finalizeCurrentLine();
+		}
+
+		public int getHeight() {
+			return height;
+		}
+	}
 }

@@ -22,7 +22,7 @@ public class Square implements IInlineBox {
 
 	private int top;
 	private int left;
-	private int width;
+	private int size;
 
 	@Override
 	public void setPosition(final int top, final int left) {
@@ -32,7 +32,7 @@ public class Square implements IInlineBox {
 
 	@Override
 	public Rectangle getBounds() {
-		return new Rectangle(left, top, width, width);
+		return new Rectangle(left, top, size, size);
 	}
 
 	@Override
@@ -45,23 +45,23 @@ public class Square implements IInlineBox {
 		return left;
 	}
 
-	public void setWidth(final int width) {
-		this.width = width;
+	public void setSize(final int size) {
+		this.size = size;
 	}
 
 	@Override
 	public int getWidth() {
-		return width;
+		return size;
 	}
 
 	@Override
 	public int getHeight() {
-		return width;
+		return size;
 	}
 
 	@Override
 	public int getBaseline() {
-		return width;
+		return size;
 	}
 
 	@Override
@@ -79,7 +79,7 @@ public class Square implements IInlineBox {
 		final ColorResource colorResource = graphics.createColor(Color.BLACK); // TODO store square color
 		graphics.setColor(colorResource);
 
-		graphics.fillRect(left, top, width, width);
+		graphics.fillRect(0, 0, size, size);
 
 		colorResource.dispose();
 	}

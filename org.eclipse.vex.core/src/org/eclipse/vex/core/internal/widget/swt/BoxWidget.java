@@ -30,6 +30,7 @@ import org.eclipse.vex.core.internal.boxes.Margin;
 import org.eclipse.vex.core.internal.boxes.Padding;
 import org.eclipse.vex.core.internal.boxes.Paragraph;
 import org.eclipse.vex.core.internal.boxes.RootBox;
+import org.eclipse.vex.core.internal.boxes.Square;
 import org.eclipse.vex.core.internal.boxes.StaticText;
 import org.eclipse.vex.core.internal.boxes.VerticalBlock;
 import org.eclipse.vex.core.internal.core.Color;
@@ -71,7 +72,7 @@ public class BoxWidget extends Canvas {
 		}
 
 		rootBox = new RootBox();
-		for (int i = 0; i < 20000; i += 1) {
+		for (int i = 0; i < 15000; i += 1) {
 			final VerticalBlock block = new VerticalBlock();
 			block.setMargin(new Margin(10, 20, 30, 40));
 			block.setBorder(new Border(10));
@@ -91,6 +92,9 @@ public class BoxWidget extends Canvas {
 				lorem.setText("Lorem ipsum " + i + " ");
 				lorem.setFont(new FontSpec(new String[] { "Arial" }, 0, 10.0f + j));
 				paragraph.appendChild(lorem);
+				final Square square = new Square();
+				square.setSize(5 + j);
+				paragraph.appendChild(square);
 			}
 
 			final HorizontalBar lowerBar = new HorizontalBar();

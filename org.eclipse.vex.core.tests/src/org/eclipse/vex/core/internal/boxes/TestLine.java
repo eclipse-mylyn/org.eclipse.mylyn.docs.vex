@@ -22,9 +22,9 @@ public class TestLine {
 	@Test
 	public void whenAppendingChild_shouldAddUpChildrensWidth() throws Exception {
 		final Square square1 = new Square();
-		square1.setWidth(10);
+		square1.setSize(10);
 		final Square square2 = new Square();
-		square2.setWidth(13);
+		square2.setSize(13);
 		final Line line = new Line();
 
 		line.appendChild(square1);
@@ -37,9 +37,9 @@ public class TestLine {
 	@Test
 	public void whenPrependingChild_shouldAddUpChildrensWidth() throws Exception {
 		final Square square1 = new Square();
-		square1.setWidth(10);
+		square1.setSize(10);
 		final Square square2 = new Square();
-		square2.setWidth(13);
+		square2.setSize(13);
 		final Line line = new Line();
 
 		line.prependChild(square1);
