@@ -12,7 +12,6 @@ package org.eclipse.vex.core.internal.boxes;
 
 import java.util.Collection;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.ListIterator;
 
 import org.eclipse.vex.core.internal.core.Graphics;
@@ -28,8 +27,8 @@ public class Paragraph implements IChildBox {
 	private int width;
 	private int height;
 
-	private final List<IInlineBox> children = new LinkedList<IInlineBox>();
-	private final List<Line> lines = new LinkedList<Line>();
+	private final LinkedList<IInlineBox> children = new LinkedList<IInlineBox>();
+	private final LinkedList<Line> lines = new LinkedList<Line>();
 
 	@Override
 	public void setPosition(final int top, final int left) {
@@ -86,7 +85,7 @@ public class Paragraph implements IChildBox {
 		if (!hasChildren()) {
 			return false;
 		}
-		final IInlineBox lastChild = children.get(children.size() - 1);
+		final IInlineBox lastChild = children.getLast();
 		final boolean joined = lastChild.join(box);
 		return joined;
 	}
