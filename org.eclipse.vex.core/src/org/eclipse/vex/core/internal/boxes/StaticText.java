@@ -97,8 +97,7 @@ public class StaticText implements IInlineBox {
 			return;
 		}
 
-		final FontResource font = graphics.getFont(fontSpec);
-		graphics.setCurrentFont(font);
+		applyFont(graphics);
 		width = graphics.stringWidth(text);
 
 		final FontMetrics fontMetrics = graphics.getFontMetrics();
@@ -110,9 +109,13 @@ public class StaticText implements IInlineBox {
 
 	@Override
 	public void paint(final Graphics graphics) {
+		applyFont(graphics);
+		graphics.drawString(text, 0, 0);
+	}
+
+	private void applyFont(final Graphics graphics) {
 		final FontResource font = graphics.getFont(fontSpec);
 		graphics.setCurrentFont(font);
-		graphics.drawString(text, 0, 0);
 	}
 
 	public boolean canJoin(final IInlineBox other) {
@@ -154,30 +157,41 @@ public class StaticText implements IInlineBox {
 	}
 
 	public StaticText splitTail(final Graphics graphics, final int splittingWidth) {
-		final int splittingPosition = findPositionAtWidth(graphics, splittingWidth);
-		final StaticText tail = new StaticText();
-		tail.setText(text.substring(splittingPosition, text.length()));
-		tail.setFont(fontSpec);
+		applyFont(graphics);
+		final int splittingPosition = findPositionBefore(graphics, splittingWidth);
+		final StaticText tail = createTail(splittingPosition);
 		tail.layout(graphics);
-		text = text.substring(0, splittingPosition);
-		width -= tail.width;
+		removeTail(tail);
+
 		return tail;
 	}
 
-	private int findPositionAtWidth(final Graphics graphics, final int positionWidth) {
-		if (positionWidth >= width) {
+	private StaticText createTail(final int splittingPosition) {
+		final StaticText tail = new StaticText();
+		tail.setText(text.substring(splittingPosition, text.length()));
+		tail.setFont(fontSpec);
+		return tail;
+	}
+
+	private void removeTail(final StaticText tail) {
+		final int headLength = text.length() - tail.text.length();
+		text = text.substring(0, headLength);
+		width -= tail.width;
+	}
+
+	private int findPositionBefore(final Graphics graphics, final int y) {
+		if (y >= width) {
 			return text.length();
 		}
 
-		final float splittingRatio = (float) positionWidth / width;
 		int begin = 0;
 		int end = text.length();
-		int pivot = Math.round(splittingRatio * text.length());
+		int pivot = guessPositionAt(y);
 		while (begin < end - 1) {
-			final int stringWidth = graphics.stringWidth(text.substring(0, pivot));
-			if (stringWidth > positionWidth) {
+			final int textWidth = graphics.stringWidth(text.substring(0, pivot));
+			if (textWidth > y) {
 				end = pivot;
-			} else if (stringWidth < positionWidth) {
+			} else if (textWidth < y) {
 				begin = pivot;
 			} else {
 				return pivot;
@@ -185,6 +199,11 @@ public class StaticText implements IInlineBox {
 			pivot = (begin + end) / 2;
 		}
 		return pivot;
+	}
+
+	private int guessPositionAt(final int y) {
+		final float splittingRatio = (float) y / width;
+		return Math.round(splittingRatio * text.length());
 	}
 
 }
