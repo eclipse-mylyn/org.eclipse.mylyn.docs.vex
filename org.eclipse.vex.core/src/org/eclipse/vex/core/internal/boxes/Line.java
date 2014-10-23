@@ -71,6 +71,18 @@ public class Line {
 		width += box.getWidth();
 	}
 
+	public boolean joinWithLastChild(final IInlineBox box) {
+		if (children.isEmpty()) {
+			return false;
+		}
+		final IInlineBox lastChild = children.getLast();
+		final boolean joined = lastChild.join(box);
+		if (joined) {
+			width += box.getWidth();
+		}
+		return joined;
+	}
+
 	public void arrangeChildren() {
 		calculateBoundsAndBaseline();
 		arrangeChildrenOnBaseline();

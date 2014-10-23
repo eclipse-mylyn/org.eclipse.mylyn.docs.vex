@@ -11,7 +11,6 @@
 package org.eclipse.vex.core.internal.boxes;
 
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.ListIterator;
@@ -95,28 +94,10 @@ public class Paragraph implements IChildBox {
 	@Override
 	public void layout(final Graphics graphics) {
 		lines.clear();
-		joinSplitChildren();
-		appendChildrenToLines(graphics);
+		arrangeChildrenOnLines(graphics);
 	}
 
-	private void joinSplitChildren() {
-		final Iterator<IInlineBox> iterator = children.iterator();
-		if (!iterator.hasNext()) {
-			return;
-		}
-
-		IInlineBox lastChild = iterator.next();
-		while (iterator.hasNext()) {
-			final IInlineBox child = iterator.next();
-			if (lastChild.join(child)) {
-				iterator.remove();
-			} else {
-				lastChild = child;
-			}
-		}
-	}
-
-	private void appendChildrenToLines(final Graphics graphics) {
+	private void arrangeChildrenOnLines(final Graphics graphics) {
 		final ListIterator<IInlineBox> iterator = children.listIterator();
 		final LineAppender appender = new LineAppender(iterator, lines, width);
 		while (iterator.hasNext()) {
@@ -160,7 +141,7 @@ public class Paragraph implements IChildBox {
 					final IInlineBox tail = child.splitTail(graphics, width - currentLine.getWidth());
 					childWrappedCompletely = child.getWidth() == 0;
 					if (childWrappedCompletely) {
-						removeEmptyChild();
+						childIterator.remove();
 					} else {
 						appendChildToCurrentLine(child);
 					}
@@ -181,12 +162,12 @@ public class Paragraph implements IChildBox {
 		}
 
 		private void appendChildToCurrentLine(final IInlineBox child) {
-			currentLine.appendChild(child);
+			if (currentLine.joinWithLastChild(child)) {
+				childIterator.remove();
+			} else {
+				currentLine.appendChild(child);
+			}
 			lastChildWrappedCompletely = false;
-		}
-
-		private void removeEmptyChild() {
-			childIterator.remove();
 		}
 
 		private void insertNextChild(final IInlineBox tail) {

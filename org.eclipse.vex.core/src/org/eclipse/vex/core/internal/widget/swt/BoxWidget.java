@@ -72,7 +72,7 @@ public class BoxWidget extends Canvas {
 		}
 
 		rootBox = new RootBox();
-		for (int i = 0; i < 15000; i += 1) {
+		for (int i = 0; i < 20000; i += 1) {
 			final VerticalBlock block = new VerticalBlock();
 			block.setMargin(new Margin(10, 20, 30, 40));
 			block.setBorder(new Border(10));
