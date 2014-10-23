@@ -80,11 +80,13 @@ public class Line {
 		width = 0;
 		height = 0;
 		baseline = 0;
+		int descend = 0;
 		for (final IInlineBox child : children) {
 			width += child.getWidth();
-			height = Math.max(height, child.getHeight());
+			descend = Math.max(descend, child.getHeight() - child.getBaseline());
 			baseline = Math.max(baseline, child.getBaseline());
 		}
+		height = baseline + descend;
 	}
 
 	private void arrangeChildrenOnBaseline() {
