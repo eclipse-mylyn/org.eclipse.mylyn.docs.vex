@@ -24,27 +24,17 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.vex.core.internal.boxes.Border;
-import org.eclipse.vex.core.internal.boxes.HorizontalBar;
-import org.eclipse.vex.core.internal.boxes.Margin;
-import org.eclipse.vex.core.internal.boxes.Padding;
-import org.eclipse.vex.core.internal.boxes.Paragraph;
 import org.eclipse.vex.core.internal.boxes.RootBox;
-import org.eclipse.vex.core.internal.boxes.Square;
-import org.eclipse.vex.core.internal.boxes.StaticText;
-import org.eclipse.vex.core.internal.boxes.VerticalBlock;
-import org.eclipse.vex.core.internal.core.Color;
-import org.eclipse.vex.core.internal.core.FontSpec;
 import org.eclipse.vex.core.internal.core.Graphics;
 
 /**
- * A widget to show the new box model.
+ * A widget to display the new box model.
  *
  * @author Florian Thienel
  */
 public class BoxWidget extends Canvas {
 
-	private/* final */RootBox rootBox;
+	private RootBox rootBox;
 
 	/*
 	 * Use double buffering with a dedicated render thread to render the box model: This prevents flickering and keeps
@@ -72,36 +62,10 @@ public class BoxWidget extends Canvas {
 		}
 
 		rootBox = new RootBox();
-		for (int i = 0; i < 20000; i += 1) {
-			final VerticalBlock block = new VerticalBlock();
-			block.setMargin(new Margin(10, 20, 30, 40));
-			block.setBorder(new Border(10));
-			block.setPadding(new Padding(15, 25, 35, 45));
-			rootBox.appendChild(block);
+	}
 
-			final HorizontalBar upperBar = new HorizontalBar();
-			upperBar.setHeight(2);
-			upperBar.setColor(Color.BLACK);
-			block.appendChild(upperBar);
-
-			final Paragraph paragraph = new Paragraph();
-			block.appendChild(paragraph);
-
-			for (int j = 0; j < 20; j += 1) {
-				final StaticText lorem = new StaticText();
-				lorem.setText("Lorem ipsum " + i + " ");
-				lorem.setFont(new FontSpec(new String[] { "Arial" }, 0, 10.0f + j));
-				paragraph.appendChild(lorem);
-				final Square square = new Square();
-				square.setSize(5 + j);
-				paragraph.appendChild(square);
-			}
-
-			final HorizontalBar lowerBar = new HorizontalBar();
-			lowerBar.setHeight(2);
-			lowerBar.setColor(Color.BLACK);
-			block.appendChild(lowerBar);
-		}
+	public void setContent(final RootBox rootBox) {
+		this.rootBox = rootBox;
 	}
 
 	private void connectDispose() {

@@ -13,6 +13,17 @@ package org.eclipse.vex.ui.boxview;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.part.ViewPart;
+import org.eclipse.vex.core.internal.boxes.Border;
+import org.eclipse.vex.core.internal.boxes.HorizontalBar;
+import org.eclipse.vex.core.internal.boxes.Margin;
+import org.eclipse.vex.core.internal.boxes.Padding;
+import org.eclipse.vex.core.internal.boxes.Paragraph;
+import org.eclipse.vex.core.internal.boxes.RootBox;
+import org.eclipse.vex.core.internal.boxes.Square;
+import org.eclipse.vex.core.internal.boxes.StaticText;
+import org.eclipse.vex.core.internal.boxes.VerticalBlock;
+import org.eclipse.vex.core.internal.core.Color;
+import org.eclipse.vex.core.internal.core.FontSpec;
 import org.eclipse.vex.core.internal.widget.swt.BoxWidget;
 
 /**
@@ -49,6 +60,7 @@ public class BoxView extends ViewPart {
 			cleanStaleReferenceInShell();
 		}
 		boxWidget = new BoxWidget(parent, SWT.V_SCROLL);
+		boxWidget.setContent(createTestModel());
 		parent.layout();
 	}
 
@@ -58,5 +70,63 @@ public class BoxView extends ViewPart {
 		 * reference to parent instead.
 		 */
 		parent.setFocus();
+	}
+
+	private RootBox createTestModel() {
+		final RootBox rootBox = new RootBox();
+
+		for (int i = 0; i < 10000; i += 1) {
+			final VerticalBlock mixedBlock = createFramedVerticalBlock();
+			mixedBlock.appendChild(createHorizontalBar());
+			mixedBlock.appendChild(createMixedParagraph(i));
+			mixedBlock.appendChild(createHorizontalBar());
+			rootBox.appendChild(mixedBlock);
+
+			final VerticalBlock textBlock = createFramedVerticalBlock();
+			textBlock.appendChild(createHorizontalBar());
+			textBlock.appendChild(createTextParagraph());
+			textBlock.appendChild(createHorizontalBar());
+			rootBox.appendChild(textBlock);
+		}
+
+		return rootBox;
+	}
+
+	private VerticalBlock createFramedVerticalBlock() {
+		final VerticalBlock block = new VerticalBlock();
+		block.setMargin(new Margin(10, 20, 30, 40));
+		block.setBorder(new Border(10));
+		block.setPadding(new Padding(15, 25, 35, 45));
+		return block;
+	}
+
+	private HorizontalBar createHorizontalBar() {
+		final HorizontalBar horizontalBar = new HorizontalBar();
+		horizontalBar.setHeight(2);
+		horizontalBar.setColor(Color.BLACK);
+		return horizontalBar;
+	}
+
+	private Paragraph createMixedParagraph(final int i) {
+		final Paragraph paragraph = new Paragraph();
+		for (int j = 0; j < 20; j += 1) {
+			final StaticText text = new StaticText();
+			text.setText("Lorem ipsum " + i + " ");
+			text.setFont(new FontSpec(new String[] { "Arial" }, 0, 10.0f + j));
+			paragraph.appendChild(text);
+			final Square square = new Square();
+			square.setSize(5 + j);
+			paragraph.appendChild(square);
+		}
+		return paragraph;
+	}
+
+	private Paragraph createTextParagraph() {
+		final Paragraph paragraph = new Paragraph();
+		final StaticText text = new StaticText();
+		text.setText("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec a diam lectus. Sed sit amet ipsum mauris. Maecenas congue ligula ac quam viverra nec consectetur ante hendrerit. Donec et mollis dolor. Praesent et diam eget libero egestas mattis sit amet vitae augue. Nam tincidunt congue enim, ut porta lorem lacinia consectetur.");
+		text.setFont(new FontSpec(new String[] { "Times New Roman" }, 0, 20.0f));
+		paragraph.appendChild(text);
+		return paragraph;
 	}
 }
