@@ -118,6 +118,7 @@ public class StaticText implements IInlineBox {
 		graphics.setCurrentFont(font);
 	}
 
+	@Override
 	public boolean canJoin(final IInlineBox other) {
 		if (!(other instanceof StaticText)) {
 			return false;
@@ -140,6 +141,7 @@ public class StaticText implements IInlineBox {
 		return true;
 	}
 
+	@Override
 	public boolean join(final IInlineBox other) {
 		if (!canJoin(other)) {
 			return false;
@@ -152,13 +154,16 @@ public class StaticText implements IInlineBox {
 		return true;
 	}
 
+	@Override
 	public boolean canSplit() {
 		return true;
 	}
 
-	public StaticText splitTail(final Graphics graphics, final int splittingWidth) {
+	@Override
+	public StaticText splitTail(final Graphics graphics, final int headWidth, final boolean force) {
 		applyFont(graphics);
-		final int splittingPosition = findPositionBefore(graphics, splittingWidth);
+		final int splittingPosition = findSplittingPositionBefore(graphics, headWidth, force);
+
 		final StaticText tail = createTail(splittingPosition);
 		tail.layout(graphics);
 		removeTail(tail);
@@ -166,20 +171,22 @@ public class StaticText implements IInlineBox {
 		return tail;
 	}
 
-	private StaticText createTail(final int splittingPosition) {
-		final StaticText tail = new StaticText();
-		tail.setText(text.substring(splittingPosition, text.length()));
-		tail.setFont(fontSpec);
-		return tail;
-	}
-
-	private void removeTail(final StaticText tail) {
-		final int headLength = text.length() - tail.text.length();
-		text = text.substring(0, headLength);
-		width -= tail.width;
+	private int findSplittingPositionBefore(final Graphics graphics, final int headWidth, final boolean force) {
+		final int positionAtWidth = findPositionBefore(graphics, headWidth);
+		final int properSplittingPosition = findProperSplittingPositionBefore(positionAtWidth);
+		final int splittingPosition;
+		if (properSplittingPosition == -1 && force) {
+			splittingPosition = positionAtWidth;
+		} else {
+			splittingPosition = properSplittingPosition + 1;
+		}
+		return splittingPosition;
 	}
 
 	private int findPositionBefore(final Graphics graphics, final int y) {
+		if (y < 0) {
+			return 0;
+		}
 		if (y >= width) {
 			return text.length();
 		}
@@ -204,6 +211,32 @@ public class StaticText implements IInlineBox {
 	private int guessPositionAt(final int y) {
 		final float splittingRatio = (float) y / width;
 		return Math.round(splittingRatio * text.length());
+	}
+
+	private int findProperSplittingPositionBefore(final int position) {
+		for (int i = Math.min(position, text.length() - 1); i >= 0; i -= 1) {
+			if (isSplittingCharacter(i)) {
+				return i;
+			}
+		}
+		return -1;
+	}
+
+	private boolean isSplittingCharacter(final int position) {
+		return Character.isWhitespace(text.charAt(position));
+	}
+
+	private StaticText createTail(final int splittingPosition) {
+		final StaticText tail = new StaticText();
+		tail.setText(text.substring(splittingPosition, text.length()));
+		tail.setFont(fontSpec);
+		return tail;
+	}
+
+	private void removeTail(final StaticText tail) {
+		final int headLength = text.length() - tail.text.length();
+		text = text.substring(0, headLength);
+		width -= tail.width;
 	}
 
 }

@@ -61,6 +61,10 @@ public class Line {
 		return !children.isEmpty();
 	}
 
+	public boolean hasMoreThanOneChild() {
+		return !children.isEmpty() && children.getFirst() != children.getLast();
+	}
+
 	public void prependChild(final IInlineBox box) {
 		children.addFirst(box);
 		width += box.getWidth();
@@ -81,6 +85,10 @@ public class Line {
 			width += box.getWidth();
 		}
 		return joined;
+	}
+
+	public IInlineBox getLastChild() {
+		return children.getLast();
 	}
 
 	public void arrangeChildren() {

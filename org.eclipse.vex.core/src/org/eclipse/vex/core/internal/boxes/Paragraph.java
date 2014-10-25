@@ -132,41 +132,53 @@ public class Paragraph implements IChildBox {
 		}
 
 		public void appendChild(final Graphics graphics, final IInlineBox child) {
-			if (childFitsIntoCurrentLine(currentLine, child)) {
-				appendChildToCurrentLine(child);
-			} else {
-				final boolean childWrappedCompletely;
-				if (child.canSplit()) {
-					final IInlineBox tail = child.splitTail(graphics, width - currentLine.getWidth());
-					childWrappedCompletely = child.getWidth() == 0;
-					if (childWrappedCompletely) {
-						childIterator.remove();
-					} else {
-						appendChildToCurrentLine(child);
+			final boolean childWrappedCompletely;
+			if (currentLine.joinWithLastChild(child)) {
+				childIterator.remove();
+				if (currentLine.getWidth() > width) {
+					final IInlineBox previousChild = currentLine.getLastChild();
+					if (!previousChild.canSplit()) {
+						throw new IllegalStateException("An IInlineBox that supports joining must also support splitting!");
 					}
 
+					final IInlineBox tail = previousChild.splitTail(graphics, previousChild.getWidth() - currentLine.getWidth() + width, !currentLine.hasMoreThanOneChild());
+					childWrappedCompletely = previousChild.getWidth() == 0;
 					if (tail.getWidth() > 0) {
 						insertNextChild(tail);
 					}
-				} else {
-					backupChildIterator();
-					childWrappedCompletely = true;
-				}
 
-				lastChildWrappedCompletely = childWrappedCompletely;
+					finalizeCurrentLine();
+					currentLine = new Line();
+				} else {
+					childWrappedCompletely = false;
+				}
+			} else if (childFitsIntoCurrentLine(child)) {
+				currentLine.appendChild(child);
+				childWrappedCompletely = false;
+			} else if (child.canSplit()) {
+				final IInlineBox tail = child.splitTail(graphics, width - currentLine.getWidth(), !currentLine.hasChildren());
+				childWrappedCompletely = child.getWidth() == 0;
+				if (childWrappedCompletely) {
+					childIterator.remove();
+				} else {
+					currentLine.appendChild(child);
+				}
+				if (tail.getWidth() > 0) {
+					insertNextChild(tail);
+				}
 
 				finalizeCurrentLine();
 				currentLine = new Line();
-			}
-		}
-
-		private void appendChildToCurrentLine(final IInlineBox child) {
-			if (currentLine.joinWithLastChild(child)) {
-				childIterator.remove();
 			} else {
-				currentLine.appendChild(child);
+				finalizeCurrentLine();
+				currentLine = new Line();
+				if (childFitsIntoCurrentLine(child)) {
+					currentLine.appendChild(child);
+				}
+				childWrappedCompletely = true;
 			}
-			lastChildWrappedCompletely = false;
+
+			lastChildWrappedCompletely = childWrappedCompletely;
 		}
 
 		private void insertNextChild(final IInlineBox tail) {
@@ -180,8 +192,8 @@ public class Paragraph implements IChildBox {
 			}
 		}
 
-		private boolean childFitsIntoCurrentLine(final Line line, final IInlineBox child) {
-			return line.getWidth() + child.getWidth() < width;
+		private boolean childFitsIntoCurrentLine(final IInlineBox child) {
+			return currentLine.getWidth() + child.getWidth() < width;
 		}
 
 		private void finalizeCurrentLine() {

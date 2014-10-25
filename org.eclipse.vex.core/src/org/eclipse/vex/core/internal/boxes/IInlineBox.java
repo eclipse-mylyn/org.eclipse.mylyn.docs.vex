@@ -40,6 +40,6 @@ public interface IInlineBox extends IBox {
 
 	boolean canSplit();
 
-	IInlineBox splitTail(Graphics graphics, int splittingWidth);
+	IInlineBox splitTail(Graphics graphics, int headWidth, boolean force);
 
 }

@@ -96,7 +96,7 @@ public class TestStaticText {
 		text.setText("1234567890");
 		text.layout(graphics);
 
-		final StaticText tail = text.splitTail(graphics, 6);
+		final StaticText tail = text.splitTail(graphics, 6, true);
 
 		assertSplitEquals("1", "234567890", text, tail);
 		assertEquals(6, text.getWidth());
@@ -110,7 +110,7 @@ public class TestStaticText {
 		text.setText("1234567890");
 		text.layout(graphics);
 
-		final StaticText tail = text.splitTail(graphics, 11);
+		final StaticText tail = text.splitTail(graphics, 11, true);
 
 		assertEquals(6, text.getWidth());
 		assertEquals(54, tail.getWidth());
@@ -123,7 +123,7 @@ public class TestStaticText {
 		text.setText("1234567890");
 		text.layout(graphics);
 
-		final StaticText tail = text.splitTail(graphics, 15);
+		final StaticText tail = text.splitTail(graphics, 15, true);
 
 		assertSame(text.getFont(), tail.getFont());
 	}
@@ -135,7 +135,7 @@ public class TestStaticText {
 		text.setText("1234567890");
 		text.layout(graphics);
 
-		final StaticText tail = text.splitTail(graphics, 5);
+		final StaticText tail = text.splitTail(graphics, 5, true);
 
 		assertSplitEquals("", "1234567890", text, tail);
 	}
@@ -147,7 +147,7 @@ public class TestStaticText {
 		text.setText("1234567890");
 		text.layout(graphics);
 
-		final StaticText tail = text.splitTail(graphics, 11);
+		final StaticText tail = text.splitTail(graphics, 11, true);
 
 		assertSplitEquals("1", "234567890", text, tail);
 	}
@@ -159,9 +159,57 @@ public class TestStaticText {
 		text.setText("1234567890");
 		text.layout(graphics);
 
-		final StaticText tail = text.splitTail(graphics, 100);
+		final StaticText tail = text.splitTail(graphics, 100, true);
 
 		assertSplitEquals("1234567890", "", text, tail);
+	}
+
+	@Test
+	public void givenTextContainsWhitespace_whenSplittingAfterWhitespace_shouldSplitRightAfterWhitespace() throws Exception {
+		final FakeGraphics graphics = new FakeGraphics();
+		final StaticText text = new StaticText();
+		text.setText("1234 567890");
+		text.layout(graphics);
+
+		final StaticText tail = text.splitTail(graphics, 34, false);
+
+		assertSplitEquals("1234 ", "567890", text, tail);
+	}
+
+	@Test
+	public void givenTextContainsWhitespace_whenSplittingBeforeFirstWhitespace_shouldMoveAllContentToTheTail() throws Exception {
+		final FakeGraphics graphics = new FakeGraphics();
+		final StaticText text = new StaticText();
+		text.setText("1234 567890");
+		text.layout(graphics);
+
+		final StaticText tail = text.splitTail(graphics, 15, false);
+
+		assertSplitEquals("", "1234 567890", text, tail);
+	}
+
+	@Test
+	public void givenTextContainsWhitespace_whenSplittingAtWhitespace_shouldSplitRightAfterWhitespace() throws Exception {
+		final FakeGraphics graphics = new FakeGraphics();
+		final StaticText text = new StaticText();
+		text.setText("1234 567890");
+		text.layout(graphics);
+
+		final StaticText tail = text.splitTail(graphics, 28, false);
+
+		assertSplitEquals("1234 ", "567890", text, tail);
+	}
+
+	@Test
+	public void givenTextContainsWhitespace_whenSplittingRightBeforeWhitespace_shouldSplitRightAfterWhitespace() throws Exception {
+		final FakeGraphics graphics = new FakeGraphics();
+		final StaticText text = new StaticText();
+		text.setText("1234 567890");
+		text.layout(graphics);
+
+		final StaticText tail = text.splitTail(graphics, 24, false);
+
+		assertSplitEquals("1234 ", "567890", text, tail);
 	}
 
 	private static void assertSplitEquals(final String head, final String tail, final StaticText headBox, final StaticText tailBox) {
