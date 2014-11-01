@@ -75,6 +75,14 @@ public class Line {
 		width += box.getWidth();
 	}
 
+	public boolean canJoinWithLastChild(final IInlineBox box) {
+		if (children.isEmpty()) {
+			return false;
+		}
+		final IInlineBox lastChild = children.getLast();
+		return lastChild.canJoin(box);
+	}
+
 	public boolean joinWithLastChild(final IInlineBox box) {
 		if (children.isEmpty()) {
 			return false;
