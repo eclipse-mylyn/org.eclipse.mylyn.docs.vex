@@ -99,6 +99,13 @@ public class Line {
 		return children.getLast();
 	}
 
+	public void removeLastChild() {
+		if (children.isEmpty()) {
+			return;
+		}
+		children.removeLast();
+	}
+
 	public void arrangeChildren() {
 		calculateBoundsAndBaseline();
 		arrangeChildrenOnBaseline();
