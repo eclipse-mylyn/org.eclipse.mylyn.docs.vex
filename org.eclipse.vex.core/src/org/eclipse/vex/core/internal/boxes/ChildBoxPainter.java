@@ -21,6 +21,9 @@ import org.eclipse.vex.core.internal.core.Rectangle;
 public class ChildBoxPainter {
 
 	public static void paint(final List<IChildBox> children, final Graphics graphics) {
+		if (children.isEmpty()) {
+			return;
+		}
 		final Rectangle clipBounds = graphics.getClipBounds();
 		int i = findIndexOfFirstVisibleChild(children, clipBounds);
 		while (i < children.size()) {
