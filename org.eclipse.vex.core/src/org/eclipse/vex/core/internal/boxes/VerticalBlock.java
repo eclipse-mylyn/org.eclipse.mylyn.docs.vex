@@ -12,14 +12,12 @@ package org.eclipse.vex.core.internal.boxes;
 
 import java.util.ArrayList;
 
-import org.eclipse.vex.core.internal.core.Color;
-import org.eclipse.vex.core.internal.core.ColorResource;
 import org.eclipse.vex.core.internal.core.Graphics;
 import org.eclipse.vex.core.internal.core.Rectangle;
 
 /**
- * This box arranges child boxes in one vertical column of given width. It has a margin, a border and padding, which
- * reduce the children's width. This box's height depends on the sum of the height of its children.
+ * This box arranges child boxes in one vertical column of given width. Its height depends on the sum of the height of
+ * its children.
  *
  * @author Florian Thienel
  */
@@ -30,11 +28,6 @@ public class VerticalBlock implements IChildBox, IParentBox {
 	private int width;
 	private int height;
 	private final ArrayList<IChildBox> children = new ArrayList<IChildBox>();
-	private Margin margin = Margin.NULL;
-	private Border border = Border.NULL;
-	private Padding padding = Padding.NULL;
-
-	private final ChildBoxPainter childBoxPainter = new ChildBoxPainter();
 
 	public int getTop() {
 		return top;
@@ -81,68 +74,19 @@ public class VerticalBlock implements IChildBox, IParentBox {
 		children.add(child);
 	}
 
-	public Margin getMargin() {
-		return margin;
-	}
-
-	public void setMargin(final Margin margin) {
-		this.margin = margin;
-	}
-
-	public Border getBorder() {
-		return border;
-	}
-
-	public void setBorder(final Border border) {
-		this.border = border;
-	}
-
-	public Padding getPadding() {
-		return padding;
-	}
-
-	public void setPadding(final Padding padding) {
-		this.padding = padding;
-	}
-
 	public void layout(final Graphics graphics) {
-		height = margin.top + border.top + padding.top;
-		final int left = margin.left + border.left + padding.left;
-		final int childrenWidth = width - (margin.left + margin.right + border.left + border.right + padding.left + padding.right);
+		height = 0;
 		for (int i = 0; i < children.size(); i += 1) {
 			final IChildBox child = children.get(i);
-			child.setPosition(height, left);
-			child.setWidth(childrenWidth);
+			child.setPosition(height, 0);
+			child.setWidth(width);
 			child.layout(graphics);
 			height += child.getHeight();
 		}
-		height += margin.bottom + border.bottom + padding.bottom;
 	}
 
 	@Override
 	public void paint(final Graphics graphics) {
-		drawBorder(graphics);
-		childBoxPainter.paint(children, graphics);
-	}
-
-	private void drawBorder(final Graphics graphics) {
-
-		final ColorResource colorResource = graphics.createColor(Color.BLACK); // TODO store border color
-		graphics.setColor(colorResource);
-
-		drawBorderLine(graphics, border.top, margin.top, margin.left - border.left / 2, margin.top, width - margin.right + border.right / 2);
-		drawBorderLine(graphics, border.left, margin.top - border.top / 2, margin.left, height - margin.bottom + border.bottom / 2, margin.left);
-		drawBorderLine(graphics, border.bottom, height - margin.bottom, margin.left - border.left / 2, height - margin.bottom, width - margin.right + border.right / 2);
-		drawBorderLine(graphics, border.right, margin.top - border.top / 2, width - margin.right, height - margin.bottom + border.bottom / 2, width - margin.right);
-
-		colorResource.dispose();
-	}
-
-	private void drawBorderLine(final Graphics graphics, final int lineWidth, final int top, final int left, final int bottom, final int right) {
-		if (lineWidth <= 0) {
-			return;
-		}
-		graphics.setLineWidth(lineWidth);
-		graphics.drawLine(left, top, right, bottom);
+		ChildBoxPainter.paint(children, graphics);
 	}
 }

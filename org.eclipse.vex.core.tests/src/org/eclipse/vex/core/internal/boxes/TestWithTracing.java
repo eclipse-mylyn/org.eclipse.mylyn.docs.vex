@@ -50,13 +50,18 @@ public class TestWithTracing {
 		final HorizontalBar bar = new HorizontalBar();
 		bar.setHeight(10);
 		bar.setColor(Color.BLACK);
+
 		final VerticalBlock block = new VerticalBlock();
 		block.appendChild(bar);
-		block.setMargin(new Margin(10, 20, 30, 40));
-		block.setBorder(new Border(10));
-		block.setPadding(new Padding(15, 25, 35, 45));
-		rootBox.appendChild(block);
-		rootBox.setWidth(100);
+
+		final Frame frame = new Frame();
+		frame.setMargin(new Margin(10, 20, 30, 40));
+		frame.setBorder(new Border(10));
+		frame.setPadding(new Padding(15, 25, 35, 45));
+		frame.setComponent(block);
+
+		rootBox.appendChild(frame);
+		rootBox.setWidth(300);
 
 		final String expected = readExpectedTrace();
 		final String actual = traceRendering(rootBox);

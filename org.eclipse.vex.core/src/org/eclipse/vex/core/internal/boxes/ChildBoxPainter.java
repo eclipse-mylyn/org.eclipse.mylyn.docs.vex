@@ -20,7 +20,7 @@ import org.eclipse.vex.core.internal.core.Rectangle;
  */
 public class ChildBoxPainter {
 
-	public void paint(final List<IChildBox> children, final Graphics graphics) {
+	public static void paint(final List<IChildBox> children, final Graphics graphics) {
 		final Rectangle clipBounds = graphics.getClipBounds();
 		int i = findIndexOfFirstVisibleChild(children, clipBounds);
 		while (i < children.size()) {
@@ -35,13 +35,13 @@ public class ChildBoxPainter {
 		}
 	}
 
-	private void paint(final IChildBox child, final Graphics graphics) {
+	public static void paint(final IChildBox child, final Graphics graphics) {
 		graphics.moveOrigin(child.getLeft(), child.getTop());
 		child.paint(graphics);
 		graphics.moveOrigin(-child.getLeft(), -child.getTop());
 	}
 
-	private int findIndexOfFirstVisibleChild(final List<IChildBox> children, final Rectangle clipBounds) {
+	private static int findIndexOfFirstVisibleChild(final List<IChildBox> children, final Rectangle clipBounds) {
 		int lowerBound = 0;
 		int upperBound = children.size() - 1;
 
@@ -64,7 +64,7 @@ public class ChildBoxPainter {
 		return upperBound;
 	}
 
-	private int center(final int lowerBound, final int upperBound) {
+	private static int center(final int lowerBound, final int upperBound) {
 		return lowerBound + (upperBound - lowerBound) / 2;
 	}
 }

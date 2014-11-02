@@ -19,6 +19,8 @@ public interface IBoxVisitor {
 
 	void visit(VerticalBlock box);
 
+	void visit(Frame box);
+
 	void visit(HorizontalBar box);
 
 	void visit(Paragraph box);

@@ -22,7 +22,6 @@ public class RootBox implements IParentBox {
 	private int width;
 	private int height;
 	private final ArrayList<IChildBox> children = new ArrayList<IChildBox>();
-	private final ChildBoxPainter childBoxPainter = new ChildBoxPainter();
 
 	public int getWidth() {
 		return width;
@@ -50,7 +49,7 @@ public class RootBox implements IParentBox {
 		children.add(child);
 	}
 
-	public void layout(Graphics graphics) {
+	public void layout(final Graphics graphics) {
 		height = 0;
 		for (int i = 0; i < children.size(); i += 1) {
 			final IChildBox child = children.get(i);
@@ -63,6 +62,6 @@ public class RootBox implements IParentBox {
 
 	@Override
 	public void paint(final Graphics graphics) {
-		childBoxPainter.paint(children, graphics);
+		ChildBoxPainter.paint(children, graphics);
 	}
 }

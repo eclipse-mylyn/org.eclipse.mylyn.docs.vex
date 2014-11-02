@@ -65,39 +65,4 @@ public class TestVerticalBlock {
 		assertTrue(box.hasChildren());
 	}
 
-	@Test
-	public void whenCreatedHasNoMargin() throws Exception {
-		assertEquals(Margin.NULL, box.getMargin());
-	}
-
-	@Test
-	public void marginIsMutable() throws Exception {
-		final Margin margin = new Margin(1, 2, 3, 4);
-		box.setMargin(margin);
-		assertEquals(margin, box.getMargin());
-	}
-
-	@Test
-	public void whenCreatedHasNoBorder() throws Exception {
-		assertEquals(Border.NULL, box.getBorder());
-	}
-
-	@Test
-	public void borderIsMutable() throws Exception {
-		final Border border = new Border(1, 2, 3, 4);
-		box.setBorder(border);
-		assertEquals(border, box.getBorder());
-	}
-
-	@Test
-	public void whenCreatedHasNoPadding() throws Exception {
-		assertEquals(Padding.NULL, box.getPadding());
-	}
-
-	@Test
-	public void PaddingIsMutable() throws Exception {
-		final Padding padding = new Padding(1, 2, 3, 4);
-		box.setPadding(padding);
-		assertEquals(padding, box.getPadding());
-	}
 }

@@ -13,40 +13,8 @@ package org.eclipse.vex.core.internal.boxes;
 /**
  * @author Florian Thienel
  */
-public class BaseBoxVisitor implements IBoxVisitor {
+public interface IDecoratorBox extends IBox {
 
-	@Override
-	public void visit(final RootBox box) {
-		// ignore
-	}
+	void setComponent(IChildBox component);
 
-	@Override
-	public void visit(final VerticalBlock box) {
-		// ignore
-	}
-
-	@Override
-	public void visit(final Frame box) {
-		// ignore
-	}
-
-	@Override
-	public void visit(final HorizontalBar box) {
-		// ignore
-	}
-
-	@Override
-	public void visit(final Paragraph box) {
-		// ignore
-	}
-
-	@Override
-	public void visit(final StaticText box) {
-		// ignore
-	}
-
-	@Override
-	public void visit(final Square box) {
-		// ignore
-	}
 }

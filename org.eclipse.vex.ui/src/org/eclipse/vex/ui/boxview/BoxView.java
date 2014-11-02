@@ -14,7 +14,9 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.part.ViewPart;
 import org.eclipse.vex.core.internal.boxes.Border;
+import org.eclipse.vex.core.internal.boxes.Frame;
 import org.eclipse.vex.core.internal.boxes.HorizontalBar;
+import org.eclipse.vex.core.internal.boxes.IChildBox;
 import org.eclipse.vex.core.internal.boxes.Margin;
 import org.eclipse.vex.core.internal.boxes.Padding;
 import org.eclipse.vex.core.internal.boxes.Paragraph;
@@ -76,28 +78,29 @@ public class BoxView extends ViewPart {
 		final RootBox rootBox = new RootBox();
 
 		for (int i = 0; i < 10000; i += 1) {
-			final VerticalBlock mixedBlock = createFramedVerticalBlock();
+			final VerticalBlock mixedBlock = new VerticalBlock();
 			mixedBlock.appendChild(createHorizontalBar());
 			mixedBlock.appendChild(createMixedParagraph(i));
 			mixedBlock.appendChild(createHorizontalBar());
-			rootBox.appendChild(mixedBlock);
+			rootBox.appendChild(createFrame(mixedBlock));
 
-			final VerticalBlock textBlock = createFramedVerticalBlock();
+			final VerticalBlock textBlock = new VerticalBlock();
 			textBlock.appendChild(createHorizontalBar());
 			textBlock.appendChild(createTextParagraph());
 			textBlock.appendChild(createHorizontalBar());
-			rootBox.appendChild(textBlock);
+			rootBox.appendChild(createFrame(textBlock));
 		}
 
 		return rootBox;
 	}
 
-	private VerticalBlock createFramedVerticalBlock() {
-		final VerticalBlock block = new VerticalBlock();
-		block.setMargin(new Margin(10, 20, 30, 40));
-		block.setBorder(new Border(10));
-		block.setPadding(new Padding(15, 25, 35, 45));
-		return block;
+	private Frame createFrame(final IChildBox component) {
+		final Frame frame = new Frame();
+		frame.setMargin(new Margin(10, 20, 30, 40));
+		frame.setBorder(new Border(10));
+		frame.setPadding(new Padding(15, 25, 35, 45));
+		frame.setComponent(component);
+		return frame;
 	}
 
 	private HorizontalBar createHorizontalBar() {
