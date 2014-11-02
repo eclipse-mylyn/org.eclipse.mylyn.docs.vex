@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2008 John Krasnay and others.
+ * Copyright (c) 2004, 2014 John Krasnay and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,6 +8,7 @@
  * Contributors:
  *     John Krasnay - initial API and implementation
  *     Dave Holroyd - Implement text decoration
+ *     Florian Thienel - add convenience constructor with only one name
  *******************************************************************************/
 package org.eclipse.vex.core.internal.core;
 
@@ -49,6 +50,10 @@ public class FontSpec {
 		this.names = names;
 		this.style = style;
 		this.size = size;
+	}
+
+	public FontSpec(final String name, final int style, final float size) {
+		this(new String[] { name }, style, size);
 	}
 
 	/**

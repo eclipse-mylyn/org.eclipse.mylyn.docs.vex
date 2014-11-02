@@ -27,9 +27,9 @@ public class TestStaticText {
 	@Test
 	public void givenTwoStaticTexts_whenFontIsEqual_shouldIndicatePossibleJoin() throws Exception {
 		final StaticText front = new StaticText();
-		front.setFont(new FontSpec(new String[] { "font" }, FontSpec.BOLD, 10));
+		front.setFont(new FontSpec("font", FontSpec.BOLD, 10));
 		final StaticText back = new StaticText();
-		back.setFont(new FontSpec(new String[] { "font" }, FontSpec.BOLD, 10));
+		back.setFont(new FontSpec("font", FontSpec.BOLD, 10));
 
 		assertTrue(front.canJoin(back));
 	}
@@ -37,9 +37,9 @@ public class TestStaticText {
 	@Test
 	public void givenTwoStaticTexts_whenFontIsDifferent_shouldIndicateImpossibleJoin() throws Exception {
 		final StaticText front = new StaticText();
-		front.setFont(new FontSpec(new String[] { "frontFont" }, FontSpec.BOLD, 10));
+		front.setFont(new FontSpec("frontFont", FontSpec.BOLD, 10));
 		final StaticText back = new StaticText();
-		back.setFont(new FontSpec(new String[] { "backFont" }, FontSpec.BOLD, 10));
+		back.setFont(new FontSpec("backFont", FontSpec.BOLD, 10));
 
 		assertFalse(front.canJoin(back));
 	}
@@ -82,9 +82,9 @@ public class TestStaticText {
 	@Test
 	public void givenJoiningTwoStaticTexts_whenJoinIsImpossible_shouldIndicateFailedJoin() throws Exception {
 		final StaticText front = new StaticText();
-		front.setFont(new FontSpec(new String[] { "frontFont" }, FontSpec.BOLD, 10));
+		front.setFont(new FontSpec("frontFont", FontSpec.BOLD, 10));
 		final StaticText back = new StaticText();
-		back.setFont(new FontSpec(new String[] { "backFont" }, FontSpec.BOLD, 10));
+		back.setFont(new FontSpec("backFont", FontSpec.BOLD, 10));
 
 		assertFalse(front.join(back));
 	}
