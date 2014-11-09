@@ -109,7 +109,7 @@ public class Frame implements IChildBox, IDecoratorBox {
 		}
 
 		final int componentLeft = margin.left + border.left + padding.left;
-		final int componentRight = border.right + padding.left + padding.right;
+		final int componentRight = padding.right + border.right + margin.right;
 		final int componentWidth = width - (componentLeft + componentRight);
 		component.setPosition(height, componentLeft);
 		component.setWidth(componentWidth);
