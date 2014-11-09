@@ -10,6 +10,9 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.boxes;
 
+import static org.eclipse.vex.core.internal.boxes.BoxFactory.frame;
+import static org.eclipse.vex.core.internal.boxes.BoxFactory.horizontalBar;
+import static org.eclipse.vex.core.internal.boxes.BoxFactory.verticalBlock;
 import static org.junit.Assert.assertEquals;
 
 import java.io.ByteArrayOutputStream;
@@ -47,18 +50,7 @@ public class TestWithTracing {
 
 	@Test
 	public void verticalBlockHorizontalBar() throws Exception {
-		final HorizontalBar bar = new HorizontalBar();
-		bar.setHeight(10);
-		bar.setColor(Color.BLACK);
-
-		final VerticalBlock block = new VerticalBlock();
-		block.appendChild(bar);
-
-		final Frame frame = new Frame();
-		frame.setMargin(new Margin(10, 20, 30, 40));
-		frame.setBorder(new Border(10));
-		frame.setPadding(new Padding(15, 25, 35, 45));
-		frame.setComponent(block);
+		final Frame frame = frame(verticalBlock(horizontalBar(10, Color.BLACK)), new Margin(10, 20, 30, 40), new Border(10), new Padding(15, 25, 35, 45));
 
 		rootBox.appendChild(frame);
 		rootBox.setWidth(300);

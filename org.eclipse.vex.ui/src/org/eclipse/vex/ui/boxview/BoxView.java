@@ -10,20 +10,23 @@
  *******************************************************************************/
 package org.eclipse.vex.ui.boxview;
 
+import static org.eclipse.vex.core.internal.boxes.BoxFactory.frame;
+import static org.eclipse.vex.core.internal.boxes.BoxFactory.paragraph;
+import static org.eclipse.vex.core.internal.boxes.BoxFactory.rootBox;
+import static org.eclipse.vex.core.internal.boxes.BoxFactory.square;
+import static org.eclipse.vex.core.internal.boxes.BoxFactory.staticText;
+import static org.eclipse.vex.core.internal.boxes.BoxFactory.verticalBlock;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.part.ViewPart;
 import org.eclipse.vex.core.internal.boxes.Border;
-import org.eclipse.vex.core.internal.boxes.Frame;
+import org.eclipse.vex.core.internal.boxes.BoxFactory;
 import org.eclipse.vex.core.internal.boxes.HorizontalBar;
-import org.eclipse.vex.core.internal.boxes.IChildBox;
 import org.eclipse.vex.core.internal.boxes.Margin;
 import org.eclipse.vex.core.internal.boxes.Padding;
 import org.eclipse.vex.core.internal.boxes.Paragraph;
 import org.eclipse.vex.core.internal.boxes.RootBox;
-import org.eclipse.vex.core.internal.boxes.Square;
-import org.eclipse.vex.core.internal.boxes.StaticText;
-import org.eclipse.vex.core.internal.boxes.VerticalBlock;
 import org.eclipse.vex.core.internal.core.Color;
 import org.eclipse.vex.core.internal.core.FontSpec;
 import org.eclipse.vex.core.internal.widget.swt.BoxWidget;
@@ -34,6 +37,10 @@ import org.eclipse.vex.core.internal.widget.swt.BoxWidget;
  * @author Florian Thienel
  */
 public class BoxView extends ViewPart {
+
+	private static final FontSpec TIMES_NEW_ROMAN = new FontSpec(new String[] { "Times New Roman" }, 0, 20.0f);
+
+	private static final String LOREM_IPSUM_LONG = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec a diam lectus. Sed sit amet ipsum mauris. Maecenas congue ligula ac quam viverra nec consectetur ante hendrerit. Donec et mollis dolor. Praesent et diam eget libero egestas mattis sit amet vitae augue. Nam tincidunt congue enim, ut porta lorem lacinia consectetur.";
 
 	private Composite parent;
 	private BoxWidget boxWidget;
@@ -75,61 +82,30 @@ public class BoxView extends ViewPart {
 	}
 
 	private RootBox createTestModel() {
-		final RootBox rootBox = new RootBox();
+		final RootBox rootBox = rootBox();
 
 		for (int i = 0; i < 10000; i += 1) {
-			final VerticalBlock mixedBlock = new VerticalBlock();
-			mixedBlock.appendChild(createHorizontalBar());
-			mixedBlock.appendChild(createMixedParagraph(i));
-			mixedBlock.appendChild(createHorizontalBar());
-			rootBox.appendChild(createFrame(mixedBlock));
-
-			final VerticalBlock textBlock = new VerticalBlock();
-			textBlock.appendChild(createHorizontalBar());
-			textBlock.appendChild(createTextParagraph());
-			textBlock.appendChild(createHorizontalBar());
-			rootBox.appendChild(createFrame(textBlock));
+			rootBox.appendChild(frame(verticalBlock(horizontalBar(), mixedParagraph(i), horizontalBar()), new Margin(10), new Border(5), new Padding(10, 20, 30, 40)));
+			rootBox.appendChild(frame(verticalBlock(horizontalBar(), textParagraph(), horizontalBar()), new Margin(50), Border.NULL, Padding.NULL));
 		}
 
 		return rootBox;
 	}
 
-	private Frame createFrame(final IChildBox component) {
-		final Frame frame = new Frame();
-		frame.setMargin(new Margin(10, 20, 30, 40));
-		frame.setBorder(new Border(10));
-		frame.setPadding(new Padding(15, 25, 35, 45));
-		frame.setComponent(component);
-		return frame;
+	private HorizontalBar horizontalBar() {
+		return BoxFactory.horizontalBar(2, Color.BLACK);
 	}
 
-	private HorizontalBar createHorizontalBar() {
-		final HorizontalBar horizontalBar = new HorizontalBar();
-		horizontalBar.setHeight(2);
-		horizontalBar.setColor(Color.BLACK);
-		return horizontalBar;
-	}
-
-	private Paragraph createMixedParagraph(final int i) {
+	private Paragraph mixedParagraph(final int i) {
 		final Paragraph paragraph = new Paragraph();
 		for (int j = 0; j < 20; j += 1) {
-			final StaticText text = new StaticText();
-			text.setText("Lorem ipsum " + i + " ");
-			text.setFont(new FontSpec(new String[] { "Arial" }, 0, 10.0f + j));
-			paragraph.appendChild(text);
-			final Square square = new Square();
-			square.setSize(5 + j);
-			paragraph.appendChild(square);
+			paragraph.appendChild(staticText("Lorem ipsum " + i + " ", new FontSpec(new String[] { "Arial" }, 0, 10.0f + j)));
+			paragraph.appendChild(square(5 + j));
 		}
 		return paragraph;
 	}
 
-	private Paragraph createTextParagraph() {
-		final Paragraph paragraph = new Paragraph();
-		final StaticText text = new StaticText();
-		text.setText("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec a diam lectus. Sed sit amet ipsum mauris. Maecenas congue ligula ac quam viverra nec consectetur ante hendrerit. Donec et mollis dolor. Praesent et diam eget libero egestas mattis sit amet vitae augue. Nam tincidunt congue enim, ut porta lorem lacinia consectetur.");
-		text.setFont(new FontSpec(new String[] { "Times New Roman" }, 0, 20.0f));
-		paragraph.appendChild(text);
-		return paragraph;
+	private Paragraph textParagraph() {
+		return paragraph(staticText(LOREM_IPSUM_LONG, TIMES_NEW_ROMAN));
 	}
 }
