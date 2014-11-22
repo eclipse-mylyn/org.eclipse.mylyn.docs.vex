@@ -7,7 +7,7 @@
 	<name>Vex Update Site</name>
 
 	<parent>
-		<artifactId>org.eclipse.vex-releng</artifactId>
+		<artifactId>root</artifactId>
 		<groupId>org.eclipse.vex</groupId>
 		<version>1.1.0-SNAPSHOT</version>
 		<relativePath>../org.eclipse.vex.releng/pom.xml</relativePath>
