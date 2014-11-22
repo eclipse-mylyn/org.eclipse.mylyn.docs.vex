@@ -23,43 +23,43 @@
   <setupTask
       xsi:type="setup.p2:P2Task">
     <requirement
-        id="org.eclipse.pde.api.tools.ee.feature.feature.group"/>
+        name="org.eclipse.pde.api.tools.ee.feature.feature.group"/>
     <requirement
-        id="org.eclipse.oomph.version.feature.group"/>
+        name="org.eclipse.oomph.version.feature.group"/>
     <requirement
-        id="org.eclipse.oomph.launches.feature.group"/>
+        name="org.eclipse.oomph.launches.feature.group"/>
     <requirement
-        id="org.eclipse.oomph.manifests.feature.group"/>
+        name="org.eclipse.oomph.manifests.feature.group"/>
     <requirement
-        id="org.eclipse.oomph.projectconfig.feature.group"/>
+        name="org.eclipse.oomph.projectconfig.feature.group"/>
     <requirement
-        id="org.eclipse.oomph.projectcopy.feature.group"/>
+        name="org.eclipse.oomph.projectcopy.feature.group"/>
     <requirement
-        id="org.eclipse.oomph.workingsets.feature.group"/>
+        name="org.eclipse.oomph.workingsets.feature.group"/>
     <requirement
-        id="org.eclipse.mylyn.ide_feature.feature.group"/>
+        name="org.eclipse.mylyn.ide_feature.feature.group"/>
     <requirement
-        id="org.eclipse.mylyn.java_feature.feature.group"/>
+        name="org.eclipse.mylyn.java_feature.feature.group"/>
     <requirement
-        id="org.eclipse.mylyn.pde_feature.feature.group"/>
+        name="org.eclipse.mylyn.pde_feature.feature.group"/>
     <requirement
-        id="org.eclipse.mylyn.team_feature.feature.group"/>
+        name="org.eclipse.mylyn.team_feature.feature.group"/>
     <requirement
-        id="org.eclipse.mylyn.gerrit.feature.feature.group"/>
+        name="org.eclipse.mylyn.gerrit.feature.feature.group"/>
     <requirement
-        id="org.eclipse.mylyn_feature.feature.group"/>
+        name="org.eclipse.mylyn_feature.feature.group"/>
     <requirement
-        id="org.eclipse.mylyn.bugzilla_feature.feature.group"/>
+        name="org.eclipse.mylyn.bugzilla_feature.feature.group"/>
     <requirement
-        id="org.eclipse.mylyn.git.feature.group"/>
+        name="org.eclipse.mylyn.git.feature.group"/>
     <requirement
-        id="org.eclipse.mylyn.builds.feature.group"/>
+        name="org.eclipse.mylyn.builds.feature.group"/>
     <requirement
-        id="org.eclipse.mylyn.hudson.feature.group"/>
+        name="org.eclipse.mylyn.hudson.feature.group"/>
     <requirement
-        id="org.eclipse.egit.feature.group"/>
+        name="org.eclipse.egit.feature.group"/>
     <requirement
-        id="org.eclipse.egit.mylyn.feature.group"/>
+        name="org.eclipse.egit.mylyn.feature.group"/>
   </setupTask>
   <setupTask
       xsi:type="setup:VariableTask"
@@ -101,21 +101,21 @@
           name="Vex"
           activeRepositoryList="">
         <requirement
-            id="org.eclipse.platform.feature.group"/>
+            name="org.eclipse.platform.feature.group"/>
         <requirement
-            id="org.eclipse.jdt.feature.group"/>
+            name="org.eclipse.jdt.feature.group"/>
         <requirement
-            id="org.eclipse.wst.xml_ui.feature.feature.group"/>
+            name="org.eclipse.wst.xml_ui.feature.feature.group"/>
         <requirement
-            id="org.eclipse.vex.feature.feature.group"/>
+            name="org.eclipse.vex.feature.feature.group"/>
         <requirement
-            id="org.eclipse.vex.core.tests"/>
+            name="org.eclipse.vex.core.tests"/>
         <requirement
-            id="org.eclipse.vex.ui.tests"/>
+            name="org.eclipse.vex.ui.tests"/>
         <requirement
-            id="org.eclipse.vex.releng"/>
+            name="org.eclipse.vex.releng"/>
         <requirement
-            id="org.eclipse.vex.repository"/>
+            name="org.eclipse.vex.repository"/>
         <sourceLocator
             rootFolder="${git.clone.vex.location}"/>
         <repositoryList
@@ -164,9 +164,9 @@
         userID="${bugzilla.id}"
         password="${eclipse.user.password}">
       <buildPlan
-          name="mylyn-docs-vex.ci"/>
+          name="ci.master"/>
       <buildPlan
-          name="mylyn-docs-vex.gerrit"/>
+          name="gerrit"/>
     </setupTask>
     <description>The main development stream.</description>
   </stream>
