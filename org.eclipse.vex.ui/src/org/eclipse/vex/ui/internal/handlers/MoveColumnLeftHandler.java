@@ -12,7 +12,7 @@ package org.eclipse.vex.ui.internal.handlers;
 
 /**
  * Moves the current table column to the left.
- * 
+ *
  * @see AbstractMoveColumnHandler
  * @see MoveColumnRightHandler
  */

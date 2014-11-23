@@ -73,14 +73,17 @@ public class DocumentContextSourceProvider extends AbstractSourceProvider {
 
 	private INode currentNode;
 
+	@Override
 	public void dispose() {
 		// nothing to clean-up (all fields are primitives)
 	}
 
+	@Override
 	public String[] getProvidedSourceNames() {
 		return new String[] { IS_COLUMN };
 	}
 
+	@Override
 	public Map<String, Boolean> getCurrentState() {
 		final Map<String, Boolean> currentState = new HashMap<String, Boolean>(6);
 		currentState.put(IS_COLUMN, Boolean.valueOf(isColumn));
@@ -97,7 +100,7 @@ public class DocumentContextSourceProvider extends AbstractSourceProvider {
 
 	/**
 	 * Synchronizes the variable values which will be exposed by this service with the specified {@link VexWidget}.
-	 * 
+	 *
 	 * @param widget
 	 *            the Vex widget containing the actual states
 	 */

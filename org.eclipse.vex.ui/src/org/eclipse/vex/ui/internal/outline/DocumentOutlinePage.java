@@ -19,6 +19,8 @@ import java.text.MessageFormat;
 
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.jface.viewers.DoubleClickEvent;
+import org.eclipse.jface.viewers.IDoubleClickListener;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
@@ -110,10 +112,12 @@ public class DocumentOutlinePage extends Page implements IContentOutlinePage {
 		}
 	}
 
+	@Override
 	public void addSelectionChangedListener(final ISelectionChangedListener listener) {
 		selectionProvider.addSelectionChangedListener(listener);
 	}
 
+	@Override
 	public ISelection getSelection() {
 		return selectionProvider.getSelection();
 	}
@@ -126,17 +130,19 @@ public class DocumentOutlinePage extends Page implements IContentOutlinePage {
 		return treeViewer;
 	}
 
+	@Override
 	public void removeSelectionChangedListener(final ISelectionChangedListener listener) {
 		selectionProvider.removeSelectionChangedListener(listener);
 	}
 
+	@Override
 	public void setSelection(final ISelection selection) {
 		selectionProvider.setSelection(selection);
 	}
 
 	/**
 	 * Updates the state of the outline view and refreshes the tree viewer.
-	 * 
+	 *
 	 * @see IToolBarContributor
 	 */
 	public void setViewState(final String stateId, final boolean newValue) {
@@ -147,6 +153,7 @@ public class DocumentOutlinePage extends Page implements IContentOutlinePage {
 		if (treeViewer != null) {
 			treeViewer.getControl().setRedraw(false);
 			BusyIndicator.showWhile(treeViewer.getControl().getDisplay(), new Runnable() {
+				@Override
 				public void run() {
 					treeViewer.refresh();
 				}
@@ -245,21 +252,23 @@ public class DocumentOutlinePage extends Page implements IContentOutlinePage {
 		document.addDocumentListener(documentListener);
 
 		treeViewer.addSelectionChangedListener(selectionListener);
+		treeViewer.addDoubleClickListener(doubleClickListener);
 	}
 
 	/**
 	 * Receives selection changed events from both our TreeViewer and the VexWidget. Generally, we use this to
 	 * synchronize the selection between the two, but we also do the following...
-	 * 
+	 *
 	 * - when a notification comes from VexWidget, we create the treeViewer if needed (that is, if the part was created
 	 * before VexPlugin was done loading its configuration.
-	 * 
+	 *
 	 * - notifications from the TreeViewer are passed on to our SelectionChangedListeners.
 	 */
 	private final ISelectionChangedListener selectionListener = new ISelectionChangedListener() {
 		private Object[] lastExpandedElements = null;
 		private INode selectedTreeNode;
 
+		@Override
 		public void selectionChanged(final SelectionChangedEvent event) {
 			if (event.getSource() instanceof VexWidget) {
 				final VexWidget vexWidget = (VexWidget) event.getSource();
@@ -283,6 +292,7 @@ public class DocumentOutlinePage extends Page implements IContentOutlinePage {
 					if (selectedTreeNode != null) {
 						getTreeViewer().getControl().setRedraw(false);
 						BusyIndicator.showWhile(getTreeViewer().getControl().getDisplay(), new Runnable() {
+							@Override
 							public void run() {
 								// restore the expanded state
 								if (lastExpandedElements != null) {
@@ -316,12 +326,33 @@ public class DocumentOutlinePage extends Page implements IContentOutlinePage {
 						// Moving to the end of the element first is a cheap
 						// way to make sure we end up with the
 						// caret at the top of the viewport
-						vexWidget.moveTo(node.getEndOffset());
-						vexWidget.moveTo(node.getStartOffset() + 1);
+						vexWidget.moveTo(node.getEndPosition());
+						vexWidget.moveTo(node.getStartPosition().moveBy(1), true);
 					}
 				}
 			}
 		}
+	};
+
+	/**
+	 * Receives double click events from our TreeViewer. We simply give focus to the VexWidget here. The first click
+	 * already moved the caret to the selected element.
+	 */
+	private final IDoubleClickListener doubleClickListener = new IDoubleClickListener() {
+
+		@Override
+		public void doubleClick(final DoubleClickEvent event) {
+			if (treeViewer.getTree().isFocusControl()) {
+				final TreeItem[] selected = treeViewer.getTree().getSelection();
+				if (selected.length > 0) {
+					final INode node = (INode) selected[0].getData();
+					final VexWidget vexWidget = vexEditor.getVexWidget();
+					vexWidget.moveTo(node.getStartPosition().moveBy(1));
+					vexWidget.setFocus();
+				}
+			}
+		}
+
 	};
 
 	private final IVexEditorListener vexEditorListener = new EditorEventAdapter() {
@@ -344,6 +375,7 @@ public class DocumentOutlinePage extends Page implements IContentOutlinePage {
 
 	private final IDocumentListener documentListener = new IDocumentListener() {
 
+		@Override
 		public void attributeChanged(final AttributeChangeEvent event) {
 
 			// This cast is save because this event is only fired due to the attribute changes of elements.
@@ -355,20 +387,25 @@ public class DocumentOutlinePage extends Page implements IContentOutlinePage {
 			}
 		}
 
+		@Override
 		public void namespaceChanged(final NamespaceDeclarationChangeEvent event) {
 		}
 
+		@Override
 		public void beforeContentDeleted(final ContentChangeEvent event) {
 		}
 
+		@Override
 		public void beforeContentInserted(final ContentChangeEvent event) {
 		}
 
+		@Override
 		public void contentDeleted(final ContentChangeEvent event) {
 			final IParent outlineElement = event.getParent();
 			refreshOutlineElement(outlineElement);
 		}
 
+		@Override
 		public void contentInserted(final ContentChangeEvent event) {
 			final IParent outlineElement = event.getParent();
 			refreshOutlineElement(outlineElement);

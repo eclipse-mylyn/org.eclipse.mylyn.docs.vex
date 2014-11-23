@@ -42,7 +42,7 @@ import org.w3c.css.sac.SiblingSelector;
  * Represents a pairing of a selector with a list of styles. This does not exactly correspond to a rule in a style
  * sheet; there is only one selector associated with an instance of this class, whereas multiple selectors may be
  * associated with a style sheet rule.
- * 
+ *
  * Note: <code>Rule</code> implements the <code>Comparable</code> interface in order to be sorted by "specificity" as
  * defined by the CSS spec. However, this ordering is <em>not</em> consistent with <code>equals</code> (rules with the
  * same specificity may not be equal). Therefore, <code>Rule</code> objects should not be used with sorted collections
@@ -57,7 +57,7 @@ public class Rule {
 
 	/**
 	 * Class constructor.
-	 * 
+	 *
 	 * @param selector
 	 *            Selector for the rule.
 	 */
@@ -67,7 +67,7 @@ public class Rule {
 
 	/**
 	 * Adds a property declaration to the rule.
-	 * 
+	 *
 	 * @param decl
 	 *            new property declaration to add
 	 */
@@ -100,7 +100,7 @@ public class Rule {
 
 	/**
 	 * Returns true if the given element matches this rule's selector.
-	 * 
+	 *
 	 * @param node
 	 *            Node to check.
 	 */
@@ -186,7 +186,7 @@ public class Rule {
 			return false; // not yet supported
 
 		case Selector.SAC_COMMENT_NODE_SELECTOR:
-			return false; // not yet supported 
+			return false; // not yet supported
 
 		case Selector.SAC_PSEUDO_ELEMENT_SELECTOR:
 			// Always return true here. The Selector is evaluated with SAC_CHILD_SELECTOR.

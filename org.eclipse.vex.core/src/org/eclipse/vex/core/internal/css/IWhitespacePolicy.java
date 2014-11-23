@@ -23,10 +23,12 @@ public interface IWhitespacePolicy {
 	 * A NULL object of this type. No blocks and no pre elements.
 	 */
 	IWhitespacePolicy NULL = new IWhitespacePolicy() {
+		@Override
 		public boolean isBlock(final INode node) {
 			return false;
 		}
 
+		@Override
 		public boolean isPre(final INode node) {
 			return false;
 		}
@@ -36,10 +38,12 @@ public interface IWhitespacePolicy {
 	 * This policy preserves whitespace but knows no blocks.
 	 */
 	IWhitespacePolicy PRESERVE_WHITESPACE = new IWhitespacePolicy() {
+		@Override
 		public boolean isBlock(final INode node) {
 			return false;
 		}
 
+		@Override
 		public boolean isPre(final INode node) {
 			return true;
 		}
@@ -49,10 +53,12 @@ public interface IWhitespacePolicy {
 	 * This policy treats every node as a block.
 	 */
 	IWhitespacePolicy ALL_BLOCKS = new IWhitespacePolicy() {
+		@Override
 		public boolean isBlock(final INode node) {
 			return true;
 		}
 
+		@Override
 		public boolean isPre(final INode node) {
 			return false;
 		}
@@ -60,7 +66,7 @@ public interface IWhitespacePolicy {
 
 	/**
 	 * Returns true if the given element is normally block-formatted.
-	 * 
+	 *
 	 * @param element
 	 *            Element to test.
 	 */
@@ -68,7 +74,7 @@ public interface IWhitespacePolicy {
 
 	/**
 	 * Returns true if the given element is pre-formatted, that is, all of its contained whitespace should be preserved.
-	 * 
+	 *
 	 * @param element
 	 *            Element to test.
 	 */

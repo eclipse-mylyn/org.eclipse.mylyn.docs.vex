@@ -10,11 +10,12 @@
  *******************************************************************************/
 package org.eclipse.vex.ui.internal.handlers;
 
+import org.eclipse.vex.core.provisional.dom.ContentPosition;
 import org.eclipse.vex.ui.internal.handlers.VexHandlerUtil.SelectedRows;
 
 /**
  * Moves the current table row down below its next sibling.
- * 
+ *
  * @see AbstractMoveRowHandler
  * @see MoveRowUpHandler
  */
@@ -26,9 +27,9 @@ public class MoveRowDownHandler extends AbstractMoveRowHandler {
 	}
 
 	@Override
-	protected int target(final SelectedRows selected) {
+	protected ContentPosition target(final SelectedRows selected) {
 		final Object firstRow = selected.getRows().get(0);
-		return VexHandlerUtil.getOuterRange(firstRow).getStartOffset();
+		return VexHandlerUtil.getOuterRange(firstRow).getStartPosition();
 	}
 
 }

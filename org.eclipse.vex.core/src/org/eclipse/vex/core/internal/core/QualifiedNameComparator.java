@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  * 		Florian Thienel - initial API and implementation
  *******************************************************************************/
@@ -19,6 +19,7 @@ import org.eclipse.core.runtime.QualifiedName;
  */
 public class QualifiedNameComparator implements Comparator<QualifiedName> {
 
+	@Override
 	public int compare(final QualifiedName name1, final QualifiedName name2) {
 		return name1.toString().compareTo(name2.toString());
 	}

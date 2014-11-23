@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  * 		Florian Thienel - initial API and implementation
  *******************************************************************************/
@@ -14,7 +14,7 @@ import org.eclipse.core.runtime.QualifiedName;
 
 /**
  * Notification about the change of an attribute.
- * 
+ *
  * @author Florian Thienel
  */
 public class AttributeChangeEvent extends DocumentEvent {
@@ -27,7 +27,7 @@ public class AttributeChangeEvent extends DocumentEvent {
 
 	/**
 	 * Create an event with attribute information.
-	 * 
+	 *
 	 * @param document
 	 *            Document that changed.
 	 * @param parent

@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     John Krasnay - initial API and implementation
  *******************************************************************************/
@@ -46,6 +46,7 @@ import org.eclipse.vex.core.internal.widget.BaseVexWidget;
 import org.eclipse.vex.core.internal.widget.IBoxFilter;
 import org.eclipse.vex.core.internal.widget.IHostComponent;
 import org.eclipse.vex.core.internal.widget.swt.VexWidget;
+import org.eclipse.vex.core.provisional.dom.ContentPosition;
 import org.eclipse.vex.core.provisional.dom.ContentRange;
 import org.eclipse.vex.core.provisional.dom.IDocument;
 import org.eclipse.vex.ui.internal.editor.VexEditor;
@@ -59,6 +60,7 @@ class DebugViewPage implements IPageBookViewPage {
 		this.vexEditor = vexEditor;
 	}
 
+	@Override
 	public void createControl(final Composite parent) {
 
 		composite = new Composite(parent, SWT.NONE);
@@ -74,6 +76,7 @@ class DebugViewPage implements IPageBookViewPage {
 		vexEditor.getEditorSite().getSelectionProvider().addSelectionChangedListener(selectionListener);
 	}
 
+	@Override
 	public void dispose() {
 		if (vexWidget != null && !vexWidget.isDisposed()) {
 			vexWidget.removeMouseMoveListener(mouseMoveListener);
@@ -81,21 +84,26 @@ class DebugViewPage implements IPageBookViewPage {
 		vexEditor.getEditorSite().getSelectionProvider().removeSelectionChangedListener(selectionListener);
 	}
 
+	@Override
 	public Control getControl() {
 		return composite;
 	}
 
+	@Override
 	public IPageSite getSite() {
 		return site;
 	}
 
+	@Override
 	public void init(final IPageSite site) throws PartInitException {
 		this.site = site;
 	}
 
+	@Override
 	public void setActionBars(final IActionBars actionBars) {
 	}
 
+	@Override
 	public void setFocus() {
 	}
 
@@ -246,10 +254,12 @@ class DebugViewPage implements IPageBookViewPage {
 		final Button updateButton = new Button(composite, SWT.PUSH);
 		updateButton.setText("Refresh");
 		updateButton.addSelectionListener(new SelectionListener() {
+			@Override
 			public void widgetSelected(final SelectionEvent e) {
 				repopulate();
 			}
 
+			@Override
 			public void widgetDefaultSelected(final SelectionEvent e) {
 			}
 		});
@@ -262,6 +272,7 @@ class DebugViewPage implements IPageBookViewPage {
 	}
 
 	private final ISelectionChangedListener selectionListener = new ISelectionChangedListener() {
+		@Override
 		public void selectionChanged(final SelectionChangedEvent event) {
 			if (vexWidget == null) {
 				createDebugPanel();
@@ -271,9 +282,11 @@ class DebugViewPage implements IPageBookViewPage {
 	};
 
 	private final ControlListener controlListener = new ControlListener() {
+		@Override
 		public void controlMoved(final ControlEvent e) {
 		}
 
+		@Override
 		public void controlResized(final ControlEvent e) {
 			resizeTables();
 		}
@@ -295,6 +308,7 @@ class DebugViewPage implements IPageBookViewPage {
 
 	private final MouseMoveListener mouseMoveListener = new MouseMoveListener() {
 
+		@Override
 		public void mouseMove(final MouseEvent e) {
 			final Rectangle rect = new Rectangle(e.x, e.y, 0, 0);
 			final Rectangle viewport = getViewport();
@@ -331,7 +345,7 @@ class DebugViewPage implements IPageBookViewPage {
 		setItemFromRect(documentItem, getRootBoxBounds());
 		setFromInnermostBox(boxItem, getInnermostBox());
 		final Rectangle viewport = getViewport();
-		caretOffsetItem.setText(1, Integer.toString(impl.getCaretOffset()));
+		caretOffsetItem.setText(1, impl.getCaretPosition().toString());
 		caretOffsetContentItem.setText(1, getContent());
 		setItemFromRect(viewportItem, viewport);
 		setItemFromRect(caretAbsItem, getCaretBounds());
@@ -360,15 +374,15 @@ class DebugViewPage implements IPageBookViewPage {
 	}
 
 	private String getContent() {
-		final int offset = impl.getCaretOffset();
+		final ContentPosition offset = impl.getCaretPosition();
 		final IDocument doc = impl.getDocument();
 		final int len = 8;
 
 		final StringBuilder result = new StringBuilder();
-		final ContentRange range = new ContentRange(offset - len, offset + len).intersection(doc.getRange());
+		final ContentRange range = new ContentRange(offset.moveBy(-len), offset.moveBy(len)).intersection(doc.getRange());
 		final String content = doc.getContent().getRawText(range);
 
-		final int caretIndex = offset - range.getStartOffset();
+		final int caretIndex = offset.getOffset() - range.getStartOffset();
 
 		result.append(content.substring(0, caretIndex).replace("\0", "#"));
 		result.append("|");

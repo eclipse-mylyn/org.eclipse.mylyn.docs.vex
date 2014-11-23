@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     John Krasnay - initial API and implementation
  *     Florian Thienel - refactoring to full fledged DOM
@@ -23,7 +23,7 @@ public class Text extends Node implements IText {
 	/**
 	 * Create a new Text node for the given range in the given content. This constructor automatically associates the
 	 * Text node with the given content and sets its parent.
-	 * 
+	 *
 	 * @param parent
 	 *            The parent node containing the text
 	 * @param content
@@ -38,14 +38,17 @@ public class Text extends Node implements IText {
 		associate(content, range);
 	}
 
+	@Override
 	public void accept(final INodeVisitor visitor) {
 		visitor.visit(this);
 	}
 
+	@Override
 	public <T> T accept(final INodeVisitorWithResult<T> visitor) {
 		return visitor.visit(this);
 	}
 
+	@Override
 	public boolean isKindOf(final INode node) {
 		return false;
 	}

@@ -16,17 +16,19 @@ import java.util.List;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.vex.core.internal.layout.LayoutUtils.ElementOrRange;
 import org.eclipse.vex.core.internal.widget.swt.VexWidget;
-import org.eclipse.vex.core.provisional.dom.ContentRange;
+import org.eclipse.vex.core.provisional.dom.ContentPositionRange;
 
 /**
  * Moves the current table column either to the left or to the right.
- * 
+ *
  * @see MoveColumnLeftHandler
  * @see MoveColumnRightHandler
  */
 public abstract class AbstractMoveColumnHandler extends AbstractHandler {
 
+	@Override
 	public Object execute(final ExecutionEvent event) throws ExecutionException {
 		final VexWidget widget = VexHandlerUtil.computeWidget(event);
 		final VexHandlerUtil.RowColumnInfo rcInfo = VexHandlerUtil.getRowColumnInfo(widget);
@@ -36,6 +38,7 @@ public abstract class AbstractMoveColumnHandler extends AbstractHandler {
 		}
 
 		widget.doWork(new Runnable() {
+			@Override
 			public void run() {
 				final List<Object> sourceCells = new ArrayList<Object>();
 				final List<Object> targetCells = new ArrayList<Object>();
@@ -58,7 +61,7 @@ public abstract class AbstractMoveColumnHandler extends AbstractHandler {
 			private Object leftCell;
 
 			@Override
-			public void onCell(final Object row, final Object cell, final int rowIndex, final int cellIndex) {
+			public void onCell(final ElementOrRange row, final ElementOrRange cell, final int rowIndex, final int cellIndex) {
 
 				if (leftCell(cellIndex, rcInfo.cellIndex)) {
 					leftCell = cell;
@@ -81,13 +84,14 @@ public abstract class AbstractMoveColumnHandler extends AbstractHandler {
 			// paste it to the source column.
 			final Object source = sourceCells.get(i);
 			final Object target = targetCells.get(i);
-			final ContentRange sourceRange = VexHandlerUtil.getOuterRange(source);
-			final ContentRange targetRange = VexHandlerUtil.getOuterRange(target);
-			widget.moveTo(moveRight() ? targetRange.getStartOffset() : targetRange.getEndOffset());
+			final ContentPositionRange sourceRange = VexHandlerUtil.getOuterRange(source);
+			final ContentPositionRange targetRange = VexHandlerUtil.getOuterRange(target);
+			widget.moveTo(moveRight() ? targetRange.getStartPosition() : targetRange.getEndPosition());
 			widget.savePosition(new Runnable() {
+				@Override
 				public void run() {
-					widget.moveTo(sourceRange.getStartOffset());
-					widget.moveTo(sourceRange.getEndOffset(), true);
+					widget.moveTo(sourceRange.getStartPosition());
+					widget.moveTo(sourceRange.getEndPosition(), true);
 					widget.cutSelection();
 				}
 			});

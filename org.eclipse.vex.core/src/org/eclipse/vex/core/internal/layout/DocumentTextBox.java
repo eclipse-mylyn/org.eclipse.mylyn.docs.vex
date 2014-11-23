@@ -18,8 +18,10 @@ import org.eclipse.vex.core.internal.core.ColorResource;
 import org.eclipse.vex.core.internal.core.FontResource;
 import org.eclipse.vex.core.internal.core.Graphics;
 import org.eclipse.vex.core.internal.css.Styles;
+import org.eclipse.vex.core.provisional.dom.ContentPosition;
 import org.eclipse.vex.core.provisional.dom.ContentRange;
 import org.eclipse.vex.core.provisional.dom.INode;
+import org.eclipse.vex.core.provisional.dom.IPosition;
 
 /**
  * A TextBox that gets its text from the document. Represents text which is editable within the VexWidget.
@@ -27,11 +29,12 @@ import org.eclipse.vex.core.provisional.dom.INode;
 public class DocumentTextBox extends TextBox {
 
 	private int startRelative;
+	private final IPosition startPosition;
 	private final int endRelative;
 
 	/**
 	 * Class constructor.
-	 * 
+	 *
 	 * @param context
 	 *            LayoutContext used to calculate the box's size.
 	 * @param node
@@ -48,15 +51,15 @@ public class DocumentTextBox extends TextBox {
 			throw new AssertionFailedException(MessageFormat.format("assertion failed: DocumentTextBox for {2}: startOffset {0} > endOffset {1}", startOffset, endOffset, node)); //$NON-NLS-1$
 		}
 
-		final int nodeStart = node.getStartOffset();
-		startRelative = startOffset - nodeStart;
-		endRelative = endOffset - nodeStart;
+		startRelative = 0;
+		startPosition = node.getContent().createPosition(startOffset);
+		endRelative = endOffset - startOffset;
 
 		// The box constructed here will be splitted, so there's no need to calculate the width here.
 		calculateHeight(context);
 		setWidth(-1);
 
-		if (startOffset <= nodeStart || endOffset >= node.getEndOffset()) {
+		if (startOffset <= node.getStartOffset() || endOffset >= node.getEndOffset()) {
 			// Do not use Assert.isTrue. This Contructor is called very often and the use of Assert.isTrue would evaluate the Message.format every time.
 			throw new AssertionFailedException(MessageFormat.format("assertion failed: Range of DocumentTextBox for {0} exceeds content of parent node", node)); //$NON-NLS-1$
 		}
@@ -64,7 +67,7 @@ public class DocumentTextBox extends TextBox {
 
 	/**
 	 * Class constructor used by the splitAt method.
-	 * 
+	 *
 	 * @param other
 	 *            Instance of DocumentTextBox that should be splitted.
 	 * @param endOffset
@@ -74,8 +77,9 @@ public class DocumentTextBox extends TextBox {
 	 */
 	private DocumentTextBox(final DocumentTextBox other, final int endOffset, final int width) {
 		super(other.getNode());
+		startPosition = other.startPosition;
 		startRelative = other.startRelative;
-		endRelative = endOffset - getNode().getStartOffset();
+		endRelative = endOffset - startPosition.getOffset();
 		setWidth(width);
 		setHeight(other.getHeight());
 		setBaseline(other.getBaseline());
@@ -89,7 +93,7 @@ public class DocumentTextBox extends TextBox {
 		if (endRelative == -1) {
 			return -1;
 		} else {
-			return getNode().getStartOffset() + endRelative;
+			return startPosition.getOffset() + endRelative;
 		}
 	}
 
@@ -101,7 +105,7 @@ public class DocumentTextBox extends TextBox {
 		if (startRelative == -1) {
 			return -1;
 		} else {
-			return getNode().getStartOffset() + startRelative;
+			return startPosition.getOffset() + startRelative;
 		}
 	}
 
@@ -222,7 +226,7 @@ public class DocumentTextBox extends TextBox {
 			right = null;
 		} else {
 			// Instead of creating a new box, we reuse this one
-			startRelative = split - getNode().getStartOffset();
+			startRelative = split - startPosition.getOffset();
 			if (left == null) {
 				calculateSize(context);
 				remaining -= getWidth();
@@ -237,7 +241,7 @@ public class DocumentTextBox extends TextBox {
 	 *      int, int)
 	 */
 	@Override
-	public int viewToModel(final LayoutContext context, final int x, final int y) {
+	public ContentPosition viewToModel(final LayoutContext context, final int x, final int y) {
 
 		final Graphics g = context.getGraphics();
 		final Styles styles = context.getStyleSheet().getStyles(getNode());
@@ -246,13 +250,13 @@ public class DocumentTextBox extends TextBox {
 		final char[] chars = getText().toCharArray();
 
 		if (getWidth() <= 0) {
-			return getStartOffset();
+			return getNode().getStartPosition().copy();
 		}
 
 		// first, get an estimate based on x / width
 		int offset = x / getWidth() * chars.length;
 		offset = Math.max(0, offset);
-		offset = Math.min(chars.length, offset);
+		offset = Math.min(chars.length - 1, offset);
 
 		int delta = Math.abs(x - g.charsWidth(chars, 0, offset));
 
@@ -278,7 +282,7 @@ public class DocumentTextBox extends TextBox {
 
 		g.setFont(oldFont);
 		font.dispose();
-		return getStartOffset() + offset;
+		return new ContentPosition(getNode(), getStartOffset() + offset);
 	}
 
 }

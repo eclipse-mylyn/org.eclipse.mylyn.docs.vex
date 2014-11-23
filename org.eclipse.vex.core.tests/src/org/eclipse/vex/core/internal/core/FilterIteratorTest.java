@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  * 		Florian Thienel - initial API and implementation
  *******************************************************************************/
@@ -48,6 +48,7 @@ public class FilterIteratorTest {
 
 	private static <T> IFilter<T> all() {
 		return new IFilter<T>() {
+			@Override
 			public boolean matches(final T t) {
 				return true;
 			}
@@ -56,6 +57,7 @@ public class FilterIteratorTest {
 
 	private static IFilter<String> noEmptyStrings() {
 		return new IFilter<String>() {
+			@Override
 			public boolean matches(final String string) {
 				return string.length() > 0;
 			}

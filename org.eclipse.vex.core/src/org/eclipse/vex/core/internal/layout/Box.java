@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     John Krasnay - initial API and implementation
  *******************************************************************************/
@@ -12,6 +12,7 @@ package org.eclipse.vex.core.internal.layout;
 
 import org.eclipse.vex.core.internal.core.Caret;
 import org.eclipse.vex.core.internal.core.Insets;
+import org.eclipse.vex.core.provisional.dom.ContentPosition;
 import org.eclipse.vex.core.provisional.dom.INode;
 
 /**
@@ -23,21 +24,29 @@ public interface Box {
 
 	/**
 	 * Returns true if this box contains the given offset.
-	 * 
+	 *
 	 * @param offset
 	 *            the offset to test
 	 */
 	public boolean containsOffset(int offset);
 
 	/**
+	 * Returns true if this box contains the given position.
+	 *
+	 * @param position
+	 *            the ContentPosition to test
+	 */
+	public boolean containsPosition(ContentPosition position);
+
+	/**
 	 * Returns a Caret object representing the given offset.
-	 * 
+	 *
 	 * @param context
 	 *            LayoutContext to be used
-	 * @param offset
-	 *            offset for which to retrieve the caret
+	 * @param position
+	 *            position for which to retrieve the caret
 	 */
-	public Caret getCaret(LayoutContext context, int offset);
+	public Caret getCaret(LayoutContext context, ContentPosition position);
 
 	/**
 	 * Returns an array of this box's children.
@@ -45,8 +54,9 @@ public interface Box {
 	public Box[] getChildren();
 
 	/**
-	 * Returns the Element with which this box is associated, or null if there is no such box. The box may directly
-	 * represent the Element, or simply use it for formatting information.
+	 * Returns the Element with which this box is associated, or the surrounding element if this is an anonymous box.
+	 * The box may directly represent the Element, or simply use it for formatting information.<br>
+	 * To check if this box is directly associated to an Element, use {@link #isAnonymous()}
 	 */
 	public INode getNode();
 
@@ -63,7 +73,7 @@ public interface Box {
 
 	/**
 	 * Return an Insets object representing the total width of margins, borders, and padding for this box.
-	 * 
+	 *
 	 * @param context
 	 *            LayoutContext being used for this layout.
 	 * @param containerWidth
@@ -97,7 +107,7 @@ public interface Box {
 	/**
 	 * Returns true if this box represents a portion of the XML document's content. If false is returned, the following
 	 * methods are not supported by this box.
-	 * 
+	 *
 	 * <ul>
 	 * <li>getCaretShapes()</li>
 	 * <li>getEndOffset()</li>
@@ -114,7 +124,7 @@ public interface Box {
 
 	/**
 	 * Draws the box's content in the given Graphics context.
-	 * 
+	 *
 	 * @param context
 	 *            <code>LayoutContext</code> containing the <code>Graphics</code> object into which the box should be
 	 *            painted
@@ -127,7 +137,7 @@ public interface Box {
 
 	/**
 	 * Sets the height of this box.
-	 * 
+	 *
 	 * @param height
 	 *            new height of the box
 	 */
@@ -135,7 +145,7 @@ public interface Box {
 
 	/**
 	 * Sets the width of this box.
-	 * 
+	 *
 	 * @param width
 	 *            new width of the box
 	 */
@@ -143,7 +153,7 @@ public interface Box {
 
 	/**
 	 * Sets the x-coordinate of the top-left corner of the box.
-	 * 
+	 *
 	 * @param x
 	 *            the new x-coordinate
 	 */
@@ -151,15 +161,15 @@ public interface Box {
 
 	/**
 	 * Sets the y-coordinate of the top-left corner of the box.
-	 * 
+	 *
 	 * @param y
 	 *            the new y-coordinate
 	 */
 	public void setY(int y);
 
 	/**
-	 * Returns the offset in the content closest to the given view position.
-	 * 
+	 * Returns the position in the content closest to the given view position.
+	 *
 	 * @param context
 	 *            <code>LayoutContext</code> for this box tree
 	 * @param x
@@ -167,6 +177,6 @@ public interface Box {
 	 * @param y
 	 *            y offset of the view position for which the model offset is to be determined.
 	 */
-	public int viewToModel(LayoutContext context, int x, int y);
+	public ContentPosition viewToModel(LayoutContext context, int x, int y);
 
 }

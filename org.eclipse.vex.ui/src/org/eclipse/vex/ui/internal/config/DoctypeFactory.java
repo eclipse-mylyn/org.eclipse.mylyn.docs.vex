@@ -27,7 +27,6 @@ public class DoctypeFactory implements IConfigItemFactory {
 	private static final String[] EXTS = new String[] { "dtd" }; //$NON-NLS-1$
 
 	private static final String ELT_DOCTYPE = "doctype"; //$NON-NLS-1$
-	private static final String ELT_SCHEMA = "schema"; //$NON-NLS-1$
 	private static final String ATTR_OUTLINE_PROVIDER = "outlineProvider"; //$NON-NLS-1$
 	private static final String ATTR_SYSTEM_ID = "systemId"; //$NON-NLS-1$
 	private static final String ATTR_PUBLIC_ID = "publicId"; //$NON-NLS-1$
@@ -36,6 +35,7 @@ public class DoctypeFactory implements IConfigItemFactory {
 	private static final String ELT_ROOT_ELEMENT = "rootElement"; //$NON-NLS-1$
 	private static final String ATTR_NAME = "name"; //$NON-NLS-1$
 
+	@Override
 	public IConfigElement[] createConfigurationElements(final ConfigItem item) {
 		final DocumentType doctype = (DocumentType) item;
 		final ConfigurationElement doctypeElement = new ConfigurationElement(ELT_DOCTYPE);
@@ -52,6 +52,7 @@ public class DoctypeFactory implements IConfigItemFactory {
 		return new IConfigElement[] { doctypeElement };
 	}
 
+	@Override
 	public ConfigItem createItem(final ConfigSource config, final IConfigElement[] configElements) throws IOException {
 		if (configElements.length < 1) {
 			return null;
@@ -97,18 +98,22 @@ public class DoctypeFactory implements IConfigItemFactory {
 		}
 	}
 
+	@Override
 	public String getExtensionPointId() {
 		return DocumentType.EXTENSION_POINT;
 	}
 
+	@Override
 	public String[] getFileExtensions() {
 		return EXTS;
 	}
 
+	@Override
 	public String getPluralName() {
 		return Messages.getString("DoctypeFactory.pluralName"); //$NON-NLS-1$
 	}
 
+	@Override
 	public Object parseResource(final ConfigItem item, final URL baseUrl, final String resourcePath, final IBuildProblemHandler problemHandler) throws IOException {
 		final DocumentType documentType = (DocumentType) item;
 		final DocumentContentModel documentContentModel = new DocumentContentModel(baseUrl.toString(), documentType.getPublicId(), documentType.getSystemId(), null);

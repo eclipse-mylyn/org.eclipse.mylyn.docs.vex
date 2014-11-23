@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     John Krasnay - initial API and implementation
  *******************************************************************************/
@@ -21,7 +21,7 @@ public interface IConfigListener extends EventListener {
 
 	/**
 	 * Called when one or more configuration items are added, removed, or changed.
-	 * 
+	 *
 	 * @param e
 	 *            ConfigEvent containing details of the change.
 	 */
@@ -30,7 +30,7 @@ public interface IConfigListener extends EventListener {
 	/**
 	 * Called when the Vex configuration is first loaded by the ConfigLoaderJob. This method is guaranteed to be called
 	 * before the first call to configChanged.
-	 * 
+	 *
 	 * @param e
 	 *            ConfigEvent containing details of the change.
 	 */

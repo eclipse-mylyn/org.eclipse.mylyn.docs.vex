@@ -4,20 +4,33 @@
 
 	<!-- Registers DITA-related content types extensions as xml content-->
 	<extension point="org.eclipse.core.contenttype.contentTypes">
-		<content-type id="org.eclipse.vex.ui.dita" name="%contentType.name"
-			base-type="org.eclipse.vex.ui.XmlDocument" file-extensions="dita, ditamap, bookmap, ditaval">
+		<content-type
+        base-type="org.eclipse.vex.ui.XmlDocument"
+        file-extensions="dita,ditamap,bookmap,ditaval"
+        id="org.eclipse.vex.ui.dita"
+        name="%contentType.name"
+        priority="low">
 		</content-type>
-		<content-type id="org.eclipse.vex.ui.dita.map"
-			name="%contentType.map.name" base-type="org.eclipse.vex.ui.dita.map"
-			file-extensions="ditamap, bookmap">
+		<content-type
+        base-type="org.eclipse.vex.ui.dita.map"
+        file-extensions="ditamap,bookmap"
+        id="org.eclipse.vex.ui.dita.map"
+        name="%contentType.map.name"
+        priority="normal">
 		</content-type>
-		<content-type id="org.eclipse.vex.ui.dita.ditaval"
-			name="%contentType.ditaval.name" base-type="org.eclipse.vex.ui.dita.ditaval"
-			file-extensions="ditaval">
+		<content-type
+        base-type="org.eclipse.vex.ui.dita.ditaval"
+        file-extensions="ditaval"
+        id="org.eclipse.vex.ui.dita.ditaval"
+        name="%contentType.ditaval.name"
+        priority="normal">
 		</content-type>
-		<content-type id="org.eclipse.vex.ui.dita.topic"
-			name="%contentType.topic.name" base-type="org.eclipse.vex.ui.dita.topic"
-			file-extensions="dita">
+		<content-type
+        base-type="org.eclipse.vex.ui.dita.topic"
+        file-extensions="dita"
+        id="org.eclipse.vex.ui.dita.topic"
+        name="%contentType.topic.name"
+        priority="normal">
 		</content-type>
 	</extension>
 

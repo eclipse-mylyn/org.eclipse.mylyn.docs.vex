@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     John Krasnay - initial API and implementation
  *******************************************************************************/
@@ -34,7 +34,7 @@ public class StaticTextBox extends TextBox {
 
 	/**
 	 * Class constructor.
-	 * 
+	 *
 	 * @param context
 	 *            LayoutContext used to calculate the box's size.
 	 * @param node
@@ -53,7 +53,7 @@ public class StaticTextBox extends TextBox {
 	 * Class constructor. This constructor is used when generating a static text box representing a marker for the start
 	 * or end of an inline element. If the selection spans the related marker, the text is drawn in the platform's text
 	 * selection colours.
-	 * 
+	 *
 	 * @param context
 	 *            LayoutContext used to calculate the box's size
 	 * @param node
@@ -76,7 +76,7 @@ public class StaticTextBox extends TextBox {
 
 	/**
 	 * Class constructor used by the splitAt method.
-	 * 
+	 *
 	 * @param other
 	 *            Instance of DocumentTextBox that should be splitted.
 	 * @param endOffset

@@ -1,0 +1,102 @@
+<?xml version='1.0'?>
+<testcases css="test.css">
+
+	<test id="Include BlockBox" layoutWidth="500">
+		<doc><![CDATA[ <root><p><xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="test" /></p></root> ]]></doc>
+		<result>
+			<box class="RootBox">
+				<box class="BlockElementBox">
+					<box class="BlockElementBox" element="root">
+						<box class="BlockElementBox" element="p">
+							<box class="IncludeBlockBox" element="xi:include">
+								<box class="ParagraphBox">
+									<box class="LineBox">
+										<!-- This is defined in vex-core-styles.css -->
+										<box class="StaticTextBox" text="&lt;XInclude href: " />
+										<box class="StaticTextBox" text="test"/>
+										<box class="StaticTextBox" text="&gt;"/>
+									</box>
+								</box>
+							</box>
+						</box>
+					</box>
+				</box>
+			</box>
+		</result>
+	</test>
+	
+	<test id="Include InlineBox" layoutWidth="500">
+		<!-- parse="text" causes the creation of an inline box (if possible)  -->
+		<doc><![CDATA[ <root><p><xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="test" parse="text"/></p></root> ]]></doc>
+		<result>
+			<box class="RootBox">
+				<box class="BlockElementBox">
+					<box class="BlockElementBox" element="root">
+						<box class="BlockElementBox" element="p">
+							<box class="ParagraphBox">
+								<box class="LineBox">
+									<box class="PlaceholderBox" />
+									<box class="IncludeInlineBox" element="xi:include">
+										<!-- This is defined in vex-core-styles.css -->
+										<box class="StaticTextBox" text="&lt;XInclude href: " />
+										<box class="StaticTextBox" text="test"/>
+										<box class="StaticTextBox" text="&gt;"/>
+									</box>
+									<box class="PlaceholderBox" />
+								</box>
+							</box>
+						</box>
+					</box>
+				</box>
+			</box>
+		</result>
+	</test>
+	
+	<test id="Include in root" layoutWidth="500">
+		<doc><![CDATA[ <root><xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="test" /></root> ]]></doc>
+		<result>
+			<box class="RootBox">
+				<box class="BlockElementBox">
+					<box class="BlockElementBox" element="root">
+						<box class="IncludeBlockBox" element="xi:include">
+							<box class="ParagraphBox">
+								<box class="LineBox">
+									<!-- This is defined in vex-core-styles.css -->
+									<box class="StaticTextBox" text="&lt;XInclude href: " />
+									<box class="StaticTextBox" text="test"/>
+									<box class="StaticTextBox" text="&gt;"/>
+								</box>
+							</box>
+						</box>
+					</box>
+				</box>
+			</box>
+		</result>
+	</test>
+	
+	<test id="Remove IncludeInlineBox with content" layoutWidth="500" performActions="true">
+		<doc><![CDATA[ <root><p>ab<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="test" parse="text"><xi:fallback>12345</xi:fallback></xi:include></p></root> ]]></doc>
+		<result>
+			<box class="RootBox">
+				<box class="BlockElementBox">
+					<box class="BlockElementBox" element="root">
+						<box class="BlockElementBox" element="p">
+							<box class="ParagraphBox">
+								<box class="LineBox">
+									<box class="DocumentTextBox" text="ab" />
+									<box class="PlaceholderBox" shouldBeRemoved="1"/>
+									<box class="IncludeInlineBox" element="xi:include" removeElementAction="1">
+										<box class="StaticTextBox" text="&lt;XInclude href: " />
+										<box class="StaticTextBox" text="test"/>
+										<box class="StaticTextBox" text="&gt;"/>
+									</box>
+									<box class="PlaceholderBox" />
+								</box>
+							</box>
+						</box>
+					</box>
+				</box>
+			</box>
+		</result>
+	</test>
+</testcases>

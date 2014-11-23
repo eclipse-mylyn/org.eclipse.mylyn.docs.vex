@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     John Krasnay - initial API and implementation
  *******************************************************************************/
@@ -19,6 +19,7 @@ import org.eclipse.vex.core.internal.core.Insets;
 import org.eclipse.vex.core.internal.core.Rectangle;
 import org.eclipse.vex.core.internal.css.CSS;
 import org.eclipse.vex.core.internal.css.Styles;
+import org.eclipse.vex.core.provisional.dom.ContentPosition;
 import org.eclipse.vex.core.provisional.dom.INode;
 
 /**
@@ -41,63 +42,75 @@ public abstract class AbstractBox implements Box {
 
 	/**
 	 * Returns true if the given offset is between startOffset and endOffset, inclusive.
-	 * 
+	 *
 	 * @see org.eclipse.vex.core.internal.layout.Box#containsOffset(int)
 	 */
+	@Override
 	public boolean containsOffset(final int offset) {
 		return offset >= getStartOffset() && offset <= getEndOffset();
 	}
 
+	@Override
+	public boolean containsPosition(final ContentPosition position) {
+		return containsOffset(position.getOffset());
+	}
+
 	/**
 	 * Throws <code>IllegalStateException</code>. Boxes with content must provide an implementation of this method.
-	 * 
+	 *
 	 * @see org.eclipse.vex.core.internal.layout.Box#getCaret(org.eclipse.vex.core.internal.layout.LayoutContext, int)
 	 */
-	public Caret getCaret(final LayoutContext context, final int offset) {
+	@Override
+	public Caret getCaret(final LayoutContext context, final ContentPosition position) {
 		throw new IllegalStateException();
 	}
 
 	/**
 	 * Returns an empty array of children.
-	 * 
+	 *
 	 * @see org.eclipse.vex.core.internal.layout.Box#getChildren()
 	 */
+	@Override
 	public Box[] getChildren() {
 		return EMPTY_BOX_ARRAY;
 	}
 
 	/**
 	 * Returns null. Boxes associated with elements must provide an implementation of this method.
-	 * 
+	 *
 	 * @see org.eclipse.vex.core.internal.layout.Box#getNode()
 	 */
+	@Override
 	public INode getNode() {
 		return null;
 	}
 
 	/**
 	 * Throws <code>IllegalStateException</code>. Boxes with content must provide an implementation of this method.
-	 * 
+	 *
 	 * @see org.eclipse.vex.core.internal.layout.Box#getEndOffset()
 	 */
+	@Override
 	public int getEndOffset() {
 		throw new IllegalStateException();
 	}
 
 	/**
 	 * Returns the height set with <code>setHeight</code>.
-	 * 
+	 *
 	 * @see org.eclipse.vex.core.internal.layout.Box#getHeight()
 	 */
+	@Override
 	public int getHeight() {
 		return height;
 	}
 
 	/**
 	 * Throws <code>IllegalStateException</code>. Boxes with content must provide an implementation of this method.
-	 * 
+	 *
 	 * @see org.eclipse.vex.core.internal.layout.Box#getStartOffset()
 	 */
+	@Override
 	public int getStartOffset() {
 		throw new IllegalStateException();
 	}
@@ -106,41 +119,45 @@ public abstract class AbstractBox implements Box {
 	 * Returns the insets of this box, which is the sum of the margin, border, and padding on each side. If no element
 	 * is associated with this box returns all zeros.
 	 */
+	@Override
 	public Insets getInsets(final LayoutContext context, final int containerWidth) {
-		final INode node = getNode();
-		if (node == null) {
+		if (isAnonymous()) {
 			return Insets.ZERO_INSETS;
 		} else {
-			return getInsets(context.getStyleSheet().getStyles(node), containerWidth);
+
+			return getInsets(context.getStyleSheet().getStyles(getNode()), containerWidth);
 		}
 	}
 
 	/**
 	 * Returns false. Boxes with content must override this method and return true, and must provide implementations for
 	 * the following methods.
-	 * 
+	 *
 	 * <ul>
 	 * <li>{@link Box#getCaretShapes}</li>
 	 * <li>{@link Box#getStartOffset}</li>
 	 * <li>{@link Box#getEndOffset}</li>
 	 * <li>{@link Box#viewToModel}</li>
 	 * </ul>
-	 * 
+	 *
 	 * @see org.eclipse.vex.core.internal.layout.Box#hasContent()
 	 */
+	@Override
 	public boolean hasContent() {
 		return false;
 	}
 
+	@Override
 	public boolean isAnonymous() {
 		return true;
 	}
 
 	/**
 	 * Returns the width set with <code>setWidth</code>.
-	 * 
+	 *
 	 * @see org.eclipse.vex.core.internal.layout.Box#getWidth()
 	 */
+	@Override
 	public int getWidth() {
 		Assert.isTrue(width > -1); // Make sure width has been calculated
 		return width;
@@ -148,27 +165,30 @@ public abstract class AbstractBox implements Box {
 
 	/**
 	 * Returns the value set with <code>setX</code>.
-	 * 
+	 *
 	 * @see org.eclipse.vex.core.internal.layout.Box#getX()
 	 */
+	@Override
 	public int getX() {
 		return x;
 	}
 
 	/**
 	 * Returns the value set with <code>setY</code>.
-	 * 
+	 *
 	 * @see org.eclipse.vex.core.internal.layout.Box#getY()
 	 */
+	@Override
 	public int getY() {
 		return y;
 	}
 
 	/**
 	 * Paint all children of this box.
-	 * 
+	 *
 	 * @see org.eclipse.vex.core.internal.layout.Box#paint(org.eclipse.vex.core.internal.layout.LayoutContext, int, int)
 	 */
+	@Override
 	public void paint(final LayoutContext context, final int x, final int y) {
 		if (skipPaint(context, x, y)) {
 			return;
@@ -179,7 +199,7 @@ public abstract class AbstractBox implements Box {
 
 	/**
 	 * Paint the children of this box.
-	 * 
+	 *
 	 * @param context
 	 *            LayoutContext to use.
 	 * @param x
@@ -195,18 +215,22 @@ public abstract class AbstractBox implements Box {
 		}
 	}
 
+	@Override
 	public void setHeight(final int height) {
 		this.height = height;
 	}
 
+	@Override
 	public void setWidth(final int width) {
 		this.width = width;
 	}
 
+	@Override
 	public void setX(final int x) {
 		this.x = x;
 	}
 
+	@Override
 	public void setY(final int y) {
 		this.y = y;
 	}
@@ -214,7 +238,7 @@ public abstract class AbstractBox implements Box {
 	/**
 	 * Returns true if this box is outside the clip region. Implementations of <code>paint</code> should use this to
 	 * avoid unnecessary painting.
-	 * 
+	 *
 	 * @param context
 	 *            <code>LayoutContext</code> in effect.
 	 * @param x
@@ -231,17 +255,18 @@ public abstract class AbstractBox implements Box {
 
 	/**
 	 * Throws <code>IllegalStateException</code>. Boxes with content must provide an implementation of this method.
-	 * 
+	 *
 	 * @see org.eclipse.vex.core.internal.layout.Box#viewToModel(org.eclipse.vex.core.internal.layout.LayoutContext,
 	 *      int, int)
 	 */
-	public int viewToModel(final LayoutContext context, final int x, final int y) {
+	@Override
+	public ContentPosition viewToModel(final LayoutContext context, final int x, final int y) {
 		throw new IllegalStateException();
 	}
 
 	/**
 	 * Draws the background and borders of a CSS-styled box.
-	 * 
+	 *
 	 * @param context
 	 *            LayoutContext used for drawing.
 	 * @param x
@@ -260,7 +285,7 @@ public abstract class AbstractBox implements Box {
 
 	/**
 	 * Draws the background and borders of a CSS-styled box.
-	 * 
+	 *
 	 * @param context
 	 *            LayoutContext used for drawing.
 	 * @param node
@@ -278,7 +303,7 @@ public abstract class AbstractBox implements Box {
 	 */
 	protected void drawBox(final LayoutContext context, final INode node, final int x, final int y, final int containerWidth, final boolean drawBorders) {
 
-		if (node == null) {
+		if (isAnonymous()) {
 			return;
 		}
 
@@ -400,7 +425,7 @@ public abstract class AbstractBox implements Box {
 
 	/**
 	 * Returns the insets for a CSS box with the given styles.
-	 * 
+	 *
 	 * @param styles
 	 *            Styles for the box.
 	 * @param containerWidth

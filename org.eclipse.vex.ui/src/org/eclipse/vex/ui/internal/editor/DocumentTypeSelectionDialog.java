@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     John Krasnay - initial API and implementation
  *     Carsten Hiesserich - dialog uses SWT-TOP now to be always visible
@@ -37,7 +37,7 @@ public class DocumentTypeSelectionDialog extends MessageDialog {
 
 	/**
 	 * Class constructor.
-	 * 
+	 *
 	 * @param parentShell
 	 *            Parent Shell with respect to which this dialog is modal.
 	 */
@@ -51,7 +51,7 @@ public class DocumentTypeSelectionDialog extends MessageDialog {
 	 * Creates a new instance of the dialog. The caller must call open() on the returned dialog to prompt the user. The
 	 * open() method blocks until the user has closed the window. Once open() returns, the caller should call
 	 * getDoctype() to get the selected doctype (or null if the dialog was canceled.
-	 * 
+	 *
 	 * @param parentShell
 	 *            Parent Shell of the dialog.
 	 * @param publicId
@@ -131,13 +131,16 @@ public class DocumentTypeSelectionDialog extends MessageDialog {
 	private Button alwaysUseButton;
 
 	private final MouseListener mouseListener = new MouseListener() {
+		@Override
 		public void mouseDoubleClick(final MouseEvent e) {
 			buttonPressed(0);
 		}
 
+		@Override
 		public void mouseDown(final MouseEvent e) {
 		}
 
+		@Override
 		public void mouseUp(final MouseEvent e) {
 		}
 	};

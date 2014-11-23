@@ -17,6 +17,7 @@ import org.eclipse.vex.core.IFilter;
 import org.eclipse.vex.core.internal.css.CSS;
 import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.widget.swt.VexWidget;
+import org.eclipse.vex.core.provisional.dom.ContentPosition;
 import org.eclipse.vex.core.provisional.dom.IAxis;
 import org.eclipse.vex.core.provisional.dom.IElement;
 import org.eclipse.vex.core.provisional.dom.INode;
@@ -24,7 +25,7 @@ import org.eclipse.vex.core.provisional.dom.IParent;
 
 /**
  * Navigates either to the next or previous table cell (usual shortcut: {@code Tab} or {@code Shift+Tab}).
- * 
+ *
  * @see PreviousTableCellHandler
  */
 public abstract class AbstractNavigateTableCellHandler extends AbstractVexWidgetHandler {
@@ -39,13 +40,13 @@ public abstract class AbstractNavigateTableCellHandler extends AbstractVexWidget
 			return;
 		}
 
-		final int offset = widget.getCaretOffset();
-		navigate(widget, tableRow, offset);
+		final ContentPosition position = widget.getCaretPosition();
+		navigate(widget, tableRow, position);
 	}
 
 	/**
 	 * Navigates either to the next or previous table cell.
-	 * 
+	 *
 	 * @param widget
 	 *            the Vex widget containing the document
 	 * @param tableRow
@@ -53,10 +54,11 @@ public abstract class AbstractNavigateTableCellHandler extends AbstractVexWidget
 	 * @param offset
 	 *            the current offset
 	 */
-	protected abstract void navigate(VexWidget widget, IElement tableRow, int offset);
+	protected abstract void navigate(VexWidget widget, IElement tableRow, ContentPosition position);
 
 	private static IFilter<INode> displayedAsTableRow(final StyleSheet stylesheet) {
 		return new IFilter<INode>() {
+			@Override
 			public boolean matches(final INode node) {
 				return stylesheet.getStyles(node).getDisplay().equals(CSS.TABLE_ROW);
 			}

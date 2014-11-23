@@ -12,12 +12,13 @@ package org.eclipse.vex.ui.internal.handlers;
 
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.vex.core.internal.widget.swt.VexWidget;
-import org.eclipse.vex.core.provisional.dom.ContentRange;
+import org.eclipse.vex.core.provisional.dom.ContentPosition;
+import org.eclipse.vex.core.provisional.dom.ContentPositionRange;
 import org.eclipse.vex.ui.internal.handlers.VexHandlerUtil.SelectedRows;
 
 /**
  * Moves the current table row either down below its next sibling or up above its previous sibling.
- * 
+ *
  * @see MoveRowUpHandler
  * @see MoveRowDownHandler
  */
@@ -32,10 +33,11 @@ public abstract class AbstractMoveRowHandler extends AbstractVexWidgetHandler {
 		}
 
 		widget.doWork(new Runnable() {
+			@Override
 			public void run() {
-				final ContentRange range = VexHandlerUtil.getOuterRange(targetRow(selected));
-				widget.moveTo(range.getStartOffset());
-				widget.moveTo(range.getEndOffset(), true);
+				final ContentPositionRange range = VexHandlerUtil.getOuterRange(targetRow(selected));
+				widget.moveTo(range.getStartPosition());
+				widget.moveTo(range.getEndPosition(), true);
 				widget.cutSelection();
 
 				widget.moveTo(target(selected));
@@ -55,8 +57,8 @@ public abstract class AbstractMoveRowHandler extends AbstractVexWidgetHandler {
 	/**
 	 * @param selected
 	 *            current selected row
-	 * @return offset where to move to
+	 * @return position where to move to
 	 */
-	protected abstract int target(SelectedRows selected);
+	protected abstract ContentPosition target(SelectedRows selected);
 
 }

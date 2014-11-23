@@ -85,6 +85,7 @@ public class ImageBox extends AbstractInlineBox {
 		super.paint(context, x, y);
 	}
 
+	@Override
 	public int getBaseline() {
 		return 0;
 	}
@@ -94,6 +95,7 @@ public class ImageBox extends AbstractInlineBox {
 		setY(0);
 	}
 
+	@Override
 	public boolean isEOL() {
 		return false;
 	}

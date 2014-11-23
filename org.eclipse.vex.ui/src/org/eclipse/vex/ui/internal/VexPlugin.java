@@ -50,7 +50,7 @@ public class VexPlugin extends AbstractUIPlugin {
 
 	/**
 	 * Log an error message without an exception.
-	 * 
+	 *
 	 * @param severity
 	 *            One of the IStatus severity levels, e.g. IStatus.ERROR.
 	 * @param message
@@ -62,7 +62,7 @@ public class VexPlugin extends AbstractUIPlugin {
 
 	/**
 	 * Log an error message.
-	 * 
+	 *
 	 * @param severity
 	 *            One of the IStatus severity levels, e.g. IStatus.ERROR.
 	 * @param message

@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     John Krasnay - initial API and implementation
  *     Carsten Hiesserich - added caret position tracking
@@ -58,6 +58,7 @@ public class DocumentReader {
 	private INode nodeAtCaret;
 
 	private final EntityResolver combinedEntityResolver = new EntityResolver() {
+		@Override
 		public InputSource resolveEntity(final String publicId, final String systemId) throws SAXException, IOException {
 			final InputSource result;
 			if (entityResolver != null) {
@@ -81,7 +82,7 @@ public class DocumentReader {
 
 	/**
 	 * Reads a document given a URL.
-	 * 
+	 *
 	 * @param url
 	 *            URL from which to load the document.
 	 */
@@ -91,7 +92,7 @@ public class DocumentReader {
 
 	/**
 	 * Reads a document from a string. This is mainly used for short documents in unit tests.
-	 * 
+	 *
 	 * @param s
 	 *            String containing the document to be read.
 	 */
@@ -102,7 +103,7 @@ public class DocumentReader {
 
 	/**
 	 * Reads a document given a SAX InputSource.
-	 * 
+	 *
 	 * @param is
 	 *            SAX InputSource from which to load the document.
 	 */
@@ -120,6 +121,7 @@ public class DocumentReader {
 
 		if (isDebugging()) {
 			final Object proxy = Proxy.newProxyInstance(this.getClass().getClassLoader(), new Class[] { ContentHandler.class, LexicalHandler.class }, new InvocationHandler() {
+				@Override
 				public Object invoke(final Object proxy, final Method method, final Object[] args) throws Throwable {
 					try {
 						return method.invoke(builder, args);
@@ -151,7 +153,7 @@ public class DocumentReader {
 
 	/**
 	 * Sets the debugging flag.
-	 * 
+	 *
 	 * @param debugging
 	 *            true if the component should log debugging info to stdout.
 	 */
@@ -161,7 +163,7 @@ public class DocumentReader {
 
 	/**
 	 * Sets the entity resolver for this reader.
-	 * 
+	 *
 	 * @param entityResolver
 	 *            The entityResolver to set.
 	 */
@@ -199,7 +201,7 @@ public class DocumentReader {
 	/**
 	 * Set the stored caret position. While parsing the document, the node at this position will be stored and returned
 	 * with {@link #getNodeAtCaret}.
-	 * 
+	 *
 	 * @param position
 	 */
 	public void setCaretPosition(final DocumentTextPosition position) {
@@ -207,9 +209,9 @@ public class DocumentReader {
 	}
 
 	/**
-	 * 
+	 *
 	 * @return The node at the given caret position.
-	 * 
+	 *
 	 * @see #setCaretPosition(DocumentTextPosition)
 	 */
 	public INode getNodeAtCaret() {

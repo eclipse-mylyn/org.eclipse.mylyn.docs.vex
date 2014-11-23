@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  * 		Florian Thienel - initial API and implementation
  *******************************************************************************/
@@ -14,7 +14,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.vex.core.internal.VEXCorePlugin;
-import org.eclipse.vex.core.internal.css.CSS;
 import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.provisional.dom.IElement;
 import org.eclipse.vex.core.provisional.dom.INode;
@@ -48,7 +47,7 @@ public class NodeBlockBox extends BlockElementBox {
 		final List<InlineBox> pendingInlines = new ArrayList<InlineBox>();
 
 		// :before content - includes the target
-		final IElement before = styleSheet.getPseudoElement(node, CSS.PSEUDO_BEFORE, true);
+		final IElement before = styleSheet.getPseudoElementBefore(node);
 		if (before != null) {
 			pendingInlines.addAll(LayoutUtils.createGeneratedInlines(context, before, StaticTextBox.START_MARKER));
 		}
@@ -62,7 +61,7 @@ public class NodeBlockBox extends BlockElementBox {
 		pendingInlines.add(new PlaceholderBox(context, node, node.getEndOffset() - node.getStartOffset()));
 
 		// :after content
-		final IElement after = styleSheet.getPseudoElement(node, CSS.PSEUDO_AFTER, true);
+		final IElement after = styleSheet.getPseudoElementAfter(node);
 		if (after != null) {
 			pendingInlines.addAll(LayoutUtils.createGeneratedInlines(context, after, StaticTextBox.END_MARKER));
 		}

@@ -24,11 +24,15 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.handlers.HandlerUtil;
 import org.eclipse.vex.core.internal.css.CSS;
 import org.eclipse.vex.core.internal.css.StyleSheet;
+import org.eclipse.vex.core.internal.layout.ElementOrPositionRangeCallback;
 import org.eclipse.vex.core.internal.layout.ElementOrRangeCallback;
 import org.eclipse.vex.core.internal.layout.LayoutUtils;
+import org.eclipse.vex.core.internal.layout.LayoutUtils.ElementOrRange;
 import org.eclipse.vex.core.internal.widget.IVexWidget;
 import org.eclipse.vex.core.internal.widget.swt.VexWidget;
 import org.eclipse.vex.core.provisional.dom.BaseNodeVisitor;
+import org.eclipse.vex.core.provisional.dom.ContentPosition;
+import org.eclipse.vex.core.provisional.dom.ContentPositionRange;
 import org.eclipse.vex.core.provisional.dom.ContentRange;
 import org.eclipse.vex.core.provisional.dom.IAttribute;
 import org.eclipse.vex.core.provisional.dom.IComment;
@@ -96,7 +100,7 @@ public final class VexHandlerUtil {
 	/**
 	 * Duplicate the given table row, inserting a new empty one aove or below it. The new row contains empty children
 	 * corresponding to the given row's children.
-	 * 
+	 *
 	 * @param vexWidget
 	 *            IVexWidget with which we're working
 	 * @param tableRow
@@ -111,9 +115,9 @@ public final class VexHandlerUtil {
 		}
 
 		if (addAbove) {
-			vexWidget.moveTo(tableRow.getStartOffset());
+			vexWidget.moveTo(tableRow.getStartPosition());
 		} else {
-			vexWidget.moveTo(tableRow.getEndOffset() + 1);
+			vexWidget.moveTo(tableRow.getEndPosition().moveBy(1));
 		}
 
 		// Create a new table row
@@ -151,15 +155,15 @@ public final class VexHandlerUtil {
 		}
 		try {
 			final INode firstTextChild = newRow.childElements().first();
-			vexWidget.moveTo(firstTextChild.getStartOffset());
+			vexWidget.moveTo(firstTextChild.getStartPosition());
 		} catch (final NoSuchElementException ex) {
-			vexWidget.moveTo(newRow.getStartOffset() + 1);
+			vexWidget.moveTo(newRow.getStartPosition().moveBy(1));
 		}
 	}
 
 	/**
 	 * Returns true if the given element or range is at least partially selected.
-	 * 
+	 *
 	 * @param widget
 	 *            IVexWidget being tested.
 	 * @param elementOrRange
@@ -183,18 +187,20 @@ public final class VexHandlerUtil {
 			return -1;
 		}
 
-		final int offset = vexWidget.getCaretOffset();
+		final ContentPosition offset = vexWidget.getCaretPosition();
 		final int[] column = new int[] { -1 };
 		LayoutUtils.iterateTableCells(vexWidget.getStyleSheet(), row, new ElementOrRangeCallback() {
 			private int i = 0;
 
+			@Override
 			public void onElement(final IElement child, final String displayStyle) {
-				if (offset > child.getStartOffset() && offset <= child.getEndOffset()) {
+				if (offset.isAfter(child.getStartPosition()) && offset.isBeforeOrEquals(child.getEndPosition())) {
 					column[0] = i;
 				}
 				i++;
 			}
 
+			@Override
 			public void onRange(final IParent parent, final int startOffset, final int endOffset) {
 				i++;
 			}
@@ -205,7 +211,7 @@ public final class VexHandlerUtil {
 
 	/**
 	 * Returns the innermost Element with style table-row containing the caret, or null if no such element exists.
-	 * 
+	 *
 	 * @param vexWidget
 	 *            IVexWidget to use.
 	 */
@@ -226,7 +232,7 @@ public final class VexHandlerUtil {
 	/**
 	 * Returns the currently selected table rows, or the current row if ther is no selection. If no row can be found,
 	 * returns an empty array.
-	 * 
+	 *
 	 * @param vexWidget
 	 *            IVexWidget to use.
 	 */
@@ -260,24 +266,28 @@ public final class VexHandlerUtil {
 
 		final StyleSheet ss = vexWidget.getStyleSheet();
 
-		iterateTableRows(vexWidget, new ElementOrRangeCallback() {
+		iterateTableRows(vexWidget, new ElementOrPositionRangeCallback() {
 
 			final private int[] rowIndex = { 0 };
 
+			@Override
 			public void onElement(final IElement row, final String displayStyle) {
 
 				callback.startRow(row, rowIndex[0]);
 
-				LayoutUtils.iterateTableCells(ss, row, new ElementOrRangeCallback() {
+				LayoutUtils.iterateTableCells(ss, row, new ElementOrPositionRangeCallback() {
 					private int cellIndex = 0;
 
+					@Override
 					public void onElement(final IElement cell, final String displayStyle) {
-						callback.onCell(row, cell, rowIndex[0], cellIndex);
+						callback.onCell(new ElementOrRange(row), new ElementOrRange(cell), rowIndex[0], cellIndex);
 						cellIndex++;
 					}
 
-					public void onRange(final IParent parent, final int startOffset, final int endOffset) {
-						callback.onCell(row, new ContentRange(startOffset, endOffset), rowIndex[0], cellIndex);
+					@Override
+					public void onRange(final IParent parent, final ContentPosition startPosition, final ContentPosition endPosition) {
+						final ContentPositionRange range = new ContentPositionRange(startPosition, endPosition);
+						callback.onCell(new ElementOrRange(row), new ElementOrRange(range), rowIndex[0], cellIndex);
 						cellIndex++;
 					}
 				});
@@ -287,21 +297,25 @@ public final class VexHandlerUtil {
 				rowIndex[0]++;
 			}
 
-			public void onRange(final IParent parent, final int startOffset, final int endOffset) {
+			@Override
+			public void onRange(final IParent parent, final ContentPosition startPosition, final ContentPosition endPosition) {
 
-				final ContentRange row = new ContentRange(startOffset, endOffset);
+				final ContentPositionRange row = new ContentPositionRange(startPosition, endPosition);
 				callback.startRow(row, rowIndex[0]);
 
-				LayoutUtils.iterateTableCells(ss, parent, startOffset, endOffset, new ElementOrRangeCallback() {
+				LayoutUtils.iterateTableCells(ss, parent, startPosition, endPosition, new ElementOrPositionRangeCallback() {
 					private int cellIndex = 0;
 
+					@Override
 					public void onElement(final IElement cell, final String displayStyle) {
-						callback.onCell(row, cell, rowIndex[0], cellIndex);
+						callback.onCell(new ElementOrRange(row), new ElementOrRange(cell), rowIndex[0], cellIndex);
 						cellIndex++;
 					}
 
-					public void onRange(final IParent parent, final int startOffset, final int endOffset) {
-						callback.onCell(row, new ContentRange(startOffset, endOffset), rowIndex[0], cellIndex);
+					@Override
+					public void onRange(final IParent parent, final ContentPosition startPosition, final ContentPosition endPosition) {
+						final ContentPositionRange range = new ContentPositionRange(startPosition, endPosition);
+						callback.onCell(new ElementOrRange(row), new ElementOrRange(range), rowIndex[0], cellIndex);
 						cellIndex++;
 					}
 				});
@@ -316,7 +330,7 @@ public final class VexHandlerUtil {
 	/**
 	 * Returns a RowColumnInfo structure containing information about the table containing the caret. Returns null if
 	 * the caret is not currently inside a table.
-	 * 
+	 *
 	 * @param vexWidget
 	 *            IVexWidget to inspect.
 	 */
@@ -324,7 +338,7 @@ public final class VexHandlerUtil {
 
 		final boolean[] found = new boolean[1];
 		final RowColumnInfo[] rcInfo = new RowColumnInfo[] { new RowColumnInfo() };
-		final int offset = vexWidget.getCaretOffset();
+		final ContentPosition position = vexWidget.getCaretPosition();
 
 		rcInfo[0].cellIndex = -1;
 		rcInfo[0].rowIndex = -1;
@@ -333,18 +347,20 @@ public final class VexHandlerUtil {
 
 			private int rowColumnCount;
 
+			@Override
 			public void startRow(final Object row, final int rowIndex) {
 				rowColumnCount = 0;
 			}
 
-			public void onCell(final Object row, final Object cell, final int rowIndex, final int cellIndex) {
+			@Override
+			public void onCell(final ElementOrRange row, final ElementOrRange cell, final int rowIndex, final int cellIndex) {
 				found[0] = true;
-				if (LayoutUtils.elementOrRangeContains(row, offset)) {
+				if (row.contains(position)) {
 					rcInfo[0].row = row;
 					rcInfo[0].rowIndex = rowIndex;
 					rcInfo[0].columnCount++;
 
-					if (LayoutUtils.elementOrRangeContains(cell, offset)) {
+					if (cell.contains(position)) {
 						rcInfo[0].cell = cell;
 						rcInfo[0].cellIndex = cellIndex;
 					}
@@ -353,6 +369,7 @@ public final class VexHandlerUtil {
 				rowColumnCount++;
 			}
 
+			@Override
 			public void endRow(final Object row, final int rowIndex) {
 				rcInfo[0].rowCount++;
 				rcInfo[0].maxColumnCount = Math.max(rcInfo[0].maxColumnCount, rowColumnCount);
@@ -368,22 +385,22 @@ public final class VexHandlerUtil {
 
 	/**
 	 * Iterate over all rows in the table containing the caret.
-	 * 
+	 *
 	 * @param vexWidget
 	 *            IVexWidget to iterate over.
 	 * @param callback
 	 *            Caller-provided callback that this method calls for each row in the current table.
 	 */
-	public static void iterateTableRows(final IVexWidget vexWidget, final ElementOrRangeCallback callback) {
+	public static void iterateTableRows(final IVexWidget vexWidget, final ElementOrPositionRangeCallback callback) {
 
 		final StyleSheet ss = vexWidget.getStyleSheet();
 		final IDocument doc = vexWidget.getDocument();
-		final int offset = vexWidget.getCaretOffset();
+		final ContentPosition position = vexWidget.getCaretPosition();
 
 		// This may or may not be a table
 		// In any case, it's the element that contains the top-level table
 		// children
-		IElement table = doc.getElementForInsertionAt(offset);
+		IElement table = doc.getElementForInsertionAt(position.getOffset());
 
 		while (table != null && !LayoutUtils.isTableChild(ss, table)) {
 			table = table.getParentElement();
@@ -400,13 +417,15 @@ public final class VexHandlerUtil {
 		final List<IElement> tableChildren = new ArrayList<IElement>();
 		final boolean[] found = new boolean[] { false };
 		LayoutUtils.iterateChildrenByDisplayStyle(ss, LayoutUtils.TABLE_CHILD_STYLES, table, new ElementOrRangeCallback() {
+			@Override
 			public void onElement(final IElement child, final String displayStyle) {
-				if (offset >= child.getStartOffset() && offset <= child.getEndOffset()) {
+				if (position.isAfterOrEquals(child.getStartPosition()) && position.isBeforeOrEquals(child.getEndPosition())) {
 					found[0] = true;
 				}
 				tableChildren.add(child);
 			}
 
+			@Override
 			public void onRange(final IParent parent, final int startOffset, final int endOffset) {
 				if (!found[0]) {
 					tableChildren.clear();
@@ -418,15 +437,15 @@ public final class VexHandlerUtil {
 			return;
 		}
 
-		final int startOffset = tableChildren.get(0).getStartOffset();
-		final int endOffset = tableChildren.get(tableChildren.size() - 1).getEndOffset() + 1;
+		final ContentPosition startOffset = tableChildren.get(0).getStartPosition();
+		final ContentPosition endOffset = tableChildren.get(tableChildren.size() - 1).getEndPosition().moveBy(1);
 		LayoutUtils.iterateTableRows(ss, table, startOffset, endOffset, callback);
 	}
 
 	/**
 	 * Returns an IntRange representing the offsets inside the given Element or IntRange. If an Element is passed,
 	 * returns the offsets inside the sentinels. If an IntRange is passed it is returned directly.
-	 * 
+	 *
 	 * @param elementOrRange
 	 *            Element or IntRange to be inspected.
 	 */
@@ -440,18 +459,18 @@ public final class VexHandlerUtil {
 	}
 
 	/**
-	 * Returns an IntRange representing the offsets outside the given Element or IntRange. If an Element is passed,
-	 * returns the offsets outside the sentinels. If an IntRange is passed it is returned directly.
-	 * 
+	 * Returns an ContentPositionRange representing the offsets outside the given Element or IntRange. If an Element is
+	 * passed, returns the offsets outside the sentinels. If an PositionRange is passed it is returned directly.
+	 *
 	 * @param elementOrRange
-	 *            Element or IntRange to be inspected.
+	 *            Element or PositionRange to be inspected.
 	 */
-	public static ContentRange getOuterRange(final Object elementOrRange) {
+	public static ContentPositionRange getOuterRange(final Object elementOrRange) {
 		if (elementOrRange instanceof IElement) {
 			final IElement element = (IElement) elementOrRange;
-			return new ContentRange(element.getStartOffset(), element.getEndOffset() + 1);
+			return new ContentPositionRange(element.getStartPosition(), element.getEndPosition().moveBy(1));
 		} else {
-			return (ContentRange) elementOrRange;
+			return (ContentPositionRange) elementOrRange;
 		}
 	}
 

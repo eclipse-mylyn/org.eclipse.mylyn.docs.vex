@@ -109,6 +109,19 @@ public class TestDocumentTextBox {
 		assertEquals("Last right box should have a width", 36, pair2.getRight().getWidth());
 	}
 
+	@Test
+	public void testPositionUpdate() throws Exception {
+		final IDocument doc = new Document(new QualifiedName(null, "root"));
+		doc.insertText(2, "before 12345 67890 ");
+		final IElement root = doc.getRootElement();
+		final DocumentTextBox box = new DocumentTextBox(context, root, root.getStartOffset() + 8, root.getEndOffset() - 1);
+		final InlineBox.Pair pair = box.split(context, 150, false);
+		doc.insertText(2, "before");
+		assertEquals(root.getStartOffset() + 8 + 6, pair.getLeft().getStartOffset());
+		assertEquals("12345 ", ((DocumentTextBox) pair.getLeft()).getText());
+		assertEquals("67890 ", ((DocumentTextBox) pair.getRight()).getText());
+	}
+
 	private void assertSplit(final INode node, final int splitPos, final boolean force, final String left, final String right) {
 
 		final DocumentTextBox box = new DocumentTextBox(context, node, node.getStartOffset() + 1, node.getEndOffset() - 1);

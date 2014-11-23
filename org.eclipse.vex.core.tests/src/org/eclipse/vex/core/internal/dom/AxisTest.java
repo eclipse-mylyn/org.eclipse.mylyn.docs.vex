@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  * 		Florian Thienel - initial API and implementation
  *******************************************************************************/
@@ -113,6 +113,7 @@ public class AxisTest {
 	public void givenAxisWithElements_whenFilterIsGiven_shouldProvideOnlyMatchingNodes() throws Exception {
 		int actualNodeCount = 0;
 		for (final INode actualNode : axis(source, nodes("matching", "matching", "not", "not", "matching")).matching(new IFilter<INode>() {
+			@Override
 			public boolean matches(final INode node) {
 				return "matching".equals(((TestNode) node).getName());
 			}
@@ -202,10 +203,12 @@ public class AxisTest {
 			return name;
 		}
 
+		@Override
 		public boolean isKindOf(final INode node) {
 			return false;
 		}
 
+		@Override
 		public void accept(final INodeVisitor visitor) {
 			if (visits == null) {
 				throw new IllegalStateException();
@@ -213,6 +216,7 @@ public class AxisTest {
 			visits[0]++;
 		}
 
+		@Override
 		public <T> T accept(final INodeVisitorWithResult<T> visitor) {
 			throw new UnsupportedOperationException();
 		}

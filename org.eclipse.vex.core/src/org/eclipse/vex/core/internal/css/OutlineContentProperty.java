@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     Carsten Hiesserich - initial API and implementation
  *******************************************************************************/
@@ -27,13 +27,13 @@ import org.w3c.css.sac.LexicalUnit;
  * of the element's text content.<br />
  * <br />
  * Example:
- * 
+ *
  * <pre>
  * chapter {
  *   -vex-outline-content: titleabbrev, title;
  * }
  * </pre>
- * 
+ *
  */
 public class OutlineContentProperty extends AbstractProperty {
 
@@ -49,6 +49,7 @@ public class OutlineContentProperty extends AbstractProperty {
 	 * display as content for the given node. We don't return the actual text here, because then we had to recalculate
 	 * the styles every time the text changes.
 	 */
+	@Override
 	public Object calculate(final LexicalUnit lu, final Styles parentStyles, final Styles styles, final INode node) {
 
 		if (node == null || !node.isAssociated()) {
@@ -87,9 +88,9 @@ public class OutlineContentProperty extends AbstractProperty {
 				// Return element text content as default
 				return element;
 			}
-			
+
 			@Override
-			public Object visit(IProcessingInstruction pi) {
+			public Object visit(final IProcessingInstruction pi) {
 				return pi;
 			}
 		});

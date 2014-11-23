@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  * 		Carsten Hiesserich  - initial API and implementation
  *******************************************************************************/
@@ -41,26 +41,32 @@ public class DocumentEventTest {
 		childNode = document.insertElement(2, new QualifiedName(null, "child"));
 		document.addDocumentListener(new IDocumentListener() {
 
+			@Override
 			public void attributeChanged(final AttributeChangeEvent event) {
 
 			}
 
+			@Override
 			public void namespaceChanged(final NamespaceDeclarationChangeEvent event) {
 
 			}
 
+			@Override
 			public void beforeContentDeleted(final ContentChangeEvent event) {
 
 			}
 
+			@Override
 			public void beforeContentInserted(final ContentChangeEvent event) {
 
 			}
 
+			@Override
 			public void contentDeleted(final ContentChangeEvent event) {
 				contentChangeEvent = event;
 			}
 
+			@Override
 			public void contentInserted(final ContentChangeEvent event) {
 				contentChangeEvent = event;
 			}

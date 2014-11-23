@@ -17,7 +17,7 @@ import org.eclipse.vex.core.internal.dom.Namespace;
 
 /**
  * Common processing methods according to http://www.w3.org/TR/REC-xml/
- * 
+ *
  * @see http://www.w3.org/TR/REC-xml/#sec-white-space
  * @see http://www.w3.org/TR/REC-xml/#sec-line-ends
  * @see http://www.w3.org/TR/REC-xml/#NT-S
@@ -30,7 +30,7 @@ public class XML {
 	/**
 	 * The xml:base attribute re-defines the base URI for a part of an XML document, according to the XML Base
 	 * Recommendation.
-	 * 
+	 *
 	 * @see http://www.w3.org/TR/xmlbase/
 	 */
 	public static final QualifiedName BASE_ATTRIBUTE = new QualifiedName(Namespace.XML_NAMESPACE_URI, "base");
@@ -49,7 +49,7 @@ public class XML {
 	/**
 	 * Replace runs of XML whitespace (see {@link #isWhitespace}) with a single space. Newlines in the input should be
 	 * normalized before calling this method.
-	 * 
+	 *
 	 * @param input
 	 *            String to compress.
 	 * @param trimLeading
@@ -68,7 +68,7 @@ public class XML {
 	/**
 	 * Replace runs of XML whitespace (see {@link #isWhitespace}) with a single space. Newlines in the input should be
 	 * normalized before calling this method.
-	 * 
+	 *
 	 * @param sb
 	 *            StringBuilder to compress.
 	 * @param trimLeading
@@ -118,7 +118,7 @@ public class XML {
 
 	/**
 	 * Convert lines that end in CR and CRLFs to plain newlines.
-	 * 
+	 *
 	 * @param input
 	 *            String to be normalized.
 	 */
@@ -130,7 +130,7 @@ public class XML {
 
 	/**
 	 * Convert lines that end in CR and CRLFs to plain newlines.
-	 * 
+	 *
 	 * @param sb
 	 *            StringBuilder to be normalized.
 	 */
@@ -183,7 +183,7 @@ public class XML {
 
 	/**
 	 * Validate the target of an processing instruction.
-	 * 
+	 *
 	 * @param target
 	 *            The target String to validate.
 	 * @return The IValidationResult. Use {@link IValidationResult#isOK()} to check if there is an error.
@@ -211,7 +211,7 @@ public class XML {
 
 	/**
 	 * Validate the data of an processing instruction.
-	 * 
+	 *
 	 * @param data
 	 *            The data String to validate.
 	 * @return The IValidationResult. Use {@link IValidationResult#isOK()} to check if there is an error.

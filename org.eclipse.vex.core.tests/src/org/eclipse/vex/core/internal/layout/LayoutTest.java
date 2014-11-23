@@ -36,6 +36,7 @@ import org.eclipse.vex.core.provisional.dom.ContentRange;
 import org.eclipse.vex.core.provisional.dom.DocumentContentModel;
 import org.eclipse.vex.core.provisional.dom.IDocument;
 import org.eclipse.vex.core.provisional.dom.IElement;
+import org.eclipse.vex.core.provisional.dom.IIncludeNode;
 import org.eclipse.vex.core.provisional.dom.INode;
 import org.junit.runner.RunWith;
 import org.junit.runners.AllTests;
@@ -60,7 +61,7 @@ import org.xml.sax.helpers.DefaultHandler;
  * The expected layout state of an box may be checked with the attribute <code>layoutState="LAYOUT_XXX"</code> (
  * {@link AbstractBlockBox#LAYOUT_OK}, {@link AbstractBlockBox#LAYOUT_REDO}, {@link AbstractBlockBox#LAYOUT_PROPAGATE}).<br />
  * The expected text after actions are performed is defined with the attribute <code>textAfter</code>.
- * 
+ *
  */
 @RunWith(AllTests.class)
 public class LayoutTest extends TestCase {
@@ -79,8 +80,10 @@ public class LayoutTest extends TestCase {
 		suite.addTest(loadSuite("before-after.xml"));
 		suite.addTest(loadSuite("linebreaks.xml"));
 		suite.addTest(loadSuite("tables.xml"));
+		suite.addTest(loadSuite("lists.xml"));
 		suite.addTest(loadSuite("simple-edit.xml"));
 		suite.addTest(loadSuite("comment-processing-instr.xml"));
+		suite.addTest(loadSuite("include.xml"));
 		return suite;
 	}
 
@@ -123,6 +126,7 @@ public class LayoutTest extends TestCase {
 		final DocumentReader reader = new DocumentReader();
 		reader.setValidator(new LayoutTestValidator());
 		reader.setStyleSheetProvider(new IStyleSheetProvider() {
+			@Override
 			public StyleSheet getStyleSheet(final DocumentContentModel documentContentModel) {
 				return styleSheet;
 			}
@@ -189,7 +193,7 @@ public class LayoutTest extends TestCase {
 
 		boxSpec.children.removeAll(toRemove);
 
-		if (invalidateParentBlock && box instanceof BlockBox && box.getNode() != null) {
+		if (invalidateParentBlock && box instanceof BlockBox && !box.isAnonymous()) {
 			((BlockBox) box).invalidate(true);
 			invalidateParentBlock = false;
 		}
@@ -270,6 +274,11 @@ public class LayoutTest extends TestCase {
 			@Override
 			public String visit(final IElement element) {
 				return element.getPrefixedName();
+			}
+
+			@Override
+			public String visit(final IIncludeNode include) {
+				return include.getReference().getPrefixedName();
 			}
 		});
 	}

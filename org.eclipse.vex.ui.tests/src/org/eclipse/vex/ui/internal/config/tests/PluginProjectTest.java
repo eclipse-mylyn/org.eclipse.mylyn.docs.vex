@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  * 		Florian Thienel - initial API and implementation
  *******************************************************************************/
@@ -24,7 +24,6 @@ import org.eclipse.vex.ui.internal.config.PluginProjectNature;
 /**
  * @author Florian Thienel
  */
-@SuppressWarnings("restriction")
 public class PluginProjectTest {
 
 	public static IProject createVexPluginProject(final String name) throws CoreException {
@@ -54,7 +53,7 @@ public class PluginProjectTest {
 		final StringWriter result = new StringWriter();
 		final PrintWriter out = new PrintWriter(result);
 		out.println("<?xml version='1.0'?>"); //$NON-NLS-1$
-		// HINT: It is important to set the id attribute, because this is used as the unique identifier for the configuration. 
+		// HINT: It is important to set the id attribute, because this is used as the unique identifier for the configuration.
 		out.println("<plugin id=\"" + project.getName() + "\">"); //$NON-NLS-1$ //$NON-NLS-2$
 		out.println("<extension id=\"plugintest\" name=\"plugin test doctype\" point=\"org.eclipse.vex.ui.doctypes\">"); //$NON-NLS-1$
 		out.println("<doctype systemId=\"" + dtdFilename + "\" dtd=\"" + dtdFilename + "\" publicId=\"-//Vex//Plugin Test//EN\" />"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$

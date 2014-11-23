@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     John Krasnay - initial API and implementation
  *     Igor Jacy Lino Campista - Java 5 warnings fixed (bug 311325)
@@ -28,11 +28,13 @@ public class DomConfigurationElement implements IConfigElement {
 		this.element = element;
 	}
 
+	@Override
 	public String getAttribute(final String name) {
 		return element.getAttribute(name); // TODO translate from resource
-											// bundle
+		// bundle
 	}
 
+	@Override
 	public String[] getAttributeNames() {
 		final int n = element.getAttributes().getLength();
 		final String[] names = new String[n];
@@ -43,10 +45,12 @@ public class DomConfigurationElement implements IConfigElement {
 		return names;
 	}
 
+	@Override
 	public IConfigElement[] getChildren() {
 		return this.getChildren(null);
 	}
 
+	@Override
 	public IConfigElement[] getChildren(final String name) {
 		final List<IConfigElement> children = new ArrayList<IConfigElement>();
 		final NodeList list = element.getChildNodes();
@@ -62,10 +66,12 @@ public class DomConfigurationElement implements IConfigElement {
 		return children.toArray(new IConfigElement[children.size()]);
 	}
 
+	@Override
 	public String getName() {
 		return element.getTagName();
 	}
 
+	@Override
 	public String getValue() {
 		final StringBuffer sb = new StringBuffer();
 

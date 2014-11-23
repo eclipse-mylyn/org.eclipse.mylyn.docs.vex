@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     John Krasnay - initial API and implementation
  *******************************************************************************/
@@ -19,7 +19,7 @@ public class ConfigurationElementWrapper implements IConfigElement {
 
 	/**
 	 * Class constructor.
-	 * 
+	 *
 	 * @param element
 	 *            Element to be wrapped.
 	 */
@@ -27,26 +27,32 @@ public class ConfigurationElementWrapper implements IConfigElement {
 		this.element = element;
 	}
 
+	@Override
 	public String getAttribute(final String name) {
 		return element.getAttribute(name);
 	}
 
+	@Override
 	public String[] getAttributeNames() {
 		return element.getAttributeNames();
 	}
 
+	@Override
 	public IConfigElement[] getChildren() {
 		return convertArray(element.getChildren());
 	}
 
+	@Override
 	public IConfigElement[] getChildren(final String name) {
 		return convertArray(element.getChildren(name));
 	}
 
+	@Override
 	public String getName() {
 		return element.getName();
 	}
 
+	@Override
 	public String getValue() {
 		return element.getValue();
 	}
@@ -54,7 +60,7 @@ public class ConfigurationElementWrapper implements IConfigElement {
 	/**
 	 * Wraps each element in an array of IConfigurationElement objects with a ConfigurationElementWrapper and returns
 	 * the result.
-	 * 
+	 *
 	 * @param elements
 	 *            Array of elements to be wrapped.
 	 */

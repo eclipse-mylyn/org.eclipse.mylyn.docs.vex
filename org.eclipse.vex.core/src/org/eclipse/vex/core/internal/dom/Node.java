@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     John Krasnay - initial API and implementation
  *     Florian Thienel - refactoring to full fledged DOM
@@ -19,6 +19,8 @@ import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.AssertionFailedException;
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.vex.core.provisional.dom.BaseNodeVisitor;
+import org.eclipse.vex.core.provisional.dom.ContentPosition;
+import org.eclipse.vex.core.provisional.dom.ContentPositionRange;
 import org.eclipse.vex.core.provisional.dom.ContentRange;
 import org.eclipse.vex.core.provisional.dom.IAxis;
 import org.eclipse.vex.core.provisional.dom.IContent;
@@ -41,6 +43,7 @@ public abstract class Node implements INode {
 	private IPosition startPosition = IPosition.NULL;
 	private IPosition endPosition = IPosition.NULL;
 
+	@Override
 	public Parent getParent() {
 		return parent;
 	}
@@ -49,11 +52,13 @@ public abstract class Node implements INode {
 		this.parent = parent;
 	}
 
+	@Override
 	public IAxis<IParent> ancestors() {
 		return new Axis<IParent>(this) {
 			@Override
 			protected Iterator<IParent> createRootIterator(final ContentRange contentRange, final boolean includeText) {
 				return NodesInContentRangeIterator.iterator(new Iterable<IParent>() {
+					@Override
 					public Iterator<IParent> iterator() {
 						return new AncestorsIterator(Node.this);
 					}
@@ -82,14 +87,17 @@ public abstract class Node implements INode {
 		content = null;
 	}
 
+	@Override
 	public boolean isAssociated() {
 		return content != null;
 	}
 
+	@Override
 	public IContent getContent() {
 		return content;
 	}
 
+	@Override
 	public int getStartOffset() {
 		if (!isAssociated()) {
 			throw new AssertionFailedException("Node must be associated to a ContentRange to have a start offset.");
@@ -97,13 +105,31 @@ public abstract class Node implements INode {
 		return startPosition.getOffset();
 	}
 
+	@Override
+	public ContentPosition getStartPosition() {
+		if (!isAssociated()) {
+			throw new AssertionFailedException("Node must be associated to a ContentRange to have a start position.");
+		}
+		return new ContentPosition(this, startPosition.getOffset());
+	}
+
+	@Override
 	public int getEndOffset() {
 		if (!isAssociated()) {
-			throw new AssertionFailedException("Node must be associated to a ContentRange to have a start offset.");
+			throw new AssertionFailedException("Node must be associated to a ContentRange to have a end offset.");
 		}
 		return endPosition.getOffset();
 	}
 
+	@Override
+	public ContentPosition getEndPosition() {
+		if (!isAssociated()) {
+			throw new AssertionFailedException("Node must be associated to a ContentRange to have a end position.");
+		}
+		return new ContentPosition(this, endPosition.getOffset());
+	}
+
+	@Override
 	public ContentRange getRange() {
 		if (!isAssociated()) {
 			return ContentRange.NULL;
@@ -111,6 +137,15 @@ public abstract class Node implements INode {
 		return new ContentRange(getStartOffset(), getEndOffset());
 	}
 
+	@Override
+	public ContentPositionRange getPositionRange() {
+		if (!isAssociated()) {
+			throw new AssertionFailedException("Node must be associated to a ContentRange to have a ContentPositionRange.");
+		}
+		return new ContentPositionRange(getStartPosition(), getEndPosition());
+	}
+
+	@Override
 	public boolean isEmpty() {
 		if (!isAssociated()) {
 			return false;
@@ -118,6 +153,7 @@ public abstract class Node implements INode {
 		return getEndOffset() - getStartOffset() == 1;
 	}
 
+	@Override
 	public boolean containsOffset(final int offset) {
 		if (!isAssociated()) {
 			return false;
@@ -125,6 +161,15 @@ public abstract class Node implements INode {
 		return getRange().contains(offset);
 	}
 
+	@Override
+	public boolean containsPosition(final ContentPosition position) {
+		if (!isAssociated()) {
+			return false;
+		}
+		return getPositionRange().contains(position);
+	}
+
+	@Override
 	public boolean isInRange(final ContentRange range) {
 		if (!isAssociated()) {
 			return false;
@@ -132,10 +177,12 @@ public abstract class Node implements INode {
 		return range.contains(getRange());
 	}
 
+	@Override
 	public String getText() {
 		return getText(getRange());
 	}
 
+	@Override
 	public String getText(final ContentRange range) {
 		if (!isAssociated()) {
 			throw new AssertionFailedException("Node must be associated to a Content region to have textual content.");
@@ -143,6 +190,7 @@ public abstract class Node implements INode {
 		return content.getText(range.intersection(getRange()));
 	}
 
+	@Override
 	public Document getDocument() {
 		if (this instanceof Document) {
 			return (Document) this;
@@ -155,6 +203,7 @@ public abstract class Node implements INode {
 		return null;
 	}
 
+	@Override
 	public String getBaseURI() {
 		if (getParent() != null) {
 			return getParent().getBaseURI();

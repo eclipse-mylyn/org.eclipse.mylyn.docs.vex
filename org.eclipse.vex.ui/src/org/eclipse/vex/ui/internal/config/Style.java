@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     John Krasnay - initial API and implementation
  *     Igor Jacy Lino Campista - Java 5 warnings fixed (bug 311325)
@@ -32,7 +32,7 @@ public class Style extends ConfigItem {
 
 	/**
 	 * Adds the public ID of a document type to which the style applies.
-	 * 
+	 *
 	 * @param publicId
 	 *            public ID of the document type
 	 */
@@ -42,7 +42,7 @@ public class Style extends ConfigItem {
 
 	/**
 	 * Returns true if this style applies to the documents with the given type.
-	 * 
+	 *
 	 * @param publicId
 	 *            public ID of the document type being sought
 	 */
@@ -85,7 +85,7 @@ public class Style extends ConfigItem {
 
 	/**
 	 * Removes the public ID of a document type to which the style no longer applies.
-	 * 
+	 *
 	 * @param publicId
 	 *            public ID of the document type
 	 */
@@ -95,7 +95,7 @@ public class Style extends ConfigItem {
 
 	/**
 	 * Sets the box factory used to generate boxes for document elements.
-	 * 
+	 *
 	 * @param factory
 	 *            the new box factory.
 	 */

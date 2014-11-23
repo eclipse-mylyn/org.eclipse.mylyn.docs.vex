@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  * 		Carsten Hiesserich - initial API and implementation
  *******************************************************************************/
@@ -64,8 +64,8 @@ public class L2ProcessingInstructionEditingTest {
 
 		final IProcessingInstruction pi = widget.insertProcessingInstruction("target");
 
-		widget.moveTo(pi.getStartOffset());
-		widget.moveTo(pi.getEndOffset(), true);
+		widget.moveTo(pi.getStartPosition());
+		widget.moveTo(pi.getEndPosition(), true);
 		widget.deleteSelection();
 
 		widget.undo(); // delete
@@ -88,8 +88,8 @@ public class L2ProcessingInstructionEditingTest {
 		widget.doWork(new Runnable() {
 			@Override
 			public void run() {
-				widget.moveTo(pi.getStartOffset() + 1, false);
-				widget.moveTo(pi.getEndOffset() - 1, true);
+				widget.moveTo(pi.getStartPosition().moveBy(1), false);
+				widget.moveTo(pi.getEndPosition().moveBy(-1), true);
 				final IDocumentFragment fragment = widget.getSelectedFragment();
 				widget.deleteSelection();
 
@@ -133,7 +133,7 @@ public class L2ProcessingInstructionEditingTest {
 
 		final String expectedContentStructure = getContentStructure(widget.getDocument().getRootElement());
 
-		widget.moveTo(pi.getStartOffset() + 1);
+		widget.moveTo(pi.getStartPosition().moveBy(1));
 		widget.editProcessingInstruction("new", "data");
 		widget.undo();
 

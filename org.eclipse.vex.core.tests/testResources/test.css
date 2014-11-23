@@ -32,6 +32,10 @@ para + para {
   background-color: red;
 }
 
+emphasis {
+	display: inline;
+}
+
 pre {
   display: block;
   white-space: pre;

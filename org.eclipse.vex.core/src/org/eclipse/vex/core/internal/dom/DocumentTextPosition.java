@@ -24,7 +24,7 @@ public class DocumentTextPosition extends Position {
 
 	/**
 	 * Creates a new position with the given offset and length 0.
-	 * 
+	 *
 	 * @param offset
 	 *            the position offset, must be >= 0
 	 */
@@ -34,7 +34,7 @@ public class DocumentTextPosition extends Position {
 
 	/**
 	 * Creates a new position with the given offset and length.
-	 * 
+	 *
 	 * @param offset
 	 *            the position offset, must be >= 0
 	 * @param length
@@ -76,7 +76,7 @@ public class DocumentTextPosition extends Position {
 
 	/**
 	 * Return the previously stored offset.
-	 * 
+	 *
 	 * @return The stored offset
 	 */
 	public int getOffsetInNode() {
@@ -85,7 +85,7 @@ public class DocumentTextPosition extends Position {
 
 	/**
 	 * Stores an additional offset in this position
-	 * 
+	 *
 	 * @param offsetInNode
 	 *            The offset to store.
 	 */

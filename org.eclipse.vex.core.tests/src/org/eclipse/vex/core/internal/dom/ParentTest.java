@@ -735,28 +735,34 @@ public class ParentTest {
 	}
 
 	private static class TestParent extends Parent {
+		@Override
 		public void accept(final INodeVisitor visitor) {
 			throw new UnsupportedOperationException();
 		}
 
+		@Override
 		public <T> T accept(final INodeVisitorWithResult<T> visitor) {
 			throw new UnsupportedOperationException();
 		}
 
+		@Override
 		public boolean isKindOf(final INode node) {
 			return false;
 		}
 	}
 
 	private static class TestChild extends Node {
+		@Override
 		public void accept(final INodeVisitor visitor) {
 			throw new UnsupportedOperationException();
 		}
 
+		@Override
 		public <T> T accept(final INodeVisitorWithResult<T> visitor) {
 			throw new UnsupportedOperationException();
 		}
 
+		@Override
 		public boolean isKindOf(final INode node) {
 			return false;
 		}

@@ -19,7 +19,7 @@ import org.eclipse.vex.core.provisional.dom.IElement;
 /**
  * Inserts one or more table rows either above or below the currently selected one(s). If more than one row is selected
  * the same number of new rows will be created.
- * 
+ *
  * @see AddRowBelowHandler
  * @see AddRowAboveHandler
  */
@@ -28,6 +28,7 @@ public abstract class AbstractAddRowHandler extends AbstractVexWidgetHandler {
 	@Override
 	public void execute(final VexWidget widget) throws ExecutionException {
 		widget.doWork(new Runnable() {
+			@Override
 			public void run() {
 				addRow(widget);
 			}

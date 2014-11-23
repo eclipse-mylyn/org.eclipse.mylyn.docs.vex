@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     John Krasnay - initial API and implementation
  *     Igor Jacy Lino Campista - Java 5 warnings fixed (bug 311325)
@@ -16,6 +16,7 @@ import java.util.List;
 
 import org.eclipse.vex.core.internal.core.Caret;
 import org.eclipse.vex.core.internal.core.Insets;
+import org.eclipse.vex.core.provisional.dom.ContentPosition;
 import org.eclipse.vex.core.provisional.dom.IElement;
 import org.eclipse.vex.core.provisional.dom.IParent;
 
@@ -43,10 +44,12 @@ public class TableRowBox extends AbstractBlockBox {
 		LayoutUtils.iterateTableCells(context.getStyleSheet(), parent, getStartOffset(), getEndOffset(), new ElementOrRangeCallback() {
 			private int column = 0;
 
+			@Override
 			public void onElement(final IElement child, final String displayStyle) {
 				children.add(new TableCellBox(context, TableRowBox.this, child, widths[column++]));
 			}
 
+			@Override
 			public void onRange(final IParent parent, final int startOffset, final int endOffset) {
 				children.add(new TableCellBox(context, TableRowBox.this, startOffset, endOffset, widths[column++]));
 			}
@@ -69,7 +72,7 @@ public class TableRowBox extends AbstractBlockBox {
 	}
 
 	@Override
-	public Caret getCaret(final LayoutContext context, final int offset) {
+	public Caret getCaret(final LayoutContext context, final ContentPosition position) {
 
 		final int hSpacing = getTableBox().getHorizonalSpacing();
 
@@ -77,7 +80,7 @@ public class TableRowBox extends AbstractBlockBox {
 
 		// If we haven't yet laid out this block, estimate the caret.
 		if (children == null) {
-			final int relative = offset - getStartOffset();
+			final int relative = position.getOffset() - getStartOffset();
 			final int size = getEndOffset() - getStartOffset();
 			int y = 0;
 			if (size > 0) {
@@ -100,13 +103,13 @@ public class TableRowBox extends AbstractBlockBox {
 				continue;
 			}
 
-			if (offset < child.getStartOffset()) {
+			if (position.getOffset() < child.getStartOffset()) {
 				return new TextCaret(x, 0, getHeight());
 			}
 
-			if (offset >= child.getStartOffset() && offset <= child.getEndOffset()) {
+			if (position.getOffset() >= child.getStartOffset() && position.getOffset() <= child.getEndOffset()) {
 
-				final Caret caret = child.getCaret(context, offset);
+				final Caret caret = child.getCaret(context, position);
 				caret.translate(child.getX(), child.getY());
 				return caret;
 			}
@@ -136,47 +139,50 @@ public class TableRowBox extends AbstractBlockBox {
 	}
 
 	@Override
-	public int getNextLineOffset(final LayoutContext context, final int offset, final int x) {
+	public ContentPosition getNextLinePosition(final LayoutContext context, final ContentPosition linePosition, final int x) {
 
-		final BlockBox[] children = getContentChildren();
+		final BlockBox[] children = getChildrenWithContent();
 		final int[] widths = getTableBox().getColumnWidths();
 		int leftEdge = 0;
 
 		for (int i = 0; i < children.length; i++) {
 			if (leftEdge + widths[i] > x) {
-				final int newOffset = children[i].getNextLineOffset(context, offset, x - leftEdge);
-				if (newOffset == children[i].getEndOffset() + 1) {
-					return -1;
+				final ContentPosition newPosition = children[i].getNextLinePosition(context, linePosition, x - leftEdge);
+				if (newPosition != null && newPosition.getOffset() == children[i].getEndOffset() + 1) {
+					// No next line in cell - let the parent find the next row
+					return null;
 				} else {
-					return newOffset;
+					return newPosition;
 				}
 			}
 			leftEdge += widths[i];
 		}
 
-		return -1;
+		return null;
 	}
 
 	@Override
-	public int getPreviousLineOffset(final LayoutContext context, final int offset, final int x) {
+	public ContentPosition getPreviousLinePosition(final LayoutContext context, final ContentPosition linePosition, final int x) {
 
-		final BlockBox[] children = getContentChildren();
+		final BlockBox[] children = getChildrenWithContent();
 		final int[] widths = getTableBox().getColumnWidths();
 		int leftEdge = 0;
 
 		for (int i = 0; i < children.length; i++) {
+			// find the cell at the given x position
 			if (leftEdge + widths[i] > x) {
-				final int newOffset = children[i].getPreviousLineOffset(context, offset, x - leftEdge);
-				if (newOffset == children[i].getStartOffset() - 1) {
-					return -1;
-				} else {
-					return newOffset;
+				// This may return null if the cell has no previous line
+				final ContentPosition newPosition = children[i].getPreviousLinePosition(context, linePosition, x - leftEdge);
+				if (newPosition != null && newPosition.getOffset() == children[i].getStartOffset() - 1) {
+					// No previous line in cell - let the parent find the previous row
+					return null;
 				}
+				return newPosition;
 			}
 			leftEdge += widths[i];
 		}
 
-		return -1;
+		return null;
 	}
 
 	/**
@@ -222,7 +228,7 @@ public class TableRowBox extends AbstractBlockBox {
 	}
 
 	@Override
-	public int viewToModel(final LayoutContext context, final int x, final int y) {
+	public ContentPosition viewToModel(final LayoutContext context, final int x, final int y) {
 
 		final Box[] children = getChildren();
 		if (children == null) {
@@ -235,7 +241,7 @@ public class TableRowBox extends AbstractBlockBox {
 			}
 
 			if (x < child.getX()) {
-				return child.getStartOffset() - 1;
+				return child.getNode().getStartPosition().moveBy(-1);
 			}
 
 			if (x < child.getX() + child.getWidth()) {
@@ -243,7 +249,7 @@ public class TableRowBox extends AbstractBlockBox {
 			}
 		}
 
-		return getEndOffset();
+		return getNode().getEndPosition().copy();
 	}
 
 }

@@ -18,30 +18,38 @@ public class MockHostComponent implements IHostComponent {
 
 	public boolean selectionChanged;
 
+	@Override
 	public Graphics createDefaultGraphics() {
 		return new FakeGraphics();
 	}
 
+	@Override
 	public void fireSelectionChanged() {
 		selectionChanged = true;
 	}
 
+	@Override
 	public Rectangle getViewport() {
 		return new Rectangle(0, 0, 0, 0);
 	}
 
+	@Override
 	public void invokeLater(final Runnable runnable) {
 	}
 
+	@Override
 	public void repaint() {
 	}
 
+	@Override
 	public void repaint(final int x, final int y, final int width, final int height) {
 	}
 
+	@Override
 	public void scrollTo(final int left, final int top) {
 	}
 
+	@Override
 	public void setPreferredSize(final int width, final int height) {
 	}
 

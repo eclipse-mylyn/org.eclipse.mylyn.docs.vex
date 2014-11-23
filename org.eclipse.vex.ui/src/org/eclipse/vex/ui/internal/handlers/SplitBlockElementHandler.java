@@ -14,13 +14,14 @@ package org.eclipse.vex.ui.internal.handlers;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.vex.core.internal.widget.IVexWidget;
 import org.eclipse.vex.core.internal.widget.swt.VexWidget;
+import org.eclipse.vex.core.provisional.dom.ContentPosition;
 import org.eclipse.vex.core.provisional.dom.INode;
 import org.eclipse.vex.ui.internal.swt.ContentAssist;
 
 /**
  * Splits the current block element, for instance to create new block/paragraph or table cell (usually by hitting the
  * {@code Return} key).
- * 
+ *
  * @see SplitItemHandler
  */
 public class SplitBlockElementHandler extends AbstractVexWidgetHandler {
@@ -35,9 +36,9 @@ public class SplitBlockElementHandler extends AbstractVexWidgetHandler {
 		if (widget.canSplit()) {
 			splitElement(widget, currentNode);
 		} else {
-			final int targetOffset = currentNode.getEndOffset() + 1;
-			if (widget.getDocument().getRootElement().containsOffset(targetOffset)) {
-				widget.moveTo(targetOffset);
+			final ContentPosition targetPosition = currentNode.getEndPosition().moveBy(1);
+			if (widget.getDocument().getRootElement().containsPosition(targetPosition)) {
+				widget.moveTo(targetPosition);
 				ContentAssist.openAddElementsContentAssist(widget);
 			}
 		}
@@ -45,7 +46,7 @@ public class SplitBlockElementHandler extends AbstractVexWidgetHandler {
 
 	/**
 	 * Splits the given element.
-	 * 
+	 *
 	 * @param vexWidget
 	 *            IVexWidget containing the document.
 	 * @param node
@@ -53,6 +54,7 @@ public class SplitBlockElementHandler extends AbstractVexWidgetHandler {
 	 */
 	protected void splitElement(final IVexWidget vexWidget, final INode node) {
 		vexWidget.doWork(new Runnable() {
+			@Override
 			public void run() {
 				final boolean isPreformatted = vexWidget.getWhitespacePolicy().isPre(node);
 				if (isPreformatted) {

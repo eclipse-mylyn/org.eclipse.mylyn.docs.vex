@@ -18,20 +18,24 @@ import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.vex.core.internal.dom.CopyOfElement;
+import org.eclipse.vex.core.internal.layout.LayoutUtils.ElementOrRange;
 import org.eclipse.vex.core.internal.widget.swt.VexWidget;
+import org.eclipse.vex.core.provisional.dom.ContentPosition;
 import org.eclipse.vex.core.provisional.dom.IElement;
 
 /**
  * Inserts a single table column before (left of) or after (right of) the current one.
- * 
+ *
  * @see AddColumnLeftHandler
  * @see AddColumnRightHandler
  */
 public abstract class AbstractAddColumnHandler extends AbstractHandler {
 
+	@Override
 	public Object execute(final ExecutionEvent event) throws ExecutionException {
 		final VexWidget widget = VexHandlerUtil.computeWidget(event);
 		widget.doWork(new Runnable() {
+			@Override
 			public void run() {
 				try {
 					addColumn(widget);
@@ -54,25 +58,22 @@ public abstract class AbstractAddColumnHandler extends AbstractHandler {
 		final List<IElement> cellsToDup = new ArrayList<IElement>();
 		VexHandlerUtil.iterateTableCells(widget, new TableCellCallbackAdapter() {
 			@Override
-			public void onCell(final Object row, final Object cell, final int rowIndex, final int cellIndex) {
+			public void onCell(final ElementOrRange row, final ElementOrRange cell, final int rowIndex, final int cellIndex) {
 				if (cellIndex == indexToDup && cell instanceof IElement) {
 					cellsToDup.add((IElement) cell);
 				}
 			}
 		});
 
-		int finalOffset = -1;
 		for (final IElement element : cellsToDup) {
-			if (finalOffset == -1) {
-				finalOffset = element.getStartOffset() + 1;
-			}
-			widget.moveTo(addBefore() ? element.getStartOffset() : element.getEndOffset() + 1);
+			widget.moveTo(addBefore() ? element.getStartPosition() : element.getEndPosition().moveBy(1));
 			widget.insertElement(element.getQualifiedName()).accept(new CopyOfElement(element));
 		}
 
-		if (finalOffset != -1) {
-			widget.moveTo(finalOffset);
-		}
+		// Place caret in first new cell
+		final IElement firstCell = cellsToDup.get(0);
+		final ContentPosition position = new ContentPosition(firstCell, firstCell.getStartOffset() + 1);
+		widget.moveTo(position);
 	}
 
 	/**

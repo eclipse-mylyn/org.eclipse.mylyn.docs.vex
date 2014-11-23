@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  * 		Florian Thienel - initial API and implementation
  *******************************************************************************/
@@ -29,7 +29,6 @@ import org.junit.rules.TestName;
 /**
  * @author Florian Thienel
  */
-@SuppressWarnings("restriction")
 public class ConfigLoaderJobTest {
 
 	@Rule
@@ -63,6 +62,7 @@ public class ConfigLoaderJobTest {
 		runnableRun[1] = false;
 		final ConfigLoaderJob job = new ConfigLoaderJob();
 		job.load(new Runnable() {
+			@Override
 			public void run() {
 				runnableRun[0] = true;
 			}
@@ -74,6 +74,7 @@ public class ConfigLoaderJobTest {
 		runnableRun[0] = false;
 		runnableRun[1] = false;
 		job.load(new Runnable() {
+			@Override
 			public void run() {
 				runnableRun[1] = true;
 			}

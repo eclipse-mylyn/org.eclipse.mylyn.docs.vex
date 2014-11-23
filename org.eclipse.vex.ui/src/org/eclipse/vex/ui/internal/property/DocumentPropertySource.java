@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  * 		Florian Thienel - initial API and implementation
  *******************************************************************************/
@@ -31,11 +31,13 @@ public class DocumentPropertySource implements IPropertySource2 {
 		this.document = document;
 	}
 
+	@Override
 	public IPropertyDescriptor[] getPropertyDescriptors() {
 		return new IPropertyDescriptor[] { new PropertyDescriptor(SYSTEM_ID, "System Identifier"), new PropertyDescriptor(PUBLIC_ID, "Public Identifier"),
 				new PropertyDescriptor(DOCUMENT_URI, "Document URI"), new PropertyDescriptor(ENCODING, "Encoding") };
 	}
 
+	@Override
 	public Object getPropertyValue(final Object id) {
 		if (id == SYSTEM_ID) {
 			return document.getSystemID();
@@ -52,23 +54,28 @@ public class DocumentPropertySource implements IPropertySource2 {
 		return null;
 	}
 
+	@Override
 	public boolean isPropertySet(final Object id) {
 		return false;
 	}
 
+	@Override
 	public Object getEditableValue() {
 		// this property source is read-only
 		return null;
 	}
 
+	@Override
 	public void resetPropertyValue(final Object id) {
 		// this property source is read-only
 	}
 
+	@Override
 	public void setPropertyValue(final Object id, final Object value) {
 		// this property source is read-only
 	}
 
+	@Override
 	public boolean isPropertyResettable(final Object id) {
 		return false;
 	}

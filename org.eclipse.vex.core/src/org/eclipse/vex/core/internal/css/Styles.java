@@ -45,7 +45,7 @@ public class Styles {
 
 	/**
 	 * Returns the value of the given property, or null if the property does not have a value.
-	 * 
+	 *
 	 * @param propertyName
 	 * @return
 	 */
@@ -141,7 +141,7 @@ public class Styles {
 	 * Returns a <code>List</code> of <code>ContentPart</code> objects representing the <code>content</code> property.<br />
 	 * The content is parsed on every access to get the actual values for attributes. Do not try to get the content via
 	 * the {@link #get(String)} method!
-	 * 
+	 *
 	 * @param node
 	 *            The INode to get attr(...) values from
 	 */
@@ -272,7 +272,7 @@ public class Styles {
 
 	/**
 	 * Sets the value of a property in this stylesheet.
-	 * 
+	 *
 	 * @param propertyName
 	 *            Name of the property being set.
 	 * @param value
@@ -297,7 +297,7 @@ public class Styles {
 
 	/**
 	 * Check if the given pseudo element is defined for this node.
-	 * 
+	 *
 	 * @param pseudoElementName
 	 * @return <code>true</code> when the given pseudo element is defined.
 	 */
@@ -307,7 +307,7 @@ public class Styles {
 
 	/**
 	 * Sets the LexicalUnits of the <code>content</code> property.
-	 * 
+	 *
 	 * @param content
 	 *            <code>List</code> of <code>LexicalUnits</code> objects defining the content.
 	 */
@@ -317,7 +317,7 @@ public class Styles {
 
 	/**
 	 * Sets the value of the <code>font</code> property.
-	 * 
+	 *
 	 * @param font
 	 *            new value for the <code>font</code> property.
 	 */

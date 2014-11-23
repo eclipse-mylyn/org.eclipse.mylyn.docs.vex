@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  * 		Florian Thienel - initial API and implementation
  *******************************************************************************/
@@ -15,7 +15,7 @@ import org.eclipse.core.runtime.QualifiedName;
 /**
  * A representation of an attribute within the start tag of an element. An attribute consists of a qualified name and a
  * value. It is comparable by its qualified name, which is the natural order of attributes.
- * 
+ *
  * @author Florian Thienel
  */
 public interface IAttribute extends Comparable<IAttribute> {
@@ -48,11 +48,12 @@ public interface IAttribute extends Comparable<IAttribute> {
 
 	/**
 	 * Compares two attributes by their qualified name.
-	 * 
+	 *
 	 * @param otherAttribute
 	 *            the other attribute
 	 * @see Comparable
 	 */
+	@Override
 	int compareTo(IAttribute otherAttribute);
 
 }

@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  * 		Florian Thienel - initial API and implementation
  *******************************************************************************/
@@ -17,7 +17,7 @@ import org.eclipse.vex.core.provisional.dom.IElement;
 /**
  * An immutable representation of an attribute within the start tag of an element. An attribute consists of a qualified
  * name and a value. It is Comparable by its qualified name, which is the natural order of attributes.
- * 
+ *
  * @author Florian Thienel
  */
 public class Attribute implements IAttribute {
@@ -38,22 +38,27 @@ public class Attribute implements IAttribute {
 		this.value = value;
 	}
 
+	@Override
 	public IElement getParent() {
 		return parent;
 	}
 
+	@Override
 	public String getLocalName() {
 		return name.getLocalName();
 	}
 
+	@Override
 	public String getValue() {
 		return value;
 	}
 
+	@Override
 	public QualifiedName getQualifiedName() {
 		return name;
 	}
 
+	@Override
 	public String getPrefixedName() {
 		final String attributeQualifier = name.getQualifier();
 		if (parent == null || attributeQualifier == null) {
@@ -63,6 +68,7 @@ public class Attribute implements IAttribute {
 		return (prefix == null ? "" : prefix + ":") + getLocalName();
 	}
 
+	@Override
 	public int compareTo(final IAttribute otherAttribute) {
 		return name.toString().compareTo(otherAttribute.getQualifiedName().toString());
 	}

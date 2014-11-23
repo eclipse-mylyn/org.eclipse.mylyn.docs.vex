@@ -1,10 +1,10 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2008 John Krasnay and others.
+ * Copyright (c) 2004, 2014 John Krasnay and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     John Krasnay - initial API and implementation
  *     Igor Jacy Lino Campista - Java 5 warnings fixed (bug 311325)
@@ -30,6 +30,7 @@ import javax.xml.parsers.ParserConfigurationException;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IStatus;
@@ -58,16 +59,17 @@ public class PluginProject extends ConfigSource {
 
 	@Override
 	public URL getBaseUrl() {
+		return toURL(getProject());
+	}
+
+	private static URL toURL(final IResource resource) {
 		try {
-			return getProject().getLocation().toFile().toURL();
+			return resource.getLocation().toFile().toURI().toURL();
 		} catch (final MalformedURLException e) {
 			throw new AssertionError(e);
 		}
 	}
 
-	/**
-	 * @return the IProject associated with this plugin project.
-	 */
 	public IProject getProject() {
 		return project;
 	}
@@ -139,7 +141,7 @@ public class PluginProject extends ConfigSource {
 		final IFile configXml = project.getFile(PLUGIN_XML);
 		final DocumentBuilder builder = createDocumentBuilder();
 		try {
-			final URL url = configXml.getLocation().toFile().toURL();
+			final URL url = toURL(configXml);
 			return builder.parse(url.toString());
 		} catch (final SAXParseException e) {
 			if (problemHandler != null) {

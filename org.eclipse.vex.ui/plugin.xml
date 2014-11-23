@@ -9,9 +9,11 @@
 	<extension point="org.eclipse.core.contenttype.contentTypes">
 		<content-type
         base-type="org.eclipse.core.runtime.xml"
-        file-extensions="*.xml"
+        describer="org.eclipse.vex.ui.internal.contenttype.VexContentDescriber"
+        file-extensions="xml"
         id="org.eclipse.vex.ui.XmlDocument"
-        name="%contentType.XmlDocument.name">
+        name="%contentType.XmlDocument.name"
+        priority="low">
 		</content-type>
 	</extension>
 

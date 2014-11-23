@@ -4,11 +4,11 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     John Krasnay - initial API and implementation
  *     Igor Jacy Lino Campista - Java 5 warnings fixed (bug 311325)
- *     Florian Thienel - extracted responsibility for serialization, refactoring to full fledged DOM  
+ *     Florian Thienel - extracted responsibility for serialization, refactoring to full fledged DOM
  *******************************************************************************/
 package org.eclipse.vex.core.internal.dom;
 
@@ -32,14 +32,17 @@ public class DocumentFragment extends Parent implements IDocumentFragment {
 		}
 	}
 
+	@Override
 	public int getLength() {
 		return getContent().length();
 	}
 
+	@Override
 	public List<QualifiedName> getNodeNames() {
 		return Node.getNodeNames(children());
 	}
 
+	@Override
 	public List<? extends INode> getNodes() {
 		return children().asList();
 	}
@@ -49,14 +52,17 @@ public class DocumentFragment extends Parent implements IDocumentFragment {
 		return null;
 	}
 
+	@Override
 	public void accept(final INodeVisitor visitor) {
 		visitor.visit(this);
 	}
 
+	@Override
 	public <T> T accept(final INodeVisitorWithResult<T> visitor) {
 		return visitor.visit(this);
 	}
 
+	@Override
 	public boolean isKindOf(final INode node) {
 		return false;
 	}

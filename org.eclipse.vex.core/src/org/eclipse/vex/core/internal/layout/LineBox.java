@@ -4,12 +4,13 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     John Krasnay - initial API and implementation
  *******************************************************************************/
 package org.eclipse.vex.core.internal.layout;
 
+import org.eclipse.vex.core.provisional.dom.ContentPosition;
 import org.eclipse.vex.core.provisional.dom.INode;
 
 /**
@@ -25,7 +26,7 @@ public class LineBox extends CompositeInlineBox {
 
 	/**
 	 * Class constructor.
-	 * 
+	 *
 	 * @param context
 	 *            LayoutContext for this layout.
 	 * @param children
@@ -38,7 +39,7 @@ public class LineBox extends CompositeInlineBox {
 
 	/**
 	 * Class constructor used by the split method.
-	 * 
+	 *
 	 * @param other
 	 *            Instance of LineBox that should be splitted.
 	 * @param context
@@ -51,12 +52,18 @@ public class LineBox extends CompositeInlineBox {
 	private LineBox(final LineBox other, final LayoutContext context, final InlineBox[] children) {
 		node = other.node;
 		this.children = children;
+		//		final Box lastLeft = children[children.length - 1];
+		//		if (lastLeft instanceof DocumentTextBox) {
+		//			this.children = Arrays.copyOf(children, children.length + 1);
+		//			this.children[this.children.length - 1] = new PlaceholderBox(context, lastLeft.getNode(), lastLeft.getEndOffset() - lastLeft.getNode().getStartOffset() + 1);
+		//		}
 		layout(context);
 	}
 
 	/**
 	 * @see org.eclipse.vex.core.internal.layout.InlineBox#getBaseline()
 	 */
+	@Override
 	public int getBaseline() {
 		return baseline;
 	}
@@ -82,12 +89,20 @@ public class LineBox extends CompositeInlineBox {
 		return lastContentChild.getEndOffset();
 	}
 
+	public ContentPosition getEndPosition() {
+		return new ContentPosition(lastContentChild.getNode(), lastContentChild.getEndOffset());
+	}
+
 	/**
 	 * @see org.eclipse.vex.core.internal.layout.Box#getStartOffset()
 	 */
 	@Override
 	public int getStartOffset() {
 		return firstContentChild.getStartOffset();
+	}
+
+	public ContentPosition getStartPosition() {
+		return new ContentPosition(firstContentChild.getNode(), firstContentChild.getStartOffset());
 	}
 
 	/**

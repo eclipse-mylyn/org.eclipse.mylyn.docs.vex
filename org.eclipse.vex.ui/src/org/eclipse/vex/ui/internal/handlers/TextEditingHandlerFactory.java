@@ -18,6 +18,7 @@ import org.eclipse.core.runtime.IExecutableExtensionFactory;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.vex.core.internal.widget.swt.VexWidget;
+import org.eclipse.vex.core.provisional.dom.ContentPosition;
 import org.eclipse.vex.ui.internal.VexPlugin;
 
 /**
@@ -53,6 +54,7 @@ public class TextEditingHandlerFactory implements IExecutableExtensionFactory, I
 
 	private String id;
 
+	@Override
 	public Object create() throws CoreException {
 
 		// go to handlers
@@ -169,6 +171,7 @@ public class TextEditingHandlerFactory implements IExecutableExtensionFactory, I
 		throw new CoreException(new Status(IStatus.ERROR, VexPlugin.ID, 0, "Unknown id in data argument for " + getClass(), null)); //$NON-NLS-1$
 	}
 
+	@Override
 	public void setInitializationData(final IConfigurationElement config, final String propertyName, final Object data) throws CoreException {
 		if (data instanceof String) {
 			id = (String) data;
@@ -271,7 +274,7 @@ public class TextEditingHandlerFactory implements IExecutableExtensionFactory, I
 
 		@Override
 		public void execute(final VexWidget widget) throws ExecutionException {
-			widget.moveTo(1);
+			widget.moveTo(widget.getDocument().getStartPosition());
 		}
 
 	}
@@ -280,7 +283,7 @@ public class TextEditingHandlerFactory implements IExecutableExtensionFactory, I
 
 		@Override
 		public void execute(final VexWidget widget) throws ExecutionException {
-			widget.moveTo(widget.getDocument().getLength() - 1);
+			widget.moveTo(widget.getDocument().getEndPosition().moveBy(-1));
 		}
 
 	}
@@ -379,7 +382,7 @@ public class TextEditingHandlerFactory implements IExecutableExtensionFactory, I
 
 		@Override
 		public void execute(final VexWidget widget) throws ExecutionException {
-			widget.moveTo(1, true);
+			widget.moveTo(widget.getDocument().getStartPosition(), true);
 		}
 
 	}
@@ -388,7 +391,7 @@ public class TextEditingHandlerFactory implements IExecutableExtensionFactory, I
 
 		@Override
 		public void execute(final VexWidget widget) throws ExecutionException {
-			widget.moveTo(widget.getDocument().getLength() - 1, true);
+			widget.moveTo(widget.getDocument().getEndPosition().moveBy(-1), true);
 		}
 
 	}
@@ -447,7 +450,7 @@ public class TextEditingHandlerFactory implements IExecutableExtensionFactory, I
 		public void execute(final VexWidget widget) throws ExecutionException {
 			final int selectionLength = widget.getSelectedRange().length();
 			if (selectionLength > 1) {
-				widget.moveTo(widget.getSelectedRange().getStartOffset());
+				widget.moveTo(widget.getSelectedPositionRange().getStartPosition());
 			}
 			widget.moveToLineStart(true);
 			widget.deleteSelection();
@@ -463,7 +466,7 @@ public class TextEditingHandlerFactory implements IExecutableExtensionFactory, I
 		@Override
 		public void execute(final VexWidget widget) throws ExecutionException {
 			if (widget.hasSelection()) {
-				widget.moveTo(widget.getSelectedRange().getStartOffset());
+				widget.moveTo(widget.getSelectedPositionRange().getStartPosition());
 			}
 			widget.moveToLineEnd(true);
 			widget.deleteSelection();
@@ -487,7 +490,7 @@ public class TextEditingHandlerFactory implements IExecutableExtensionFactory, I
 		public void execute(final VexWidget widget) throws ExecutionException {
 			final int selectionLength = widget.getSelectedRange().length();
 			if (selectionLength > 1) {
-				widget.moveTo(widget.getSelectedRange().getStartOffset());
+				widget.moveTo(widget.getSelectedPositionRange().getStartPosition());
 			}
 			widget.moveToLineStart(true);
 			widget.cutSelection();
@@ -503,7 +506,7 @@ public class TextEditingHandlerFactory implements IExecutableExtensionFactory, I
 		@Override
 		public void execute(final VexWidget widget) throws ExecutionException {
 			if (widget.hasSelection()) {
-				widget.moveTo(widget.getSelectedRange().getStartOffset());
+				widget.moveTo(widget.getSelectedPositionRange().getStartPosition());
 			}
 			widget.moveToLineEnd(true);
 			widget.cutSelection();
@@ -521,13 +524,13 @@ public class TextEditingHandlerFactory implements IExecutableExtensionFactory, I
 		}
 
 		// remember start
-		final int start = widget.getSelectedRange().getStartOffset();
+		final ContentPosition start = widget.getSelectedPositionRange().getStartPosition();
 
 		// calculate end of deletion
-		int end = widget.getSelectedRange().getEndOffset();
+		ContentPosition end = widget.getSelectedPositionRange().getEndPosition();
 		widget.moveTo(end);
 		widget.moveToLineEnd(false);
-		end = widget.getCaretOffset();
+		end = widget.getCaretPosition();
 
 		// go to start of deletion
 		widget.moveTo(start);

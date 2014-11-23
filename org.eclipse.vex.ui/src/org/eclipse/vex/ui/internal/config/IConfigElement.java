@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     John Krasnay - initial API and implementation
  *******************************************************************************/
@@ -19,7 +19,7 @@ public interface IConfigElement {
 
 	/**
 	 * Returns the value of the given attribute.
-	 * 
+	 *
 	 * @param name
 	 *            Name of the attribute for which to return a name.
 	 * @return
@@ -38,7 +38,7 @@ public interface IConfigElement {
 
 	/**
 	 * Returns an array of the children of this element with the given name.
-	 * 
+	 *
 	 * @param name
 	 *            Name of children to search for.
 	 */

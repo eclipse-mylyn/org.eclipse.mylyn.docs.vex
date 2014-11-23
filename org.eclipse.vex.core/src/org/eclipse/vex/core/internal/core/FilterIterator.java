@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  * 		Florian Thienel - initial API and implementation
  *******************************************************************************/
@@ -18,7 +18,7 @@ import org.eclipse.vex.core.IFilter;
 /**
  * This iterator fiters the sequence of a given source iterator. It provides only the elements which match a given
  * filter.
- * 
+ *
  * @author Florian Thienel
  * @see IFilter
  */
@@ -52,10 +52,12 @@ public class FilterIterator<T> implements Iterator<T> {
 		current = null;
 	}
 
+	@Override
 	public boolean hasNext() {
 		return current != null;
 	}
 
+	@Override
 	public T next() {
 		if (!hasNext()) {
 			throw new NoSuchElementException();
@@ -66,6 +68,7 @@ public class FilterIterator<T> implements Iterator<T> {
 		return result;
 	}
 
+	@Override
 	public void remove() {
 		throw new UnsupportedOperationException();
 	}

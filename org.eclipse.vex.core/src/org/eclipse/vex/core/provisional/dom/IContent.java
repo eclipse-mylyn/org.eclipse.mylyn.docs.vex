@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     John Krasnay - initial API and implementation
  *     Florian Thienel - refactoring to full fledged DOM
@@ -18,7 +18,7 @@ public interface IContent extends CharSequence {
 
 	/**
 	 * Create a new Position object at the given initial offset.
-	 * 
+	 *
 	 * @param offset
 	 *            initial offset of the position
 	 */
@@ -27,7 +27,7 @@ public interface IContent extends CharSequence {
 	/**
 	 * Remove the given Position from the list of positions. A removed position is not updated anymore when this content
 	 * is modified.
-	 * 
+	 *
 	 * @param position
 	 *            the position to remove
 	 */
@@ -35,7 +35,7 @@ public interface IContent extends CharSequence {
 
 	/**
 	 * Insert the given text at the given offset into this content.
-	 * 
+	 *
 	 * @param offset
 	 *            offset at which to insert the text
 	 * @param text
@@ -47,7 +47,7 @@ public interface IContent extends CharSequence {
 	 * Get the plain text of a range in this content. The plain text does not contain any tag markers in this content.
 	 * The length of the returned text may be less then the length of the given range since the returned text does not
 	 * contain tag markers.
-	 * 
+	 *
 	 * @param range
 	 *            the range of the text to return
 	 * @return the plain text of the given range, not including tag markers
@@ -56,14 +56,14 @@ public interface IContent extends CharSequence {
 
 	/**
 	 * Get the whole plain text of this content. The plain text does not contain any tag markers.
-	 * 
+	 *
 	 * @return the whole plain text, not including tag markers
 	 */
 	String getText();
 
 	/**
 	 * Get the raw text of a range in this content. The plain text does also contain the tag markers in this content.
-	 * 
+	 *
 	 * @param range
 	 *            the range of the text to return
 	 * @return the text of the given range, including element markers
@@ -72,14 +72,14 @@ public interface IContent extends CharSequence {
 
 	/**
 	 * Get the whole raw text of this content. The raw text does also contain the tag markers in this content.
-	 * 
+	 *
 	 * @return the whole text, including tag markers
 	 */
 	String getRawText();
 
 	/**
 	 * Insert the given content into this content at the given offset.
-	 * 
+	 *
 	 * @param offset
 	 *            offset at which to insert the given content
 	 * @param content
@@ -89,7 +89,7 @@ public interface IContent extends CharSequence {
 
 	/**
 	 * Get a copy of a range in this content.
-	 * 
+	 *
 	 * @param range
 	 *            the range to copy
 	 * @return the copy of the given range
@@ -103,7 +103,7 @@ public interface IContent extends CharSequence {
 
 	/**
 	 * Insert a tag marker at the given offset into this content.
-	 * 
+	 *
 	 * @param offset
 	 *            offset at which to insert the tag marker.
 	 */
@@ -111,7 +111,7 @@ public interface IContent extends CharSequence {
 
 	/**
 	 * Indicate if there is a tag marker at the given offset.
-	 * 
+	 *
 	 * @param offset
 	 *            offset at which to check if a tag marker is present.
 	 */
@@ -119,7 +119,7 @@ public interface IContent extends CharSequence {
 
 	/**
 	 * Delete the given range of characters.
-	 * 
+	 *
 	 * @param range
 	 *            the range to delete from this content
 	 */
@@ -128,6 +128,7 @@ public interface IContent extends CharSequence {
 	/**
 	 * @return the length of the content including tag markers
 	 */
+	@Override
 	int length();
 
 	/**

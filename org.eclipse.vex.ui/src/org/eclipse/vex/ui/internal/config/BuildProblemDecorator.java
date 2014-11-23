@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     John Krasnay - initial API and implementation
  *     Torsten Stolpmann - bug 250837 - fixed id used for builder.
@@ -32,6 +32,7 @@ public class BuildProblemDecorator extends LabelProvider implements ILightweight
 
 	public static final String ID = "org.eclipse.vex.ui.config.buildProblemDecorator"; //$NON-NLS-1$
 
+	@Override
 	public void decorate(final Object element, final IDecoration decoration) {
 
 		if (errorIcon == null) {
@@ -52,7 +53,7 @@ public class BuildProblemDecorator extends LabelProvider implements ILightweight
 
 	/**
 	 * Fire a change notification that the markers on the given resource has changed.
-	 * 
+	 *
 	 * @param resources
 	 *            Array of resources whose markers have changed.
 	 */
@@ -62,7 +63,7 @@ public class BuildProblemDecorator extends LabelProvider implements ILightweight
 
 	/**
 	 * Fire a change notification that the markers on the given resources has changed.
-	 * 
+	 *
 	 * @param resources
 	 *            Array of resources whose markers have changed.
 	 */

@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     John Krasnay - initial API and implementation
  *     Igor Jacy Lino Campista - Java 5 warnings fixed (bug 311325)
@@ -21,6 +21,7 @@ import org.eclipse.vex.core.internal.core.FontMetrics;
 import org.eclipse.vex.core.internal.core.FontResource;
 import org.eclipse.vex.core.internal.core.Graphics;
 import org.eclipse.vex.core.internal.css.Styles;
+import org.eclipse.vex.core.provisional.dom.ContentPosition;
 
 /**
  * InlineBox consisting of several children. This is the parent class of InlineElementBox and LineBox, and implements
@@ -46,6 +47,7 @@ public abstract class CompositeInlineBox extends AbstractInlineBox {
 		return false;
 	}
 
+	@Override
 	public boolean isEOL() {
 		final Box[] children = getChildren();
 		return children.length > 0 && ((InlineBox) children[children.length - 1]).isEOL();
@@ -55,7 +57,7 @@ public abstract class CompositeInlineBox extends AbstractInlineBox {
 	 * @see org.eclipse.vex.core.internal.layout.Box#getCaret(org.eclipse.vex.core.internal.layout.LayoutContext, int)
 	 */
 	@Override
-	public Caret getCaret(final LayoutContext context, final int offset) {
+	public Caret getCaret(final LayoutContext context, final ContentPosition position) {
 
 		int x = 0;
 		final Box[] children = getChildren();
@@ -76,10 +78,10 @@ public abstract class CompositeInlineBox extends AbstractInlineBox {
 		for (int i = start; i < end; i++) {
 			final Box child = children[i];
 			if (child.hasContent()) {
-				if (offset < child.getStartOffset()) {
+				if (position.getOffset() < child.getStartOffset()) {
 					break;
-				} else if (offset <= child.getEndOffset()) {
-					final Caret caret = child.getCaret(context, offset);
+				} else if (position.getOffset() <= child.getEndOffset()) {
+					final Caret caret = child.getCaret(context, position);
 					caret.translate(child.getX(), child.getY());
 					return caret;
 				}
@@ -185,7 +187,7 @@ public abstract class CompositeInlineBox extends AbstractInlineBox {
 
 	/**
 	 * Creates a Pair of InlineBoxes, each with its own set of children.
-	 * 
+	 *
 	 * @param context
 	 *            LayoutContext used for this layout.
 	 * @param lefts
@@ -203,7 +205,7 @@ public abstract class CompositeInlineBox extends AbstractInlineBox {
 	 *      int, int)
 	 */
 	@Override
-	public int viewToModel(final LayoutContext context, final int x, final int y) {
+	public ContentPosition viewToModel(final LayoutContext context, final int x, final int y) {
 
 		if (!hasContent()) {
 			throw new RuntimeException("Oops. Calling viewToModel on a line with no content");
@@ -220,7 +222,7 @@ public abstract class CompositeInlineBox extends AbstractInlineBox {
 				} else if (x > child.getX() + child.getWidth()) {
 					newDelta = x - (child.getX() + child.getWidth());
 				}
-				if (newDelta < delta) {
+				if (newDelta <= delta) {
 					delta = newDelta;
 					closestContentChild = child;
 				}

@@ -7,7 +7,7 @@
  *
  * Contributors:
  * 		Florian Thienel - initial API and implementation
- * 		Carsten Hiesserich - additional tests 
+ * 		Carsten Hiesserich - additional tests
  *******************************************************************************/
 package org.eclipse.vex.ui.internal.config.tests;
 
@@ -171,18 +171,22 @@ public class ConfigurationRegistryTest {
 			this.loadedConfigSources = loadedConfigSources;
 		}
 
+		@Override
 		public void load(final Runnable whenDone) {
 			whenDone.run();
 		}
 
+		@Override
 		public boolean isLoading() {
 			return false;
 		}
 
+		@Override
 		public List<ConfigSource> getLoadedConfigSources() {
 			return loadedConfigSources;
 		}
 
+		@Override
 		public void join() throws InterruptedException {
 			return;
 		}
@@ -192,10 +196,12 @@ public class ConfigurationRegistryTest {
 		public boolean changed = false;
 		public boolean loaded = false;
 
+		@Override
 		public void configChanged(final ConfigEvent e) {
 			changed = true;
 		}
 
+		@Override
 		public void configLoaded(final ConfigEvent e) {
 			loaded = true;
 		}

@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  * 		Florian Thienel - initial API and implementation
  * 		Carsten Hiesserich - tests for attribute namespaces
@@ -32,6 +32,7 @@ import java.util.Set;
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.vex.core.internal.dom.Document;
 import org.eclipse.vex.core.internal.dom.Element;
+import org.eclipse.vex.core.internal.dom.Namespace;
 import org.eclipse.vex.core.internal.io.DocumentReader;
 import org.eclipse.vex.core.provisional.dom.AttributeDefinition;
 import org.eclipse.vex.core.provisional.dom.DocumentContentModel;
@@ -57,6 +58,7 @@ public class SchemaValidatorTest {
 	private static final QualifiedName P = new QualifiedName(CONTENT_NS, "p");
 	private static final QualifiedName B = new QualifiedName(CONTENT_NS, "b");
 	private static final QualifiedName I = new QualifiedName(CONTENT_NS, "i");
+	private static final QualifiedName XI = new QualifiedName(Namespace.XINCLUDE_NAMESPACE_URI, "include");
 
 	@Test
 	public void readDocumentWithTwoSchemas() throws Exception {
@@ -280,6 +282,13 @@ public class SchemaValidatorTest {
 		final AttributeDefinition ad = defs.get(new QualifiedName(null, "reqatt"));
 		assertNotNull("AttributeDefinition 'reqatt' not found", ad);
 		assertTrue("isRequired should be true", ad.isRequired());
+	}
+
+	@Test
+	public void testValidationShouldIgnoreXInclude() throws Exception {
+		final IValidator validator = new WTPVEXValidator(CONTENT_NS);
+		assertIsValidSequence(validator, P, XI);
+		assertIsValidSequence(validator, P, XI, B, I);
 	}
 
 	private Map<QualifiedName, AttributeDefinition> getAttributeMap() {

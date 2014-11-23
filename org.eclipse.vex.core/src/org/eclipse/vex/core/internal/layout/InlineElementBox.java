@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2013 John Krasnay and others.
+ * Copyright (c) 2004, 2014 John Krasnay and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,7 +8,7 @@
  * Contributors:
  *     John Krasnay - initial API and implementation
  *     Igor Jacy Lino Campista - Java 5 warnings fixed (bug 311325)
- *     Carsten Hiesserich - added support for processing instructions
+ *     Carsten Hiesserich - added support for processing instructions / includes
  *******************************************************************************/
 package org.eclipse.vex.core.internal.layout;
 
@@ -26,6 +26,7 @@ import org.eclipse.vex.core.provisional.dom.BaseNodeVisitor;
 import org.eclipse.vex.core.provisional.dom.ContentRange;
 import org.eclipse.vex.core.provisional.dom.IComment;
 import org.eclipse.vex.core.provisional.dom.IElement;
+import org.eclipse.vex.core.provisional.dom.IIncludeNode;
 import org.eclipse.vex.core.provisional.dom.INode;
 import org.eclipse.vex.core.provisional.dom.IProcessingInstruction;
 import org.eclipse.vex.core.provisional.dom.IText;
@@ -45,7 +46,7 @@ public class InlineElementBox extends CompositeInlineBox {
 	/**
 	 * Class constructor, called by the createInlineBoxes static factory method. The Box created here is only temporary,
 	 * it will be replaced by the split method.
-	 * 
+	 *
 	 * @param context
 	 *            LayoutContext to use.
 	 * @param node
@@ -74,7 +75,7 @@ public class InlineElementBox extends CompositeInlineBox {
 			final boolean showLeftMarker = styles.getInlineMarker().equals(CSS.NORMAL);
 
 			// :before content
-			final IElement beforeElement = context.getStyleSheet().getPseudoElement(node, CSS.PSEUDO_BEFORE, true);
+			final IElement beforeElement = context.getStyleSheet().getPseudoElementBefore(node);
 			if (beforeElement != null) {
 				childList.addAll(LayoutUtils.createGeneratedInlines(context, beforeElement, showLeftMarker ? StaticTextBox.NO_MARKER : StaticTextBox.START_MARKER));
 			}
@@ -94,7 +95,6 @@ public class InlineElementBox extends CompositeInlineBox {
 
 		if (styles.isContentDefined()) {
 			// A CSS 'content' definition overrides the actual content
-			System.out.println(styles.getContent(node));
 			final String content = LayoutUtils.getGeneratedContent(context, styles, node);
 			final InlineBox child = new StaticTextBox(context, node, content);
 			childList.add(child);
@@ -117,7 +117,7 @@ public class InlineElementBox extends CompositeInlineBox {
 			}
 
 			// :after content
-			final IElement afterElement = context.getStyleSheet().getPseudoElement(node, CSS.PSEUDO_AFTER, true);
+			final IElement afterElement = context.getStyleSheet().getPseudoElementAfter(node);
 			if (afterElement != null) {
 				childList.addAll(LayoutUtils.createGeneratedInlines(context, afterElement, showRightMarker ? StaticTextBox.NO_MARKER : StaticTextBox.END_MARKER));
 			}
@@ -135,7 +135,7 @@ public class InlineElementBox extends CompositeInlineBox {
 
 	/**
 	 * Class constructor. This constructor is called by the split method.
-	 * 
+	 *
 	 * @param context
 	 *            LayoutContext used for the layout.
 	 * @param node
@@ -160,6 +160,7 @@ public class InlineElementBox extends CompositeInlineBox {
 	/**
 	 * @see org.eclipse.vex.core.internal.layout.InlineBox#getBaseline()
 	 */
+	@Override
 	public int getBaseline() {
 		return baseline;
 	}
@@ -206,7 +207,7 @@ public class InlineElementBox extends CompositeInlineBox {
 
 	/**
 	 * Override to paint background and borders.
-	 * 
+	 *
 	 * @see org.eclipse.vex.core.internal.layout.AbstractBox#paint(org.eclipse.vex.core.internal.layout.LayoutContext,
 	 *      int, int)
 	 */
@@ -284,7 +285,7 @@ public class InlineElementBox extends CompositeInlineBox {
 	/**
 	 * Creates a list of inline boxes given a range of offsets. This method is used when creating both ParagraphBoxes
 	 * and InlineElementBoxes.
-	 * 
+	 *
 	 * @param context
 	 *            LayoutContext to be used.
 	 * @param node
@@ -316,6 +317,13 @@ public class InlineElementBox extends CompositeInlineBox {
 							final InlineBox child = new InlineElementBox(context, comment, range.getStartOffset(), range.getEndOffset());
 							addChildInlineBox(result, child);
 						};
+
+						@Override
+						public void visit(final IIncludeNode include) {
+							addPlaceholderBox(result, new PlaceholderBox(context, node, include.getStartOffset() - node.getStartOffset()));
+							final InlineBox child = new IncludeInlineBox(context, include, range.getStartOffset(), range.getEndOffset());
+							addChildInlineBox(result, child);
+						}
 
 						@Override
 						public void visit(final IProcessingInstruction pi) {
@@ -376,6 +384,7 @@ public class InlineElementBox extends CompositeInlineBox {
 		final int size = Math.round(0.5f * styles.getFontSize());
 		final int lift = Math.round(0.1f * styles.getFontSize());
 		final Drawable drawable = new Drawable() {
+			@Override
 			public void draw(final Graphics g, final int x, int y) {
 				g.setLineStyle(Graphics.LINE_SOLID);
 				g.setLineWidth(1);
@@ -385,6 +394,7 @@ public class InlineElementBox extends CompositeInlineBox {
 				g.drawLine(x + size - 1, y - size / 2, x, y - size);
 			}
 
+			@Override
 			public Rectangle getBounds() {
 				return new Rectangle(0, -size, size, size);
 			}
@@ -396,6 +406,7 @@ public class InlineElementBox extends CompositeInlineBox {
 		final int size = Math.round(0.5f * styles.getFontSize());
 		final int lift = Math.round(0.1f * styles.getFontSize());
 		final Drawable drawable = new Drawable() {
+			@Override
 			public void draw(final Graphics g, final int x, int y) {
 				g.setLineStyle(Graphics.LINE_SOLID);
 				g.setLineWidth(1);
@@ -405,6 +416,7 @@ public class InlineElementBox extends CompositeInlineBox {
 				g.drawLine(x, y - size / 2, x + size - 1, y - size);
 			}
 
+			@Override
 			public Rectangle getBounds() {
 				return new Rectangle(0, -size, size, size);
 			}

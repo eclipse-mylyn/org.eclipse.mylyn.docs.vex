@@ -30,6 +30,7 @@ import org.eclipse.vex.core.provisional.dom.IComment;
 import org.eclipse.vex.core.provisional.dom.IDocument;
 import org.eclipse.vex.core.provisional.dom.IDocumentFragment;
 import org.eclipse.vex.core.provisional.dom.IElement;
+import org.eclipse.vex.core.provisional.dom.IIncludeNode;
 import org.eclipse.vex.core.provisional.dom.INode;
 import org.eclipse.vex.core.provisional.dom.IProcessingInstruction;
 import org.eclipse.vex.core.provisional.dom.IText;
@@ -37,13 +38,13 @@ import org.eclipse.vex.core.provisional.dom.IValidator;
 
 /**
  * Writes a document to an output stream, using a stylesheet to provide formatting hints.
- * 
+ *
  * <ul>
  * <li>Children of an element are indented by a configurable amount.</li>
  * <li>Text is wrapped to fit within a configurable width.
  * <li>
  * </ul>
- * 
+ *
  * <p>
  * Documents are currently saved UTF-8 encoding, with no encoding specified in the XML declaration.
  * </p>
@@ -67,13 +68,13 @@ public class DocumentWriter {
 		whitespacePolicy = IWhitespacePolicy.NULL;
 	}
 
-/**
-     * Escapes special XML characters. Changes '<', '>', and '&' to
-     * '&lt;', '&gt;' and '&amp;', respectively.
-     *
-     * @param s the string to be escaped.
-     * @return the escaped string
-     */
+	/**
+	 * Escapes special XML characters. Changes '<', '>', and '&' to
+	 * '&lt;', '&gt;' and '&amp;', respectively.
+	 *
+	 * @param s the string to be escaped.
+	 * @return the escaped string
+	 */
 	public static String escape(final String s) {
 		final StringBuilder result = new StringBuilder(s.length());
 
@@ -105,7 +106,7 @@ public class DocumentWriter {
 
 	/**
 	 * Sets the value of the indent string.
-	 * 
+	 *
 	 * @param indent
 	 *            new value for the indent string.
 	 */
@@ -123,7 +124,7 @@ public class DocumentWriter {
 	/**
 	 * Sets the whitespace policy for this writer. The whitespace policy tells the writer which elements are
 	 * block-formatted and which are pre-formatted.
-	 * 
+	 *
 	 * @param whitespacePolicy
 	 *            The whitespacePolicy to set.
 	 */
@@ -144,7 +145,7 @@ public class DocumentWriter {
 
 	/**
 	 * Sets the value of the wrap column.
-	 * 
+	 *
 	 * @param wrapColumn
 	 *            new value for the wrap column.
 	 */
@@ -182,7 +183,7 @@ public class DocumentWriter {
 	 * Write the document to the given {@link org.eclipse.jface.text.IDocument}. The document is cleaed before the
 	 * content written.<br />
 	 * While writing the document a Position is created to track the caret when external changes occur.
-	 * 
+	 *
 	 * @param document
 	 * @param doc
 	 * @param nodeAtCaret
@@ -331,6 +332,12 @@ public class DocumentWriter {
 			}
 
 			@Override
+			public void visit(final IIncludeNode include) {
+				// Write the element that defines this include
+				visit(include.getReference());
+			}
+
+			@Override
 			public void visit(final IText text) {
 				final TextWrapper wrapper = new TextWrapper();
 				wrapper.add(escape(node.getText()));
@@ -379,6 +386,12 @@ public class DocumentWriter {
 				docPrint(doc, "<?");
 				docPrint(doc, pi.getTarget() + " " + node.getText());
 				docPrint(doc, "?>");
+			}
+
+			@Override
+			public void visit(final IIncludeNode include) {
+				// Write the element that defines this include
+				visit(include.getReference());
 			}
 
 			@Override
@@ -441,6 +454,12 @@ public class DocumentWriter {
 			public void visit(final IProcessingInstruction pi) {
 				// Text in PI's is written as is with no wrapping
 				wrapper.addNoSplit("<?" + pi.getTarget() + " " + node.getText() + "?>");
+			}
+
+			@Override
+			public void visit(final IIncludeNode include) {
+				// Write the element that defines this include
+				visit(include.getReference());
 			}
 
 			@Override

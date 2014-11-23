@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     John Krasnay - initial API and implementation
  *     Igor Jacy Lino Campista - Java 5 warnings fixed (bug 311325)
@@ -77,6 +77,7 @@ public class DoctypePropertyPage extends PropertyPage {
 		createPropertySheet();
 
 		configListener = new IConfigListener() {
+			@Override
 			public void configChanged(final ConfigEvent event) {
 				// This is fired when we open properties for a new doctype
 				// and we force it to be re-built to get a validator
@@ -92,6 +93,7 @@ public class DoctypePropertyPage extends PropertyPage {
 				populateRootElements();
 			}
 
+			@Override
 			public void configLoaded(final ConfigEvent e) {
 				setMessage(getTitle());
 				populateDoctype();
@@ -202,6 +204,7 @@ public class DoctypePropertyPage extends PropertyPage {
 			rootElementsTable.removeAll();
 			final List<QualifiedName> rootElements = new ArrayList<QualifiedName>(validator.getValidRootElements());
 			Collections.sort(rootElements, new Comparator<QualifiedName>() {
+				@Override
 				public int compare(final QualifiedName name1, final QualifiedName name2) {
 					return name1.getLocalName().compareTo(name2.getLocalName());
 				}

@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     John Krasnay - initial API and implementation
  *     Florian Thienel - bug 306639 - remove serializability from StyleSheet
@@ -113,7 +113,7 @@ public class StyleSheetReader {
 
 	/**
 	 * Creates a new StyleSheet object from a URL.
-	 * 
+	 *
 	 * @param url
 	 *            URL from which to read the style sheet.
 	 */
@@ -123,7 +123,7 @@ public class StyleSheetReader {
 
 	/**
 	 * Creates a style sheet from a string. This is mainly used for small style sheets within unit tests.
-	 * 
+	 *
 	 * @param s
 	 *            String containing the style sheet.
 	 */
@@ -134,7 +134,7 @@ public class StyleSheetReader {
 
 	/**
 	 * Creates a new Stylesheet from an input source.
-	 * 
+	 *
 	 * @param inputSource
 	 *            InputSource from which to read the stylesheet.
 	 * @param url
@@ -148,7 +148,7 @@ public class StyleSheetReader {
 
 	/**
 	 * Parse a stylesheet file from a URL and return the list of rules.
-	 * 
+	 *
 	 * @param url
 	 *            URL from which to read the style sheet.
 	 * @return The List of rules.
@@ -159,7 +159,7 @@ public class StyleSheetReader {
 
 	/**
 	 * Parse a stylesheet file from an input source and return the list of rules.
-	 * 
+	 *
 	 * @param inputSource
 	 *            InputSource from which to read the stylesheet.
 	 * @param url
@@ -197,29 +197,37 @@ public class StyleSheetReader {
 
 		// -------------------------------------------- DocumentHandler methods
 
+		@Override
 		public void comment(final java.lang.String text) {
 		}
 
+		@Override
 		public void endDocument(final InputSource source) {
 		}
 
+		@Override
 		public void endFontFace() {
 		}
 
+		@Override
 		public void endMedia(final SACMediaList media) {
 		}
 
+		@Override
 		public void endPage(final String name, final String pseudo_page) {
 		}
 
+		@Override
 		public void endSelector(final SelectorList selectors) {
 			rules.addAll(currentRules);
 			currentRules = null;
 		}
 
+		@Override
 		public void ignorableAtRule(final String atRule) {
 		}
 
+		@Override
 		public void importStyle(final String uri, final SACMediaList media, final String defaultNamespaceURI) {
 			if (url == null) {
 				return;
@@ -239,9 +247,11 @@ public class StyleSheetReader {
 
 		}
 
+		@Override
 		public void namespaceDeclaration(final String prefix, final String uri) {
 		}
 
+		@Override
 		public void property(final String name, final LexicalUnit value, final boolean important) {
 			if (name.equals(CSS.BORDER)) {
 				this.expandBorder(value, important);
@@ -270,18 +280,23 @@ public class StyleSheetReader {
 			}
 		}
 
+		@Override
 		public void startDocument(final InputSource source) {
 		}
 
+		@Override
 		public void startFontFace() {
 		}
 
+		@Override
 		public void startMedia(final SACMediaList media) {
 		}
 
+		@Override
 		public void startPage(final String name, final String pseudo_page) {
 		}
 
+		@Override
 		public void startSelector(final SelectorList selectors) {
 			currentRules = new ArrayList<Rule>();
 			for (int i = 0; i < selectors.getLength(); i++) {

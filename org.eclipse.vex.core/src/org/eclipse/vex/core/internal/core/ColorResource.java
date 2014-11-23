@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     John Krasnay - initial API and implementation
  *******************************************************************************/
@@ -16,9 +16,15 @@ package org.eclipse.vex.core.internal.core;
  */
 public interface ColorResource {
 
-	public static final int SELECTION_BACKGROUND = 0;
-	public static final int SELECTION_FOREGROUND = 1;
+	ColorResource NULL = new ColorResource() {
+		@Override
+		public void dispose() {
+		}
+	};
 
-	public void dispose();
+	int SELECTION_BACKGROUND = 0;
+	int SELECTION_FOREGROUND = 1;
+
+	void dispose();
 
 }

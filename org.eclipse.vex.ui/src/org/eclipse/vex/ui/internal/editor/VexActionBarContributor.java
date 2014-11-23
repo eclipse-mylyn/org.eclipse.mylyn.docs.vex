@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     John Krasnay - initial API and implementation
  *     Carsten Hiesserich - remove selection listener on dispose (bug 413878)
@@ -125,6 +125,7 @@ public class VexActionBarContributor extends XMLMultiPageEditorActionBarContribu
 	}
 
 	private final ISelectionListener selectionListener = new ISelectionListener() {
+		@Override
 		public void selectionChanged(final IWorkbenchPart part, final ISelection selection) {
 			enableActions();
 		}

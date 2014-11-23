@@ -34,7 +34,7 @@ import org.eclipse.vex.ui.internal.PluginImages;
 
 /**
  * The edit dialog for processing instruction targets.
- * 
+ *
  * @author chi
  */
 public class ProcessingInstrDialog extends TitleAreaDialog {
@@ -47,7 +47,7 @@ public class ProcessingInstrDialog extends TitleAreaDialog {
 
 	/**
 	 * Create the dialog.
-	 * 
+	 *
 	 * @param widget
 	 * @wbp.parser.constructor
 	 */
@@ -63,7 +63,7 @@ public class ProcessingInstrDialog extends TitleAreaDialog {
 
 	/**
 	 * Create contents of the dialog.
-	 * 
+	 *
 	 * @param parent
 	 */
 	@Override
@@ -109,7 +109,7 @@ public class ProcessingInstrDialog extends TitleAreaDialog {
 
 	/**
 	 * Create contents of the button bar.
-	 * 
+	 *
 	 * @param parent
 	 */
 	@Override

@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     John Krasnay - initial API and implementation
  *******************************************************************************/
@@ -52,7 +52,7 @@ public abstract class DisplayDevice {
 
 	/**
 	 * Sets the current display device. This is typically called by the platform-specific widget;
-	 * 
+	 *
 	 * @param current
 	 *            The device to use as the current device.
 	 */

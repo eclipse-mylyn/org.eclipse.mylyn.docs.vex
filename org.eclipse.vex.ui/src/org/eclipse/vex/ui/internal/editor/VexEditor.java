@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2013 John Krasnay and others.
+ * Copyright (c) 2004, 2014 John Krasnay and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -102,10 +102,12 @@ import org.eclipse.vex.core.internal.widget.swt.VexWidget;
 import org.eclipse.vex.core.provisional.dom.AttributeChangeEvent;
 import org.eclipse.vex.core.provisional.dom.BaseNodeVisitorWithResult;
 import org.eclipse.vex.core.provisional.dom.ContentChangeEvent;
+import org.eclipse.vex.core.provisional.dom.ContentPosition;
 import org.eclipse.vex.core.provisional.dom.IComment;
 import org.eclipse.vex.core.provisional.dom.IDocument;
 import org.eclipse.vex.core.provisional.dom.IDocumentListener;
 import org.eclipse.vex.core.provisional.dom.IElement;
+import org.eclipse.vex.core.provisional.dom.IIncludeNode;
 import org.eclipse.vex.core.provisional.dom.INode;
 import org.eclipse.vex.core.provisional.dom.INodeVisitorWithResult;
 import org.eclipse.vex.core.provisional.dom.IProcessingInstruction;
@@ -205,7 +207,7 @@ public class VexEditor extends EditorPart {
 
 	/**
 	 * Add a VexEditorListener to the notification list.
-	 * 
+	 *
 	 * @param listener
 	 *            VexEditorListener to be added.
 	 */
@@ -261,7 +263,7 @@ public class VexEditor extends EditorPart {
 
 	/**
 	 * Performs the save and handles errors appropriately.
-	 * 
+	 *
 	 * @param overwrite
 	 *            indicates whether or not overwriting is allowed
 	 * @param progressMonitor
@@ -294,7 +296,7 @@ public class VexEditor extends EditorPart {
 
 	/**
 	 * Asks the user for the workspace path of a file resource and saves the document there.
-	 * 
+	 *
 	 * @param progressMonitor
 	 *            the monitor in which to run the operation
 	 */
@@ -462,7 +464,7 @@ public class VexEditor extends EditorPart {
 			}
 
 			positionOfCurrentNode = createDocumentWriter().write(document, doc, vexWidget.getCurrentNode());
-			positionOfCurrentNode.setOffsetInNode(vexWidget.getCaretOffset() - vexWidget.getCurrentNode().getStartOffset());
+			positionOfCurrentNode.setOffsetInNode(vexWidget.getCaretPosition().getOffset() - vexWidget.getCurrentNode().getStartPosition().getOffset());
 
 			try {
 				jFaceDoc.addPosition(positionOfCurrentNode);
@@ -492,7 +494,7 @@ public class VexEditor extends EditorPart {
 
 	/**
 	 * Returns the progress monitor related to this editor.
-	 * 
+	 *
 	 * @return the progress monitor related to this editor
 	 */
 	protected IProgressMonitor getProgressMonitor() {
@@ -633,7 +635,7 @@ public class VexEditor extends EditorPart {
 
 	/**
 	 * Remove a VexEditorListener from the notification list.
-	 * 
+	 *
 	 * @param listener
 	 *            VexEditorListener to be removed.
 	 */
@@ -803,7 +805,7 @@ public class VexEditor extends EditorPart {
 			final INode nodeAtCaret = reader.getNodeAtCaret();
 			if (nodeAtCaret != null) {
 				final int offsetInNode = Math.min(nodeAtCaret.getStartOffset() + positionOfCurrentNode.getOffsetInNode(), nodeAtCaret.getEndOffset());
-				vexWidget.moveTo(offsetInNode);
+				vexWidget.moveTo(new ContentPosition(null, offsetInNode));
 			}
 
 			loaded = true;
@@ -859,7 +861,7 @@ public class VexEditor extends EditorPart {
 
 	/**
 	 * Sets the style for this editor.
-	 * 
+	 *
 	 * @param style
 	 *            Style to use.
 	 */
@@ -874,7 +876,7 @@ public class VexEditor extends EditorPart {
 
 	/**
 	 * Dispose the VexWidget and display a message instead.
-	 * 
+	 *
 	 * @param message
 	 *            The message to display.
 	 * @param ex
@@ -914,7 +916,7 @@ public class VexEditor extends EditorPart {
 
 	/**
 	 * Dispose the VexWidget and display a message instead.
-	 * 
+	 *
 	 * @param message
 	 *            The message to display.
 	 */
@@ -988,8 +990,10 @@ public class VexEditor extends EditorPart {
 
 	// Listen for stylesheet changes and respond appropriately
 	private final IConfigListener configListener = new IConfigListener() {
+		@Override
 		public void configChanged(final ConfigEvent e) {
 			Display.getDefault().asyncExec(new Runnable() {
+				@Override
 				public void run() {
 					if (style == null) {
 						return;
@@ -1008,8 +1012,10 @@ public class VexEditor extends EditorPart {
 			});
 		}
 
+		@Override
 		public void configLoaded(final ConfigEvent e) {
 			Display.getDefault().asyncExec(new Runnable() {
+				@Override
 				public void run() {
 					setInputFromProvider();
 				}
@@ -1018,6 +1024,7 @@ public class VexEditor extends EditorPart {
 	};
 
 	private final ISelectionChangedListener selectionChangedListener = new ISelectionChangedListener() {
+		@Override
 		public void selectionChanged(final SelectionChangedEvent event) {
 			setStatus(getLocationPath());
 
@@ -1040,28 +1047,34 @@ public class VexEditor extends EditorPart {
 
 	private final IDocumentListener documentListener = new IDocumentListener() {
 
+		@Override
 		public void attributeChanged(final AttributeChangeEvent e) {
 			setDirty();
 		}
 
+		@Override
 		public void namespaceChanged(final NamespaceDeclarationChangeEvent e) {
 			setDirty();
 		}
 
+		@Override
 		public void beforeContentDeleted(final ContentChangeEvent e) {
 			// TODO Auto-generated method stub
 
 		}
 
+		@Override
 		public void beforeContentInserted(final ContentChangeEvent e) {
 			// TODO Auto-generated method stub
 
 		}
 
+		@Override
 		public void contentDeleted(final ContentChangeEvent e) {
 			setDirty();
 		}
 
+		@Override
 		public void contentInserted(final ContentChangeEvent e) {
 			setDirty();
 		}
@@ -1086,6 +1099,11 @@ public class VexEditor extends EditorPart {
 		public String visit(final IComment comment) {
 			return Messages.getString("VexEditor.Path.Comment");
 		};
+
+		@Override
+		public String visit(final IIncludeNode include) {
+			return include.getReference().getPrefixedName();
+		}
 	};
 
 	private String getLocationPath() {
@@ -1118,12 +1136,19 @@ public class VexEditor extends EditorPart {
 		} else if (adapter == IPropertySheetPage.class) {
 			final PropertySheetPage page = new PropertySheetPage();
 			page.setPropertySourceProvider(new IPropertySourceProvider() {
+				@Override
 				public IPropertySource getPropertySource(final Object object) {
 					if (object instanceof IElement) {
 						final IStructuredSelection selection = (IStructuredSelection) vexWidget.getSelection();
 						final boolean multipleElementsSelected = selection != null && selection.size() > 1;
 						final IValidator validator = vexWidget.getDocument().getValidator();
 						return new ElementPropertySource((IElement) object, validator, multipleElementsSelected);
+					}
+					if (object instanceof IIncludeNode) {
+						final IStructuredSelection selection = (IStructuredSelection) vexWidget.getSelection();
+						final boolean multipleElementsSelected = selection != null && selection.size() > 1;
+						final IValidator validator = vexWidget.getDocument().getValidator();
+						return new ElementPropertySource(((IIncludeNode) object).getReference(), validator, multipleElementsSelected);
 					}
 					if (object instanceof IDocument) {
 						return new DocumentPropertySource((IDocument) object);
@@ -1147,8 +1172,8 @@ public class VexEditor extends EditorPart {
 
 				@Override
 				protected void setSelection(final int start, final int end) {
-					getVexWidget().moveTo(start);
-					getVexWidget().moveTo(end + 1, true);
+					getVexWidget().moveTo(new ContentPosition(document, start));
+					getVexWidget().moveTo(new ContentPosition(document, end), true);
 				}
 
 				@Override
@@ -1184,6 +1209,7 @@ public class VexEditor extends EditorPart {
 		public void elementDirtyStateChanged(final Object element, final boolean isDirty) {
 			if (element != null && element.equals(getEditorInput()) && dirty != isDirty) {
 				final Runnable r = new Runnable() {
+					@Override
 					public void run() {
 						handleActivation = true;
 						if (isDirty) {
@@ -1222,6 +1248,7 @@ public class VexEditor extends EditorPart {
 
 				// TODO: The undo/redo history gets lost during the reload
 				final Runnable r = new Runnable() {
+					@Override
 					public void run() {
 						if (movedElement == null || movedElement instanceof IEditorInput) {
 
@@ -1252,7 +1279,7 @@ public class VexEditor extends EditorPart {
 
 		/**
 		 * Executes the given runnable in the UI thread.
-		 * 
+		 *
 		 * @param runnable
 		 *            runnable to be executed
 		 */
@@ -1361,7 +1388,7 @@ public class VexEditor extends EditorPart {
 
 	/**
 	 * Checks the state of the current document against the filesystem.
-	 * 
+	 *
 	 * @return <code>true</code> if the document has been modified on the filesystem
 	 */
 	private boolean checkDocumentState() {
@@ -1414,7 +1441,7 @@ public class VexEditor extends EditorPart {
 
 		/**
 		 * Creates this activation listener.
-		 * 
+		 *
 		 * @param partService
 		 *            the part service on which to add the part listener
 		 */
@@ -1436,6 +1463,7 @@ public class VexEditor extends EditorPart {
 		/*
 		 * @see IPartListener#partActivated(org.eclipse.ui.IWorkbenchPart)
 		 */
+		@Override
 		public void partActivated(final IWorkbenchPart part) {
 			fActivePart = part;
 			handleActivation();
@@ -1444,18 +1472,21 @@ public class VexEditor extends EditorPart {
 		/*
 		 * @see IPartListener#partBroughtToTop(org.eclipse.ui.IWorkbenchPart)
 		 */
+		@Override
 		public void partBroughtToTop(final IWorkbenchPart part) {
 		}
 
 		/*
 		 * @see IPartListener#partClosed(org.eclipse.ui.IWorkbenchPart)
 		 */
+		@Override
 		public void partClosed(final IWorkbenchPart part) {
 		}
 
 		/*
 		 * @see IPartListener#partDeactivated(org.eclipse.ui.IWorkbenchPart)
 		 */
+		@Override
 		public void partDeactivated(final IWorkbenchPart part) {
 			if (fActivePart == VexEditor.this || fActivePart != null && fActivePart.getAdapter(AbstractTextEditor.class) == VexEditor.this) {
 				syncDocumentProvider();
@@ -1466,6 +1497,7 @@ public class VexEditor extends EditorPart {
 		/*
 		 * @see IPartListener#partOpened(org.eclipse.ui.IWorkbenchPart)
 		 */
+		@Override
 		public void partOpened(final IWorkbenchPart part) {
 
 		}
@@ -1492,6 +1524,7 @@ public class VexEditor extends EditorPart {
 		/*
 		 * @see org.eclipse.ui.IWindowListener#windowActivated(org.eclipse.ui.IWorkbenchWindow)
 		 */
+		@Override
 		public void windowActivated(final IWorkbenchWindow window) {
 			if (handleActivation && window == getEditorSite().getWorkbenchWindow()) {
 				/*
@@ -1499,6 +1532,7 @@ public class VexEditor extends EditorPart {
 				 * when SWT has solved the problem.
 				 */
 				window.getShell().getDisplay().asyncExec(new Runnable() {
+					@Override
 					public void run() {
 						handleActivation();
 					}
@@ -1509,6 +1543,7 @@ public class VexEditor extends EditorPart {
 		/*
 		 * @see org.eclipse.ui.IWindowListener#windowDeactivated(org.eclipse.ui.IWorkbenchWindow)
 		 */
+		@Override
 		public void windowDeactivated(final IWorkbenchWindow window) {
 			if (window == getEditorSite().getWorkbenchWindow()) {
 				syncDocumentProvider();
@@ -1518,12 +1553,14 @@ public class VexEditor extends EditorPart {
 		/*
 		 * @see org.eclipse.ui.IWindowListener#windowClosed(org.eclipse.ui.IWorkbenchWindow)
 		 */
+		@Override
 		public void windowClosed(final IWorkbenchWindow window) {
 		}
 
 		/*
 		 * @see org.eclipse.ui.IWindowListener#windowOpened(org.eclipse.ui.IWorkbenchWindow)
 		 */
+		@Override
 		public void windowOpened(final IWorkbenchWindow window) {
 		}
 	}
@@ -1538,7 +1575,7 @@ public class VexEditor extends EditorPart {
 	/**
 	 * If there is no explicit document provider set, the implicit one is re-initialized based on the given editor
 	 * input.
-	 * 
+	 *
 	 * @param input
 	 *            the editor input.
 	 */

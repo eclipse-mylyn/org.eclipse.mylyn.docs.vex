@@ -19,7 +19,7 @@ public interface IVexWidgetHandler {
 
 	/**
 	 * Executes handler at the specified {@link VexWidget}.
-	 * 
+	 *
 	 * @param event
 	 *            the {@link VexWidget} at which to execute handler
 	 * @throws ExecutionException

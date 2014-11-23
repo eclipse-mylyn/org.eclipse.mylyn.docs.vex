@@ -69,6 +69,8 @@ import org.eclipse.vex.core.internal.widget.BaseVexWidget;
 import org.eclipse.vex.core.internal.widget.IHostComponent;
 import org.eclipse.vex.core.internal.widget.IVexWidget;
 import org.eclipse.vex.core.internal.widget.ReadOnlyException;
+import org.eclipse.vex.core.provisional.dom.ContentPosition;
+import org.eclipse.vex.core.provisional.dom.ContentPositionRange;
 import org.eclipse.vex.core.provisional.dom.ContentRange;
 import org.eclipse.vex.core.provisional.dom.DocumentValidationException;
 import org.eclipse.vex.core.provisional.dom.IComment;
@@ -142,6 +144,7 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 		return impl.canInsertComment();
 	}
 
+	@Override
 	public boolean canInsertProcessingInstruction() {
 		return impl.canInsertProcessingInstruction();
 	}
@@ -186,9 +189,18 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 	@Override
 	public void copySelection() {
 		final Clipboard clipboard = new Clipboard(getDisplay());
-		final Object[] data = { getSelectedFragment(), getSelectedText() };
-		final Transfer[] transfers = { DocumentFragmentTransfer.getInstance(), TextTransfer.getInstance() };
-		clipboard.setContents(data, transfers);
+		final String text = getSelectedText();
+		if (text.isEmpty()) {
+			// Some elements (like XInclude) may not contain textual content.
+			final Object[] data = { getSelectedFragment() };
+			final Transfer[] transfers = { DocumentFragmentTransfer.getInstance() };
+			clipboard.setContents(data, transfers);
+		} else {
+			final Object[] data = { getSelectedFragment(), getSelectedText() };
+			final Transfer[] transfers = { DocumentFragmentTransfer.getInstance(), TextTransfer.getInstance() };
+			clipboard.setContents(data, transfers);
+		}
+
 	}
 
 	@Override
@@ -237,8 +249,8 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 	}
 
 	@Override
-	public int getCaretOffset() {
-		return impl.getCaretOffset();
+	public ContentPosition getCaretPosition() {
+		return impl.getCaretPosition();
 	}
 
 	@Override
@@ -264,6 +276,11 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 	@Override
 	public ContentRange getSelectedRange() {
 		return impl.getSelectedRange();
+	}
+
+	@Override
+	public ContentPositionRange getSelectedPositionRange() {
+		return impl.getSelectedPositionRange();
 	}
 
 	@Override
@@ -341,10 +358,12 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 		return impl.insertComment();
 	}
 
+	@Override
 	public IProcessingInstruction insertProcessingInstruction(final String target) throws CannotRedoException, ReadOnlyException {
 		return impl.insertProcessingInstruction(target);
 	}
 
+	@Override
 	public void editProcessingInstruction(final String target, final String data) throws CannotRedoException, ReadOnlyException {
 		impl.editProcessingInstruction(target, data);
 	}
@@ -395,13 +414,13 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 	}
 
 	@Override
-	public void moveTo(final int offset) {
-		impl.moveTo(offset);
+	public void moveTo(final ContentPosition position) {
+		impl.moveTo(position);
 	}
 
 	@Override
-	public void moveTo(final int offset, final boolean select) {
-		impl.moveTo(offset, select);
+	public void moveTo(final ContentPosition position, final boolean select) {
+		impl.moveTo(position, select);
 	}
 
 	@Override
@@ -507,10 +526,12 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 		impl.selectContentOf(node);
 	}
 
+	@Override
 	public void select(final INode node) {
 		impl.select(node);
 	}
 
+	@Override
 	public boolean canSetAttribute(final String attributeName, final String value) {
 		return impl.canSetAttribute(attributeName, value);
 	}
@@ -580,7 +601,7 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 	}
 
 	@Override
-	public int viewToModel(final int x, final int y) {
+	public ContentPosition viewToModel(final int x, final int y) {
 		return impl.viewToModel(x, y);
 	}
 
@@ -798,9 +819,9 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 		@Override
 		public void mouseDown(final MouseEvent e) {
 			if (e.button == 1) {
-				final int offset = viewToModel(e.x - originX, e.y - originY);
+				final ContentPosition position = viewToModel(e.x - originX, e.y - originY);
 				final boolean select = e.stateMask == SWT.SHIFT;
-				moveTo(offset, select);
+				moveTo(position, select);
 			}
 		}
 
@@ -813,8 +834,8 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 		@Override
 		public void mouseMove(final MouseEvent e) {
 			if ((e.stateMask & SWT.BUTTON1) > 0) {
-				final int offset = viewToModel(e.x - originX, e.y - originY);
-				moveTo(offset, true);
+				final ContentPosition position = viewToModel(e.x - originX, e.y - originY);
+				moveTo(position, true);
 			}
 		}
 	};
@@ -860,7 +881,7 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 	/**
 	 * The DisposedEvent is Fired when this Widget is disposed. The event is used instead of re-implementing
 	 * Wigdet#dispose, which does not work.
-	 * 
+	 *
 	 * @see org.eclipse.swt.widgets.Widget#dispose
 	 */
 	private final DisposeListener disposeListener = new DisposeListener() {
@@ -989,13 +1010,13 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 		addKey(CHAR_NONE, SWT.END, SWT.CONTROL, new Action() {
 			@Override
 			public void runEx(final IVexWidget w) {
-				w.moveTo(w.getDocument().getLength() - 1);
+				w.moveTo(w.getDocument().getEndPosition().moveBy(-1));
 			}
 		});
 		addKey(CHAR_NONE, SWT.END, SWT.SHIFT | SWT.CONTROL, new Action() {
 			@Override
 			public void runEx(final IVexWidget w) {
-				w.moveTo(w.getDocument().getLength() - 1, true);
+				w.moveTo(w.getDocument().getEndPosition().moveBy(-1));
 			}
 		});
 		addKey(CHAR_NONE, SWT.HOME, SWT.NONE, new Action() {
@@ -1013,13 +1034,13 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 		addKey(CHAR_NONE, SWT.HOME, SWT.CONTROL, new Action() {
 			@Override
 			public void runEx(final IVexWidget w) {
-				w.moveTo(1);
+				w.moveTo(w.getDocument().getStartPosition().moveBy(1));
 			}
 		});
 		addKey(CHAR_NONE, SWT.HOME, SWT.SHIFT | SWT.CONTROL, new Action() {
 			@Override
 			public void runEx(final IVexWidget w) {
-				w.moveTo(1, true);
+				w.moveTo(w.getDocument().getStartPosition().moveBy(1), true);
 			}
 		});
 
@@ -1052,7 +1073,7 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 
 	/**
 	 * Scrolls to the given position in the widget.
-	 * 
+	 *
 	 * @param x
 	 *            x-coordinate of the position to which to scroll
 	 * @param y

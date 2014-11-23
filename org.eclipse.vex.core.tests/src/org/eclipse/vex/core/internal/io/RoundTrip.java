@@ -1,12 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2013 Florian Thienel and others.
+ * Copyright (c) 2013, 2014 Florian Thienel and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  * 		Florian Thienel - initial API and implementation
+ * 		Carsten Hiesserich - added support for include nodes
  *******************************************************************************/
 package org.eclipse.vex.core.internal.io;
 
@@ -22,13 +23,14 @@ import org.eclipse.vex.core.provisional.dom.BaseNodeVisitor;
 import org.eclipse.vex.core.provisional.dom.IComment;
 import org.eclipse.vex.core.provisional.dom.IDocument;
 import org.eclipse.vex.core.provisional.dom.IElement;
+import org.eclipse.vex.core.provisional.dom.IIncludeNode;
 import org.eclipse.vex.core.provisional.dom.INode;
 import org.eclipse.vex.core.provisional.dom.IParent;
 import org.eclipse.vex.core.provisional.dom.IText;
 
 /**
  * This class provides some special assertions for round trip tests.
- * 
+ *
  * @author Florian Thienel
  */
 public class RoundTrip {
@@ -62,6 +64,11 @@ public class RoundTrip {
 				@Override
 				public void visit(final IText text) {
 					assertEquals(expectedNode.getText(), actualNode.getText());
+				}
+
+				@Override
+				public void visit(final IIncludeNode include) {
+					assertElementsEqual(((IIncludeNode) expectedNode).getReference(), ((IIncludeNode) actualNode).getReference());
 				}
 			});
 		}

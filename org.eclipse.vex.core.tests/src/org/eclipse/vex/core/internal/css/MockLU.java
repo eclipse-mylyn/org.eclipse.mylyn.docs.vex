@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     John Krasnay - initial API and implementation
  *******************************************************************************/
@@ -47,42 +47,52 @@ public class MockLU implements LexicalUnit {
 		return result;
 	}
 
+	@Override
 	public String getDimensionUnitText() {
 		return dimensionUnitText;
 	}
 
+	@Override
 	public float getFloatValue() {
 		return floatValue;
 	}
 
+	@Override
 	public String getFunctionName() {
 		return functionName;
 	}
 
+	@Override
 	public int getIntegerValue() {
 		return integerValue;
 	}
 
+	@Override
 	public short getLexicalUnitType() {
 		return lexicalUnitType;
 	}
 
+	@Override
 	public LexicalUnit getNextLexicalUnit() {
 		return nextLexicalUnit;
 	}
 
+	@Override
 	public LexicalUnit getParameters() {
 		return parameters;
 	}
 
+	@Override
 	public LexicalUnit getPreviousLexicalUnit() {
 		return previousLexicalUnit;
 	}
 
+	@Override
 	public String getStringValue() {
 		return stringValue;
 	}
 
+	@Override
 	public LexicalUnit getSubValues() {
 		return subValues;
 	}

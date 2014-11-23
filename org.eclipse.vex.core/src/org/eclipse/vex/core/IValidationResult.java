@@ -14,7 +14,7 @@ import org.eclipse.core.runtime.IStatus;
 
 /**
  * A VEX specific implementation of the IStatus interface.
- * 
+ *
  * @author chi
  */
 public interface IValidationResult extends IStatus {

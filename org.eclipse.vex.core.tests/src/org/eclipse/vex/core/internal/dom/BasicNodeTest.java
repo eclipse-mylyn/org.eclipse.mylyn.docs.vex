@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  * 		Florian Thienel - initial API and implementation
  *******************************************************************************/
@@ -22,14 +22,17 @@ public class BasicNodeTest extends NodeTest {
 	@Override
 	protected Node createNode() {
 		return new Node() {
+			@Override
 			public void accept(final INodeVisitor visitor) {
 				throw new UnsupportedOperationException();
 			}
 
+			@Override
 			public <T> T accept(final INodeVisitorWithResult<T> visitor) {
 				throw new UnsupportedOperationException();
 			}
 
+			@Override
 			public boolean isKindOf(final INode node) {
 				return false;
 			}

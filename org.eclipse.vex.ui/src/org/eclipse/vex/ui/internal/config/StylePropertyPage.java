@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     John Krasnay - initial API and implementation
  *     Igor Jacy Lino Campista - Java 5 warnings fixed (bug 311325)
@@ -64,6 +64,7 @@ public class StylePropertyPage extends PropertyPage {
 		createPropertySheet();
 
 		configListener = new IConfigListener() {
+			@Override
 			public void configChanged(final ConfigEvent event) {
 				try {
 					pluginProject.load();
@@ -74,6 +75,7 @@ public class StylePropertyPage extends PropertyPage {
 				populateDoctypes();
 			}
 
+			@Override
 			public void configLoaded(final ConfigEvent event) {
 				setMessage(getTitle());
 				populateStyle();

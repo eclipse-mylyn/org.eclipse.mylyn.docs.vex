@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  * 		Florian Thienel - initial API and implementation
  *******************************************************************************/
@@ -44,10 +44,12 @@ public abstract class Axis<T extends INode> implements IAxis<T> {
 		this.sourceNode = sourceNode;
 	}
 
+	@Override
 	public INode getSourceNode() {
 		return sourceNode;
 	}
 
+	@Override
 	@SuppressWarnings("unchecked")
 	public Iterator<T> iterator() {
 		Iterator<? extends T> result = rootIterator();
@@ -74,31 +76,37 @@ public abstract class Axis<T extends INode> implements IAxis<T> {
 
 	protected abstract Iterator<? extends T> createRootIterator(final ContentRange contentRange, final boolean includeText);
 
+	@Override
 	public Axis<? extends T> in(final ContentRange range) {
 		Assert.isTrue(ContentRange.ALL.equals(contentRange), "Can only use one of 'before', 'after' or 'in' in the same expression.");
 		contentRange = range;
 		return this;
 	}
 
+	@Override
 	public Axis<? extends T> before(final int beforeOffset) {
 		Assert.isTrue(ContentRange.ALL.equals(contentRange), "Can only use one of 'before', 'after' or 'in' in the same expression.");
 		contentRange = new ContentRange(contentRange.getStartOffset(), beforeOffset);
 		return this;
 	}
 
+	@Override
 	public Axis<? extends T> after(final int afterOffset) {
 		Assert.isTrue(ContentRange.ALL.equals(contentRange), "Can only use one of 'before', 'after' or 'in' in the same expression.");
 		contentRange = new ContentRange(afterOffset, contentRange.getEndOffset());
 		return this;
 	}
 
+	@Override
 	public Axis<? extends T> withoutText() {
 		includeText = false;
 		return this;
 	}
 
+	@Override
 	public Axis<? extends T> matching(final IFilter<INode> filter) {
 		chain.add(new IteratorFactory() {
+			@Override
 			public Iterator<? extends INode> iterator(final Iterator<? extends INode> source) {
 				return new FilterIterator<INode>(source, filter);
 			}
@@ -106,22 +114,26 @@ public abstract class Axis<T extends INode> implements IAxis<T> {
 		return this;
 	}
 
+	@Override
 	public Axis<? extends T> from(final int startIndex) {
 		Assert.isTrue(this.startIndex == UNDEFINED, "Can set start index only once.");
 		this.startIndex = startIndex;
 		return this;
 	}
 
+	@Override
 	public Axis<? extends T> to(final int endIndex) {
 		Assert.isTrue(this.endIndex == UNDEFINED, "Can set end index only once.");
 		this.endIndex = endIndex;
 		return this;
 	}
 
+	@Override
 	public boolean isEmpty() {
 		return !iterator().hasNext();
 	}
 
+	@Override
 	public List<T> asList() {
 		final ArrayList<T> result = new ArrayList<T>();
 		for (final T node : this) {
@@ -130,10 +142,12 @@ public abstract class Axis<T extends INode> implements IAxis<T> {
 		return result;
 	}
 
+	@Override
 	public T first() {
 		return iterator().next();
 	}
 
+	@Override
 	public T last() {
 		T result = null;
 		final Iterator<T> iterator = iterator();
@@ -146,6 +160,7 @@ public abstract class Axis<T extends INode> implements IAxis<T> {
 		return result;
 	}
 
+	@Override
 	public T get(final int index) {
 		final Iterator<T> iterator = iterator();
 		int i = 0;
@@ -155,12 +170,14 @@ public abstract class Axis<T extends INode> implements IAxis<T> {
 		return iterator.next();
 	}
 
+	@Override
 	public void accept(final INodeVisitor visitor) {
 		for (final INode node : this) {
 			node.accept(visitor);
 		}
 	}
 
+	@Override
 	public int count() {
 		int result = 0;
 		final Iterator<T> iterator = iterator();

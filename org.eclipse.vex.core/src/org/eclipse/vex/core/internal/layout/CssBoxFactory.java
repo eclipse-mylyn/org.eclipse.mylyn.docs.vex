@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2008 John Krasnay and others.
+ * Copyright (c) 2004, 2014 John Krasnay and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,6 +17,7 @@ import org.eclipse.vex.core.provisional.dom.IComment;
 import org.eclipse.vex.core.provisional.dom.IDocument;
 import org.eclipse.vex.core.provisional.dom.IDocumentFragment;
 import org.eclipse.vex.core.provisional.dom.IElement;
+import org.eclipse.vex.core.provisional.dom.IIncludeNode;
 import org.eclipse.vex.core.provisional.dom.INode;
 import org.eclipse.vex.core.provisional.dom.IProcessingInstruction;
 import org.eclipse.vex.core.provisional.dom.IText;
@@ -28,6 +29,7 @@ public class CssBoxFactory implements BoxFactory {
 
 	private static final long serialVersionUID = -6882526795866485074L;
 
+	@Override
 	public Box createBox(final LayoutContext context, final INode node, final BlockBox parentBox, final int containerWidth) {
 		final Styles styles = context.getStyleSheet().getStyles(node);
 		return node.accept(new BaseNodeVisitorWithResult<Box>() {
@@ -43,8 +45,11 @@ public class CssBoxFactory implements BoxFactory {
 
 			@Override
 			public Box visit(final IElement element) {
-				if (styles.getDisplay().equals(CSS.TABLE)) {
+				final String displayStyle = styles.getDisplay();
+				if (displayStyle.equals(CSS.TABLE)) {
 					return new TableBox(context, parentBox, element);
+				} else if (displayStyle.equals(CSS.LIST_ITEM)) {
+					return new ListItemBox(context, parentBox, node);
 				} else if (context.getWhitespacePolicy().isBlock(element)) {
 					return new BlockElementBox(context, parentBox, node);
 				} else {
@@ -60,6 +65,11 @@ public class CssBoxFactory implements BoxFactory {
 			@Override
 			public Box visit(final IProcessingInstruction pi) {
 				return new NodeBlockBox(context, parentBox, pi);
+			}
+
+			@Override
+			public Box visit(final IIncludeNode include) {
+				return new IncludeBlockBox(context, parentBox, include);
 			}
 
 			@Override

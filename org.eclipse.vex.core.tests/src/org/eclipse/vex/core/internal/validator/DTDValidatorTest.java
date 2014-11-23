@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     John Krasnay - initial API and implementation
  *     Igor Jacy Lino Campista - Java 5 warnings fixed (bug 311325)
@@ -28,6 +28,7 @@ import java.util.Set;
 
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.vex.core.internal.dom.Document;
+import org.eclipse.vex.core.internal.dom.Namespace;
 import org.eclipse.vex.core.provisional.dom.AttributeDefinition;
 import org.eclipse.vex.core.provisional.dom.IDocument;
 import org.eclipse.vex.core.provisional.dom.IElement;
@@ -39,6 +40,7 @@ import org.junit.Test;
 public class DTDValidatorTest {
 
 	private IValidator validator = null;
+	private static final QualifiedName XI = new QualifiedName(Namespace.XINCLUDE_NAMESPACE_URI, "include");
 
 	@Before
 	public void setUp() {
@@ -85,7 +87,7 @@ public class DTDValidatorTest {
 	// anySet.add("para");
 	// anySet.add("emphasis");
 	// assertEquals(anySet, getValidItemsAt(doc, 1));
-	//		
+	//
 	// }
 
 	@Test
@@ -200,6 +202,16 @@ public class DTDValidatorTest {
 		}
 	}
 
+	private void assertIsValidSequence(final QualifiedName parentElement, final QualifiedName... sequence) {
+		for (int i = 0; i < sequence.length; i++) {
+			final List<QualifiedName> prefix = createPrefix(i, sequence);
+			final List<QualifiedName> toInsert = Collections.singletonList(sequence[i]);
+			final List<QualifiedName> suffix = createSuffix(i, sequence);
+
+			assertTrue(validator.isValidSequence(parentElement, prefix, toInsert, suffix, false));
+		}
+	}
+
 	private static List<QualifiedName> createPrefix(final int index, final String... sequence) {
 		final List<QualifiedName> prefix = new ArrayList<QualifiedName>();
 		for (int i = 0; i < index; i++) {
@@ -212,6 +224,22 @@ public class DTDValidatorTest {
 		final List<QualifiedName> suffix = new ArrayList<QualifiedName>();
 		for (int i = index + 1; i < sequence.length; i++) {
 			suffix.add(new QualifiedName(null, sequence[i]));
+		}
+		return suffix;
+	}
+
+	private static List<QualifiedName> createPrefix(final int index, final QualifiedName... sequence) {
+		final List<QualifiedName> prefix = new ArrayList<QualifiedName>();
+		for (int i = 0; i < index; i++) {
+			prefix.add(sequence[i]);
+		}
+		return prefix;
+	}
+
+	private static List<QualifiedName> createSuffix(final int index, final QualifiedName... sequence) {
+		final List<QualifiedName> suffix = new ArrayList<QualifiedName>();
+		for (int i = index + 1; i < sequence.length; i++) {
+			suffix.add(sequence[i]);
 		}
 		return suffix;
 	}
@@ -272,5 +300,15 @@ public class DTDValidatorTest {
 			adMap.put(ad.getQualifiedName(), ad);
 		}
 		return adMap;
+	}
+
+	@Test
+	public void testValidationShouldIgnoreXInclude() throws Exception {
+		final QualifiedName section = new QualifiedName(null, "section");
+		final QualifiedName title = new QualifiedName(null, "title");
+		final QualifiedName para = new QualifiedName(null, "para");
+
+		assertIsValidSequence(section, XI, title, para);
+		assertIsValidSequence(section, para, XI, para);
 	}
 }

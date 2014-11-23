@@ -4,10 +4,10 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     John Krasnay - initial API and implementation
- *     Mohamadou Nassourou - Bug 298912 - rudimentary support for images 
+ *     Mohamadou Nassourou - Bug 298912 - rudimentary support for images
  *******************************************************************************/
 package org.eclipse.vex.core.internal.widget.swt;
 
@@ -38,7 +38,7 @@ import org.eclipse.vex.core.internal.core.Rectangle;
 
 /**
  * Implementation of the Vex Graphics interface, mapping it to a org.eclipse.swt.graphics.GC object.
- * 
+ *
  * <p>
  * The GC given to us by SWT is that of the Canvas, which is just a viewport into the document. This class therefore
  * implements an "origin", which represents the top-left corner of the document relative to the top-left corner of the
@@ -54,7 +54,7 @@ public class SwtGraphics implements Graphics {
 
 	/**
 	 * Class constructor.
-	 * 
+	 *
 	 * @param gc
 	 *            SWT GC to which we are drawing.
 	 */
@@ -62,31 +62,38 @@ public class SwtGraphics implements Graphics {
 		this.gc = gc;
 	}
 
+	@Override
 	public void dispose() {
 		gc.dispose();
 	}
 
+	@Override
 	public void drawChars(final char[] chars, final int offset, final int length, final int x, final int y) {
 		drawString(new String(chars, offset, length), x, y);
 
 	}
 
+	@Override
 	public void drawLine(final int x1, final int y1, final int x2, final int y2) {
 		gc.drawLine(x1 + originX, y1 + originY, x2 + originX, y2 + originY);
 	}
 
+	@Override
 	public void drawOval(final int x, final int y, final int width, final int height) {
 		gc.drawOval(x + originX, y + originY, width, height);
 	}
 
+	@Override
 	public void drawRect(final int x, final int y, final int width, final int height) {
 		gc.drawRectangle(x + originX, y + originY, width, height);
 	}
 
+	@Override
 	public void drawString(final String s, final int x, final int y) {
 		gc.drawString(s, x + originX, y + originY, true);
 	}
 
+	@Override
 	public void drawImage(final Image image, final int x, final int y, final int width, final int height) {
 		Assert.isTrue(image instanceof SwtImage);
 		final org.eclipse.swt.graphics.Image swtImage = new org.eclipse.swt.graphics.Image(gc.getDevice(), ((SwtImage) image).imageData);
@@ -101,6 +108,7 @@ public class SwtGraphics implements Graphics {
 	 * Fills the given oval with the <em>foreground</em> color. This overrides the default SWT behaviour to be more like
 	 * Swing.
 	 */
+	@Override
 	public void fillOval(final int x, final int y, final int width, final int height) {
 		gc.fillOval(x + originX, y + originY, width, height);
 	}
@@ -109,35 +117,43 @@ public class SwtGraphics implements Graphics {
 	 * Fills the given rectangle with the <em>foreground</em> color. This overrides the default SWT behaviour to be more
 	 * like Swing.
 	 */
+	@Override
 	public void fillRect(final int x, final int y, final int width, final int height) {
 		gc.fillRectangle(x + originX, y + originY, width, height);
 	}
 
+	@Override
 	public Rectangle getClipBounds() {
 		final org.eclipse.swt.graphics.Rectangle r = gc.getClipping();
 		return new Rectangle(r.x - originX, r.y - originY, r.width, r.height);
 	}
 
+	@Override
 	public ColorResource getColor() {
 		return new SwtColor(gc.getForeground());
 	}
 
+	@Override
 	public FontResource getFont() {
 		return new SwtFont(gc.getFont());
 	}
 
+	@Override
 	public FontMetrics getFontMetrics() {
 		return new SwtFontMetrics(gc.getFontMetrics());
 	}
 
+	@Override
 	public int getLineStyle() {
 		return lineStyle;
 	}
 
+	@Override
 	public int getLineWidth() {
 		return gc.getLineWidth();
 	}
 
+	@Override
 	public Image getImage(final URL url) {
 		final ImageData[] imageData = loadImageData(url);
 		if (imageData != null && imageData.length > 0) {
@@ -164,13 +180,16 @@ public class SwtGraphics implements Graphics {
 		}
 	}
 
+	@Override
 	public boolean isAntiAliased() {
 		return false;
 	}
 
+	@Override
 	public void setAntiAliased(final boolean antiAliased) {
 	}
 
+	@Override
 	public ColorResource setColor(final ColorResource color) {
 		final ColorResource oldColor = getColor();
 		gc.setForeground(((SwtColor) color).getSwtColor());
@@ -178,12 +197,14 @@ public class SwtGraphics implements Graphics {
 		return oldColor;
 	}
 
+	@Override
 	public FontResource setFont(final FontResource font) {
 		final FontResource oldFont = getFont();
 		gc.setFont(((SwtFont) font).getSwtFont());
 		return oldFont;
 	}
 
+	@Override
 	public void setLineStyle(final int lineStyle) {
 		this.lineStyle = lineStyle;
 		switch (lineStyle) {
@@ -199,18 +220,22 @@ public class SwtGraphics implements Graphics {
 		}
 	}
 
+	@Override
 	public void setLineWidth(final int lineWidth) {
 		gc.setLineWidth(lineWidth);
 	}
 
+	@Override
 	public int charsWidth(final char[] data, final int offset, final int length) {
 		return stringWidth(new String(data, offset, length));
 	}
 
+	@Override
 	public ColorResource createColor(final Color rgb) {
 		return new SwtColor(new org.eclipse.swt.graphics.Color(null, rgb.getRed(), rgb.getGreen(), rgb.getBlue()));
 	}
 
+	@Override
 	public FontResource createFont(final FontSpec fontSpec) {
 		int style = SWT.NORMAL;
 		if ((fontSpec.getStyle() & FontSpec.BOLD) > 0) {
@@ -220,9 +245,9 @@ public class SwtGraphics implements Graphics {
 			style |= SWT.ITALIC;
 		}
 		final int size = Math.round(fontSpec.getSize() * 72 / 90); // TODO: fix. SWT
-																	// uses pts, AWT
-																	// uses device
-																	// units
+		// uses pts, AWT
+		// uses device
+		// units
 		final String[] names = fontSpec.getNames();
 		final FontData[] fd = new FontData[names.length];
 		for (int i = 0; i < names.length; i++) {
@@ -231,6 +256,7 @@ public class SwtGraphics implements Graphics {
 		return new SwtFont(new org.eclipse.swt.graphics.Font(null, fd));
 	}
 
+	@Override
 	public ColorResource getSystemColor(final int id) {
 
 		if (id == ColorResource.SELECTION_BACKGROUND) {
@@ -244,7 +270,7 @@ public class SwtGraphics implements Graphics {
 
 	/**
 	 * Sets the origin of this graphics object. See the class description for more details.
-	 * 
+	 *
 	 * @param x
 	 *            x-coordinate of the origin, relative to the viewport.
 	 * @param y
@@ -255,6 +281,7 @@ public class SwtGraphics implements Graphics {
 		originY = y;
 	}
 
+	@Override
 	public int stringWidth(final String s) {
 		return gc.stringExtent(s).x;
 	}

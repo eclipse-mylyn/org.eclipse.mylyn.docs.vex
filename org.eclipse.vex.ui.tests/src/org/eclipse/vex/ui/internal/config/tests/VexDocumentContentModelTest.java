@@ -23,7 +23,6 @@ import org.eclipse.vex.ui.internal.editor.VexDocumentContentModel;
 import org.junit.Before;
 import org.junit.Test;
 
-@SuppressWarnings("restriction")
 public class VexDocumentContentModelTest {
 
 	private VexDocumentContentModel model;

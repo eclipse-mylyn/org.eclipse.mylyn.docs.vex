@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  * 		Florian Thienel - initial API and implementation
  *******************************************************************************/
@@ -16,7 +16,7 @@ import org.eclipse.core.runtime.AssertionFailedException;
 
 /**
  * An immutable representation of a range within <code>IContent</code>.
- * 
+ *
  * @see IContent
  * @author Florian Thienel
  */
@@ -43,6 +43,15 @@ public class ContentRange {
 		this.endOffset = endOffset;
 	}
 
+	public ContentRange(final ContentPosition startPosition, final ContentPosition endPosition) {
+		startOffset = startPosition.getOffset();
+		endOffset = endPosition.getOffset();
+		if (startOffset > endOffset) {
+			// Do not use Assert.isTrue. This Contructor is called very often and the use of Assert.isTrue would evaluate the Message.format every time.
+			throw new AssertionFailedException(MessageFormat.format("assertion failed: startOffset {0} must not be greater than endOffset {1}", startOffset, endOffset)); //$NON-NLS-1$
+		}
+	}
+
 	public int getStartOffset() {
 		return startOffset;
 	}
@@ -53,7 +62,7 @@ public class ContentRange {
 
 	/**
 	 * The length is always >= 1, since a range includes all characters from its start offset to its end offset.
-	 * 
+	 *
 	 * @return the length of this range
 	 */
 	public int length() {
@@ -62,7 +71,7 @@ public class ContentRange {
 
 	/**
 	 * Indicate whether this range contains the given range.
-	 * 
+	 *
 	 * @return true if this range contains the given range
 	 */
 	public boolean contains(final ContentRange other) {
@@ -71,7 +80,7 @@ public class ContentRange {
 
 	/**
 	 * Indicate whether this range contains the given offset.
-	 * 
+	 *
 	 * @return true if this range contains the given offset
 	 */
 	public boolean contains(final int offset) {
@@ -81,7 +90,7 @@ public class ContentRange {
 	/**
 	 * Indicate whether this range intersects with the given range. Intersection is weaker than containment: one range
 	 * may contain only a part of the other range.
-	 * 
+	 *
 	 * @return true if this range intersects with the given range
 	 */
 	public boolean intersects(final ContentRange other) {
@@ -97,7 +106,7 @@ public class ContentRange {
 
 	/**
 	 * The union of this and the given range may also include characters between both ranges, if they do not intersect.
-	 * 
+	 *
 	 * @return the union of this and the given range
 	 */
 	public ContentRange union(final ContentRange other) {
@@ -106,7 +115,7 @@ public class ContentRange {
 
 	/**
 	 * Move this range by the given distance. Since ContentRange is immutable, a new moved range is returned.
-	 * 
+	 *
 	 * @return the moved range
 	 */
 	public ContentRange moveBy(final int distance) {
@@ -115,7 +124,7 @@ public class ContentRange {
 
 	/**
 	 * Resize this range by the given delta. Since ContentRange is immutable, a new resized range is returned.
-	 * 
+	 *
 	 * @return the resized range
 	 */
 	public ContentRange resizeBy(final int deltaStart, final int deltaEnd) {

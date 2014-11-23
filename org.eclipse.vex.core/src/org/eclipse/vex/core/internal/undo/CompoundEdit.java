@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     John Krasnay - initial API and implementation
  *     Igor Jacy Lino Campista - Java 5 warnings fixed (bug 311325)
@@ -28,7 +28,7 @@ public class CompoundEdit extends AbstractUndoableEdit {
 
 	/**
 	 * Adds an edit to the list.
-	 * 
+	 *
 	 * @param edit
 	 *            Edit to be undone/redone as part of the compound group.
 	 */

@@ -26,7 +26,7 @@ public interface InlineBox extends Box {
 
 		/**
 		 * Class constructor.
-		 * 
+		 *
 		 * @param left
 		 *            box to the left of the split
 		 * @param right
@@ -87,19 +87,19 @@ public interface InlineBox extends Box {
 	 * (e.g. after a space) and return two boxes representing a split at that point. The width of the last box must not
 	 * exceed <code>maxWidth</code>. If no such natural split exists, null should be returned as the left box and
 	 * <code>this</code> returned as the right box.
-	 * 
+	 *
 	 * <p>
 	 * If <code>force</code> is true, it means we are adding the first inline box to a line, therefore we must return
 	 * something as the left box. In some cases, we may find a suboptimal split (e.g. between characters) that satisfies
 	 * this. In other cases, <code>this</code> should be returned as the left box even though it exceeds maxWidth.
 	 * </p>
-	 * 
+	 *
 	 * <p>
 	 * If the entire box fits within <code>maxWidth</code>, it should only be returned as the left box if it can end a
 	 * line; otherwise, it should be returned as the right box. Most implementations <i>cannot</i> end a line (one
 	 * notable exception being a text box ending in whitespace) and should therefore return themselves as the right box.
 	 * </p>
-	 * 
+	 *
 	 * @param context
 	 *            the layout context to be used.
 	 * @param maxWidth

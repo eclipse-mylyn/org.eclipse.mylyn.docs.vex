@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     John Krasnay - initial API and implementation
  *     Igor Jacy Lino Campista - Java 5 warnings fixed (bug 311325)
@@ -32,7 +32,7 @@ public class ConfigurationElement implements IConfigElement {
 
 	/**
 	 * Class constructor.
-	 * 
+	 *
 	 * @param name
 	 *            Name of the element.
 	 */
@@ -42,7 +42,7 @@ public class ConfigurationElement implements IConfigElement {
 
 	/**
 	 * Adds a new child to this element.
-	 * 
+	 *
 	 * @param child
 	 *            child to be added.
 	 */
@@ -50,19 +50,23 @@ public class ConfigurationElement implements IConfigElement {
 		children.add(child);
 	}
 
+	@Override
 	public String getAttribute(final String name) {
 		return attributes.get(name);
 	}
 
+	@Override
 	public String[] getAttributeNames() {
 		final Set<String> keys = attributes.keySet();
 		return keys.toArray(new String[keys.size()]);
 	}
 
+	@Override
 	public IConfigElement[] getChildren() {
 		return children.toArray(new IConfigElement[children.size()]);
 	}
 
+	@Override
 	public IConfigElement[] getChildren(final String name) {
 		final List<IConfigElement> kids = new ArrayList<IConfigElement>();
 		for (final IConfigElement child : children) {
@@ -73,17 +77,19 @@ public class ConfigurationElement implements IConfigElement {
 		return kids.toArray(new IConfigElement[kids.size()]);
 	}
 
+	@Override
 	public String getName() {
 		return name;
 	}
 
+	@Override
 	public String getValue() {
 		return value;
 	}
 
 	/**
 	 * Sets the given attribute. If value is null, the attribute is removed from the element.
-	 * 
+	 *
 	 * @param name
 	 *            Name of the attribute.
 	 * @param value
@@ -99,7 +105,7 @@ public class ConfigurationElement implements IConfigElement {
 
 	/**
 	 * Sets the children of this element given an array of IConfigElement objects.
-	 * 
+	 *
 	 * @param children
 	 *            Children of this element.
 	 */
@@ -110,7 +116,7 @@ public class ConfigurationElement implements IConfigElement {
 
 	/**
 	 * Sets the name of the element.
-	 * 
+	 *
 	 * @param name
 	 *            Name of the element.
 	 */
@@ -120,7 +126,7 @@ public class ConfigurationElement implements IConfigElement {
 
 	/**
 	 * Sets the value of the element.
-	 * 
+	 *
 	 * @param value
 	 *            Value of the element.
 	 */

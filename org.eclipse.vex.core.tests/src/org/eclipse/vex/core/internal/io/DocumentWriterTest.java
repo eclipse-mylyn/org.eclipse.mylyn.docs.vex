@@ -1,13 +1,13 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2013 John Krasnay and others.
+ * Copyright (c) 2004, 2014 John Krasnay and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     John Krasnay - initial API and implementation
- *     Carsten Hiesserich - writeNoWrap(DocumentFragment)
+ *     Carsten Hiesserich - writeNoWrap(DocumentFragment), DocumentWithInclude
  *******************************************************************************/
 package org.eclipse.vex.core.internal.io;
 
@@ -69,6 +69,11 @@ public class DocumentWriterTest {
 	}
 
 	@Test
+	public void testDocumentWithInclude() throws Exception {
+		assertWriteReadCycleWorks(TestResources.get("documentWithInclude.xml"));
+	}
+
+	@Test
 	public void writeDocumentFragmentNoWrap() throws Exception {
 		final Document doc = new Document(new QualifiedName(null, "root"));
 		final IElement child1 = doc.insertElement(doc.getRootElement().getEndOffset(), new QualifiedName(null, "child"));
@@ -98,6 +103,7 @@ public class DocumentWriterTest {
 		documentWriter.setWhitespacePolicy(new CssWhitespacePolicy(styleSheet));
 		final ByteArrayOutputStream buffer = new ByteArrayOutputStream();
 		documentWriter.write(expectedDocument, buffer);
+		System.out.println(buffer.toString());
 
 		final InputStream inputStream = new ByteArrayInputStream(buffer.toByteArray());
 		final InputSource inputSource = new InputSource(inputStream);

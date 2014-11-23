@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     John Krasnay - initial API and implementation
  *     Igor Jacy Lino Campista - Java 5 warnings fixed (bug 311325)
@@ -37,6 +37,7 @@ public class ConfigurationRegistryImpl implements ConfigurationRegistry {
 	private final ListenerList<IConfigListener, ConfigEvent> configListeners = new ListenerList<IConfigListener, ConfigEvent>(IConfigListener.class);
 
 	private final IResourceChangeListener resourceChangeListener = new IResourceChangeListener() {
+		@Override
 		public void resourceChanged(final IResourceChangeEvent event) {
 			if (event.getType() == IResourceChangeEvent.PRE_CLOSE || event.getType() == IResourceChangeEvent.PRE_DELETE) {
 				final PluginProject pluginProject = getPluginProject((IProject) event.getResource());
@@ -74,14 +75,17 @@ public class ConfigurationRegistryImpl implements ConfigurationRegistry {
 		ResourcesPlugin.getWorkspace().addResourceChangeListener(resourceChangeListener);
 	}
 
+	@Override
 	public void dispose() {
 		ResourcesPlugin.getWorkspace().removeResourceChangeListener(resourceChangeListener);
 	}
 
+	@Override
 	public void loadConfigurations() {
 		lock.acquire();
 		try {
 			loader.load(new Runnable() {
+				@Override
 				public void run() {
 					lock.acquire();
 					try {
@@ -167,14 +171,17 @@ public class ConfigurationRegistryImpl implements ConfigurationRegistry {
 		}
 	}
 
+	@Override
 	public boolean isLoaded() {
 		return loaded;
 	}
 
+	@Override
 	public void addConfigListener(final IConfigListener listener) {
 		configListeners.add(listener);
 	}
 
+	@Override
 	public void removeConfigListener(final IConfigListener listener) {
 		configListeners.remove(listener);
 	}
@@ -187,6 +194,7 @@ public class ConfigurationRegistryImpl implements ConfigurationRegistry {
 		configListeners.fireEvent("configLoaded", e); //$NON-NLS-1$
 	}
 
+	@Override
 	public DocumentType getDocumentType(final String id, final String systemId) {
 		final List<ConfigItem> configItems = getAllConfigItems(DocumentType.EXTENSION_POINT);
 		DocumentType systemDoctype = null;
@@ -205,6 +213,7 @@ public class ConfigurationRegistryImpl implements ConfigurationRegistry {
 		return systemDoctype; // May be null
 	}
 
+	@Override
 	public DocumentType[] getDocumentTypes() {
 		final List<DocumentType> result = new ArrayList<DocumentType>();
 		for (final ConfigItem configItem : getAllConfigItems(DocumentType.EXTENSION_POINT)) {
@@ -213,6 +222,7 @@ public class ConfigurationRegistryImpl implements ConfigurationRegistry {
 		return result.toArray(new DocumentType[result.size()]);
 	}
 
+	@Override
 	public DocumentType[] getDocumentTypesWithStyles() {
 		final List<DocumentType> result = new ArrayList<DocumentType>();
 		for (final ConfigItem configItem : getAllConfigItems(DocumentType.EXTENSION_POINT)) {
@@ -224,6 +234,7 @@ public class ConfigurationRegistryImpl implements ConfigurationRegistry {
 		return result.toArray(new DocumentType[result.size()]);
 	}
 
+	@Override
 	public Style[] getStyles(final DocumentType doctype) {
 		final ArrayList<Style> resultId = new ArrayList<Style>();
 		final ArrayList<Style> resultPublic = new ArrayList<Style>();
@@ -254,6 +265,7 @@ public class ConfigurationRegistryImpl implements ConfigurationRegistry {
 		return result.toArray(new Style[result.size()]);
 	}
 
+	@Override
 	public Style getStyle(final String styleId) {
 		for (final ConfigItem configItem : getAllConfigItems(Style.EXTENSION_POINT)) {
 			final Style style = (Style) configItem;
@@ -264,6 +276,7 @@ public class ConfigurationRegistryImpl implements ConfigurationRegistry {
 		return null;
 	}
 
+	@Override
 	public Style getStyle(final DocumentType doctype, final String preferredStyleId) {
 		final Style[] styles = getStyles(doctype);
 		if (styles.length == 0) {
@@ -279,6 +292,7 @@ public class ConfigurationRegistryImpl implements ConfigurationRegistry {
 		return styles[0];
 	}
 
+	@Override
 	public PluginProject getPluginProject(final IProject project) {
 		for (final ConfigSource source : getAllConfigSources()) {
 			if (source instanceof PluginProject) {

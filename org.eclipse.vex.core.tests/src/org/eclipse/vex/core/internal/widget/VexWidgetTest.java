@@ -22,6 +22,7 @@ import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.dom.Document;
 import org.eclipse.vex.core.internal.io.XMLFragment;
 import org.eclipse.vex.core.internal.validator.WTPVEXValidator;
+import org.eclipse.vex.core.provisional.dom.ContentPosition;
 import org.eclipse.vex.core.provisional.dom.IDocument;
 import org.eclipse.vex.core.provisional.dom.IDocumentFragment;
 import org.eclipse.vex.core.provisional.dom.IElement;
@@ -110,6 +111,7 @@ public class VexWidgetTest {
 		final String expectedContentStructure = getContentStructure(widget.getDocument().getRootElement());
 
 		widget.doWork(new Runnable() {
+			@Override
 			public void run() {
 				widget.selectContentOf(comment);
 				final IDocumentFragment fragment = widget.getSelectedFragment();
@@ -125,6 +127,34 @@ public class VexWidgetTest {
 		widget.undo();
 
 		assertEquals(expectedContentStructure, getContentStructure(widget.getDocument().getRootElement()));
+	}
+
+	/* bug 421401 */
+	@Test
+	public void whenClickedRightToLineEnd_shouldSetCursorToLineEnd() throws Exception {
+		final IDocument document = createDocument(STRUCTURE_NS, "chapter");
+		widget.setDocument(document, StyleSheet.NULL);
+		widget.insertElement(new QualifiedName(CONTENT_NS, "p"));
+		widget.insertText("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec a diam lectus. Sed sit amet ipsum mauris.");
+		widget.setLayoutWidth(200); // breaks after "amet, "
+
+		final ContentPosition lastPositionInFirstLine = widget.viewToModel(210, 5);
+		assertEquals("last position", 30, lastPositionInFirstLine.getOffset());
+
+		final ContentPosition firstPositionInSecondLine = widget.viewToModel(0, 15);
+		assertEquals("first position", 31, firstPositionInSecondLine.getOffset());
+	}
+
+	@Test
+	public void whenMovingCursorUp_shouldNotGetStuckInHigherLevelElement() throws Exception {
+		final IDocument document = createDocument(STRUCTURE_NS, "chapter");
+		widget.setDocument(document, StyleSheet.NULL);
+		widget.insertElement(new QualifiedName(CONTENT_NS, "p"));
+		widget.insertText("para 1");
+		widget.moveTo(new ContentPosition(document, 1));
+
+		widget.moveToNextLine(false);
+		assertEquals(2, widget.getCaretPosition().getOffset());
 	}
 
 	public static IDocument createDocumentWithDTD(final String dtdIdentifier, final String rootElementName) {

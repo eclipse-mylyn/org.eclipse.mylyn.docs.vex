@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  * 		Florian Thienel - initial API and implementation
  *      Carsten Hiesserich - do not add text nodes containing only whitespace when reading the document (bug 407803)
@@ -25,6 +25,7 @@ import java.util.List;
 
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.vex.core.IFilter;
+import org.eclipse.vex.core.internal.css.CssWhitespacePolicy;
 import org.eclipse.vex.core.internal.dom.DummyValidator;
 import org.eclipse.vex.core.provisional.dom.BaseNodeVisitorWithResult;
 import org.eclipse.vex.core.provisional.dom.DocumentContentModel;
@@ -33,6 +34,7 @@ import org.eclipse.vex.core.provisional.dom.IAxis;
 import org.eclipse.vex.core.provisional.dom.IComment;
 import org.eclipse.vex.core.provisional.dom.IDocument;
 import org.eclipse.vex.core.provisional.dom.IElement;
+import org.eclipse.vex.core.provisional.dom.IIncludeNode;
 import org.eclipse.vex.core.provisional.dom.INode;
 import org.eclipse.vex.core.provisional.dom.IProcessingInstruction;
 import org.eclipse.vex.core.provisional.dom.IText;
@@ -104,6 +106,7 @@ public class DocumentReaderTest {
 			}
 		}));
 		reader.setEntityResolver(new EntityResolver() {
+			@Override
 			public InputSource resolveEntity(final String publicId, final String systemId) throws SAXException, IOException {
 				if (TestResources.TEST_DTD.equals(publicId)) {
 					entityResolverCalled[0] = true;
@@ -132,6 +135,7 @@ public class DocumentReaderTest {
 			}
 		}));
 		reader.setEntityResolver(new EntityResolver() {
+			@Override
 			public InputSource resolveEntity(final String publicId, final String systemId) throws SAXException, IOException {
 				if (TestResources.TEST_DTD.equals(publicId)) {
 					entityResolverPosition[0] = ++callPosition[0];
@@ -214,6 +218,7 @@ public class DocumentReaderTest {
 		final IElement rootElement = document.getRootElement();
 
 		final IFilter<INode> recursiveWhitespaceTextNodeFilter = new IFilter<INode>() {
+			@Override
 			public boolean matches(final INode node) {
 				return node.accept(new BaseNodeVisitorWithResult<Boolean>(false) {
 					@Override
@@ -253,4 +258,35 @@ public class DocumentReaderTest {
 		assertNotNull("Attribute with namespace not found", attr2);
 		assertEquals("Value of attribute without namespace", "ns-content", attr2.getValue());
 	}
+
+	@Test
+	public void readDocumentWithInclude() throws Exception {
+
+		final DocumentReader reader = new DocumentReader();
+		reader.setWhitespacePolicyFactory(CssWhitespacePolicy.FACTORY);
+		final IDocument document = reader.read(TestResources.get("documentWithInclude.xml"));
+
+		final List<? extends INode> nodes = document.getRootElement().children().asList();
+		assertEquals(3, nodes.size());
+
+		assertEquals("title", ((IElement) nodes.get(0)).getLocalName());
+		assertTrue("Expecting an include node", nodes.get(1) instanceof IIncludeNode);
+
+		final IIncludeNode includeNode = (IIncludeNode) nodes.get(1);
+		final IElement includeElement = includeNode.getReference();
+		assertEquals("include", includeElement.getLocalName());
+		assertEquals("http://www.w3.org/2001/XInclude", includeElement.getNamespaceURI("xi"));
+		assertEquals("document.xml", includeElement.getAttribute("href").getValue());
+		assertEquals(2, includeElement.children().count());
+
+		final IElement para = (IElement) nodes.get(2);
+		assertTrue("Expecting an include node", para.children().withoutText().get(0) instanceof IIncludeNode);
+		final IIncludeNode inlineIncludeNode = (IIncludeNode) para.children().withoutText().get(0);
+		final IElement inlineIncludeElement = inlineIncludeNode.getReference();
+		assertEquals("include", inlineIncludeElement.getLocalName());
+		assertEquals("http://www.w3.org/2001/XInclude", inlineIncludeElement.getNamespaceURI("xi"));
+		assertEquals("document.xml", inlineIncludeElement.getAttribute("href").getValue());
+		assertEquals("text", inlineIncludeElement.getAttribute("parse").getValue());
+	}
+
 }

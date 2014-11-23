@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     John Krasnay - initial API and implementation
  *******************************************************************************/
@@ -20,7 +20,7 @@ public class BorderStyleProperty extends AbstractProperty {
 
 	/**
 	 * Class constructor.
-	 * 
+	 *
 	 * @param name
 	 *            Name of the property.
 	 */
@@ -30,7 +30,7 @@ public class BorderStyleProperty extends AbstractProperty {
 
 	/**
 	 * Returns true if the given lexical unit represents a border style.
-	 * 
+	 *
 	 * @param lu
 	 *            LexicalUnit to check.
 	 */
@@ -46,6 +46,7 @@ public class BorderStyleProperty extends AbstractProperty {
 		return false;
 	}
 
+	@Override
 	public Object calculate(final LexicalUnit lu, final Styles parentStyles, final Styles styles, final INode node) {
 		if (isBorderStyle(lu)) {
 			return lu.getStringValue();

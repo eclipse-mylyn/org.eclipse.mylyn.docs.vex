@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     John Krasnay - initial API and implementation
  *******************************************************************************/
@@ -19,7 +19,7 @@ public class Timer {
 
 	/**
 	 * Class constructor. The timer must be explicitly started using the start() method.
-	 * 
+	 *
 	 * @param periodMs
 	 *            Milliseconds between each invocation.
 	 * @param runnable
@@ -72,6 +72,7 @@ public class Timer {
 	private class InnerRunnable implements Runnable {
 		public boolean discarded = false;
 
+		@Override
 		public void run() {
 			if (!discarded) {
 				runnable.run();

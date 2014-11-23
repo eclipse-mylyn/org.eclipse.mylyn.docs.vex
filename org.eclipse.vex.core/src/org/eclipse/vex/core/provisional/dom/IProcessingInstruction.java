@@ -12,7 +12,7 @@ package org.eclipse.vex.core.provisional.dom;
 
 /**
  * A representation of an XML processing insctruction in the DOM. PI's have textual content, a start and an end tag.
- * 
+ *
  * @author Carsten Hiesserich
  */
 public interface IProcessingInstruction extends INode {
@@ -24,7 +24,7 @@ public interface IProcessingInstruction extends INode {
 
 	/**
 	 * Set the target of this processing instruction.
-	 * 
+	 *
 	 * @param target
 	 *            The new target.
 	 * @throws DocumentValidationException

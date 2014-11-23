@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     John Krasnay - initial API and implementation
  *******************************************************************************/
@@ -27,7 +27,7 @@ public class BuildProblem {
 
 	/**
 	 * Class constructor.
-	 * 
+	 *
 	 * @param severity
 	 *            Severity of the problem: SEVERITY_WARNING or SEVERITY_ERROR
 	 * @param resourcePath
@@ -74,7 +74,7 @@ public class BuildProblem {
 
 	/**
 	 * Sets the line number of the problem.
-	 * 
+	 *
 	 * @param lineNumber
 	 *            Line number on which the problem occurred.
 	 */
@@ -84,7 +84,7 @@ public class BuildProblem {
 
 	/**
 	 * Sets the message describing the problem.
-	 * 
+	 *
 	 * @param message
 	 *            Message describing the problem.
 	 */
@@ -94,7 +94,7 @@ public class BuildProblem {
 
 	/**
 	 * Sets the path of the resource that had the problem.
-	 * 
+	 *
 	 * @param resourcePath
 	 *            Path of the resource, relative to the project root.
 	 */
@@ -104,7 +104,7 @@ public class BuildProblem {
 
 	/**
 	 * Sets the severity of the problem.
-	 * 
+	 *
 	 * @param severity
 	 *            Severity of the problem. Should be one of SEVERITY_ERROR or SEVERITY_WARNING.
 	 */

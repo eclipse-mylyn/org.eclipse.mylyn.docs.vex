@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     John Krasnay - initial API and implementation
  *     Igor Jacy Lino Campista - Java 5 warnings fixed (bug 311325)
@@ -30,34 +30,47 @@ public interface IValidator {
 
 		private final DocumentContentModel documentContentModel = new DocumentContentModel();
 
+		@Override
 		public DocumentContentModel getDocumentContentModel() {
 			return documentContentModel;
 		}
 
+		@Override
 		public AttributeDefinition getAttributeDefinition(final IAttribute attribute) {
 			return null;
 		}
 
+		@Override
 		public List<AttributeDefinition> getAttributeDefinitions(final IElement element) {
 			return Collections.emptyList();
 		}
 
+		@Override
 		public Set<QualifiedName> getValidRootElements() {
 			return Collections.emptySet();
 		}
 
+		@Override
 		public Set<QualifiedName> getValidItems(final IElement element) {
 			return Collections.emptySet();
 		}
 
+		@Override
 		public boolean isValidSequence(final QualifiedName element, final List<QualifiedName> nodes, final boolean partial) {
 			return false;
 		}
 
+		@Override
 		public boolean isValidSequence(final QualifiedName element, final List<QualifiedName> sequence1, final List<QualifiedName> sequence2, final List<QualifiedName> sequence3, final boolean partial) {
 			return false;
 		}
 
+		@Override
+		public boolean isValidSequenceXInclude(final List<QualifiedName> nodes, final boolean partial) {
+			return false;
+		}
+
+		@Override
 		public Set<String> getRequiredNamespaces() {
 			return Collections.emptySet();
 		}
@@ -73,7 +86,7 @@ public interface IValidator {
 
 	/**
 	 * Returns the AttributeDefinition for a particular attribute.
-	 * 
+	 *
 	 * @param element
 	 *            Name of the element.
 	 * @param attribute
@@ -84,7 +97,7 @@ public interface IValidator {
 
 	/**
 	 * Returns the attribute definitions that apply to the given element.
-	 * 
+	 *
 	 * @param element
 	 *            the element to check.
 	 */
@@ -93,7 +106,7 @@ public interface IValidator {
 	/**
 	 * Returns a set of QualifiedNames representing items that are valid at point in the child nodes of a given element.
 	 * Each string is either an element name or Validator.PCDATA.
-	 * 
+	 *
 	 * @param element
 	 *            the parent element.
 	 */
@@ -102,7 +115,7 @@ public interface IValidator {
 	/**
 	 * Returns true if the given sequence is valid for the given element. Accepts three sequences, which will be
 	 * concatenated before doing the check.
-	 * 
+	 *
 	 * @param element
 	 *            Name of the element being tested.
 	 * @param nodes
@@ -115,7 +128,7 @@ public interface IValidator {
 	/**
 	 * Returns true if the given sequence is valid for the given element. Accepts three sequences, which will be
 	 * concatenated before doing the check.
-	 * 
+	 *
 	 * @param element
 	 *            Name of the element being tested.
 	 * @param seq1
@@ -128,6 +141,17 @@ public interface IValidator {
 	 *            If true, an valid but incomplete sequence is acceptable.
 	 */
 	boolean isValidSequence(QualifiedName element, List<QualifiedName> seq1, List<QualifiedName> seq2, List<QualifiedName> seq3, boolean partial);
+
+	/**
+	 * Returns true if the given sequence is valid for an XInclude element. We totally ignore the XInclude Schema here
+	 * and allow nothing.
+	 *
+	 * @param nodes
+	 *            Array of element names and Validator.PCDATA.
+	 * @param partial
+	 *            If true, an valid but incomplete sequence is acceptable.
+	 */
+	boolean isValidSequenceXInclude(List<QualifiedName> nodes, boolean partial);
 
 	/**
 	 * Returns a set of QualifiedNames representing valid root elements for the given document type.

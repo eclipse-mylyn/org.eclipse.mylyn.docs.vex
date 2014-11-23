@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     John Krasnay - initial API and implementation
  *******************************************************************************/
@@ -24,7 +24,7 @@ public interface IConfigItemFactory {
 	 * Returns an array of configuration elements needed to re-create the given item. If no configuration elements are
 	 * necessary, the method may return null instead of an empty array. This is essentially the inverse of the
 	 * createItem method.
-	 * 
+	 *
 	 * @param item
 	 *            ConfigItem for which to create configuration elements.
 	 */
@@ -32,7 +32,7 @@ public interface IConfigItemFactory {
 
 	/**
 	 * Creates an item and adds it to the given configuration.
-	 * 
+	 *
 	 * @param config
 	 *            Configuration that owns the item.
 	 * @param configElements
@@ -54,7 +54,7 @@ public interface IConfigItemFactory {
 	/**
 	 * Returns the pluralized name of the type of configuration item managed by this factory. For example,
 	 * "Document Types".
-	 * 
+	 *
 	 * @return
 	 */
 	public String getPluralName();
@@ -62,7 +62,7 @@ public interface IConfigItemFactory {
 	/**
 	 * Parse a resource for this type of configuration item. Implementations must not fail if passed a null problem
 	 * handler.
-	 * 
+	 *
 	 * @param configItem
 	 *            the configuration item for which the resource should be parsed
 	 * @param baseUrl

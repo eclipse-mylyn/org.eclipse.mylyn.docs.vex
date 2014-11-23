@@ -10,16 +10,18 @@
  *******************************************************************************/
 package org.eclipse.vex.ui.internal.handlers;
 
+import org.eclipse.vex.core.internal.layout.LayoutUtils.ElementOrRange;
+
 /**
  * Callback interface to iterate over table cells (visitor pattern).
- * 
+ *
  * @see TableCellCallbackAdapter
  */
 public interface ITableCellCallback {
 
 	/**
 	 * Called before the first cell in a row is visited.
-	 * 
+	 *
 	 * @param row
 	 *            element or IntRange representing the row
 	 * @param rowIndex
@@ -29,21 +31,21 @@ public interface ITableCellCallback {
 
 	/**
 	 * Called when a cell is visited.
-	 * 
+	 *
 	 * @param row
-	 *            element or IntRange representing the row
+	 *            element or range representing the row
 	 * @param cell
-	 *            element or IntRange representing the cell
+	 *            element or range representing the cell
 	 * @param rowIndex
 	 *            zero-based index of the current row
 	 * @param cellIndex
 	 *            zero-based index of the current cell
 	 */
-	public void onCell(Object row, Object cell, int rowIndex, int cellIndex);
+	public void onCell(ElementOrRange row, ElementOrRange cell, int rowIndex, int cellIndex);
 
 	/**
 	 * Called after the last cell in a row is visited.
-	 * 
+	 *
 	 * @param row
 	 *            element or IntRange representing the row
 	 * @param rowIndex

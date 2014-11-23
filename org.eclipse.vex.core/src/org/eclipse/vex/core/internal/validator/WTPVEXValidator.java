@@ -83,6 +83,7 @@ public class WTPVEXValidator implements IValidator {
 		this.documentContentModel = documentContentModel;
 	}
 
+	@Override
 	public DocumentContentModel getDocumentContentModel() {
 		return documentContentModel;
 	}
@@ -110,6 +111,7 @@ public class WTPVEXValidator implements IValidator {
 		return contentModel;
 	}
 
+	@Override
 	public AttributeDefinition getAttributeDefinition(final IAttribute attribute) {
 		final String attributeName = attribute.getLocalName();
 		final CMElementDeclaration cmElement = getElementDeclaration(attribute.getParent());
@@ -140,6 +142,7 @@ public class WTPVEXValidator implements IValidator {
 		return new AttributeDefinition(new QualifiedName(null, attributeName), Type.CDATA, /* default value */"", /* values */new String[0], /* required */false, /* fixed */true);
 	}
 
+	@Override
 	public List<AttributeDefinition> getAttributeDefinitions(final IElement element) {
 		final CMElementDeclaration cmElement = getElementDeclaration(element);
 		/*
@@ -257,6 +260,7 @@ public class WTPVEXValidator implements IValidator {
 		}
 	}
 
+	@Override
 	public Set<QualifiedName> getValidItems(final IElement element) {
 		return getValidItems(getElementDeclaration(element));
 	}
@@ -333,6 +337,7 @@ public class WTPVEXValidator implements IValidator {
 		return result;
 	}
 
+	@Override
 	public Set<QualifiedName> getValidRootElements() {
 		final HashSet<QualifiedName> result = new HashSet<QualifiedName>();
 		for (final CMElementDeclaration element : getValidRootElements(null)) {
@@ -341,9 +346,14 @@ public class WTPVEXValidator implements IValidator {
 		return result;
 	}
 
+	@Override
 	public boolean isValidSequence(final QualifiedName element, final List<QualifiedName> nodes, final boolean partial) {
 		if (partial && nodes.isEmpty()) {
 			return true;
+		}
+
+		if (Namespace.XINCLUDE_NAMESPACE_URI.equals(element.getQualifier())) {
+			return isValidSequenceXInclude(nodes, partial);
 		}
 
 		final CMDocument document = getContentModelDoc(element.getQualifier());
@@ -360,12 +370,19 @@ public class WTPVEXValidator implements IValidator {
 		final CMElementDeclaration elementDeclaration = (CMElementDeclaration) parent;
 		final ElementPathRecordingResult validationResult = new ElementPathRecordingResult();
 		final List<String> nodeNames = new ArrayList<String>();
+		int elementCount = 0;
 		for (final QualifiedName node : nodes) {
-			nodeNames.add(node.getLocalName()); // TODO learn how the WTP content model handles namespaces
+			// XInlude is normally not a an allowed elements (parser are expected to process
+			// XIncludes before validation), so we ignore them here.
+			if (!Namespace.XINCLUDE_NAMESPACE_URI.equals(node.getQualifier())) {
+				nodeNames.add(node.getLocalName()); // TODO learn how the WTP content model handles namespaces
+				if (ELEMENT_CONTENT_COMPARATOR.isElement(node.getLocalName())) {
+					elementCount++;
+				}
+			}
 		}
 		validator.validate(elementDeclaration, nodeNames, ELEMENT_CONTENT_COMPARATOR, validationResult);
 
-		final int elementCount = getElementCount(nodes);
 		if (partial && elementCount > 0) {
 			return validationResult.getPartialValidationCount() >= elementCount;
 		}
@@ -373,16 +390,7 @@ public class WTPVEXValidator implements IValidator {
 		return validationResult.isValid;
 	}
 
-	private static int getElementCount(final List<QualifiedName> nodes) {
-		int count = 0;
-		for (final QualifiedName node : nodes) {
-			if (ELEMENT_CONTENT_COMPARATOR.isElement(node.getLocalName())) {
-				count++;
-			}
-		}
-		return count;
-	}
-
+	@Override
 	public boolean isValidSequence(final QualifiedName element, final List<QualifiedName> seq1, final List<QualifiedName> seq2, final List<QualifiedName> seq3, final boolean partial) {
 		final List<QualifiedName> joinedSequence = new ArrayList<QualifiedName>();
 		if (seq1 != null) {
@@ -397,6 +405,12 @@ public class WTPVEXValidator implements IValidator {
 		return isValidSequence(element, joinedSequence, partial);
 	}
 
+	@Override
+	public boolean isValidSequenceXInclude(final List<QualifiedName> nodes, final boolean partial) {
+		return false;
+	}
+
+	@Override
 	public Set<String> getRequiredNamespaces() {
 		if (documentContentModel.isDtdAssigned()) {
 			return Collections.emptySet();

@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     John Krasnay - initial API and implementation
  *     Igor Jacy Lino Campista - Java 5 warnings fixed (bug 311325)
@@ -58,7 +58,7 @@ public abstract class ConfigSource {
 
 	/**
 	 * Adds the given item to this configuration.
-	 * 
+	 *
 	 * @param item
 	 *            ConfigItem to be added.
 	 */
@@ -70,7 +70,7 @@ public abstract class ConfigSource {
 	/**
 	 * Creates a configuration item and adds it to this configuration. If the given extension point does not have a
 	 * factory registered, no* action is taken and null is returned.
-	 * 
+	 *
 	 * @param extensionPoint
 	 *            Extension point of the item to be added.
 	 * @param simpleIdentifier
@@ -97,7 +97,7 @@ public abstract class ConfigSource {
 
 	/**
 	 * Removes the given item from this configuration.
-	 * 
+	 *
 	 * @param item
 	 *            ConfigItem to be removed.
 	 */
@@ -122,17 +122,17 @@ public abstract class ConfigSource {
 	/**
 	 * Remove the resource associated with the given URI from the resource cache. The factory must handle any of the
 	 * following scenarios.
-	 * 
+	 *
 	 * <ul>
 	 * <li>The URI represents the primary resource associated with a configuration item.</li>
 	 * <li>The URI is a secondary resource associated with a primary resource. In this case the primary resource is
 	 * removed.</li>
 	 * <li>The URI has nothing to do with a configuration item, in which case no action is taken.</li>
 	 * </ul>
-	 * 
+	 *
 	 * To fully implement this method, the factory must interact with the parser and track which secondary resources are
 	 * associated with which primaries.
-	 * 
+	 *
 	 * @param uri
 	 *            Relative URI of the resource to remove.
 	 */
@@ -154,7 +154,7 @@ public abstract class ConfigSource {
 
 	/**
 	 * Returns a particular item from the configuration. Returns null if no matching item could be found.
-	 * 
+	 *
 	 * @param simpleId
 	 *            Simple ID of the item to return.
 	 */
@@ -170,7 +170,7 @@ public abstract class ConfigSource {
 	/**
 	 * Returns the item for the resource with the given path relative to the plugin or project. May return null if no
 	 * such item exists.
-	 * 
+	 *
 	 * @param resource
 	 *            Path of the resource.
 	 */
@@ -185,7 +185,7 @@ public abstract class ConfigSource {
 
 	/**
 	 * Returns the parsed resource object for the given URI, or null of none exists.
-	 * 
+	 *
 	 * @param uri
 	 *            URI of the resource, relative to the base URL of this configuration.
 	 */
@@ -202,7 +202,7 @@ public abstract class ConfigSource {
 
 	/**
 	 * Returns all ConfigItems of the given type for which isValid returns true.
-	 * 
+	 *
 	 * @param extensionPointId
 	 *            The type of ConfigItem to return.
 	 */
@@ -225,7 +225,7 @@ public abstract class ConfigSource {
 
 	/**
 	 * Parses all resources required by the registered items.
-	 * 
+	 *
 	 * @param problemHandler
 	 *            Handler for build problems. May be null.
 	 */

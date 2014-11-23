@@ -13,11 +13,12 @@ package org.eclipse.vex.ui.internal.handlers;
 
 import java.util.List;
 
+import org.eclipse.vex.core.provisional.dom.ContentPosition;
 import org.eclipse.vex.ui.internal.handlers.VexHandlerUtil.SelectedRows;
 
 /**
  * Moves the current table row up above its previous sibling.
- * 
+ *
  * @see AbstractMoveRowHandler
  * @see MoveRowDownHandler
  */
@@ -29,10 +30,10 @@ public class MoveRowUpHandler extends AbstractMoveRowHandler {
 	}
 
 	@Override
-	protected int target(final SelectedRows selected) {
+	protected ContentPosition target(final SelectedRows selected) {
 		final List<Object> rows = selected.getRows();
 		final Object lastRow = rows.get(rows.size() - 1);
-		return VexHandlerUtil.getOuterRange(lastRow).getEndOffset();
+		return VexHandlerUtil.getOuterRange(lastRow).getEndPosition();
 	}
 
 }

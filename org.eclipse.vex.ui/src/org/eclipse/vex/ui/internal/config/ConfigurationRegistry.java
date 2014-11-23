@@ -14,7 +14,7 @@ import org.eclipse.core.resources.IProject;
 
 /**
  * Registry of configuration sources and listeners.
- * 
+ *
  * @author Florian Thienel
  */
 public interface ConfigurationRegistry {
@@ -38,7 +38,7 @@ public interface ConfigurationRegistry {
 	 * The document type configuration for the given identifier.<br />
 	 * This method tries to resolve by PublicId or namespace first. If this does not yield as result, a doctype with a
 	 * matching SystemId is returned.
-	 * 
+	 *
 	 * @param id
 	 *            the public/system identifier or namespace
 	 * @param systemId
@@ -64,7 +64,7 @@ public interface ConfigurationRegistry {
 	 * <li>2. Public ID (DTD) or Namespace (XML-Schema)</li>
 	 * <li>3. System ID (DTD)</li>
 	 * </ul>
-	 * 
+	 *
 	 * @param doctype
 	 *            the document type
 	 * @return all styles for the given document type
@@ -73,7 +73,7 @@ public interface ConfigurationRegistry {
 
 	/**
 	 * The style with the given id, or null if there is no style with this id.
-	 * 
+	 *
 	 * @param styleId
 	 *            the style's id
 	 * @return the style with the given id, or null if there is no style with this id.
@@ -82,7 +82,7 @@ public interface ConfigurationRegistry {
 
 	/**
 	 * An arbitrary style for the given document type. If available, the style with the given style id is preferred.
-	 * 
+	 *
 	 * @param pdoctype
 	 *            the document type
 	 * @param preferredStyleId
@@ -93,7 +93,7 @@ public interface ConfigurationRegistry {
 
 	/**
 	 * The representation of the given plug-in project in the workspace.
-	 * 
+	 *
 	 * @param project
 	 *            the project
 	 * @return the representation of the given plug-in project in the workspace.
@@ -102,7 +102,7 @@ public interface ConfigurationRegistry {
 
 	/**
 	 * Adds a ConfigChangeListener to the notification list.
-	 * 
+	 *
 	 * @param listener
 	 *            Listener to be added.
 	 */
@@ -110,7 +110,7 @@ public interface ConfigurationRegistry {
 
 	/**
 	 * Removes a ConfigChangeListener from the notification list.
-	 * 
+	 *
 	 * @param listener
 	 *            Listener to be removed.
 	 */

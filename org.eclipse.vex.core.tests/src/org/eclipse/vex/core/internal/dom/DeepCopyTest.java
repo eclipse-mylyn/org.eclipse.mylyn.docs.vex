@@ -1,10 +1,10 @@
 /*******************************************************************************
- * Copyright (c) 2012, 2013 Florian Thienel and others.
+ * Copyright (c) 2012, 2014 Florian Thienel and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  * 		Florian Thienel - initial API and implementation
  *		Carsten Hiesserich - additional test for namespace inheritance
@@ -21,6 +21,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.Iterator;
 import java.util.List;
 
+import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.vex.core.provisional.dom.ContentRange;
 import org.eclipse.vex.core.provisional.dom.IContent;
 import org.eclipse.vex.core.provisional.dom.IElement;
@@ -276,6 +277,85 @@ public class DeepCopyTest {
 		assertTrue("Expecting the copied processing instruction", copiedChildren.get(0) instanceof ProcessingInstruction);
 		assertEquals("Data should be copied", pi.getText(), copiedChildren.get(0).getText());
 		assertEquals("Target should be copied", pi.getTarget(), ((ProcessingInstruction) copiedChildren.get(0)).getTarget());
+	}
+
+	@Test
+	public void givenOneParentWithXInclude_shouldCopyParentAndXInclude() throws Exception {
+		final GapContent content = new GapContent(10);
+		content.insertTagMarker(0);
+		content.insertTagMarker(0);
+		content.insertTagMarker(0);
+		content.insertTagMarker(0);
+		final Element parent = new Element("parent");
+		parent.associate(content, content.getRange());
+
+		final QualifiedName includeName = new QualifiedName("http://www.w3.org/2001/XInclude", "include");
+		final Element reference = new Element(includeName);
+		reference.setAttribute("href", "testHRef");
+		reference.setAttribute("parse", "xml");
+		reference.setParent(parent);
+		reference.associate(content, new ContentRange(1, 2));
+		final IncludeNode include = new IncludeNode(reference);
+
+		parent.addChild(include);
+
+		final DeepCopy deepCopy = new DeepCopy(parent);
+		final Element copiedParent = (Element) deepCopy.getNodes().get(0);
+		final List<? extends INode> copiedChildren = copiedParent.children().asList();
+
+		assertEquals(1, copiedChildren.size());
+		assertTrue("Expecting the copied IncludeNode", copiedChildren.get(0) instanceof IncludeNode);
+		final IncludeNode copiedInclude = (IncludeNode) copiedChildren.get(0);
+		assertEquals("Parent of IncludeNode should be set", copiedParent, copiedInclude.getParent());
+		assertEquals("Parent of reference should be set", copiedParent, copiedInclude.getReference().getParent());
+		assertEquals(includeName, copiedInclude.getReference().getQualifiedName());
+
+		assertEquals("Attribute 'href' should be copied", "testHRef", copiedInclude.getReference().getAttribute("href").getValue());
+		assertEquals("Attribute 'parse' should be copied", "xml", copiedInclude.getReference().getAttribute("parse").getValue());
+	}
+
+	@Test
+	public void givenXIncludeWithContent_shouldCopyContent() throws Exception {
+		final GapContent content = new GapContent(10);
+		content.insertTagMarker(0);
+		content.insertTagMarker(0);
+		content.insertTagMarker(0);
+		content.insertTagMarker(0);
+		content.insertTagMarker(0);
+		content.insertTagMarker(0);
+		final Element parent = new Element("parent");
+		parent.associate(content, content.getRange());
+
+		final QualifiedName includeName = new QualifiedName("http://www.w3.org/2001/XInclude", "include");
+		final QualifiedName fallbackName = new QualifiedName("http://www.w3.org/2001/XInclude", "fallback");
+
+		final Element reference = new Element(includeName);
+		reference.setAttribute("href", "testHRef");
+		reference.setAttribute("parse", "xml");
+		reference.setParent(parent);
+		reference.associate(content, new ContentRange(1, 4));
+		final IncludeNode include = new IncludeNode(reference);
+
+		final Element fallback = new Element(fallbackName);
+		fallback.associate(content, new ContentRange(2, 3));
+		reference.addChild(fallback);
+
+		content.insertText(3, "fallbackText");
+
+		parent.addChild(include);
+
+		final DeepCopy deepCopy = new DeepCopy(parent);
+		final Element copiedParent = (Element) deepCopy.getNodes().get(0);
+		final List<? extends INode> copiedChildren = copiedParent.children().asList();
+
+		assertEquals(1, copiedChildren.size());
+		assertTrue("Expecting the copied IncludeNode", copiedChildren.get(0) instanceof IncludeNode);
+		final IncludeNode copiedInclude = (IncludeNode) copiedChildren.get(0);
+
+		final Element copiedFallback = (Element) copiedInclude.getReference().children().get(0);
+		assertEquals("Expecting the copied fallback element", fallbackName, copiedFallback.getQualifiedName());
+		assertEquals("Parent of fallback should be set", copiedInclude.getReference(), copiedFallback.getParent());
+		assertEquals("Copied text content", "fallbackText", copiedFallback.getText());
 	}
 
 	private static void assertNodeIsAssociatedElementWithText(final String expectedText, final INode actualNode) {

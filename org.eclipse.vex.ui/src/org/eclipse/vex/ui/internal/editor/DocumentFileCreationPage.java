@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     John Krasnay - initial API and implementation
  *******************************************************************************/
@@ -23,7 +23,7 @@ public class DocumentFileCreationPage extends WizardNewFileCreationPage {
 
 	/**
 	 * Class constructor. Supplies a title and description to the superclass.
-	 * 
+	 *
 	 * @param pageName
 	 *            name of the page
 	 * @param selection
@@ -46,7 +46,7 @@ public class DocumentFileCreationPage extends WizardNewFileCreationPage {
 
 	/**
 	 * Sets the initial contents to be used when the document is created.
-	 * 
+	 *
 	 * @param initialContents
 	 *            initial contents for the new document.
 	 */

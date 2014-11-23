@@ -7,7 +7,7 @@
 			<box class="RootBox">
 				<box class="BlockElementBox">
 					<box class="BlockElementBox" element="root" layoutState="LAYOUT_PROPAGATE">
-						<box class="BlockElementBox" element="p" layoutState="LAYOUT_REDO">
+						<box class="BlockElementBox" element="p" layoutState="LAYOUT_PROPAGATE">
 							<box class="ParagraphBox">
 								<box class="LineBox">
 									<box class="DocumentTextBox" text="before" />
@@ -71,7 +71,7 @@
 				<box class="BlockElementBox">
 					<box class="BlockElementBox" element="root">
 					
-						<box class="BlockElementBox" element="p" layoutState="LAYOUT_REDO">
+						<box class="BlockElementBox" element="p">
 							<box class="ParagraphBox">
 								<box class="LineBox">
 									<box class="DocumentTextBox" text="before" />

@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     John Krasnay - initial API and implementation
  *     Igor Jacy Lino Campista - Java 5 warnings fixed (bug 311325)
@@ -55,6 +55,7 @@ public class DocumentTypeSelectionPage extends WizardPage {
 		Arrays.sort(doctypes);
 	}
 
+	@Override
 	public void createControl(final Composite parent) {
 
 		final Composite pane = new Composite(parent, SWT.NONE);
@@ -199,10 +200,12 @@ public class DocumentTypeSelectionPage extends WizardPage {
 	 * Sets the root element combo box when the document type combo box is selected.
 	 */
 	private final SelectionListener typeComboSelectionListener = new SelectionListener() {
+		@Override
 		public void widgetSelected(final SelectionEvent e) {
 			updateRootElementCombo();
 		}
 
+		@Override
 		public void widgetDefaultSelected(final SelectionEvent e) {
 		}
 	};
@@ -211,10 +214,12 @@ public class DocumentTypeSelectionPage extends WizardPage {
 	 * When a root element is selected, mark the page as complete.
 	 */
 	private final SelectionListener elementComboSelectionListener = new SelectionListener() {
+		@Override
 		public void widgetSelected(final SelectionEvent e) {
 			setPageComplete(true);
 		}
 
+		@Override
 		public void widgetDefaultSelected(final SelectionEvent e) {
 		}
 	};

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chapter xmlns="http://www.eclipse.org/vex/test/structure">
+	<title>Title</title>
+	<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="document.xml">
+		<!-- Test comment -->
+		<xi:fallback>
+			<chapter><title>Title2</title></chapter>
+		</xi:fallback>
+	</xi:include>
+	<para>12<xi:include xmlns:xi="http://www.w3.org/2001/XInclude" href="document.xml" parse="text"/>34</para>
+</chapter>

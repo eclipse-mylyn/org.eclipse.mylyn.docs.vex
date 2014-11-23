@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     John Krasnay - initial API and implementation
  *     Igor Jacy Lino Campista - Java 5 warnings fixed (bug 311325)
@@ -72,6 +72,7 @@ public class ConfigurationView extends ViewPart {
 	}
 
 	private static class MyContentProvider implements ITreeContentProvider {
+		@Override
 		public Object[] getChildren(final Object parentElement) {
 			if (parentElement instanceof ConfigurationRegistry) {
 				return VexPlugin.getDefault().getConfigurationRegistry().getDocumentTypes();
@@ -82,6 +83,7 @@ public class ConfigurationView extends ViewPart {
 			return new Object[0];
 		}
 
+		@Override
 		public Object getParent(final Object element) {
 			if (element instanceof DocumentType) {
 				return VexPlugin.getDefault().getConfigurationRegistry();
@@ -92,17 +94,21 @@ public class ConfigurationView extends ViewPart {
 			return null;
 		}
 
+		@Override
 		public boolean hasChildren(final Object element) {
 			return getChildren(element).length > 0;
 		}
 
+		@Override
 		public Object[] getElements(final Object inputElement) {
 			return getChildren(inputElement);
 		}
 
+		@Override
 		public void dispose() {
 		}
 
+		@Override
 		public void inputChanged(final Viewer viewer, final Object oldInput, final Object newInput) {
 		}
 	}
@@ -121,16 +127,20 @@ public class ConfigurationView extends ViewPart {
 	}
 
 	private final IConfigListener configListener = new IConfigListener() {
+		@Override
 		public void configChanged(final ConfigEvent e) {
 			Display.getDefault().asyncExec(new Runnable() {
+				@Override
 				public void run() {
 					treeViewer.refresh();
 				}
 			});
 		}
 
+		@Override
 		public void configLoaded(final ConfigEvent e) {
 			Display.getDefault().asyncExec(new Runnable() {
+				@Override
 				public void run() {
 					loadingLabel.dispose();
 					createTreeViewer();

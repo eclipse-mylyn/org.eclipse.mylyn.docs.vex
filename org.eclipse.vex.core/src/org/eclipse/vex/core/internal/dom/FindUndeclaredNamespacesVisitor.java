@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013 Florian Thienel and others.
+ * Copyright (c) 2014 Florian Thienel and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,7 +7,7 @@
  *
  * Contributors:
  * 		Florian Thienel - initial API and implementation
- * 		Carsten Hiesserich - added processing instruction
+ * 		Carsten Hiesserich - added processing instruction and include
  *******************************************************************************/
 package org.eclipse.vex.core.internal.dom;
 
@@ -20,6 +20,7 @@ import org.eclipse.vex.core.provisional.dom.IComment;
 import org.eclipse.vex.core.provisional.dom.IDocument;
 import org.eclipse.vex.core.provisional.dom.IDocumentFragment;
 import org.eclipse.vex.core.provisional.dom.IElement;
+import org.eclipse.vex.core.provisional.dom.IIncludeNode;
 import org.eclipse.vex.core.provisional.dom.INode;
 import org.eclipse.vex.core.provisional.dom.INodeVisitorWithResult;
 import org.eclipse.vex.core.provisional.dom.IProcessingInstruction;
@@ -28,19 +29,22 @@ import org.eclipse.vex.core.provisional.dom.IText;
 /**
  * This visitor implements a deep search for undeclared namespace URIs. The result is returned as a set of strings
  * containing the undeclared URIs.
- * 
+ *
  * @author Florian Thienel
  */
 public class FindUndeclaredNamespacesVisitor implements INodeVisitorWithResult<Set<String>> {
 
+	@Override
 	public Set<String> visit(final IDocument document) {
 		return visitAll(document.children());
 	}
 
+	@Override
 	public Set<String> visit(final IDocumentFragment fragment) {
 		return visitAll(fragment.children());
 	}
 
+	@Override
 	public Set<String> visit(final IElement element) {
 		final Set<String> result = new HashSet<String>();
 
@@ -61,15 +65,23 @@ public class FindUndeclaredNamespacesVisitor implements INodeVisitorWithResult<S
 		return result;
 	}
 
+	@Override
 	public Set<String> visit(final IText text) {
 		return Collections.emptySet();
 	}
 
+	@Override
 	public Set<String> visit(final IComment comment) {
 		return Collections.emptySet();
 	}
 
+	@Override
 	public Set<String> visit(final IProcessingInstruction pi) {
+		return Collections.emptySet();
+	}
+
+	public Set<String> visit(final IIncludeNode include) {
+		// TODO implement this
 		return Collections.emptySet();
 	}
 

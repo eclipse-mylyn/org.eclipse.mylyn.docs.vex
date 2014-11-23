@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     John Krasnay    - initial API and implementation
  *     Florian Thienel - namespace support (bug 253753)
@@ -50,10 +50,12 @@ public class ElementPropertySource implements IPropertySource2 {
 		this.multipleElementsSelected = multipleElementsSelected;
 	}
 
+	@Override
 	public Object getEditableValue() {
 		return null;
 	}
 
+	@Override
 	public IPropertyDescriptor[] getPropertyDescriptors() {
 		final List<IPropertyDescriptor> result = new ArrayList<IPropertyDescriptor>();
 
@@ -117,6 +119,7 @@ public class ElementPropertySource implements IPropertySource2 {
 		return propertyDescriptor;
 	}
 
+	@Override
 	public Object getPropertyValue(final Object id) {
 		if (id == ELEMENT_NAME_PROPERTY) {
 			return element.getLocalName();
@@ -169,6 +172,7 @@ public class ElementPropertySource implements IPropertySource2 {
 		return string;
 	}
 
+	@Override
 	public boolean isPropertySet(final Object id) {
 		if (id == ELEMENT_NAME_PROPERTY) {
 			return true;
@@ -196,6 +200,7 @@ public class ElementPropertySource implements IPropertySource2 {
 		return false;
 	}
 
+	@Override
 	public void resetPropertyValue(final Object id) {
 		if (!(id instanceof AttributeDefinition)) {
 			return;
@@ -204,6 +209,7 @@ public class ElementPropertySource implements IPropertySource2 {
 		element.removeAttribute(attributeDefinition.getName());
 	}
 
+	@Override
 	public void setPropertyValue(final Object id, final Object value) {
 		if (!(id instanceof AttributeDefinition)) {
 			return;
@@ -247,6 +253,7 @@ public class ElementPropertySource implements IPropertySource2 {
 		}
 	}
 
+	@Override
 	public boolean isPropertyResettable(final Object id) {
 		if (!(id instanceof AttributeDefinition)) {
 			return false;

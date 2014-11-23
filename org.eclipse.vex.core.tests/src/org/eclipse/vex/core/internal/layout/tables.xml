@@ -305,7 +305,7 @@
 	</test>
 
 
-<!-- 
+<!--
 	<test id="Anonymous Table and Row - Empty" layoutWidth="100">
 		<doc><![CDATA[ <root><td></td></root> ]]></doc>
 		<result>
@@ -588,7 +588,7 @@
 														</box>
 														<box class="TableRowGroupBox" element="tbody">
 															<box class="TableRowBox">
-						
+
 															</box>
 														</box>
 													</box>

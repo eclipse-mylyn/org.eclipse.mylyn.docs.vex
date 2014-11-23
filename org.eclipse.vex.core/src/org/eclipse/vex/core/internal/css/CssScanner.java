@@ -26,7 +26,7 @@ public class CssScanner extends Scanner {
 
 	/**
 	 * Creates a new Scanner object.
-	 * 
+	 *
 	 * @param r
 	 *            The reader to scan.
 	 */
@@ -36,7 +36,7 @@ public class CssScanner extends Scanner {
 
 	/**
 	 * Creates a new Scanner object.
-	 * 
+	 *
 	 * @param is
 	 *            The input stream to scan.
 	 * @param enc
@@ -48,7 +48,7 @@ public class CssScanner extends Scanner {
 
 	/**
 	 * Creates a new Scanner object.
-	 * 
+	 *
 	 * @param s
 	 *            The string to scan.
 	 */
@@ -58,7 +58,7 @@ public class CssScanner extends Scanner {
 
 	/**
 	 * Returns the last scanned character.
-	 * 
+	 *
 	 * @return
 	 */
 	public int getCurrent() {
@@ -67,7 +67,7 @@ public class CssScanner extends Scanner {
 
 	/**
 	 * Joins two subsequent identifiers which are seperated by single char.
-	 * 
+	 *
 	 * @throws ParseException
 	 */
 	public void joinIdentifier() throws ParseException {

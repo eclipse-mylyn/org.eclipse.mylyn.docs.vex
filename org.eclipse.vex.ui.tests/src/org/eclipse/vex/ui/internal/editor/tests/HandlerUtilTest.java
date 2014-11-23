@@ -30,7 +30,6 @@ import org.eclipse.vex.ui.internal.handlers.VexHandlerUtil;
 import org.junit.Before;
 import org.junit.Test;
 
-@SuppressWarnings("restriction")
 public class HandlerUtilTest {
 
 	private IVexWidget widget;
@@ -48,22 +47,22 @@ public class HandlerUtilTest {
 
 	@Test
 	public void testGetCurrentTableRow() throws Exception {
-		widget.moveTo(table.getStartOffset() + 1);
+		widget.moveTo(table.getStartPosition().moveBy(1));
 		widget.insertFragment(new XMLFragment("<tr><td>content</td><td>td2</td></tr>").getDocumentFragment());
 
 		final IElement currentRow = table.childElements().first();
 		assertEquals("tr", currentRow.getLocalName());
-		widget.moveTo(currentRow.children().first().getStartOffset() + 1);
+		widget.moveTo(currentRow.children().first().getStartPosition().moveBy(1));
 		assertEquals(currentRow, VexHandlerUtil.getCurrentTableRow(widget));
 	}
 
 	@Test
 	public void testAddRowAbove() {
-		widget.moveTo(table.getStartOffset() + 1);
+		widget.moveTo(table.getStartPosition().moveBy(1));
 		widget.insertFragment(new XMLFragment("<tr><td>content</td><td>td2</td></tr>").getDocumentFragment());
 
 		final IElement currentRow = table.childElements().first();
-		widget.moveTo(currentRow.children().first().getStartOffset() + 1);
+		widget.moveTo(currentRow.children().first().getStartPosition().moveBy(1));
 		VexHandlerUtil.duplicateTableRow(widget, currentRow, true);
 		final List<? extends IElement> rows = table.childElements().asList();
 		assertEquals("Expecting two rows", 2, rows.size());
@@ -73,11 +72,11 @@ public class HandlerUtilTest {
 
 	@Test
 	public void testAddRowBelow() {
-		widget.moveTo(table.getStartOffset() + 1);
+		widget.moveTo(table.getStartPosition().moveBy(1));
 		widget.insertFragment(new XMLFragment("<tr><td>content</td><td>td2</td></tr>").getDocumentFragment());
 
 		final IElement currentRow = table.childElements().first();
-		widget.moveTo(currentRow.children().first().getStartOffset() + 1);
+		widget.moveTo(currentRow.children().first().getStartPosition().moveBy(1));
 		VexHandlerUtil.duplicateTableRow(widget, currentRow, false);
 		final List<? extends IElement> rows = table.childElements().asList();
 		assertEquals("Expecting two rows", 2, rows.size());
@@ -87,11 +86,11 @@ public class HandlerUtilTest {
 
 	@Test
 	public void testDuplicateComments() {
-		widget.moveTo(table.getStartOffset() + 1);
+		widget.moveTo(table.getStartPosition().moveBy(1));
 		widget.insertFragment(new XMLFragment("<tr><td>content</td><td>td2</td><!--comment--></tr>").getDocumentFragment());
 
 		final IElement currentRow = table.childElements().first();
-		widget.moveTo(currentRow.children().first().getStartOffset() + 1);
+		widget.moveTo(currentRow.children().first().getStartPosition().moveBy(1));
 		VexHandlerUtil.duplicateTableRow(widget, currentRow, false);
 		final List<? extends IElement> rows = table.childElements().asList();
 		assertEquals("comment", rows.get(1).children().last().getText());
@@ -99,11 +98,11 @@ public class HandlerUtilTest {
 
 	@Test
 	public void testDuplicateProcessingInstructions() {
-		widget.moveTo(table.getStartOffset() + 1);
+		widget.moveTo(table.getStartPosition().moveBy(1));
 		widget.insertFragment(new XMLFragment("<tr><?target data?><td>content</td><td>td2</td></tr>").getDocumentFragment());
 
 		final IElement currentRow = table.childElements().first();
-		widget.moveTo(currentRow.children().first().getStartOffset() + 1);
+		widget.moveTo(currentRow.children().first().getStartPosition().moveBy(1));
 		VexHandlerUtil.duplicateTableRow(widget, currentRow, false);
 		final List<? extends IElement> rows = table.childElements().asList();
 		assertTrue("Expecting a processing instruction", rows.get(1).children().withoutText().first() instanceof IProcessingInstruction);

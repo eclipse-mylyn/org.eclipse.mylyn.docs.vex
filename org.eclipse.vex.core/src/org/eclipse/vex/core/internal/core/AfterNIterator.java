@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  * 		Florian Thienel - initial API and implementation
  *******************************************************************************/
@@ -14,7 +14,7 @@ import java.util.Iterator;
 
 /**
  * This iterator provides a subsequence of a given source iterator which start at the nth element.
- * 
+ *
  * @author Florian Thienel
  */
 public class AfterNIterator<T> implements Iterator<T> {
@@ -39,14 +39,17 @@ public class AfterNIterator<T> implements Iterator<T> {
 		}
 	}
 
+	@Override
 	public boolean hasNext() {
 		return source.hasNext();
 	}
 
+	@Override
 	public T next() {
 		return source.next();
 	}
 
+	@Override
 	public void remove() {
 		source.remove();
 	}

@@ -14,12 +14,12 @@ import java.util.List;
 
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.vex.core.internal.widget.swt.VexWidget;
-import org.eclipse.vex.core.provisional.dom.ContentRange;
+import org.eclipse.vex.core.provisional.dom.ContentPositionRange;
 
 /**
  * Deletes a given list of table cells (see
  * {@link #collectCellsToDelete(VexWidget, org.eclipse.vex.ui.internal.handlers.VexHandlerUtil.RowColumnInfo)} ).
- * 
+ *
  * @see RemoveColumnHandler
  * @see RemoveRowHandler
  */
@@ -28,6 +28,7 @@ public abstract class AbstractRemoveTableCellsHandler extends AbstractVexWidgetH
 	@Override
 	public void execute(final VexWidget widget) throws ExecutionException {
 		widget.doWork(new Runnable() {
+			@Override
 			public void run() {
 
 				final VexHandlerUtil.RowColumnInfo rcInfo = VexHandlerUtil.getRowColumnInfo(widget);
@@ -56,11 +57,10 @@ public abstract class AbstractRemoveTableCellsHandler extends AbstractVexWidgetH
 		// that are in anonymous cells, which are not stored as Positions.
 		for (int i = cellsToDelete.size() - 1; i >= 0; i--) {
 			final Object cell = cellsToDelete.get(i);
-			final ContentRange range = VexHandlerUtil.getOuterRange(cell);
-			widget.moveTo(range.getStartOffset());
-			widget.moveTo(range.getEndOffset(), true);
+			final ContentPositionRange range = VexHandlerUtil.getOuterRange(cell);
+			widget.moveTo(range.getStartPosition());
+			widget.moveTo(range.getEndPosition(), true);
 			widget.deleteSelection();
 		}
 	}
-
 }

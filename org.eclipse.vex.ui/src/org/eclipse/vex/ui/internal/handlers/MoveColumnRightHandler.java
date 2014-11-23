@@ -14,7 +14,7 @@ import org.eclipse.vex.ui.internal.handlers.VexHandlerUtil.RowColumnInfo;
 
 /**
  * Moves the current table column to the right.
- * 
+ *
  * @see AbstractMoveColumnHandler
  * @see MoveColumnLeftHandler
  */

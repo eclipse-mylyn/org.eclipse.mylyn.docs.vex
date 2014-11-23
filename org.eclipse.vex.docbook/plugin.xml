@@ -2,11 +2,6 @@
 <?eclipse version="3.2"?>
 <plugin>
 
-	<extension point="org.eclipse.core.contenttype.contentTypes">
-		<content-type id="org.eclipse.vex.ui.docbook" name="%contentType.name"
-			base-type="org.eclipse.vex.ui.XmlDocument" file-extensions="xml, docbook">
-		</content-type>
-	</extension>
  <extension
        point="org.eclipse.wst.xml.core.catalogContributions">
     <catalogContribution

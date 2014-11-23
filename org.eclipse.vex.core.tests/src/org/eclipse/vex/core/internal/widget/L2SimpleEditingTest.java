@@ -63,20 +63,20 @@ public class L2SimpleEditingTest {
 	@Test
 	public void shouldStartInRootElement() throws Exception {
 		assertSame(rootElement, widget.getCurrentElement());
-		assertEquals(rootElement.getEndOffset(), widget.getCaretOffset());
+		assertEquals(rootElement.getEndPosition(), widget.getCaretPosition());
 	}
 
 	@Test
 	public void shouldMoveCaretIntoInsertedElement() throws Exception {
 		final IElement titleElement = widget.insertElement(TITLE);
-		assertEquals(titleElement.getEndOffset(), widget.getCaretOffset());
+		assertEquals(titleElement.getEndPosition(), widget.getCaretPosition());
 	}
 
 	@Test
 	public void shouldProvideInsertionElementAsCurrentElement() throws Exception {
 		final IElement titleElement = widget.insertElement(TITLE);
 		widget.moveBy(-1);
-		assertEquals(titleElement.getStartOffset(), widget.getCaretOffset());
+		assertEquals(titleElement.getStartPosition(), widget.getCaretPosition());
 		assertSame(rootElement, widget.getCurrentElement());
 	}
 
@@ -86,7 +86,7 @@ public class L2SimpleEditingTest {
 		widget.insertText("Hello");
 		widget.deletePreviousChar();
 		assertEquals("Hell", titleElement.getText());
-		assertEquals(titleElement.getEndOffset(), widget.getCaretOffset());
+		assertEquals(titleElement.getEndPosition(), widget.getCaretPosition());
 	}
 
 	@Test
@@ -96,7 +96,7 @@ public class L2SimpleEditingTest {
 		widget.moveBy(-5);
 		widget.deleteNextChar();
 		assertEquals("ello", titleElement.getText());
-		assertEquals(titleElement.getStartOffset() + 1, widget.getCaretOffset());
+		assertEquals(titleElement.getStartPosition().moveBy(1), widget.getCaretPosition());
 	}
 
 	@Test
@@ -155,7 +155,7 @@ public class L2SimpleEditingTest {
 		final IElement para2 = widget.insertElement(PARA);
 		widget.insertText("World");
 
-		widget.moveTo(para2.getStartOffset());
+		widget.moveTo(para2.getStartPosition());
 		widget.deletePreviousChar();
 
 		assertEquals(2, rootElement.children().count());
@@ -176,7 +176,7 @@ public class L2SimpleEditingTest {
 		final IElement para2 = widget.insertElement(PARA);
 		widget.insertText("World");
 
-		widget.moveTo(para2.getStartOffset());
+		widget.moveTo(para2.getStartPosition());
 		widget.deleteNextChar();
 
 		assertEquals(2, rootElement.children().count());
@@ -197,7 +197,7 @@ public class L2SimpleEditingTest {
 		final IElement para2 = widget.insertElement(PARA);
 		widget.insertText("World");
 
-		widget.moveTo(para2.getStartOffset() + 1);
+		widget.moveTo(para2.getStartPosition().moveBy(1));
 		widget.deletePreviousChar();
 
 		assertEquals(2, rootElement.children().count());
@@ -218,7 +218,7 @@ public class L2SimpleEditingTest {
 		final IElement para2 = widget.insertElement(PARA);
 		widget.insertText("World");
 
-		widget.moveTo(para1.getEndOffset());
+		widget.moveTo(para1.getEndPosition());
 		widget.deleteNextChar();
 
 		assertEquals(2, rootElement.children().count());
@@ -276,7 +276,7 @@ public class L2SimpleEditingTest {
 		widget.moveBy(1);
 		final IElement para = widget.insertElement(PARA);
 		final IDocumentFragment fragment = widget.getDocument().getFragment(para.getRange());
-		widget.moveTo(rootElement.getEndOffset());
+		widget.moveTo(rootElement.getEndPosition());
 
 		widget.setReadOnly(true);
 		assertFalse(widget.canInsertFragment(fragment));
@@ -289,7 +289,7 @@ public class L2SimpleEditingTest {
 		widget.moveBy(1);
 		final IElement para1 = widget.insertElement(PARA);
 		widget.insertText("Hello");
-		widget.moveTo(para1.getEndOffset());
+		widget.moveTo(para1.getEndPosition());
 		widget.insertText("\n");
 		assertEquals("Hello", para1.getText());
 		assertEquals(3, rootElement.children().count());
@@ -299,7 +299,7 @@ public class L2SimpleEditingTest {
 	public void givenPreElement_whenInsertingNewline_shouldInsertNewline() throws Exception {
 		final IElement para = widget.insertElement(PARA);
 		final IElement preElement = widget.insertElement(PRE);
-		assertEquals(preElement.getEndOffset(), widget.getCaretOffset());
+		assertEquals(preElement.getEndPosition(), widget.getCaretPosition());
 		widget.insertText("line1");
 		widget.insertText("\n");
 		assertEquals(1, para.children().count());
@@ -311,13 +311,13 @@ public class L2SimpleEditingTest {
 		final IElement para1 = widget.insertElement(PARA);
 		widget.moveBy(1);
 		final IElement para2 = widget.insertElement(PARA);
-		widget.moveTo(para1.getEndOffset());
+		widget.moveTo(para1.getEndPosition());
 		widget.insertText("Para1");
-		widget.moveTo(para2.getEndOffset());
+		widget.moveTo(para2.getEndPosition());
 		widget.insertText("Para2");
 
 		// Insert position is invalid
-		widget.moveTo(para1.getEndOffset() + 1);
+		widget.moveTo(para1.getEndPosition().moveBy(1));
 		try {
 			widget.insertText("Test");
 		} catch (final Exception ex) {
@@ -332,13 +332,13 @@ public class L2SimpleEditingTest {
 		final IElement para1 = widget.insertElement(PARA);
 		widget.moveBy(1);
 		final IElement para2 = widget.insertElement(PARA);
-		widget.moveTo(para1.getEndOffset());
+		widget.moveTo(para1.getEndPosition());
 		widget.insertText("Para1");
-		widget.moveTo(para2.getEndOffset());
+		widget.moveTo(para2.getEndPosition());
 		widget.insertText("Para2");
 
 		// Insert position is invalid
-		widget.moveTo(para1.getEndOffset());
+		widget.moveTo(para1.getEndPosition());
 		try {
 			widget.insertElement(PARA);
 		} catch (final Exception ex) {
@@ -352,7 +352,7 @@ public class L2SimpleEditingTest {
 	public void givenPreElement_whenInsertingTextWithNewline_shouldInsertNewline() throws Exception {
 		widget.insertElement(PARA);
 		final IElement preElement = widget.insertElement(PRE);
-		assertEquals(preElement.getEndOffset(), widget.getCaretOffset());
+		assertEquals(preElement.getEndPosition(), widget.getCaretPosition());
 		widget.insertText("line1\nline2");
 		assertEquals("line1\nline2", preElement.getText());
 	}
@@ -362,7 +362,7 @@ public class L2SimpleEditingTest {
 		widget.insertElement(PARA);
 		final IElement preElement = widget.insertElement(PRE);
 
-		widget.moveTo(preElement.getEndOffset());
+		widget.moveTo(preElement.getEndPosition());
 		widget.insertText("line1\nline2   end");
 
 		final List<? extends INode> children = preElement.children().asList();
@@ -373,10 +373,10 @@ public class L2SimpleEditingTest {
 	@Test
 	public void givenNonPreElement_whenInsertingText_shouldCompressWhitespace() throws Exception {
 		final IElement para = widget.insertElement(PARA);
-		widget.moveTo(para.getEndOffset());
+		widget.moveTo(para.getEndPosition());
 		widget.insertText("line1\nline2   \t end");
 
-		final List<? extends INode> children = rootElement.children().after(para.getStartOffset()).asList();
+		final List<? extends INode> children = rootElement.children().after(para.getStartPosition().getOffset()).asList();
 		assertEquals("two para elements", 2, children.size());
 		assertTrue("original para element", children.get(0) instanceof IParent);
 		assertTrue("splitted para element", children.get(1) instanceof IParent);
@@ -387,10 +387,10 @@ public class L2SimpleEditingTest {
 	@Test
 	public void givenNonPreElement_whenInsertingText_shouldCompressNewlines() throws Exception {
 		final IElement para = widget.insertElement(PARA);
-		widget.moveTo(para.getEndOffset());
+		widget.moveTo(para.getEndPosition());
 		widget.insertText("line1\n\nline2");
 
-		final List<? extends INode> children = rootElement.children().after(para.getStartOffset()).asList();
+		final List<? extends INode> children = rootElement.children().after(para.getStartPosition().getOffset()).asList();
 		assertEquals("two para elements", 2, children.size());
 		assertTrue("original para element", children.get(0) instanceof IParent);
 		assertTrue("splitted para element", children.get(1) instanceof IParent);
@@ -401,13 +401,13 @@ public class L2SimpleEditingTest {
 	@Test
 	public void givenNonPreElement_whenSplitting_shouldSplitIntoTwoElements() throws Exception {
 		final IElement para = widget.insertElement(PARA);
-		widget.moveTo(para.getEndOffset());
+		widget.moveTo(para.getEndPosition());
 		widget.insertText("line1line2");
 		widget.moveBy(-5);
 
 		widget.split();
 
-		final List<? extends INode> children = rootElement.children().after(para.getStartOffset()).asList();
+		final List<? extends INode> children = rootElement.children().after(para.getStartPosition().getOffset()).asList();
 		assertEquals("two para elements", 2, children.size());
 		assertTrue("original para element", children.get(0) instanceof IParent);
 		assertTrue("splitted para element", children.get(1) instanceof IParent);
@@ -421,13 +421,13 @@ public class L2SimpleEditingTest {
 	public void givenPreElement_whenSplitting_shouldSplitIntoTwoElements() throws Exception {
 		final IElement para = widget.insertElement(PARA);
 		final IElement preElement = widget.insertElement(PRE);
-		widget.moveTo(preElement.getEndOffset());
+		widget.moveTo(preElement.getEndPosition());
 		widget.insertText("line1line2");
 		widget.moveBy(-5);
 
 		widget.split();
 
-		final List<? extends INode> children = para.children().after(preElement.getStartOffset()).asList();
+		final List<? extends INode> children = para.children().after(preElement.getStartPosition().getOffset()).asList();
 		assertEquals("two para elements", 2, children.size());
 		assertTrue("original pre element", children.get(0) instanceof IParent);
 		assertTrue("splitted pre element", children.get(1) instanceof IParent);
@@ -472,7 +472,7 @@ public class L2SimpleEditingTest {
 	public void givenElementWithMultipleOccurrence_whenCaretRightAfterStartIndex_shouldSplit() throws Exception {
 		final IElement para = widget.insertElement(PARA);
 		widget.insertText("12345");
-		widget.moveTo(para.getStartOffset() + 1);
+		widget.moveTo(para.getStartPosition().moveBy(1));
 		widget.split();
 
 		final List<? extends INode> children = rootElement.children().asList();
@@ -555,13 +555,13 @@ public class L2SimpleEditingTest {
 
 	@Test
 	public void givenBeforeRootElement_cannotSplitElement() throws Exception {
-		widget.moveTo(rootElement.getStartOffset());
+		widget.moveTo(rootElement.getStartPosition());
 		assertFalse(widget.canSplit());
 	}
 
 	@Test(expected = DocumentValidationException.class)
 	public void givenBeforeRootElement_whenSplitting_shouldThrowDocumentValidationException() throws Exception {
-		widget.moveTo(rootElement.getStartOffset());
+		widget.moveTo(rootElement.getStartPosition());
 		widget.split();
 	}
 
@@ -802,8 +802,8 @@ public class L2SimpleEditingTest {
 		widget.insertText("3");
 		widget.moveBy(1);
 
-		widget.moveTo(firstPara.getStartOffset());
-		widget.moveTo(lastPara.getEndOffset(), true);
+		widget.moveTo(firstPara.getStartPosition());
+		widget.moveTo(lastPara.getEndPosition(), true);
 
 		assertTrue(widget.canJoin());
 	}
@@ -820,8 +820,8 @@ public class L2SimpleEditingTest {
 		widget.insertText("3");
 		widget.moveBy(1);
 
-		widget.moveTo(firstPara.getStartOffset());
-		widget.moveTo(lastPara.getEndOffset(), true);
+		widget.moveTo(firstPara.getStartPosition());
+		widget.moveTo(lastPara.getEndPosition(), true);
 
 		widget.join();
 
@@ -841,8 +841,8 @@ public class L2SimpleEditingTest {
 		firstPara.setAttribute("id", "para1");
 		lastPara.setAttribute("id", "para3");
 
-		widget.moveTo(firstPara.getStartOffset());
-		widget.moveTo(lastPara.getEndOffset(), true);
+		widget.moveTo(firstPara.getStartPosition());
+		widget.moveTo(lastPara.getEndPosition(), true);
 
 		widget.join();
 
@@ -862,8 +862,8 @@ public class L2SimpleEditingTest {
 		firstPara.setAttribute("id", "para1");
 		lastPara.setAttribute("id", "para3");
 
-		widget.moveTo(firstPara.getStartOffset());
-		widget.moveTo(lastPara.getEndOffset(), true);
+		widget.moveTo(firstPara.getStartPosition());
+		widget.moveTo(lastPara.getEndPosition(), true);
 
 		widget.join();
 		widget.undo();
@@ -885,8 +885,8 @@ public class L2SimpleEditingTest {
 		final IElement lastSection = widget.insertElement(SECTION);
 		widget.insertElement(TITLE);
 
-		widget.moveTo(firstSection.getStartOffset());
-		widget.moveTo(lastSection.getEndOffset(), true);
+		widget.moveTo(firstSection.getStartPosition());
+		widget.moveTo(lastSection.getEndPosition(), true);
 
 		assertFalse(widget.canJoin());
 	}
@@ -905,8 +905,8 @@ public class L2SimpleEditingTest {
 		final IElement lastSection = widget.insertElement(SECTION);
 		widget.insertElement(TITLE);
 
-		widget.moveTo(firstSection.getStartOffset());
-		widget.moveTo(lastSection.getEndOffset(), true);
+		widget.moveTo(firstSection.getStartPosition());
+		widget.moveTo(lastSection.getEndPosition(), true);
 
 		widget.join();
 	}
@@ -923,8 +923,8 @@ public class L2SimpleEditingTest {
 		widget.insertText("3");
 		widget.moveBy(1);
 
-		widget.moveTo(title.getStartOffset());
-		widget.moveTo(lastPara.getEndOffset(), true);
+		widget.moveTo(title.getStartPosition());
+		widget.moveTo(lastPara.getEndPosition(), true);
 
 		assertFalse(widget.canJoin());
 	}
@@ -941,8 +941,8 @@ public class L2SimpleEditingTest {
 		widget.insertText("3");
 		widget.moveBy(1);
 
-		widget.moveTo(title.getStartOffset());
-		widget.moveTo(lastPara.getEndOffset(), true);
+		widget.moveTo(title.getStartPosition());
+		widget.moveTo(lastPara.getEndPosition(), true);
 
 		widget.join();
 	}
@@ -965,7 +965,7 @@ public class L2SimpleEditingTest {
 	public void givenOnlyTextSelected_cannotJoin() throws Exception {
 		final IElement title = widget.insertElement(TITLE);
 		widget.insertText("title text");
-		widget.moveTo(title.getStartOffset() + 1, true);
+		widget.moveTo(title.getStartPosition().moveBy(1), true);
 
 		assertFalse(widget.canJoin());
 	}
@@ -985,7 +985,7 @@ public class L2SimpleEditingTest {
 	@Test
 	public void givenOnlySingleElementSelected_cannotJoin() throws Exception {
 		final IElement title = widget.insertElement(TITLE);
-		widget.moveTo(title.getStartOffset(), true);
+		widget.moveTo(title.getStartPosition(), true);
 
 		assertFalse(widget.canJoin());
 	}
@@ -993,7 +993,7 @@ public class L2SimpleEditingTest {
 	@Test
 	public void givenOnlySingleElementSelected_whenRequestedToJoin_shouldIgnoreGracefully() throws Exception {
 		final IElement title = widget.insertElement(TITLE);
-		widget.moveTo(title.getStartOffset(), true);
+		widget.moveTo(title.getStartPosition(), true);
 		final String expectedXml = getCurrentXML(widget);
 
 		widget.join();
@@ -1012,8 +1012,8 @@ public class L2SimpleEditingTest {
 		final IComment lastComment = widget.insertComment();
 		widget.insertText("comment3");
 
-		widget.moveTo(firstComment.getStartOffset());
-		widget.moveTo(lastComment.getEndOffset(), true);
+		widget.moveTo(firstComment.getStartPosition());
+		widget.moveTo(lastComment.getEndPosition(), true);
 
 		assertTrue(widget.canJoin());
 	}
@@ -1029,8 +1029,8 @@ public class L2SimpleEditingTest {
 		final IComment lastComment = widget.insertComment();
 		widget.insertText("comment3");
 
-		widget.moveTo(firstComment.getStartOffset());
-		widget.moveTo(lastComment.getEndOffset(), true);
+		widget.moveTo(firstComment.getStartPosition());
+		widget.moveTo(lastComment.getEndPosition(), true);
 
 		widget.join();
 
@@ -1046,8 +1046,8 @@ public class L2SimpleEditingTest {
 		final IElement lastElement = widget.insertElement(PRE);
 		widget.insertText("2 ");
 
-		widget.moveTo(firstElement.getStartOffset());
-		widget.moveTo(lastElement.getEndOffset(), true);
+		widget.moveTo(firstElement.getStartPosition());
+		widget.moveTo(lastElement.getEndPosition(), true);
 
 		widget.join();
 
@@ -1064,8 +1064,8 @@ public class L2SimpleEditingTest {
 		final IElement lastElement = widget.insertElement(PRE);
 		widget.insertText("2 ");
 
-		widget.moveTo(firstElement.getStartOffset());
-		widget.moveTo(lastElement.getEndOffset(), true);
+		widget.moveTo(firstElement.getStartPosition());
+		widget.moveTo(lastElement.getEndPosition(), true);
 
 		assertFalse(widget.canJoin());
 	}
@@ -1080,8 +1080,8 @@ public class L2SimpleEditingTest {
 		final IElement lastElement = widget.insertElement(PRE);
 		widget.insertText("2 ");
 
-		widget.moveTo(firstElement.getStartOffset());
-		widget.moveTo(lastElement.getEndOffset(), true);
+		widget.moveTo(firstElement.getStartPosition());
+		widget.moveTo(lastElement.getEndPosition(), true);
 
 		widget.join();
 	}
@@ -1090,14 +1090,27 @@ public class L2SimpleEditingTest {
 	public void givenDeletedText_whenDeleteUndone_shouldSetCaretToEndOfRecoveredText() throws Exception {
 		final IElement title = widget.insertElement(TITLE);
 		widget.insertText("Hello World");
-		widget.moveTo(title.getStartOffset() + 1);
+		widget.moveTo(title.getStartPosition().moveBy(1));
 		widget.moveBy(5, true);
-		final int expectedCaretOffset = widget.getSelectedRange().getEndOffset() + 1;
+		final int expectedCaretPosition = widget.getSelectedRange().getEndOffset() + 1;
 
 		widget.deleteSelection();
 		widget.undo();
 
-		assertEquals(expectedCaretOffset, widget.getCaretOffset());
+		assertEquals(expectedCaretPosition, widget.getCaretPosition().getOffset());
+	}
+
+	@Test
+	public void afterDeletingSelection_CaretPositionShouldBeValid() throws Exception {
+		final IElement para = widget.insertElement(PARA);
+		widget.moveTo(para.getEndPosition());
+		final IElement pre = widget.insertElement(PRE);
+		widget.insertText("Hello World");
+		widget.moveTo(pre.getStartPosition());
+		widget.moveTo(pre.getEndPosition().moveBy(-1), true);
+
+		widget.deleteSelection();
+		assertEquals(para.getEndPosition(), widget.getCaretPosition());
 	}
 
 	private static StyleSheet readTestStyleSheet() throws IOException {
