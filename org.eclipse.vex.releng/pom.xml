@@ -4,24 +4,55 @@
 	xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.eclipse.vex</groupId>
-	<artifactId>org.eclipse.vex-releng</artifactId>
+	<artifactId>root</artifactId>
 	<version>1.1.0-SNAPSHOT</version>
 	<packaging>pom</packaging>
+	<name>Vex Root POM</name>
 
 	<properties>
 		<tycho-version>0.20.0</tycho-version>
-		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<tycho-extras-version>0.16.0</tycho-extras-version>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<java-version>1.6</java-version>
 	</properties>
 
 	<profiles>
 		<profile>
+			<id>build-server</id>
+			<build>
+				<pluginManagement>
+					<plugins>
+						<plugin>
+							<groupId>org.eclipse.tycho</groupId>
+							<artifactId>tycho-packaging-plugin</artifactId>
+							<version>${tycho-version}</version>
+							<configuration>
+								<jgit.dirtyWorkingTree>error</jgit.dirtyWorkingTree>
+							</configuration>
+						</plugin>
+						<plugin>
+							<groupId>org.eclipse.tycho.extras</groupId>
+							<artifactId>tycho-pack200a-plugin</artifactId>
+							<version>${tycho-version}</version>
+						</plugin>
+						<plugin>
+							<groupId>org.eclipse.tycho.extras</groupId>
+							<artifactId>tycho-pack200b-plugin</artifactId>
+							<version>${tycho-version}</version>
+						</plugin>
+						<plugin>
+							<groupId>org.eclipse.cbi.maven.plugins</groupId>
+							<artifactId>eclipse-jarsigner-plugin</artifactId>
+							<version>1.0.5</version>
+						</plugin>
+					</plugins>
+				</pluginManagement>
+			</build>
+		</profile>
+		<profile>
 			<id>ci-build</id>
 			<activation>
-				<property>
-					<name>build-type</name>
-					<value>ci</value>
-				</property>
+				<activeByDefault>true</activeByDefault>
 			</activation>
 			<properties>
 				<qualifier-format>'z'yyyyMMddHHmm</qualifier-format>
@@ -29,24 +60,12 @@
 		</profile>
 		<profile>
 			<id>milestone-build</id>
-			<activation>
-				<property>
-					<name>build-type</name>
-					<value>milestone</value>
-				</property>
-			</activation>
 			<properties>
 				<qualifier-format>'${milestone}_'yyyyMMddHHmm</qualifier-format>
 			</properties>
 		</profile>
 		<profile>
 			<id>release-build</id>
-			<activation>
-				<property>
-					<name>build-type</name>
-					<value>release</value>
-				</property>
-			</activation>
 			<properties>
 				<qualifier-format>yyyyMMddHHmm</qualifier-format>
 			</properties>
@@ -66,13 +85,115 @@
 		</repository>
 	</repositories>
 
+	<pluginRepositories>
+		<pluginRepository>
+			<id>eclipse-maven-releases</id>
+			<url>https://repo.eclipse.org/content/repositories/releases/</url>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+		</pluginRepository>
+	</pluginRepositories>
+
 	<build>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.eclipse.m2e</groupId>
+					<artifactId>lifecycle-mapping</artifactId>
+					<version>1.0.0</version>
+					<configuration>
+						<lifecycleMappingMetadata>
+							<pluginExecutions>
+								<pluginExecution>
+									<pluginExecutionFilter>
+										<groupId>
+											org.eclipse.tycho
+										</groupId>
+										<artifactId>
+											tycho-packaging-plugin
+										</artifactId>
+										<versionRange>
+											[0.20.0,)
+										</versionRange>
+										<goals>
+											<goal>build-qualifier-aggregator</goal>
+											<goal>build-qualifier</goal>
+											<goal>validate-version</goal>
+											<goal>validate-id</goal>
+										</goals>
+									</pluginExecutionFilter>
+									<action>
+										<ignore></ignore>
+									</action>
+								</pluginExecution>
+								<pluginExecution>
+									<pluginExecutionFilter>
+										<groupId>
+											org.eclipse.tycho
+										</groupId>
+										<artifactId>
+											tycho-compiler-plugin
+										</artifactId>
+										<versionRange>
+											[0.20.0,)
+										</versionRange>
+										<goals>
+											<goal>compile</goal>
+										</goals>
+									</pluginExecutionFilter>
+									<action>
+										<ignore></ignore>
+									</action>
+								</pluginExecution>
+							</pluginExecutions>
+						</lifecycleMappingMetadata>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+
 		<plugins>
 			<plugin>
 				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>tycho-maven-plugin</artifactId>
 				<version>${tycho-version}</version>
 				<extensions>true</extensions>
+			</plugin>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-compiler-plugin</artifactId>
+				<version>${tycho-version}</version>
+				<configuration>
+					<source>${java-version}</source>
+					<target>${java-version}</target>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>target-platform-configuration</artifactId>
+				<version>${tycho-version}</version>
+				<configuration>
+					<executionEnvironmentDefault>JavaSE-${java-version}</executionEnvironmentDefault>
+					<includePackedArtifacts>true</includePackedArtifacts>
+					<environments>
+						<environment>
+							<os>win32</os>
+							<ws>win32</ws>
+							<arch>x86</arch>
+						</environment>
+						<environment>
+							<os>linux</os>
+							<ws>gtk</ws>
+							<arch>x86_64</arch>
+						</environment>
+						<environment>
+							<os>macosx</os>
+							<ws>cocoa</ws>
+							<arch>x86_64</arch>
+						</environment>
+					</environments>
+				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>org.eclipse.tycho</groupId>
@@ -114,14 +235,6 @@
 				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>tycho-source-plugin</artifactId>
 				<version>${tycho-version}</version>
-				<executions>
-					<execution>
-						<id>plugin-source</id>
-						<goals>
-							<goal>plugin-source</goal>
-						</goals>
-					</execution>
-				</executions>
 			</plugin>
 		</plugins>
 	</build>
@@ -142,6 +255,17 @@
 		<module>../org.eclipse.vex.ui.tests</module>
 	</modules>
 
+	<organization>
+		<name>Eclipse Foundation</name>
+		<url>http://www.eclipse.org/</url>
+	</organization>
+	<licenses>
+		<license>
+			<name>Eclipse Public License</name>
+			<url>http://www.eclipse.org/legal/epl-v10.html</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
 	<mailingLists>
 		<mailingList>
 			<name>Vex Mailing List</name>
@@ -155,7 +279,10 @@
 		<url>https://bugs.eclipse.org/bugs/buglist.cgi?query_format=advanced;classification=Mylyn;product=Mylyn%20Docs%20Vex</url>
 		<system>Bugzilla</system>
 	</issueManagement>
+	<ciManagement>
+		<system>Hudson</system>
+		<url>https://hudson.eclipse.org/vex</url>
+	</ciManagement>
 
-	<name>Vex Releng</name>
 </project>
 

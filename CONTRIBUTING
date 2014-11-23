@@ -1,21 +1,23 @@
-Contributing to Mylyn
-=====================
+Contributing to Vex
+===================
 
 Thanks for your interest in this project.
 
 Project description:
 --------------------
 
-Mylyn is a Task-Focused Interface for Eclipse that reduces information overload and makes multi-tasking easy.
+The Visual Editor for XML (Vex) is a set of plug-ins that provide WYSIWYM editing ability for XML files, regardless of the XML involved. Vex uses CSS stylesheets to provide the formatting for the presentation layer. All that is needed is a stylesheet and an appropriate XML file to edit. It hides the XML tags from the users, allows them to have a word processor like experience but store the information in the native XML format.
 
-- https://projects.eclipse.org/projects/mylyn
+Vex is based off of a contribution from the original Vex project  created by John Krasnay and hosted at sourceforge.net. In the year 2008 this code was donated to Eclipse and has been an Eclipse Web Tools Incubator component. In 2011, the project moved under the hoods of the Mylyn Docs project.
+
+- https://projects.eclipse.org/projects/mylyn.docs.vex
 
 Developer resources:
 --------------------
 
 Information regarding source code management, builds, coding standards, and more.
 
-- https://projects.eclipse.org/projects/mylyn/developer
+- https://projects.eclipse.org/projects/mylyn.docs.vex/developer
 
 Contributor License Agreement:
 ------------------------------
@@ -29,18 +31,18 @@ Contact:
 
 Contact the project developers via the project's "dev" list.
 
-- https://dev.eclipse.org/mailman/listinfo/mylyn-dev
+- https://dev.eclipse.org/mailman/listinfo/mylyn-vex-dev
 
 Search for bugs:
 ----------------
 
 This project uses Bugzilla to track ongoing development and issues.
 
-- https://bugs.eclipse.org/bugs/buglist.cgi?product=Mylyn
+- https://bugs.eclipse.org/bugs/buglist.cgi?product=Mylyn%20Docs%20Vex
 
 Create a new bug:
 -----------------
 
 Be sure to search for existing bugs before you create another one. Remember that contributions are always welcome!
 
-- https://bugs.eclipse.org/bugs/enter_bug.cgi?product=Mylyn
+- https://bugs.eclipse.org/bugs/enter_bug.cgi?product=Mylyn%20Docs%20Vex
