@@ -18,7 +18,7 @@ import org.eclipse.vex.core.internal.core.Rectangle;
 /**
  * @author Florian Thienel
  */
-public class Paragraph implements IChildBox {
+public class Paragraph implements IChildBox, IParentBox<IInlineBox> {
 
 	private int top;
 	private int left;

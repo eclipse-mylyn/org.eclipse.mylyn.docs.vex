@@ -13,10 +13,10 @@ package org.eclipse.vex.core.internal.boxes;
 /**
  * @author Florian Thienel
  */
-public interface IParentBox extends IBox {
+public interface IParentBox<T extends IBox> extends IBox {
 
 	boolean hasChildren();
 
-	void appendChild(IChildBox child);
+	void appendChild(T child);
 
 }
