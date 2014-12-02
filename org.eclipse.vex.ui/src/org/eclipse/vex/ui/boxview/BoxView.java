@@ -13,23 +13,31 @@ package org.eclipse.vex.ui.boxview;
 import static org.eclipse.vex.core.internal.boxes.BoxFactory.frame;
 import static org.eclipse.vex.core.internal.boxes.BoxFactory.paragraph;
 import static org.eclipse.vex.core.internal.boxes.BoxFactory.rootBox;
-import static org.eclipse.vex.core.internal.boxes.BoxFactory.square;
 import static org.eclipse.vex.core.internal.boxes.BoxFactory.staticText;
 import static org.eclipse.vex.core.internal.boxes.BoxFactory.verticalBlock;
 
+import java.util.TreeSet;
+
+import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.part.ViewPart;
-import org.eclipse.vex.core.internal.boxes.Border;
-import org.eclipse.vex.core.internal.boxes.BoxFactory;
-import org.eclipse.vex.core.internal.boxes.HorizontalBar;
-import org.eclipse.vex.core.internal.boxes.Margin;
-import org.eclipse.vex.core.internal.boxes.Padding;
+import org.eclipse.vex.core.internal.boxes.IBox;
+import org.eclipse.vex.core.internal.boxes.IChildBox;
+import org.eclipse.vex.core.internal.boxes.IInlineBox;
+import org.eclipse.vex.core.internal.boxes.IParentBox;
 import org.eclipse.vex.core.internal.boxes.Paragraph;
 import org.eclipse.vex.core.internal.boxes.RootBox;
-import org.eclipse.vex.core.internal.core.Color;
+import org.eclipse.vex.core.internal.boxes.VerticalBlock;
 import org.eclipse.vex.core.internal.core.FontSpec;
+import org.eclipse.vex.core.internal.dom.Document;
+import org.eclipse.vex.core.internal.dom.Element;
 import org.eclipse.vex.core.internal.widget.swt.BoxWidget;
+import org.eclipse.vex.core.provisional.dom.BaseNodeVisitorWithResult;
+import org.eclipse.vex.core.provisional.dom.IDocument;
+import org.eclipse.vex.core.provisional.dom.IElement;
+import org.eclipse.vex.core.provisional.dom.INode;
+import org.eclipse.vex.core.provisional.dom.IText;
 
 /**
  * This is a viewer for the new box model - just to do visual experiments.
@@ -82,30 +90,163 @@ public class BoxView extends ViewPart {
 	}
 
 	private RootBox createTestModel() {
-		final RootBox rootBox = rootBox();
+		final Document document = createTestDocument();
 
-		for (int i = 0; i < 10000; i += 1) {
-			rootBox.appendChild(frame(verticalBlock(horizontalBar(), mixedParagraph(i), horizontalBar()), new Margin(10), new Border(5), new Padding(10, 20, 30, 40)));
-			rootBox.appendChild(frame(verticalBlock(horizontalBar(), textParagraph(), horizontalBar()), new Margin(50), Border.NULL, Padding.NULL));
+		final VisualizationChain visualizationChain = buildVisualizationChain();
+
+		return visualizationChain.visualizeRoot(document);
+	}
+
+	private static Document createTestDocument() {
+		final Document document = new Document(new QualifiedName(null, "doc"));
+		for (int i = 0; i < 25000; i += 1) {
+			insertParagraph(document);
+		}
+		return document;
+	}
+
+	private static void insertParagraph(final Document document) {
+		final Element textElement = document.insertElement(document.getRootElement().getEndOffset(), new QualifiedName(null, "para"));
+		document.insertText(textElement.getEndOffset(), LOREM_IPSUM_LONG);
+	}
+
+	private static VisualizationChain buildVisualizationChain() {
+		final VisualizationChain visualizationChain = new VisualizationChain();
+		visualizationChain.addForRoot(new DocumentRootVisualization());
+		visualizationChain.addForStructure(new ParagraphVisualization());
+		visualizationChain.addForStructure(new StructureElementVisualization());
+		visualizationChain.addForInline(new TextVisualization());
+		return visualizationChain;
+	}
+
+	private static final class DocumentRootVisualization extends NodeVisualization<RootBox> {
+		@Override
+		public RootBox visit(final IDocument document) {
+			final RootBox result = rootBox();
+			visualizeChildrenStructure(document.children(), result);
+			return result;
+		}
+	}
+
+	private static final class StructureElementVisualization extends NodeVisualization<IChildBox> {
+		@Override
+		public IChildBox visit(final IElement element) {
+			final VerticalBlock component = verticalBlock();
+			visualizeChildrenStructure(element.children(), component);
+			return frame(component);
+		}
+	}
+
+	private static final class ParagraphVisualization extends NodeVisualization<IChildBox> {
+		public ParagraphVisualization() {
+			super(1);
 		}
 
-		return rootBox;
-	}
+		@Override
+		public IChildBox visit(final IElement element) {
+			if (!"para".equals(element.getLocalName())) {
+				return super.visit(element);
+			}
 
-	private HorizontalBar horizontalBar() {
-		return BoxFactory.horizontalBar(2, Color.BLACK);
-	}
-
-	private Paragraph mixedParagraph(final int i) {
-		final Paragraph paragraph = new Paragraph();
-		for (int j = 0; j < 20; j += 1) {
-			paragraph.appendChild(staticText("Lorem ipsum " + i + " ", new FontSpec(new String[] { "Arial" }, 0, 10.0f + j)));
-			paragraph.appendChild(square(5 + j));
+			final Paragraph paragraph = paragraph();
+			visualizeChildrenInline(element.children(), paragraph);
+			return frame(paragraph);
 		}
-		return paragraph;
 	}
 
-	private Paragraph textParagraph() {
-		return paragraph(staticText(LOREM_IPSUM_LONG, TIMES_NEW_ROMAN));
+	private static final class TextVisualization extends NodeVisualization<IInlineBox> {
+		@Override
+		public IInlineBox visit(final IText text) {
+			return staticText(text.getText(), TIMES_NEW_ROMAN);
+		}
+	}
+
+	private static class NodeVisualization<T extends IBox> extends BaseNodeVisitorWithResult<T> implements Comparable<NodeVisualization<?>> {
+		private final int priority;
+		private VisualizationChain chain;
+
+		public NodeVisualization() {
+			this(0);
+		}
+
+		public NodeVisualization(final int priority) {
+			this.priority = priority;
+		}
+
+		public final T visualize(final INode node) {
+			return node.accept(this);
+		}
+
+		@Override
+		public final int compareTo(final NodeVisualization<?> other) {
+			return other.priority - priority;
+		}
+
+		public final void setChain(final VisualizationChain chain) {
+			this.chain = chain;
+		}
+
+		protected final void visualizeChildrenStructure(final Iterable<INode> children, final IParentBox<IChildBox> parentBox) {
+			for (final INode child : children) {
+				final IChildBox childBox = chain.visualizeStructure(child);
+				if (childBox != null) {
+					parentBox.appendChild(childBox);
+				}
+			}
+		}
+
+		protected final void visualizeChildrenInline(final Iterable<INode> children, final IParentBox<IInlineBox> parentBox) {
+			for (final INode child : children) {
+				final IInlineBox childBox = chain.visualizeInline(child);
+				if (childBox != null) {
+					parentBox.appendChild(childBox);
+				}
+			}
+		}
+	}
+
+	private static final class VisualizationChain {
+		private final TreeSet<NodeVisualization<RootBox>> rootChain = new TreeSet<NodeVisualization<RootBox>>();
+		private final TreeSet<NodeVisualization<IChildBox>> structureChain = new TreeSet<NodeVisualization<IChildBox>>();
+		private final TreeSet<NodeVisualization<IInlineBox>> inlineChain = new TreeSet<NodeVisualization<IInlineBox>>();
+
+		public RootBox visualizeRoot(final INode node) {
+			return visualize(node, rootChain);
+		}
+
+		public IChildBox visualizeStructure(final INode node) {
+			return visualize(node, structureChain);
+		}
+
+		public IInlineBox visualizeInline(final INode node) {
+			return visualize(node, inlineChain);
+		}
+
+		private static <T extends IBox> T visualize(final INode node, final TreeSet<NodeVisualization<T>> chain) {
+			for (final NodeVisualization<T> visualization : chain) {
+				final T box = visualization.visualize(node);
+				if (box != null) {
+					return box;
+				}
+			}
+			return null;
+		}
+
+		public void addForRoot(final NodeVisualization<RootBox> visualization) {
+			add(visualization, rootChain);
+		}
+
+		public void addForStructure(final NodeVisualization<IChildBox> visualization) {
+			add(visualization, structureChain);
+		}
+
+		public void addForInline(final NodeVisualization<IInlineBox> visualization) {
+			add(visualization, inlineChain);
+		}
+
+		private <T extends IBox> void add(final NodeVisualization<T> visualization, final TreeSet<NodeVisualization<T>> chain) {
+			chain.add(visualization);
+			visualization.setChain(this);
+		}
 	}
 }
