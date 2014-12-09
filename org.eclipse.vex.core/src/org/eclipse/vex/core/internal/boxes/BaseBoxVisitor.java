@@ -46,6 +46,11 @@ public class BaseBoxVisitor implements IBoxVisitor {
 	}
 
 	@Override
+	public void visit(final TextContent box) {
+		// ignore
+	}
+
+	@Override
 	public void visit(final Square box) {
 		// ignore
 	}

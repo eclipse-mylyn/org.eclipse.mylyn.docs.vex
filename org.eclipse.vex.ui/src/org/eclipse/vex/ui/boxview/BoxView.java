@@ -13,7 +13,6 @@ package org.eclipse.vex.ui.boxview;
 import static org.eclipse.vex.core.internal.boxes.BoxFactory.frame;
 import static org.eclipse.vex.core.internal.boxes.BoxFactory.paragraph;
 import static org.eclipse.vex.core.internal.boxes.BoxFactory.rootBox;
-import static org.eclipse.vex.core.internal.boxes.BoxFactory.staticText;
 import static org.eclipse.vex.core.internal.boxes.BoxFactory.verticalBlock;
 
 import java.util.TreeSet;
@@ -28,6 +27,7 @@ import org.eclipse.vex.core.internal.boxes.IInlineBox;
 import org.eclipse.vex.core.internal.boxes.IParentBox;
 import org.eclipse.vex.core.internal.boxes.Paragraph;
 import org.eclipse.vex.core.internal.boxes.RootBox;
+import org.eclipse.vex.core.internal.boxes.TextContent;
 import org.eclipse.vex.core.internal.boxes.VerticalBlock;
 import org.eclipse.vex.core.internal.core.FontSpec;
 import org.eclipse.vex.core.internal.dom.Document;
@@ -157,7 +157,10 @@ public class BoxView extends ViewPart {
 	private static final class TextVisualization extends NodeVisualization<IInlineBox> {
 		@Override
 		public IInlineBox visit(final IText text) {
-			return staticText(text.getText(), TIMES_NEW_ROMAN);
+			final TextContent result = new TextContent();
+			result.setContent(text.getContent(), text.getRange());
+			result.setFont(TIMES_NEW_ROMAN);
+			return result;
 		}
 	}
 
