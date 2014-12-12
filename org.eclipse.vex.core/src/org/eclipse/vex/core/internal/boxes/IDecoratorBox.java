@@ -13,8 +13,8 @@ package org.eclipse.vex.core.internal.boxes;
 /**
  * @author Florian Thienel
  */
-public interface IDecoratorBox extends IBox {
+public interface IDecoratorBox<T extends IBox> extends IBox {
 
-	void setComponent(IChildBox component);
+	void setComponent(T component);
 
 }

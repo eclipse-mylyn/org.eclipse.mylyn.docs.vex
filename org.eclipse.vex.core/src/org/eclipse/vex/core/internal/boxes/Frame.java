@@ -18,7 +18,7 @@ import org.eclipse.vex.core.internal.core.Rectangle;
 /**
  * @author Florian Thienel
  */
-public class Frame implements IChildBox, IDecoratorBox {
+public class Frame implements IChildBox, IDecoratorBox<IChildBox> {
 
 	private int top;
 	private int left;
