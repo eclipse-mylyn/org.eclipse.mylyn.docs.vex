@@ -30,6 +30,8 @@ public class StaticText implements IInlineBox {
 	private String text;
 	private FontSpec fontSpec;
 
+	private final CharSequenceSplitter splitter = new CharSequenceSplitter();
+
 	private boolean layoutValid;
 
 	@Override
@@ -98,7 +100,7 @@ public class StaticText implements IInlineBox {
 		}
 
 		applyFont(graphics);
-		width = graphics.stringWidth(text);
+		width = graphics.stringWidth(getText());
 
 		final FontMetrics fontMetrics = graphics.getFontMetrics();
 		height = fontMetrics.getHeight();
@@ -110,7 +112,7 @@ public class StaticText implements IInlineBox {
 	@Override
 	public void paint(final Graphics graphics) {
 		applyFont(graphics);
-		graphics.drawString(text, 0, 0);
+		graphics.drawString(getText(), 0, 0);
 	}
 
 	private void applyFont(final Graphics graphics) {
@@ -148,7 +150,7 @@ public class StaticText implements IInlineBox {
 		}
 		final StaticText otherText = (StaticText) other;
 
-		text = text + otherText.text;
+		setText(text + otherText.text);
 		width += otherText.width;
 
 		return true;
@@ -160,70 +162,16 @@ public class StaticText implements IInlineBox {
 	}
 
 	@Override
-	public StaticText splitTail(final Graphics graphics, final int headWidth, final boolean force) {
+	public IInlineBox splitTail(final Graphics graphics, final int headWidth, final boolean force) {
 		applyFont(graphics);
-		final int splittingPosition = findSplittingPositionBefore(graphics, headWidth, force);
+		splitter.setContent(text);
+		final int splittingPosition = splitter.findSplittingPositionBefore(graphics, headWidth, width, force);
 
 		final StaticText tail = createTail(splittingPosition);
 		tail.layout(graphics);
 		removeTail(tail);
 
 		return tail;
-	}
-
-	private int findSplittingPositionBefore(final Graphics graphics, final int headWidth, final boolean force) {
-		final int positionAtWidth = findPositionBefore(graphics, headWidth);
-		final int properSplittingPosition = findProperSplittingPositionBefore(positionAtWidth);
-		final int splittingPosition;
-		if (properSplittingPosition == -1 && force) {
-			splittingPosition = positionAtWidth;
-		} else {
-			splittingPosition = properSplittingPosition + 1;
-		}
-		return splittingPosition;
-	}
-
-	private int findPositionBefore(final Graphics graphics, final int y) {
-		if (y < 0) {
-			return 0;
-		}
-		if (y >= width) {
-			return text.length();
-		}
-
-		int begin = 0;
-		int end = text.length();
-		int pivot = guessPositionAt(y);
-		while (begin < end - 1) {
-			final int textWidth = graphics.stringWidth(text.substring(0, pivot));
-			if (textWidth > y) {
-				end = pivot;
-			} else if (textWidth < y) {
-				begin = pivot;
-			} else {
-				return pivot;
-			}
-			pivot = (begin + end) / 2;
-		}
-		return pivot;
-	}
-
-	private int guessPositionAt(final int y) {
-		final float splittingRatio = (float) y / width;
-		return Math.round(splittingRatio * text.length());
-	}
-
-	private int findProperSplittingPositionBefore(final int position) {
-		for (int i = Math.min(position, text.length() - 1); i >= 0; i -= 1) {
-			if (isSplittingCharacter(i)) {
-				return i;
-			}
-		}
-		return -1;
-	}
-
-	private boolean isSplittingCharacter(final int position) {
-		return Character.isWhitespace(text.charAt(position));
 	}
 
 	private StaticText createTail(final int splittingPosition) {

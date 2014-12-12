@@ -96,7 +96,7 @@ public class TestStaticText {
 		text.setText("1234567890");
 		text.layout(graphics);
 
-		final StaticText tail = text.splitTail(graphics, 6, true);
+		final StaticText tail = (StaticText) text.splitTail(graphics, 6, true);
 
 		assertSplitEquals("1", "234567890", text, tail);
 		assertEquals(6, text.getWidth());
@@ -110,7 +110,7 @@ public class TestStaticText {
 		text.setText("1234567890");
 		text.layout(graphics);
 
-		final StaticText tail = text.splitTail(graphics, 11, true);
+		final StaticText tail = (StaticText) text.splitTail(graphics, 11, true);
 
 		assertEquals(6, text.getWidth());
 		assertEquals(54, tail.getWidth());
@@ -123,7 +123,7 @@ public class TestStaticText {
 		text.setText("1234567890");
 		text.layout(graphics);
 
-		final StaticText tail = text.splitTail(graphics, 15, true);
+		final StaticText tail = (StaticText) text.splitTail(graphics, 15, true);
 
 		assertSame(text.getFont(), tail.getFont());
 	}
@@ -135,7 +135,7 @@ public class TestStaticText {
 		text.setText("1234567890");
 		text.layout(graphics);
 
-		final StaticText tail = text.splitTail(graphics, 5, true);
+		final StaticText tail = (StaticText) text.splitTail(graphics, 5, true);
 
 		assertSplitEquals("", "1234567890", text, tail);
 	}
@@ -147,7 +147,7 @@ public class TestStaticText {
 		text.setText("1234567890");
 		text.layout(graphics);
 
-		final StaticText tail = text.splitTail(graphics, 11, true);
+		final StaticText tail = (StaticText) text.splitTail(graphics, 11, true);
 
 		assertSplitEquals("1", "234567890", text, tail);
 	}
@@ -159,7 +159,7 @@ public class TestStaticText {
 		text.setText("1234567890");
 		text.layout(graphics);
 
-		final StaticText tail = text.splitTail(graphics, 100, true);
+		final StaticText tail = (StaticText) text.splitTail(graphics, 100, true);
 
 		assertSplitEquals("1234567890", "", text, tail);
 	}
@@ -171,7 +171,7 @@ public class TestStaticText {
 		text.setText("1234 567890");
 		text.layout(graphics);
 
-		final StaticText tail = text.splitTail(graphics, 34, false);
+		final StaticText tail = (StaticText) text.splitTail(graphics, 34, false);
 
 		assertSplitEquals("1234 ", "567890", text, tail);
 	}
@@ -183,7 +183,7 @@ public class TestStaticText {
 		text.setText("1234 567890");
 		text.layout(graphics);
 
-		final StaticText tail = text.splitTail(graphics, 15, false);
+		final StaticText tail = (StaticText) text.splitTail(graphics, 15, false);
 
 		assertSplitEquals("", "1234 567890", text, tail);
 	}
@@ -195,7 +195,7 @@ public class TestStaticText {
 		text.setText("1234 567890");
 		text.layout(graphics);
 
-		final StaticText tail = text.splitTail(graphics, 28, false);
+		final StaticText tail = (StaticText) text.splitTail(graphics, 28, false);
 
 		assertSplitEquals("1234 ", "567890", text, tail);
 	}
@@ -207,7 +207,7 @@ public class TestStaticText {
 		text.setText("1234 567890");
 		text.layout(graphics);
 
-		final StaticText tail = text.splitTail(graphics, 24, false);
+		final StaticText tail = (StaticText) text.splitTail(graphics, 24, false);
 
 		assertSplitEquals("1234 ", "567890", text, tail);
 	}

@@ -36,6 +36,8 @@ public class TextContent implements IInlineBox {
 
 	private FontSpec fontSpec;
 
+	private final CharSequenceSplitter splitter = new CharSequenceSplitter();
+
 	private boolean layoutValid;
 
 	@Override
@@ -183,82 +185,16 @@ public class TextContent implements IInlineBox {
 	}
 
 	@Override
-	public TextContent splitTail(final Graphics graphics, final int headWidth, final boolean force) {
+	public IInlineBox splitTail(final Graphics graphics, final int headWidth, final boolean force) {
 		applyFont(graphics);
-		final int splittingPosition = findSplittingPositionBefore(graphics, headWidth, force);
+		splitter.setContent(content, startPosition.getOffset(), endPosition.getOffset());
+		final int splittingPosition = splitter.findSplittingPositionBefore(graphics, headWidth, width, force);
 
 		final TextContent tail = createTail(splittingPosition);
 		tail.layout(graphics);
 		removeTail(tail);
 
 		return tail;
-	}
-
-	private int findSplittingPositionBefore(final Graphics graphics, final int headWidth, final boolean force) {
-		final int positionAtWidth = findPositionBefore(graphics, headWidth);
-		final int properSplittingPosition = findProperSplittingPositionBefore(positionAtWidth);
-		final int splittingPosition;
-		if (properSplittingPosition == -1 && force) {
-			splittingPosition = positionAtWidth;
-		} else {
-			splittingPosition = properSplittingPosition + 1;
-		}
-		return splittingPosition;
-	}
-
-	private int textLength() {
-		return endPosition.getOffset() - startPosition.getOffset();
-	}
-
-	private String substring(final int beginIndex, final int endIndex) {
-		return content.subSequence(startPosition.getOffset() + beginIndex, startPosition.getOffset() + endIndex).toString();
-	}
-
-	private int findPositionBefore(final Graphics graphics, final int y) {
-		if (y < 0) {
-			return 0;
-		}
-		if (y >= width) {
-			return textLength();
-		}
-
-		int begin = 0;
-		int end = textLength();
-		int pivot = guessPositionAt(y);
-		while (begin < end - 1) {
-			final int textWidth = graphics.stringWidth(substring(0, pivot));
-			if (textWidth > y) {
-				end = pivot;
-			} else if (textWidth < y) {
-				begin = pivot;
-			} else {
-				return pivot;
-			}
-			pivot = (begin + end) / 2;
-		}
-		return pivot;
-	}
-
-	private int guessPositionAt(final int y) {
-		final float splittingRatio = (float) y / width;
-		return Math.round(splittingRatio * textLength());
-	}
-
-	private int findProperSplittingPositionBefore(final int position) {
-		for (int i = Math.min(position, textLength() - 1); i >= 0; i -= 1) {
-			if (isSplittingCharacter(i)) {
-				return i;
-			}
-		}
-		return -1;
-	}
-
-	private char charAt(final int position) {
-		return content.charAt(startPosition.getOffset() + position);
-	}
-
-	private boolean isSplittingCharacter(final int position) {
-		return Character.isWhitespace(charAt(position));
 	}
 
 	private TextContent createTail(final int splittingPosition) {
@@ -269,7 +205,7 @@ public class TextContent implements IInlineBox {
 	}
 
 	private void removeTail(final TextContent tail) {
-		final int headLength = textLength() - tail.textLength();
+		final int headLength = endPosition.getOffset() - startPosition.getOffset() - (tail.endPosition.getOffset() - tail.startPosition.getOffset());
 		content.removePosition(endPosition);
 		endPosition = content.createPosition(startPosition.getOffset() + headLength - 1);
 		width -= tail.width;
