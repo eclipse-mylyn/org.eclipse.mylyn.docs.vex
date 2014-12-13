@@ -147,11 +147,6 @@ public class FakeGraphics implements Graphics {
 	}
 
 	@Override
-	public ColorResource getColor() {
-		return null;
-	}
-
-	@Override
 	public FontResource getCurrentFont() {
 		return null;
 	}
@@ -195,7 +190,32 @@ public class FakeGraphics implements Graphics {
 	}
 
 	@Override
+	public ColorResource getColor() {
+		return null;
+	}
+
+	@Override
 	public ColorResource setColor(final ColorResource color) {
+		return null;
+	}
+
+	@Override
+	public ColorResource getForeground() {
+		return null;
+	}
+
+	@Override
+	public ColorResource setForeground(final ColorResource color) {
+		return null;
+	}
+
+	@Override
+	public ColorResource getBackground() {
+		return null;
+	}
+
+	@Override
+	public ColorResource setBackground(final ColorResource color) {
 		return null;
 	}
 

@@ -148,11 +148,6 @@ public class SwtGraphics implements Graphics {
 	}
 
 	@Override
-	public ColorResource getColor() {
-		return new SwtColor(gc.getForeground());
-	}
-
-	@Override
 	public FontResource getCurrentFont() {
 		return currentFont;
 	}
@@ -222,9 +217,38 @@ public class SwtGraphics implements Graphics {
 	}
 
 	@Override
+	public ColorResource getColor() {
+		return getForeground();
+	}
+
+	@Override
 	public ColorResource setColor(final ColorResource color) {
 		final ColorResource oldColor = getColor();
 		gc.setForeground(((SwtColor) color).getSwtColor());
+		gc.setBackground(((SwtColor) color).getSwtColor());
+		return oldColor;
+	}
+
+	@Override
+	public ColorResource getForeground() {
+		return new SwtColor(gc.getForeground());
+	}
+
+	@Override
+	public ColorResource setForeground(final ColorResource color) {
+		final ColorResource oldColor = getForeground();
+		gc.setForeground(((SwtColor) color).getSwtColor());
+		return oldColor;
+	}
+
+	@Override
+	public ColorResource getBackground() {
+		return new SwtColor(gc.getBackground());
+	}
+
+	@Override
+	public ColorResource setBackground(final ColorResource color) {
+		final ColorResource oldColor = getBackground();
 		gc.setBackground(((SwtColor) color).getSwtColor());
 		return oldColor;
 	}

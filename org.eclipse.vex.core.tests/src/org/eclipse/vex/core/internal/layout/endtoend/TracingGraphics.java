@@ -58,6 +58,9 @@ public class TracingGraphics implements Graphics {
 	private int lineStyle;
 	private FontResource font;
 	private ColorResource color;
+	private ColorResource foreground;
+	private ColorResource background;
+	private final List<GraphicsListener> listeners = new CopyOnWriteArrayList<GraphicsListener>();
 
 	public TracingGraphics(final Tracer tracer) {
 		this.tracer = tracer;
@@ -136,11 +139,6 @@ public class TracingGraphics implements Graphics {
 	}
 
 	@Override
-	public ColorResource getColor() {
-		return color;
-	}
-
-	@Override
 	public FontResource getCurrentFont() {
 		return font;
 	}
@@ -184,10 +182,41 @@ public class TracingGraphics implements Graphics {
 	}
 
 	@Override
+	public ColorResource getColor() {
+		return color;
+	}
+
+	@Override
 	public ColorResource setColor(final ColorResource color) {
 		tracer.trace("Graphics.setColor({0})", color);
 		final ColorResource oldColor = getColor();
 		this.color = color;
+		return oldColor;
+	}
+
+	@Override
+	public ColorResource getForeground() {
+		return foreground;
+	}
+
+	@Override
+	public ColorResource setForeground(final ColorResource color) {
+		tracer.trace("Graphics.setForeground({0})", color);
+		final ColorResource oldColor = getForeground();
+		foreground = color;
+		return oldColor;
+	}
+
+	@Override
+	public ColorResource getBackground() {
+		return background;
+	}
+
+	@Override
+	public ColorResource setBackground(final ColorResource color) {
+		tracer.trace("Graphics.setBackground({0})", color);
+		final ColorResource oldColor = getBackground();
+		background = color;
 		return oldColor;
 	}
 

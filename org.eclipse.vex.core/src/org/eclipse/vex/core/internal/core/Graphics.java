@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2010 John Krasnay and others.
+ * Copyright (c) 2004, 2014 John Krasnay and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,6 +8,7 @@
  * Contributors:
  *     John Krasnay - initial API and implementation
  *     Mohamadou Nassourou - Bug 298912 - rudimentary support for images
+ *     Florian Thienel - foreground, background
  *******************************************************************************/
 package org.eclipse.vex.core.internal.core;
 
@@ -37,16 +38,6 @@ public interface Graphics {
 
 	public void drawLine(int x1, int y1, int x2, int y2);
 
-	/**
-	 * Draw the given string at the given point using the current font.
-	 *
-	 * @param s
-	 *            string to draw
-	 * @param x
-	 *            x-coordinate of the top left corner of the text box
-	 * @param y
-	 *            y-coordinate of the top left corner of the text box
-	 */
 	public void drawString(String s, int x, int y);
 
 	public void drawOval(int x, int y, int width, int height);
@@ -60,8 +51,6 @@ public interface Graphics {
 	public void fillRect(int x, int y, int width, int height);
 
 	public Rectangle getClipBounds();
-
-	public ColorResource getColor();
 
 	public FontResource getCurrentFont();
 
@@ -79,7 +68,17 @@ public interface Graphics {
 
 	public void setAntiAliased(boolean antiAliased);
 
+	public ColorResource getColor();
+
 	public ColorResource setColor(ColorResource color);
+
+	public ColorResource getForeground();
+
+	public ColorResource setForeground(ColorResource color);
+
+	public ColorResource getBackground();
+
+	public ColorResource setBackground(ColorResource color);
 
 	public FontResource setCurrentFont(FontResource font);
 
