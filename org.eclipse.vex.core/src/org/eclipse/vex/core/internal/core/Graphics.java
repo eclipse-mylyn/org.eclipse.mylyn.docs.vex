@@ -34,6 +34,22 @@ public interface Graphics {
 
 	public void moveOrigin(int offsetX, int offsetY);
 
+	public int asAbsoluteX(int relativeX);
+
+	public int asAbsoluteY(int relativeY);
+
+	public int asRelativeX(int absoluteX);
+
+	public int asRelativeY(int absoluteY);
+
+	public void start(Object o);
+
+	public void finish(Object o);
+
+	public void addListener(GraphicsListener listener);
+
+	public void removeListener(GraphicsListener listener);
+
 	public void drawChars(char[] chars, int offset, int length, int x, int y);
 
 	public void drawLine(int x1, int y1, int x2, int y2);

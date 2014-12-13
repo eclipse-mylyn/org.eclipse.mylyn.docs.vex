@@ -73,6 +73,26 @@ public class FakeGraphics implements Graphics {
 	}
 
 	@Override
+	public int asAbsoluteX(final int relativeX) {
+		return 0;
+	}
+
+	@Override
+	public int asAbsoluteY(final int relativeY) {
+		return 0;
+	}
+
+	@Override
+	public int asRelativeX(final int absoluteX) {
+		return 0;
+	}
+
+	@Override
+	public int asRelativeY(final int absoluteY) {
+		return 0;
+	}
+
+	@Override
 	public int charsWidth(final char[] data, final int offset, final int length) {
 		return length * charWidth;
 	}

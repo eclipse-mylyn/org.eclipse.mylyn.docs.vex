@@ -87,6 +87,26 @@ public class SwtGraphics implements Graphics {
 	}
 
 	@Override
+	public int asAbsoluteX(final int relativeX) {
+		return relativeX + offsetX;
+	}
+
+	@Override
+	public int asAbsoluteY(final int relativeY) {
+		return relativeY + offsetY;
+	}
+
+	@Override
+	public int asRelativeX(final int absoluteX) {
+		return absoluteX - offsetX;
+	}
+
+	@Override
+	public int asRelativeY(final int absoluteY) {
+		return absoluteY - offsetY;
+	}
+
+	@Override
 	public void drawChars(final char[] chars, final int offset, final int length, final int x, final int y) {
 		drawString(new String(chars, offset, length), x, y);
 

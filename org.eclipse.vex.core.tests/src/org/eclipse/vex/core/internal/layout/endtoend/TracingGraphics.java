@@ -72,6 +72,26 @@ public class TracingGraphics implements Graphics {
 	}
 
 	@Override
+	public int asAbsoluteX(final int relativeX) {
+		return relativeX;
+	}
+
+	@Override
+	public int asAbsoluteY(final int relativeY) {
+		return relativeY;
+	}
+
+	@Override
+	public int asRelativeX(final int absoluteX) {
+		return absoluteX;
+	}
+
+	@Override
+	public int asRelativeY(final int absoluteY) {
+		return absoluteY;
+	}
+
+	@Override
 	public int charsWidth(final char[] data, final int offset, final int length) {
 		return CHAR_WIDTH * length;
 	}
