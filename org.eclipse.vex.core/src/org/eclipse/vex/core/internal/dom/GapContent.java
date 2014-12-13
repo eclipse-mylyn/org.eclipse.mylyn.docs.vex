@@ -304,7 +304,12 @@ public class GapContent implements IContent {
 	 */
 	@Override
 	public CharSequence subSequence(final int startOffset, final int endOffset) {
-		return getRawText(new ContentRange(startOffset, endOffset));
+		Assert.isTrue(startOffset <= endOffset);
+		if (startOffset == endOffset) {
+			return "";
+		}
+
+		return getRawText(new ContentRange(startOffset, endOffset - 1));
 	}
 
 	/*
