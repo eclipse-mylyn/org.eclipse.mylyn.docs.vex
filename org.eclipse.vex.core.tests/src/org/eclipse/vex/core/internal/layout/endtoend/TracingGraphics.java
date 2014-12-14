@@ -60,7 +60,6 @@ public class TracingGraphics implements Graphics {
 	private ColorResource color;
 	private ColorResource foreground;
 	private ColorResource background;
-	private final List<GraphicsListener> listeners = new CopyOnWriteArrayList<GraphicsListener>();
 
 	public TracingGraphics(final Tracer tracer) {
 		this.tracer = tracer;
@@ -97,7 +96,7 @@ public class TracingGraphics implements Graphics {
 	}
 
 	@Override
-	public ColorResource createColor(final Color color) {
+	public ColorResource getColor(final Color color) {
 		tracer.trace("Graphics.createColor({0})", color);
 		return new TracingColorResource(tracer, color);
 	}

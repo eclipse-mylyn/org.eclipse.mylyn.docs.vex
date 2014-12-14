@@ -40,11 +40,10 @@ public class HCaret extends Caret {
 
 	@Override
 	public void draw(final Graphics g, final Color color) {
-		final ColorResource newColor = g.createColor(color);
+		final ColorResource newColor = g.getColor(color);
 		final ColorResource oldColor = g.setColor(newColor);
 		g.fillRect(getX(), getY(), length, LINE_WIDTH);
 		g.setColor(oldColor);
-		newColor.dispose();
 	}
 
 	/**

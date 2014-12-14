@@ -98,7 +98,7 @@ public class FakeGraphics implements Graphics {
 	}
 
 	@Override
-	public ColorResource createColor(final Color rgb) {
+	public ColorResource getColor(final Color rgb) {
 		return new ColorResource() {
 			@Override
 			public void dispose() {

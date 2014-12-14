@@ -336,11 +336,10 @@ public abstract class AbstractBox implements Box {
 		final Color backgroundColor = styles.getBackgroundColor();
 
 		if (backgroundColor != null) {
-			final ColorResource color = g.createColor(backgroundColor);
+			final ColorResource color = g.getColor(backgroundColor);
 			final ColorResource oldColor = g.setColor(color);
 			g.fillRect(left, top, right - left, bottom - top);
 			g.setColor(oldColor);
-			color.dispose();
 		}
 
 		if (drawBorders) {
@@ -360,46 +359,42 @@ public abstract class AbstractBox implements Box {
 
 			// Bottom border
 			if (styles.getBorderBottomWidth() > 0) {
-				final ColorResource color = g.createColor(styles.getBorderBottomColor());
+				final ColorResource color = g.getColor(styles.getBorderBottomColor());
 				final ColorResource oldColor = g.setColor(color);
 				g.setLineStyle(lineStyle(styles.getBorderBottomStyle()));
 				g.setLineWidth(styles.getBorderBottomWidth());
 				g.drawLine(left + bw2, bottom - bw2 - 1, right - bw2, bottom - bw2 - 1);
 				g.setColor(oldColor);
-				color.dispose();
 			}
 
 			// Left border
 			if (hasLeft && styles.getBorderLeftWidth() > 0) {
-				final ColorResource color = g.createColor(styles.getBorderLeftColor());
+				final ColorResource color = g.getColor(styles.getBorderLeftColor());
 				final ColorResource oldColor = g.setColor(color);
 				g.setLineStyle(lineStyle(styles.getBorderLeftStyle()));
 				g.setLineWidth(styles.getBorderLeftWidth());
 				g.drawLine(left + lw2, top + lw2, left + lw2, bottom - lw2 - 1);
 				g.setColor(oldColor);
-				color.dispose();
 			}
 
 			// Right border
 			if (hasRight && styles.getBorderRightWidth() > 0) {
-				final ColorResource color = g.createColor(styles.getBorderRightColor());
+				final ColorResource color = g.getColor(styles.getBorderRightColor());
 				final ColorResource oldColor = g.setColor(color);
 				g.setLineStyle(lineStyle(styles.getBorderRightStyle()));
 				g.setLineWidth(styles.getBorderRightWidth());
 				g.drawLine(right - rw2 - 1, top + rw2, right - rw2 - 1, bottom - rw2 - 1);
 				g.setColor(oldColor);
-				color.dispose();
 			}
 
 			// Top border
 			if (styles.getBorderTopWidth() > 0) {
-				final ColorResource color = g.createColor(styles.getBorderTopColor());
+				final ColorResource color = g.getColor(styles.getBorderTopColor());
 				final ColorResource oldColor = g.setColor(color);
 				g.setLineStyle(lineStyle(styles.getBorderTopStyle()));
 				g.setLineWidth(styles.getBorderTopWidth());
 				g.drawLine(left + tw2, top + tw2, right - tw2, top + tw2);
 				g.setColor(oldColor);
-				color.dispose();
 			}
 
 			// g.setRenderingHint(RenderingHints.KEY_ANTIALIASING,

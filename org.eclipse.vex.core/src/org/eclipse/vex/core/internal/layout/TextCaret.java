@@ -42,11 +42,10 @@ public class TextCaret extends Caret {
 
 	@Override
 	public void draw(final Graphics g, final Color color) {
-		final ColorResource newColor = g.createColor(color);
+		final ColorResource newColor = g.getColor(color);
 		final ColorResource oldColor = g.setColor(newColor);
 		g.fillRect(getX(), getY(), LINE_WIDTH, height);
 		g.setColor(oldColor);
-		newColor.dispose();
 	}
 
 	@Override

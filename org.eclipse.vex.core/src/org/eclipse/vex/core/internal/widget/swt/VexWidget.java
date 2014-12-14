@@ -852,12 +852,11 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 				bgColor = new Color(255, 255, 255);
 			}
 
-			final ColorResource color = g.createColor(bgColor);
+			final ColorResource color = g.getColor(bgColor);
 			final ColorResource oldColor = g.setColor(color);
 			final Rectangle r = g.getClipBounds();
 			g.fillRect(r.getX(), r.getY(), r.getWidth(), r.getHeight());
 			g.setColor(oldColor);
-			color.dispose();
 
 			impl.paint(g, 0, 0);
 		}

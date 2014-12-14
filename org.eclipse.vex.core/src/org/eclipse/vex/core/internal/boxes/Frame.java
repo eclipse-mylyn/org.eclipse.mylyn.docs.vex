@@ -124,15 +124,13 @@ public class Frame implements IChildBox, IDecoratorBox<IChildBox> {
 	}
 
 	private void drawBorder(final Graphics graphics) {
-		final ColorResource colorResource = graphics.createColor(Color.BLACK); // TODO store border color
+		final ColorResource colorResource = graphics.getColor(Color.BLACK); // TODO store border color
 		graphics.setColor(colorResource);
 
 		drawBorderLine(graphics, border.top, margin.top, margin.left - border.left / 2, margin.top, width - margin.right + border.right / 2);
 		drawBorderLine(graphics, border.left, margin.top - border.top / 2, margin.left, height - margin.bottom + border.bottom / 2, margin.left);
 		drawBorderLine(graphics, border.bottom, height - margin.bottom, margin.left - border.left / 2, height - margin.bottom, width - margin.right + border.right / 2);
 		drawBorderLine(graphics, border.right, margin.top - border.top / 2, width - margin.right, height - margin.bottom + border.bottom / 2, width - margin.right);
-
-		colorResource.dispose();
 	}
 
 	private void drawBorderLine(final Graphics graphics, final int lineWidth, final int top, final int left, final int bottom, final int right) {

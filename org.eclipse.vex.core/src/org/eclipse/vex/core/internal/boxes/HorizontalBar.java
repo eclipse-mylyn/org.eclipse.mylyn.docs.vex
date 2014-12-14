@@ -85,9 +85,8 @@ public class HorizontalBar implements IChildBox {
 
 	@Override
 	public void paint(final Graphics graphics) {
-		final ColorResource colorResource = graphics.createColor(color);
+		final ColorResource colorResource = graphics.getColor(color);
 		graphics.setColor(colorResource);
 		graphics.fillRect(0, 0, width, height);
-		colorResource.dispose();
 	}
 }

@@ -573,8 +573,8 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 			foreground = g.getSystemColor(ColorResource.SELECTION_FOREGROUND);
 			background = g.getSystemColor(ColorResource.SELECTION_BACKGROUND);
 		} else {
-			foreground = g.createColor(new Color(0, 0, 0));
-			background = g.createColor(new Color(0xcc, 0xcc, 0xcc));
+			foreground = g.getColor(new Color(0, 0, 0));
+			background = g.getColor(new Color(0xcc, 0xcc, 0xcc));
 		}
 
 		final FontMetrics fm = g.getFontMetrics();
@@ -592,10 +592,6 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 		g.drawString(frameName, tabX + fm.getLeading() / 2, tabY);
 
 		g.setColor(oldColor);
-		if (!selected) {
-			foreground.dispose();
-			background.dispose();
-		}
 	}
 
 	protected String getSelectionFrameName(final INode node) {

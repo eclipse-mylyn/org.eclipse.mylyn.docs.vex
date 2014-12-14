@@ -8,6 +8,7 @@
  * Contributors:
  *     John Krasnay - initial API and implementation
  *     Mohamadou Nassourou - Bug 298912 - rudimentary support for images
+ *     Florian Thienel - font cache, color cache
  *******************************************************************************/
 package org.eclipse.vex.core.internal.widget.swt;
 
@@ -39,13 +40,6 @@ import org.eclipse.vex.core.internal.core.Rectangle;
 
 /**
  * Implementation of the Vex Graphics interface, mapping it to a org.eclipse.swt.graphics.GC object.
- *
- * <p>
- * The GC given to us by SWT is that of the Canvas, which is just a viewport into the document. This class therefore
- * implements an "origin", which represents the top-left corner of the document relative to the top-left corner of the
- * canvas. The x- and y-coordinates of the origin are always negative.
- * </p>
- * .
  */
 public class SwtGraphics implements Graphics {
 
@@ -54,13 +48,13 @@ public class SwtGraphics implements Graphics {
 	private int offsetY;
 
 	private final HashMap<FontSpec, FontResource> fonts = new HashMap<FontSpec, FontResource>();
+	private final HashMap<Color, ColorResource> colors = new HashMap<Color, ColorResource>();
 
 	private SwtFont currentFont;
 	private SwtFontMetrics currentFontMetrics;
+	private int lineStyle = LINE_SOLID;
 
 	/**
-	 * Class constructor.
-	 *
 	 * @param gc
 	 *            SWT GC to which we are drawing.
 	 */
@@ -75,6 +69,10 @@ public class SwtGraphics implements Graphics {
 			font.dispose();
 		}
 		fonts.clear();
+		for (final ColorResource color : colors.values()) {
+			color.dispose();
+		}
+		colors.clear();
 
 		// TODO should not dispose something that comes from outside!
 		gc.dispose();
@@ -109,7 +107,6 @@ public class SwtGraphics implements Graphics {
 	@Override
 	public void drawChars(final char[] chars, final int offset, final int length, final int x, final int y) {
 		drawString(new String(chars, offset, length), x, y);
-
 	}
 
 	@Override
@@ -300,7 +297,16 @@ public class SwtGraphics implements Graphics {
 	}
 
 	@Override
-	public ColorResource createColor(final Color rgb) {
+	public ColorResource getColor(final Color rgb) {
+		ColorResource color = colors.get(rgb);
+		if (color == null) {
+			color = createColor(rgb);
+			colors.put(rgb, color);
+		}
+		return color;
+	}
+
+	private SwtColor createColor(final Color rgb) {
 		return new SwtColor(new org.eclipse.swt.graphics.Color(null, rgb.getRed(), rgb.getGreen(), rgb.getBlue()));
 	}
 
@@ -323,9 +329,7 @@ public class SwtGraphics implements Graphics {
 			style |= SWT.ITALIC;
 		}
 		final int size = Math.round(fontSpec.getSize() * 72 / 90); // TODO: fix. SWT
-		// uses pts, AWT
-		// uses device
-		// units
+		// uses pts, AWT uses device units
 		final String[] names = fontSpec.getNames();
 		final FontData[] fd = new FontData[names.length];
 		for (int i = 0; i < names.length; i++) {
@@ -350,9 +354,5 @@ public class SwtGraphics implements Graphics {
 	public int stringWidth(final String s) {
 		return gc.stringExtent(s).x;
 	}
-
-	// ========================================================== PRIVATE
-
-	private int lineStyle = LINE_SOLID;
 
 }

@@ -136,7 +136,7 @@ public class StaticTextBox extends TextBox {
 		}
 
 		final FontResource font = g.getFont(styles.getFont());
-		final ColorResource color = g.createColor(styles.getColor());
+		final ColorResource color = g.getColor(styles.getColor());
 
 		final FontResource oldFont = g.setCurrentFont(font);
 		final ColorResource oldColor = g.setColor(color);
@@ -150,7 +150,6 @@ public class StaticTextBox extends TextBox {
 
 		g.setCurrentFont(oldFont);
 		g.setColor(oldColor);
-		color.dispose();
 	}
 
 	/**

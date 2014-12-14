@@ -76,12 +76,10 @@ public class Square implements IInlineBox {
 
 	@Override
 	public void paint(final Graphics graphics) {
-		final ColorResource colorResource = graphics.createColor(Color.BLACK); // TODO store square color
+		final ColorResource colorResource = graphics.getColor(Color.BLACK); // TODO store square color
 		graphics.setColor(colorResource);
 
 		graphics.fillRect(0, 0, size, size);
-
-		colorResource.dispose();
 	}
 
 	@Override

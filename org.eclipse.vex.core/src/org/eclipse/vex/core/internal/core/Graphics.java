@@ -26,7 +26,7 @@ public interface Graphics {
 
 	public int charsWidth(char[] data, int offset, int length);
 
-	public ColorResource createColor(Color rgb);
+	public ColorResource getColor(Color rgb);
 
 	public FontResource getFont(FontSpec fontSpec);
 
@@ -41,14 +41,6 @@ public interface Graphics {
 	public int asRelativeX(int absoluteX);
 
 	public int asRelativeY(int absoluteY);
-
-	public void start(Object o);
-
-	public void finish(Object o);
-
-	public void addListener(GraphicsListener listener);
-
-	public void removeListener(GraphicsListener listener);
 
 	public void drawChars(char[] chars, int offset, int length, int x, int y);
 

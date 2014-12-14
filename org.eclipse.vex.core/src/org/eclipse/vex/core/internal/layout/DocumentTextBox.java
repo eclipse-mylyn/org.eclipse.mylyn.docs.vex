@@ -143,11 +143,8 @@ public class DocumentTextBox extends TextBox {
 
 		final FontResource font = g.getFont(styles.getFont());
 		final FontResource oldFont = g.setCurrentFont(font);
-		final ColorResource foreground = g.createColor(styles.getColor());
+		final ColorResource foreground = g.getColor(styles.getColor());
 		final ColorResource oldForeground = g.setColor(foreground);
-		// ColorResource background =
-		// g.createColor(styles.getBackgroundColor());
-		// ColorResource oldBackground = g.setBackgroundColor(background);
 
 		final char[] chars = getText().toCharArray();
 
@@ -194,9 +191,6 @@ public class DocumentTextBox extends TextBox {
 
 		g.setCurrentFont(oldFont);
 		g.setColor(oldForeground);
-		// g.setBackgroundColor(oldBackground);
-		foreground.dispose();
-		// background.dispose();
 	}
 
 	/**
