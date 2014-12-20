@@ -15,6 +15,8 @@ package org.eclipse.vex.core.internal.core;
  */
 public class Rectangle {
 
+	public static final Rectangle NULL = new Rectangle(0, 0, 0, 0);
+
 	private final int x;
 	private final int y;
 	private final int width;
