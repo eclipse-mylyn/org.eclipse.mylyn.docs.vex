@@ -25,6 +25,7 @@ import org.eclipse.vex.core.internal.boxes.IBox;
 import org.eclipse.vex.core.internal.boxes.IChildBox;
 import org.eclipse.vex.core.internal.boxes.IInlineBox;
 import org.eclipse.vex.core.internal.boxes.IParentBox;
+import org.eclipse.vex.core.internal.boxes.NodeReference;
 import org.eclipse.vex.core.internal.boxes.Paragraph;
 import org.eclipse.vex.core.internal.boxes.RootBox;
 import org.eclipse.vex.core.internal.boxes.TextContent;
@@ -150,7 +151,10 @@ public class BoxView extends ViewPart {
 
 			final Paragraph paragraph = paragraph();
 			visualizeChildrenInline(element.children(), paragraph);
-			return frame(paragraph);
+			final NodeReference nodeReference = new NodeReference();
+			nodeReference.setComponent(frame(paragraph));
+			nodeReference.setNode(element);
+			return nodeReference;
 		}
 	}
 
