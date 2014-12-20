@@ -22,7 +22,7 @@ import org.eclipse.vex.core.provisional.dom.IPosition;
 /**
  * @author Florian Thienel
  */
-public class TextContent implements IInlineBox {
+public class TextContent implements IInlineBox, IContentBox {
 
 	private int top;
 	private int left;
@@ -211,4 +211,27 @@ public class TextContent implements IInlineBox {
 		width -= tail.width;
 	}
 
+	@Override
+	public int getStartOffset() {
+		return startPosition.getOffset();
+	}
+
+	@Override
+	public int getEndOffset() {
+		return endPosition.getOffset();
+	}
+
+	@Override
+	public Rectangle getPositionArea(final Graphics graphics, final int offset) {
+		if (startPosition.getOffset() > offset || endPosition.getOffset() < offset) {
+			return Rectangle.NULL;
+		}
+
+		applyFont(graphics);
+		final char c = content.charAt(offset);
+		final String head = content.subSequence(startPosition.getOffset(), offset).toString();
+		final int left = graphics.stringWidth(head);
+		final int charWidth = graphics.stringWidth(Character.toString(c));
+		return new Rectangle(left, 0, charWidth, height);
+	}
 }
