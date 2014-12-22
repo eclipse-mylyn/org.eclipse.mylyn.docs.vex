@@ -28,6 +28,7 @@ public class NodeReference implements IChildBox, IDecoratorBox<IChildBox>, ICont
 	private IChildBox component;
 
 	private INode node;
+	private boolean canContainText;
 
 	@Override
 	public void setParent(final IBox parent) {
@@ -116,6 +117,18 @@ public class NodeReference implements IChildBox, IDecoratorBox<IChildBox>, ICont
 		this.node = node;
 	}
 
+	public INode getNode() {
+		return node;
+	}
+
+	public void setCanContainText(final boolean canContainText) {
+		this.canContainText = canContainText;
+	}
+
+	public boolean canContainText() {
+		return canContainText;
+	}
+
 	@Override
 	public void layout(final Graphics graphics) {
 		if (component == null) {
@@ -150,7 +163,19 @@ public class NodeReference implements IChildBox, IDecoratorBox<IChildBox>, ICont
 
 	@Override
 	public Rectangle getPositionArea(final Graphics graphics, final int offset) {
-		return new Rectangle(left, top, width, height);
+		return new Rectangle(0, 0, width, height);
+	}
+
+	public boolean isEmpty() {
+		return getEndOffset() - getStartOffset() <= 1;
+	}
+
+	public boolean isAtEnd(final int offset) {
+		return getEndOffset() == offset;
+	}
+
+	public boolean isAtStart(final int offset) {
+		return getStartOffset() == offset;
 	}
 
 }

@@ -13,26 +13,34 @@ package org.eclipse.vex.ui.boxview;
 import static org.eclipse.vex.core.internal.boxes.BoxFactory.frame;
 import static org.eclipse.vex.core.internal.boxes.BoxFactory.paragraph;
 import static org.eclipse.vex.core.internal.boxes.BoxFactory.rootBox;
+import static org.eclipse.vex.core.internal.boxes.BoxFactory.staticText;
 import static org.eclipse.vex.core.internal.boxes.BoxFactory.verticalBlock;
 
 import java.util.TreeSet;
 
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.part.ViewPart;
+import org.eclipse.vex.core.internal.boxes.Border;
+import org.eclipse.vex.core.internal.boxes.ContentMap;
+import org.eclipse.vex.core.internal.boxes.Cursor;
 import org.eclipse.vex.core.internal.boxes.IBox;
 import org.eclipse.vex.core.internal.boxes.IChildBox;
 import org.eclipse.vex.core.internal.boxes.IInlineBox;
 import org.eclipse.vex.core.internal.boxes.IParentBox;
+import org.eclipse.vex.core.internal.boxes.Margin;
 import org.eclipse.vex.core.internal.boxes.NodeReference;
+import org.eclipse.vex.core.internal.boxes.Padding;
 import org.eclipse.vex.core.internal.boxes.Paragraph;
 import org.eclipse.vex.core.internal.boxes.RootBox;
 import org.eclipse.vex.core.internal.boxes.TextContent;
 import org.eclipse.vex.core.internal.boxes.VerticalBlock;
 import org.eclipse.vex.core.internal.core.FontSpec;
+import org.eclipse.vex.core.internal.core.Graphics;
 import org.eclipse.vex.core.internal.dom.Document;
-import org.eclipse.vex.core.internal.dom.Element;
 import org.eclipse.vex.core.internal.widget.swt.BoxWidget;
 import org.eclipse.vex.core.internal.widget.swt.BoxWidget.ILayoutListener;
 import org.eclipse.vex.core.internal.widget.swt.BoxWidget.IPaintingListener;
@@ -40,6 +48,7 @@ import org.eclipse.vex.core.provisional.dom.BaseNodeVisitorWithResult;
 import org.eclipse.vex.core.provisional.dom.IDocument;
 import org.eclipse.vex.core.provisional.dom.IElement;
 import org.eclipse.vex.core.provisional.dom.INode;
+import org.eclipse.vex.core.provisional.dom.IParent;
 import org.eclipse.vex.core.provisional.dom.IText;
 
 /**
@@ -49,16 +58,20 @@ import org.eclipse.vex.core.provisional.dom.IText;
  */
 public class BoxView extends ViewPart {
 
-	private static final FontSpec TIMES_NEW_ROMAN = new FontSpec(new String[] { "Times New Roman" }, 0, 20.0f);
+	private static final FontSpec TIMES_NEW_ROMAN = new FontSpec("Times New Roman", FontSpec.PLAIN, 20.0f);
 
 	private static final String LOREM_IPSUM_LONG = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec a diam lectus. Sed sit amet ipsum mauris. Maecenas congue ligula ac quam viverra nec consectetur ante hendrerit. Donec et mollis dolor. Praesent et diam eget libero egestas mattis sit amet vitae augue. Nam tincidunt congue enim, ut porta lorem lacinia consectetur.";
 
 	private Composite parent;
 	private BoxWidget boxWidget;
+	private ContentMap contentMap;
+	private Cursor cursor;
 
 	@Override
 	public void createPartControl(final Composite parent) {
 		this.parent = parent;
+		contentMap = new ContentMap();
+		cursor = new Cursor(contentMap);
 		refresh();
 	}
 
@@ -109,10 +122,38 @@ public class BoxView extends ViewPart {
 			public void paintingFinished(final Graphics graphics) {
 				final long duration = System.currentTimeMillis() - startTime;
 				System.out.println("took " + duration + "ms");
+
+				cursor.paint(graphics);
 			}
 
 		});
-		boxWidget.setContent(createTestModel());
+		boxWidget.addKeyListener(new KeyListener() {
+			@Override
+			public void keyReleased(final KeyEvent e) {
+				// ignore
+			}
+
+			@Override
+			public void keyPressed(final KeyEvent e) {
+				switch (e.keyCode) {
+				case SWT.ARROW_LEFT:
+					cursor.setPosition(Math.max(0, cursor.getPosition() - 1));
+					boxWidget.invalidate();
+					break;
+				case SWT.ARROW_RIGHT:
+					cursor.setPosition(cursor.getPosition() + 1);
+					boxWidget.invalidate();
+					break;
+				default:
+					break;
+				}
+			}
+		});
+
+		final RootBox testModel = createTestModel();
+		boxWidget.setContent(testModel);
+		contentMap.setRootBox(testModel);
+		// cursor.setPosition(0);
 		parent.layout();
 	}
 
@@ -134,15 +175,28 @@ public class BoxView extends ViewPart {
 
 	private static Document createTestDocument() {
 		final Document document = new Document(new QualifiedName(null, "doc"));
-		for (int i = 0; i < 25000; i += 1) {
-			insertParagraph(document);
+		for (int i = 0; i < 25; i += 1) {
+			insertSection(document.getRootElement());
 		}
 		return document;
 	}
 
-	private static void insertParagraph(final Document document) {
-		final Element textElement = document.insertElement(document.getRootElement().getEndOffset(), new QualifiedName(null, "para"));
+	private static void insertSection(final IParent parent) {
+		final IDocument document = parent.getDocument();
+		final IElement section = document.insertElement(parent.getEndOffset(), new QualifiedName(null, "section"));
+		insertParagraph(section);
+		insertEmptyParagraph(section);
+	}
+
+	private static void insertParagraph(final IParent parent) {
+		final IDocument document = parent.getDocument();
+		final IElement textElement = document.insertElement(parent.getEndOffset(), new QualifiedName(null, "para"));
 		document.insertText(textElement.getEndOffset(), LOREM_IPSUM_LONG);
+	}
+
+	private static void insertEmptyParagraph(final IParent parent) {
+		final IDocument document = parent.getDocument();
+		document.insertElement(parent.getEndOffset(), new QualifiedName(null, "para"));
 	}
 
 	private static VisualizationChain buildVisualizationChain() {
@@ -157,18 +211,30 @@ public class BoxView extends ViewPart {
 	private static final class DocumentRootVisualization extends NodeVisualization<RootBox> {
 		@Override
 		public RootBox visit(final IDocument document) {
-			final RootBox result = rootBox();
-			visualizeChildrenStructure(document.children(), result);
-			return result;
+			final RootBox rootBox = rootBox();
+			final NodeReference rootReference = new NodeReference();
+			rootReference.setNode(document);
+			rootBox.appendChild(rootReference);
+
+			final VerticalBlock rootChildren = verticalBlock();
+			visualizeChildrenStructure(document.children(), rootChildren);
+
+			rootReference.setComponent(rootChildren);
+			return rootBox;
 		}
 	}
 
 	private static final class StructureElementVisualization extends NodeVisualization<IChildBox> {
 		@Override
 		public IChildBox visit(final IElement element) {
+			final NodeReference elementReference = new NodeReference();
+			elementReference.setNode(element);
+
 			final VerticalBlock component = verticalBlock();
 			visualizeChildrenStructure(element.children(), component);
-			return frame(component);
+
+			elementReference.setComponent(frame(component, Margin.NULL, Border.NULL, new Padding(3, 3)));
+			return elementReference;
 		}
 	}
 
@@ -184,11 +250,20 @@ public class BoxView extends ViewPart {
 			}
 
 			final Paragraph paragraph = paragraph();
-			visualizeChildrenInline(element.children(), paragraph);
+			if (element.hasChildren()) {
+				visualizeChildrenInline(element.children(), paragraph);
+			} else {
+				visualizeEmptyParagraph(element, paragraph);
+			}
 			final NodeReference nodeReference = new NodeReference();
-			nodeReference.setComponent(frame(paragraph));
+			nodeReference.setComponent(frame(paragraph, Margin.NULL, Border.NULL, new Padding(5, 4)));
 			nodeReference.setNode(element);
+			nodeReference.setCanContainText(true);
 			return nodeReference;
+		}
+
+		private void visualizeEmptyParagraph(final IElement element, final Paragraph paragraph) {
+			paragraph.appendChild(staticText(" ", TIMES_NEW_ROMAN));
 		}
 	}
 
