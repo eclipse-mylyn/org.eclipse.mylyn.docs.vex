@@ -66,6 +66,11 @@ public class VerticalBlock implements IChildBox, IParentBox<IChildBox> {
 		visitor.visit(this);
 	}
 
+	@Override
+	public <T> T accept(final IBoxVisitorWithResult<T> visitor) {
+		return visitor.visit(this);
+	}
+
 	public boolean hasChildren() {
 		return !children.isEmpty();
 	}

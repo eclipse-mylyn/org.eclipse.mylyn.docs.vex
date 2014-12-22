@@ -102,6 +102,11 @@ public class TextContent implements IInlineBox, IContentBox {
 	}
 
 	@Override
+	public <T> T accept(final IBoxVisitorWithResult<T> visitor) {
+		return visitor.visit(this);
+	}
+
+	@Override
 	public void layout(final Graphics graphics) {
 		if (layoutValid) {
 			return;

@@ -68,6 +68,11 @@ public class Paragraph implements IChildBox, IParentBox<IInlineBox> {
 		visitor.visit(this);
 	}
 
+	@Override
+	public <T> T accept(final IBoxVisitorWithResult<T> visitor) {
+		return visitor.visit(this);
+	}
+
 	public boolean hasChildren() {
 		return !children.isEmpty();
 	}

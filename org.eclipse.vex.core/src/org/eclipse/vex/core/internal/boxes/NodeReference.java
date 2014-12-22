@@ -70,6 +70,11 @@ public class NodeReference implements IChildBox, IDecoratorBox<IChildBox>, ICont
 	}
 
 	@Override
+	public <T> T accept(final IBoxVisitorWithResult<T> visitor) {
+		return visitor.visit(this);
+	}
+
+	@Override
 	public void setComponent(final IChildBox component) {
 		this.component = component;
 	}

@@ -10,63 +10,67 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.boxes;
 
-import java.util.ArrayList;
-
 import org.eclipse.vex.core.internal.core.Graphics;
+import org.eclipse.vex.core.internal.core.Rectangle;
 
 /**
  * @author Florian Thienel
  */
-public class RootBox implements IParentBox<IChildBox> {
+public class FakeContentBox implements IContentBox {
 
-	private int width;
-	private int height;
-	private final ArrayList<IChildBox> children = new ArrayList<IChildBox>();
+	private final int startOffset;
+	private final int endOffset;
+	private final Rectangle area;
 
+	public FakeContentBox(final int startOffset, final int endOffset, final Rectangle area) {
+		this.startOffset = startOffset;
+		this.endOffset = endOffset;
+		this.area = area;
+	}
+
+	@Override
 	public int getWidth() {
-		return width;
+		return area.getWidth();
 	}
 
-	public void setWidth(final int width) {
-		this.width = width;
-	}
-
+	@Override
 	public int getHeight() {
-		return height;
+		return area.getHeight();
 	}
 
+	@Override
 	public void accept(final IBoxVisitor visitor) {
-		visitor.visit(this);
+		// ignore
 	}
 
 	@Override
 	public <T> T accept(final IBoxVisitorWithResult<T> visitor) {
-		return visitor.visit(this);
+		return null;
 	}
 
 	@Override
-	public boolean hasChildren() {
-		return !children.isEmpty();
-	}
-
-	@Override
-	public void appendChild(final IChildBox child) {
-		children.add(child);
-	}
-
 	public void layout(final Graphics graphics) {
-		height = 0;
-		for (int i = 0; i < children.size(); i += 1) {
-			final IChildBox child = children.get(i);
-			child.setPosition(height, 0);
-			child.setWidth(width);
-			child.layout(graphics);
-			height += child.getHeight();
-		}
+		// ignore
 	}
 
 	@Override
 	public void paint(final Graphics graphics) {
-		ChildBoxPainter.paint(children, graphics);
+		// ignore
 	}
+
+	@Override
+	public int getStartOffset() {
+		return startOffset;
+	}
+
+	@Override
+	public int getEndOffset() {
+		return endOffset;
+	}
+
+	@Override
+	public Rectangle getPositionArea(final Graphics graphics, final int offset) {
+		return area;
+	}
+
 }

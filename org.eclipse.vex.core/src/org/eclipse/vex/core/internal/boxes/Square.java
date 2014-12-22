@@ -70,6 +70,11 @@ public class Square implements IInlineBox {
 	}
 
 	@Override
+	public <T> T accept(final IBoxVisitorWithResult<T> visitor) {
+		return visitor.visit(this);
+	}
+
+	@Override
 	public void layout(final Graphics graphics) {
 		// ignore
 	}

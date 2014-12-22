@@ -68,6 +68,11 @@ public class Frame implements IChildBox, IDecoratorBox<IChildBox> {
 		visitor.visit(this);
 	}
 
+	@Override
+	public <T> T accept(final IBoxVisitorWithResult<T> visitor) {
+		return visitor.visit(this);
+	}
+
 	public Margin getMargin() {
 		return margin;
 	}

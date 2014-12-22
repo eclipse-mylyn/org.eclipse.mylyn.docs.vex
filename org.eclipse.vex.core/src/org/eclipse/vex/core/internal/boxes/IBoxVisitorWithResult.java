@@ -10,22 +10,27 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.boxes;
 
-import org.eclipse.vex.core.internal.core.Graphics;
-
 /**
  * @author Florian Thienel
  */
-public interface IBox {
+public interface IBoxVisitorWithResult<T> {
 
-	int getWidth();
+	T visit(RootBox box);
 
-	int getHeight();
+	T visit(VerticalBlock box);
 
-	void accept(IBoxVisitor visitor);
+	T visit(Frame box);
 
-	<T> T accept(IBoxVisitorWithResult<T> visitor);
+	T visit(NodeReference box);
 
-	void layout(Graphics graphics);
+	T visit(HorizontalBar box);
 
-	void paint(Graphics graphics);
+	T visit(Paragraph box);
+
+	T visit(StaticText box);
+
+	T visit(TextContent box);
+
+	T visit(Square box);
+
 }

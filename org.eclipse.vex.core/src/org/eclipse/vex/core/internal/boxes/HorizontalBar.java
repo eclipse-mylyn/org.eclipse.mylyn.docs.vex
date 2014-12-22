@@ -79,6 +79,11 @@ public class HorizontalBar implements IChildBox {
 		visitor.visit(this);
 	}
 
+	@Override
+	public <T> T accept(final IBoxVisitorWithResult<T> visitor) {
+		return visitor.visit(this);
+	}
+
 	public void layout(final Graphics graphics) {
 		// ignore, everything is static
 	}
