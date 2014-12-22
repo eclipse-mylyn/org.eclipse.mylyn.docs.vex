@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.widget.swt;
 
+import java.util.concurrent.CopyOnWriteArrayList;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.ControlListener;
@@ -52,6 +54,9 @@ public class BoxWidget extends Canvas {
 	private Runnable nextRenderer;
 	private final Object rendererMonitor = new Object();
 
+	private final CopyOnWriteArrayList<ILayoutListener> layoutListeners = new CopyOnWriteArrayList<ILayoutListener>();
+	private final CopyOnWriteArrayList<IPaintingListener> paintingListeners = new CopyOnWriteArrayList<IPaintingListener>();
+
 	public BoxWidget(final Composite parent, final int style) {
 		super(parent, style | SWT.NO_BACKGROUND);
 		connectDispose();
@@ -66,6 +71,10 @@ public class BoxWidget extends Canvas {
 
 	public void setContent(final RootBox rootBox) {
 		this.rootBox = rootBox;
+	}
+
+	public void invalidate() {
+		scheduleRenderer(new Painter(getDisplay(), getVerticalBar().getSelection(), getSize().x, getSize().y));
 	}
 
 	private void connectDispose() {
@@ -186,17 +195,15 @@ public class BoxWidget extends Canvas {
 	}
 
 	private void layoutRootBox(final Graphics graphics) {
-		System.out.print("Layout ");
-		final long start = System.currentTimeMillis();
+		fireLayoutStarting(graphics);
 		rootBox.layout(graphics);
-		System.out.println("took " + (System.currentTimeMillis() - start));
+		fireLayoutFinished(graphics);
 	}
 
 	private void paintRootBox(final Graphics graphics) {
-		System.out.print("Painting ");
-		final long start = System.currentTimeMillis();
+		firePaintingStarting(graphics);
 		rootBox.paint(graphics);
-		System.out.println("took " + (System.currentTimeMillis() - start));
+		firePaintingFinished(graphics);
 	}
 
 	private void updateVerticalBar() {
@@ -209,6 +216,62 @@ public class BoxWidget extends Canvas {
 				getVerticalBar().setValues(selection, 0, maximum, pageSize, pageSize / 4, pageSize);
 			}
 		});
+	}
+
+	public void addLayoutListener(final ILayoutListener listener) {
+		layoutListeners.add(listener);
+	}
+
+	public void removeLayoutListener(final ILayoutListener listener) {
+		layoutListeners.remove(listener);
+	}
+
+	private void fireLayoutStarting(final Graphics graphics) {
+		for (final ILayoutListener listener : layoutListeners) {
+			try {
+				listener.layoutStarting(graphics);
+			} catch (final Throwable t) {
+				t.printStackTrace();
+			}
+		}
+	}
+
+	private void fireLayoutFinished(final Graphics graphics) {
+		for (final ILayoutListener listener : layoutListeners) {
+			try {
+				listener.layoutFinished(graphics);
+			} catch (final Throwable t) {
+				t.printStackTrace();
+			}
+		}
+	}
+
+	public void addPaintingListener(final IPaintingListener listener) {
+		paintingListeners.add(listener);
+	}
+
+	public void removePaintingListener(final IPaintingListener listener) {
+		paintingListeners.remove(listener);
+	}
+
+	private void firePaintingStarting(final Graphics graphics) {
+		for (final IPaintingListener listener : paintingListeners) {
+			try {
+				listener.paintingStarting(graphics);
+			} catch (final Throwable t) {
+				t.printStackTrace();
+			}
+		}
+	}
+
+	private void firePaintingFinished(final Graphics graphics) {
+		for (final IPaintingListener listener : paintingListeners) {
+			try {
+				listener.paintingFinished(graphics);
+			} catch (final Throwable t) {
+				t.printStackTrace();
+			}
+		}
 	}
 
 	private class Layouter implements Runnable {
@@ -265,4 +328,17 @@ public class BoxWidget extends Canvas {
 			rendererFinished();
 		}
 	}
+
+	public static interface ILayoutListener {
+		void layoutStarting(Graphics graphics);
+
+		void layoutFinished(Graphics graphics);
+	}
+
+	public static interface IPaintingListener {
+		void paintingStarting(Graphics graphics);
+
+		void paintingFinished(Graphics graphics);
+	}
+
 }

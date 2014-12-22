@@ -34,6 +34,8 @@ import org.eclipse.vex.core.internal.core.FontSpec;
 import org.eclipse.vex.core.internal.dom.Document;
 import org.eclipse.vex.core.internal.dom.Element;
 import org.eclipse.vex.core.internal.widget.swt.BoxWidget;
+import org.eclipse.vex.core.internal.widget.swt.BoxWidget.ILayoutListener;
+import org.eclipse.vex.core.internal.widget.swt.BoxWidget.IPaintingListener;
 import org.eclipse.vex.core.provisional.dom.BaseNodeVisitorWithResult;
 import org.eclipse.vex.core.provisional.dom.IDocument;
 import org.eclipse.vex.core.provisional.dom.IElement;
@@ -78,6 +80,38 @@ public class BoxView extends ViewPart {
 			cleanStaleReferenceInShell();
 		}
 		boxWidget = new BoxWidget(parent, SWT.V_SCROLL);
+		boxWidget.addLayoutListener(new ILayoutListener() {
+			private long startTime;
+
+			@Override
+			public void layoutStarting(final Graphics graphics) {
+				System.out.print("Layout ");
+				startTime = System.currentTimeMillis();
+			}
+
+			@Override
+			public void layoutFinished(final Graphics graphics) {
+				final long duration = System.currentTimeMillis() - startTime;
+				System.out.println("took " + duration + "ms");
+			}
+
+		});
+		boxWidget.addPaintingListener(new IPaintingListener() {
+			private long startTime;
+
+			@Override
+			public void paintingStarting(final Graphics graphics) {
+				System.out.print("Painting ");
+				startTime = System.currentTimeMillis();
+			}
+
+			@Override
+			public void paintingFinished(final Graphics graphics) {
+				final long duration = System.currentTimeMillis() - startTime;
+				System.out.println("took " + duration + "ms");
+			}
+
+		});
 		boxWidget.setContent(createTestModel());
 		parent.layout();
 	}
