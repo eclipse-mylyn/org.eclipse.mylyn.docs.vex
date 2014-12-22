@@ -92,6 +92,10 @@ public class Paragraph implements IChildBox, IParentBox<IInlineBox> {
 		return joined;
 	}
 
+	public Iterable<IInlineBox> getChildren() {
+		return children;
+	}
+
 	@Override
 	public void layout(final Graphics graphics) {
 		arrangeChildrenOnLines(graphics);

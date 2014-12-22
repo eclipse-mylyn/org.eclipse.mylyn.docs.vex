@@ -54,6 +54,10 @@ public class RootBox implements IParentBox<IChildBox> {
 		children.add(child);
 	}
 
+	public Iterable<IChildBox> getChildren() {
+		return children;
+	}
+
 	public void layout(final Graphics graphics) {
 		height = 0;
 		for (int i = 0; i < children.size(); i += 1) {

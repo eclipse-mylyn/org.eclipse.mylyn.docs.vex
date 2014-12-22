@@ -79,6 +79,11 @@ public class NodeReference implements IChildBox, IDecoratorBox<IChildBox>, ICont
 		this.component = component;
 	}
 
+	@Override
+	public IChildBox getComponent() {
+		return component;
+	}
+
 	public void setNode(final INode node) {
 		this.node = node;
 	}

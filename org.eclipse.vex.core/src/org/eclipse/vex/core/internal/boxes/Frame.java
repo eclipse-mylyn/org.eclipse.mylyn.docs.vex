@@ -102,6 +102,11 @@ public class Frame implements IChildBox, IDecoratorBox<IChildBox> {
 	}
 
 	@Override
+	public IChildBox getComponent() {
+		return component;
+	}
+
+	@Override
 	public void layout(final Graphics graphics) {
 		height = margin.top + border.top + padding.top;
 		layoutComponent(graphics);

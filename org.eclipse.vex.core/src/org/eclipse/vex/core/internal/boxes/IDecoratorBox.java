@@ -17,4 +17,5 @@ public interface IDecoratorBox<T extends IBox> extends IBox {
 
 	void setComponent(T component);
 
+	T getComponent();
 }
