@@ -29,8 +29,15 @@ public class Line {
 	private final LinkedList<IInlineBox> children = new LinkedList<IInlineBox>();
 
 	public void setPosition(final int top, final int left) {
+		translateChildrenToNewPosition(top, left);
 		this.top = top;
 		this.left = left;
+	}
+
+	private void translateChildrenToNewPosition(final int top, final int left) {
+		for (final IInlineBox child : children) {
+			child.setPosition(child.getTop() - this.top + top, child.getLeft() - this.left + left);
+		}
 	}
 
 	public Rectangle getBounds() {
@@ -125,9 +132,9 @@ public class Line {
 	}
 
 	private void arrangeChildrenOnBaseline() {
-		int childLeft = 0;
+		int childLeft = left;
 		for (final IInlineBox child : children) {
-			final int childTop = baseline - child.getBaseline();
+			final int childTop = baseline - child.getBaseline() + top;
 			child.setPosition(childTop, childLeft);
 			childLeft += child.getWidth();
 		}

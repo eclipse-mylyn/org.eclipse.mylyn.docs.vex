@@ -108,9 +108,12 @@ public class Paragraph implements IChildBox, IParentBox<IInlineBox> {
 	@Override
 	public void paint(final Graphics graphics) {
 		for (final Line line : lines.getLines()) {
-			graphics.moveOrigin(line.getLeft(), line.getTop());
+			/*
+			 * Line takes care of moving the origin for each child box. The coordinates of the child boxes are relative
+			 * to the Paragraph, not relative to the Line, because Paragraph is the children's parent. The Line is a
+			 * transparent utility with regards to the box structure, which is used internally by Paragraph.
+			 */
 			line.paint(graphics);
-			graphics.moveOrigin(-line.getLeft(), -line.getTop());
 		}
 	}
 
