@@ -17,6 +17,10 @@ import org.eclipse.vex.core.internal.core.Rectangle;
  */
 public interface IChildBox extends IBox {
 
+	void setParent(IBox parent);
+
+	IBox getParent();
+
 	void setPosition(int top, int left);
 
 	void setWidth(int width);

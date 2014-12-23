@@ -20,12 +20,23 @@ import org.eclipse.vex.core.internal.core.Rectangle;
  */
 public class Paragraph implements IChildBox, IParentBox<IInlineBox> {
 
+	private IBox parent;
 	private int top;
 	private int left;
 	private int width;
 
 	private final LinkedList<IInlineBox> children = new LinkedList<IInlineBox>();
 	private final LineArrangement lines = new LineArrangement();
+
+	@Override
+	public void setParent(final IBox parent) {
+		this.parent = parent;
+	}
+
+	@Override
+	public IBox getParent() {
+		return parent;
+	}
 
 	@Override
 	public int getTop() {
@@ -79,6 +90,7 @@ public class Paragraph implements IChildBox, IParentBox<IInlineBox> {
 
 	public void appendChild(final IInlineBox box) {
 		if (!joinWithLastChild(box)) {
+			box.setParent(this);
 			children.add(box);
 		}
 	}

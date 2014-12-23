@@ -23,11 +23,22 @@ import org.eclipse.vex.core.internal.core.Rectangle;
  */
 public class VerticalBlock implements IChildBox, IParentBox<IChildBox> {
 
+	private IBox parent;
 	private int top;
 	private int left;
 	private int width;
 	private int height;
 	private final ArrayList<IChildBox> children = new ArrayList<IChildBox>();
+
+	@Override
+	public void setParent(final IBox parent) {
+		this.parent = parent;
+	}
+
+	@Override
+	public IBox getParent() {
+		return parent;
+	}
 
 	public int getTop() {
 		return top;
@@ -76,6 +87,7 @@ public class VerticalBlock implements IChildBox, IParentBox<IChildBox> {
 	}
 
 	public void appendChild(final IChildBox child) {
+		child.setParent(this);
 		children.add(child);
 	}
 

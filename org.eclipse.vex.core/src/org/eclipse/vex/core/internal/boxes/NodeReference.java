@@ -19,6 +19,7 @@ import org.eclipse.vex.core.provisional.dom.INode;
  */
 public class NodeReference implements IChildBox, IDecoratorBox<IChildBox>, IContentBox {
 
+	private IBox parent;
 	private int top;
 	private int left;
 	private int width;
@@ -27,6 +28,16 @@ public class NodeReference implements IChildBox, IDecoratorBox<IChildBox>, ICont
 	private IChildBox component;
 
 	private INode node;
+
+	@Override
+	public void setParent(final IBox parent) {
+		this.parent = parent;
+	}
+
+	@Override
+	public IBox getParent() {
+		return parent;
+	}
 
 	@Override
 	public int getTop() {
@@ -77,6 +88,7 @@ public class NodeReference implements IChildBox, IDecoratorBox<IChildBox>, ICont
 	@Override
 	public void setComponent(final IChildBox component) {
 		this.component = component;
+		component.setParent(this);
 	}
 
 	@Override

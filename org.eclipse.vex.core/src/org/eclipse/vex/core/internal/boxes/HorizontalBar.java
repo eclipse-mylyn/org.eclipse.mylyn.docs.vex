@@ -20,6 +20,7 @@ import org.eclipse.vex.core.internal.core.Rectangle;
  */
 public class HorizontalBar implements IChildBox {
 
+	private IBox parent;
 	private int top;
 	private int left;
 	private int width;
@@ -27,9 +28,13 @@ public class HorizontalBar implements IChildBox {
 	private Color color;
 
 	@Override
-	public void setPosition(final int top, final int left) {
-		this.top = top;
-		this.left = left;
+	public void setParent(final IBox parent) {
+		this.parent = parent;
+	}
+
+	@Override
+	public IBox getParent() {
+		return parent;
 	}
 
 	@Override
@@ -40,6 +45,12 @@ public class HorizontalBar implements IChildBox {
 	@Override
 	public int getLeft() {
 		return left;
+	}
+
+	@Override
+	public void setPosition(final int top, final int left) {
+		this.top = top;
+		this.left = left;
 	}
 
 	@Override

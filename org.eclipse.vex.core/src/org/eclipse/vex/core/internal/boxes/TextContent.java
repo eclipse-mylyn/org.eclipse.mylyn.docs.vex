@@ -24,6 +24,7 @@ import org.eclipse.vex.core.provisional.dom.IPosition;
  */
 public class TextContent implements IInlineBox, IContentBox {
 
+	private IBox parent;
 	private int top;
 	private int left;
 	private int width;
@@ -39,6 +40,16 @@ public class TextContent implements IInlineBox, IContentBox {
 	private final CharSequenceSplitter splitter = new CharSequenceSplitter();
 
 	private boolean layoutValid;
+
+	@Override
+	public void setParent(final IBox parent) {
+		this.parent = parent;
+	}
+
+	@Override
+	public IBox getParent() {
+		return parent;
+	}
 
 	@Override
 	public int getTop() {
@@ -206,6 +217,7 @@ public class TextContent implements IInlineBox, IContentBox {
 		final TextContent tail = new TextContent();
 		tail.setContent(content, new ContentRange(startPosition.getOffset() + splittingPosition, endPosition.getOffset()));
 		tail.setFont(fontSpec);
+		tail.setParent(parent);
 		return tail;
 	}
 

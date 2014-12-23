@@ -20,9 +20,20 @@ import org.eclipse.vex.core.internal.core.Rectangle;
  */
 public class Square implements IInlineBox {
 
+	private IBox parent;
 	private int top;
 	private int left;
 	private int size;
+
+	@Override
+	public void setParent(final IBox parent) {
+		this.parent = parent;
+	}
+
+	@Override
+	public IBox getParent() {
+		return parent;
+	}
 
 	@Override
 	public int getTop() {

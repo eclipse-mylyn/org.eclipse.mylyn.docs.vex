@@ -21,6 +21,7 @@ import org.eclipse.vex.core.internal.core.Rectangle;
  */
 public class StaticText implements IInlineBox {
 
+	private IBox parent;
 	private int top;
 	private int left;
 	private int width;
@@ -33,6 +34,16 @@ public class StaticText implements IInlineBox {
 	private final CharSequenceSplitter splitter = new CharSequenceSplitter();
 
 	private boolean layoutValid;
+
+	@Override
+	public void setParent(final IBox parent) {
+		this.parent = parent;
+	}
+
+	@Override
+	public IBox getParent() {
+		return parent;
+	}
 
 	@Override
 	public int getTop() {
@@ -183,6 +194,7 @@ public class StaticText implements IInlineBox {
 		final StaticText tail = new StaticText();
 		tail.setText(text.substring(splittingPosition, text.length()));
 		tail.setFont(fontSpec);
+		tail.setParent(parent);
 		return tail;
 	}
 

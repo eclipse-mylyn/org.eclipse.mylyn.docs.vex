@@ -61,6 +61,7 @@ public class RootBox implements IParentBox<IChildBox> {
 
 	@Override
 	public void appendChild(final IChildBox child) {
+		child.setParent(this);
 		children.add(child);
 	}
 

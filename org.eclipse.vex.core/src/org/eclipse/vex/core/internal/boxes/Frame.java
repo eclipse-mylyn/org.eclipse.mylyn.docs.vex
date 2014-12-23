@@ -20,6 +20,7 @@ import org.eclipse.vex.core.internal.core.Rectangle;
  */
 public class Frame implements IChildBox, IDecoratorBox<IChildBox> {
 
+	private IBox parent;
 	private int top;
 	private int left;
 	private int width;
@@ -30,6 +31,16 @@ public class Frame implements IChildBox, IDecoratorBox<IChildBox> {
 	private Padding padding = Padding.NULL;
 
 	private IChildBox component;
+
+	@Override
+	public void setParent(final IBox parent) {
+		this.parent = parent;
+	}
+
+	@Override
+	public IBox getParent() {
+		return parent;
+	}
 
 	public int getTop() {
 		return top;
@@ -99,6 +110,7 @@ public class Frame implements IChildBox, IDecoratorBox<IChildBox> {
 
 	public void setComponent(final IChildBox component) {
 		this.component = component;
+		component.setParent(this);
 	}
 
 	@Override
