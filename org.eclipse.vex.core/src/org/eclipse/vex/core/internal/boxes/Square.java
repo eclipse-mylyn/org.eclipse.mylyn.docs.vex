@@ -25,17 +25,6 @@ public class Square implements IInlineBox {
 	private int size;
 
 	@Override
-	public void setPosition(final int top, final int left) {
-		this.top = top;
-		this.left = left;
-	}
-
-	@Override
-	public Rectangle getBounds() {
-		return new Rectangle(left, top, size, size);
-	}
-
-	@Override
 	public int getTop() {
 		return top;
 	}
@@ -45,8 +34,10 @@ public class Square implements IInlineBox {
 		return left;
 	}
 
-	public void setSize(final int size) {
-		this.size = size;
+	@Override
+	public void setPosition(final int top, final int left) {
+		this.top = top;
+		this.left = left;
 	}
 
 	@Override
@@ -57,6 +48,15 @@ public class Square implements IInlineBox {
 	@Override
 	public int getHeight() {
 		return size;
+	}
+
+	@Override
+	public Rectangle getBounds() {
+		return new Rectangle(left, top, size, size);
+	}
+
+	public void setSize(final int size) {
+		this.size = size;
 	}
 
 	@Override

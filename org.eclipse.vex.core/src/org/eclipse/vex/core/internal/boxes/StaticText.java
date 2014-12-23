@@ -35,17 +35,6 @@ public class StaticText implements IInlineBox {
 	private boolean layoutValid;
 
 	@Override
-	public void setPosition(final int top, final int left) {
-		this.top = top;
-		this.left = left;
-	}
-
-	@Override
-	public Rectangle getBounds() {
-		return new Rectangle(left, top, width, height);
-	}
-
-	@Override
 	public int getTop() {
 		return top;
 	}
@@ -56,6 +45,12 @@ public class StaticText implements IInlineBox {
 	}
 
 	@Override
+	public void setPosition(final int top, final int left) {
+		this.top = top;
+		this.left = left;
+	}
+
+	@Override
 	public int getWidth() {
 		return width;
 	}
@@ -63,6 +58,11 @@ public class StaticText implements IInlineBox {
 	@Override
 	public int getHeight() {
 		return height;
+	}
+
+	@Override
+	public Rectangle getBounds() {
+		return new Rectangle(left, top, width, height);
 	}
 
 	@Override

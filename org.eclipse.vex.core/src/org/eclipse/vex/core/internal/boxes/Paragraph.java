@@ -28,17 +28,6 @@ public class Paragraph implements IChildBox, IParentBox<IInlineBox> {
 	private final LineArrangement lines = new LineArrangement();
 
 	@Override
-	public void setPosition(final int top, final int left) {
-		this.top = top;
-		this.left = left;
-	}
-
-	@Override
-	public Rectangle getBounds() {
-		return new Rectangle(left, top, width, lines.getHeight());
-	}
-
-	@Override
 	public int getTop() {
 		return top;
 	}
@@ -46,6 +35,12 @@ public class Paragraph implements IChildBox, IParentBox<IInlineBox> {
 	@Override
 	public int getLeft() {
 		return left;
+	}
+
+	@Override
+	public void setPosition(final int top, final int left) {
+		this.top = top;
+		this.left = left;
 	}
 
 	@Override
@@ -61,6 +56,11 @@ public class Paragraph implements IChildBox, IParentBox<IInlineBox> {
 	@Override
 	public int getHeight() {
 		return lines.getHeight();
+	}
+
+	@Override
+	public Rectangle getBounds() {
+		return new Rectangle(left, top, width, lines.getHeight());
 	}
 
 	@Override
