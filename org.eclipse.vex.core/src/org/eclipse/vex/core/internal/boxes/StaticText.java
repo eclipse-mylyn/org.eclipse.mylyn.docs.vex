@@ -46,6 +46,22 @@ public class StaticText implements IInlineBox {
 	}
 
 	@Override
+	public int getAbsoluteTop() {
+		if (parent == null) {
+			return top;
+		}
+		return parent.getAbsoluteTop() + top;
+	}
+
+	@Override
+	public int getAbsoluteLeft() {
+		if (parent == null) {
+			return left;
+		}
+		return parent.getAbsoluteLeft() + left;
+	}
+
+	@Override
 	public int getTop() {
 		return top;
 	}

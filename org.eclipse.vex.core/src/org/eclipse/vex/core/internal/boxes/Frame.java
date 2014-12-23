@@ -42,6 +42,22 @@ public class Frame implements IChildBox, IDecoratorBox<IChildBox> {
 		return parent;
 	}
 
+	@Override
+	public int getAbsoluteTop() {
+		if (parent == null) {
+			return top;
+		}
+		return parent.getAbsoluteTop() + top;
+	}
+
+	@Override
+	public int getAbsoluteLeft() {
+		if (parent == null) {
+			return left;
+		}
+		return parent.getAbsoluteLeft() + left;
+	}
+
 	public int getTop() {
 		return top;
 	}

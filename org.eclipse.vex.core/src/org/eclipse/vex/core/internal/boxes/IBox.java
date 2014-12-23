@@ -17,6 +17,10 @@ import org.eclipse.vex.core.internal.core.Graphics;
  */
 public interface IBox {
 
+	int getAbsoluteTop();
+
+	int getAbsoluteLeft();
+
 	int getTop();
 
 	int getLeft();

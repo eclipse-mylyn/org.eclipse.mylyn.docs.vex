@@ -24,6 +24,16 @@ public class RootBox implements IParentBox<IChildBox> {
 	private final ArrayList<IChildBox> children = new ArrayList<IChildBox>();
 
 	@Override
+	public int getAbsoluteTop() {
+		return 0;
+	}
+
+	@Override
+	public int getAbsoluteLeft() {
+		return 0;
+	}
+
+	@Override
 	public int getTop() {
 		return 0;
 	}
