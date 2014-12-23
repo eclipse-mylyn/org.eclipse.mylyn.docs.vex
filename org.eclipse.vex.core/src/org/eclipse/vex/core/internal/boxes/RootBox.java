@@ -23,6 +23,16 @@ public class RootBox implements IParentBox<IChildBox> {
 	private int height;
 	private final ArrayList<IChildBox> children = new ArrayList<IChildBox>();
 
+	@Override
+	public int getTop() {
+		return 0;
+	}
+
+	@Override
+	public int getLeft() {
+		return 0;
+	}
+
 	public int getWidth() {
 		return width;
 	}

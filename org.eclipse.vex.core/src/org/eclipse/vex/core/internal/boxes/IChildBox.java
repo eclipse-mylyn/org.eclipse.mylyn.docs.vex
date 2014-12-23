@@ -19,10 +19,6 @@ public interface IChildBox extends IBox {
 
 	void setPosition(int top, int left);
 
-	int getTop();
-
-	int getLeft();
-
 	void setWidth(int width);
 
 	/**

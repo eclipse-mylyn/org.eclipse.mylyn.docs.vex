@@ -29,6 +29,16 @@ public class FakeContentBox implements IContentBox {
 	}
 
 	@Override
+	public int getTop() {
+		return area.getY();
+	}
+
+	@Override
+	public int getLeft() {
+		return area.getX();
+	}
+
+	@Override
 	public int getWidth() {
 		return area.getWidth();
 	}

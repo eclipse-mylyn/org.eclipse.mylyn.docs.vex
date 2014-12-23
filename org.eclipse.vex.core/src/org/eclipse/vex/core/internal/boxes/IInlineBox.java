@@ -20,10 +20,6 @@ public interface IInlineBox extends IBox {
 
 	void setPosition(int top, int left);
 
-	int getTop();
-
-	int getLeft();
-
 	/**
 	 * The baseline is relative to the top of this box.
 	 */
