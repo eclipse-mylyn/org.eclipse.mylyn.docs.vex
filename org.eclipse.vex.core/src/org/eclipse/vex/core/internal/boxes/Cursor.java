@@ -125,6 +125,64 @@ public class Cursor {
 		return offset;
 	}
 
+	private static String getNodeStartMarker(final INode node) {
+		return node.accept(new BaseNodeVisitorWithResult<String>() {
+			@Override
+			public String visit(final IDocument document) {
+				return "DOCUMENT";
+			}
+
+			@Override
+			public String visit(final IElement element) {
+				return "<" + element.getPrefixedName() + "...";
+			}
+
+			@Override
+			public String visit(final IComment comment) {
+				return "<!--";
+			}
+
+			@Override
+			public String visit(final IProcessingInstruction pi) {
+				return "<?" + pi.getTarget() + "...";
+			}
+
+			@Override
+			public String visit(final IIncludeNode include) {
+				return getNodeStartMarker(include.getReference());
+			}
+		});
+	}
+
+	private static String getNodeEndMarker(final INode node) {
+		return node.accept(new BaseNodeVisitorWithResult<String>() {
+			@Override
+			public String visit(final IDocument document) {
+				return "DOCUMENT";
+			}
+
+			@Override
+			public String visit(final IElement element) {
+				return "</" + element.getPrefixedName() + ">";
+			}
+
+			@Override
+			public String visit(final IComment comment) {
+				return "--!>";
+			}
+
+			@Override
+			public String visit(final IProcessingInstruction pi) {
+				return "?>";
+			}
+
+			@Override
+			public String visit(final IIncludeNode include) {
+				return getNodeEndMarker(include.getReference());
+			}
+		});
+	}
+
 	private static interface Caret {
 		void paint(Graphics graphics);
 	}
@@ -156,7 +214,7 @@ public class Cursor {
 			graphics.fillRect(x, y, 2, area.getHeight());
 
 			graphics.setCurrentFont(graphics.getFont(FONT));
-			final String nodeName = getNodeName(node);
+			final String nodeName = getNodeStartMarker(node);
 			final int textWidth = graphics.stringWidth(nodeName);
 			final int textHeight = graphics.getFontMetrics().getHeight();
 			final int textPadding = 3;
@@ -165,34 +223,6 @@ public class Cursor {
 			graphics.drawString(nodeName, x + textOffset + textPadding, y + textOffset + textPadding);
 		}
 
-		private static String getNodeName(final INode node) {
-			return node.accept(new BaseNodeVisitorWithResult<String>() {
-				@Override
-				public String visit(final IDocument document) {
-					return "DOCUMENT";
-				}
-
-				@Override
-				public String visit(final IElement element) {
-					return "<" + element.getPrefixedName() + "...";
-				}
-
-				@Override
-				public String visit(final IComment comment) {
-					return "<!--";
-				}
-
-				@Override
-				public String visit(final IProcessingInstruction pi) {
-					return "<?" + pi.getTarget() + "...";
-				}
-
-				@Override
-				public String visit(final IIncludeNode include) {
-					return getNodeName(include.getReference());
-				}
-			});
-		}
 	}
 
 	private static class AppendNodeWithTextCaret implements Caret {
@@ -223,7 +253,7 @@ public class Cursor {
 			graphics.fillRect(x, y, 2, area.getHeight());
 
 			graphics.setCurrentFont(graphics.getFont(FONT));
-			final String nodeName = getNodeName(node);
+			final String nodeName = getNodeEndMarker(node);
 			final int textWidth = graphics.stringWidth(nodeName);
 			final int textHeight = graphics.getFontMetrics().getHeight();
 			final int textPadding = 3;
@@ -233,34 +263,6 @@ public class Cursor {
 			graphics.drawString(nodeName, x + textOffsetX + textPadding, y + textOffsetY + textPadding);
 		}
 
-		private static String getNodeName(final INode node) {
-			return node.accept(new BaseNodeVisitorWithResult<String>() {
-				@Override
-				public String visit(final IDocument document) {
-					return "DOCUMENT";
-				}
-
-				@Override
-				public String visit(final IElement element) {
-					return "</" + element.getPrefixedName() + ">";
-				}
-
-				@Override
-				public String visit(final IComment comment) {
-					return "--!>";
-				}
-
-				@Override
-				public String visit(final IProcessingInstruction pi) {
-					return "?>";
-				}
-
-				@Override
-				public String visit(final IIncludeNode include) {
-					return getNodeName(include.getReference());
-				}
-			});
-		}
 	}
 
 	private static class AppendStructuralNodeCaret implements Caret {
@@ -290,42 +292,13 @@ public class Cursor {
 			graphics.fillRect(x + area.getWidth() - 2, y, 2, -area.getHeight());
 
 			graphics.setCurrentFont(graphics.getFont(FONT));
-			final String nodeName = getNodeName(node);
+			final String nodeName = getNodeEndMarker(node);
 			final int textWidth = graphics.stringWidth(nodeName);
 			final int textHeight = graphics.getFontMetrics().getHeight();
 			final int textPadding = 3;
 			final int textOffset = 5;
 			graphics.fillRect(x, y + textOffset, textWidth + textPadding * 2, textHeight + textPadding * 2);
 			graphics.drawString(nodeName, x + textPadding, y + textOffset + textPadding);
-		}
-
-		private static String getNodeName(final INode node) {
-			return node.accept(new BaseNodeVisitorWithResult<String>() {
-				@Override
-				public String visit(final IDocument document) {
-					return "DOCUMENT";
-				}
-
-				@Override
-				public String visit(final IElement element) {
-					return "</" + element.getPrefixedName() + ">";
-				}
-
-				@Override
-				public String visit(final IComment comment) {
-					return "--!>";
-				}
-
-				@Override
-				public String visit(final IProcessingInstruction pi) {
-					return "?>";
-				}
-
-				@Override
-				public String visit(final IIncludeNode include) {
-					return getNodeName(include.getReference());
-				}
-			});
 		}
 	}
 
