@@ -144,6 +144,10 @@ public class BoxView extends ViewPart {
 					cursor.setPosition(cursor.getPosition() + 1);
 					boxWidget.invalidate();
 					break;
+				case SWT.HOME:
+					cursor.setPosition(0);
+					boxWidget.invalidate();
+					break;
 				default:
 					break;
 				}
@@ -153,7 +157,6 @@ public class BoxView extends ViewPart {
 		final RootBox testModel = createTestModel();
 		boxWidget.setContent(testModel);
 		contentMap.setRootBox(testModel);
-		// cursor.setPosition(0);
 		parent.layout();
 	}
 
