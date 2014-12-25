@@ -183,6 +183,20 @@ public class Cursor {
 		});
 	}
 
+	private static void drawTag(final Graphics graphics, final String text, final int x, final int y, final boolean verticallyCentered) {
+		final int textWidth = graphics.stringWidth(text);
+		final int textHeight = graphics.getFontMetrics().getHeight();
+		final int textPadding = 3;
+		final int effectiveY;
+		if (verticallyCentered) {
+			effectiveY = y - (textHeight + textPadding * 2) / 2;
+		} else {
+			effectiveY = y;
+		}
+		graphics.fillRect(x, effectiveY, textWidth + textPadding * 2, textHeight + textPadding * 2);
+		graphics.drawString(text, x + textPadding, effectiveY + textPadding);
+	}
+
 	private static interface Caret {
 		void paint(Graphics graphics);
 	}
@@ -215,12 +229,7 @@ public class Cursor {
 
 			graphics.setCurrentFont(graphics.getFont(FONT));
 			final String nodeName = getNodeStartMarker(node);
-			final int textWidth = graphics.stringWidth(nodeName);
-			final int textHeight = graphics.getFontMetrics().getHeight();
-			final int textPadding = 3;
-			final int textOffset = 5;
-			graphics.fillRect(x + textOffset, y + textOffset, textWidth + textPadding * 2, textHeight + textPadding * 2);
-			graphics.drawString(nodeName, x + textOffset + textPadding, y + textOffset + textPadding);
+			drawTag(graphics, nodeName, x + 5, y + 5, false);
 		}
 
 	}
@@ -254,13 +263,7 @@ public class Cursor {
 
 			graphics.setCurrentFont(graphics.getFont(FONT));
 			final String nodeName = getNodeEndMarker(node);
-			final int textWidth = graphics.stringWidth(nodeName);
-			final int textHeight = graphics.getFontMetrics().getHeight();
-			final int textPadding = 3;
-			final int textOffsetX = 5;
-			final int textOffsetY = (area.getHeight() - textHeight - textPadding * 2) / 2;
-			graphics.fillRect(x + textOffsetX, y + textOffsetY, textWidth + textPadding * 2, textHeight + textPadding * 2);
-			graphics.drawString(nodeName, x + textOffsetX + textPadding, y + textOffsetY + textPadding);
+			drawTag(graphics, nodeName, x + 5, y + area.getHeight() / 2, true);
 		}
 
 	}
@@ -293,12 +296,7 @@ public class Cursor {
 
 			graphics.setCurrentFont(graphics.getFont(FONT));
 			final String nodeName = getNodeEndMarker(node);
-			final int textWidth = graphics.stringWidth(nodeName);
-			final int textHeight = graphics.getFontMetrics().getHeight();
-			final int textPadding = 3;
-			final int textOffset = 5;
-			graphics.fillRect(x, y + textOffset, textWidth + textPadding * 2, textHeight + textPadding * 2);
-			graphics.drawString(nodeName, x + textPadding, y + textOffset + textPadding);
+			drawTag(graphics, nodeName, x + 5, y + 5, false);
 		}
 	}
 
