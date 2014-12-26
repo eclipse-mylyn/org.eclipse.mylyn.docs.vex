@@ -12,6 +12,9 @@ package org.eclipse.vex.core.internal.boxes;
 
 import org.eclipse.vex.core.internal.core.Color;
 import org.eclipse.vex.core.internal.core.FontSpec;
+import org.eclipse.vex.core.provisional.dom.ContentRange;
+import org.eclipse.vex.core.provisional.dom.IContent;
+import org.eclipse.vex.core.provisional.dom.INode;
 
 /**
  * This factory allows the conventient creation of box structures using nested method calls to factory methods.
@@ -51,6 +54,34 @@ public class BoxFactory {
 		return frame;
 	}
 
+	public static NodeReference nodeReference(final INode node) {
+		final NodeReference nodeReference = new NodeReference();
+		nodeReference.setNode(node);
+		return nodeReference;
+	}
+
+	public static NodeReference nodeReference(final INode node, final IChildBox component) {
+		final NodeReference nodeReference = new NodeReference();
+		nodeReference.setNode(node);
+		nodeReference.setComponent(component);
+		return nodeReference;
+	}
+
+	public static NodeReference nodeReferenceWithText(final INode node) {
+		final NodeReference nodeReference = new NodeReference();
+		nodeReference.setNode(node);
+		nodeReference.setCanContainText(true);
+		return nodeReference;
+	}
+
+	public static NodeReference nodeReferenceWithText(final INode node, final IChildBox component) {
+		final NodeReference nodeReference = new NodeReference();
+		nodeReference.setNode(node);
+		nodeReference.setCanContainText(true);
+		nodeReference.setComponent(component);
+		return nodeReference;
+	}
+
 	public static HorizontalBar horizontalBar(final int height) {
 		final HorizontalBar horizontalBar = new HorizontalBar();
 		horizontalBar.setHeight(height);
@@ -70,6 +101,13 @@ public class BoxFactory {
 			paragraph.appendChild(child);
 		}
 		return paragraph;
+	}
+
+	public static TextContent textContent(final IContent content, final ContentRange range, final FontSpec font) {
+		final TextContent textContent = new TextContent();
+		textContent.setContent(content, range);
+		textContent.setFont(font);
+		return textContent;
 	}
 
 	public static StaticText staticText(final String text, final FontSpec font) {
