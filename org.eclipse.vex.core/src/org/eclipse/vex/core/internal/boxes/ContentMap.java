@@ -22,23 +22,7 @@ public class ContentMap {
 	}
 
 	public IContentBox findBoxForPosition(final int offset) {
-		final IBoxVisitorWithResult<IContentBox> search = new BaseBoxVisitorWithResult<IContentBox>() {
-
-			@Override
-			public IContentBox visit(final RootBox box) {
-				return traverseChildren(box);
-			}
-
-			@Override
-			public IContentBox visit(final VerticalBlock box) {
-				return traverseChildren(box);
-			}
-
-			@Override
-			public IContentBox visit(final Frame box) {
-				return box.getComponent().accept(this);
-			}
-
+		return rootBox.accept(new DepthFirstTraversal<IContentBox>() {
 			@Override
 			public IContentBox visit(final NodeReference box) {
 				if (box.getStartOffset() == offset || box.getEndOffset() == offset) {
@@ -62,19 +46,7 @@ public class ContentMap {
 				}
 				return null;
 			}
-
-			private <T extends IBox> IContentBox traverseChildren(final IParentBox<T> box) {
-				for (final T child : box.getChildren()) {
-					final IContentBox childResult = child.accept(this);
-
-					if (childResult != null) {
-						return childResult;
-					}
-				}
-				return null;
-			}
-		};
-
-		return rootBox.accept(search);
+		});
 	}
+
 }
