@@ -11,9 +11,12 @@
 package org.eclipse.vex.ui.boxview;
 
 import static org.eclipse.vex.core.internal.boxes.BoxFactory.frame;
+import static org.eclipse.vex.core.internal.boxes.BoxFactory.nodeReference;
+import static org.eclipse.vex.core.internal.boxes.BoxFactory.nodeReferenceWithText;
 import static org.eclipse.vex.core.internal.boxes.BoxFactory.paragraph;
 import static org.eclipse.vex.core.internal.boxes.BoxFactory.rootBox;
 import static org.eclipse.vex.core.internal.boxes.BoxFactory.staticText;
+import static org.eclipse.vex.core.internal.boxes.BoxFactory.textContent;
 import static org.eclipse.vex.core.internal.boxes.BoxFactory.verticalBlock;
 
 import java.util.TreeSet;
@@ -28,12 +31,9 @@ import org.eclipse.vex.core.internal.boxes.IChildBox;
 import org.eclipse.vex.core.internal.boxes.IInlineBox;
 import org.eclipse.vex.core.internal.boxes.IParentBox;
 import org.eclipse.vex.core.internal.boxes.Margin;
-import org.eclipse.vex.core.internal.boxes.NodeReference;
 import org.eclipse.vex.core.internal.boxes.Padding;
 import org.eclipse.vex.core.internal.boxes.Paragraph;
 import org.eclipse.vex.core.internal.boxes.RootBox;
-import org.eclipse.vex.core.internal.boxes.TextContent;
-import org.eclipse.vex.core.internal.boxes.VerticalBlock;
 import org.eclipse.vex.core.internal.core.FontSpec;
 import org.eclipse.vex.core.internal.dom.Document;
 import org.eclipse.vex.core.internal.widget.swt.BoxWidget;
@@ -142,30 +142,14 @@ public class BoxView extends ViewPart {
 	private static final class DocumentRootVisualization extends NodeVisualization<RootBox> {
 		@Override
 		public RootBox visit(final IDocument document) {
-			final RootBox rootBox = rootBox();
-			final NodeReference rootReference = new NodeReference();
-			rootReference.setNode(document);
-			rootBox.appendChild(rootReference);
-
-			final VerticalBlock rootChildren = verticalBlock();
-			visualizeChildrenStructure(document.children(), rootChildren);
-
-			rootReference.setComponent(rootChildren);
-			return rootBox;
+			return rootBox(nodeReference(document, visualizeChildrenStructure(document.children(), verticalBlock())));
 		}
 	}
 
 	private static final class StructureElementVisualization extends NodeVisualization<IChildBox> {
 		@Override
 		public IChildBox visit(final IElement element) {
-			final NodeReference elementReference = new NodeReference();
-			elementReference.setNode(element);
-
-			final VerticalBlock component = verticalBlock();
-			visualizeChildrenStructure(element.children(), component);
-
-			elementReference.setComponent(frame(component, Margin.NULL, Border.NULL, new Padding(3, 3)));
-			return elementReference;
+			return nodeReference(element, frame(visualizeChildrenStructure(element.children(), verticalBlock()), Margin.NULL, Border.NULL, new Padding(3, 3)));
 		}
 	}
 
@@ -186,11 +170,7 @@ public class BoxView extends ViewPart {
 			} else {
 				visualizeEmptyParagraph(element, paragraph);
 			}
-			final NodeReference nodeReference = new NodeReference();
-			nodeReference.setComponent(frame(paragraph, Margin.NULL, Border.NULL, new Padding(5, 4)));
-			nodeReference.setNode(element);
-			nodeReference.setCanContainText(true);
-			return nodeReference;
+			return nodeReferenceWithText(element, frame(paragraph, Margin.NULL, Border.NULL, new Padding(5, 4)));
 		}
 
 		private void visualizeEmptyParagraph(final IElement element, final Paragraph paragraph) {
@@ -201,10 +181,7 @@ public class BoxView extends ViewPart {
 	private static final class TextVisualization extends NodeVisualization<IInlineBox> {
 		@Override
 		public IInlineBox visit(final IText text) {
-			final TextContent result = new TextContent();
-			result.setContent(text.getContent(), text.getRange());
-			result.setFont(TIMES_NEW_ROMAN);
-			return result;
+			return textContent(text.getContent(), text.getRange(), TIMES_NEW_ROMAN);
 		}
 	}
 
@@ -233,22 +210,24 @@ public class BoxView extends ViewPart {
 			this.chain = chain;
 		}
 
-		protected final void visualizeChildrenStructure(final Iterable<INode> children, final IParentBox<IChildBox> parentBox) {
+		protected final <P extends IParentBox<IChildBox>> P visualizeChildrenStructure(final Iterable<INode> children, final P parentBox) {
 			for (final INode child : children) {
 				final IChildBox childBox = chain.visualizeStructure(child);
 				if (childBox != null) {
 					parentBox.appendChild(childBox);
 				}
 			}
+			return parentBox;
 		}
 
-		protected final void visualizeChildrenInline(final Iterable<INode> children, final IParentBox<IInlineBox> parentBox) {
+		protected final <P extends IParentBox<IInlineBox>> P visualizeChildrenInline(final Iterable<INode> children, final P parentBox) {
 			for (final INode child : children) {
 				final IInlineBox childBox = chain.visualizeInline(child);
 				if (childBox != null) {
 					parentBox.appendChild(childBox);
 				}
 			}
+			return parentBox;
 		}
 	}
 
