@@ -20,13 +20,9 @@ import java.util.TreeSet;
 
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.KeyEvent;
-import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.part.ViewPart;
 import org.eclipse.vex.core.internal.boxes.Border;
-import org.eclipse.vex.core.internal.boxes.ContentMap;
-import org.eclipse.vex.core.internal.boxes.Cursor;
 import org.eclipse.vex.core.internal.boxes.IBox;
 import org.eclipse.vex.core.internal.boxes.IChildBox;
 import org.eclipse.vex.core.internal.boxes.IInlineBox;
@@ -39,11 +35,8 @@ import org.eclipse.vex.core.internal.boxes.RootBox;
 import org.eclipse.vex.core.internal.boxes.TextContent;
 import org.eclipse.vex.core.internal.boxes.VerticalBlock;
 import org.eclipse.vex.core.internal.core.FontSpec;
-import org.eclipse.vex.core.internal.core.Graphics;
 import org.eclipse.vex.core.internal.dom.Document;
 import org.eclipse.vex.core.internal.widget.swt.BoxWidget;
-import org.eclipse.vex.core.internal.widget.swt.BoxWidget.ILayoutListener;
-import org.eclipse.vex.core.internal.widget.swt.BoxWidget.IPaintingListener;
 import org.eclipse.vex.core.provisional.dom.BaseNodeVisitorWithResult;
 import org.eclipse.vex.core.provisional.dom.IDocument;
 import org.eclipse.vex.core.provisional.dom.IElement;
@@ -64,14 +57,10 @@ public class BoxView extends ViewPart {
 
 	private Composite parent;
 	private BoxWidget boxWidget;
-	private ContentMap contentMap;
-	private Cursor cursor;
 
 	@Override
 	public void createPartControl(final Composite parent) {
 		this.parent = parent;
-		contentMap = new ContentMap();
-		cursor = new Cursor(contentMap);
 		refresh();
 	}
 
@@ -93,70 +82,9 @@ public class BoxView extends ViewPart {
 			cleanStaleReferenceInShell();
 		}
 		boxWidget = new BoxWidget(parent, SWT.V_SCROLL);
-		boxWidget.addLayoutListener(new ILayoutListener() {
-			private long startTime;
-
-			@Override
-			public void layoutStarting(final Graphics graphics) {
-				System.out.print("Layout ");
-				startTime = System.currentTimeMillis();
-			}
-
-			@Override
-			public void layoutFinished(final Graphics graphics) {
-				final long duration = System.currentTimeMillis() - startTime;
-				System.out.println("took " + duration + "ms");
-			}
-
-		});
-		boxWidget.addPaintingListener(new IPaintingListener() {
-			private long startTime;
-
-			@Override
-			public void paintingStarting(final Graphics graphics) {
-				System.out.print("Painting ");
-				startTime = System.currentTimeMillis();
-			}
-
-			@Override
-			public void paintingFinished(final Graphics graphics) {
-				final long duration = System.currentTimeMillis() - startTime;
-				System.out.println("took " + duration + "ms");
-
-				cursor.paint(graphics);
-			}
-
-		});
-		boxWidget.addKeyListener(new KeyListener() {
-			@Override
-			public void keyReleased(final KeyEvent e) {
-				// ignore
-			}
-
-			@Override
-			public void keyPressed(final KeyEvent e) {
-				switch (e.keyCode) {
-				case SWT.ARROW_LEFT:
-					cursor.setPosition(Math.max(0, cursor.getPosition() - 1));
-					boxWidget.invalidate();
-					break;
-				case SWT.ARROW_RIGHT:
-					cursor.setPosition(cursor.getPosition() + 1);
-					boxWidget.invalidate();
-					break;
-				case SWT.HOME:
-					cursor.setPosition(0);
-					boxWidget.invalidate();
-					break;
-				default:
-					break;
-				}
-			}
-		});
 
 		final RootBox testModel = createTestModel();
 		boxWidget.setContent(testModel);
-		contentMap.setRootBox(testModel);
 		parent.layout();
 	}
 

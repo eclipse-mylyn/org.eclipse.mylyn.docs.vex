@@ -10,22 +10,26 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.widget.swt;
 
-import java.util.concurrent.CopyOnWriteArrayList;
-
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.ControlAdapter;
 import org.eclipse.swt.events.ControlEvent;
-import org.eclipse.swt.events.ControlListener;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
+import org.eclipse.swt.events.KeyAdapter;
+import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.events.MouseAdapter;
+import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
+import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.vex.core.internal.boxes.ContentMap;
+import org.eclipse.vex.core.internal.boxes.Cursor;
 import org.eclipse.vex.core.internal.boxes.RootBox;
 import org.eclipse.vex.core.internal.core.Graphics;
 
@@ -38,12 +42,15 @@ public class BoxWidget extends Canvas {
 
 	private RootBox rootBox;
 
+	private final ContentMap contentMap;
+	private final Cursor cursor;
+
 	/*
 	 * Use double buffering with a dedicated render thread to render the box model: This prevents flickering and keeps
 	 * the UI responsive even for big box models.
 	 * 
 	 * The prevention of flickering works only in conjunction with the style bit SWT.NO_BACKGROUND.
-	 * 
+	 *
 	 * @see http://git.eclipse.org/c/platform/eclipse.platform.swt.git/tree/examples/org.eclipse.swt.snippets/src/org
 	 * /eclipse/swt/snippets/Snippet48.java
 	 */
@@ -54,9 +61,6 @@ public class BoxWidget extends Canvas {
 	private Runnable nextRenderer;
 	private final Object rendererMonitor = new Object();
 
-	private final CopyOnWriteArrayList<ILayoutListener> layoutListeners = new CopyOnWriteArrayList<ILayoutListener>();
-	private final CopyOnWriteArrayList<IPaintingListener> paintingListeners = new CopyOnWriteArrayList<IPaintingListener>();
-
 	public BoxWidget(final Composite parent, final int style) {
 		super(parent, style | SWT.NO_BACKGROUND);
 		connectDispose();
@@ -65,12 +69,17 @@ public class BoxWidget extends Canvas {
 		if ((style & SWT.V_SCROLL) == SWT.V_SCROLL) {
 			connectScrollVertically();
 		}
+		connectKeyboard();
 
 		rootBox = new RootBox();
+		contentMap = new ContentMap();
+		contentMap.setRootBox(rootBox);
+		cursor = new Cursor(contentMap);
 	}
 
 	public void setContent(final RootBox rootBox) {
 		this.rootBox = rootBox;
+		contentMap.setRootBox(rootBox);
 	}
 
 	public void invalidate() {
@@ -96,29 +105,28 @@ public class BoxWidget extends Canvas {
 	}
 
 	private void connectResize() {
-		addControlListener(new ControlListener() {
+		addControlListener(new ControlAdapter() {
 			@Override
 			public void controlResized(final ControlEvent e) {
 				resize(e);
-			}
-
-			@Override
-			public void controlMoved(final ControlEvent e) {
-				// ignore
 			}
 		});
 	}
 
 	private void connectScrollVertically() {
-		getVerticalBar().addSelectionListener(new SelectionListener() {
+		getVerticalBar().addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(final SelectionEvent e) {
 				scrollVertically(e);
 			}
+		});
+	}
 
+	private void connectKeyboard() {
+		addKeyListener(new KeyAdapter() {
 			@Override
-			public void widgetDefaultSelected(final SelectionEvent e) {
-				// ignore
+			public void keyPressed(final KeyEvent e) {
+				BoxWidget.this.keyPressed(e);
 			}
 		});
 	}
@@ -142,6 +150,25 @@ public class BoxWidget extends Canvas {
 
 	private void scrollVertically(final SelectionEvent event) {
 		scheduleRenderer(new Painter(getDisplay(), getVerticalBar().getSelection(), getSize().x, getSize().y));
+	}
+
+	private void keyPressed(final KeyEvent event) {
+		switch (event.keyCode) {
+		case SWT.ARROW_LEFT:
+			cursor.setPosition(Math.max(0, cursor.getPosition() - 1));
+			invalidate();
+			break;
+		case SWT.ARROW_RIGHT:
+			cursor.setPosition(cursor.getPosition() + 1);
+			invalidate();
+			break;
+		case SWT.HOME:
+			cursor.setPosition(0);
+			invalidate();
+			break;
+		default:
+			break;
+		}
 	}
 
 	private void scheduleRenderer(final Runnable renderer) {
@@ -194,16 +221,13 @@ public class BoxWidget extends Canvas {
 		});
 	}
 
-	private void layoutRootBox(final Graphics graphics) {
-		fireLayoutStarting(graphics);
+	private void layoutContent(final Graphics graphics) {
 		rootBox.layout(graphics);
-		fireLayoutFinished(graphics);
 	}
 
-	private void paintRootBox(final Graphics graphics) {
-		firePaintingStarting(graphics);
+	private void paintContent(final Graphics graphics) {
 		rootBox.paint(graphics);
-		firePaintingFinished(graphics);
+		cursor.paint(graphics);
 	}
 
 	private void updateVerticalBar() {
@@ -216,62 +240,6 @@ public class BoxWidget extends Canvas {
 				getVerticalBar().setValues(selection, 0, maximum, pageSize, pageSize / 4, pageSize);
 			}
 		});
-	}
-
-	public void addLayoutListener(final ILayoutListener listener) {
-		layoutListeners.add(listener);
-	}
-
-	public void removeLayoutListener(final ILayoutListener listener) {
-		layoutListeners.remove(listener);
-	}
-
-	private void fireLayoutStarting(final Graphics graphics) {
-		for (final ILayoutListener listener : layoutListeners) {
-			try {
-				listener.layoutStarting(graphics);
-			} catch (final Throwable t) {
-				t.printStackTrace();
-			}
-		}
-	}
-
-	private void fireLayoutFinished(final Graphics graphics) {
-		for (final ILayoutListener listener : layoutListeners) {
-			try {
-				listener.layoutFinished(graphics);
-			} catch (final Throwable t) {
-				t.printStackTrace();
-			}
-		}
-	}
-
-	public void addPaintingListener(final IPaintingListener listener) {
-		paintingListeners.add(listener);
-	}
-
-	public void removePaintingListener(final IPaintingListener listener) {
-		paintingListeners.remove(listener);
-	}
-
-	private void firePaintingStarting(final Graphics graphics) {
-		for (final IPaintingListener listener : paintingListeners) {
-			try {
-				listener.paintingStarting(graphics);
-			} catch (final Throwable t) {
-				t.printStackTrace();
-			}
-		}
-	}
-
-	private void firePaintingFinished(final Graphics graphics) {
-		for (final IPaintingListener listener : paintingListeners) {
-			try {
-				listener.paintingFinished(graphics);
-			} catch (final Throwable t) {
-				t.printStackTrace();
-			}
-		}
 	}
 
 	private class Layouter implements Runnable {
@@ -290,8 +258,8 @@ public class BoxWidget extends Canvas {
 			final Graphics graphics = new SwtGraphics(gc);
 			graphics.moveOrigin(0, -top);
 
-			layoutRootBox(graphics);
-			paintRootBox(graphics);
+			layoutContent(graphics);
+			paintContent(graphics);
 
 			graphics.dispose();
 			gc.dispose();
@@ -319,7 +287,7 @@ public class BoxWidget extends Canvas {
 			final Graphics graphics = new SwtGraphics(gc);
 			graphics.moveOrigin(0, -top);
 
-			paintRootBox(graphics);
+			paintContent(graphics);
 
 			graphics.dispose();
 			gc.dispose();
@@ -327,18 +295,6 @@ public class BoxWidget extends Canvas {
 			swapBufferImage(image);
 			rendererFinished();
 		}
-	}
-
-	public static interface ILayoutListener {
-		void layoutStarting(Graphics graphics);
-
-		void layoutFinished(Graphics graphics);
-	}
-
-	public static interface IPaintingListener {
-		void paintingStarting(Graphics graphics);
-
-		void paintingFinished(Graphics graphics);
 	}
 
 }
