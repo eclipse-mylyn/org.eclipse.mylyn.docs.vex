@@ -178,4 +178,14 @@ public class NodeReference implements IChildBox, IDecoratorBox<IChildBox>, ICont
 		return getStartOffset() == offset;
 	}
 
+	@Override
+	public String toString() {
+		String result = "NodeReference{ ";
+		result += "x: " + left + ", y: " + top + ", width: " + width + ", height: " + height;
+		if (node != null) {
+			result += ", startOffset: " + node.getStartOffset() + ", endOffset: " + node.getEndOffset();
+		}
+		result += " }";
+		return result;
+	}
 }

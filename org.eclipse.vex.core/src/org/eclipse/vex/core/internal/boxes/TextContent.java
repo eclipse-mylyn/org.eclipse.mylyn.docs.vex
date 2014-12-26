@@ -267,4 +267,9 @@ public class TextContent implements IInlineBox, IContentBox {
 		final int charWidth = graphics.stringWidth(Character.toString(c));
 		return new Rectangle(left, 0, charWidth, height);
 	}
+
+	@Override
+	public String toString() {
+		return "TextContent{ x: " + left + ", y: " + top + ", width: " + width + ", height: " + height + ", startOffset: " + startPosition + ", endOffset: " + endPosition + " }";
+	}
 }
