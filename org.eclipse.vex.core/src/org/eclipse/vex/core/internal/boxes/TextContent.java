@@ -269,6 +269,27 @@ public class TextContent implements IInlineBox, IContentBox {
 	}
 
 	@Override
+	public int getOffsetForCoordinates(final Graphics graphics, final int x, final int y) {
+		if (y < 0) {
+			return getStartOffset();
+		}
+		if (y > height) {
+			return getEndOffset();
+		}
+
+		applyFont(graphics);
+		splitter.setContent(content, startPosition.getOffset(), endPosition.getOffset());
+		final int offset = getStartOffset() + splitter.findPositionBefore(graphics, x, width);
+		final Rectangle area = getPositionArea(graphics, offset);
+		final int halfWidth = area.getWidth() / 2 + 1;
+		if (x < area.getX() + halfWidth) {
+			return offset;
+		} else {
+			return Math.min(offset + 1, getEndOffset());
+		}
+	}
+
+	@Override
 	public String toString() {
 		return "TextContent{ x: " + left + ", y: " + top + ", width: " + width + ", height: " + height + ", startOffset: " + startPosition + ", endOffset: " + endPosition + " }";
 	}

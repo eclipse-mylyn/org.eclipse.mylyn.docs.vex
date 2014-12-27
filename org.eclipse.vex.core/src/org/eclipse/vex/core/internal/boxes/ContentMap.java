@@ -49,4 +49,62 @@ public class ContentMap {
 		});
 	}
 
+	public IContentBox findBoxByCoordinates(final int x, final int y) {
+		return rootBox.accept(new DepthFirstTraversal<IContentBox>() {
+
+			private IContentBox nearBy;
+
+			@Override
+			public IContentBox visit(final NodeReference box) {
+				if (!containsCoordinates(box, x, y)) {
+					return null;
+				}
+
+				final IContentBox componentResult = box.getComponent().accept(this);
+				if (componentResult != null) {
+					return componentResult;
+				}
+				if (nearBy != null && (rightFromX(nearBy, x) && isFirstEnclosedBox(box, nearBy) || leftFromX(nearBy, x) && isLastEnclosedBox(box, nearBy))) {
+					return nearBy;
+				}
+				return box;
+
+			}
+
+			private boolean isLastEnclosedBox(final IContentBox enclosingBox, final IContentBox enclosedBox) {
+				return enclosedBox.getEndOffset() < enclosingBox.getEndOffset() - 1;
+			}
+
+			private boolean isFirstEnclosedBox(final IContentBox enclosingBox, final IContentBox enclosedBox) {
+				return enclosedBox.getStartOffset() > enclosingBox.getStartOffset() + 1;
+			}
+
+			@Override
+			public IContentBox visit(final TextContent box) {
+				if (containsCoordinates(box, x, y)) {
+					return box;
+				}
+				if (containsY(box, y)) {
+					nearBy = box;
+				}
+				return null;
+			}
+
+			private boolean containsCoordinates(final IBox box, final int x, final int y) {
+				return x >= box.getAbsoluteLeft() && x <= box.getAbsoluteLeft() + box.getWidth() && containsY(box, y);
+			}
+
+			private boolean containsY(final IBox box, final int y) {
+				return y >= box.getAbsoluteTop() && y <= box.getAbsoluteTop() + box.getHeight();
+			}
+
+			private boolean rightFromX(final IBox box, final int x) {
+				return x < box.getAbsoluteLeft();
+			}
+
+			private boolean leftFromX(final IBox box, final int x) {
+				return x > box.getAbsoluteLeft() + box.getWidth();
+			}
+		});
+	}
 }

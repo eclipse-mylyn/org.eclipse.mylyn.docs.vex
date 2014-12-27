@@ -93,4 +93,9 @@ public class FakeContentBox implements IContentBox {
 		return area;
 	}
 
+	@Override
+	public int getOffsetForCoordinates(final Graphics graphics, final int x, final int y) {
+		return startOffset;
+	}
+
 }

@@ -30,6 +30,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.vex.core.internal.boxes.ContentMap;
 import org.eclipse.vex.core.internal.boxes.Cursor;
+import org.eclipse.vex.core.internal.boxes.IContentBox;
 import org.eclipse.vex.core.internal.boxes.RootBox;
 import org.eclipse.vex.core.internal.core.Graphics;
 
@@ -70,6 +71,7 @@ public class BoxWidget extends Canvas {
 			connectScrollVertically();
 		}
 		connectKeyboard();
+		connectMouse();
 
 		rootBox = new RootBox();
 		contentMap = new ContentMap();
@@ -131,6 +133,15 @@ public class BoxWidget extends Canvas {
 		});
 	}
 
+	private void connectMouse() {
+		addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseDown(final MouseEvent e) {
+				BoxWidget.this.mouseDown(e);
+			}
+		});
+	}
+
 	private void widgetDisposed() {
 		rootBox = null;
 		if (bufferImage != null) {
@@ -169,6 +180,22 @@ public class BoxWidget extends Canvas {
 		default:
 			break;
 		}
+	}
+
+	private void mouseDown(final MouseEvent event) {
+		final int absoluteY = event.y + getVerticalBar().getSelection();
+		final IContentBox clickedBox = contentMap.findBoxByCoordinates(event.x, absoluteY);
+
+		final Image image = new Image(getDisplay(), getSize().x, getSize().y);
+		final GC gc = new GC(image);
+		final Graphics graphics = new SwtGraphics(gc);
+		final int offset = clickedBox.getOffsetForCoordinates(graphics, event.x - clickedBox.getAbsoluteLeft(), absoluteY - clickedBox.getAbsoluteTop());
+		graphics.dispose();
+		gc.dispose();
+		image.dispose();
+
+		cursor.setPosition(offset);
+		invalidate();
 	}
 
 	private void scheduleRenderer(final Runnable renderer) {
