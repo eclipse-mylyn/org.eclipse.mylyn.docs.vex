@@ -3,10 +3,10 @@
    <description>
       Visual Editor for XML
    </description>
-   <feature url="features/org.eclipse.vex.feature_1.1.0.qualifier.jar" id="org.eclipse.vex.feature" version="1.1.0.qualifier">
+   <feature url="features/org.eclipse.vex.feature_1.2.0.qualifier.jar" id="org.eclipse.vex.feature" version="1.2.0.qualifier">
       <category name="vex_core"/>
    </feature>
-   <feature url="features/org.eclipse.vex.sdk.feature_1.1.0.qualifier.jar" id="org.eclipse.vex.sdk.feature" version="1.1.0.qualifier">
+   <feature url="features/org.eclipse.vex.sdk.feature_1.2.0.qualifier.jar" id="org.eclipse.vex.sdk.feature" version="1.2.0.qualifier">
       <category name="vex_core"/>
    </feature>
    <category-def name="vex_core" label="Visual Editor for XML">
