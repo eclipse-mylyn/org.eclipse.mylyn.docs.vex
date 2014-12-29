@@ -34,9 +34,65 @@ public class Cursor {
 
 	private int offset;
 	private final ContentMap contentMap;
+	private Caret caret;
 
 	public Cursor(final ContentMap contentMap) {
 		this.contentMap = contentMap;
+	}
+
+	public void setPosition(final int offset) {
+		this.offset = offset;
+	}
+
+	public int getPosition() {
+		return offset;
+	}
+
+	public Rectangle getCaretArea() {
+		if (caret == null) {
+			return Rectangle.NULL;
+		}
+		return caret.getArea();
+	}
+
+	public void paint(final Graphics graphics) {
+		final IContentBox box = contentMap.findBoxForPosition(offset);
+		if (box == null) {
+			return;
+		}
+		caret = getCaretForBox(graphics, box, offset);
+
+		if (caret == null) {
+			return;
+		}
+		caret.paint(graphics);
+	}
+
+	private Caret getCaretForBox(final Graphics graphics, final IContentBox box, final int offset) {
+		return box.accept(new BaseBoxVisitorWithResult<Caret>() {
+			@Override
+			public Caret visit(final NodeReference box) {
+				return getCaretForNode(graphics, box, offset);
+			}
+
+			@Override
+			public Caret visit(final TextContent box) {
+				return getCaretForText(graphics, box, offset);
+			}
+		});
+	}
+
+	private Caret getCaretForNode(final Graphics graphics, final NodeReference box, final int offset) {
+		final Rectangle area = getAbsolutePositionArea(graphics, box, offset);
+		if (box.isAtStart(offset)) {
+			return new InsertBeforeNodeCaret(area, box.getNode());
+		} else if (box.isAtEnd(offset) && box.canContainText()) {
+			return new AppendNodeWithTextCaret(area, box.getNode(), box.isEmpty());
+		} else if (box.isAtEnd(offset) && !box.canContainText()) {
+			return new AppendStructuralNodeCaret(area, box.getNode());
+		} else {
+			return null;
+		}
 	}
 
 	private Rectangle getAbsolutePositionArea(final Graphics graphics, final IContentBox box, final int offset) {
@@ -66,24 +122,11 @@ public class Cursor {
 		});
 	}
 
-	private Rectangle makeAbsolute(final Rectangle rectangle, final IBox box) {
+	private static Rectangle makeAbsolute(final Rectangle rectangle, final IBox box) {
 		return new Rectangle(rectangle.getX() + box.getAbsoluteLeft(), rectangle.getY() + box.getAbsoluteTop(), rectangle.getWidth(), rectangle.getHeight());
 	}
 
-	private Caret getCaretForNode(final Graphics graphics, final NodeReference box) {
-		final Rectangle area = getAbsolutePositionArea(graphics, box, offset);
-		if (box.isAtStart(offset)) {
-			return new InsertBeforeNodeCaret(area, box.getNode());
-		} else if (box.isAtEnd(offset) && box.canContainText()) {
-			return new AppendNodeWithTextCaret(area, box.getNode(), box.isEmpty());
-		} else if (box.isAtEnd(offset) && !box.canContainText()) {
-			return new AppendStructuralNodeCaret(area, box.getNode());
-		} else {
-			return null;
-		}
-	}
-
-	private Caret getCaretForText(final Graphics graphics, final TextContent box) {
+	private Caret getCaretForText(final Graphics graphics, final TextContent box, final int offset) {
 		if (box.getStartOffset() > offset || box.getEndOffset() < offset) {
 			return null;
 		}
@@ -92,37 +135,6 @@ public class Cursor {
 		final FontSpec font = box.getFont();
 		final String character = box.getText().substring(offset - box.getStartOffset(), offset - box.getStartOffset() + 1);
 		return new TextCaret(area, font, character, false);
-	}
-
-	public void paint(final Graphics graphics) {
-		final IContentBox box = contentMap.findBoxForPosition(offset);
-		if (box == null) {
-			return;
-		}
-		final Caret caret = box.accept(new BaseBoxVisitorWithResult<Caret>() {
-			@Override
-			public Caret visit(final NodeReference box) {
-				return getCaretForNode(graphics, box);
-			}
-
-			@Override
-			public Caret visit(final TextContent box) {
-				return getCaretForText(graphics, box);
-			}
-		});
-
-		if (caret == null) {
-			return;
-		}
-		caret.paint(graphics);
-	}
-
-	public void setPosition(final int offset) {
-		this.offset = offset;
-	}
-
-	public int getPosition() {
-		return offset;
 	}
 
 	private static String getNodeStartMarker(final INode node) {
@@ -198,6 +210,8 @@ public class Cursor {
 	}
 
 	private static interface Caret {
+		Rectangle getArea();
+
 		void paint(Graphics graphics);
 	}
 
@@ -208,6 +222,11 @@ public class Cursor {
 		public InsertBeforeNodeCaret(final Rectangle area, final INode node) {
 			this.area = area;
 			this.node = node;
+		}
+
+		@Override
+		public Rectangle getArea() {
+			return area;
 		}
 
 		@Override
@@ -246,6 +265,11 @@ public class Cursor {
 		}
 
 		@Override
+		public Rectangle getArea() {
+			return area;
+		}
+
+		@Override
 		public void paint(final Graphics graphics) {
 			if (area == Rectangle.NULL) {
 				return;
@@ -275,6 +299,11 @@ public class Cursor {
 		public AppendStructuralNodeCaret(final Rectangle area, final INode node) {
 			this.area = area;
 			this.node = node;
+		}
+
+		@Override
+		public Rectangle getArea() {
+			return area;
 		}
 
 		@Override
@@ -311,6 +340,11 @@ public class Cursor {
 			this.font = font;
 			this.character = character;
 			this.overwrite = overwrite;
+		}
+
+		@Override
+		public Rectangle getArea() {
+			return area;
 		}
 
 		@Override
