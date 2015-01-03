@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 Florian Thienel and others.
+ * Copyright (c) 2014, 2015 Florian Thienel and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -51,7 +51,7 @@ public class BoxWidget extends Canvas {
 	 * the UI responsive even for big box models.
 	 * 
 	 * The prevention of flickering works only in conjunction with the style bit SWT.NO_BACKGROUND.
-	 *
+	 * 
 	 * @see http://git.eclipse.org/c/platform/eclipse.platform.swt.git/tree/examples/org.eclipse.swt.snippets/src/org
 	 * /eclipse/swt/snippets/Snippet48.java
 	 */
@@ -166,15 +166,13 @@ public class BoxWidget extends Canvas {
 	private void keyPressed(final KeyEvent event) {
 		switch (event.keyCode) {
 		case SWT.ARROW_LEFT:
-			cursor.setPosition(Math.max(0, cursor.getPosition() - 1));
-			invalidate();
+			cursorLeft();
 			break;
 		case SWT.ARROW_RIGHT:
-			cursor.setPosition(cursor.getPosition() + 1);
-			invalidate();
+			cursorRight();
 			break;
 		case SWT.HOME:
-			cursor.setPosition(0);
+			setCursorPosition(0);
 			invalidate();
 			break;
 		default:
@@ -186,16 +184,58 @@ public class BoxWidget extends Canvas {
 		final int absoluteY = event.y + getVerticalBar().getSelection();
 		final IContentBox clickedBox = contentMap.findBoxByCoordinates(event.x, absoluteY);
 
-		final Image image = new Image(getDisplay(), getSize().x, getSize().y);
+		setCursorPositionInBoxByAbsoluteCoordinates(clickedBox, event.x, absoluteY);
+
+		invalidate();
+	}
+
+	private void cursorLeft() {
+		setCursorPosition(Math.max(0, cursor.getPosition() - 1));
+		invalidate();
+	}
+
+	private void cursorRight() {
+		setCursorPosition(cursor.getPosition() + 1);
+		invalidate();
+	}
+
+	private void setCursorPositionInBoxByAbsoluteCoordinates(final IContentBox box, final int x, final int y) {
+		runWithGraphics(new IRunnableWithGraphics<Object>() {
+			@Override
+			public Integer run(final Graphics graphics) {
+				final int offset = box.getOffsetForCoordinates(graphics, x - box.getAbsoluteLeft(), y - box.getAbsoluteTop());
+				cursor.setPosition(graphics, offset);
+				return null;
+			}
+		});
+	}
+
+	private void setCursorPosition(final int offset) {
+		runWithGraphics(new IRunnableWithGraphics<Object>() {
+			@Override
+			public Integer run(final Graphics graphics) {
+				cursor.setPosition(graphics, offset);
+				return null;
+			}
+		});
+	}
+
+	private <T> T runWithGraphics(final IRunnableWithGraphics<T> runnable) {
+		final Image image = new Image(getDisplay(), 1, 1);
 		final GC gc = new GC(image);
 		final Graphics graphics = new SwtGraphics(gc);
-		final int offset = clickedBox.getOffsetForCoordinates(graphics, event.x - clickedBox.getAbsoluteLeft(), absoluteY - clickedBox.getAbsoluteTop());
-		graphics.dispose();
-		gc.dispose();
-		image.dispose();
 
-		cursor.setPosition(offset);
-		invalidate();
+		try {
+			return runnable.run(graphics);
+		} finally {
+			graphics.dispose();
+			gc.dispose();
+			image.dispose();
+		}
+	}
+
+	private static interface IRunnableWithGraphics<T> {
+		T run(Graphics graphics);
 	}
 
 	private void scheduleRenderer(final Runnable renderer) {

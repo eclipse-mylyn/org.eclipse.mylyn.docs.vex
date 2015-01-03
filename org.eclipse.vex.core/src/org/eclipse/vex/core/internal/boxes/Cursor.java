@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 Florian Thienel and others.
+ * Copyright (c) 2014, 2015 Florian Thienel and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -35,13 +35,20 @@ public class Cursor {
 	private int offset;
 	private final ContentMap contentMap;
 	private Caret caret;
+	private IContentBox box;
 
 	public Cursor(final ContentMap contentMap) {
 		this.contentMap = contentMap;
 	}
 
-	public void setPosition(final int offset) {
+	public void setPosition(final Graphics graphics, final int offset) {
 		this.offset = offset;
+
+		box = contentMap.findBoxForPosition(offset);
+		if (box == null) {
+			return;
+		}
+		caret = getCaretForBox(graphics, box, offset);
 	}
 
 	public int getPosition() {
@@ -55,13 +62,11 @@ public class Cursor {
 		return caret.getArea();
 	}
 
-	public void paint(final Graphics graphics) {
-		final IContentBox box = contentMap.findBoxForPosition(offset);
-		if (box == null) {
-			return;
-		}
-		caret = getCaretForBox(graphics, box, offset);
+	public IContentBox getCurrentBox() {
+		return box;
+	}
 
+	public void paint(final Graphics graphics) {
 		if (caret == null) {
 			return;
 		}
