@@ -93,21 +93,27 @@ public class BoxView extends ViewPart {
 	}
 
 	private static void insertSection(final IParent parent) {
-		final IDocument document = parent.getDocument();
-		final IElement section = document.insertElement(parent.getEndOffset(), new QualifiedName(null, "section"));
+		final IElement section = insertElement(parent, "section");
 		insertParagraph(section);
 		insertEmptyParagraph(section);
 	}
 
 	private static void insertParagraph(final IParent parent) {
-		final IDocument document = parent.getDocument();
-		final IElement textElement = document.insertElement(parent.getEndOffset(), new QualifiedName(null, "para"));
-		document.insertText(textElement.getEndOffset(), LOREM_IPSUM_LONG);
+		insertText(insertEmptyParagraph(parent), LOREM_IPSUM_LONG);
 	}
 
-	private static void insertEmptyParagraph(final IParent parent) {
+	private static IElement insertEmptyParagraph(final IParent parent) {
+		return insertElement(parent, "para");
+	}
+
+	private static IElement insertElement(final IParent parent, final String localName) {
 		final IDocument document = parent.getDocument();
-		document.insertElement(parent.getEndOffset(), new QualifiedName(null, "para"));
+		return document.insertElement(parent.getEndOffset(), new QualifiedName(null, localName));
+	}
+
+	private static void insertText(final IParent parent, final String text) {
+		final IDocument document = parent.getDocument();
+		document.insertText(parent.getEndOffset(), text);
 	}
 
 	private static VisualizationChain buildVisualizationChain() {
