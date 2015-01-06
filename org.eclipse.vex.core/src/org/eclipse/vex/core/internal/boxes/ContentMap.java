@@ -16,9 +16,32 @@ package org.eclipse.vex.core.internal.boxes;
 public class ContentMap {
 
 	private RootBox rootBox;
+	private IContentBox outmostContentBox;
 
 	public void setRootBox(final RootBox rootBox) {
 		this.rootBox = rootBox;
+		outmostContentBox = findOutmostContentBox();
+	}
+
+	private IContentBox findOutmostContentBox() {
+		return rootBox.accept(new DepthFirstTraversal<IContentBox>(null) {
+			@Override
+			public IContentBox visit(final NodeReference box) {
+				return box;
+			}
+
+			@Override
+			public IContentBox visit(final TextContent box) {
+				return box;
+			}
+		});
+	}
+
+	public int getLastPosition() {
+		if (outmostContentBox == null) {
+			return 0;
+		}
+		return outmostContentBox.getEndOffset();
 	}
 
 	public IContentBox findBoxForPosition(final int offset) {

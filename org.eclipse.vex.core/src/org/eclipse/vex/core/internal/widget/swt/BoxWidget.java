@@ -30,6 +30,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.vex.core.internal.boxes.ContentMap;
 import org.eclipse.vex.core.internal.boxes.Cursor;
+import org.eclipse.vex.core.internal.boxes.CursorPosition;
 import org.eclipse.vex.core.internal.boxes.IContentBox;
 import org.eclipse.vex.core.internal.boxes.RootBox;
 import org.eclipse.vex.core.internal.core.Graphics;
@@ -45,6 +46,7 @@ public class BoxWidget extends Canvas {
 
 	private final ContentMap contentMap;
 	private final Cursor cursor;
+	private final CursorPosition cursorPosition;
 
 	/*
 	 * Use double buffering with a dedicated render thread to render the box model: This prevents flickering and keeps
@@ -77,6 +79,7 @@ public class BoxWidget extends Canvas {
 		contentMap = new ContentMap();
 		contentMap.setRootBox(rootBox);
 		cursor = new Cursor(contentMap);
+		cursorPosition = new CursorPosition(contentMap);
 	}
 
 	public void setContent(final RootBox rootBox) {
@@ -172,8 +175,7 @@ public class BoxWidget extends Canvas {
 			cursorRight();
 			break;
 		case SWT.HOME:
-			setCursorPosition(0);
-			invalidate();
+			cursorHome();
 			break;
 		default:
 			break;
@@ -189,32 +191,41 @@ public class BoxWidget extends Canvas {
 		invalidate();
 	}
 
-	private void cursorLeft() {
-		setCursorPosition(Math.max(0, cursor.getPosition() - 1));
-		invalidate();
-	}
-
-	private void cursorRight() {
-		setCursorPosition(cursor.getPosition() + 1);
-		invalidate();
-	}
-
 	private void setCursorPositionInBoxByAbsoluteCoordinates(final IContentBox box, final int x, final int y) {
 		runWithGraphics(new IRunnableWithGraphics<Object>() {
 			@Override
 			public Integer run(final Graphics graphics) {
 				final int offset = box.getOffsetForCoordinates(graphics, x - box.getAbsoluteLeft(), y - box.getAbsoluteTop());
+				cursorPosition.setOffset(offset);
 				cursor.setPosition(graphics, offset);
 				return null;
 			}
 		});
 	}
 
-	private void setCursorPosition(final int offset) {
+	private void cursorLeft() {
+		cursorPosition.left();
+		transferCursorPositionToCursor();
+		invalidate();
+	}
+
+	private void cursorRight() {
+		cursorPosition.right();
+		transferCursorPositionToCursor();
+		invalidate();
+	}
+
+	private void cursorHome() {
+		cursorPosition.setOffset(0);
+		transferCursorPositionToCursor();
+		invalidate();
+	}
+
+	private void transferCursorPositionToCursor() {
 		runWithGraphics(new IRunnableWithGraphics<Object>() {
 			@Override
 			public Integer run(final Graphics graphics) {
-				cursor.setPosition(graphics, offset);
+				cursor.setPosition(graphics, cursorPosition.getOffset());
 				return null;
 			}
 		});
