@@ -25,6 +25,7 @@ Export-Package: org.eclipse.vex.core,
  org.eclipse.vex.core.internal.layout;x-friends:="org.eclipse.vex.ui,org.eclipse.vex.core.tests,org.eclipse.vex.ui.tests",
  org.eclipse.vex.core.internal.undo;x-friends:="org.eclipse.vex.core.tests,org.eclipse.vex.ui,org.eclipse.vex.ui.tests",
  org.eclipse.vex.core.internal.validator;x-friends:="org.eclipse.vex.ui,org.eclipse.vex.core.tests,org.eclipse.vex.ui.tests",
+ org.eclipse.vex.core.internal.visualization;x-friends:="org.eclipse.vex.ui,org.eclipse.vex.core.tests,org.eclipse.vex.ui.tests",
  org.eclipse.vex.core.internal.widget;x-friends:="org.eclipse.vex.ui,org.eclipse.vex.core.tests,org.eclipse.vex.ui.tests",
  org.eclipse.vex.core.internal.widget.swt;x-friends:="org.eclipse.vex.ui,org.eclipse.vex.core.tests,org.eclipse.vex.ui.tests",
  org.eclipse.vex.core.provisional.dom;uses:="org.eclipse.vex.core.internal.dom"
