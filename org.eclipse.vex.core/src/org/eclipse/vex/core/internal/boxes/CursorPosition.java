@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.boxes;
 
+import org.eclipse.vex.core.internal.core.Graphics;
+
 /**
  * @author Florian Thienel
  */
@@ -36,5 +38,10 @@ public class CursorPosition {
 
 	public void right() {
 		offset = Math.min(offset + 1, contentMap.getLastPosition());
+	}
+
+	public void moveToAbsoluteCoordinates(final Graphics graphics, final int x, final int y) {
+		final IContentBox box = contentMap.findBoxByCoordinates(x, y);
+		offset = box.getOffsetForCoordinates(graphics, x - box.getAbsoluteLeft(), y - box.getAbsoluteTop());
 	}
 }

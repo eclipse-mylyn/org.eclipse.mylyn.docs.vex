@@ -31,7 +31,6 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.vex.core.internal.boxes.ContentMap;
 import org.eclipse.vex.core.internal.boxes.Cursor;
 import org.eclipse.vex.core.internal.boxes.CursorPosition;
-import org.eclipse.vex.core.internal.boxes.IContentBox;
 import org.eclipse.vex.core.internal.boxes.RootBox;
 import org.eclipse.vex.core.internal.core.Graphics;
 
@@ -184,20 +183,17 @@ public class BoxWidget extends Canvas {
 
 	private void mouseDown(final MouseEvent event) {
 		final int absoluteY = event.y + getVerticalBar().getSelection();
-		final IContentBox clickedBox = contentMap.findBoxByCoordinates(event.x, absoluteY);
 
-		setCursorPositionInBoxByAbsoluteCoordinates(clickedBox, event.x, absoluteY);
+		setCursorPositionInByAbsoluteCoordinates(event.x, absoluteY);
 
 		invalidate();
 	}
 
-	private void setCursorPositionInBoxByAbsoluteCoordinates(final IContentBox box, final int x, final int y) {
+	private void setCursorPositionInByAbsoluteCoordinates(final int x, final int y) {
 		runWithGraphics(new IRunnableWithGraphics<Object>() {
 			@Override
 			public Integer run(final Graphics graphics) {
-				final int offset = box.getOffsetForCoordinates(graphics, x - box.getAbsoluteLeft(), y - box.getAbsoluteTop());
-				cursorPosition.setOffset(offset);
-				cursor.setPosition(graphics, offset);
+				cursorPosition.moveToAbsoluteCoordinates(graphics, x, y);
 				return null;
 			}
 		});
@@ -205,30 +201,17 @@ public class BoxWidget extends Canvas {
 
 	private void cursorLeft() {
 		cursorPosition.left();
-		transferCursorPositionToCursor();
 		invalidate();
 	}
 
 	private void cursorRight() {
 		cursorPosition.right();
-		transferCursorPositionToCursor();
 		invalidate();
 	}
 
 	private void cursorHome() {
 		cursorPosition.setOffset(0);
-		transferCursorPositionToCursor();
 		invalidate();
-	}
-
-	private void transferCursorPositionToCursor() {
-		runWithGraphics(new IRunnableWithGraphics<Object>() {
-			@Override
-			public Integer run(final Graphics graphics) {
-				cursor.setPosition(graphics, cursorPosition.getOffset());
-				return null;
-			}
-		});
 	}
 
 	private <T> T runWithGraphics(final IRunnableWithGraphics<T> runnable) {
@@ -305,6 +288,7 @@ public class BoxWidget extends Canvas {
 
 	private void paintContent(final Graphics graphics) {
 		rootBox.paint(graphics);
+		cursor.setPosition(graphics, cursorPosition.getOffset());
 		cursor.paint(graphics);
 	}
 

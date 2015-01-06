@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2010 John Krasnay and others.
+ * Copyright (c) 2004, 2015 John Krasnay and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -74,22 +74,22 @@ public class FakeGraphics implements Graphics {
 
 	@Override
 	public int asAbsoluteX(final int relativeX) {
-		return 0;
+		return relativeX;
 	}
 
 	@Override
 	public int asAbsoluteY(final int relativeY) {
-		return 0;
+		return relativeY;
 	}
 
 	@Override
 	public int asRelativeX(final int absoluteX) {
-		return 0;
+		return absoluteX;
 	}
 
 	@Override
 	public int asRelativeY(final int absoluteY) {
-		return 0;
+		return absoluteY;
 	}
 
 	@Override

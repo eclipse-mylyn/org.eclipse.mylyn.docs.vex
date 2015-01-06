@@ -14,6 +14,7 @@ import static org.junit.Assert.assertEquals;
 
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.vex.core.internal.dom.Document;
+import org.eclipse.vex.core.internal.layout.FakeGraphics;
 import org.eclipse.vex.core.internal.visualization.DocumentRootVisualization;
 import org.eclipse.vex.core.internal.visualization.ParagraphVisualization;
 import org.eclipse.vex.core.internal.visualization.StructureElementVisualization;
@@ -30,9 +31,12 @@ import org.junit.Test;
  */
 public class TestCursorPosition {
 
+	private static final String LOREM_IPSUM_LONG = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec a diam lectus. Sed sit amet ipsum mauris. Maecenas congue ligula ac quam viverra nec consectetur ante hendrerit. Donec et mollis dolor. Praesent et diam eget libero egestas mattis sit amet vitae augue. Nam tincidunt congue enim, ut porta lorem lacinia consectetur.";
+
 	private RootBox rootBox;
 	private ContentMap contentMap;
 	private CursorPosition cursorPosition;
+	private FakeGraphics graphics;
 
 	@Before
 	public void setUp() throws Exception {
@@ -40,6 +44,10 @@ public class TestCursorPosition {
 		contentMap = new ContentMap();
 		contentMap.setRootBox(rootBox);
 		cursorPosition = new CursorPosition(contentMap);
+
+		graphics = new FakeGraphics();
+		rootBox.setWidth(100);
+		rootBox.layout(graphics);
 	}
 
 	@Test
@@ -65,9 +73,16 @@ public class TestCursorPosition {
 
 	@Test
 	public void whenAtLastPosition_cannotMoveCursorOneCharacterRight() throws Exception {
-		cursorPosition.setOffset(37);
+		final int lastPosition = contentMap.getLastPosition();
+		cursorPosition.setOffset(lastPosition);
 		cursorPosition.right();
-		assertEquals(37, cursorPosition.getOffset());
+		assertEquals(lastPosition, cursorPosition.getOffset());
+	}
+
+	@Test
+	public void canSetPositionByAbsoluteCoordinates() throws Exception {
+		cursorPosition.moveToAbsoluteCoordinates(graphics, 18, 11);
+		assertEquals(5, cursorPosition.getOffset());
 	}
 
 	private static RootBox createTestModel() {
@@ -94,7 +109,7 @@ public class TestCursorPosition {
 
 	private static void insertSection(final IParent parent) {
 		final IElement section = insertElement(parent, "section");
-		insertText(insertElement(section, "para"), "LOREM IPSUM");
+		insertText(insertElement(section, "para"), LOREM_IPSUM_LONG);
 		insertElement(section, "para");
 	}
 
