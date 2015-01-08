@@ -17,7 +17,7 @@ import org.eclipse.vex.core.internal.core.Graphics;
 /**
  * @author Florian Thienel
  */
-public class RootBox implements IParentBox<IChildBox> {
+public class RootBox extends BaseBox implements IParentBox<IChildBox> {
 
 	private int width;
 	private int height;

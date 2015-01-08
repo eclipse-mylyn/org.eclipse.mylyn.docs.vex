@@ -36,4 +36,18 @@ public interface IBox {
 	void layout(Graphics graphics);
 
 	void paint(Graphics graphics);
+
+	public abstract boolean isLeftFrom(final int x);
+
+	public abstract boolean isRightFrom(final int x);
+
+	public abstract boolean containsX(final int x);
+
+	public abstract boolean isBelow(final int y);
+
+	public abstract boolean isAbove(final int y);
+
+	public abstract boolean containsY(final int y);
+
+	public abstract boolean containsCoordinates(final int x, final int y);
 }

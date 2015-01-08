@@ -22,7 +22,7 @@ import org.eclipse.vex.core.provisional.dom.IPosition;
 /**
  * @author Florian Thienel
  */
-public class TextContent implements IInlineBox, IContentBox {
+public class TextContent extends BaseBox implements IInlineBox, IContentBox {
 
 	private IBox parent;
 	private int top;

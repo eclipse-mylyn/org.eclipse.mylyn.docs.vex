@@ -16,7 +16,7 @@ import org.eclipse.vex.core.internal.core.Rectangle;
 /**
  * @author Florian Thienel
  */
-public class FakeContentBox implements IContentBox {
+public class FakeContentBox extends BaseBox implements IContentBox {
 
 	private final int startOffset;
 	private final int endOffset;

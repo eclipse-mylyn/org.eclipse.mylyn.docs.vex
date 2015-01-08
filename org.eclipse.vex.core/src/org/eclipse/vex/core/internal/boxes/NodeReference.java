@@ -17,7 +17,7 @@ import org.eclipse.vex.core.provisional.dom.INode;
 /**
  * @author Florian Thienel
  */
-public class NodeReference implements IChildBox, IDecoratorBox<IChildBox>, IContentBox {
+public class NodeReference extends BaseBox implements IChildBox, IDecoratorBox<IChildBox>, IContentBox {
 
 	private IBox parent;
 	private int top;

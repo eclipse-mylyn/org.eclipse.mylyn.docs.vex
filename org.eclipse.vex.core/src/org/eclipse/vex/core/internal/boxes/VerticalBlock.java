@@ -21,7 +21,7 @@ import org.eclipse.vex.core.internal.core.Rectangle;
  *
  * @author Florian Thienel
  */
-public class VerticalBlock implements IChildBox, IParentBox<IChildBox> {
+public class VerticalBlock extends BaseBox implements IChildBox, IParentBox<IChildBox> {
 
 	private IBox parent;
 	private int top;

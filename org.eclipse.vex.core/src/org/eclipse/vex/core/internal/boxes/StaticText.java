@@ -19,7 +19,7 @@ import org.eclipse.vex.core.internal.core.Rectangle;
 /**
  * @author Florian Thienel
  */
-public class StaticText implements IInlineBox {
+public class StaticText extends BaseBox implements IInlineBox {
 
 	private IBox parent;
 	private int top;
