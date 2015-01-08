@@ -72,14 +72,14 @@ public class ContentMap {
 		});
 	}
 
-	public IContentBox findBoxByCoordinates(final int x, final int y) {
+	public IContentBox _findBoxByCoordinates(final int x, final int y) {
 		return rootBox.accept(new DepthFirstTraversal<IContentBox>() {
 
 			private IContentBox nearBy;
 
 			@Override
 			public IContentBox visit(final NodeReference box) {
-				if (!containsCoordinates(box, x, y)) {
+				if (!box.containsCoordinates(x, y)) {
 					return null;
 				}
 
@@ -87,7 +87,7 @@ public class ContentMap {
 				if (componentResult != null) {
 					return componentResult;
 				}
-				if (nearBy != null && (rightFromX(nearBy, x) && isFirstEnclosedBox(box, nearBy) || leftFromX(nearBy, x) && isLastEnclosedBox(box, nearBy))) {
+				if (nearBy != null && (nearBy.isRightFrom(x) && isFirstEnclosedBox(box, nearBy) || nearBy.isLeftFrom(x) && isLastEnclosedBox(box, nearBy))) {
 					return nearBy;
 				}
 				return box;
@@ -104,30 +104,135 @@ public class ContentMap {
 
 			@Override
 			public IContentBox visit(final TextContent box) {
-				if (containsCoordinates(box, x, y)) {
+				if (box.containsCoordinates(x, y)) {
 					return box;
 				}
-				if (containsY(box, y)) {
+				if (box.containsY(y)) {
 					nearBy = box;
 				}
 				return null;
 			}
 
-			private boolean containsCoordinates(final IBox box, final int x, final int y) {
-				return x >= box.getAbsoluteLeft() && x <= box.getAbsoluteLeft() + box.getWidth() && containsY(box, y);
+		});
+	}
+
+	public IContentBox findClosestBoxOnLineByCoordinates(final int x, final int y) {
+		final Neighbourhood neighbours = new Neighbourhood();
+		final IContentBox deepestContainer = rootBox.accept(new DepthFirstTraversal<IContentBox>() {
+			@Override
+			public IContentBox visit(final NodeReference box) {
+				if (box.isAbove(y)) {
+					neighbours.setAbove(box, box.getAbsoluteTop() + box.getHeight() - y, false);
+					return super.visit(box);
+				} else if (box.isBelow(y)) {
+					neighbours.setBelow(box, y - box.getAbsoluteTop(), false);
+					return super.visit(box);
+				} else if (box.isRightFrom(x)) {
+					neighbours.setRight(box, box.getAbsoluteLeft() - x, false);
+					return super.visit(box);
+				} else if (box.isLeftFrom(x)) {
+					neighbours.setLeft(box, x - box.getAbsoluteLeft() - box.getWidth(), false);
+					return super.visit(box);
+				} else {
+					final IContentBox deeperContainer = super.visit(box);
+					if (deeperContainer != null) {
+						return deeperContainer;
+					}
+					return box;
+				}
 			}
 
-			private boolean containsY(final IBox box, final int y) {
-				return y >= box.getAbsoluteTop() && y <= box.getAbsoluteTop() + box.getHeight();
-			}
-
-			private boolean rightFromX(final IBox box, final int x) {
-				return x < box.getAbsoluteLeft();
-			}
-
-			private boolean leftFromX(final IBox box, final int x) {
-				return x > box.getAbsoluteLeft() + box.getWidth();
+			@Override
+			public IContentBox visit(final TextContent box) {
+				if (box.isAbove(y)) {
+					neighbours.setAbove(box, y - box.getAbsoluteTop() - box.getHeight(), true);
+					return null;
+				} else if (box.isBelow(y)) {
+					neighbours.setBelow(box, box.getAbsoluteTop() - y, true);
+					return null;
+				} else if (box.isRightFrom(x)) {
+					neighbours.setRight(box, box.getAbsoluteLeft() - x, true);
+					return null;
+				} else if (box.isLeftFrom(x)) {
+					neighbours.setLeft(box, x - box.getAbsoluteLeft() - box.getWidth(), true);
+					return null;
+				} else {
+					return box;
+				}
 			}
 		});
+		if (deepestContainer == null) {
+			return outmostContentBox;
+		}
+		return deepestContainer.accept(new BaseBoxVisitorWithResult<IContentBox>() {
+			@Override
+			public IContentBox visit(final NodeReference box) {
+				final IContentBox closestOnLine = neighbours.getClosestOnLine().box;
+				if (closestOnLine != null) {
+					return closestOnLine;
+				}
+				return box;
+			}
+
+			@Override
+			public IContentBox visit(final TextContent box) {
+				return box;
+			}
+		});
+	}
+
+	private static class Neighbour {
+		public static final Neighbour NULL = new Neighbour(null, Integer.MAX_VALUE);
+
+		public final IContentBox box;
+		public final int distance;
+
+		public Neighbour(final IContentBox box, final int distance) {
+			this.box = box;
+			this.distance = distance;
+		}
+	}
+
+	private static class Neighbourhood {
+		private Neighbour above = Neighbour.NULL;
+		private Neighbour below = Neighbour.NULL;
+		private Neighbour left = Neighbour.NULL;
+		private Neighbour right = Neighbour.NULL;
+
+		public void setAbove(final IContentBox box, final int distance, final boolean overwrite) {
+			if (above == null || overwrite && above.distance >= distance) {
+				above = new Neighbour(box, distance);
+			}
+		}
+
+		public void setBelow(final IContentBox box, final int distance, final boolean overwrite) {
+			if (below == null || overwrite && below.distance >= distance) {
+				below = new Neighbour(box, distance);
+			}
+		}
+
+		public void setLeft(final IContentBox box, final int distance, final boolean overwrite) {
+			if (left == null || overwrite && left.distance >= distance) {
+				left = new Neighbour(box, distance);
+			}
+		}
+
+		public void setRight(final IContentBox box, final int distance, final boolean overwrite) {
+			if (right == null || overwrite && right.distance >= distance) {
+				right = new Neighbour(box, distance);
+			}
+		}
+
+		public Neighbour getClosestOnLine() {
+			return closest(left, right);
+		}
+
+		private Neighbour closest(final Neighbour neighbour1, final Neighbour neighbour2) {
+			if (neighbour1.distance < neighbour2.distance) {
+				return neighbour1;
+			} else {
+				return neighbour2;
+			}
+		}
 	}
 }

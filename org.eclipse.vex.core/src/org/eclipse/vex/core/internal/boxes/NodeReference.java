@@ -172,21 +172,12 @@ public class NodeReference extends BaseBox implements IChildBox, IDecoratorBox<I
 			return getEndOffset();
 		}
 
-		final long dStart = distance(0, 0, x, y);
-		final long dEnd = distance(width, height, x, y);
-		if (dStart < dEnd) {
+		final int half = height / 2;
+		if (y < half) {
 			return getStartOffset();
 		} else {
 			return getEndOffset();
 		}
-	}
-
-	private static long distance(final int x1, final int y1, final int x2, final int y2) {
-		return Math.round(Math.sqrt(pow2(x2 - x1) + pow2(y2 - y1)));
-	}
-
-	private static int pow2(final int i) {
-		return i * i;
 	}
 
 	public boolean isEmpty() {

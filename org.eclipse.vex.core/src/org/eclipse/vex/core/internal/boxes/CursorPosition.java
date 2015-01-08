@@ -41,7 +41,38 @@ public class CursorPosition {
 	}
 
 	public void moveToAbsoluteCoordinates(final Graphics graphics, final int x, final int y) {
-		final IContentBox box = contentMap.findBoxByCoordinates(x, y);
-		offset = box.getOffsetForCoordinates(graphics, x - box.getAbsoluteLeft(), y - box.getAbsoluteTop());
+		final IContentBox box = contentMap.findClosestBoxOnLineByCoordinates(x, y);
+		if (box.containsCoordinates(x, y)) {
+			offset = box.getOffsetForCoordinates(graphics, x - box.getAbsoluteLeft(), y - box.getAbsoluteTop());
+		} else if (box.isLeftFrom(x)) {
+			if (isLastEnclosedBox(box)) {
+				offset = box.getEndOffset() + 1;
+			} else {
+				offset = box.getEndOffset();
+			}
+		} else if (box.isRightFrom(x)) {
+			offset = box.getStartOffset();
+		}
 	}
+
+	private static boolean isLastEnclosedBox(final IContentBox enclosedBox) {
+		final IContentBox parent = findParentContentBox(enclosedBox);
+		if (parent == null) {
+			return true;
+		}
+		return enclosedBox.getEndOffset() == parent.getEndOffset() - 1;
+	}
+
+	private static IContentBox findParentContentBox(final IContentBox child) {
+		return child.accept(new ParentTraversal<IContentBox>() {
+			@Override
+			public IContentBox visit(final NodeReference box) {
+				if (child == box) {
+					return super.visit(box);
+				}
+				return box;
+			}
+		});
+	}
+
 }

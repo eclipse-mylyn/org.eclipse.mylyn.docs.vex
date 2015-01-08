@@ -80,9 +80,48 @@ public class TestCursorPosition {
 	}
 
 	@Test
-	public void canSetPositionByAbsoluteCoordinates() throws Exception {
+	public void whenClickingIntoText_shouldMoveToPositionInText() throws Exception {
 		cursorPosition.moveToAbsoluteCoordinates(graphics, 18, 11);
 		assertEquals(5, cursorPosition.getOffset());
+	}
+
+	@Test
+	public void whenClickingRightOfLastLine_shouldMoveToEndOfParagraph() throws Exception {
+		cursorPosition.moveToAbsoluteCoordinates(graphics, 86, 400);
+		assertEquals(331, cursorPosition.getOffset());
+	}
+
+	@Test
+	public void whenClickingLeftOfLine_shouldMoveToBeginningOfLine() throws Exception {
+		for (int x = 0; x < 10; x += 1) {
+			cursorPosition.setOffset(0);
+			cursorPosition.moveToAbsoluteCoordinates(graphics, x, 11);
+			assertEquals("x=" + x, 4, cursorPosition.getOffset());
+		}
+	}
+
+	@Test
+	public void whenClickingRightOfLine_shouldMoveToEndOfLine() throws Exception {
+		for (int x = 100; x > 93; x -= 1) {
+			cursorPosition.setOffset(0);
+			cursorPosition.moveToAbsoluteCoordinates(graphics, x, 11);
+			assertEquals("x=" + x, 15, cursorPosition.getOffset());
+		}
+	}
+
+	@Test
+	public void whenClickingInEmptyLine_shouldMoveToEndOfParagraph() throws Exception {
+		cursorPosition.moveToAbsoluteCoordinates(graphics, 10, 407);
+		assertEquals(333, cursorPosition.getOffset());
+	}
+
+	@Test
+	public void whenClickingBelowLastLine_shouldMoveToEndOfParagraph() throws Exception {
+		for (int x = 6; x < 95; x += 1) {
+			cursorPosition.setOffset(0);
+			cursorPosition.moveToAbsoluteCoordinates(graphics, x, 402);
+			assertEquals("x=" + x, 331, cursorPosition.getOffset());
+		}
 	}
 
 	private static RootBox createTestModel() {
@@ -122,4 +161,20 @@ public class TestCursorPosition {
 		final IDocument document = parent.getDocument();
 		document.insertText(parent.getEndOffset(), text);
 	}
+
+	/*
+	 * For visualization of the box structure: 
+	 * 
+	 * private void printBoxStructure() { rootBox.accept(new
+	 * DepthFirstTraversal<Object>() { private String indent = "";
+	 * 
+	 * @Override public Object visit(final NodeReference box) { printBox(box); indent += " "; super.visit(box); indent =
+	 * indent.substring(1); return null; }
+	 * 
+	 * @Override public Object visit(final TextContent box) { printBox(box); return null; }
+	 * 
+	 * private void printBox(final IContentBox box) { System.out.println(indent + "[" + box.getAbsoluteLeft() + ". " +
+	 * box.getAbsoluteTop() + ", " + box.getWidth() + ", " + box.getHeight() + "] [" + box.getStartOffset() + ", " +
+	 * box.getEndOffset() + "]"); } }); }
+	 */
 }
