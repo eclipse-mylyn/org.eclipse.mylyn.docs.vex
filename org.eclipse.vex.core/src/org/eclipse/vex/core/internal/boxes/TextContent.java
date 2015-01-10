@@ -270,13 +270,6 @@ public class TextContent extends BaseBox implements IInlineBox, IContentBox {
 
 	@Override
 	public int getOffsetForCoordinates(final Graphics graphics, final int x, final int y) {
-		if (y < 0) {
-			return getStartOffset();
-		}
-		if (y > height) {
-			return getEndOffset();
-		}
-
 		applyFont(graphics);
 		splitter.setContent(content, startPosition.getOffset(), endPosition.getOffset());
 		final int offset = getStartOffset() + splitter.findPositionBefore(graphics, x, width);

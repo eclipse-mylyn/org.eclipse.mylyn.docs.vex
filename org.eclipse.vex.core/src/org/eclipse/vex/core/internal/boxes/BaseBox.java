@@ -27,7 +27,7 @@ public abstract class BaseBox implements IBox {
 
 	@Override
 	public final boolean isAbove(final int y) {
-		return y > getAbsoluteTop() + getHeight();
+		return y >= getAbsoluteTop() + getHeight();
 	}
 
 	@Override
@@ -37,17 +37,17 @@ public abstract class BaseBox implements IBox {
 
 	@Override
 	public final boolean containsX(final int x) {
-		return x >= getAbsoluteLeft() && x <= getAbsoluteLeft() + getWidth();
+		return !(isRightOf(x) || isLeftOf(x));
 	}
 
 	@Override
-	public final boolean isRightFrom(final int x) {
+	public final boolean isRightOf(final int x) {
 		return x < getAbsoluteLeft();
 	}
 
 	@Override
-	public final boolean isLeftFrom(final int x) {
-		return x > getAbsoluteLeft() + getWidth();
+	public final boolean isLeftOf(final int x) {
+		return x >= getAbsoluteLeft() + getWidth();
 	}
 
 }

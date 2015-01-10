@@ -37,9 +37,9 @@ public interface IBox {
 
 	void paint(Graphics graphics);
 
-	public abstract boolean isLeftFrom(final int x);
+	public abstract boolean isLeftOf(final int x);
 
-	public abstract boolean isRightFrom(final int x);
+	public abstract boolean isRightOf(final int x);
 
 	public abstract boolean containsX(final int x);
 

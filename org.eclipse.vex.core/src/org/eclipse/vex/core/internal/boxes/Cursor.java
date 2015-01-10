@@ -36,41 +36,54 @@ public class Cursor {
 	private final ContentMap contentMap;
 	private Caret caret;
 	private IContentBox box;
+	private int preferredX;
+	private boolean preferX;
 
 	public Cursor(final ContentMap contentMap) {
 		this.contentMap = contentMap;
 	}
 
-	public void setPosition(final Graphics graphics, final int offset) {
+	public void setPosition(final int offset) {
 		this.offset = offset;
-
-		box = contentMap.findBoxForPosition(offset);
-		if (box == null) {
-			return;
-		}
-		caret = getCaretForBox(graphics, box, offset);
 	}
 
 	public int getPosition() {
 		return offset;
 	}
 
-	public Rectangle getCaretArea() {
+	public Rectangle getHotArea() {
 		if (caret == null) {
 			return Rectangle.NULL;
 		}
-		return caret.getArea();
+		return caret.getHotArea();
 	}
 
 	public IContentBox getCurrentBox() {
 		return box;
 	}
 
+	public void setPreferX(final boolean preferX) {
+		this.preferX = preferX;
+	}
+
+	public int getPreferredX() {
+		return preferredX;
+	}
+
 	public void paint(final Graphics graphics) {
-		if (caret == null) {
+		applyCaretForPosition(graphics, offset);
+		caret.paint(graphics);
+	}
+
+	private void applyCaretForPosition(final Graphics graphics, final int offset) {
+		box = contentMap.findBoxForPosition(offset);
+		if (box == null) {
 			return;
 		}
-		caret.paint(graphics);
+		caret = getCaretForBox(graphics, box, offset);
+		if (preferX) {
+			preferredX = caret.getHotArea().getX();
+		}
 	}
 
 	private Caret getCaretForBox(final Graphics graphics, final IContentBox box, final int offset) {
@@ -215,7 +228,7 @@ public class Cursor {
 	}
 
 	private static interface Caret {
-		Rectangle getArea();
+		Rectangle getHotArea();
 
 		void paint(Graphics graphics);
 	}
@@ -230,8 +243,8 @@ public class Cursor {
 		}
 
 		@Override
-		public Rectangle getArea() {
-			return area;
+		public Rectangle getHotArea() {
+			return new Rectangle(area.getX(), area.getY(), 1, 1);
 		}
 
 		@Override
@@ -270,8 +283,8 @@ public class Cursor {
 		}
 
 		@Override
-		public Rectangle getArea() {
-			return area;
+		public Rectangle getHotArea() {
+			return new Rectangle(getX(), area.getY(), 1, area.getHeight());
 		}
 
 		@Override
@@ -285,7 +298,7 @@ public class Cursor {
 			graphics.setForeground(foregroundColor);
 			graphics.setBackground(backgroundColor);
 
-			final int x = nodeIsEmpty ? area.getX() : area.getX() + area.getWidth();
+			final int x = getX();
 			final int y = area.getY();
 
 			graphics.fillRect(x, y, 2, area.getHeight());
@@ -293,6 +306,10 @@ public class Cursor {
 			graphics.setCurrentFont(graphics.getFont(FONT));
 			final String nodeName = getNodeEndMarker(node);
 			drawTag(graphics, nodeName, x + 5, y + area.getHeight() / 2, true);
+		}
+
+		private int getX() {
+			return nodeIsEmpty ? area.getX() : area.getX() + area.getWidth();
 		}
 
 	}
@@ -307,8 +324,8 @@ public class Cursor {
 		}
 
 		@Override
-		public Rectangle getArea() {
-			return area;
+		public Rectangle getHotArea() {
+			return new Rectangle(area.getX() + area.getWidth() - 1, area.getY() + area.getHeight() - 1, 1, 1);
 		}
 
 		@Override
@@ -348,7 +365,7 @@ public class Cursor {
 		}
 
 		@Override
-		public Rectangle getArea() {
+		public Rectangle getHotArea() {
 			return area;
 		}
 

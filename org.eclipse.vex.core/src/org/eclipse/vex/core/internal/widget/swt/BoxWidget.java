@@ -78,7 +78,7 @@ public class BoxWidget extends Canvas {
 		contentMap = new ContentMap();
 		contentMap.setRootBox(rootBox);
 		cursor = new Cursor(contentMap);
-		cursorPosition = new CursorPosition(contentMap);
+		cursorPosition = new CursorPosition(cursor, contentMap);
 	}
 
 	public void setContent(final RootBox rootBox) {
@@ -158,6 +158,7 @@ public class BoxWidget extends Canvas {
 	private void resize(final ControlEvent event) {
 		System.out.println("Width: " + getClientArea().width);
 		rootBox.setWidth(getClientArea().width);
+		cursor.setPreferX(true);
 		scheduleRenderer(new Layouter(getDisplay(), getVerticalBar().getSelection(), getSize().x, getSize().y));
 	}
 
@@ -173,6 +174,9 @@ public class BoxWidget extends Canvas {
 		case SWT.ARROW_RIGHT:
 			cursorRight();
 			break;
+		case SWT.ARROW_UP:
+			cursorUp();
+			break;
 		case SWT.HOME:
 			cursorHome();
 			break;
@@ -184,12 +188,12 @@ public class BoxWidget extends Canvas {
 	private void mouseDown(final MouseEvent event) {
 		final int absoluteY = event.y + getVerticalBar().getSelection();
 
-		setCursorPositionInByAbsoluteCoordinates(event.x, absoluteY);
+		setCursorPositionByAbsoluteCoordinates(event.x, absoluteY);
 
 		invalidate();
 	}
 
-	private void setCursorPositionInByAbsoluteCoordinates(final int x, final int y) {
+	private void setCursorPositionByAbsoluteCoordinates(final int x, final int y) {
 		runWithGraphics(new IRunnableWithGraphics<Object>() {
 			@Override
 			public Integer run(final Graphics graphics) {
@@ -200,17 +204,34 @@ public class BoxWidget extends Canvas {
 	}
 
 	private void cursorLeft() {
-		cursorPosition.left();
+		cursorPosition.moveLeft();
 		invalidate();
 	}
 
 	private void cursorRight() {
-		cursorPosition.right();
+		cursorPosition.moveRight();
+		invalidate();
+	}
+
+	private void cursorUp() {
+		runWithGraphics(new IRunnableWithGraphics<Object>() {
+			@Override
+			public Integer run(final Graphics graphics) {
+				cursorPosition.moveUp(graphics);
+				return null;
+			}
+		});
 		invalidate();
 	}
 
 	private void cursorHome() {
-		cursorPosition.setOffset(0);
+		runWithGraphics(new IRunnableWithGraphics<Object>() {
+			@Override
+			public Integer run(final Graphics graphics) {
+				cursorPosition.moveToOffset(0);
+				return null;
+			}
+		});
 		invalidate();
 	}
 
@@ -288,7 +309,6 @@ public class BoxWidget extends Canvas {
 
 	private void paintContent(final Graphics graphics) {
 		rootBox.paint(graphics);
-		cursor.setPosition(graphics, cursorPosition.getOffset());
 		cursor.paint(graphics);
 	}
 
