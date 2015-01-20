@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.boxes;
 
+import java.util.LinkedList;
+
 import org.eclipse.vex.core.internal.core.Color;
 import org.eclipse.vex.core.internal.core.ColorResource;
 import org.eclipse.vex.core.internal.core.FontSpec;
@@ -38,36 +40,32 @@ public class Cursor {
 	private IContentBox box;
 	private int preferredX;
 	private boolean preferX;
+	private final LinkedList<ICursorMove> moves = new LinkedList<ICursorMove>();
 
 	public Cursor(final ContentMap contentMap) {
 		this.contentMap = contentMap;
-	}
-
-	public void setPosition(final int offset) {
-		this.offset = offset;
 	}
 
 	public int getPosition() {
 		return offset;
 	}
 
-	public Rectangle getHotArea() {
+	public void move(final ICursorMove move) {
+		moves.add(move);
+	}
+
+	public void applyMoves(final Graphics graphics) {
+		for (ICursorMove move = moves.poll(); move != null; move = moves.poll()) {
+			offset = move.calculateNewOffset(graphics, contentMap, offset, box, getHotArea(), preferredX);
+			preferX = move.preferX();
+		}
+	}
+
+	private Rectangle getHotArea() {
 		if (caret == null) {
 			return Rectangle.NULL;
 		}
 		return caret.getHotArea();
-	}
-
-	public IContentBox getCurrentBox() {
-		return box;
-	}
-
-	public void setPreferX(final boolean preferX) {
-		this.preferX = preferX;
-	}
-
-	public int getPreferredX() {
-		return preferredX;
 	}
 
 	public void paint(final Graphics graphics) {

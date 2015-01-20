@@ -10,6 +10,12 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.widget.swt;
 
+import static org.eclipse.vex.core.internal.boxes.CursorMoves.left;
+import static org.eclipse.vex.core.internal.boxes.CursorMoves.right;
+import static org.eclipse.vex.core.internal.boxes.CursorMoves.toAbsoluteCoordinates;
+import static org.eclipse.vex.core.internal.boxes.CursorMoves.toOffset;
+import static org.eclipse.vex.core.internal.boxes.CursorMoves.up;
+
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ControlAdapter;
 import org.eclipse.swt.events.ControlEvent;
@@ -30,9 +36,11 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.vex.core.internal.boxes.ContentMap;
 import org.eclipse.vex.core.internal.boxes.Cursor;
-import org.eclipse.vex.core.internal.boxes.CursorPosition;
+import org.eclipse.vex.core.internal.boxes.IContentBox;
+import org.eclipse.vex.core.internal.boxes.ICursorMove;
 import org.eclipse.vex.core.internal.boxes.RootBox;
 import org.eclipse.vex.core.internal.core.Graphics;
+import org.eclipse.vex.core.internal.core.Rectangle;
 
 /**
  * A widget to display the new box model.
@@ -45,7 +53,6 @@ public class BoxWidget extends Canvas {
 
 	private final ContentMap contentMap;
 	private final Cursor cursor;
-	private final CursorPosition cursorPosition;
 
 	/*
 	 * Use double buffering with a dedicated render thread to render the box model: This prevents flickering and keeps
@@ -78,7 +85,6 @@ public class BoxWidget extends Canvas {
 		contentMap = new ContentMap();
 		contentMap.setRootBox(rootBox);
 		cursor = new Cursor(contentMap);
-		cursorPosition = new CursorPosition(cursor, contentMap);
 	}
 
 	public void setContent(final RootBox rootBox) {
@@ -158,7 +164,17 @@ public class BoxWidget extends Canvas {
 	private void resize(final ControlEvent event) {
 		System.out.println("Width: " + getClientArea().width);
 		rootBox.setWidth(getClientArea().width);
-		cursor.setPreferX(true);
+		cursor.move(new ICursorMove() {
+			@Override
+			public int calculateNewOffset(final Graphics graphics, final ContentMap contentMap, final int currentOffset, final IContentBox currentBox, final Rectangle hotArea, final int preferredX) {
+				return currentOffset;
+			}
+
+			@Override
+			public boolean preferX() {
+				return true;
+			}
+		});
 		scheduleRenderer(new Layouter(getDisplay(), getVerticalBar().getSelection(), getSize().x, getSize().y));
 	}
 
@@ -169,16 +185,16 @@ public class BoxWidget extends Canvas {
 	private void keyPressed(final KeyEvent event) {
 		switch (event.keyCode) {
 		case SWT.ARROW_LEFT:
-			cursorLeft();
+			moveCursor(left());
 			break;
 		case SWT.ARROW_RIGHT:
-			cursorRight();
+			moveCursor(right());
 			break;
 		case SWT.ARROW_UP:
-			cursorUp();
+			moveCursor(up());
 			break;
 		case SWT.HOME:
-			cursorHome();
+			moveCursor(toOffset(0));
 			break;
 		default:
 			break;
@@ -187,70 +203,12 @@ public class BoxWidget extends Canvas {
 
 	private void mouseDown(final MouseEvent event) {
 		final int absoluteY = event.y + getVerticalBar().getSelection();
+		moveCursor(toAbsoluteCoordinates(event.x, absoluteY));
+	}
 
-		setCursorPositionByAbsoluteCoordinates(event.x, absoluteY);
-
+	private void moveCursor(final ICursorMove move) {
+		cursor.move(move);
 		invalidate();
-	}
-
-	private void setCursorPositionByAbsoluteCoordinates(final int x, final int y) {
-		runWithGraphics(new IRunnableWithGraphics<Object>() {
-			@Override
-			public Integer run(final Graphics graphics) {
-				cursorPosition.moveToAbsoluteCoordinates(graphics, x, y);
-				return null;
-			}
-		});
-	}
-
-	private void cursorLeft() {
-		cursorPosition.moveLeft();
-		invalidate();
-	}
-
-	private void cursorRight() {
-		cursorPosition.moveRight();
-		invalidate();
-	}
-
-	private void cursorUp() {
-		runWithGraphics(new IRunnableWithGraphics<Object>() {
-			@Override
-			public Integer run(final Graphics graphics) {
-				cursorPosition.moveUp(graphics);
-				return null;
-			}
-		});
-		invalidate();
-	}
-
-	private void cursorHome() {
-		runWithGraphics(new IRunnableWithGraphics<Object>() {
-			@Override
-			public Integer run(final Graphics graphics) {
-				cursorPosition.moveToOffset(0);
-				return null;
-			}
-		});
-		invalidate();
-	}
-
-	private <T> T runWithGraphics(final IRunnableWithGraphics<T> runnable) {
-		final Image image = new Image(getDisplay(), 1, 1);
-		final GC gc = new GC(image);
-		final Graphics graphics = new SwtGraphics(gc);
-
-		try {
-			return runnable.run(graphics);
-		} finally {
-			graphics.dispose();
-			gc.dispose();
-			image.dispose();
-		}
-	}
-
-	private static interface IRunnableWithGraphics<T> {
-		T run(Graphics graphics);
 	}
 
 	private void scheduleRenderer(final Runnable renderer) {
@@ -309,6 +267,7 @@ public class BoxWidget extends Canvas {
 
 	private void paintContent(final Graphics graphics) {
 		rootBox.paint(graphics);
+		cursor.applyMoves(graphics);
 		cursor.paint(graphics);
 	}
 

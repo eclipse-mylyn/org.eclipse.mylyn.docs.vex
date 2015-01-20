@@ -10,6 +10,11 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.boxes;
 
+import static org.eclipse.vex.core.internal.boxes.CursorMoves.left;
+import static org.eclipse.vex.core.internal.boxes.CursorMoves.right;
+import static org.eclipse.vex.core.internal.boxes.CursorMoves.toAbsoluteCoordinates;
+import static org.eclipse.vex.core.internal.boxes.CursorMoves.toOffset;
+import static org.eclipse.vex.core.internal.boxes.CursorMoves.up;
 import static org.junit.Assert.assertEquals;
 
 import org.eclipse.core.runtime.QualifiedName;
@@ -36,7 +41,6 @@ public class TestCursorPosition {
 	private RootBox rootBox;
 	private ContentMap contentMap;
 	private Cursor cursor;
-	private CursorPosition cursorPosition;
 	private FakeGraphics graphics;
 
 	@Before
@@ -45,7 +49,6 @@ public class TestCursorPosition {
 		contentMap = new ContentMap();
 		contentMap.setRootBox(rootBox);
 		cursor = new Cursor(contentMap);
-		cursorPosition = new CursorPosition(cursor, contentMap);
 
 		graphics = new FakeGraphics();
 		rootBox.setWidth(200);
@@ -55,128 +58,122 @@ public class TestCursorPosition {
 	@Test
 	public void canMoveCursorOneCharacterLeft() throws Exception {
 		cursorAt(5);
-		cursorPosition.moveLeft();
+		cursor.move(left());
 		assertCursorAt(4);
 	}
 
 	@Test
 	public void whenAtFirstPosition_cannotMoveCursorOneCharacterLeft() throws Exception {
 		cursorAt(0);
-		cursorPosition.moveLeft();
+		cursor.move(left());
 		assertCursorAt(0);
 	}
 
 	@Test
 	public void canMoveCursorOneCharacterRight() throws Exception {
 		cursorAt(5);
-		cursorPosition.moveRight();
+		cursor.move(right());
 		assertCursorAt(6);
 	}
 
 	@Test
 	public void whenAtLastPosition_cannotMoveCursorOneCharacterRight() throws Exception {
 		final int lastPosition = contentMap.getLastPosition();
-		cursorPosition.moveToOffset(lastPosition);
-		cursorPosition.moveRight();
+		cursorAt(lastPosition);
+		cursor.move(right());
 		assertCursorAt(lastPosition);
 	}
 
 	@Test
 	public void canMoveCursorOneLineUp() throws Exception {
 		cursorAt(33);
-		cursor.paint(graphics);
-		moveUp();
+		moveCursor(up());
 		assertCursorAt(5);
 	}
 
 	@Test
 	public void whenAtFirstPosition_cannotMoveCursorOneLineUp() throws Exception {
 		cursorAt(0);
-		moveUp();
+		moveCursor(up());
 		assertCursorAt(0);
 	}
 
 	@Test
 	public void givenAtFirstLineOfParagraph_whenMovingUp_shouldMoveCursorToParagraphStartOffset() throws Exception {
 		cursorAt(340);
-		moveUp();
+		moveCursor(up());
 		assertCursorAt(336);
 	}
 
 	@Test
 	public void givenRightBeforeFirstParagraphInSection_whenMovingUp_shouldMoveCursorToSectionStartOffset() throws Exception {
 		cursorAt(336);
-		moveUp();
+		moveCursor(up());
 		assertCursorAt(335);
 	}
 
 	@Test
 	public void givenAtSectionStartOffset_whenMovingUp_shouldMoveCursorToPreviousSectionEndOffset() throws Exception {
 		cursorAt(335);
-		moveUp();
+		moveCursor(up());
 		assertCursorAt(334);
 	}
 
 	@Test
 	public void givenAtSectionEndOffset_whenMovingUp_shouldMoveCursorToLastParagraphEndOffset() throws Exception {
 		cursorAt(334);
-		moveUp();
+		moveCursor(up());
 		assertCursorAt(333);
 	}
 
 	@Test
 	public void givenAtEmptyParagraphEndOffset_whenMovingUp_shouldMoveCursorToEmptyParagraphStartOffset() throws Exception {
 		cursorAt(333);
-		moveUp();
+		moveCursor(up());
 		assertCursorAt(332);
 	}
 
 	@Test
 	public void givenBelowLastLineLeftOfLastCharacter_whenMovingUp_shouldMoveCursorAtPreferredXInLastLine() throws Exception {
 		cursorAt(338);
-		moveUp();
-		moveUp();
-		moveUp();
-		moveUp();
-		moveUp();
-		moveUp();
+		moveCursor(up());
+		moveCursor(up());
+		moveCursor(up());
+		moveCursor(up());
+		moveCursor(up());
+		moveCursor(up());
 		assertCursorAt(312);
 	}
 
 	@Test
 	public void givenBelowLastLineRightOfLastCharacter_whenMovingUp_shouldMoveCursorToEndOfParagraph() throws Exception {
 		cursorAt(360);
-		moveUp();
-		moveUp();
-		moveUp();
-		moveUp();
-		moveUp();
-		moveUp();
+		moveCursor(up());
+		moveCursor(up());
+		moveCursor(up());
+		moveCursor(up());
+		moveCursor(up());
+		moveCursor(up());
 		assertCursorAt(331);
 	}
 
 	@Test
 	public void givenAtStartOfEmptyLine_whenMovingUp_shouldMoveCursorToStartOfLineAbove() throws Exception {
 		cursorAt(333);
-		moveUp();
-		moveUp();
+		moveCursor(up());
+		moveCursor(up());
 		assertCursorAt(311);
-	}
-
-	private void moveUp() {
-		cursorPosition.moveUp(graphics);
-		cursor.paint(graphics);
 	}
 
 	@Test
 	public void whenClickingIntoText_shouldMoveToPositionInText() throws Exception {
-		cursorPosition.moveToAbsoluteCoordinates(graphics, 18, 11);
+		moveCursor(toAbsoluteCoordinates(18, 11));
 		assertCursorAt(5);
 	}
 
 	@Test
 	public void whenClickingRightOfLastLine_shouldMoveToEndOfParagraph() throws Exception {
-		cursorPosition.moveToAbsoluteCoordinates(graphics, 133, 160);
+		moveCursor(toAbsoluteCoordinates(133, 160));
 		assertCursorAt(331);
 	}
 
@@ -184,7 +181,7 @@ public class TestCursorPosition {
 	public void whenClickingLeftOfLine_shouldMoveToBeginningOfLine() throws Exception {
 		for (int x = 0; x < 10; x += 1) {
 			cursorAt(0);
-			cursorPosition.moveToAbsoluteCoordinates(graphics, x, 11);
+			moveCursor(toAbsoluteCoordinates(x, 11));
 			assertCursorAt("x=" + x, 4);
 		}
 	}
@@ -193,14 +190,14 @@ public class TestCursorPosition {
 	public void whenClickingRightOfLine_shouldMoveToEndOfLine() throws Exception {
 		for (int x = 199; x > 193; x -= 1) {
 			cursorAt(0);
-			cursorPosition.moveToAbsoluteCoordinates(graphics, x, 11);
+			moveCursor(toAbsoluteCoordinates(x, 11));
 			assertCursorAt("x=" + x, 31);
 		}
 	}
 
 	@Test
 	public void whenClickingInEmptyLine_shouldMoveToEndOfParagraph() throws Exception {
-		cursorPosition.moveToAbsoluteCoordinates(graphics, 10, 175);
+		moveCursor(toAbsoluteCoordinates(10, 175));
 		assertCursorAt(333);
 	}
 
@@ -208,22 +205,29 @@ public class TestCursorPosition {
 	public void whenClickingBelowLastLine_shouldMoveToEndOfParagraph() throws Exception {
 		for (int x = 6; x < 194; x += 1) {
 			cursorAt(0);
-			cursorPosition.moveToAbsoluteCoordinates(graphics, x, 170);
+			moveCursor(toAbsoluteCoordinates(x, 170));
 			assertCursorAt("x=" + x, 331);
 		}
 	}
 
 	private void cursorAt(final int offset) {
-		cursorPosition.moveToOffset(offset);
+		moveCursor(toOffset(offset));
+	}
+
+	private void moveCursor(final ICursorMove move) {
+		cursor.move(move);
+		cursor.applyMoves(graphics);
 		cursor.paint(graphics);
 	}
 
 	private void assertCursorAt(final int offset) {
-		assertEquals(offset, cursorPosition.getOffset());
+		cursor.applyMoves(graphics);
+		assertEquals(offset, cursor.getPosition());
 	}
 
 	private void assertCursorAt(final String message, final int offset) {
-		assertEquals(message, offset, cursorPosition.getOffset());
+		cursor.applyMoves(graphics);
+		assertEquals(message, offset, cursor.getPosition());
 	}
 
 	private static RootBox createTestModel() {
