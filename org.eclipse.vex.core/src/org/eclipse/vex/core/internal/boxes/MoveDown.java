@@ -16,17 +16,20 @@ import org.eclipse.vex.core.internal.core.Rectangle;
 /**
  * @author Florian Thienel
  */
-public class MoveUp implements ICursorMove {
+public class MoveDown implements ICursorMove {
 
 	@Override
 	public int calculateNewOffset(final Graphics graphics, final ContentMap contentMap, final int currentOffset, final IContentBox currentBox, final Rectangle hotArea, final int preferredX) {
-		if (isAtEndOfEmptyBox(currentOffset, currentBox)) {
-			return currentBox.getStartOffset();
+		if (isAtStartOfEmptyBox(currentOffset, currentBox)) {
+			return currentBox.getEndOffset();
 		}
 
 		final int x = preferredX;
-		final int y = hotArea.getY();
-		final IContentBox box = contentMap.findClosestBoxAbove(x, y);
+		final int y = hotArea.getY() + hotArea.getHeight() - 1;
+		final IContentBox box = contentMap.findClosestBoxBelow(x, y);
+		if (box.isEmpty()) {
+			return box.getStartOffset();
+		}
 		return box.getOffsetForCoordinates(graphics, x - box.getAbsoluteLeft(), y - box.getAbsoluteTop());
 	}
 
@@ -35,8 +38,8 @@ public class MoveUp implements ICursorMove {
 		return false;
 	}
 
-	private static boolean isAtEndOfEmptyBox(final int offset, final IContentBox box) {
-		return offset == box.getEndOffset() && box.isEmpty();
+	private static boolean isAtStartOfEmptyBox(final int offset, final IContentBox box) {
+		return offset == box.getStartOffset() && box.isEmpty();
 	}
 
 }

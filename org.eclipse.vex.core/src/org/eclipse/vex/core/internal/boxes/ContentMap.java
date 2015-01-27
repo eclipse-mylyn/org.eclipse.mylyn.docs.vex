@@ -83,7 +83,7 @@ public class ContentMap {
 			@Override
 			public IContentBox visit(final NodeReference box) {
 				if (box.canContainText()) {
-					final IContentBox lastChild = lastChild(box);
+					final IContentBox lastChild = deepestLastChild(box);
 					if (lastChild.isRightOf(x)) {
 						return lastChild;
 					}
@@ -106,8 +106,8 @@ public class ContentMap {
 				if (box == environment.deepestContainer) {
 					return super.visit(box);
 				}
-				final int boxAboveDistance = y - box.getAbsoluteTop();
-				if (boxAboveDistance <= neighbourAbove.distance) {
+				final int distanceToContainerTop = y - box.getAbsoluteTop();
+				if (distanceToContainerTop <= neighbourAbove.distance) {
 					return box;
 				}
 				return boxAbove;
@@ -115,7 +115,7 @@ public class ContentMap {
 		});
 	}
 
-	private static IContentBox lastChild(final IContentBox parentBox) {
+	private static IContentBox deepestLastChild(final IContentBox parentBox) {
 		return parentBox.accept(new DepthFirstTraversal<IContentBox>() {
 			private IContentBox lastChild;
 
@@ -134,6 +134,87 @@ public class ContentMap {
 			public IContentBox visit(final TextContent box) {
 				lastChild = box;
 				return null;
+			}
+		});
+	}
+
+	public IContentBox findClosestBoxBelow(final int x, final int y) {
+		final Environment environment = findEnvironmentForCoordinates(x, y, true);
+		final Neighbour neighbourBelow = environment.neighbours.getBelow();
+		if (environment.deepestContainer == null || neighbourBelow.box == null) {
+			return outmostContentBox;
+		}
+
+		final IContentBox boxBelow = neighbourBelow.box.accept(new BaseBoxVisitorWithResult<IContentBox>() {
+			@Override
+			public IContentBox visit(final NodeReference box) {
+				if (box.canContainText()) {
+					return deepestFirstChild(box);
+				}
+				return box;
+			}
+
+			@Override
+			public IContentBox visit(final TextContent box) {
+				return box;
+			}
+		});
+
+		return environment.deepestContainer.accept(new BaseBoxVisitorWithResult<IContentBox>() {
+			@Override
+			public IContentBox visit(final NodeReference box) {
+				if (box == getParent(boxBelow)) {
+					return boxBelow;
+				}
+				if (!isInLastLine(box, boxBelow)) {
+					return boxBelow;
+				}
+				return getParent(box);
+			}
+
+			@Override
+			public IContentBox visit(final TextContent box) {
+				if (!boxBelow.isLeftOf(x)) {
+					return boxBelow;
+				}
+				return getParent(box);
+			}
+
+		});
+	}
+
+	private static IContentBox deepestFirstChild(final IContentBox parentBox) {
+		return parentBox.accept(new DepthFirstTraversal<IContentBox>() {
+			private IContentBox firstChild;
+
+			@Override
+			public IContentBox visit(final NodeReference box) {
+				super.visit(box);
+				if (firstChild == null) {
+					firstChild = box;
+				}
+				return firstChild;
+			}
+
+			@Override
+			public IContentBox visit(final TextContent box) {
+				return box;
+			}
+		});
+	}
+
+	private static boolean isInLastLine(final IContentBox box, final IContentBox boxBelow) {
+		return !(getParent(box) == getParent(boxBelow));
+	}
+
+	private static IContentBox getParent(final IContentBox childBox) {
+		return childBox.accept(new ParentTraversal<IContentBox>() {
+			@Override
+			public IContentBox visit(final NodeReference box) {
+				if (box == childBox) {
+					return super.visit(box);
+				}
+				return box;
 			}
 		});
 	}
@@ -163,26 +244,32 @@ public class ContentMap {
 	private Environment findEnvironmentForCoordinates(final int x, final int y, final boolean preferClosest) {
 		final Neighbourhood neighbours = new Neighbourhood();
 		final IContentBox deepestContainer = rootBox.accept(new DepthFirstTraversal<IContentBox>() {
+			private IContentBox deeperContainer;
+
 			@Override
 			public IContentBox visit(final NodeReference box) {
-				final IContentBox deeperContainer = super.visit(box);
+				super.visit(box);
 				if (box.isAbove(y)) {
 					neighbours.setAbove(box, y - box.getAbsoluteTop() - box.getHeight(), preferClosest);
-					return deeperContainer;
+					return null;
 				} else if (box.isBelow(y)) {
 					neighbours.setBelow(box, box.getAbsoluteTop() - y, preferClosest);
-					return deeperContainer;
+					return null;
 				} else if (box.isRightOf(x)) {
 					neighbours.setRight(box, box.getAbsoluteLeft() - x, preferClosest);
-					return deeperContainer;
+					return null;
 				} else if (box.isLeftOf(x)) {
 					neighbours.setLeft(box, x - box.getAbsoluteLeft() - box.getWidth(), preferClosest);
-					return deeperContainer;
+					return null;
 				} else {
-					if (deeperContainer != null) {
-						return deeperContainer;
+					if (deeperContainer == null) {
+						deeperContainer = box;
 					}
-					return box;
+					if (neighbours.getBelow().box != null) {
+						return deeperContainer;
+					} else {
+						return null;
+					}
 				}
 			}
 
@@ -201,12 +288,12 @@ public class ContentMap {
 					neighbours.setLeft(box, x - box.getAbsoluteLeft() - box.getWidth(), true);
 					return null;
 				} else {
-					return box;
+					deeperContainer = box;
+					return null;
 				}
 			}
 		});
-		final Environment environment = new Environment(neighbours, deepestContainer);
-		return environment;
+		return new Environment(neighbours, deepestContainer);
 	}
 
 	private static class Neighbour {
@@ -241,6 +328,10 @@ public class ContentMap {
 			if (below == Neighbour.NULL || overwrite && below.distance >= distance) {
 				below = new Neighbour(box, distance);
 			}
+		}
+
+		public Neighbour getBelow() {
+			return below;
 		}
 
 		public void setLeft(final IContentBox box, final int distance, final boolean overwrite) {

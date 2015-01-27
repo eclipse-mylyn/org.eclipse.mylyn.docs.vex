@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.boxes;
 
+import static org.eclipse.vex.core.internal.boxes.CursorMoves.down;
 import static org.eclipse.vex.core.internal.boxes.CursorMoves.left;
 import static org.eclipse.vex.core.internal.boxes.CursorMoves.right;
 import static org.eclipse.vex.core.internal.boxes.CursorMoves.toAbsoluteCoordinates;
@@ -99,7 +100,7 @@ public class TestCursorPosition {
 	}
 
 	@Test
-	public void givenAtFirstLineOfParagraph_whenMovingUp_shouldMoveCursorToParagraphStartOffset() throws Exception {
+	public void givenInFirstLineOfParagraph_whenMovingUp_shouldMoveCursorToParagraphStartOffset() throws Exception {
 		cursorAt(340);
 		moveCursor(up());
 		assertCursorAt(336);
@@ -163,6 +164,56 @@ public class TestCursorPosition {
 		moveCursor(up());
 		moveCursor(up());
 		assertCursorAt(311);
+	}
+
+	@Test
+	public void canMoveCursorOneLineDown() throws Exception {
+		cursorAt(5);
+		moveCursor(down());
+		assertCursorAt(33);
+	}
+
+	@Test
+	public void whenAtLastPosition_cannotMoveCursorDown() throws Exception {
+		final int lastPosition = contentMap.getLastPosition();
+		cursorAt(lastPosition);
+		cursor.move(down());
+		assertCursorAt(lastPosition);
+	}
+
+	@Test
+	public void givenInLastLineOfParagraph_whenMovingDown_shouldMoveCursorToNextParagraphStartOffset() throws Exception {
+		cursorAt(312);
+		moveCursor(down());
+		assertCursorAt(332);
+	}
+
+	@Test
+	public void givenAtEndOfParagraph_whenMovingDown_shouldMoveCursorToNextParagraphStartOffset() throws Exception {
+		cursorAt(331);
+		moveCursor(down());
+		assertCursorAt(332);
+	}
+
+	@Test
+	public void givenAtEndOfLastParagraphInSection_whenMovingDown_shouldMoveCursorToSectionEndOffset() throws Exception {
+		cursorAt(333);
+		moveCursor(down());
+		assertCursorAt(334);
+	}
+
+	@Test
+	public void givenInLineBeforeLastLineRightOfLastCharacterInLastLine_whenMovingDown_shouldMoveCursorToParagraphEndOffset() throws Exception {
+		cursorAt(308);
+		moveCursor(down());
+		assertCursorAt(331);
+	}
+
+	@Test
+	public void givenAtSectionStartOffset_whenMovingDown_shouldMoveCursorToFirstParagraphStartOffset() throws Exception {
+		cursorAt(335);
+		moveCursor(down());
+		assertCursorAt(336);
 	}
 
 	@Test

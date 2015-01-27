@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.widget.swt;
 
+import static org.eclipse.vex.core.internal.boxes.CursorMoves.down;
 import static org.eclipse.vex.core.internal.boxes.CursorMoves.left;
 import static org.eclipse.vex.core.internal.boxes.CursorMoves.right;
 import static org.eclipse.vex.core.internal.boxes.CursorMoves.toAbsoluteCoordinates;
@@ -192,6 +193,9 @@ public class BoxWidget extends Canvas {
 			break;
 		case SWT.ARROW_UP:
 			moveCursor(up());
+			break;
+		case SWT.ARROW_DOWN:
+			moveCursor(down());
 			break;
 		case SWT.HOME:
 			moveCursor(toOffset(0));

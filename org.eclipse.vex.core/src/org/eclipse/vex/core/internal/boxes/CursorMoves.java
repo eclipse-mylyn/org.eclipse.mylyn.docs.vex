@@ -18,6 +18,7 @@ public class CursorMoves {
 	private static final ICursorMove LEFT = new MoveLeft();
 	private static final ICursorMove RIGHT = new MoveRight();
 	private static final ICursorMove UP = new MoveUp();
+	private static final ICursorMove DOWN = new MoveDown();
 
 	public static ICursorMove toOffset(final int offset) {
 		return new MoveToOffset(offset);
@@ -39,4 +40,7 @@ public class CursorMoves {
 		return UP;
 	}
 
+	public static ICursorMove down() {
+		return DOWN;
+	}
 }
