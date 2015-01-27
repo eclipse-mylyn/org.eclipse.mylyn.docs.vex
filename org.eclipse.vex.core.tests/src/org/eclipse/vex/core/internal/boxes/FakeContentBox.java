@@ -89,6 +89,11 @@ public class FakeContentBox extends BaseBox implements IContentBox {
 	}
 
 	@Override
+	public boolean isEmpty() {
+		return getEndOffset() - getStartOffset() <= 1;
+	}
+
+	@Override
 	public Rectangle getPositionArea(final Graphics graphics, final int offset) {
 		return area;
 	}

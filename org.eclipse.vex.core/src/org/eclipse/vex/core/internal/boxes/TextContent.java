@@ -255,6 +255,11 @@ public class TextContent extends BaseBox implements IInlineBox, IContentBox {
 	}
 
 	@Override
+	public boolean isEmpty() {
+		return getEndOffset() - getStartOffset() <= 1;
+	}
+
+	@Override
 	public Rectangle getPositionArea(final Graphics graphics, final int offset) {
 		if (startPosition.getOffset() > offset || endPosition.getOffset() < offset) {
 			return Rectangle.NULL;

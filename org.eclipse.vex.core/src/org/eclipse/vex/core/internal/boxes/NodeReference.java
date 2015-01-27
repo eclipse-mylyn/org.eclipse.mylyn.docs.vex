@@ -180,6 +180,7 @@ public class NodeReference extends BaseBox implements IChildBox, IDecoratorBox<I
 		}
 	}
 
+	@Override
 	public boolean isEmpty() {
 		return getEndOffset() - getStartOffset() <= 1;
 	}
