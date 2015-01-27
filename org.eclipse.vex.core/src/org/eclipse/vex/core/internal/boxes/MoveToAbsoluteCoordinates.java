@@ -34,10 +34,6 @@ public class MoveToAbsoluteCoordinates implements ICursorMove {
 
 	@Override
 	public int calculateNewOffset(final Graphics graphics, final ContentMap contentMap, final int currentOffset, final IContentBox currentBox, final Rectangle hotArea, final int preferredX) {
-		return findOffsetForAbsoluteCoordinates(graphics, contentMap, currentOffset);
-	}
-
-	private int findOffsetForAbsoluteCoordinates(final Graphics graphics, final ContentMap contentMap, final int currentOffset) {
 		final IContentBox box = findClosestBoxOnLineByCoordinates(contentMap, x, y);
 		if (box.containsCoordinates(x, y)) {
 			return box.getOffsetForCoordinates(graphics, x - box.getAbsoluteLeft(), y - box.getAbsoluteTop());

@@ -167,6 +167,38 @@ public class TestCursorPosition {
 	}
 
 	@Test
+	public void givenInFirstLineOfFirstParagraph_whenMovingUp_shouldMoveCursorToStartOffsetOfFirstParagraph() throws Exception {
+		cursorAt(4);
+		moveCursor(up());
+		assertCursorAt(3);
+	}
+
+	@Test
+	public void givenAtStartOfFirstLineWithPreferredXZero_whenMovingUp_shouldMoveCursorToStartOfFirstParagraph() throws Exception {
+		cursorAt(0);
+		moveCursor(down());
+		moveCursor(down());
+		moveCursor(down());
+		moveCursor(down());
+		moveCursor(up());
+		assertCursorAt(3);
+	}
+
+	@Test
+	public void givenAtDocumentEndOffset_whenMovingUp_shouldMoveCursorToRootElementEndOffset() throws Exception {
+		cursorAt(669);
+		moveCursor(up());
+		assertCursorAt(668);
+	}
+
+	@Test
+	public void givenAtParagraphEndOffset_whenMovingUp_shouldMoveCursorToLineAbove() throws Exception {
+		cursorAt(331);
+		moveCursor(up());
+		assertCursorAt(303);
+	}
+
+	@Test
 	public void canMoveCursorOneLineDown() throws Exception {
 		cursorAt(5);
 		moveCursor(down());
@@ -217,6 +249,31 @@ public class TestCursorPosition {
 	}
 
 	@Test
+	public void givenAtDocumentStartOffset_whenMovingDown_shouldMoveCursorToRootElementStartOffset() throws Exception {
+		cursorAt(0);
+		moveCursor(down());
+		assertCursorAt(1);
+	}
+
+	@Test
+	public void givenAtStartOfFirstLineWithPreferredXZero_whenMovingDown_shouldMoveCursorToStartOfSecondLine() throws Exception {
+		cursorAt(0);
+		moveCursor(down());
+		moveCursor(down());
+		moveCursor(down());
+		moveCursor(down());
+		moveCursor(down());
+		assertCursorAt(32);
+	}
+
+	@Test
+	public void givenAtEndOfLastEmptyParagraph_whenMovingDown_shouldMoveCursorToLastSectionEndOffset() throws Exception {
+		cursorAt(666);
+		moveCursor(down());
+		assertCursorAt(667);
+	}
+
+	@Test
 	public void whenClickingIntoText_shouldMoveToPositionInText() throws Exception {
 		moveCursor(toAbsoluteCoordinates(18, 11));
 		assertCursorAt(5);
@@ -259,6 +316,13 @@ public class TestCursorPosition {
 			moveCursor(toAbsoluteCoordinates(x, 170));
 			assertCursorAt("x=" + x, 331);
 		}
+	}
+
+	@Test
+	public void whenClickingInLastEmptyParagraph_shouldMoveToEndOfParagraph() throws Exception {
+		cursorAt(0);
+		moveCursor(toAbsoluteCoordinates(10, 370));
+		assertCursorAt(666);
 	}
 
 	private void cursorAt(final int offset) {

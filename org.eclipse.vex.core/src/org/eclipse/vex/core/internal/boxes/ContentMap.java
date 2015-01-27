@@ -77,10 +77,9 @@ public class ContentMap {
 	}
 
 	public Environment findEnvironmentForCoordinates(final int x, final int y, final boolean preferClosest) {
+		final IContentBox[] deepestContainer = new IContentBox[1];
 		final Neighbourhood neighbours = new Neighbourhood();
-		final IContentBox deepestContainer = rootBox.accept(new DepthFirstTraversal<IContentBox>() {
-			private IContentBox deeperContainer;
-
+		rootBox.accept(new DepthFirstTraversal<IContentBox>() {
 			@Override
 			public IContentBox visit(final NodeReference box) {
 				super.visit(box);
@@ -97,11 +96,11 @@ public class ContentMap {
 					neighbours.setLeft(box, x - box.getAbsoluteLeft() - box.getWidth(), preferClosest);
 					return null;
 				} else {
-					if (deeperContainer == null) {
-						deeperContainer = box;
+					if (deepestContainer[0] == null) {
+						deepestContainer[0] = box;
 					}
 					if (neighbours.getBelow().box != null) {
-						return deeperContainer;
+						return deepestContainer[0];
 					} else {
 						return null;
 					}
@@ -123,12 +122,12 @@ public class ContentMap {
 					neighbours.setLeft(box, x - box.getAbsoluteLeft() - box.getWidth(), true);
 					return null;
 				} else {
-					deeperContainer = box;
+					deepestContainer[0] = box;
 					return null;
 				}
 			}
 		});
-		return new Environment(neighbours, deepestContainer);
+		return new Environment(neighbours, deepestContainer[0]);
 	}
 
 	public static class Neighbour {
