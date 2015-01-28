@@ -21,6 +21,11 @@ import org.eclipse.vex.core.internal.core.Rectangle;
 public class MoveDown implements ICursorMove {
 
 	@Override
+	public boolean preferX() {
+		return false;
+	}
+
+	@Override
 	public int calculateNewOffset(final Graphics graphics, final ContentMap contentMap, final int currentOffset, final IContentBox currentBox, final Rectangle hotArea, final int preferredX) {
 		if (isAtStartOfEmptyBox(currentOffset, currentBox)) {
 			return currentBox.getEndOffset();
@@ -29,30 +34,15 @@ public class MoveDown implements ICursorMove {
 			return getFirstChild(currentBox).getStartOffset();
 		}
 
-		final int x = preferredX;
-		final int y = hotArea.getY() + hotArea.getHeight() - 1;
-		final IContentBox box = findClosestBoxBelow(contentMap, currentBox, x, y);
-		if (box.isEmpty()) {
-			return box.getStartOffset();
-		}
-		return box.getOffsetForCoordinates(graphics, x - box.getAbsoluteLeft(), y - box.getAbsoluteTop());
-	}
-
-	@Override
-	public boolean preferX() {
-		return false;
+		return findOffsetInNextBoxBelow(graphics, contentMap, currentBox, hotArea, preferredX);
 	}
 
 	private static boolean isAtStartOfEmptyBox(final int offset, final IContentBox box) {
-		return isAtStartOfBox(offset, box) && box.isEmpty();
+		return box.isAtStart(offset) && box.isEmpty();
 	}
 
 	private static boolean isAtStartOfBoxWithChildren(final int offset, final IContentBox box) {
-		return isAtStartOfBox(offset, box) && canHaveChildren(box);
-	}
-
-	private static boolean isAtStartOfBox(final int offset, final IContentBox box) {
-		return offset == box.getStartOffset();
+		return box.isAtStart(offset) && canHaveChildren(box);
 	}
 
 	private static boolean canHaveChildren(final IContentBox box) {
@@ -69,6 +59,18 @@ public class MoveDown implements ICursorMove {
 			@Override
 			public Boolean visit(final NodeReference box) {
 				return box.canContainText();
+			}
+		});
+	}
+
+	private static IContentBox getParent(final IContentBox childBox) {
+		return childBox.accept(new ParentTraversal<IContentBox>() {
+			@Override
+			public IContentBox visit(final NodeReference box) {
+				if (box == childBox) {
+					return super.visit(box);
+				}
+				return box;
 			}
 		});
 	}
@@ -90,7 +92,17 @@ public class MoveDown implements ICursorMove {
 		});
 	}
 
-	private static IContentBox findClosestBoxBelow(final ContentMap contentMap, final IContentBox currentBox, final int x, final int y) {
+	private int findOffsetInNextBoxBelow(final Graphics graphics, final ContentMap contentMap, final IContentBox currentBox, final Rectangle hotArea, final int preferredX) {
+		final int x = preferredX;
+		final int y = hotArea.getY() + hotArea.getHeight() - 1;
+		final IContentBox box = findNextBoxBelow(contentMap, currentBox, x, y);
+		if (box.isEmpty()) {
+			return box.getStartOffset();
+		}
+		return box.getOffsetForCoordinates(graphics, x - box.getAbsoluteLeft(), y - box.getAbsoluteTop());
+	}
+
+	private static IContentBox findNextBoxBelow(final ContentMap contentMap, final IContentBox currentBox, final int x, final int y) {
 		final Environment environment = contentMap.findEnvironmentForCoordinates(x, y, true);
 		final Neighbour neighbourBelow = environment.neighbours.getBelow();
 		if (neighbourBelow.box == null) {
@@ -116,19 +128,16 @@ public class MoveDown implements ICursorMove {
 			}
 		});
 
-		return currentBox.accept(new BaseBoxVisitorWithResult<IContentBox>() {
+		return currentBox.accept(new ParentTraversal<IContentBox>() {
 			@Override
 			public IContentBox visit(final NodeReference box) {
-				if (box == getParent(boxBelow)) {
-					return boxBelow;
+				if (box == currentBox) {
+					return super.visit(box);
 				}
-				if (!isInLastLine(box, boxBelow)) {
-					return boxBelow;
+				if (containerBottomCloserThanNeighbourBelow(box, neighbourBelow, y)) {
+					return box;
 				}
-				if (boxBelow.isRightOf(x)) {
-					return boxBelow;
-				}
-				return getParent(box);
+				return boxBelow;
 			}
 
 			@Override
@@ -138,7 +147,6 @@ public class MoveDown implements ICursorMove {
 				}
 				return getParent(box);
 			}
-
 		});
 	}
 
@@ -162,20 +170,8 @@ public class MoveDown implements ICursorMove {
 		});
 	}
 
-	private static boolean isInLastLine(final IContentBox box, final IContentBox boxBelow) {
-		return !(getParent(box) == getParent(boxBelow));
+	private static boolean containerBottomCloserThanNeighbourBelow(final IContentBox box, final Neighbour neighbourBelow, final int y) {
+		final int distanceToContainerBottom = box.getAbsoluteTop() + box.getHeight() - y;
+		return distanceToContainerBottom <= neighbourBelow.distance;
 	}
-
-	private static IContentBox getParent(final IContentBox childBox) {
-		return childBox.accept(new ParentTraversal<IContentBox>() {
-			@Override
-			public IContentBox visit(final NodeReference box) {
-				if (box == childBox) {
-					return super.visit(box);
-				}
-				return box;
-			}
-		});
-	}
-
 }

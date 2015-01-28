@@ -21,6 +21,11 @@ import org.eclipse.vex.core.internal.core.Rectangle;
 public class MoveUp implements ICursorMove {
 
 	@Override
+	public boolean preferX() {
+		return false;
+	}
+
+	@Override
 	public int calculateNewOffset(final Graphics graphics, final ContentMap contentMap, final int currentOffset, final IContentBox currentBox, final Rectangle hotArea, final int preferredX) {
 		if (isAtEndOfEmptyBox(currentOffset, currentBox)) {
 			return currentBox.getStartOffset();
@@ -29,27 +34,15 @@ public class MoveUp implements ICursorMove {
 			return getLastChild(currentBox).getEndOffset();
 		}
 
-		final int x = preferredX;
-		final int y = hotArea.getY();
-		final IContentBox box = findClosestBoxAbove(contentMap, currentBox, x, y);
-		return box.getOffsetForCoordinates(graphics, x - box.getAbsoluteLeft(), y - box.getAbsoluteTop());
-	}
-
-	@Override
-	public boolean preferX() {
-		return false;
+		return findOffsetInNextBoxAbove(graphics, contentMap, currentBox, hotArea, preferredX);
 	}
 
 	private static boolean isAtEndOfEmptyBox(final int offset, final IContentBox box) {
-		return isAtEndOfBox(offset, box) && box.isEmpty();
+		return box.isAtEnd(offset) && box.isEmpty();
 	}
 
 	private static boolean isAtEndOfBoxWithChildren(final int offset, final IContentBox box) {
-		return isAtEndOfBox(offset, box) && canHaveChildren(box);
-	}
-
-	private static boolean isAtEndOfBox(final int offset, final IContentBox box) {
-		return offset == box.getEndOffset();
+		return box.isAtEnd(offset) && canHaveChildren(box);
 	}
 
 	private static boolean canHaveChildren(final IContentBox box) {
@@ -66,6 +59,18 @@ public class MoveUp implements ICursorMove {
 			@Override
 			public Boolean visit(final NodeReference box) {
 				return box.canContainText();
+			}
+		});
+	}
+
+	private static IContentBox getParent(final IContentBox childBox) {
+		return childBox.accept(new ParentTraversal<IContentBox>() {
+			@Override
+			public IContentBox visit(final NodeReference box) {
+				if (box == childBox) {
+					return super.visit(box);
+				}
+				return box;
 			}
 		});
 	}
@@ -92,13 +97,16 @@ public class MoveUp implements ICursorMove {
 		});
 	}
 
-	private static IContentBox findClosestBoxAbove(final ContentMap contentMap, final IContentBox currentBox, final int x, final int y) {
+	private int findOffsetInNextBoxAbove(final Graphics graphics, final ContentMap contentMap, final IContentBox currentBox, final Rectangle hotArea, final int preferredX) {
+		final int x = preferredX;
+		final int y = hotArea.getY();
+		final IContentBox box = findNextBoxAbove(contentMap, currentBox, x, y);
+		return box.getOffsetForCoordinates(graphics, x - box.getAbsoluteLeft(), y - box.getAbsoluteTop());
+	}
+
+	private static IContentBox findNextBoxAbove(final ContentMap contentMap, final IContentBox currentBox, final int x, final int y) {
 		final Environment environment = contentMap.findEnvironmentForCoordinates(x, y, true);
 		final Neighbour neighbourAbove = environment.neighbours.getAbove();
-		if (environment.deepestContainer == null) {
-			return currentBox;
-		}
-
 		if (neighbourAbove.box == null) {
 			final IContentBox parent = getParent(currentBox);
 			if (parent == null) {
@@ -112,10 +120,7 @@ public class MoveUp implements ICursorMove {
 			public IContentBox visit(final NodeReference box) {
 				if (box.canContainText()) {
 					final IContentBox lastChild = deepestLastChild(box);
-					if (lastChild.isRightOf(x)) {
-						return lastChild;
-					}
-					if (lastChild.containsX(x)) {
+					if (!lastChild.isLeftOf(x)) {
 						return lastChild;
 					}
 				}
@@ -134,23 +139,10 @@ public class MoveUp implements ICursorMove {
 				if (box == currentBox) {
 					return super.visit(box);
 				}
-				final int distanceToContainerTop = y - box.getAbsoluteTop();
-				if (distanceToContainerTop <= neighbourAbove.distance) {
+				if (containerTopCloserThanNeighbourAbove(box, neighbourAbove, y)) {
 					return box;
 				}
 				return boxAbove;
-			}
-		});
-	}
-
-	private static IContentBox getParent(final IContentBox childBox) {
-		return childBox.accept(new ParentTraversal<IContentBox>() {
-			@Override
-			public IContentBox visit(final NodeReference box) {
-				if (box == childBox) {
-					return super.visit(box);
-				}
-				return box;
 			}
 		});
 	}
@@ -178,4 +170,8 @@ public class MoveUp implements ICursorMove {
 		});
 	}
 
+	private static boolean containerTopCloserThanNeighbourAbove(final IContentBox box, final Neighbour neighbourAbove, final int y) {
+		final int distanceToContainerTop = y - box.getAbsoluteTop();
+		return distanceToContainerTop <= neighbourAbove.distance;
+	}
 }

@@ -24,6 +24,10 @@ public interface IContentBox extends IBox {
 
 	boolean isEmpty();
 
+	boolean isAtStart(int offset);
+
+	boolean isAtEnd(int offset);
+
 	Rectangle getPositionArea(Graphics graphics, int offset);
 
 	int getOffsetForCoordinates(Graphics graphics, int x, int y);

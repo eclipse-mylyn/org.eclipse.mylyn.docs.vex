@@ -185,12 +185,12 @@ public class NodeReference extends BaseBox implements IChildBox, IDecoratorBox<I
 		return getEndOffset() - getStartOffset() <= 1;
 	}
 
-	public boolean isAtEnd(final int offset) {
-		return getEndOffset() == offset;
-	}
-
 	public boolean isAtStart(final int offset) {
 		return getStartOffset() == offset;
+	}
+
+	public boolean isAtEnd(final int offset) {
+		return getEndOffset() == offset;
 	}
 
 	@Override

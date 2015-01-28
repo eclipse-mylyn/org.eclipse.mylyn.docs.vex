@@ -259,6 +259,14 @@ public class TextContent extends BaseBox implements IInlineBox, IContentBox {
 		return getEndOffset() - getStartOffset() <= 1;
 	}
 
+	public boolean isAtStart(final int offset) {
+		return getStartOffset() == offset;
+	}
+
+	public boolean isAtEnd(final int offset) {
+		return getEndOffset() == offset;
+	}
+
 	@Override
 	public Rectangle getPositionArea(final Graphics graphics, final int offset) {
 		if (startPosition.getOffset() > offset || endPosition.getOffset() < offset) {
