@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.boxes;
 
+import org.eclipse.vex.core.internal.boxes.ContentMap.Environment;
 import org.eclipse.vex.core.internal.core.Graphics;
 import org.eclipse.vex.core.internal.core.Rectangle;
 
@@ -27,12 +28,17 @@ public class MoveToAbsoluteCoordinates implements ICursorMove {
 	}
 
 	@Override
+	public boolean preferX() {
+		return true;
+	}
+
+	@Override
 	public int calculateNewOffset(final Graphics graphics, final ContentMap contentMap, final int currentOffset, final IContentBox currentBox, final Rectangle hotArea, final int preferredX) {
 		return findOffsetForAbsoluteCoordinates(graphics, contentMap, currentOffset);
 	}
 
 	private int findOffsetForAbsoluteCoordinates(final Graphics graphics, final ContentMap contentMap, final int currentOffset) {
-		final IContentBox box = contentMap.findClosestBoxOnLineByCoordinates(x, y);
+		final IContentBox box = findClosestBoxOnLineByCoordinates(contentMap, x, y);
 		if (box.containsCoordinates(x, y)) {
 			return box.getOffsetForCoordinates(graphics, x - box.getAbsoluteLeft(), y - box.getAbsoluteTop());
 		} else if (box.isLeftOf(x)) {
@@ -46,6 +52,28 @@ public class MoveToAbsoluteCoordinates implements ICursorMove {
 		} else {
 			return currentOffset;
 		}
+	}
+
+	private static IContentBox findClosestBoxOnLineByCoordinates(final ContentMap contentMap, final int x, final int y) {
+		final Environment environment = contentMap.findEnvironmentForCoordinates(x, y, false);
+		if (environment.deepestContainer == null) {
+			return contentMap.getOutmostContentBox();
+		}
+		return environment.deepestContainer.accept(new BaseBoxVisitorWithResult<IContentBox>() {
+			@Override
+			public IContentBox visit(final NodeReference box) {
+				final IContentBox closestOnLine = environment.neighbours.getClosestOnLine().box;
+				if (closestOnLine != null) {
+					return closestOnLine;
+				}
+				return box;
+			}
+
+			@Override
+			public IContentBox visit(final TextContent box) {
+				return box;
+			}
+		});
 	}
 
 	private static boolean isLastEnclosedBox(final IContentBox enclosedBox) {
@@ -66,11 +94,6 @@ public class MoveToAbsoluteCoordinates implements ICursorMove {
 				return box;
 			}
 		});
-	}
-
-	@Override
-	public boolean preferX() {
-		return true;
 	}
 
 }

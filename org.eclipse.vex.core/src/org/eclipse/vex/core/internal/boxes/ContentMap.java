@@ -44,6 +44,10 @@ public class ContentMap {
 		return outmostContentBox.getEndOffset();
 	}
 
+	public IContentBox getOutmostContentBox() {
+		return outmostContentBox;
+	}
+
 	public IContentBox findBoxForPosition(final int offset) {
 		return rootBox.accept(new DepthFirstTraversal<IContentBox>() {
 			@Override
@@ -72,176 +76,7 @@ public class ContentMap {
 		});
 	}
 
-	public IContentBox findClosestBoxAbove(final int x, final int y) {
-		final Environment environment = findEnvironmentForCoordinates(x, y, true);
-		final Neighbour neighbourAbove = environment.neighbours.getAbove();
-		if (environment.deepestContainer == null || neighbourAbove.box == null) {
-			return outmostContentBox;
-		}
-
-		final IContentBox boxAbove = neighbourAbove.box.accept(new BaseBoxVisitorWithResult<IContentBox>() {
-			@Override
-			public IContentBox visit(final NodeReference box) {
-				if (box.canContainText()) {
-					final IContentBox lastChild = deepestLastChild(box);
-					if (lastChild.isRightOf(x)) {
-						return lastChild;
-					}
-					if (lastChild.containsX(x)) {
-						return lastChild;
-					}
-				}
-				return box;
-			}
-
-			@Override
-			public IContentBox visit(final TextContent box) {
-				return box;
-			}
-		});
-
-		return environment.deepestContainer.accept(new ParentTraversal<IContentBox>() {
-			@Override
-			public IContentBox visit(final NodeReference box) {
-				if (box == environment.deepestContainer) {
-					return super.visit(box);
-				}
-				final int distanceToContainerTop = y - box.getAbsoluteTop();
-				if (distanceToContainerTop <= neighbourAbove.distance) {
-					return box;
-				}
-				return boxAbove;
-			}
-		});
-	}
-
-	private static IContentBox deepestLastChild(final IContentBox parentBox) {
-		return parentBox.accept(new DepthFirstTraversal<IContentBox>() {
-			private IContentBox lastChild;
-
-			@Override
-			public IContentBox visit(final NodeReference box) {
-				lastChild = box;
-				super.visit(box);
-				if (box == parentBox) {
-					return lastChild;
-				} else {
-					return null;
-				}
-			}
-
-			@Override
-			public IContentBox visit(final TextContent box) {
-				lastChild = box;
-				return null;
-			}
-		});
-	}
-
-	public IContentBox findClosestBoxBelow(final int x, final int y) {
-		final Environment environment = findEnvironmentForCoordinates(x, y, true);
-		final Neighbour neighbourBelow = environment.neighbours.getBelow();
-		if (environment.deepestContainer == null || neighbourBelow.box == null) {
-			return outmostContentBox;
-		}
-
-		final IContentBox boxBelow = neighbourBelow.box.accept(new BaseBoxVisitorWithResult<IContentBox>() {
-			@Override
-			public IContentBox visit(final NodeReference box) {
-				if (box.canContainText()) {
-					return deepestFirstChild(box);
-				}
-				return box;
-			}
-
-			@Override
-			public IContentBox visit(final TextContent box) {
-				return box;
-			}
-		});
-
-		return environment.deepestContainer.accept(new BaseBoxVisitorWithResult<IContentBox>() {
-			@Override
-			public IContentBox visit(final NodeReference box) {
-				if (box == getParent(boxBelow)) {
-					return boxBelow;
-				}
-				if (!isInLastLine(box, boxBelow)) {
-					return boxBelow;
-				}
-				return getParent(box);
-			}
-
-			@Override
-			public IContentBox visit(final TextContent box) {
-				if (!boxBelow.isLeftOf(x)) {
-					return boxBelow;
-				}
-				return getParent(box);
-			}
-
-		});
-	}
-
-	private static IContentBox deepestFirstChild(final IContentBox parentBox) {
-		return parentBox.accept(new DepthFirstTraversal<IContentBox>() {
-			private IContentBox firstChild;
-
-			@Override
-			public IContentBox visit(final NodeReference box) {
-				super.visit(box);
-				if (firstChild == null) {
-					firstChild = box;
-				}
-				return firstChild;
-			}
-
-			@Override
-			public IContentBox visit(final TextContent box) {
-				return box;
-			}
-		});
-	}
-
-	private static boolean isInLastLine(final IContentBox box, final IContentBox boxBelow) {
-		return !(getParent(box) == getParent(boxBelow));
-	}
-
-	private static IContentBox getParent(final IContentBox childBox) {
-		return childBox.accept(new ParentTraversal<IContentBox>() {
-			@Override
-			public IContentBox visit(final NodeReference box) {
-				if (box == childBox) {
-					return super.visit(box);
-				}
-				return box;
-			}
-		});
-	}
-
-	public IContentBox findClosestBoxOnLineByCoordinates(final int x, final int y) {
-		final Environment environment = findEnvironmentForCoordinates(x, y, false);
-		if (environment.deepestContainer == null) {
-			return outmostContentBox;
-		}
-		return environment.deepestContainer.accept(new BaseBoxVisitorWithResult<IContentBox>() {
-			@Override
-			public IContentBox visit(final NodeReference box) {
-				final IContentBox closestOnLine = environment.neighbours.getClosestOnLine().box;
-				if (closestOnLine != null) {
-					return closestOnLine;
-				}
-				return box;
-			}
-
-			@Override
-			public IContentBox visit(final TextContent box) {
-				return box;
-			}
-		});
-	}
-
-	private Environment findEnvironmentForCoordinates(final int x, final int y, final boolean preferClosest) {
+	public Environment findEnvironmentForCoordinates(final int x, final int y, final boolean preferClosest) {
 		final Neighbourhood neighbours = new Neighbourhood();
 		final IContentBox deepestContainer = rootBox.accept(new DepthFirstTraversal<IContentBox>() {
 			private IContentBox deeperContainer;
@@ -296,7 +131,7 @@ public class ContentMap {
 		return new Environment(neighbours, deepestContainer);
 	}
 
-	private static class Neighbour {
+	public static class Neighbour {
 		public static final Neighbour NULL = new Neighbour(null, Integer.MAX_VALUE);
 
 		public final IContentBox box;
@@ -308,7 +143,7 @@ public class ContentMap {
 		}
 	}
 
-	private static class Neighbourhood {
+	public static class Neighbourhood {
 		private Neighbour above = Neighbour.NULL;
 		private Neighbour below = Neighbour.NULL;
 		private Neighbour left = Neighbour.NULL;
@@ -359,7 +194,7 @@ public class ContentMap {
 		}
 	}
 
-	private static class Environment {
+	public static class Environment {
 		public final Neighbourhood neighbours;
 		public final IContentBox deepestContainer;
 
