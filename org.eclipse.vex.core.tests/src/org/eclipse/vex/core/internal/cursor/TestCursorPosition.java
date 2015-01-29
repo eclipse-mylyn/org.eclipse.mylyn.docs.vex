@@ -345,12 +345,12 @@ public class TestCursorPosition {
 
 	private void assertCursorAt(final int offset) {
 		cursor.applyMoves(graphics);
-		assertEquals(offset, cursor.getPosition());
+		assertEquals(offset, cursor.getOffset());
 	}
 
 	private void assertCursorAt(final String message, final int offset) {
 		cursor.applyMoves(graphics);
-		assertEquals(message, offset, cursor.getPosition());
+		assertEquals(message, offset, cursor.getOffset());
 	}
 
 	private static RootBox createTestModel() {

@@ -51,7 +51,7 @@ public class Cursor {
 		this.contentMap = contentMap;
 	}
 
-	public int getPosition() {
+	public int getOffset() {
 		return offset;
 	}
 
@@ -59,18 +59,17 @@ public class Cursor {
 		moves.add(move);
 	}
 
+	public void reconcile(final Graphics graphics) {
+		preferX = true;
+		applyCaretForPosition(graphics, offset);
+	}
+
 	public void applyMoves(final Graphics graphics) {
 		for (ICursorMove move = moves.poll(); move != null; move = moves.poll()) {
 			offset = move.calculateNewOffset(graphics, contentMap, offset, box, getHotArea(), preferredX);
 			preferX = move.preferX();
+			applyCaretForPosition(graphics, offset);
 		}
-	}
-
-	private Rectangle getHotArea() {
-		if (caret == null) {
-			return Rectangle.NULL;
-		}
-		return caret.getHotArea();
 	}
 
 	public void paint(final Graphics graphics) {
@@ -87,6 +86,13 @@ public class Cursor {
 		if (preferX) {
 			preferredX = caret.getHotArea().getX();
 		}
+	}
+
+	private Rectangle getHotArea() {
+		if (caret == null) {
+			return Rectangle.NULL;
+		}
+		return caret.getHotArea();
 	}
 
 	private Caret getCaretForBox(final Graphics graphics, final IContentBox box, final int offset) {

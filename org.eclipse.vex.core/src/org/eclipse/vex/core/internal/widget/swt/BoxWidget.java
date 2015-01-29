@@ -35,10 +35,8 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.vex.core.internal.boxes.IContentBox;
 import org.eclipse.vex.core.internal.boxes.RootBox;
 import org.eclipse.vex.core.internal.core.Graphics;
-import org.eclipse.vex.core.internal.core.Rectangle;
 import org.eclipse.vex.core.internal.cursor.ContentMap;
 import org.eclipse.vex.core.internal.cursor.Cursor;
 import org.eclipse.vex.core.internal.cursor.ICursorMove;
@@ -165,22 +163,11 @@ public class BoxWidget extends Canvas {
 	private void resize(final ControlEvent event) {
 		System.out.println("Width: " + getClientArea().width);
 		rootBox.setWidth(getClientArea().width);
-		cursor.move(new ICursorMove() {
-			@Override
-			public int calculateNewOffset(final Graphics graphics, final ContentMap contentMap, final int currentOffset, final IContentBox currentBox, final Rectangle hotArea, final int preferredX) {
-				return currentOffset;
-			}
-
-			@Override
-			public boolean preferX() {
-				return true;
-			}
-		});
 		scheduleRenderer(new Layouter(getDisplay(), getVerticalBar().getSelection(), getSize().x, getSize().y));
 	}
 
 	private void scrollVertically(final SelectionEvent event) {
-		scheduleRenderer(new Painter(getDisplay(), getVerticalBar().getSelection(), getSize().x, getSize().y));
+		invalidate();
 	}
 
 	private void keyPressed(final KeyEvent event) {
@@ -267,6 +254,7 @@ public class BoxWidget extends Canvas {
 
 	private void layoutContent(final Graphics graphics) {
 		rootBox.layout(graphics);
+		cursor.reconcile(graphics);
 	}
 
 	private void paintContent(final Graphics graphics) {
@@ -279,7 +267,7 @@ public class BoxWidget extends Canvas {
 		getDisplay().asyncExec(new Runnable() {
 			@Override
 			public void run() {
-				final int maximum = rootBox.getHeight();
+				final int maximum = rootBox.getHeight() + 30;
 				final int pageSize = getClientArea().height;
 				final int selection = getVerticalBar().getSelection();
 				getVerticalBar().setValues(selection, 0, maximum, pageSize, pageSize / 4, pageSize);
