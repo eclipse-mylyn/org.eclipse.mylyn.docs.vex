@@ -8,10 +8,15 @@
  * Contributors:
  * 		Florian Thienel - initial API and implementation
  *******************************************************************************/
-package org.eclipse.vex.core.internal.boxes;
+package org.eclipse.vex.core.internal.cursor;
 
 import java.util.LinkedList;
 
+import org.eclipse.vex.core.internal.boxes.BaseBoxVisitorWithResult;
+import org.eclipse.vex.core.internal.boxes.IBox;
+import org.eclipse.vex.core.internal.boxes.IContentBox;
+import org.eclipse.vex.core.internal.boxes.NodeReference;
+import org.eclipse.vex.core.internal.boxes.TextContent;
 import org.eclipse.vex.core.internal.core.Color;
 import org.eclipse.vex.core.internal.core.ColorResource;
 import org.eclipse.vex.core.internal.core.FontSpec;

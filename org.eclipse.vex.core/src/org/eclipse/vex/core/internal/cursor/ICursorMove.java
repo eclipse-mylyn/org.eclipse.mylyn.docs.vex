@@ -8,8 +8,9 @@
  * Contributors:
  * 		Florian Thienel - initial API and implementation
  *******************************************************************************/
-package org.eclipse.vex.core.internal.boxes;
+package org.eclipse.vex.core.internal.cursor;
 
+import org.eclipse.vex.core.internal.boxes.IContentBox;
 import org.eclipse.vex.core.internal.core.Graphics;
 import org.eclipse.vex.core.internal.core.Rectangle;
 

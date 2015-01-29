@@ -10,12 +10,12 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.widget.swt;
 
-import static org.eclipse.vex.core.internal.boxes.CursorMoves.down;
-import static org.eclipse.vex.core.internal.boxes.CursorMoves.left;
-import static org.eclipse.vex.core.internal.boxes.CursorMoves.right;
-import static org.eclipse.vex.core.internal.boxes.CursorMoves.toAbsoluteCoordinates;
-import static org.eclipse.vex.core.internal.boxes.CursorMoves.toOffset;
-import static org.eclipse.vex.core.internal.boxes.CursorMoves.up;
+import static org.eclipse.vex.core.internal.cursor.CursorMoves.down;
+import static org.eclipse.vex.core.internal.cursor.CursorMoves.left;
+import static org.eclipse.vex.core.internal.cursor.CursorMoves.right;
+import static org.eclipse.vex.core.internal.cursor.CursorMoves.toAbsoluteCoordinates;
+import static org.eclipse.vex.core.internal.cursor.CursorMoves.toOffset;
+import static org.eclipse.vex.core.internal.cursor.CursorMoves.up;
 
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ControlAdapter;
@@ -35,13 +35,13 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.vex.core.internal.boxes.ContentMap;
-import org.eclipse.vex.core.internal.boxes.Cursor;
 import org.eclipse.vex.core.internal.boxes.IContentBox;
-import org.eclipse.vex.core.internal.boxes.ICursorMove;
 import org.eclipse.vex.core.internal.boxes.RootBox;
 import org.eclipse.vex.core.internal.core.Graphics;
 import org.eclipse.vex.core.internal.core.Rectangle;
+import org.eclipse.vex.core.internal.cursor.ContentMap;
+import org.eclipse.vex.core.internal.cursor.Cursor;
+import org.eclipse.vex.core.internal.cursor.ICursorMove;
 
 /**
  * A widget to display the new box model.

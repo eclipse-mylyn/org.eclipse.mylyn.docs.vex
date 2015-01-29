@@ -8,7 +8,8 @@
  * Contributors:
  * 		Florian Thienel - initial API and implementation
  *******************************************************************************/
-package org.eclipse.vex.core.internal.boxes;
+package org.eclipse.vex.core.internal.cursor;
+
 
 /**
  * @author Florian Thienel

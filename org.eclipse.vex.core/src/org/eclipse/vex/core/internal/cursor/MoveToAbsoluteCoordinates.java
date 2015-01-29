@@ -8,11 +8,16 @@
  * Contributors:
  * 		Florian Thienel - initial API and implementation
  *******************************************************************************/
-package org.eclipse.vex.core.internal.boxes;
+package org.eclipse.vex.core.internal.cursor;
 
-import org.eclipse.vex.core.internal.boxes.ContentMap.Environment;
+import org.eclipse.vex.core.internal.boxes.BaseBoxVisitorWithResult;
+import org.eclipse.vex.core.internal.boxes.IContentBox;
+import org.eclipse.vex.core.internal.boxes.NodeReference;
+import org.eclipse.vex.core.internal.boxes.ParentTraversal;
+import org.eclipse.vex.core.internal.boxes.TextContent;
 import org.eclipse.vex.core.internal.core.Graphics;
 import org.eclipse.vex.core.internal.core.Rectangle;
+import org.eclipse.vex.core.internal.cursor.ContentMap.Environment;
 
 /**
  * @author Florian Thienel

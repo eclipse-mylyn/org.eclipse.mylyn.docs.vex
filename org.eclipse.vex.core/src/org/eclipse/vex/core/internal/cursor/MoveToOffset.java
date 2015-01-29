@@ -8,19 +8,26 @@
  * Contributors:
  * 		Florian Thienel - initial API and implementation
  *******************************************************************************/
-package org.eclipse.vex.core.internal.boxes;
+package org.eclipse.vex.core.internal.cursor;
 
+import org.eclipse.vex.core.internal.boxes.IContentBox;
 import org.eclipse.vex.core.internal.core.Graphics;
 import org.eclipse.vex.core.internal.core.Rectangle;
 
 /**
  * @author Florian Thienel
  */
-public class MoveLeft implements ICursorMove {
+public class MoveToOffset implements ICursorMove {
+
+	private final int offset;
+
+	public MoveToOffset(final int offset) {
+		this.offset = offset;
+	}
 
 	@Override
 	public int calculateNewOffset(final Graphics graphics, final ContentMap contentMap, final int currentOffset, final IContentBox currentBox, final Rectangle hotArea, int preferredX) {
-		return Math.max(0, currentOffset - 1);
+		return offset;
 	}
 
 	@Override

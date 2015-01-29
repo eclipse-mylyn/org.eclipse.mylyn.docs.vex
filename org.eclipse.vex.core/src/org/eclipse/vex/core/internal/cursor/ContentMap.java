@@ -8,7 +8,14 @@
  * Contributors:
  * 		Florian Thienel - initial API and implementation
  *******************************************************************************/
-package org.eclipse.vex.core.internal.boxes;
+package org.eclipse.vex.core.internal.cursor;
+
+import org.eclipse.vex.core.internal.boxes.DepthFirstTraversal;
+import org.eclipse.vex.core.internal.boxes.IContentBox;
+import org.eclipse.vex.core.internal.boxes.NodeReference;
+import org.eclipse.vex.core.internal.boxes.Paragraph;
+import org.eclipse.vex.core.internal.boxes.RootBox;
+import org.eclipse.vex.core.internal.boxes.TextContent;
 
 /**
  * @author Florian Thienel

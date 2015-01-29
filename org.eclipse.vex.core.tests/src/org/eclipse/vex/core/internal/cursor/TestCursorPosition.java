@@ -8,17 +8,25 @@
  * Contributors:
  * 		Florian Thienel - initial API and implementation
  *******************************************************************************/
-package org.eclipse.vex.core.internal.boxes;
+package org.eclipse.vex.core.internal.cursor;
 
-import static org.eclipse.vex.core.internal.boxes.CursorMoves.down;
-import static org.eclipse.vex.core.internal.boxes.CursorMoves.left;
-import static org.eclipse.vex.core.internal.boxes.CursorMoves.right;
-import static org.eclipse.vex.core.internal.boxes.CursorMoves.toAbsoluteCoordinates;
-import static org.eclipse.vex.core.internal.boxes.CursorMoves.toOffset;
-import static org.eclipse.vex.core.internal.boxes.CursorMoves.up;
+import static org.eclipse.vex.core.internal.cursor.CursorMoves.down;
+import static org.eclipse.vex.core.internal.cursor.CursorMoves.left;
+import static org.eclipse.vex.core.internal.cursor.CursorMoves.right;
+import static org.eclipse.vex.core.internal.cursor.CursorMoves.toAbsoluteCoordinates;
+import static org.eclipse.vex.core.internal.cursor.CursorMoves.toOffset;
+import static org.eclipse.vex.core.internal.cursor.CursorMoves.up;
 import static org.junit.Assert.assertEquals;
 
 import org.eclipse.core.runtime.QualifiedName;
+import org.eclipse.vex.core.internal.boxes.DepthFirstTraversal;
+import org.eclipse.vex.core.internal.boxes.IContentBox;
+import org.eclipse.vex.core.internal.boxes.NodeReference;
+import org.eclipse.vex.core.internal.boxes.RootBox;
+import org.eclipse.vex.core.internal.boxes.TextContent;
+import org.eclipse.vex.core.internal.cursor.ContentMap;
+import org.eclipse.vex.core.internal.cursor.Cursor;
+import org.eclipse.vex.core.internal.cursor.ICursorMove;
 import org.eclipse.vex.core.internal.dom.Document;
 import org.eclipse.vex.core.internal.layout.FakeGraphics;
 import org.eclipse.vex.core.internal.visualization.DocumentRootVisualization;

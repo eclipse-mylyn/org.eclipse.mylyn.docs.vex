@@ -8,17 +8,23 @@
  * Contributors:
  * 		Florian Thienel - initial API and implementation
  *******************************************************************************/
-package org.eclipse.vex.core.internal.boxes;
+package org.eclipse.vex.core.internal.cursor;
 
-import org.eclipse.vex.core.internal.boxes.ContentMap.Environment;
-import org.eclipse.vex.core.internal.boxes.ContentMap.Neighbour;
+import org.eclipse.vex.core.internal.boxes.BaseBoxVisitorWithResult;
+import org.eclipse.vex.core.internal.boxes.DepthFirstTraversal;
+import org.eclipse.vex.core.internal.boxes.IContentBox;
+import org.eclipse.vex.core.internal.boxes.NodeReference;
+import org.eclipse.vex.core.internal.boxes.ParentTraversal;
+import org.eclipse.vex.core.internal.boxes.TextContent;
 import org.eclipse.vex.core.internal.core.Graphics;
 import org.eclipse.vex.core.internal.core.Rectangle;
+import org.eclipse.vex.core.internal.cursor.ContentMap.Environment;
+import org.eclipse.vex.core.internal.cursor.ContentMap.Neighbour;
 
 /**
  * @author Florian Thienel
  */
-public class MoveUp implements ICursorMove {
+public class MoveDown implements ICursorMove {
 
 	@Override
 	public boolean preferX() {
@@ -27,22 +33,22 @@ public class MoveUp implements ICursorMove {
 
 	@Override
 	public int calculateNewOffset(final Graphics graphics, final ContentMap contentMap, final int currentOffset, final IContentBox currentBox, final Rectangle hotArea, final int preferredX) {
-		if (isAtEndOfEmptyBox(currentOffset, currentBox)) {
-			return currentBox.getStartOffset();
+		if (isAtStartOfEmptyBox(currentOffset, currentBox)) {
+			return currentBox.getEndOffset();
 		}
-		if (isAtEndOfBoxWithChildren(currentOffset, currentBox) && !canContainText(currentBox)) {
-			return getLastChild(currentBox).getEndOffset();
+		if (isAtStartOfBoxWithChildren(currentOffset, currentBox) && !canContainText(currentBox)) {
+			return getFirstChild(currentBox).getStartOffset();
 		}
 
-		return findOffsetInNextBoxAbove(graphics, contentMap, currentBox, hotArea, preferredX);
+		return findOffsetInNextBoxBelow(graphics, contentMap, currentBox, hotArea, preferredX);
 	}
 
-	private static boolean isAtEndOfEmptyBox(final int offset, final IContentBox box) {
-		return box.isAtEnd(offset) && box.isEmpty();
+	private static boolean isAtStartOfEmptyBox(final int offset, final IContentBox box) {
+		return box.isAtStart(offset) && box.isEmpty();
 	}
 
-	private static boolean isAtEndOfBoxWithChildren(final int offset, final IContentBox box) {
-		return box.isAtEnd(offset) && canHaveChildren(box);
+	private static boolean isAtStartOfBoxWithChildren(final int offset, final IContentBox box) {
+		return box.isAtStart(offset) && canHaveChildren(box);
 	}
 
 	private static boolean canHaveChildren(final IContentBox box) {
@@ -75,39 +81,37 @@ public class MoveUp implements ICursorMove {
 		});
 	}
 
-	private static IContentBox getLastChild(final IContentBox parent) {
+	private static IContentBox getFirstChild(final IContentBox parent) {
 		return parent.accept(new DepthFirstTraversal<IContentBox>() {
-			private IContentBox lastChild;
-
 			@Override
 			public IContentBox visit(final NodeReference box) {
 				if (box == parent) {
-					super.visit(box);
-					return lastChild;
+					return super.visit(box);
 				}
-				lastChild = box;
-				return null;
+				return box;
 			}
 
 			@Override
 			public IContentBox visit(final TextContent box) {
-				lastChild = box;
-				return null;
+				return box;
 			}
 		});
 	}
 
-	private int findOffsetInNextBoxAbove(final Graphics graphics, final ContentMap contentMap, final IContentBox currentBox, final Rectangle hotArea, final int preferredX) {
+	private int findOffsetInNextBoxBelow(final Graphics graphics, final ContentMap contentMap, final IContentBox currentBox, final Rectangle hotArea, final int preferredX) {
 		final int x = preferredX;
-		final int y = hotArea.getY();
-		final IContentBox box = findNextBoxAbove(contentMap, currentBox, x, y);
+		final int y = hotArea.getY() + hotArea.getHeight() - 1;
+		final IContentBox box = findNextBoxBelow(contentMap, currentBox, x, y);
+		if (box.isEmpty()) {
+			return box.getStartOffset();
+		}
 		return box.getOffsetForCoordinates(graphics, x - box.getAbsoluteLeft(), y - box.getAbsoluteTop());
 	}
 
-	private static IContentBox findNextBoxAbove(final ContentMap contentMap, final IContentBox currentBox, final int x, final int y) {
+	private static IContentBox findNextBoxBelow(final ContentMap contentMap, final IContentBox currentBox, final int x, final int y) {
 		final Environment environment = contentMap.findEnvironmentForCoordinates(x, y, true);
-		final Neighbour neighbourAbove = environment.neighbours.getAbove();
-		if (neighbourAbove.box == null) {
+		final Neighbour neighbourBelow = environment.neighbours.getBelow();
+		if (neighbourBelow.box == null) {
 			final IContentBox parent = getParent(currentBox);
 			if (parent == null) {
 				return currentBox;
@@ -115,14 +119,11 @@ public class MoveUp implements ICursorMove {
 			return parent;
 		}
 
-		final IContentBox boxAbove = neighbourAbove.box.accept(new BaseBoxVisitorWithResult<IContentBox>() {
+		final IContentBox boxBelow = neighbourBelow.box.accept(new BaseBoxVisitorWithResult<IContentBox>() {
 			@Override
 			public IContentBox visit(final NodeReference box) {
 				if (box.canContainText()) {
-					final IContentBox lastChild = deepestLastChild(box);
-					if (!lastChild.isLeftOf(x)) {
-						return lastChild;
-					}
+					return deepestFirstChild(box);
 				}
 				return box;
 			}
@@ -139,39 +140,44 @@ public class MoveUp implements ICursorMove {
 				if (box == currentBox) {
 					return super.visit(box);
 				}
-				if (containerTopCloserThanNeighbourAbove(box, neighbourAbove, y)) {
+				if (containerBottomCloserThanNeighbourBelow(box, neighbourBelow, y)) {
 					return box;
 				}
-				return boxAbove;
-			}
-		});
-	}
-
-	private static IContentBox deepestLastChild(final IContentBox parentBox) {
-		return parentBox.accept(new DepthFirstTraversal<IContentBox>() {
-			private IContentBox lastChild;
-
-			@Override
-			public IContentBox visit(final NodeReference box) {
-				lastChild = box;
-				super.visit(box);
-				if (box == parentBox) {
-					return lastChild;
-				} else {
-					return null;
-				}
+				return boxBelow;
 			}
 
 			@Override
 			public IContentBox visit(final TextContent box) {
-				lastChild = box;
-				return null;
+				if (!boxBelow.isLeftOf(x)) {
+					return boxBelow;
+				}
+				return getParent(box);
 			}
 		});
 	}
 
-	private static boolean containerTopCloserThanNeighbourAbove(final IContentBox box, final Neighbour neighbourAbove, final int y) {
-		final int distanceToContainerTop = y - box.getAbsoluteTop();
-		return distanceToContainerTop <= neighbourAbove.distance;
+	private static IContentBox deepestFirstChild(final IContentBox parentBox) {
+		return parentBox.accept(new DepthFirstTraversal<IContentBox>() {
+			private IContentBox firstChild;
+
+			@Override
+			public IContentBox visit(final NodeReference box) {
+				super.visit(box);
+				if (firstChild == null) {
+					firstChild = box;
+				}
+				return firstChild;
+			}
+
+			@Override
+			public IContentBox visit(final TextContent box) {
+				return box;
+			}
+		});
+	}
+
+	private static boolean containerBottomCloserThanNeighbourBelow(final IContentBox box, final Neighbour neighbourBelow, final int y) {
+		final int distanceToContainerBottom = box.getAbsoluteTop() + box.getHeight() - y;
+		return distanceToContainerBottom <= neighbourBelow.distance;
 	}
 }
