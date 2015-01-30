@@ -44,7 +44,7 @@ public class ContentMap {
 		});
 	}
 
-	public int getLastPosition() {
+	public int getLastOffset() {
 		if (outmostContentBox == null) {
 			return 0;
 		}

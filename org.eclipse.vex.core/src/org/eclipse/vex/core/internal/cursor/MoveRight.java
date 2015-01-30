@@ -21,7 +21,7 @@ public class MoveRight implements ICursorMove {
 
 	@Override
 	public int calculateNewOffset(final Graphics graphics, final ContentMap contentMap, final int currentOffset, final IContentBox currentBox, final Rectangle hotArea, int preferredX) {
-		return Math.min(currentOffset + 1, contentMap.getLastPosition());
+		return Math.min(currentOffset + 1, contentMap.getLastOffset());
 	}
 
 	@Override

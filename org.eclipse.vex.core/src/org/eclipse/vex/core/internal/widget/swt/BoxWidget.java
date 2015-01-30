@@ -37,7 +37,6 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.vex.core.internal.boxes.RootBox;
 import org.eclipse.vex.core.internal.core.Graphics;
-import org.eclipse.vex.core.internal.cursor.ContentMap;
 import org.eclipse.vex.core.internal.cursor.Cursor;
 import org.eclipse.vex.core.internal.cursor.ICursorMove;
 
@@ -49,8 +48,6 @@ import org.eclipse.vex.core.internal.cursor.ICursorMove;
 public class BoxWidget extends Canvas {
 
 	private RootBox rootBox;
-
-	private final ContentMap contentMap;
 	private final Cursor cursor;
 
 	/*
@@ -81,14 +78,12 @@ public class BoxWidget extends Canvas {
 		connectMouse();
 
 		rootBox = new RootBox();
-		contentMap = new ContentMap();
-		contentMap.setRootBox(rootBox);
-		cursor = new Cursor(contentMap);
+		cursor = new Cursor();
 	}
 
 	public void setContent(final RootBox rootBox) {
 		this.rootBox = rootBox;
-		contentMap.setRootBox(rootBox);
+		cursor.setRootBox(rootBox);
 	}
 
 	public void invalidate() {
