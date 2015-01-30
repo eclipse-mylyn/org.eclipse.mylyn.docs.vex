@@ -122,62 +122,48 @@ public class MoveDown implements ICursorMove {
 		final IContentBox boxBelow = neighbourBelow.box.accept(new BaseBoxVisitorWithResult<IContentBox>() {
 			@Override
 			public IContentBox visit(final NodeReference box) {
-				if (box.canContainText()) {
-					return deepestFirstChild(box);
-				}
 				return box;
 			}
 
 			@Override
 			public IContentBox visit(final TextContent box) {
+				if (isLastChild(box) && box.isLeftOf(x)) {
+					return getParent(box);
+				}
 				return box;
 			}
 		});
 
-		return currentBox.accept(new ParentTraversal<IContentBox>() {
+		return currentBox.accept(new BaseBoxVisitorWithResult<IContentBox>() {
 			@Override
 			public IContentBox visit(final NodeReference box) {
-				if (box == currentBox) {
-					return super.visit(box);
-				}
 				if (containerBottomCloserThanNeighbourBelow(box, neighbourBelow, y)) {
-					return box;
+					return getParent(box);
 				}
 				return boxBelow;
 			}
 
 			@Override
 			public IContentBox visit(final TextContent box) {
-				if (!boxBelow.isLeftOf(x)) {
-					return boxBelow;
-				}
-				return getParent(box);
-			}
-		});
-	}
-
-	private static IContentBox deepestFirstChild(final IContentBox parentBox) {
-		return parentBox.accept(new DepthFirstTraversal<IContentBox>() {
-			private IContentBox firstChild;
-
-			@Override
-			public IContentBox visit(final NodeReference box) {
-				super.visit(box);
-				if (firstChild == null) {
-					firstChild = box;
-				}
-				return firstChild;
-			}
-
-			@Override
-			public IContentBox visit(final TextContent box) {
-				return box;
+				return boxBelow;
 			}
 		});
 	}
 
 	private static boolean containerBottomCloserThanNeighbourBelow(final IContentBox box, final Neighbour neighbourBelow, final int y) {
-		final int distanceToContainerBottom = box.getAbsoluteTop() + box.getHeight() - y;
+		final IContentBox parent = getParent(box);
+		final int distanceToContainerBottom = parent.getAbsoluteTop() + parent.getHeight() - y;
 		return distanceToContainerBottom <= neighbourBelow.distance;
+	}
+
+	private static boolean isLastChild(final IContentBox box) {
+		final IContentBox parent = getParent(box);
+		if (parent == null) {
+			return false;
+		}
+		if (box.getEndOffset() != parent.getEndOffset() - 1) {
+			return false;
+		}
+		return true;
 	}
 }

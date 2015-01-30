@@ -24,9 +24,6 @@ import org.eclipse.vex.core.internal.boxes.IContentBox;
 import org.eclipse.vex.core.internal.boxes.NodeReference;
 import org.eclipse.vex.core.internal.boxes.RootBox;
 import org.eclipse.vex.core.internal.boxes.TextContent;
-import org.eclipse.vex.core.internal.cursor.ContentMap;
-import org.eclipse.vex.core.internal.cursor.Cursor;
-import org.eclipse.vex.core.internal.cursor.ICursorMove;
 import org.eclipse.vex.core.internal.dom.Document;
 import org.eclipse.vex.core.internal.layout.FakeGraphics;
 import org.eclipse.vex.core.internal.visualization.DocumentRootVisualization;
@@ -279,6 +276,13 @@ public class TestCursorPosition {
 		cursorAt(666);
 		moveCursor(down());
 		assertCursorAt(667);
+	}
+
+	@Test
+	public void givenAtEndOfLongLine_whenMovingDown_shouldMoveCursorToEndOfShorterLineBelow() throws Exception {
+		cursorAt(147);
+		moveCursor(down());
+		assertCursorAt(168);
 	}
 
 	@Test

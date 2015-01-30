@@ -139,18 +139,10 @@ public class MoveUp implements ICursorMove {
 			}
 		});
 
-		return currentBox.accept(new ParentTraversal<IContentBox>() {
-			@Override
-			public IContentBox visit(final NodeReference box) {
-				if (box == currentBox) {
-					return super.visit(box);
-				}
-				if (containerTopCloserThanNeighbourAbove(box, neighbourAbove, y)) {
-					return box;
-				}
-				return boxAbove;
-			}
-		});
+		if (containerTopCloserThanNeighbourAbove(currentBox, neighbourAbove, y)) {
+			return getParent(currentBox);
+		}
+		return boxAbove;
 	}
 
 	private static IContentBox deepestLastChild(final IContentBox parentBox) {
@@ -177,7 +169,7 @@ public class MoveUp implements ICursorMove {
 	}
 
 	private static boolean containerTopCloserThanNeighbourAbove(final IContentBox box, final Neighbour neighbourAbove, final int y) {
-		final int distanceToContainerTop = y - box.getAbsoluteTop();
+		final int distanceToContainerTop = y - getParent(box).getAbsoluteTop();
 		return distanceToContainerTop <= neighbourAbove.distance;
 	}
 }
