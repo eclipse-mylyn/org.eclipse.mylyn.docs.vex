@@ -36,6 +36,7 @@ import org.eclipse.vex.core.provisional.dom.IProcessingInstruction;
  */
 public class Cursor {
 
+	public static final int CARET_BUFFER = 30;
 	private static final Color FOREGROUND_COLOR = new Color(255, 255, 255);
 	private static final Color BACKGROUND_COLOR = new Color(0, 0, 0);
 	private static final FontSpec FONT = new FontSpec("Arial", FontSpec.BOLD, 10.0f);
@@ -58,6 +59,17 @@ public class Cursor {
 
 	public int getLastOffset() {
 		return contentMap.getLastOffset();
+	}
+
+	public int getDeltaIntoVisibleArea(final int top, final int height) {
+		final Rectangle caretArea = getVisibleArea();
+		if (caretArea.getY() + caretArea.getHeight() > top + height) {
+			return caretArea.getY() + caretArea.getHeight() - top - height;
+		}
+		if (caretArea.getY() < top) {
+			return caretArea.getY() - top;
+		}
+		return 0;
 	}
 
 	public void move(final ICursorMove move) {
@@ -98,6 +110,13 @@ public class Cursor {
 			return Rectangle.NULL;
 		}
 		return caret.getHotArea();
+	}
+
+	private Rectangle getVisibleArea() {
+		if (caret == null) {
+			return Rectangle.NULL;
+		}
+		return caret.getVisibleArea();
 	}
 
 	private Caret getCaretForBox(final Graphics graphics, final IContentBox box, final int offset) {
@@ -244,6 +263,8 @@ public class Cursor {
 	private static interface Caret {
 		Rectangle getHotArea();
 
+		Rectangle getVisibleArea();
+
 		void paint(Graphics graphics);
 	}
 
@@ -259,6 +280,11 @@ public class Cursor {
 		@Override
 		public Rectangle getHotArea() {
 			return new Rectangle(area.getX(), area.getY(), 1, 1);
+		}
+
+		@Override
+		public Rectangle getVisibleArea() {
+			return new Rectangle(area.getX(), area.getY(), area.getWidth(), CARET_BUFFER);
 		}
 
 		@Override
@@ -299,6 +325,11 @@ public class Cursor {
 		@Override
 		public Rectangle getHotArea() {
 			return new Rectangle(getX(), area.getY(), 1, area.getHeight());
+		}
+
+		@Override
+		public Rectangle getVisibleArea() {
+			return area;
 		}
 
 		@Override
@@ -343,6 +374,11 @@ public class Cursor {
 		}
 
 		@Override
+		public Rectangle getVisibleArea() {
+			return new Rectangle(area.getX(), area.getY() + area.getHeight(), area.getWidth(), CARET_BUFFER);
+		}
+
+		@Override
 		public void paint(final Graphics graphics) {
 			if (area == Rectangle.NULL) {
 				return;
@@ -381,6 +417,11 @@ public class Cursor {
 		@Override
 		public Rectangle getHotArea() {
 			return area;
+		}
+
+		@Override
+		public Rectangle getVisibleArea() {
+			return new Rectangle(area.getX(), area.getY(), area.getWidth(), area.getHeight() + 2);
 		}
 
 		@Override

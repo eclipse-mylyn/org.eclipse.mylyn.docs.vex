@@ -86,10 +86,6 @@ public class BoxWidget extends Canvas {
 		cursor.setRootBox(rootBox);
 	}
 
-	public void invalidate() {
-		scheduleRenderer(new Painter(getDisplay(), getVerticalBar().getSelection(), getSize().x, getSize().y));
-	}
-
 	private void connectDispose() {
 		addDisposeListener(new DisposeListener() {
 			@Override
@@ -158,7 +154,7 @@ public class BoxWidget extends Canvas {
 	private void resize(final ControlEvent event) {
 		System.out.println("Width: " + getClientArea().width);
 		rootBox.setWidth(getClientArea().width);
-		scheduleRenderer(new Layouter(getDisplay(), getVerticalBar().getSelection(), getSize().x, getSize().y));
+		invalidateLayout();
 	}
 
 	private void scrollVertically(final SelectionEvent event) {
@@ -194,7 +190,19 @@ public class BoxWidget extends Canvas {
 
 	private void moveCursor(final ICursorMove move) {
 		cursor.move(move);
-		invalidate();
+		invalidateCursor();
+	}
+
+	private void invalidate() {
+		scheduleRenderer(new Painter(getDisplay(), getVerticalBar().getSelection(), getSize().x, getSize().y));
+	}
+
+	private void invalidateCursor() {
+		scheduleRenderer(new PaintCursorMovement(getDisplay(), getVerticalBar().getSelection(), getSize().x, getSize().y));
+	}
+
+	private void invalidateLayout() {
+		scheduleRenderer(new Layouter(getDisplay(), getVerticalBar().getSelection(), getSize().x, getSize().y));
 	}
 
 	private void scheduleRenderer(final Runnable renderer) {
@@ -254,7 +262,6 @@ public class BoxWidget extends Canvas {
 
 	private void paintContent(final Graphics graphics) {
 		rootBox.paint(graphics);
-		cursor.applyMoves(graphics);
 		cursor.paint(graphics);
 	}
 
@@ -262,10 +269,24 @@ public class BoxWidget extends Canvas {
 		getDisplay().asyncExec(new Runnable() {
 			@Override
 			public void run() {
-				final int maximum = rootBox.getHeight() + 30;
+				final int maximum = rootBox.getHeight() + Cursor.CARET_BUFFER;
 				final int pageSize = getClientArea().height;
 				final int selection = getVerticalBar().getSelection();
 				getVerticalBar().setValues(selection, 0, maximum, pageSize, pageSize / 4, pageSize);
+			}
+		});
+	}
+
+	private void moveVerticalBar(final int delta) {
+		if (delta == 0) {
+			return;
+		}
+
+		getDisplay().asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				final int selection = getVerticalBar().getSelection() + delta;
+				getVerticalBar().setSelection(selection);
 			}
 		});
 	}
@@ -296,7 +317,38 @@ public class BoxWidget extends Canvas {
 			swapBufferImage(image);
 			rendererFinished();
 		}
+	}
 
+	private class PaintCursorMovement implements Runnable {
+		private final int top;
+		private final int height;
+		private final Image image;
+
+		public PaintCursorMovement(final Display display, final int top, final int width, final int height) {
+			this.top = top;
+			this.height = height;
+			image = new Image(display, width, height);
+		}
+
+		@Override
+		public void run() {
+			final GC gc = new GC(image);
+			final Graphics graphics = new SwtGraphics(gc);
+			graphics.moveOrigin(0, -top);
+
+			cursor.applyMoves(graphics);
+			final int delta = cursor.getDeltaIntoVisibleArea(top, height);
+			graphics.moveOrigin(0, -delta);
+
+			paintContent(graphics);
+
+			graphics.dispose();
+			gc.dispose();
+
+			moveVerticalBar(delta);
+			swapBufferImage(image);
+			rendererFinished();
+		}
 	}
 
 	private class Painter implements Runnable {
