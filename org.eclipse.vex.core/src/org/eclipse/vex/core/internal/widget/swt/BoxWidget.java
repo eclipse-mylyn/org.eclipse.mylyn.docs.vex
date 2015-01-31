@@ -158,7 +158,7 @@ public class BoxWidget extends Canvas {
 	}
 
 	private void scrollVertically(final SelectionEvent event) {
-		invalidate();
+		invalidateViewport();
 	}
 
 	private void keyPressed(final KeyEvent event) {
@@ -193,16 +193,85 @@ public class BoxWidget extends Canvas {
 		invalidateCursor();
 	}
 
-	private void invalidate() {
-		scheduleRenderer(new Painter(getDisplay(), getVerticalBar().getSelection(), getSize().x, getSize().y));
+	private void invalidateViewport() {
+		scheduleRenderer(paintContent());
 	}
 
 	private void invalidateCursor() {
-		scheduleRenderer(new PaintCursorMovement(getDisplay(), getVerticalBar().getSelection(), getSize().x, getSize().y));
+		scheduleRenderer(renderCursorMovement(getVerticalBar().getSelection(), getSize().y), paintContent());
 	}
 
 	private void invalidateLayout() {
-		scheduleRenderer(new Layouter(getDisplay(), getVerticalBar().getSelection(), getSize().x, getSize().y));
+		scheduleRenderer(layoutContent(), paintContent());
+	}
+
+	private IRenderStep paintContent() {
+		return new IRenderStep() {
+			@Override
+			public void render(final Graphics graphics) {
+				rootBox.paint(graphics);
+				cursor.paint(graphics);
+			}
+		};
+	}
+
+	private IRenderStep layoutContent() {
+		return new IRenderStep() {
+			@Override
+			public void render(final Graphics graphics) {
+				cursor.reconcile(graphics);
+				rootBox.layout(graphics);
+				updateVerticalBar();
+			}
+		};
+	}
+
+	private void updateVerticalBar() {
+		getDisplay().asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				final int maximum = rootBox.getHeight() + Cursor.CARET_BUFFER;
+				final int pageSize = getClientArea().height;
+				final int selection = getVerticalBar().getSelection();
+				getVerticalBar().setValues(selection, 0, maximum, pageSize, pageSize / 4, pageSize);
+			}
+		});
+	}
+
+	private IRenderStep renderCursorMovement(final int top, final int height) {
+		return new IRenderStep() {
+			@Override
+			public void render(final Graphics graphics) {
+				cursor.applyMoves(graphics);
+				final int delta = cursor.getDeltaIntoVisibleArea(top, height);
+				graphics.moveOrigin(0, -delta);
+				moveVerticalBar(delta);
+			}
+		};
+	}
+
+	private void moveVerticalBar(final int delta) {
+		if (delta == 0) {
+			return;
+		}
+
+		getDisplay().asyncExec(new Runnable() {
+			@Override
+			public void run() {
+				final int selection = getVerticalBar().getSelection() + delta;
+				getVerticalBar().setSelection(selection);
+			}
+		});
+	}
+
+	private void scheduleRenderer(final IRenderStep... steps) {
+		scheduleRenderer(new RenderTask(getDisplay(), getVerticalBar().getSelection(), getSize().x, getSize().y, new IRenderTaskListener() {
+			@Override
+			public void taskFinished(final Image image) {
+				swapBufferImage(image);
+				rendererFinished();
+			}
+		}, steps));
 	}
 
 	private void scheduleRenderer(final Runnable renderer) {
@@ -255,126 +324,45 @@ public class BoxWidget extends Canvas {
 		});
 	}
 
-	private void layoutContent(final Graphics graphics) {
-		rootBox.layout(graphics);
-		cursor.reconcile(graphics);
-	}
+	private static final class RenderTask implements Runnable {
+		private final int top;
+		private final IRenderTaskListener listener;
+		private final IRenderStep[] steps;
 
-	private void paintContent(final Graphics graphics) {
-		rootBox.paint(graphics);
-		cursor.paint(graphics);
-	}
+		private final Image image;
 
-	private void updateVerticalBar() {
-		getDisplay().asyncExec(new Runnable() {
-			@Override
-			public void run() {
-				final int maximum = rootBox.getHeight() + Cursor.CARET_BUFFER;
-				final int pageSize = getClientArea().height;
-				final int selection = getVerticalBar().getSelection();
-				getVerticalBar().setValues(selection, 0, maximum, pageSize, pageSize / 4, pageSize);
+		public RenderTask(final Display display, final int top, final int width, final int height, final IRenderTaskListener listener, final IRenderStep... steps) {
+			this.top = top;
+			this.listener = listener;
+			this.steps = steps;
+
+			image = new Image(display, width, height);
+		}
+
+		@Override
+		public final void run() {
+			final GC gc = new GC(image);
+			final Graphics graphics = new SwtGraphics(gc);
+			graphics.moveOrigin(0, -top);
+
+			try {
+				for (final IRenderStep step : steps) {
+					step.render(graphics);
+				}
+			} finally {
+				graphics.dispose();
+				gc.dispose();
 			}
-		});
-	}
 
-	private void moveVerticalBar(final int delta) {
-		if (delta == 0) {
-			return;
-		}
-
-		getDisplay().asyncExec(new Runnable() {
-			@Override
-			public void run() {
-				final int selection = getVerticalBar().getSelection() + delta;
-				getVerticalBar().setSelection(selection);
-			}
-		});
-	}
-
-	private class Layouter implements Runnable {
-
-		private final int top;
-		private final Image image;
-
-		public Layouter(final Display display, final int top, final int width, final int height) {
-			this.top = top;
-			image = new Image(display, width, height);
-		}
-
-		@Override
-		public void run() {
-			final GC gc = new GC(image);
-			final Graphics graphics = new SwtGraphics(gc);
-			graphics.moveOrigin(0, -top);
-
-			layoutContent(graphics);
-			paintContent(graphics);
-
-			graphics.dispose();
-			gc.dispose();
-
-			updateVerticalBar();
-			swapBufferImage(image);
-			rendererFinished();
+			listener.taskFinished(image);
 		}
 	}
 
-	private class PaintCursorMovement implements Runnable {
-		private final int top;
-		private final int height;
-		private final Image image;
-
-		public PaintCursorMovement(final Display display, final int top, final int width, final int height) {
-			this.top = top;
-			this.height = height;
-			image = new Image(display, width, height);
-		}
-
-		@Override
-		public void run() {
-			final GC gc = new GC(image);
-			final Graphics graphics = new SwtGraphics(gc);
-			graphics.moveOrigin(0, -top);
-
-			cursor.applyMoves(graphics);
-			final int delta = cursor.getDeltaIntoVisibleArea(top, height);
-			graphics.moveOrigin(0, -delta);
-
-			paintContent(graphics);
-
-			graphics.dispose();
-			gc.dispose();
-
-			moveVerticalBar(delta);
-			swapBufferImage(image);
-			rendererFinished();
-		}
+	private static interface IRenderTaskListener {
+		void taskFinished(Image image);
 	}
 
-	private class Painter implements Runnable {
-
-		private final int top;
-		private final Image image;
-
-		public Painter(final Display display, final int top, final int width, final int height) {
-			this.top = top;
-			image = new Image(display, width, height);
-		}
-
-		@Override
-		public void run() {
-			final GC gc = new GC(image);
-			final Graphics graphics = new SwtGraphics(gc);
-			graphics.moveOrigin(0, -top);
-
-			paintContent(graphics);
-
-			graphics.dispose();
-			gc.dispose();
-
-			swapBufferImage(image);
-			rendererFinished();
-		}
+	private static interface IRenderStep {
+		void render(Graphics graphics);
 	}
-
 }
