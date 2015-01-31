@@ -26,19 +26,15 @@ import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
-import org.eclipse.swt.events.PaintEvent;
-import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.graphics.GC;
-import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.vex.core.internal.boxes.RootBox;
 import org.eclipse.vex.core.internal.core.Graphics;
 import org.eclipse.vex.core.internal.cursor.Cursor;
 import org.eclipse.vex.core.internal.cursor.ICursorMove;
+import org.eclipse.vex.core.internal.widget.swt.DoubleBufferedRenderer.IRenderStep;
 
 /**
  * A widget to display the new box model.
@@ -49,27 +45,12 @@ public class BoxWidget extends Canvas {
 
 	private RootBox rootBox;
 	private final Cursor cursor;
-
-	/*
-	 * Use double buffering with a dedicated render thread to render the box model: This prevents flickering and keeps
-	 * the UI responsive even for big box models.
-	 * 
-	 * The prevention of flickering works only in conjunction with the style bit SWT.NO_BACKGROUND.
-	 * 
-	 * @see http://git.eclipse.org/c/platform/eclipse.platform.swt.git/tree/examples/org.eclipse.swt.snippets/src/org
-	 * /eclipse/swt/snippets/Snippet48.java
-	 */
-	private Image bufferImage;
-	private final Object bufferMonitor = new Object();
-
-	private Runnable currentRenderer;
-	private Runnable nextRenderer;
-	private final Object rendererMonitor = new Object();
+	private final DoubleBufferedRenderer renderer;
 
 	public BoxWidget(final Composite parent, final int style) {
 		super(parent, style | SWT.NO_BACKGROUND);
+		renderer = new DoubleBufferedRenderer(this);
 		connectDispose();
-		connectPaintControl();
 		connectResize();
 		if ((style & SWT.V_SCROLL) == SWT.V_SCROLL) {
 			connectScrollVertically();
@@ -91,15 +72,6 @@ public class BoxWidget extends Canvas {
 			@Override
 			public void widgetDisposed(final DisposeEvent e) {
 				BoxWidget.this.widgetDisposed();
-			}
-		});
-	}
-
-	private void connectPaintControl() {
-		addPaintListener(new PaintListener() {
-			@Override
-			public void paintControl(final PaintEvent e) {
-				BoxWidget.this.paintControl(e);
 			}
 		});
 	}
@@ -142,13 +114,6 @@ public class BoxWidget extends Canvas {
 
 	private void widgetDisposed() {
 		rootBox = null;
-		if (bufferImage != null) {
-			bufferImage.dispose();
-		}
-	}
-
-	private void paintControl(final PaintEvent event) {
-		event.gc.drawImage(getBufferImage(), 0, 0);
 	}
 
 	private void resize(final ControlEvent event) {
@@ -194,15 +159,15 @@ public class BoxWidget extends Canvas {
 	}
 
 	private void invalidateViewport() {
-		scheduleRenderer(paintContent());
+		renderer.schedule(paintContent());
 	}
 
 	private void invalidateCursor() {
-		scheduleRenderer(renderCursorMovement(getVerticalBar().getSelection(), getSize().y), paintContent());
+		renderer.schedule(renderCursorMovement(getVerticalBar().getSelection(), getSize().y), paintContent());
 	}
 
 	private void invalidateLayout() {
-		scheduleRenderer(layoutContent(), paintContent());
+		renderer.schedule(layoutContent(), paintContent());
 	}
 
 	private IRenderStep paintContent() {
@@ -264,105 +229,4 @@ public class BoxWidget extends Canvas {
 		});
 	}
 
-	private void scheduleRenderer(final IRenderStep... steps) {
-		scheduleRenderer(new RenderTask(getDisplay(), getVerticalBar().getSelection(), getSize().x, getSize().y, new IRenderTaskListener() {
-			@Override
-			public void taskFinished(final Image image) {
-				swapBufferImage(image);
-				rendererFinished();
-			}
-		}, steps));
-	}
-
-	private void scheduleRenderer(final Runnable renderer) {
-		synchronized (rendererMonitor) {
-			if (currentRenderer != null) {
-				nextRenderer = renderer;
-				return;
-			}
-			currentRenderer = renderer;
-		}
-		new Thread(renderer).start();
-	}
-
-	private void rendererFinished() {
-		final Runnable renderer;
-		synchronized (rendererMonitor) {
-			currentRenderer = nextRenderer;
-			nextRenderer = null;
-			renderer = currentRenderer;
-		}
-		if (renderer != null) {
-			new Thread(renderer).start();
-		}
-	}
-
-	private Image getBufferImage() {
-		synchronized (bufferMonitor) {
-			if (bufferImage == null) {
-				bufferImage = new Image(getDisplay(), getSize().x, getSize().y);
-			}
-			return bufferImage;
-		}
-	}
-
-	private void swapBufferImage(final Image newImage) {
-		final Image oldImage;
-		synchronized (bufferMonitor) {
-			oldImage = bufferImage;
-			bufferImage = newImage;
-		}
-
-		if (oldImage != null) {
-			oldImage.dispose();
-		}
-		getDisplay().asyncExec(new Runnable() {
-			@Override
-			public void run() {
-				redraw();
-			}
-		});
-	}
-
-	private static final class RenderTask implements Runnable {
-		private final int top;
-		private final IRenderTaskListener listener;
-		private final IRenderStep[] steps;
-
-		private final Image image;
-
-		public RenderTask(final Display display, final int top, final int width, final int height, final IRenderTaskListener listener, final IRenderStep... steps) {
-			this.top = top;
-			this.listener = listener;
-			this.steps = steps;
-
-			image = new Image(display, width, height);
-		}
-
-		@Override
-		public final void run() {
-			final GC gc = new GC(image);
-			final Graphics graphics = new SwtGraphics(gc);
-			graphics.moveOrigin(0, -top);
-
-			try {
-				for (final IRenderStep step : steps) {
-					step.render(graphics);
-				}
-			} finally {
-				graphics.dispose();
-				gc.dispose();
-			}
-
-			listener.taskFinished(image);
-		}
-	}
-
-	private static interface IRenderTaskListener {
-		void taskFinished(Image image);
-	}
-
-	private static interface IRenderStep {
-		void render(Graphics graphics);
-	}
 }
