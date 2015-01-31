@@ -10,8 +10,6 @@
  *******************************************************************************/
 package org.eclipse.vex.core.provisional.dom;
 
-import org.eclipse.vex.core.internal.dom.Element;
-
 /**
  * A representation of an XML element that includes content.
  */
@@ -19,7 +17,7 @@ public interface IIncludeNode extends INode {
 	/**
 	 * @return The Element that defines this include in the source document.
 	 */
-	public Element getReference();
+	public IElement getReference();
 
 	INode getResolved();
 

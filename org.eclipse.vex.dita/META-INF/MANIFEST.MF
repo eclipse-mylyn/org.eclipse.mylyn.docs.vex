@@ -1,11 +1,11 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: %pluginName
-Bundle-Version: 1.1.0.qualifier
+Bundle-Version: 1.2.0.qualifier
 Bundle-Vendor: %providerName
 Bundle-SymbolicName: org.eclipse.vex.dita;singleton:=true
-Require-Bundle: org.eclipse.vex.core;bundle-version="[1.1.0,2.0.0)",
- org.eclipse.vex.ui;bundle-version="[1.1.0,2.0.0)",
+Require-Bundle: org.eclipse.vex.core;bundle-version="[1.2.0,2.0.0)",
+ org.eclipse.vex.ui;bundle-version="[1.2.0,2.0.0)",
  org.eclipse.wst.xml.core;bundle-version="[1.1.0,2.0.0)"
 Bundle-Localization: plugin
 Bundle-RequiredExecutionEnvironment: JavaSE-1.6
