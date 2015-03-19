@@ -44,6 +44,7 @@ public class TestCursorPosition {
 
 	private static final String LOREM_IPSUM_LONG = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec a diam lectus. Sed sit amet ipsum mauris. Maecenas congue ligula ac quam viverra nec consectetur ante hendrerit. Donec et mollis dolor. Praesent et diam eget libero egestas mattis sit amet vitae augue. Nam tincidunt congue enim, ut porta lorem lacinia consectetur.";
 
+	private ContentMap contentMap;
 	private RootBox rootBox;
 	private Cursor cursor;
 	private FakeGraphics graphics;
@@ -51,8 +52,9 @@ public class TestCursorPosition {
 	@Before
 	public void setUp() throws Exception {
 		rootBox = createTestModel();
-		cursor = new Cursor();
-		cursor.setRootBox(rootBox);
+		contentMap = new ContentMap();
+		contentMap.setRootBox(rootBox);
+		cursor = new Cursor(contentMap);
 
 		graphics = new FakeGraphics();
 		rootBox.setWidth(200);
@@ -82,7 +84,7 @@ public class TestCursorPosition {
 
 	@Test
 	public void whenAtLastOffset_cannotMoveCursorOneCharacterRight() throws Exception {
-		final int lastOffset = cursor.getLastOffset();
+		final int lastOffset = contentMap.getLastOffset();
 		cursorAt(lastOffset);
 		cursor.move(right());
 		assertCursorAt(lastOffset);
@@ -210,7 +212,7 @@ public class TestCursorPosition {
 
 	@Test
 	public void whenAtLastOffset_cannotMoveCursorDown() throws Exception {
-		final int lastOffset = cursor.getLastOffset();
+		final int lastOffset = contentMap.getLastOffset();
 		cursorAt(lastOffset);
 		cursor.move(down());
 		assertCursorAt(lastOffset);

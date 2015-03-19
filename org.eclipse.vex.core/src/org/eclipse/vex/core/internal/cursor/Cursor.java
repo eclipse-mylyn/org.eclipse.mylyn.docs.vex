@@ -16,7 +16,6 @@ import org.eclipse.vex.core.internal.boxes.BaseBoxVisitorWithResult;
 import org.eclipse.vex.core.internal.boxes.IBox;
 import org.eclipse.vex.core.internal.boxes.IContentBox;
 import org.eclipse.vex.core.internal.boxes.NodeReference;
-import org.eclipse.vex.core.internal.boxes.RootBox;
 import org.eclipse.vex.core.internal.boxes.TextContent;
 import org.eclipse.vex.core.internal.core.Color;
 import org.eclipse.vex.core.internal.core.ColorResource;
@@ -41,7 +40,7 @@ public class Cursor {
 	private static final Color BACKGROUND_COLOR = new Color(0, 0, 0);
 	private static final FontSpec FONT = new FontSpec("Arial", FontSpec.BOLD, 10.0f);
 
-	private final ContentMap contentMap = new ContentMap();
+	private final ContentMap contentMap;
 	private int offset;
 	private Caret caret;
 	private IContentBox box;
@@ -49,16 +48,12 @@ public class Cursor {
 	private boolean preferX;
 	private final LinkedList<ICursorMove> moves = new LinkedList<ICursorMove>();
 
-	public void setRootBox(final RootBox rootBox) {
-		contentMap.setRootBox(rootBox);
+	public Cursor(final ContentMap contentMap) {
+		this.contentMap = contentMap;
 	}
 
 	public int getOffset() {
 		return offset;
-	}
-
-	public int getLastOffset() {
-		return contentMap.getLastOffset();
 	}
 
 	public int getDeltaIntoVisibleArea(final int top, final int height) {

@@ -13,7 +13,6 @@ package org.eclipse.vex.core.internal.cursor;
 import org.eclipse.vex.core.internal.boxes.DepthFirstTraversal;
 import org.eclipse.vex.core.internal.boxes.IContentBox;
 import org.eclipse.vex.core.internal.boxes.NodeReference;
-import org.eclipse.vex.core.internal.boxes.Paragraph;
 import org.eclipse.vex.core.internal.boxes.RootBox;
 import org.eclipse.vex.core.internal.boxes.TextContent;
 
@@ -66,11 +65,6 @@ public class ContentMap {
 					return box.getComponent().accept(this);
 				}
 				return null;
-			}
-
-			@Override
-			public IContentBox visit(final Paragraph box) {
-				return traverseChildren(box);
 			}
 
 			@Override

@@ -17,6 +17,7 @@ import static org.eclipse.vex.core.internal.cursor.CursorMoves.toAbsoluteCoordin
 import static org.eclipse.vex.core.internal.cursor.CursorMoves.toOffset;
 import static org.eclipse.vex.core.internal.cursor.CursorMoves.up;
 
+import org.eclipse.core.runtime.Assert;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ControlAdapter;
 import org.eclipse.swt.events.ControlEvent;
@@ -32,6 +33,7 @@ import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.vex.core.internal.boxes.RootBox;
 import org.eclipse.vex.core.internal.core.Graphics;
+import org.eclipse.vex.core.internal.cursor.ContentMap;
 import org.eclipse.vex.core.internal.cursor.Cursor;
 import org.eclipse.vex.core.internal.cursor.ICursorMove;
 import org.eclipse.vex.core.internal.visualization.VisualizationChain;
@@ -49,6 +51,7 @@ public class BoxWidget extends Canvas {
 	private VisualizationChain visualizationChain;
 	private RootBox rootBox;
 
+	private final ContentMap contentMap;
 	private final Cursor cursor;
 	private final DoubleBufferedRenderer renderer;
 
@@ -65,7 +68,9 @@ public class BoxWidget extends Canvas {
 
 		visualizationChain = new VisualizationChain();
 		rootBox = new RootBox();
-		cursor = new Cursor();
+		contentMap = new ContentMap();
+		contentMap.setRootBox(rootBox);
+		cursor = new Cursor(contentMap);
 	}
 
 	public void setContent(final IDocument document) {
@@ -74,12 +79,13 @@ public class BoxWidget extends Canvas {
 	}
 
 	public void setVisualization(final VisualizationChain visualizationChain) {
+		Assert.isNotNull(visualizationChain);
 		this.visualizationChain = visualizationChain;
 		rebuildRootBox();
 	}
 
 	private void rebuildRootBox() {
-		if (visualizationChain != null && document != null) {
+		if (document != null) {
 			rootBox = visualizationChain.visualizeRoot(document);
 		} else {
 			rootBox = new RootBox();
@@ -89,7 +95,7 @@ public class BoxWidget extends Canvas {
 			rootBox = new RootBox();
 		}
 
-		cursor.setRootBox(rootBox);
+		contentMap.setRootBox(rootBox);
 	}
 
 	private void connectDispose() {
