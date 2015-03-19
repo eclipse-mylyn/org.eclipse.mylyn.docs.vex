@@ -14,7 +14,6 @@ import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.part.ViewPart;
-import org.eclipse.vex.core.internal.boxes.RootBox;
 import org.eclipse.vex.core.internal.dom.Document;
 import org.eclipse.vex.core.internal.visualization.DocumentRootVisualization;
 import org.eclipse.vex.core.internal.visualization.ParagraphVisualization;
@@ -63,8 +62,8 @@ public class BoxView extends ViewPart {
 		}
 		boxWidget = new BoxWidget(parent, SWT.V_SCROLL);
 
-		final RootBox testModel = createTestModel();
-		boxWidget.setContent(testModel);
+		boxWidget.setContent(createTestDocument());
+		boxWidget.setVisualization(buildVisualizationChain());
 		parent.layout();
 	}
 
@@ -74,14 +73,6 @@ public class BoxView extends ViewPart {
 		 * reference to parent instead.
 		 */
 		parent.setFocus();
-	}
-
-	private RootBox createTestModel() {
-		final Document document = createTestDocument();
-
-		final VisualizationChain visualizationChain = buildVisualizationChain();
-
-		return visualizationChain.visualizeRoot(document);
 	}
 
 	private static Document createTestDocument() {

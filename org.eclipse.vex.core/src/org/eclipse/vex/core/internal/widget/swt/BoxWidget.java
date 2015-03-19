@@ -34,7 +34,9 @@ import org.eclipse.vex.core.internal.boxes.RootBox;
 import org.eclipse.vex.core.internal.core.Graphics;
 import org.eclipse.vex.core.internal.cursor.Cursor;
 import org.eclipse.vex.core.internal.cursor.ICursorMove;
+import org.eclipse.vex.core.internal.visualization.VisualizationChain;
 import org.eclipse.vex.core.internal.widget.swt.DoubleBufferedRenderer.IRenderStep;
+import org.eclipse.vex.core.provisional.dom.IDocument;
 
 /**
  * A widget to display the new box model.
@@ -43,7 +45,10 @@ import org.eclipse.vex.core.internal.widget.swt.DoubleBufferedRenderer.IRenderSt
  */
 public class BoxWidget extends Canvas {
 
+	private IDocument document;
+	private VisualizationChain visualizationChain;
 	private RootBox rootBox;
+
 	private final Cursor cursor;
 	private final DoubleBufferedRenderer renderer;
 
@@ -58,12 +63,32 @@ public class BoxWidget extends Canvas {
 		connectKeyboard();
 		connectMouse();
 
+		visualizationChain = new VisualizationChain();
 		rootBox = new RootBox();
 		cursor = new Cursor();
 	}
 
-	public void setContent(final RootBox rootBox) {
-		this.rootBox = rootBox;
+	public void setContent(final IDocument document) {
+		this.document = document;
+		rebuildRootBox();
+	}
+
+	public void setVisualization(final VisualizationChain visualizationChain) {
+		this.visualizationChain = visualizationChain;
+		rebuildRootBox();
+	}
+
+	private void rebuildRootBox() {
+		if (visualizationChain != null && document != null) {
+			rootBox = visualizationChain.visualizeRoot(document);
+		} else {
+			rootBox = new RootBox();
+		}
+
+		if (rootBox == null) {
+			rootBox = new RootBox();
+		}
+
 		cursor.setRootBox(rootBox);
 	}
 
