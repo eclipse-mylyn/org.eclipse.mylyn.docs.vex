@@ -141,6 +141,13 @@ public class NodeReference extends BaseBox implements IChildBox, IDecoratorBox<I
 	}
 
 	@Override
+	public boolean reconcileLayout(final Graphics graphics) {
+		final int oldHeight = height;
+		height = component.getHeight();
+		return oldHeight != height;
+	}
+
+	@Override
 	public void paint(final Graphics graphics) {
 		ChildBoxPainter.paint(component, graphics);
 	}

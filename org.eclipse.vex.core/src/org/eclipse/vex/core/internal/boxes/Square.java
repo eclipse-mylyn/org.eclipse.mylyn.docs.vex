@@ -103,7 +103,13 @@ public class Square extends BaseBox implements IInlineBox {
 
 	@Override
 	public void layout(final Graphics graphics) {
-		// ignore
+		// ignore, everything is static
+	}
+
+	@Override
+	public boolean reconcileLayout(final Graphics graphics) {
+		// ignore, everything is static
+		return false;
 	}
 
 	@Override

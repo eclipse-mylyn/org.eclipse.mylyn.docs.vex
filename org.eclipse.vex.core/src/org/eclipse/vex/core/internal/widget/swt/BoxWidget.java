@@ -31,14 +31,29 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.vex.core.internal.boxes.Frame;
+import org.eclipse.vex.core.internal.boxes.HorizontalBar;
+import org.eclipse.vex.core.internal.boxes.IBox;
+import org.eclipse.vex.core.internal.boxes.IBoxVisitorWithResult;
+import org.eclipse.vex.core.internal.boxes.NodeReference;
+import org.eclipse.vex.core.internal.boxes.Paragraph;
 import org.eclipse.vex.core.internal.boxes.RootBox;
+import org.eclipse.vex.core.internal.boxes.Square;
+import org.eclipse.vex.core.internal.boxes.StaticText;
+import org.eclipse.vex.core.internal.boxes.TextContent;
+import org.eclipse.vex.core.internal.boxes.VerticalBlock;
 import org.eclipse.vex.core.internal.core.Graphics;
 import org.eclipse.vex.core.internal.cursor.ContentMap;
 import org.eclipse.vex.core.internal.cursor.Cursor;
 import org.eclipse.vex.core.internal.cursor.ICursorMove;
 import org.eclipse.vex.core.internal.visualization.VisualizationChain;
 import org.eclipse.vex.core.internal.widget.swt.DoubleBufferedRenderer.IRenderStep;
+import org.eclipse.vex.core.provisional.dom.AttributeChangeEvent;
+import org.eclipse.vex.core.provisional.dom.ContentChangeEvent;
+import org.eclipse.vex.core.provisional.dom.ContentRange;
 import org.eclipse.vex.core.provisional.dom.IDocument;
+import org.eclipse.vex.core.provisional.dom.IDocumentListener;
+import org.eclipse.vex.core.provisional.dom.NamespaceDeclarationChangeEvent;
 
 /**
  * A widget to display the new box model.
@@ -54,6 +69,33 @@ public class BoxWidget extends Canvas {
 	private final ContentMap contentMap;
 	private final Cursor cursor;
 	private final DoubleBufferedRenderer renderer;
+
+	private final IDocumentListener documentListener = new IDocumentListener() {
+		@Override
+		public void attributeChanged(final AttributeChangeEvent event) {
+		}
+
+		@Override
+		public void namespaceChanged(final NamespaceDeclarationChangeEvent event) {
+		}
+
+		@Override
+		public void beforeContentDeleted(final ContentChangeEvent event) {
+		}
+
+		@Override
+		public void beforeContentInserted(final ContentChangeEvent event) {
+		}
+
+		@Override
+		public void contentDeleted(final ContentChangeEvent event) {
+		}
+
+		@Override
+		public void contentInserted(final ContentChangeEvent event) {
+			invalidateContentRange(event.getRange());
+		}
+	};
 
 	public BoxWidget(final Composite parent, final int style) {
 		super(parent, style | SWT.NO_BACKGROUND);
@@ -74,8 +116,23 @@ public class BoxWidget extends Canvas {
 	}
 
 	public void setContent(final IDocument document) {
+		disconnectDocumentListener();
 		this.document = document;
+		connectDocumentListener();
+
 		rebuildRootBox();
+	}
+
+	private void connectDocumentListener() {
+		if (document != null) {
+			document.addDocumentListener(documentListener);
+		}
+	}
+
+	private void disconnectDocumentListener() {
+		if (document != null) {
+			document.removeDocumentListener(documentListener);
+		}
 	}
 
 	public void setVisualization(final VisualizationChain visualizationChain) {
@@ -175,6 +232,7 @@ public class BoxWidget extends Canvas {
 			moveCursor(toOffset(0));
 			break;
 		default:
+			enterChar(event.character);
 			break;
 		}
 	}
@@ -187,6 +245,79 @@ public class BoxWidget extends Canvas {
 	private void moveCursor(final ICursorMove move) {
 		cursor.move(move);
 		invalidateCursor();
+	}
+
+	private void enterChar(final char c) {
+		document.insertText(cursor.getOffset(), Character.toString(c));
+		cursor.move(right());
+	}
+
+	private void invalidateContentRange(final ContentRange range) {
+		final IRenderStep reconcileLayoutForRange = new IRenderStep() {
+			@Override
+			public void render(final Graphics graphics) {
+				final IBox modifiedBox = contentMap.findBoxForRange(range);
+				if (modifiedBox == null) {
+					return;
+				}
+				modifiedBox.layout(graphics);
+
+				IBox parentBox = getParentBox(modifiedBox);
+				while (parentBox != null && parentBox.reconcileLayout(graphics)) {
+					parentBox = getParentBox(parentBox);
+				}
+			}
+
+			private IBox getParentBox(final IBox childBox) {
+				return childBox.accept(new IBoxVisitorWithResult<IBox>() {
+					@Override
+					public IBox visit(final RootBox box) {
+						return null;
+					}
+
+					@Override
+					public IBox visit(final VerticalBlock box) {
+						return box.getParent();
+					}
+
+					@Override
+					public IBox visit(final Frame box) {
+						return box.getParent();
+					}
+
+					@Override
+					public IBox visit(final NodeReference box) {
+						return box.getParent();
+					}
+
+					@Override
+					public IBox visit(final HorizontalBar box) {
+						return box.getParent();
+					}
+
+					@Override
+					public IBox visit(final Paragraph box) {
+						return box.getParent();
+					}
+
+					@Override
+					public IBox visit(final StaticText box) {
+						return box.getParent();
+					}
+
+					@Override
+					public IBox visit(final TextContent box) {
+						return box.getParent();
+					}
+
+					@Override
+					public IBox visit(final Square box) {
+						return box.getParent();
+					}
+				});
+			}
+		};
+		renderer.schedule(reconcileLayoutForRange, renderCursorMovement(), paintContent());
 	}
 
 	private void invalidateViewport() {

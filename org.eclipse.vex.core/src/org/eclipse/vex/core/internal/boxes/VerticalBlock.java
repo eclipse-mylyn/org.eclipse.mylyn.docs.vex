@@ -123,6 +123,18 @@ public class VerticalBlock extends BaseBox implements IChildBox, IParentBox<IChi
 	}
 
 	@Override
+	public boolean reconcileLayout(final Graphics graphics) {
+		final int oldHeight = height;
+		height = 0;
+		for (int i = 0; i < children.size(); i += 1) {
+			final IChildBox child = children.get(i);
+			child.setPosition(height, 0);
+			height += child.getHeight();
+		}
+		return oldHeight != height;
+	}
+
+	@Override
 	public void paint(final Graphics graphics) {
 		ChildBoxPainter.paint(children, graphics);
 	}

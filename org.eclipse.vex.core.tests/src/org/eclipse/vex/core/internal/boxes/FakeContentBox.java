@@ -74,6 +74,11 @@ public class FakeContentBox extends BaseBox implements IContentBox {
 	}
 
 	@Override
+	public boolean reconcileLayout(final Graphics graphics) {
+		return false;
+	}
+
+	@Override
 	public void paint(final Graphics graphics) {
 		// ignore
 	}

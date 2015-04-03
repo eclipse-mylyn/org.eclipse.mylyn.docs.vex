@@ -134,6 +134,13 @@ public class Paragraph extends BaseBox implements IChildBox, IParentBox<IInlineB
 	}
 
 	@Override
+	public boolean reconcileLayout(final Graphics graphics) {
+		final int oldHeight = lines.getHeight();
+		arrangeChildrenOnLines(graphics);
+		return oldHeight != lines.getHeight();
+	}
+
+	@Override
 	public void paint(final Graphics graphics) {
 		for (final Line line : lines.getLines()) {
 			/*

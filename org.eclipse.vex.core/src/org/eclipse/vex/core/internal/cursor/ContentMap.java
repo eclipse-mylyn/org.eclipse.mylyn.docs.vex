@@ -15,6 +15,7 @@ import org.eclipse.vex.core.internal.boxes.IContentBox;
 import org.eclipse.vex.core.internal.boxes.NodeReference;
 import org.eclipse.vex.core.internal.boxes.RootBox;
 import org.eclipse.vex.core.internal.boxes.TextContent;
+import org.eclipse.vex.core.provisional.dom.ContentRange;
 
 /**
  * @author Florian Thienel
@@ -73,6 +74,36 @@ public class ContentMap {
 					return box;
 				}
 				return null;
+			}
+		});
+	}
+
+	public IContentBox findBoxForRange(final ContentRange range) {
+		return rootBox.accept(new DepthFirstTraversal<IContentBox>() {
+			@Override
+			public IContentBox visit(final NodeReference box) {
+				if (containsCompleteRange(box, range)) {
+					final IContentBox childBox = box.getComponent().accept(this);
+					if (childBox == null) {
+						return box;
+					} else {
+						return childBox;
+					}
+				}
+
+				return null;
+			}
+
+			@Override
+			public IContentBox visit(final TextContent box) {
+				if (containsCompleteRange(box, range)) {
+					return box;
+				}
+				return null;
+			}
+
+			private boolean containsCompleteRange(final IContentBox box, final ContentRange range) {
+				return box.getStartOffset() <= range.getStartOffset() && box.getEndOffset() >= range.getEndOffset();
 			}
 		});
 	}

@@ -116,6 +116,12 @@ public class HorizontalBar extends BaseBox implements IChildBox {
 	}
 
 	@Override
+	public boolean reconcileLayout(final Graphics graphics) {
+		// ignore, everything is static
+		return false;
+	}
+
+	@Override
 	public void paint(final Graphics graphics) {
 		final ColorResource colorResource = graphics.getColor(color);
 		graphics.setColor(colorResource);

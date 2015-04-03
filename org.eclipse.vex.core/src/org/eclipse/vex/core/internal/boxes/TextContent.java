@@ -150,6 +150,17 @@ public class TextContent extends BaseBox implements IInlineBox, IContentBox {
 	}
 
 	@Override
+	public boolean reconcileLayout(final Graphics graphics) {
+		final int oldHeight = height;
+		final int oldWidth = width;
+		final int oldBaseline = baseline;
+
+		layout(graphics);
+
+		return oldHeight != height || oldWidth != width || oldBaseline != baseline;
+	}
+
+	@Override
 	public void paint(final Graphics graphics) {
 		applyFont(graphics);
 		graphics.drawString(getText(), 0, 0);

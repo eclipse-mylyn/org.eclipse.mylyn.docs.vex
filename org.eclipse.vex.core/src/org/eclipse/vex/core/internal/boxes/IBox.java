@@ -35,6 +35,8 @@ public interface IBox {
 
 	void layout(Graphics graphics);
 
+	boolean reconcileLayout(Graphics graphics);
+
 	void paint(Graphics graphics);
 
 	public abstract boolean isLeftOf(final int x);

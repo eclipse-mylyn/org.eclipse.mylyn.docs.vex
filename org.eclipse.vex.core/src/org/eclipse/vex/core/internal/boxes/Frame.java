@@ -156,6 +156,17 @@ public class Frame extends BaseBox implements IChildBox, IDecoratorBox<IChildBox
 	}
 
 	@Override
+	public boolean reconcileLayout(final Graphics graphics) {
+		final int oldHeight = height;
+
+		height = margin.top + border.top + padding.top;
+		height += component.getHeight();
+		height += margin.bottom + border.bottom + padding.bottom;
+
+		return oldHeight != height;
+	}
+
+	@Override
 	public void paint(final Graphics graphics) {
 		drawBorder(graphics);
 		paintComponent(graphics);
