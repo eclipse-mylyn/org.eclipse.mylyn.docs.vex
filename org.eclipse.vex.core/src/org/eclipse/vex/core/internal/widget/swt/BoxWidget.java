@@ -194,7 +194,7 @@ public class BoxWidget extends Canvas {
 	}
 
 	private void invalidateCursor() {
-		renderer.schedule(renderCursorMovement(getVerticalBar().getSelection(), getSize().y), paintContent());
+		renderer.schedule(renderCursorMovement(), paintContent());
 	}
 
 	private void invalidateLayout() {
@@ -234,16 +234,33 @@ public class BoxWidget extends Canvas {
 		});
 	}
 
-	private IRenderStep renderCursorMovement(final int top, final int height) {
+	private IRenderStep renderCursorMovement() {
 		return new IRenderStep() {
 			@Override
 			public void render(final Graphics graphics) {
 				cursor.applyMoves(graphics);
-				final int delta = cursor.getDeltaIntoVisibleArea(top, height);
-				graphics.moveOrigin(0, -delta);
-				moveVerticalBar(delta);
+				moveViewPortToCursor(graphics);
 			}
 		};
+	}
+
+	private void moveViewPortToCursor(final Graphics graphics) {
+		final int delta = getDeltaIntoVisibleArea();
+		graphics.moveOrigin(0, -delta);
+		moveVerticalBar(delta);
+	}
+
+	private int getDeltaIntoVisibleArea() {
+		final int[] top = new int[1];
+		final int[] height = new int[1];
+		getDisplay().syncExec(new Runnable() {
+			@Override
+			public void run() {
+				top[0] = getVerticalBar().getSelection();
+				height[0] = getSize().y;
+			}
+		});
+		return cursor.getDeltaIntoVisibleArea(top[0], height[0]);
 	}
 
 	private void moveVerticalBar(final int delta) {
