@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013 Carsten Hiesserich and others.
+ * Copyright (c) 2013, 2015 Carsten Hiesserich and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -75,7 +75,15 @@ public class DocumentEventTest {
 	}
 
 	@Test
-	public void testInsertText() throws Exception {
+	public void givenEmptyElement_whenInsertingText_shouldIndicateStructuralChange() throws Exception {
+		document.insertText(childNode.getEndOffset(), "Hello World");
+		assertNotNull("Expecting ContentChangeEvent", contentChangeEvent);
+		assertTrue("Expecting structural change", contentChangeEvent.isStructuralChange());
+	}
+
+	@Test
+	public void givenElementWithText_whenInsertingText_shouldNotIndicateStructuralChange() throws Exception {
+		document.insertText(childNode.getEndOffset(), "Some Text");
 		document.insertText(childNode.getEndOffset(), "Hello World");
 		assertNotNull("Expecting ContentChangeEvent", contentChangeEvent);
 		assertFalse("Expecting no structural change", contentChangeEvent.isStructuralChange());

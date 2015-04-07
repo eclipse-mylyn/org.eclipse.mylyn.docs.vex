@@ -296,9 +296,10 @@ public class Document extends Parent implements IDocument {
 					throw new DocumentValidationException(MessageFormat.format("Cannot insert text ''{0}'' at offset {1}.", text, offset));
 				}
 
-				fireBeforeContentInserted(new ContentChangeEvent(Document.this, element, new ContentRange(offset, offset + adjustedText.length() - 1), false));
+				final boolean hasTextAtOffset = !(getContent().isTagMarker(offset - 1) && getContent().isTagMarker(offset));
+				fireBeforeContentInserted(new ContentChangeEvent(Document.this, element, new ContentRange(offset, offset + adjustedText.length() - 1), !hasTextAtOffset));
 				getContent().insertText(offset, adjustedText);
-				fireContentInserted(new ContentChangeEvent(Document.this, element, new ContentRange(offset, offset + adjustedText.length() - 1), false));
+				fireContentInserted(new ContentChangeEvent(Document.this, element, new ContentRange(offset, offset + adjustedText.length() - 1), !hasTextAtOffset));
 			}
 
 			@Override
@@ -310,9 +311,9 @@ public class Document extends Parent implements IDocument {
 
 			@Override
 			public void visit(final IComment comment) {
-				fireBeforeContentInserted(new ContentChangeEvent(Document.this, comment.getParent(), new ContentRange(offset, offset + adjustedText.length() - 1), false));
+				fireBeforeContentInserted(new ContentChangeEvent(Document.this, comment.getParent(), new ContentRange(offset, offset + adjustedText.length() - 1), comment.isEmpty()));
 				getContent().insertText(offset, adjustedText);
-				fireContentInserted(new ContentChangeEvent(Document.this, comment.getParent(), new ContentRange(offset, offset + adjustedText.length() - 1), false));
+				fireContentInserted(new ContentChangeEvent(Document.this, comment.getParent(), new ContentRange(offset, offset + adjustedText.length() - 1), comment.isEmpty()));
 			}
 
 			@Override
@@ -327,9 +328,9 @@ public class Document extends Parent implements IDocument {
 					throw new DocumentValidationException(result.getMessage());
 				}
 
-				fireBeforeContentInserted(new ContentChangeEvent(Document.this, pi.getParent(), new ContentRange(offset, offset + adjustedText.length() - 1), false));
+				fireBeforeContentInserted(new ContentChangeEvent(Document.this, pi.getParent(), new ContentRange(offset, offset + adjustedText.length() - 1), pi.isEmpty()));
 				getContent().insertText(offset, adjustedText);
-				fireContentInserted(new ContentChangeEvent(Document.this, pi.getParent(), new ContentRange(offset, offset + adjustedText.length() - 1), false));
+				fireContentInserted(new ContentChangeEvent(Document.this, pi.getParent(), new ContentRange(offset, offset + adjustedText.length() - 1), pi.isEmpty()));
 			}
 
 			public void visit(final IIncludeNode document) {
