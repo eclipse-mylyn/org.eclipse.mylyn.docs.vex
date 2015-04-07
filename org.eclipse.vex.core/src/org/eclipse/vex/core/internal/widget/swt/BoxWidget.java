@@ -31,11 +31,14 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.vex.core.internal.boxes.BaseBoxVisitor;
+import org.eclipse.vex.core.internal.boxes.BaseBoxVisitorWithResult;
 import org.eclipse.vex.core.internal.boxes.DepthFirstTraversal;
 import org.eclipse.vex.core.internal.boxes.Frame;
 import org.eclipse.vex.core.internal.boxes.HorizontalBar;
 import org.eclipse.vex.core.internal.boxes.IBox;
 import org.eclipse.vex.core.internal.boxes.IBoxVisitorWithResult;
+import org.eclipse.vex.core.internal.boxes.IChildBox;
 import org.eclipse.vex.core.internal.boxes.IContentBox;
 import org.eclipse.vex.core.internal.boxes.NodeReference;
 import org.eclipse.vex.core.internal.boxes.Paragraph;
@@ -55,6 +58,7 @@ import org.eclipse.vex.core.provisional.dom.ContentChangeEvent;
 import org.eclipse.vex.core.provisional.dom.ContentRange;
 import org.eclipse.vex.core.provisional.dom.IDocument;
 import org.eclipse.vex.core.provisional.dom.IDocumentListener;
+import org.eclipse.vex.core.provisional.dom.INode;
 import org.eclipse.vex.core.provisional.dom.NamespaceDeclarationChangeEvent;
 
 /**
@@ -95,7 +99,11 @@ public class BoxWidget extends Canvas {
 
 		@Override
 		public void contentInserted(final ContentChangeEvent event) {
-			invalidateContentRange(event.getRange());
+			if (event.isStructuralChange()) {
+				invalidateStructure(event.getParent());
+			} else {
+				invalidateContentRange(event.getRange());
+			}
 		}
 	};
 
@@ -254,6 +262,31 @@ public class BoxWidget extends Canvas {
 		cursor.move(right());
 	}
 
+	private void invalidateStructure(final INode node) {
+		final IRenderStep rebuildStructureForNode = new IRenderStep() {
+			@Override
+			public void render(final Graphics graphics) {
+				final IContentBox modifiedBox = contentMap.findBoxForRange(node.getRange());
+				final IChildBox newBox = visualizationChain.visualizeStructure(node);
+				final IChildBox newChildBox = newBox.accept(new BaseBoxVisitorWithResult<IChildBox>(newBox) {
+					@Override
+					public IChildBox visit(final NodeReference box) {
+						return box.getComponent();
+					}
+				});
+				modifiedBox.accept(new BaseBoxVisitor() {
+					@Override
+					public void visit(final NodeReference box) {
+						box.setComponent(newChildBox);
+					}
+				});
+				modifiedBox.layout(graphics);
+				reconcileParentsLayout(modifiedBox, graphics);
+			}
+		};
+		renderer.schedule(rebuildStructureForNode, renderCursorMovement(), paintContent());
+	}
+
 	private void invalidateContentRange(final ContentRange range) {
 		final IRenderStep reconcileLayoutForRange = new IRenderStep() {
 			@Override
@@ -300,63 +333,64 @@ public class BoxWidget extends Canvas {
 				});
 			}
 
-			private void reconcileParentsLayout(final IContentBox box, final Graphics graphics) {
-				IBox parentBox = getParentBox(box);
-				while (parentBox != null && parentBox.reconcileLayout(graphics)) {
-					parentBox = getParentBox(parentBox);
-				}
-			}
-
-			private IBox getParentBox(final IBox childBox) {
-				return childBox.accept(new IBoxVisitorWithResult<IBox>() {
-					@Override
-					public IBox visit(final RootBox box) {
-						return null;
-					}
-
-					@Override
-					public IBox visit(final VerticalBlock box) {
-						return box.getParent();
-					}
-
-					@Override
-					public IBox visit(final Frame box) {
-						return box.getParent();
-					}
-
-					@Override
-					public IBox visit(final NodeReference box) {
-						return box.getParent();
-					}
-
-					@Override
-					public IBox visit(final HorizontalBar box) {
-						return box.getParent();
-					}
-
-					@Override
-					public IBox visit(final Paragraph box) {
-						return box.getParent();
-					}
-
-					@Override
-					public IBox visit(final StaticText box) {
-						return box.getParent();
-					}
-
-					@Override
-					public IBox visit(final TextContent box) {
-						return box.getParent();
-					}
-
-					@Override
-					public IBox visit(final Square box) {
-						return box.getParent();
-					}
-				});
-			}
 		};
 		renderer.schedule(reconcileLayoutForRange, renderCursorMovement(), paintContent());
+	}
+
+	private void reconcileParentsLayout(final IContentBox box, final Graphics graphics) {
+		IBox parentBox = getParentBox(box);
+		while (parentBox != null && parentBox.reconcileLayout(graphics)) {
+			parentBox = getParentBox(parentBox);
+		}
+	}
+
+	private IBox getParentBox(final IBox childBox) {
+		return childBox.accept(new IBoxVisitorWithResult<IBox>() {
+			@Override
+			public IBox visit(final RootBox box) {
+				return null;
+			}
+
+			@Override
+			public IBox visit(final VerticalBlock box) {
+				return box.getParent();
+			}
+
+			@Override
+			public IBox visit(final Frame box) {
+				return box.getParent();
+			}
+
+			@Override
+			public IBox visit(final NodeReference box) {
+				return box.getParent();
+			}
+
+			@Override
+			public IBox visit(final HorizontalBar box) {
+				return box.getParent();
+			}
+
+			@Override
+			public IBox visit(final Paragraph box) {
+				return box.getParent();
+			}
+
+			@Override
+			public IBox visit(final StaticText box) {
+				return box.getParent();
+			}
+
+			@Override
+			public IBox visit(final TextContent box) {
+				return box.getParent();
+			}
+
+			@Override
+			public IBox visit(final Square box) {
+				return box.getParent();
+			}
+		});
 	}
 
 	private void invalidateViewport() {
