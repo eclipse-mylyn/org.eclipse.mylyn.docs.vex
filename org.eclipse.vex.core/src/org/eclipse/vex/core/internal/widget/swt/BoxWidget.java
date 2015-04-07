@@ -31,10 +31,12 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.vex.core.internal.boxes.DepthFirstTraversal;
 import org.eclipse.vex.core.internal.boxes.Frame;
 import org.eclipse.vex.core.internal.boxes.HorizontalBar;
 import org.eclipse.vex.core.internal.boxes.IBox;
 import org.eclipse.vex.core.internal.boxes.IBoxVisitorWithResult;
+import org.eclipse.vex.core.internal.boxes.IContentBox;
 import org.eclipse.vex.core.internal.boxes.NodeReference;
 import org.eclipse.vex.core.internal.boxes.Paragraph;
 import org.eclipse.vex.core.internal.boxes.RootBox;
@@ -256,13 +258,50 @@ public class BoxWidget extends Canvas {
 		final IRenderStep reconcileLayoutForRange = new IRenderStep() {
 			@Override
 			public void render(final Graphics graphics) {
-				final IBox modifiedBox = contentMap.findBoxForRange(range);
+				final IContentBox modifiedBox = contentMap.findBoxForRange(range);
 				if (modifiedBox == null) {
 					return;
 				}
-				modifiedBox.layout(graphics);
 
-				IBox parentBox = getParentBox(modifiedBox);
+				includeGapsInTextContent(modifiedBox);
+				modifiedBox.layout(graphics);
+				reconcileParentsLayout(modifiedBox, graphics);
+			}
+
+			private void includeGapsInTextContent(final IContentBox box) {
+				box.accept(new DepthFirstTraversal<Object>() {
+					private int lastEndOffset = box.getStartOffset();
+					private TextContent lastTextContentBox;
+
+					@Override
+					public Object visit(final NodeReference box) {
+						lastEndOffset = box.getStartOffset();
+						box.getComponent().accept(this);
+
+						if (lastTextContentBox != null && lastTextContentBox.getEndOffset() < box.getEndOffset() - 1) {
+							lastTextContentBox.setEndOffset(box.getEndOffset() - 1);
+						}
+
+						lastEndOffset = box.getEndOffset();
+						lastTextContentBox = null;
+						return super.visit(box);
+					}
+
+					@Override
+					public Object visit(final TextContent box) {
+						if (box.getStartOffset() > lastEndOffset + 1) {
+							box.setStartOffset(lastEndOffset + 1);
+						}
+
+						lastEndOffset = box.getEndOffset();
+						lastTextContentBox = box;
+						return super.visit(box);
+					}
+				});
+			}
+
+			private void reconcileParentsLayout(final IContentBox box, final Graphics graphics) {
+				IBox parentBox = getParentBox(box);
 				while (parentBox != null && parentBox.reconcileLayout(graphics)) {
 					parentBox = getParentBox(parentBox);
 				}

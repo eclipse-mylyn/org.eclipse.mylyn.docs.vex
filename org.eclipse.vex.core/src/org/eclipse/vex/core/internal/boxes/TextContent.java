@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.boxes;
 
+import org.eclipse.core.runtime.Assert;
 import org.eclipse.vex.core.internal.core.FontMetrics;
 import org.eclipse.vex.core.internal.core.FontResource;
 import org.eclipse.vex.core.internal.core.FontSpec;
@@ -260,9 +261,23 @@ public class TextContent extends BaseBox implements IInlineBox, IContentBox {
 		return startPosition.getOffset();
 	}
 
+	public void setStartOffset(final int startOffset) {
+		Assert.isTrue(endPosition == null || startOffset <= endPosition.getOffset(), "startPosition > endPosition");
+		content.removePosition(startPosition);
+		startPosition = content.createPosition(startOffset);
+		layoutValid = false;
+	}
+
 	@Override
 	public int getEndOffset() {
 		return endPosition.getOffset();
+	}
+
+	public void setEndOffset(final int endOffset) {
+		Assert.isTrue(startPosition == null || endOffset >= startPosition.getOffset(), "endPosition < startPosition");
+		content.removePosition(endPosition);
+		endPosition = content.createPosition(endOffset);
+		layoutValid = false;
 	}
 
 	@Override
