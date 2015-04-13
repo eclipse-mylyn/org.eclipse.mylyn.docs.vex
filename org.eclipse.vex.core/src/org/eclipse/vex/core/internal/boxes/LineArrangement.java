@@ -135,7 +135,7 @@ public class LineArrangement {
 	}
 
 	private boolean boxFitsIntoCurrentLine(final IInlineBox box) {
-		return currentLine.getWidth() + box.getWidth() < width;
+		return currentLine.getWidth() + box.getWidth() <= width;
 	}
 
 	private void lineBreak() {

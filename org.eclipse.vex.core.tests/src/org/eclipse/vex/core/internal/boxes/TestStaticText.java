@@ -189,25 +189,25 @@ public class TestStaticText {
 	}
 
 	@Test
-	public void givenTextContainsWhitespace_whenSplittingAtWhitespace_shouldSplitRightAfterWhitespace() throws Exception {
+	public void givenTextContainsWhitespace_whenSplittingWithinWhitespace_shouldSplitBeforeWhitespace() throws Exception {
 		final FakeGraphics graphics = new FakeGraphics();
 		final StaticText text = new StaticText();
-		text.setText("1234 567890");
+		text.setText("12 34 567890");
 		text.layout(graphics);
 
-		final StaticText tail = (StaticText) text.splitTail(graphics, 28, false);
+		final StaticText tail = (StaticText) text.splitTail(graphics, 34, false);
 
-		assertSplitEquals("1234 ", "567890", text, tail);
+		assertSplitEquals("12 ", "34 567890", text, tail);
 	}
 
 	@Test
-	public void givenTextContainsWhitespace_whenSplittingRightBeforeWhitespace_shouldSplitRightAfterWhitespace() throws Exception {
+	public void givenTextContainsWhitespace_whenSplittingRightAfterWhitespace_shouldSplitRightAfterWhitespace() throws Exception {
 		final FakeGraphics graphics = new FakeGraphics();
 		final StaticText text = new StaticText();
 		text.setText("1234 567890");
 		text.layout(graphics);
 
-		final StaticText tail = (StaticText) text.splitTail(graphics, 24, false);
+		final StaticText tail = (StaticText) text.splitTail(graphics, 30, false);
 
 		assertSplitEquals("1234 ", "567890", text, tail);
 	}

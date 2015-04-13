@@ -44,18 +44,16 @@ public class CharSequenceSplitter {
 	}
 
 	public int findSplittingPositionBefore(final Graphics graphics, final int x, final int maxWidth, final boolean force) {
-		final int positionAtWidth = findPositionBefore(graphics, x, maxWidth);
+		final int positionAtWidth = findPositionAfter(graphics, x, maxWidth) - 1;
 		final int properSplittingPosition = findProperSplittingPositionBefore(positionAtWidth);
-		final int splittingPosition;
 		if (properSplittingPosition == -1 && force) {
-			splittingPosition = positionAtWidth;
+			return positionAtWidth + 1;
 		} else {
-			splittingPosition = properSplittingPosition + 1;
+			return properSplittingPosition + 1;
 		}
-		return splittingPosition;
 	}
 
-	public int findPositionBefore(final Graphics graphics, final int x, final int maxWidth) {
+	public int findPositionAfter(final Graphics graphics, final int x, final int maxWidth) {
 		if (x < 0) {
 			return 0;
 		}
@@ -67,7 +65,7 @@ public class CharSequenceSplitter {
 		int end = textLength();
 		int pivot = guessPositionAt(x, maxWidth);
 		while (begin < end - 1) {
-			final int textWidth = graphics.stringWidth(substring(0, pivot));
+			final int textWidth = stringWidthBeforeOffset(graphics, pivot);
 			if (textWidth > x) {
 				end = pivot;
 			} else if (textWidth < x) {
@@ -77,12 +75,17 @@ public class CharSequenceSplitter {
 			}
 			pivot = (begin + end) / 2;
 		}
+
 		return pivot;
 	}
 
 	private int guessPositionAt(final int x, final int maxWidth) {
 		final float splittingRatio = (float) x / maxWidth;
 		return Math.round(splittingRatio * textLength());
+	}
+
+	private int stringWidthBeforeOffset(final Graphics graphics, final int offset) {
+		return graphics.stringWidth(substring(0, offset));
 	}
 
 	private int findProperSplittingPositionBefore(final int position) {

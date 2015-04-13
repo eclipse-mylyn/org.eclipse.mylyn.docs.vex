@@ -219,7 +219,7 @@ public class StaticText extends BaseBox implements IInlineBox {
 
 	private StaticText createTail(final int splittingPosition) {
 		final StaticText tail = new StaticText();
-		tail.setText(text.substring(splittingPosition, text.length()));
+		tail.setText(text.substring(Math.min(splittingPosition, text.length()), text.length()));
 		tail.setFont(fontSpec);
 		tail.setParent(parent);
 		return tail;

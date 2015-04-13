@@ -323,7 +323,7 @@ public class TextContent extends BaseBox implements IInlineBox, IContentBox {
 	public int getOffsetForCoordinates(final Graphics graphics, final int x, final int y) {
 		applyFont(graphics);
 		splitter.setContent(content, startPosition.getOffset(), endPosition.getOffset());
-		final int offset = getStartOffset() + splitter.findPositionBefore(graphics, x, width);
+		final int offset = getStartOffset() + splitter.findPositionAfter(graphics, x, width);
 		final Rectangle area = getPositionArea(graphics, offset);
 		final int halfWidth = area.getWidth() / 2 + 1;
 		if (x < area.getX() + halfWidth) {
