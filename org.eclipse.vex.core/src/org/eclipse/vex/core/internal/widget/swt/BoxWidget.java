@@ -282,6 +282,7 @@ public class BoxWidget extends Canvas {
 				});
 				modifiedBox.layout(graphics);
 				reconcileParentsLayout(modifiedBox, graphics);
+				updateVerticalBar();
 			}
 		};
 		renderer.schedule(rebuildStructureForNode, renderCursorMovement(), paintContent());
@@ -299,6 +300,7 @@ public class BoxWidget extends Canvas {
 				includeGapsInTextContent(modifiedBox);
 				modifiedBox.layout(graphics);
 				reconcileParentsLayout(modifiedBox, graphics);
+				updateVerticalBar();
 			}
 
 			private void includeGapsInTextContent(final IContentBox box) {
