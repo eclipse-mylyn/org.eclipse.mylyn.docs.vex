@@ -108,11 +108,23 @@ public class TextContent extends BaseBox implements IInlineBox, IContentBox {
 		return content.getText(new ContentRange(startPosition.getOffset(), endPosition.getOffset()));
 	}
 
+	private void invalidateLayout() {
+		layoutValid = false;
+	}
+
+	private void validateLayout() {
+		layoutValid = true;
+	}
+
+	private boolean isLayoutValid() {
+		return layoutValid;
+	}
+
 	public void setContent(final IContent content, final ContentRange range) {
 		this.content = content;
 		startPosition = content.createPosition(range.getStartOffset());
 		endPosition = content.createPosition(range.getEndOffset());
-		layoutValid = false;
+		invalidateLayout();
 	}
 
 	public FontSpec getFont() {
@@ -121,7 +133,7 @@ public class TextContent extends BaseBox implements IInlineBox, IContentBox {
 
 	public void setFont(final FontSpec fontSpec) {
 		this.fontSpec = fontSpec;
-		layoutValid = false;
+		invalidateLayout();
 	}
 
 	@Override
@@ -136,7 +148,7 @@ public class TextContent extends BaseBox implements IInlineBox, IContentBox {
 
 	@Override
 	public void layout(final Graphics graphics) {
-		if (layoutValid) {
+		if (isLayoutValid()) {
 			return;
 		}
 
@@ -147,7 +159,7 @@ public class TextContent extends BaseBox implements IInlineBox, IContentBox {
 		height = fontMetrics.getHeight();
 		baseline = fontMetrics.getAscent() + fontMetrics.getLeading();
 
-		layoutValid = true;
+		validateLayout();
 	}
 
 	@Override
@@ -265,7 +277,7 @@ public class TextContent extends BaseBox implements IInlineBox, IContentBox {
 		Assert.isTrue(endPosition == null || startOffset <= endPosition.getOffset(), "startPosition > endPosition");
 		content.removePosition(startPosition);
 		startPosition = content.createPosition(startOffset);
-		layoutValid = false;
+		invalidateLayout();
 	}
 
 	@Override
@@ -277,7 +289,7 @@ public class TextContent extends BaseBox implements IInlineBox, IContentBox {
 		Assert.isTrue(startPosition == null || endOffset >= startPosition.getOffset(), "endPosition < startPosition");
 		content.removePosition(endPosition);
 		endPosition = content.createPosition(endOffset);
-		layoutValid = false;
+		invalidateLayout();
 	}
 
 	@Override
