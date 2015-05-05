@@ -503,10 +503,6 @@ formalpara > title {
 	font-weight: bold;
 }
 
-formalpara > para {
-	display: inline;
-}
-
 formalpara > title:after {
 	display: inline;
 	content: ' ';
