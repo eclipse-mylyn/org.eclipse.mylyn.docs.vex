@@ -285,7 +285,7 @@ public class BoxWidget extends Canvas {
 				updateVerticalBar();
 			}
 		};
-		renderer.schedule(rebuildStructureForNode, renderCursorMovement(), paintContent());
+		renderer.render(rebuildStructureForNode, renderCursorMovement(), paintContent());
 	}
 
 	private void invalidateContentRange(final ContentRange range) {
@@ -336,7 +336,7 @@ public class BoxWidget extends Canvas {
 			}
 
 		};
-		renderer.schedule(reconcileLayoutForRange, renderCursorMovement(), paintContent());
+		renderer.render(reconcileLayoutForRange, renderCursorMovement(), paintContent());
 	}
 
 	private void reconcileParentsLayout(final IContentBox box, final Graphics graphics) {
@@ -396,15 +396,15 @@ public class BoxWidget extends Canvas {
 	}
 
 	private void invalidateViewport() {
-		renderer.schedule(paintContent());
+		renderer.render(paintContent());
 	}
 
 	private void invalidateCursor() {
-		renderer.schedule(renderCursorMovement(), paintContent());
+		renderer.render(renderCursorMovement(), paintContent());
 	}
 
 	private void invalidateLayout() {
-		renderer.schedule(layoutContent(), paintContent());
+		renderer.render(layoutContent(), paintContent());
 	}
 
 	private IRenderStep paintContent() {

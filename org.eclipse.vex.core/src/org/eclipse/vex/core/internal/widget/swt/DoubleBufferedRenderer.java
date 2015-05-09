@@ -16,7 +16,6 @@ import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
-import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Scrollable;
 import org.eclipse.vex.core.internal.core.Graphics;
 
@@ -36,10 +35,6 @@ public class DoubleBufferedRenderer {
 
 	private Image bufferImage;
 	private final Object bufferMonitor = new Object();
-
-	private RenderTask currentRenderTask;
-	private RenderTask nextRenderTask;
-	private final Object renderTaskMonitor = new Object();
 
 	public DoubleBufferedRenderer(final Scrollable control) {
 		this.control = control;
@@ -73,51 +68,41 @@ public class DoubleBufferedRenderer {
 	private Image getBufferImage() {
 		synchronized (bufferMonitor) {
 			if (bufferImage == null) {
-				bufferImage = new Image(control.getDisplay(), control.getSize().x, control.getSize().y);
+				bufferImage = createImage();
 			}
 			return bufferImage;
 		}
 	}
 
-	public void schedule(final IRenderStep... steps) {
-		schedule(new RenderTask(control.getDisplay(), control.getVerticalBar().getSelection(), control.getSize().x, control.getSize().y, steps));
-	}
+	public void render(final IRenderStep... steps) {
+		final Image image = createImage();
+		final GC gc = new GC(image);
+		final Graphics graphics = new SwtGraphics(gc);
 
-	private void schedule(final RenderTask renderer) {
-		synchronized (renderTaskMonitor) {
-			if (currentRenderTask != null) {
-				nextRenderTask = renderer;
-				return;
+		moveOriginToViewport(graphics);
+
+		try {
+			for (final IRenderStep step : steps) {
+				step.render(graphics);
 			}
-			currentRenderTask = renderer;
+		} finally {
+			graphics.dispose();
+			gc.dispose();
 		}
-		new Thread(renderer).start();
+
+		makeRenderedImageVisible(image);
 	}
 
-	private void taskFinished(final Image image) {
-		swapBufferImage(image);
-		startNextRenderTask();
+	private Image createImage() {
+		return new Image(control.getDisplay(), control.getSize().x, control.getSize().y);
 	}
 
-	private void startNextRenderTask() {
-		final Runnable renderer;
-		synchronized (renderTaskMonitor) {
-			currentRenderTask = nextRenderTask;
-			nextRenderTask = null;
-			renderer = currentRenderTask;
-		}
-		if (renderer != null) {
-			new Thread(renderer).start();
-		}
+	private void moveOriginToViewport(final Graphics graphics) {
+		graphics.moveOrigin(0, -control.getVerticalBar().getSelection());
 	}
 
-	private void swapBufferImage(final Image newImage) {
-		final Image oldImage;
-		synchronized (bufferMonitor) {
-			oldImage = bufferImage;
-			bufferImage = newImage;
-		}
-
+	private void makeRenderedImageVisible(final Image newImage) {
+		final Image oldImage = swapBufferImage(newImage);
 		if (oldImage != null) {
 			oldImage.dispose();
 		}
@@ -129,37 +114,16 @@ public class DoubleBufferedRenderer {
 		});
 	}
 
+	private Image swapBufferImage(final Image newImage) {
+		synchronized (bufferMonitor) {
+			final Image oldImage = bufferImage;
+			bufferImage = newImage;
+			return oldImage;
+		}
+	}
+
 	public static interface IRenderStep {
 		void render(Graphics graphics);
 	}
 
-	private class RenderTask implements Runnable {
-		private final int top;
-		private final IRenderStep[] steps;
-		private final Image image;
-
-		public RenderTask(final Display display, final int top, final int width, final int height, final IRenderStep... steps) {
-			this.top = top;
-			this.steps = steps;
-			image = new Image(display, width, height);
-		}
-
-		@Override
-		public final void run() {
-			final GC gc = new GC(image);
-			final Graphics graphics = new SwtGraphics(gc);
-			graphics.moveOrigin(0, -top);
-
-			try {
-				for (final IRenderStep step : steps) {
-					step.render(graphics);
-				}
-			} finally {
-				graphics.dispose();
-				gc.dispose();
-			}
-
-			taskFinished(image);
-		}
-	}
 }
