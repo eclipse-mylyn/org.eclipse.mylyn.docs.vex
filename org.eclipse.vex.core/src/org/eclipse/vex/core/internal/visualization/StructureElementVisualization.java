@@ -16,14 +16,14 @@ import static org.eclipse.vex.core.internal.boxes.BoxFactory.nodeReference;
 import static org.eclipse.vex.core.internal.boxes.BoxFactory.verticalBlock;
 
 import org.eclipse.vex.core.internal.boxes.Border;
-import org.eclipse.vex.core.internal.boxes.IChildBox;
+import org.eclipse.vex.core.internal.boxes.IStructuralBox;
 import org.eclipse.vex.core.internal.boxes.Margin;
 import org.eclipse.vex.core.internal.boxes.Padding;
 import org.eclipse.vex.core.provisional.dom.IElement;
 
-public final class StructureElementVisualization extends NodeVisualization<IChildBox> {
+public final class StructureElementVisualization extends NodeVisualization<IStructuralBox> {
 	@Override
-	public IChildBox visit(final IElement element) {
+	public IStructuralBox visit(final IElement element) {
 		return nodeReference(element, frame(visualizeChildrenStructure(element.children(), verticalBlock()), Margin.NULL, Border.NULL, new Padding(3, 3)));
 	}
 }

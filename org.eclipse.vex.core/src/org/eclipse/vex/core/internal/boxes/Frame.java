@@ -18,7 +18,7 @@ import org.eclipse.vex.core.internal.core.Rectangle;
 /**
  * @author Florian Thienel
  */
-public class Frame extends BaseBox implements IChildBox, IDecoratorBox<IChildBox> {
+public class Frame extends BaseBox implements IStructuralBox, IDecoratorBox<IStructuralBox> {
 
 	private IBox parent;
 	private int top;
@@ -30,7 +30,7 @@ public class Frame extends BaseBox implements IChildBox, IDecoratorBox<IChildBox
 	private Border border = Border.NULL;
 	private Padding padding = Padding.NULL;
 
-	private IChildBox component;
+	private IStructuralBox component;
 
 	@Override
 	public void setParent(final IBox parent) {
@@ -124,13 +124,13 @@ public class Frame extends BaseBox implements IChildBox, IDecoratorBox<IChildBox
 		this.padding = padding;
 	}
 
-	public void setComponent(final IChildBox component) {
+	public void setComponent(final IStructuralBox component) {
 		this.component = component;
 		component.setParent(this);
 	}
 
 	@Override
-	public IChildBox getComponent() {
+	public IStructuralBox getComponent() {
 		return component;
 	}
 

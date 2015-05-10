@@ -18,7 +18,7 @@ import org.eclipse.vex.core.internal.core.Rectangle;
 /**
  * @author Florian Thienel
  */
-public class HorizontalBar extends BaseBox implements IChildBox {
+public class HorizontalBar extends BaseBox implements IStructuralBox {
 
 	private IBox parent;
 	private int top;

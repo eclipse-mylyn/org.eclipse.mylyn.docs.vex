@@ -23,29 +23,29 @@ import org.eclipse.vex.core.provisional.dom.INode;
  */
 public class BoxFactory {
 
-	public static RootBox rootBox(final IChildBox... children) {
+	public static RootBox rootBox(final IStructuralBox... children) {
 		final RootBox rootBox = new RootBox();
-		for (final IChildBox child : children) {
+		for (final IStructuralBox child : children) {
 			rootBox.appendChild(child);
 		}
 		return rootBox;
 	}
 
-	public static VerticalBlock verticalBlock(final IChildBox... children) {
+	public static VerticalBlock verticalBlock(final IStructuralBox... children) {
 		final VerticalBlock verticalBlock = new VerticalBlock();
-		for (final IChildBox child : children) {
+		for (final IStructuralBox child : children) {
 			verticalBlock.appendChild(child);
 		}
 		return verticalBlock;
 	}
 
-	public static Frame frame(final IChildBox component) {
+	public static Frame frame(final IStructuralBox component) {
 		final Frame frame = new Frame();
 		frame.setComponent(component);
 		return frame;
 	}
 
-	public static Frame frame(final IChildBox component, final Margin margin, final Border border, final Padding padding) {
+	public static Frame frame(final IStructuralBox component, final Margin margin, final Border border, final Padding padding) {
 		final Frame frame = new Frame();
 		frame.setComponent(component);
 		frame.setMargin(margin);
@@ -60,7 +60,7 @@ public class BoxFactory {
 		return nodeReference;
 	}
 
-	public static NodeReference nodeReference(final INode node, final IChildBox component) {
+	public static NodeReference nodeReference(final INode node, final IStructuralBox component) {
 		final NodeReference nodeReference = new NodeReference();
 		nodeReference.setNode(node);
 		nodeReference.setComponent(component);
@@ -74,7 +74,7 @@ public class BoxFactory {
 		return nodeReference;
 	}
 
-	public static NodeReference nodeReferenceWithText(final INode node, final IChildBox component) {
+	public static NodeReference nodeReferenceWithText(final INode node, final IStructuralBox component) {
 		final NodeReference nodeReference = new NodeReference();
 		nodeReference.setNode(node);
 		nodeReference.setCanContainText(true);

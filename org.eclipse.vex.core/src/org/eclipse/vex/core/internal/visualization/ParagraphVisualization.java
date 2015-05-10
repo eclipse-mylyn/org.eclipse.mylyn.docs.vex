@@ -16,14 +16,14 @@ import static org.eclipse.vex.core.internal.boxes.BoxFactory.paragraph;
 import static org.eclipse.vex.core.internal.boxes.BoxFactory.staticText;
 
 import org.eclipse.vex.core.internal.boxes.Border;
-import org.eclipse.vex.core.internal.boxes.IChildBox;
+import org.eclipse.vex.core.internal.boxes.IStructuralBox;
 import org.eclipse.vex.core.internal.boxes.Margin;
 import org.eclipse.vex.core.internal.boxes.Padding;
 import org.eclipse.vex.core.internal.boxes.Paragraph;
 import org.eclipse.vex.core.internal.core.FontSpec;
 import org.eclipse.vex.core.provisional.dom.IElement;
 
-public final class ParagraphVisualization extends NodeVisualization<IChildBox> {
+public final class ParagraphVisualization extends NodeVisualization<IStructuralBox> {
 	private static final FontSpec TIMES_NEW_ROMAN = new FontSpec("Times New Roman", FontSpec.PLAIN, 20.0f);
 
 	public ParagraphVisualization() {
@@ -31,7 +31,7 @@ public final class ParagraphVisualization extends NodeVisualization<IChildBox> {
 	}
 
 	@Override
-	public IChildBox visit(final IElement element) {
+	public IStructuralBox visit(final IElement element) {
 		if (!"para".equals(element.getLocalName())) {
 			return super.visit(element);
 		}

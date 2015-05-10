@@ -21,14 +21,14 @@ import org.eclipse.vex.core.internal.core.Rectangle;
  *
  * @author Florian Thienel
  */
-public class VerticalBlock extends BaseBox implements IChildBox, IParentBox<IChildBox> {
+public class VerticalBlock extends BaseBox implements IStructuralBox, IParentBox<IStructuralBox> {
 
 	private IBox parent;
 	private int top;
 	private int left;
 	private int width;
 	private int height;
-	private final ArrayList<IChildBox> children = new ArrayList<IChildBox>();
+	private final ArrayList<IStructuralBox> children = new ArrayList<IStructuralBox>();
 
 	@Override
 	public void setParent(final IBox parent) {
@@ -102,19 +102,19 @@ public class VerticalBlock extends BaseBox implements IChildBox, IParentBox<IChi
 		return !children.isEmpty();
 	}
 
-	public void appendChild(final IChildBox child) {
+	public void appendChild(final IStructuralBox child) {
 		child.setParent(this);
 		children.add(child);
 	}
 
-	public Iterable<IChildBox> getChildren() {
+	public Iterable<IStructuralBox> getChildren() {
 		return children;
 	}
 
 	public void layout(final Graphics graphics) {
 		height = 0;
 		for (int i = 0; i < children.size(); i += 1) {
-			final IChildBox child = children.get(i);
+			final IStructuralBox child = children.get(i);
 			child.setPosition(height, 0);
 			child.setWidth(width);
 			child.layout(graphics);
@@ -127,7 +127,7 @@ public class VerticalBlock extends BaseBox implements IChildBox, IParentBox<IChi
 		final int oldHeight = height;
 		height = 0;
 		for (int i = 0; i < children.size(); i += 1) {
-			final IChildBox child = children.get(i);
+			final IStructuralBox child = children.get(i);
 			child.setPosition(height, 0);
 			height += child.getHeight();
 		}

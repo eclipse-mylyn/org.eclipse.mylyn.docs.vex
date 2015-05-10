@@ -11,7 +11,7 @@
 package org.eclipse.vex.core.internal.visualization;
 
 import org.eclipse.vex.core.internal.boxes.IBox;
-import org.eclipse.vex.core.internal.boxes.IChildBox;
+import org.eclipse.vex.core.internal.boxes.IStructuralBox;
 import org.eclipse.vex.core.internal.boxes.IInlineBox;
 import org.eclipse.vex.core.internal.boxes.IParentBox;
 import org.eclipse.vex.core.provisional.dom.BaseNodeVisitorWithResult;
@@ -42,9 +42,9 @@ public class NodeVisualization<T extends IBox> extends BaseNodeVisitorWithResult
 		this.chain = chain;
 	}
 
-	protected final <P extends IParentBox<IChildBox>> P visualizeChildrenStructure(final Iterable<INode> children, final P parentBox) {
+	protected final <P extends IParentBox<IStructuralBox>> P visualizeChildrenStructure(final Iterable<INode> children, final P parentBox) {
 		for (final INode child : children) {
-			final IChildBox childBox = chain.visualizeStructure(child);
+			final IStructuralBox childBox = chain.visualizeStructure(child);
 			if (childBox != null) {
 				parentBox.appendChild(childBox);
 			}

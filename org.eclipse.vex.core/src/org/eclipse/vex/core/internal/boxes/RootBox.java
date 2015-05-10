@@ -17,11 +17,11 @@ import org.eclipse.vex.core.internal.core.Graphics;
 /**
  * @author Florian Thienel
  */
-public class RootBox extends BaseBox implements IParentBox<IChildBox> {
+public class RootBox extends BaseBox implements IParentBox<IStructuralBox> {
 
 	private int width;
 	private int height;
-	private final ArrayList<IChildBox> children = new ArrayList<IChildBox>();
+	private final ArrayList<IStructuralBox> children = new ArrayList<IStructuralBox>();
 
 	@Override
 	public int getAbsoluteTop() {
@@ -70,19 +70,19 @@ public class RootBox extends BaseBox implements IParentBox<IChildBox> {
 	}
 
 	@Override
-	public void appendChild(final IChildBox child) {
+	public void appendChild(final IStructuralBox child) {
 		child.setParent(this);
 		children.add(child);
 	}
 
-	public Iterable<IChildBox> getChildren() {
+	public Iterable<IStructuralBox> getChildren() {
 		return children;
 	}
 
 	public void layout(final Graphics graphics) {
 		height = 0;
 		for (int i = 0; i < children.size(); i += 1) {
-			final IChildBox child = children.get(i);
+			final IStructuralBox child = children.get(i);
 			child.setPosition(height, 0);
 			child.setWidth(width);
 			child.layout(graphics);
@@ -95,7 +95,7 @@ public class RootBox extends BaseBox implements IParentBox<IChildBox> {
 		final int oldHeight = height;
 		height = 0;
 		for (int i = 0; i < children.size(); i += 1) {
-			final IChildBox child = children.get(i);
+			final IStructuralBox child = children.get(i);
 			child.setPosition(height, 0);
 			height += child.getHeight();
 		}

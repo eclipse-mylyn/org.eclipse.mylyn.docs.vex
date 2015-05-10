@@ -13,21 +13,21 @@ package org.eclipse.vex.core.internal.visualization;
 import java.util.TreeSet;
 
 import org.eclipse.vex.core.internal.boxes.IBox;
-import org.eclipse.vex.core.internal.boxes.IChildBox;
+import org.eclipse.vex.core.internal.boxes.IStructuralBox;
 import org.eclipse.vex.core.internal.boxes.IInlineBox;
 import org.eclipse.vex.core.internal.boxes.RootBox;
 import org.eclipse.vex.core.provisional.dom.INode;
 
 public final class VisualizationChain {
 	private final TreeSet<NodeVisualization<RootBox>> rootChain = new TreeSet<NodeVisualization<RootBox>>();
-	private final TreeSet<NodeVisualization<IChildBox>> structureChain = new TreeSet<NodeVisualization<IChildBox>>();
+	private final TreeSet<NodeVisualization<IStructuralBox>> structureChain = new TreeSet<NodeVisualization<IStructuralBox>>();
 	private final TreeSet<NodeVisualization<IInlineBox>> inlineChain = new TreeSet<NodeVisualization<IInlineBox>>();
 
 	public RootBox visualizeRoot(final INode node) {
 		return visualize(node, rootChain);
 	}
 
-	public IChildBox visualizeStructure(final INode node) {
+	public IStructuralBox visualizeStructure(final INode node) {
 		return visualize(node, structureChain);
 	}
 
@@ -49,7 +49,7 @@ public final class VisualizationChain {
 		add(visualization, rootChain);
 	}
 
-	public void addForStructure(final NodeVisualization<IChildBox> visualization) {
+	public void addForStructure(final NodeVisualization<IStructuralBox> visualization) {
 		add(visualization, structureChain);
 	}
 

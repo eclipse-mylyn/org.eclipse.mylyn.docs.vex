@@ -17,7 +17,7 @@ import org.eclipse.vex.core.provisional.dom.INode;
 /**
  * @author Florian Thienel
  */
-public class NodeReference extends BaseBox implements IChildBox, IDecoratorBox<IChildBox>, IContentBox {
+public class NodeReference extends BaseBox implements IStructuralBox, IDecoratorBox<IStructuralBox>, IContentBox {
 
 	private IBox parent;
 	private int top;
@@ -25,7 +25,7 @@ public class NodeReference extends BaseBox implements IChildBox, IDecoratorBox<I
 	private int width;
 	private int height;
 
-	private IChildBox component;
+	private IStructuralBox component;
 
 	private INode node;
 	private boolean canContainText;
@@ -103,13 +103,13 @@ public class NodeReference extends BaseBox implements IChildBox, IDecoratorBox<I
 	}
 
 	@Override
-	public void setComponent(final IChildBox component) {
+	public void setComponent(final IStructuralBox component) {
 		this.component = component;
 		component.setParent(this);
 	}
 
 	@Override
-	public IChildBox getComponent() {
+	public IStructuralBox getComponent() {
 		return component;
 	}
 

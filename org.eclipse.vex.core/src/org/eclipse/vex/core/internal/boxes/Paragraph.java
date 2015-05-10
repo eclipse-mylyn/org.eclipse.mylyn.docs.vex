@@ -18,7 +18,7 @@ import org.eclipse.vex.core.internal.core.Rectangle;
 /**
  * @author Florian Thienel
  */
-public class Paragraph extends BaseBox implements IChildBox, IParentBox<IInlineBox> {
+public class Paragraph extends BaseBox implements IStructuralBox, IParentBox<IInlineBox> {
 
 	private IBox parent;
 	private int top;

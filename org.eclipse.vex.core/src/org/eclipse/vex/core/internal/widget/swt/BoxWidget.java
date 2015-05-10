@@ -34,19 +34,13 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.vex.core.internal.boxes.BaseBoxVisitor;
 import org.eclipse.vex.core.internal.boxes.BaseBoxVisitorWithResult;
 import org.eclipse.vex.core.internal.boxes.DepthFirstTraversal;
-import org.eclipse.vex.core.internal.boxes.Frame;
-import org.eclipse.vex.core.internal.boxes.HorizontalBar;
 import org.eclipse.vex.core.internal.boxes.IBox;
-import org.eclipse.vex.core.internal.boxes.IBoxVisitorWithResult;
 import org.eclipse.vex.core.internal.boxes.IChildBox;
 import org.eclipse.vex.core.internal.boxes.IContentBox;
+import org.eclipse.vex.core.internal.boxes.IStructuralBox;
 import org.eclipse.vex.core.internal.boxes.NodeReference;
-import org.eclipse.vex.core.internal.boxes.Paragraph;
 import org.eclipse.vex.core.internal.boxes.RootBox;
-import org.eclipse.vex.core.internal.boxes.Square;
-import org.eclipse.vex.core.internal.boxes.StaticText;
 import org.eclipse.vex.core.internal.boxes.TextContent;
-import org.eclipse.vex.core.internal.boxes.VerticalBlock;
 import org.eclipse.vex.core.internal.core.Graphics;
 import org.eclipse.vex.core.internal.cursor.ContentMap;
 import org.eclipse.vex.core.internal.cursor.Cursor;
@@ -267,10 +261,10 @@ public class BoxWidget extends Canvas {
 			@Override
 			public void render(final Graphics graphics) {
 				final IContentBox modifiedBox = contentMap.findBoxForRange(node.getRange());
-				final IChildBox newBox = visualizationChain.visualizeStructure(node);
-				final IChildBox newChildBox = newBox.accept(new BaseBoxVisitorWithResult<IChildBox>(newBox) {
+				final IStructuralBox newBox = visualizationChain.visualizeStructure(node);
+				final IStructuralBox newChildBox = newBox.accept(new BaseBoxVisitorWithResult<IStructuralBox>(newBox) {
 					@Override
-					public IChildBox visit(final NodeReference box) {
+					public IStructuralBox visit(final NodeReference box) {
 						return box.getComponent();
 					}
 				});
@@ -346,53 +340,11 @@ public class BoxWidget extends Canvas {
 		}
 	}
 
-	private IBox getParentBox(final IBox childBox) {
-		return childBox.accept(new IBoxVisitorWithResult<IBox>() {
-			@Override
-			public IBox visit(final RootBox box) {
-				return null;
-			}
-
-			@Override
-			public IBox visit(final VerticalBlock box) {
-				return box.getParent();
-			}
-
-			@Override
-			public IBox visit(final Frame box) {
-				return box.getParent();
-			}
-
-			@Override
-			public IBox visit(final NodeReference box) {
-				return box.getParent();
-			}
-
-			@Override
-			public IBox visit(final HorizontalBar box) {
-				return box.getParent();
-			}
-
-			@Override
-			public IBox visit(final Paragraph box) {
-				return box.getParent();
-			}
-
-			@Override
-			public IBox visit(final StaticText box) {
-				return box.getParent();
-			}
-
-			@Override
-			public IBox visit(final TextContent box) {
-				return box.getParent();
-			}
-
-			@Override
-			public IBox visit(final Square box) {
-				return box.getParent();
-			}
-		});
+	private IBox getParentBox(final IBox box) {
+		if (box instanceof IChildBox) {
+			return ((IChildBox) box).getParent();
+		}
+		return null;
 	}
 
 	private void invalidateViewport() {
