@@ -32,6 +32,8 @@ import org.eclipse.vex.core.provisional.dom.IParent;
  */
 public class BoxView extends ViewPart {
 
+	private static final int SAMPE_COUNT = 25000;
+
 	private static final String LOREM_IPSUM_LONG = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec a diam lectus. Sed sit amet ipsum mauris. Maecenas congue ligula ac quam viverra nec consectetur ante hendrerit. Donec et mollis dolor. Praesent et diam eget libero egestas mattis sit amet vitae augue. Nam tincidunt congue enim, ut porta lorem lacinia consectetur.";
 
 	private Composite parent;
@@ -77,20 +79,20 @@ public class BoxView extends ViewPart {
 
 	private static Document createTestDocument() {
 		final Document document = new Document(new QualifiedName(null, "doc"));
-		for (int i = 0; i < 25; i += 1) {
-			insertSection(document.getRootElement());
+		for (int i = 0; i < SAMPE_COUNT; i += 1) {
+			insertSection(document.getRootElement(), i);
 		}
 		return document;
 	}
 
-	private static void insertSection(final IParent parent) {
+	private static void insertSection(final IParent parent, final int index) {
 		final IElement section = insertElement(parent, "section");
-		insertParagraph(section);
+		insertParagraph(section, index);
 		insertEmptyParagraph(section);
 	}
 
-	private static void insertParagraph(final IParent parent) {
-		insertText(insertEmptyParagraph(parent), LOREM_IPSUM_LONG);
+	private static void insertParagraph(final IParent parent, final int index) {
+		insertText(insertEmptyParagraph(parent), index + " " + LOREM_IPSUM_LONG);
 	}
 
 	private static IElement insertEmptyParagraph(final IParent parent) {
