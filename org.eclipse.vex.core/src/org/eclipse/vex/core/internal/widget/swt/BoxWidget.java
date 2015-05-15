@@ -42,6 +42,7 @@ import org.eclipse.vex.core.internal.boxes.NodeReference;
 import org.eclipse.vex.core.internal.boxes.RootBox;
 import org.eclipse.vex.core.internal.boxes.TextContent;
 import org.eclipse.vex.core.internal.core.Graphics;
+import org.eclipse.vex.core.internal.core.Rectangle;
 import org.eclipse.vex.core.internal.cursor.ContentMap;
 import org.eclipse.vex.core.internal.cursor.Cursor;
 import org.eclipse.vex.core.internal.cursor.ICursorMove;
@@ -209,9 +210,7 @@ public class BoxWidget extends Canvas {
 	}
 
 	private void resize(final ControlEvent event) {
-		System.out.println("Width: " + getClientArea().width);
-		rootBox.setWidth(getClientArea().width);
-		invalidateLayout();
+		invalidateWidth(getClientArea().width);
 	}
 
 	private void scrollVertically(final SelectionEvent event) {
@@ -253,7 +252,7 @@ public class BoxWidget extends Canvas {
 
 	private void enterChar(final char c) {
 		document.insertText(cursor.getOffset(), Character.toString(c));
-		cursor.move(right());
+		moveCursor(toOffset(cursor.getOffset() + 1));
 	}
 
 	private void invalidateStructure(final INode node) {
@@ -279,7 +278,8 @@ public class BoxWidget extends Canvas {
 				updateVerticalBar();
 			}
 		};
-		renderer.render(rebuildStructureForNode, renderCursorMovement(), paintContent());
+
+		render(rebuildStructureForNode, paintContent());
 	}
 
 	private void invalidateContentRange(final ContentRange range) {
@@ -330,7 +330,8 @@ public class BoxWidget extends Canvas {
 			}
 
 		};
-		renderer.render(reconcileLayoutForRange, renderCursorMovement(), paintContent());
+
+		render(reconcileLayoutForRange, paintContent());
 	}
 
 	private void reconcileParentsLayout(final IContentBox box, final Graphics graphics) {
@@ -348,15 +349,30 @@ public class BoxWidget extends Canvas {
 	}
 
 	private void invalidateViewport() {
-		renderer.render(paintContent());
+		render(paintContent());
 	}
 
 	private void invalidateCursor() {
-		renderer.render(renderCursorMovement(), paintContent());
+		render(renderCursorMovement(), paintContent());
 	}
 
-	private void invalidateLayout() {
-		renderer.render(layoutContent(), paintContent());
+	private void invalidateWidth(final int width) {
+		final IRenderStep invalidateWidth = new IRenderStep() {
+			@Override
+			public void render(final Graphics graphics) {
+				rootBox.setWidth(width);
+			}
+		};
+
+		render(invalidateWidth, layoutContent(), paintContent());
+	}
+
+	private void render(final IRenderStep... steps) {
+		renderer.render(getViewPort(), steps);
+	}
+
+	private Rectangle getViewPort() {
+		return new Rectangle(0, getVerticalBar().getSelection(), getSize().x, getSize().y);
 	}
 
 	private IRenderStep paintContent() {
@@ -381,15 +397,10 @@ public class BoxWidget extends Canvas {
 	}
 
 	private void updateVerticalBar() {
-		getDisplay().asyncExec(new Runnable() {
-			@Override
-			public void run() {
-				final int maximum = rootBox.getHeight() + Cursor.CARET_BUFFER;
-				final int pageSize = getClientArea().height;
-				final int selection = getVerticalBar().getSelection();
-				getVerticalBar().setValues(selection, 0, maximum, pageSize, pageSize / 4, pageSize);
-			}
-		});
+		final int maximum = rootBox.getHeight() + Cursor.CARET_BUFFER;
+		final int pageSize = getClientArea().height;
+		final int selection = getVerticalBar().getSelection();
+		getVerticalBar().setValues(selection, 0, maximum, pageSize, pageSize / 4, pageSize);
 	}
 
 	private IRenderStep renderCursorMovement() {
@@ -397,28 +408,21 @@ public class BoxWidget extends Canvas {
 			@Override
 			public void render(final Graphics graphics) {
 				cursor.applyMoves(graphics);
-				moveViewPortToCursor(graphics);
+				moveViewPortToCursor(getViewPort(), graphics);
 			}
 		};
 	}
 
-	private void moveViewPortToCursor(final Graphics graphics) {
-		final int delta = getDeltaIntoVisibleArea();
+	private void moveViewPortToCursor(final Rectangle viewPort, final Graphics graphics) {
+		final int delta = getDeltaIntoVisibleArea(viewPort);
 		graphics.moveOrigin(0, -delta);
 		moveVerticalBar(delta);
 	}
 
-	private int getDeltaIntoVisibleArea() {
-		final int[] top = new int[1];
-		final int[] height = new int[1];
-		getDisplay().syncExec(new Runnable() {
-			@Override
-			public void run() {
-				top[0] = getVerticalBar().getSelection();
-				height[0] = getSize().y;
-			}
-		});
-		return cursor.getDeltaIntoVisibleArea(top[0], height[0]);
+	private int getDeltaIntoVisibleArea(final Rectangle viewPort) {
+		final int top = viewPort.getY();
+		final int height = viewPort.getHeight();
+		return cursor.getDeltaIntoVisibleArea(top, height);
 	}
 
 	private void moveVerticalBar(final int delta) {
@@ -426,13 +430,8 @@ public class BoxWidget extends Canvas {
 			return;
 		}
 
-		getDisplay().asyncExec(new Runnable() {
-			@Override
-			public void run() {
-				final int selection = getVerticalBar().getSelection() + delta;
-				getVerticalBar().setSelection(selection);
-			}
-		});
+		final int selection = getVerticalBar().getSelection() + delta;
+		getVerticalBar().setSelection(selection);
 	}
 
 }

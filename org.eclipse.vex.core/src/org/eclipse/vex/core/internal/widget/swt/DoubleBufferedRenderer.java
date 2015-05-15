@@ -18,6 +18,7 @@ import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Scrollable;
 import org.eclipse.vex.core.internal.core.Graphics;
+import org.eclipse.vex.core.internal.core.Rectangle;
 
 /**
  * This class implements double buffering with a dedicated render thread for SWT. This prevents flickering and keeps the
@@ -68,18 +69,18 @@ public class DoubleBufferedRenderer {
 	private Image getBufferImage() {
 		synchronized (bufferMonitor) {
 			if (bufferImage == null) {
-				bufferImage = createImage();
+				bufferImage = createImage(Rectangle.NULL);
 			}
 			return bufferImage;
 		}
 	}
 
-	public void render(final IRenderStep... steps) {
-		final Image image = createImage();
+	public void render(final Rectangle viewPort, final IRenderStep... steps) {
+		final Image image = createImage(viewPort);
 		final GC gc = new GC(image);
 		final Graphics graphics = new SwtGraphics(gc);
 
-		moveOriginToViewport(graphics);
+		moveOriginToViewPort(viewPort, graphics);
 
 		try {
 			for (final IRenderStep step : steps) {
@@ -93,12 +94,12 @@ public class DoubleBufferedRenderer {
 		makeRenderedImageVisible(image);
 	}
 
-	private Image createImage() {
-		return new Image(control.getDisplay(), control.getSize().x, control.getSize().y);
+	private Image createImage(final Rectangle viewPort) {
+		return new Image(control.getDisplay(), viewPort.getWidth(), viewPort.getHeight());
 	}
 
-	private void moveOriginToViewport(final Graphics graphics) {
-		graphics.moveOrigin(0, -control.getVerticalBar().getSelection());
+	private void moveOriginToViewPort(final Rectangle viewPort, final Graphics graphics) {
+		graphics.moveOrigin(0, -viewPort.getY());
 	}
 
 	private void makeRenderedImageVisible(final Image newImage) {
@@ -106,7 +107,7 @@ public class DoubleBufferedRenderer {
 		if (oldImage != null) {
 			oldImage.dispose();
 		}
-		control.getDisplay().asyncExec(new Runnable() {
+		control.getDisplay().syncExec(new Runnable() {
 			@Override
 			public void run() {
 				control.redraw();
