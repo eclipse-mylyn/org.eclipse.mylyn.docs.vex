@@ -819,7 +819,7 @@
       </view>
       <view
             category="org.eclipse.vex.ui.views.VexViewCategory"
-            class="org.eclipse.vex.ui.boxview.BoxView"
+            class="org.eclipse.vex.ui.boxview.BoxDemoView"
             id="org.eclipse.vex.ui.views.box"
             name="Vex Box Viewer">
       </view>

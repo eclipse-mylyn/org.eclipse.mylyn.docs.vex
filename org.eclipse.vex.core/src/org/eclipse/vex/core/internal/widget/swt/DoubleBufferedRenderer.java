@@ -19,6 +19,7 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Scrollable;
 import org.eclipse.vex.core.internal.core.Graphics;
 import org.eclipse.vex.core.internal.core.Rectangle;
+import org.eclipse.vex.core.internal.widget.IRenderer;
 
 /**
  * This class implements double buffering with a dedicated render thread for SWT. This prevents flickering and keeps the
@@ -30,7 +31,7 @@ import org.eclipse.vex.core.internal.core.Rectangle;
  *      /eclipse/swt/snippets/Snippet48.java
  * @author Florian Thienel
  */
-public class DoubleBufferedRenderer {
+public class DoubleBufferedRenderer implements IRenderer {
 
 	private final Scrollable control;
 
@@ -75,6 +76,7 @@ public class DoubleBufferedRenderer {
 		}
 	}
 
+	@Override
 	public void render(final Rectangle viewPort, final IRenderStep... steps) {
 		final Image image = createImage(viewPort);
 		final GC gc = new GC(image);
@@ -121,10 +123,6 @@ public class DoubleBufferedRenderer {
 			bufferImage = newImage;
 			return oldImage;
 		}
-	}
-
-	public static interface IRenderStep {
-		void render(Graphics graphics);
 	}
 
 }

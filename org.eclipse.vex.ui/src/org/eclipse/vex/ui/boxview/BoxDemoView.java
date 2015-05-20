@@ -30,7 +30,7 @@ import org.eclipse.vex.core.provisional.dom.IParent;
  *
  * @author Florian Thienel
  */
-public class BoxView extends ViewPart {
+public class BoxDemoView extends ViewPart {
 
 	private static final int SAMPE_COUNT = 25;
 
@@ -65,7 +65,7 @@ public class BoxView extends ViewPart {
 		boxWidget = new BoxWidget(parent, SWT.V_SCROLL);
 
 		boxWidget.setContent(createTestDocument());
-		boxWidget.setVisualization(buildVisualizationChain());
+		boxWidget.setVisualizationChain(buildVisualizationChain());
 		parent.layout();
 	}
 
