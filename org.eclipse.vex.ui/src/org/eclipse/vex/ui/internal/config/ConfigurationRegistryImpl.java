@@ -8,6 +8,7 @@
  * Contributors:
  *     John Krasnay - initial API and implementation
  *     Igor Jacy Lino Campista - Java 5 warnings fixed (bug 311325)
+ *     Carsten Hiesserich - changed lock mechanism to fic random test failures
  *******************************************************************************/
 package org.eclipse.vex.ui.internal.config;
 
@@ -15,6 +16,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResourceChangeEvent;
@@ -22,8 +26,6 @@ import org.eclipse.core.resources.IResourceChangeListener;
 import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.jobs.ILock;
-import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.vex.core.internal.core.ListenerList;
 import org.eclipse.vex.ui.internal.VexPlugin;
 
@@ -31,8 +33,10 @@ public class ConfigurationRegistryImpl implements ConfigurationRegistry {
 
 	private final ConfigurationLoader loader;
 	private volatile boolean loaded = false;
+	private volatile boolean loading = false;
 
-	private final ILock lock = Job.getJobManager().newLock();
+	final Lock lock = new ReentrantLock();
+	final Condition loadedCond = lock.newCondition();
 	private Map<String, ConfigSource> configurationSources = new HashMap<String, ConfigSource>();
 	private final ListenerList<IConfigListener, ConfigEvent> configListeners = new ListenerList<IConfigListener, ConfigEvent>(IConfigListener.class);
 
@@ -82,32 +86,35 @@ public class ConfigurationRegistryImpl implements ConfigurationRegistry {
 
 	@Override
 	public void loadConfigurations() {
-		lock.acquire();
+		lock.lock();
+		loading = true;
 		try {
 			loader.load(new Runnable() {
 				@Override
 				public void run() {
-					lock.acquire();
+					lock.lock();
 					try {
 						configurationSources = new HashMap<String, ConfigSource>();
 						for (final ConfigSource configSource : loader.getLoadedConfigSources()) {
 							configurationSources.put(configSource.getUniqueIdentifer(), configSource);
 						}
 						loaded = true;
+						loading = false;
+						loadedCond.signalAll();
 					} finally {
-						lock.release();
+						lock.unlock();
 					}
 					fireConfigLoaded(new ConfigEvent(ConfigurationRegistryImpl.this));
 				}
 			});
 		} finally {
-			lock.release();
+			lock.unlock();
 		}
 	}
 
 	private List<ConfigItem> getAllConfigItems(final String extensionPointId) {
 		waitUntilLoaded();
-		lock.acquire();
+		lock.lock();
 		try {
 			final List<ConfigItem> result = new ArrayList<ConfigItem>();
 			for (final ConfigSource configurationSource : configurationSources.values()) {
@@ -115,19 +122,19 @@ public class ConfigurationRegistryImpl implements ConfigurationRegistry {
 			}
 			return result;
 		} finally {
-			lock.release();
+			lock.unlock();
 		}
 	}
 
 	private List<ConfigSource> getAllConfigSources() {
 		waitUntilLoaded();
-		lock.acquire();
+		lock.lock();
 		try {
 			final List<ConfigSource> result = new ArrayList<ConfigSource>();
 			result.addAll(configurationSources.values());
 			return result;
 		} finally {
-			lock.release();
+			lock.unlock();
 		}
 	}
 
@@ -139,41 +146,50 @@ public class ConfigurationRegistryImpl implements ConfigurationRegistry {
 
 	private void addConfigSource(final ConfigSource configSource) {
 		waitUntilLoaded();
-		lock.acquire();
+		lock.lock();
 		try {
 			configurationSources.put(configSource.getUniqueIdentifer(), configSource);
 		} finally {
-			lock.release();
+			lock.unlock();
 		}
 	}
 
 	private void removeConfigSource(final ConfigSource configSource) {
 		waitUntilLoaded();
-		lock.acquire();
+		lock.lock();
 		try {
 			configurationSources.remove(configSource.getUniqueIdentifer());
 		} finally {
-			lock.release();
+			lock.unlock();
 		}
 	}
 
 	private void waitUntilLoaded() {
-		if (loaded) {
-			return;
-		}
-		if (!loader.isLoading()) {
-			throw new IllegalStateException("The configurations are not loaded yet. Call 'loadConfigurations' first.");
-		}
 		try {
-			loader.join();
+			lock.lock();
+
+			if (loading && !loaded) {
+				loadedCond.await();
+			}
+			if (loaded) {
+				return;
+			}
 		} catch (final InterruptedException e) {
-			Thread.currentThread().interrupt();
+		} finally {
+			lock.unlock();
 		}
+
+		throw new IllegalStateException("The configurations are not loaded yet. Call 'loadConfigurations' first.");
 	}
 
 	@Override
 	public boolean isLoaded() {
-		return loaded;
+		try {
+			lock.lock();
+			return loaded;
+		} finally {
+			lock.unlock();
+		}
 	}
 
 	@Override

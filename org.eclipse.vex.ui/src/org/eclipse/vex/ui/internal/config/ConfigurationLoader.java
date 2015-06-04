@@ -19,8 +19,6 @@ public interface ConfigurationLoader {
 
 	void load(Runnable whenDone);
 
-	boolean isLoading();
-
 	List<ConfigSource> getLoadedConfigSources();
 
 	void join() throws InterruptedException;
