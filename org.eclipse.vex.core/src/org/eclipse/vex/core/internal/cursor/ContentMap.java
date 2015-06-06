@@ -82,7 +82,7 @@ public class ContentMap {
 		return rootBox.accept(new DepthFirstTraversal<IContentBox>() {
 			@Override
 			public IContentBox visit(final NodeReference box) {
-				if (containsCompleteRange(box, range)) {
+				if (box.getRange().contains(range)) {
 					final IContentBox childBox = box.getComponent().accept(this);
 					if (childBox == null) {
 						return box;
@@ -96,14 +96,10 @@ public class ContentMap {
 
 			@Override
 			public IContentBox visit(final TextContent box) {
-				if (containsCompleteRange(box, range)) {
+				if (box.getRange().contains(range)) {
 					return box;
 				}
 				return null;
-			}
-
-			private boolean containsCompleteRange(final IContentBox box, final ContentRange range) {
-				return box.getStartOffset() <= range.getStartOffset() && box.getEndOffset() >= range.getEndOffset();
 			}
 		});
 	}

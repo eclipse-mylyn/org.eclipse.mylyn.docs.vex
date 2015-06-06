@@ -26,17 +26,21 @@ import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.MouseAdapter;
 import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.events.MouseMoveListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.vex.core.internal.core.Rectangle;
 import org.eclipse.vex.core.internal.cursor.Cursor;
+import org.eclipse.vex.core.internal.cursor.IContentSelector;
+import org.eclipse.vex.core.internal.cursor.ICursorMove;
 import org.eclipse.vex.core.internal.visualization.VisualizationChain;
 import org.eclipse.vex.core.internal.widget.BoxView;
 import org.eclipse.vex.core.internal.widget.DOMController;
 import org.eclipse.vex.core.internal.widget.IRenderer;
 import org.eclipse.vex.core.internal.widget.IViewPort;
+import org.eclipse.vex.core.internal.widget.SimpleSelector;
 import org.eclipse.vex.core.provisional.dom.IDocument;
 
 /**
@@ -47,38 +51,11 @@ import org.eclipse.vex.core.provisional.dom.IDocument;
 public class BoxWidget extends Canvas {
 
 	private final BoxView view;
+	private final IContentSelector selector;
 	private final DOMController controller;
-
-	private final Cursor cursor;
-	private final IRenderer renderer;
-
-	private final IViewPort viewPort = new IViewPort() {
-		@Override
-		public void reconcile(final int maximumHeight) {
-			final int pageSize = getClientArea().height;
-			final int selection = getVerticalBar().getSelection();
-			getVerticalBar().setValues(selection, 0, maximumHeight, pageSize, pageSize / 4, pageSize);
-		}
-
-		@Override
-		public void moveRelative(final int delta) {
-			if (delta == 0) {
-				return;
-			}
-
-			final int selection = getVerticalBar().getSelection() + delta;
-			getVerticalBar().setSelection(selection);
-		}
-
-		@Override
-		public Rectangle getVisibleArea() {
-			return new Rectangle(0, getVerticalBar().getSelection(), getSize().x, getSize().y);
-		}
-	};
 
 	public BoxWidget(final Composite parent, final int style) {
 		super(parent, style | SWT.NO_BACKGROUND);
-		renderer = new DoubleBufferedRenderer(this);
 
 		connectDispose();
 		connectResize();
@@ -88,7 +65,11 @@ public class BoxWidget extends Canvas {
 		connectKeyboard();
 		connectMouse();
 
-		cursor = new Cursor();
+		final IRenderer renderer = new DoubleBufferedRenderer(this);
+		final IViewPort viewPort = new ViewPort();
+		selector = new SimpleSelector();
+		final Cursor cursor = new Cursor(selector);
+
 		view = new BoxView(renderer, viewPort, cursor);
 		controller = new DOMController(cursor, view);
 	}
@@ -144,6 +125,12 @@ public class BoxWidget extends Canvas {
 				BoxWidget.this.mouseDown(e);
 			}
 		});
+		addMouseMoveListener(new MouseMoveListener() {
+			@Override
+			public void mouseMove(final MouseEvent e) {
+				BoxWidget.this.mouseMove(e);
+			}
+		});
 	}
 
 	private void widgetDisposed() {
@@ -161,29 +148,71 @@ public class BoxWidget extends Canvas {
 	private void keyPressed(final KeyEvent event) {
 		switch (event.keyCode) {
 		case SWT.ARROW_LEFT:
-			controller.moveCursor(left());
+			moveOrSelect(event.stateMask, left());
 			break;
 		case SWT.ARROW_RIGHT:
-			controller.moveCursor(right());
+			moveOrSelect(event.stateMask, right());
 			break;
 		case SWT.ARROW_UP:
-			controller.moveCursor(up());
+			moveOrSelect(event.stateMask, up());
 			break;
 		case SWT.ARROW_DOWN:
-			controller.moveCursor(down());
+			moveOrSelect(event.stateMask, down());
 			break;
 		case SWT.HOME:
-			controller.moveCursor(toOffset(0));
+			moveOrSelect(event.stateMask, toOffset(0));
 			break;
 		default:
-			controller.enterChar(event.character);
+			if (event.character > 0 && Character.isDefined(event.character)) {
+				controller.enterChar(event.character);
+			}
 			break;
+		}
+	}
+
+	private void moveOrSelect(final int stateMask, final ICursorMove move) {
+		if ((stateMask & SWT.SHIFT) == SWT.SHIFT) {
+			controller.moveSelection(move);
+		} else {
+			controller.moveCursor(move);
 		}
 	}
 
 	private void mouseDown(final MouseEvent event) {
 		final int absoluteY = event.y + getVerticalBar().getSelection();
-		controller.moveCursor(toAbsoluteCoordinates(event.x, absoluteY));
+		moveOrSelect(event.stateMask, toAbsoluteCoordinates(event.x, absoluteY));
 	}
+
+	private void mouseMove(final MouseEvent event) {
+		if ((event.stateMask & SWT.BUTTON_MASK) != SWT.BUTTON1) {
+			return;
+		}
+		final int absoluteY = event.y + getVerticalBar().getSelection();
+		controller.moveSelection(toAbsoluteCoordinates(event.x, absoluteY));
+	}
+
+	private final class ViewPort implements IViewPort {
+		@Override
+		public void reconcile(final int maximumHeight) {
+			final int pageSize = getClientArea().height;
+			final int selection = getVerticalBar().getSelection();
+			getVerticalBar().setValues(selection, 0, maximumHeight, pageSize, pageSize / 4, pageSize);
+		}
+
+		@Override
+		public void moveRelative(final int delta) {
+			if (delta == 0) {
+				return;
+			}
+
+			final int selection = getVerticalBar().getSelection() + delta;
+			getVerticalBar().setSelection(selection);
+		}
+
+		@Override
+		public Rectangle getVisibleArea() {
+			return new Rectangle(0, getVerticalBar().getSelection(), getSize().x, getSize().y);
+		}
+	};
 
 }

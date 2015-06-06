@@ -52,7 +52,7 @@ public class TestCursorPosition {
 	@Before
 	public void setUp() throws Exception {
 		rootBox = createTestModel();
-		cursor = new Cursor();
+		cursor = new Cursor(new FakeSelector());
 		cursor.setRootBox(rootBox);
 
 		graphics = new FakeGraphics();

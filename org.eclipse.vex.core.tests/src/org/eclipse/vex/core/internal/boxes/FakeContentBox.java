@@ -12,6 +12,7 @@ package org.eclipse.vex.core.internal.boxes;
 
 import org.eclipse.vex.core.internal.core.Graphics;
 import org.eclipse.vex.core.internal.core.Rectangle;
+import org.eclipse.vex.core.provisional.dom.ContentRange;
 
 /**
  * @author Florian Thienel
@@ -91,6 +92,11 @@ public class FakeContentBox extends BaseBox implements IContentBox {
 	@Override
 	public int getEndOffset() {
 		return endOffset;
+	}
+
+	@Override
+	public ContentRange getRange() {
+		return new ContentRange(startOffset, endOffset);
 	}
 
 	@Override

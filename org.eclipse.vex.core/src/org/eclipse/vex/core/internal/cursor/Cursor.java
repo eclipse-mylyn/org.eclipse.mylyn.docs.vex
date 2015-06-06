@@ -13,6 +13,7 @@ package org.eclipse.vex.core.internal.cursor;
 import java.util.LinkedList;
 
 import org.eclipse.vex.core.internal.boxes.BaseBoxVisitorWithResult;
+import org.eclipse.vex.core.internal.boxes.DepthFirstTraversal;
 import org.eclipse.vex.core.internal.boxes.IBox;
 import org.eclipse.vex.core.internal.boxes.IContentBox;
 import org.eclipse.vex.core.internal.boxes.NodeReference;
@@ -24,6 +25,7 @@ import org.eclipse.vex.core.internal.core.FontSpec;
 import org.eclipse.vex.core.internal.core.Graphics;
 import org.eclipse.vex.core.internal.core.Rectangle;
 import org.eclipse.vex.core.provisional.dom.BaseNodeVisitorWithResult;
+import org.eclipse.vex.core.provisional.dom.ContentRange;
 import org.eclipse.vex.core.provisional.dom.IComment;
 import org.eclipse.vex.core.provisional.dom.IDocument;
 import org.eclipse.vex.core.provisional.dom.IElement;
@@ -37,17 +39,25 @@ import org.eclipse.vex.core.provisional.dom.IProcessingInstruction;
 public class Cursor {
 
 	public static final int CARET_BUFFER = 30;
-	private static final Color FOREGROUND_COLOR = new Color(255, 255, 255);
-	private static final Color BACKGROUND_COLOR = new Color(0, 0, 0);
+	private static final Color CARET_FOREGROUND_COLOR = new Color(255, 255, 255);
+	private static final Color CARET_BACKGROUND_COLOR = new Color(0, 0, 0);
+	private static final Color SELECTION_FOREGROUND_COLOR = new Color(255, 255, 255);
+	private static final Color SELECTION_BACKGROUND_COLOR = new Color(0, 0, 255);
 	private static final FontSpec FONT = new FontSpec("Arial", FontSpec.BOLD, 10.0f);
 
 	private final ContentMap contentMap = new ContentMap();
+	private final IContentSelector selector;
+	private final LinkedList<MoveWithSelection> moves = new LinkedList<MoveWithSelection>();
+
 	private int offset;
 	private Caret caret;
 	private IContentBox box;
 	private int preferredX;
 	private boolean preferX;
-	private final LinkedList<ICursorMove> moves = new LinkedList<ICursorMove>();
+
+	public Cursor(final IContentSelector selection) {
+		selector = selection;
+	}
 
 	public void setRootBox(final RootBox rootBox) {
 		contentMap.setRootBox(rootBox);
@@ -68,8 +78,19 @@ public class Cursor {
 		return 0;
 	}
 
+	private Rectangle getVisibleArea() {
+		if (caret == null) {
+			return Rectangle.NULL;
+		}
+		return caret.getVisibleArea();
+	}
+
 	public void move(final ICursorMove move) {
-		moves.add(move);
+		moves.add(new MoveWithSelection(move, false));
+	}
+
+	public void select(final ICursorMove move) {
+		moves.add(new MoveWithSelection(move, true));
 	}
 
 	public void reconcile(final Graphics graphics) {
@@ -78,15 +99,29 @@ public class Cursor {
 	}
 
 	public void applyMoves(final Graphics graphics) {
-		for (ICursorMove move = moves.poll(); move != null; move = moves.poll()) {
-			offset = move.calculateNewOffset(graphics, contentMap, offset, box, getHotArea(), preferredX);
-			preferX = move.preferX();
+		for (MoveWithSelection move = moves.poll(); move != null; move = moves.poll()) {
+			offset = move.move.calculateNewOffset(graphics, contentMap, offset, box, getHotArea(), preferredX);
+			if (move.select) {
+				selector.moveTo(offset);
+				offset = selector.getCaretOffset();
+			} else {
+				selector.setMark(offset);
+			}
+			preferX = move.move.preferX();
 			applyCaretForPosition(graphics, offset);
 		}
 	}
 
+	private Rectangle getHotArea() {
+		if (caret == null) {
+			return Rectangle.NULL;
+		}
+		return caret.getHotArea();
+	}
+
 	public void paint(final Graphics graphics) {
 		applyCaretForPosition(graphics, offset);
+		paintSelection(graphics);
 		caret.paint(graphics);
 	}
 
@@ -101,18 +136,30 @@ public class Cursor {
 		}
 	}
 
-	private Rectangle getHotArea() {
-		if (caret == null) {
-			return Rectangle.NULL;
+	private void paintSelection(final Graphics graphics) {
+		if (!selector.isActive()) {
+			return;
 		}
-		return caret.getHotArea();
-	}
+		final ContentRange selectedRange = selector.getRange();
+		final IBox selectionRootBox = contentMap.findBoxForRange(selectedRange);
+		selectionRootBox.accept(new DepthFirstTraversal<Object>() {
+			@Override
+			public Object visit(final NodeReference box) {
+				super.visit(box);
+				if (selectedRange.contains(box.getRange())) {
+					box.highlight(graphics, SELECTION_FOREGROUND_COLOR, SELECTION_BACKGROUND_COLOR);
+				}
+				return null;
+			}
 
-	private Rectangle getVisibleArea() {
-		if (caret == null) {
-			return Rectangle.NULL;
-		}
-		return caret.getVisibleArea();
+			@Override
+			public Object visit(final TextContent box) {
+				if (selectedRange.intersects(box.getRange())) {
+					box.highlight(graphics, selectedRange.getStartOffset(), selectedRange.getEndOffset(), SELECTION_FOREGROUND_COLOR, SELECTION_BACKGROUND_COLOR);
+				}
+				return null;
+			}
+		});
 	}
 
 	private Caret getCaretForBox(final Graphics graphics, final IContentBox box, final int offset) {
@@ -289,8 +336,8 @@ public class Cursor {
 				return;
 			}
 
-			final ColorResource foregroundColor = graphics.getColor(FOREGROUND_COLOR);
-			final ColorResource backgroundColor = graphics.getColor(BACKGROUND_COLOR);
+			final ColorResource foregroundColor = graphics.getColor(CARET_FOREGROUND_COLOR);
+			final ColorResource backgroundColor = graphics.getColor(CARET_BACKGROUND_COLOR);
 			graphics.setForeground(foregroundColor);
 			graphics.setBackground(backgroundColor);
 
@@ -334,8 +381,8 @@ public class Cursor {
 				return;
 			}
 
-			final ColorResource foregroundColor = graphics.getColor(FOREGROUND_COLOR);
-			final ColorResource backgroundColor = graphics.getColor(BACKGROUND_COLOR);
+			final ColorResource foregroundColor = graphics.getColor(CARET_FOREGROUND_COLOR);
+			final ColorResource backgroundColor = graphics.getColor(CARET_BACKGROUND_COLOR);
 			graphics.setForeground(foregroundColor);
 			graphics.setBackground(backgroundColor);
 
@@ -380,8 +427,8 @@ public class Cursor {
 				return;
 			}
 
-			final ColorResource foregroundColor = graphics.getColor(FOREGROUND_COLOR);
-			final ColorResource backgroundColor = graphics.getColor(BACKGROUND_COLOR);
+			final ColorResource foregroundColor = graphics.getColor(CARET_FOREGROUND_COLOR);
+			final ColorResource backgroundColor = graphics.getColor(CARET_BACKGROUND_COLOR);
 			graphics.setForeground(foregroundColor);
 			graphics.setBackground(backgroundColor);
 
@@ -426,8 +473,8 @@ public class Cursor {
 				return;
 			}
 
-			graphics.setForeground(graphics.getColor(FOREGROUND_COLOR));
-			graphics.setBackground(graphics.getColor(BACKGROUND_COLOR));
+			graphics.setForeground(graphics.getColor(CARET_FOREGROUND_COLOR));
+			graphics.setBackground(graphics.getColor(CARET_BACKGROUND_COLOR));
 
 			if (overwrite) {
 				graphics.fillRect(area.getX(), area.getY(), area.getWidth(), area.getHeight());
@@ -436,6 +483,16 @@ public class Cursor {
 			} else {
 				graphics.fillRect(area.getX() - 1, area.getY(), 2, area.getHeight());
 			}
+		}
+	}
+
+	private static class MoveWithSelection {
+		public final ICursorMove move;
+		public final boolean select;
+
+		public MoveWithSelection(final ICursorMove move, final boolean select) {
+			this.move = move;
+			this.select = select;
 		}
 	}
 }

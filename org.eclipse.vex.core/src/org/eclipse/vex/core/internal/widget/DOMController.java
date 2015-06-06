@@ -97,6 +97,11 @@ public class DOMController {
 		view.invalidateCursor();
 	}
 
+	public void moveSelection(final ICursorMove move) {
+		cursor.select(move);
+		view.invalidateCursor();
+	}
+
 	public void enterChar(final char c) {
 		document.insertText(cursor.getOffset(), Character.toString(c));
 		moveCursor(toOffset(cursor.getOffset() + 1));

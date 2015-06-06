@@ -11,6 +11,7 @@
 package org.eclipse.vex.core.internal.boxes;
 
 import org.eclipse.core.runtime.Assert;
+import org.eclipse.vex.core.internal.core.Color;
 import org.eclipse.vex.core.internal.core.FontMetrics;
 import org.eclipse.vex.core.internal.core.FontResource;
 import org.eclipse.vex.core.internal.core.FontSpec;
@@ -184,6 +185,21 @@ public class TextContent extends BaseBox implements IInlineBox, IContentBox {
 		graphics.setCurrentFont(font);
 	}
 
+	public void highlight(final Graphics graphics, final int startOffset, final int endOffset, final Color foreground, final Color background) {
+		final int highlightStartOffset = Math.max(getStartOffset(), Math.min(startOffset, getEndOffset())) - getStartOffset();
+		final int highlightEndOffset = Math.max(getStartOffset(), Math.min(endOffset, getEndOffset() + 1)) - getStartOffset();
+		final String highlightPrefix = getText().substring(0, highlightStartOffset);
+		final String highlightText = getText().substring(highlightStartOffset, highlightEndOffset);
+		final int widthBefore = graphics.stringWidth(highlightPrefix);
+		final int widthHighlight = graphics.stringWidth(highlightText);
+
+		graphics.setForeground(graphics.getColor(foreground));
+		graphics.setBackground(graphics.getColor(background));
+		graphics.fillRect(getAbsoluteLeft() + widthBefore, getAbsoluteTop(), widthHighlight, height);
+		applyFont(graphics);
+		graphics.drawString(highlightText, getAbsoluteLeft() + widthBefore, getAbsoluteTop());
+	}
+
 	@Override
 	public boolean canJoin(final IInlineBox other) {
 		if (!(other instanceof TextContent)) {
@@ -290,6 +306,11 @@ public class TextContent extends BaseBox implements IInlineBox, IContentBox {
 		content.removePosition(endPosition);
 		endPosition = content.createPosition(endOffset);
 		invalidateLayout();
+	}
+
+	@Override
+	public ContentRange getRange() {
+		return new ContentRange(getStartOffset(), getEndOffset());
 	}
 
 	@Override

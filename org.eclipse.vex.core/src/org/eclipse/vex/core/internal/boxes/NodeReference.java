@@ -10,8 +10,10 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.boxes;
 
+import org.eclipse.vex.core.internal.core.Color;
 import org.eclipse.vex.core.internal.core.Graphics;
 import org.eclipse.vex.core.internal.core.Rectangle;
+import org.eclipse.vex.core.provisional.dom.ContentRange;
 import org.eclipse.vex.core.provisional.dom.INode;
 
 /**
@@ -152,6 +154,13 @@ public class NodeReference extends BaseBox implements IStructuralBox, IDecorator
 		ChildBoxPainter.paint(component, graphics);
 	}
 
+	public void highlight(final Graphics graphics, final Color foreground, final Color background) {
+		graphics.setForeground(graphics.getColor(background));
+		graphics.setBackground(graphics.getColor(foreground));
+		graphics.setLineWidth(2);
+		graphics.drawRect(getAbsoluteLeft(), getAbsoluteTop(), width, height);
+	}
+
 	@Override
 	public int getStartOffset() {
 		if (node == null) {
@@ -166,6 +175,14 @@ public class NodeReference extends BaseBox implements IStructuralBox, IDecorator
 			return 0;
 		}
 		return node.getEndOffset();
+	}
+
+	@Override
+	public ContentRange getRange() {
+		if (node == null) {
+			return ContentRange.NULL;
+		}
+		return node.getRange();
 	}
 
 	@Override
