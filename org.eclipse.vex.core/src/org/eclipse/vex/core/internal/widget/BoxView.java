@@ -85,8 +85,8 @@ public class BoxView {
 		return new IRenderStep() {
 			@Override
 			public void render(final Graphics graphics) {
-				cursor.reconcile(graphics);
 				rootBox.layout(graphics);
+				cursor.reconcile(graphics);
 				reconcileViewPort();
 			}
 
