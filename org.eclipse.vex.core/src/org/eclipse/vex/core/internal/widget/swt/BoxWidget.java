@@ -33,14 +33,13 @@ import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.vex.core.internal.core.Rectangle;
 import org.eclipse.vex.core.internal.cursor.Cursor;
-import org.eclipse.vex.core.internal.cursor.IContentSelector;
 import org.eclipse.vex.core.internal.cursor.ICursorMove;
 import org.eclipse.vex.core.internal.visualization.VisualizationChain;
+import org.eclipse.vex.core.internal.widget.BalancedSelector;
 import org.eclipse.vex.core.internal.widget.BoxView;
 import org.eclipse.vex.core.internal.widget.DOMController;
 import org.eclipse.vex.core.internal.widget.IRenderer;
 import org.eclipse.vex.core.internal.widget.IViewPort;
-import org.eclipse.vex.core.internal.widget.SimpleSelector;
 import org.eclipse.vex.core.provisional.dom.IDocument;
 
 /**
@@ -51,7 +50,7 @@ import org.eclipse.vex.core.provisional.dom.IDocument;
 public class BoxWidget extends Canvas {
 
 	private final BoxView view;
-	private final IContentSelector selector;
+	private final BalancedSelector selector;
 	private final DOMController controller;
 
 	public BoxWidget(final Composite parent, final int style) {
@@ -67,7 +66,7 @@ public class BoxWidget extends Canvas {
 
 		final IRenderer renderer = new DoubleBufferedRenderer(this);
 		final IViewPort viewPort = new ViewPort();
-		selector = new SimpleSelector();
+		selector = new BalancedSelector();
 		final Cursor cursor = new Cursor(selector);
 
 		view = new BoxView(renderer, viewPort, cursor);
@@ -76,6 +75,7 @@ public class BoxWidget extends Canvas {
 
 	public void setContent(final IDocument document) {
 		controller.setDocument(document);
+		selector.setDocument(document);
 	}
 
 	public void setVisualizationChain(final VisualizationChain visualizationChain) {

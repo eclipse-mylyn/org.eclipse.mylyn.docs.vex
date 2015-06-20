@@ -22,6 +22,32 @@ import org.eclipse.vex.core.provisional.dom.IParent;
 public class UniversalTestDocument {
 
 	private static final String LOREM_IPSUM_LONG = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec a diam lectus. Sed sit amet ipsum mauris. Maecenas congue ligula ac quam viverra nec consectetur ante hendrerit. Donec et mollis dolor. Praesent et diam eget libero egestas mattis sit amet vitae augue. Nam tincidunt congue enim, ut porta lorem lacinia consectetur.";
+	private final IDocument document;
+
+	public UniversalTestDocument(final int sampleCount) {
+		document = createTestDocument(sampleCount);
+	}
+
+	public IDocument getDocument() {
+		return document;
+	}
+
+	public IElement getSection(final int index) {
+		return (IElement) document.getRootElement().children().get(index);
+	}
+
+	public IElement getParagraphWithText(final int index) {
+		return (IElement) getSection(index).children().first();
+	}
+
+	public IElement getEmptyParagraph(final int index) {
+		return (IElement) getSection(index).children().last();
+	}
+
+	public int getOffsetWithinText(final int index) {
+		final IElement paragraph = getParagraphWithText(index);
+		return paragraph.getStartOffset() + 5;
+	}
 
 	public static IDocument createTestDocument(final int sampleCount) {
 		final Document document = new Document(new QualifiedName(null, "doc"));

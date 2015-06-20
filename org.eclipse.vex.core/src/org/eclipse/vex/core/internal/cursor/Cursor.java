@@ -55,8 +55,8 @@ public class Cursor {
 	private int preferredX;
 	private boolean preferX;
 
-	public Cursor(final IContentSelector selection) {
-		selector = selection;
+	public Cursor(final IContentSelector selector) {
+		this.selector = selector;
 	}
 
 	public void setRootBox(final RootBox rootBox) {
