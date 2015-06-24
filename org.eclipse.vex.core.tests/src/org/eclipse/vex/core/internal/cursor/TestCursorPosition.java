@@ -18,22 +18,18 @@ import static org.eclipse.vex.core.internal.cursor.CursorMoves.toOffset;
 import static org.eclipse.vex.core.internal.cursor.CursorMoves.up;
 import static org.junit.Assert.assertEquals;
 
-import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.vex.core.internal.boxes.DepthFirstTraversal;
 import org.eclipse.vex.core.internal.boxes.IContentBox;
 import org.eclipse.vex.core.internal.boxes.NodeReference;
 import org.eclipse.vex.core.internal.boxes.RootBox;
 import org.eclipse.vex.core.internal.boxes.TextContent;
-import org.eclipse.vex.core.internal.dom.Document;
+import org.eclipse.vex.core.internal.io.UniversalTestDocument;
 import org.eclipse.vex.core.internal.layout.FakeGraphics;
 import org.eclipse.vex.core.internal.visualization.DocumentRootVisualization;
 import org.eclipse.vex.core.internal.visualization.ParagraphVisualization;
 import org.eclipse.vex.core.internal.visualization.StructureElementVisualization;
 import org.eclipse.vex.core.internal.visualization.TextVisualization;
 import org.eclipse.vex.core.internal.visualization.VisualizationChain;
-import org.eclipse.vex.core.provisional.dom.IDocument;
-import org.eclipse.vex.core.provisional.dom.IElement;
-import org.eclipse.vex.core.provisional.dom.IParent;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -42,16 +38,15 @@ import org.junit.Test;
  */
 public class TestCursorPosition {
 
-	private static final String LOREM_IPSUM_LONG = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec a diam lectus. Sed sit amet ipsum mauris. Maecenas congue ligula ac quam viverra nec consectetur ante hendrerit. Donec et mollis dolor. Praesent et diam eget libero egestas mattis sit amet vitae augue. Nam tincidunt congue enim, ut porta lorem lacinia consectetur.";
-	private static final int LAST_OFFSET = 669;
-
 	private RootBox rootBox;
 	private Cursor cursor;
 	private FakeGraphics graphics;
+	private UniversalTestDocument document;
 
 	@Before
 	public void setUp() throws Exception {
-		rootBox = createTestModel();
+		document = new UniversalTestDocument(2);
+		rootBox = buildVisualizationChain().visualizeRoot(document.getDocument());
 		cursor = new Cursor(new FakeSelector());
 		cursor.setRootBox(rootBox);
 
@@ -62,9 +57,10 @@ public class TestCursorPosition {
 
 	@Test
 	public void canMoveCursorOneCharacterLeft() throws Exception {
-		cursorAt(5);
+		final int position = document.getOffsetWithinText(0);
+		cursorAt(position);
 		cursor.move(left());
-		assertCursorAt(4);
+		assertCursorAt(position - 1);
 	}
 
 	@Test
@@ -83,14 +79,14 @@ public class TestCursorPosition {
 
 	@Test
 	public void whenAtLastOffset_cannotMoveCursorOneCharacterRight() throws Exception {
-		cursorAt(LAST_OFFSET);
+		cursorAt(lastOffset());
 		cursor.move(right());
-		assertCursorAt(LAST_OFFSET);
+		assertCursorAt(lastOffset());
 	}
 
 	@Test
 	public void canMoveCursorOneLineUp() throws Exception {
-		cursorAt(33);
+		cursorAt(35);
 		moveCursor(up());
 		assertCursorAt(5);
 	}
@@ -104,9 +100,9 @@ public class TestCursorPosition {
 
 	@Test
 	public void givenInFirstLineOfParagraph_whenMovingUp_shouldMoveCursorToParagraphStartOffset() throws Exception {
-		cursorAt(340);
+		cursorAt(beginOfThirdParagraph() + 3);
 		moveCursor(up());
-		assertCursorAt(336);
+		assertCursorAt(beginOfThirdParagraph());
 	}
 
 	@Test
@@ -125,28 +121,28 @@ public class TestCursorPosition {
 
 	@Test
 	public void givenAtSectionEndOffset_whenMovingUp_shouldMoveCursorToLastParagraphEndOffset() throws Exception {
-		cursorAt(334);
+		cursorAt(endOfFirstSection());
 		moveCursor(up());
-		assertCursorAt(333);
+		assertCursorAt(endOfSecondParagraph());
 	}
 
 	@Test
 	public void givenAtEmptyParagraphEndOffset_whenMovingUp_shouldMoveCursorToEmptyParagraphStartOffset() throws Exception {
-		cursorAt(333);
+		cursorAt(endOfSecondParagraph());
 		moveCursor(up());
-		assertCursorAt(332);
+		assertCursorAt(beginOfSecondParagraph());
 	}
 
 	@Test
 	public void givenBelowLastLineLeftOfLastCharacter_whenMovingUp_shouldMoveCursorAtPreferredXInLastLine() throws Exception {
-		cursorAt(338);
+		cursorAt(340);
 		moveCursor(up());
 		moveCursor(up());
 		moveCursor(up());
 		moveCursor(up());
 		moveCursor(up());
 		moveCursor(up());
-		assertCursorAt(320);
+		assertCursorAt(322);
 	}
 
 	@Test
@@ -158,15 +154,15 @@ public class TestCursorPosition {
 		moveCursor(up());
 		moveCursor(up());
 		moveCursor(up());
-		assertCursorAt(331);
+		assertCursorAt(endOfFirstParagraph());
 	}
 
 	@Test
 	public void givenAtStartOfEmptyLine_whenMovingUp_shouldMoveCursorToStartOfLineAbove() throws Exception {
-		cursorAt(333);
+		cursorAt(endOfSecondParagraph());
 		moveCursor(up());
 		moveCursor(up());
-		assertCursorAt(319);
+		assertCursorAt(321);
 	}
 
 	@Test
@@ -188,45 +184,45 @@ public class TestCursorPosition {
 	}
 
 	@Test
-	public void givenAtDocumentEndOffset_whenMovingUp_shouldMoveCursorToRootElementEndOffset() throws Exception {
-		cursorAt(669);
+	public void givenAtLastOffset_whenMovingUp_shouldMoveCursorToRootElementEndOffset() throws Exception {
+		cursorAt(lastOffset());
 		moveCursor(up());
-		assertCursorAt(668);
+		assertCursorAt(document.getDocument().getRootElement().getEndOffset());
 	}
 
 	@Test
 	public void givenAtParagraphEndOffset_whenMovingUp_shouldMoveCursorToLineAbove() throws Exception {
-		cursorAt(331);
+		cursorAt(endOfFirstParagraph());
 		moveCursor(up());
-		assertCursorAt(311);
+		assertCursorAt(313);
 	}
 
 	@Test
 	public void canMoveCursorOneLineDown() throws Exception {
 		cursorAt(5);
 		moveCursor(down());
-		assertCursorAt(33);
+		assertCursorAt(35);
 	}
 
 	@Test
 	public void whenAtLastOffset_cannotMoveCursorDown() throws Exception {
-		cursorAt(LAST_OFFSET);
+		cursorAt(lastOffset());
 		cursor.move(down());
-		assertCursorAt(LAST_OFFSET);
+		assertCursorAt(lastOffset());
 	}
 
 	@Test
 	public void givenInLastLineOfParagraph_whenMovingDown_shouldMoveCursorToNextParagraphStartOffset() throws Exception {
-		cursorAt(319);
+		cursorAt(endOfFirstParagraph() - 2);
 		moveCursor(down());
-		assertCursorAt(332);
+		assertCursorAt(beginOfSecondParagraph());
 	}
 
 	@Test
 	public void givenAtEndOfParagraph_whenMovingDown_shouldMoveCursorToNextParagraphStartOffset() throws Exception {
-		cursorAt(331);
+		cursorAt(endOfFirstParagraph());
 		moveCursor(down());
-		assertCursorAt(332);
+		assertCursorAt(beginOfSecondParagraph());
 	}
 
 	@Test
@@ -240,7 +236,7 @@ public class TestCursorPosition {
 	public void givenInLineBeforeLastLineRightOfLastCharacterInLastLine_whenMovingDown_shouldMoveCursorToParagraphEndOffset() throws Exception {
 		cursorAt(317);
 		moveCursor(down());
-		assertCursorAt(331);
+		assertCursorAt(endOfFirstParagraph());
 	}
 
 	@Test
@@ -265,21 +261,21 @@ public class TestCursorPosition {
 		moveCursor(down());
 		moveCursor(down());
 		moveCursor(down());
-		assertCursorAt(32);
+		assertCursorAt(34);
 	}
 
 	@Test
 	public void givenAtEndOfLastEmptyParagraph_whenMovingDown_shouldMoveCursorToLastSectionEndOffset() throws Exception {
-		cursorAt(666);
+		cursorAt(endOfLastParagraph());
 		moveCursor(down());
-		assertCursorAt(667);
+		assertCursorAt(endOfLastSection());
 	}
 
 	@Test
 	public void givenAtEndOfLongLine_whenMovingDown_shouldMoveCursorToEndOfShorterLineBelow() throws Exception {
-		cursorAt(147);
+		cursorAt(149);
 		moveCursor(down());
-		assertCursorAt(168);
+		assertCursorAt(170);
 	}
 
 	@Test
@@ -291,7 +287,7 @@ public class TestCursorPosition {
 	@Test
 	public void whenClickingRightOfLastLine_shouldMoveToEndOfParagraph() throws Exception {
 		moveCursor(toAbsoluteCoordinates(133, 168));
-		assertCursorAt(331);
+		assertCursorAt(endOfFirstParagraph());
 	}
 
 	@Test
@@ -308,14 +304,14 @@ public class TestCursorPosition {
 		for (int x = 199; x > 193; x -= 1) {
 			cursorAt(0);
 			moveCursor(toAbsoluteCoordinates(x, 11));
-			assertCursorAt("x=" + x, 31);
+			assertCursorAt("x=" + x, 33);
 		}
 	}
 
 	@Test
 	public void whenClickingInEmptyLine_shouldMoveToEndOfParagraph() throws Exception {
 		moveCursor(toAbsoluteCoordinates(10, 187));
-		assertCursorAt(333);
+		assertCursorAt(endOfSecondParagraph());
 	}
 
 	@Test
@@ -323,7 +319,7 @@ public class TestCursorPosition {
 		for (int x = 6; x < 194; x += 1) {
 			cursorAt(0);
 			moveCursor(toAbsoluteCoordinates(x, 181));
-			assertCursorAt("x=" + x, 331);
+			assertCursorAt("x=" + x, endOfFirstParagraph());
 		}
 	}
 
@@ -331,7 +327,7 @@ public class TestCursorPosition {
 	public void whenClickingInLastEmptyParagraph_shouldMoveToEndOfParagraph() throws Exception {
 		cursorAt(0);
 		moveCursor(toAbsoluteCoordinates(10, 395));
-		assertCursorAt(666);
+		assertCursorAt(document.getEmptyParagraph(1).getEndOffset());
 	}
 
 	private void cursorAt(final int offset) {
@@ -354,12 +350,6 @@ public class TestCursorPosition {
 		assertEquals(message, offset, cursor.getOffset());
 	}
 
-	private static RootBox createTestModel() {
-		final IDocument document = createTestDocument();
-		final VisualizationChain visualizationChain = buildVisualizationChain();
-		return visualizationChain.visualizeRoot(document);
-	}
-
 	private static VisualizationChain buildVisualizationChain() {
 		final VisualizationChain visualizationChain = new VisualizationChain();
 		visualizationChain.addForRoot(new DocumentRootVisualization());
@@ -369,27 +359,36 @@ public class TestCursorPosition {
 		return visualizationChain;
 	}
 
-	private static IDocument createTestDocument() {
-		final Document document = new Document(new QualifiedName(null, "doc"));
-		insertSection(document.getRootElement());
-		insertSection(document.getRootElement());
-		return document;
+	private int endOfFirstParagraph() {
+		return document.getParagraphWithText(0).getEndOffset();
 	}
 
-	private static void insertSection(final IParent parent) {
-		final IElement section = insertElement(parent, "section");
-		insertText(insertElement(section, "para"), LOREM_IPSUM_LONG);
-		insertElement(section, "para");
+	private int beginOfSecondParagraph() {
+		return document.getEmptyParagraph(0).getStartOffset();
 	}
 
-	private static IElement insertElement(final IParent parent, final String localName) {
-		final IDocument document = parent.getDocument();
-		return document.insertElement(parent.getEndOffset(), new QualifiedName(null, localName));
+	private int endOfSecondParagraph() {
+		return document.getEmptyParagraph(0).getEndOffset();
 	}
 
-	private static void insertText(final IParent parent, final String text) {
-		final IDocument document = parent.getDocument();
-		document.insertText(parent.getEndOffset(), text);
+	private int endOfFirstSection() {
+		return document.getSection(0).getEndOffset();
+	}
+
+	private int beginOfThirdParagraph() {
+		return document.getParagraphWithText(1).getStartOffset();
+	}
+
+	private int endOfLastParagraph() {
+		return document.getEmptyParagraph(1).getEndOffset();
+	}
+
+	private int endOfLastSection() {
+		return document.getSection(1).getEndOffset();
+	}
+
+	private int lastOffset() {
+		return document.getDocument().getEndOffset();
 	}
 
 	/*
