@@ -160,7 +160,7 @@ public class BaseVexWidget implements IVexWidget {
 
 			/*
 			 * Flush cached styles, since they might depend attribute values via conditional selectors.
-			 *
+			 * 
 			 * This cast is save because this event is only fired due to the attribute changes of elements.
 			 */
 			getStyleSheet().flushStyles(e.getParent());
@@ -535,7 +535,7 @@ public class BaseVexWidget implements IVexWidget {
 		} finally {
 			endWork(success);
 			if (position != null) {
-				this.moveTo(new ContentPosition(null, position.getOffset()));
+				this.moveTo(new ContentPosition(document, position.getOffset()));
 			}
 		}
 	}
@@ -1425,7 +1425,7 @@ public class BaseVexWidget implements IVexWidget {
 			offset++;
 		}
 
-		this.moveTo(new ContentPosition(null, offset), select);
+		this.moveTo(new ContentPosition(document, offset), select);
 	}
 
 	@Override
@@ -1459,7 +1459,7 @@ public class BaseVexWidget implements IVexWidget {
 			offset--;
 		}
 
-		this.moveTo(new ContentPosition(null, offset), select);
+		this.moveTo(new ContentPosition(document, offset), select);
 	}
 
 	private void select(final ContentPositionRange range) {
@@ -1583,7 +1583,7 @@ public class BaseVexWidget implements IVexWidget {
 			throw new CannotRedoException();
 		}
 		final UndoableAndOffset event = redoList.removeLast();
-		this.moveTo(new ContentPosition(null, event.caretOffset), false);
+		this.moveTo(new ContentPosition(document, event.caretOffset), false);
 		event.edit.redo();
 		undoList.add(event);
 	}
@@ -1594,7 +1594,7 @@ public class BaseVexWidget implements IVexWidget {
 		try {
 			runnable.run();
 		} finally {
-			this.moveTo(new ContentPosition(null, pos.getOffset()));
+			this.moveTo(new ContentPosition(document, pos.getOffset()));
 		}
 	}
 
