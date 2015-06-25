@@ -37,7 +37,10 @@ public class MoveUp implements ICursorMove {
 			return currentBox.getStartOffset();
 		}
 		if (isAtEndOfBoxWithChildren(currentOffset, currentBox) && !canContainText(currentBox)) {
-			return getLastChild(currentBox).getEndOffset();
+			final IContentBox lastChild = getLastChild(currentBox);
+			if (!canContainText(lastChild)) {
+				return lastChild.getEndOffset();
+			}
 		}
 
 		return findOffsetInNextBoxAbove(graphics, contentMap, currentBox, hotArea, preferredX);

@@ -45,12 +45,16 @@ public class TestCursorPosition {
 
 	@Before
 	public void setUp() throws Exception {
-		document = new UniversalTestDocument(2);
-		rootBox = buildVisualizationChain().visualizeRoot(document.getDocument());
-		cursor = new Cursor(new FakeSelector());
-		cursor.setRootBox(rootBox);
-
 		graphics = new FakeGraphics();
+		document = new UniversalTestDocument(2);
+		cursor = new Cursor(new FakeSelector());
+
+		visualizeDocument();
+	}
+
+	private void visualizeDocument() {
+		rootBox = buildVisualizationChain().visualizeRoot(document.getDocument());
+		cursor.setRootBox(rootBox);
 		rootBox.setWidth(200);
 		rootBox.layout(graphics);
 	}
@@ -163,6 +167,19 @@ public class TestCursorPosition {
 		moveCursor(up());
 		moveCursor(up());
 		assertCursorAt(321);
+	}
+
+	@Test
+	public void givenAtFirstLineOfThirdParagraphSecondParagraphContainsText_whenMovingUp_shouldMoveIntoTextOfSecondParagraph() throws Exception {
+		document.getDocument().insertText(endOfSecondParagraph(), "lorem");
+		visualizeDocument();
+
+		cursorAt(beginOfThirdParagraph() + 4);
+		moveCursor(up());
+		moveCursor(up());
+		moveCursor(up());
+		moveCursor(up());
+		assertCursorAt(beginOfSecondParagraph() + 4);
 	}
 
 	@Test
