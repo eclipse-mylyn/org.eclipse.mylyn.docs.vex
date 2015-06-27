@@ -17,7 +17,7 @@ import org.eclipse.vex.core.provisional.dom.ContentRange;
 /**
  * @author Florian Thienel
  */
-public interface IContentBox extends IBox {
+public interface IContentBox extends IChildBox {
 
 	int getStartOffset();
 

@@ -122,4 +122,14 @@ public class FakeContentBox extends BaseBox implements IContentBox {
 		return startOffset;
 	}
 
+	@Override
+	public void setParent(final IBox parent) {
+		// ignore
+	}
+
+	@Override
+	public IBox getParent() {
+		return null;
+	}
+
 }
