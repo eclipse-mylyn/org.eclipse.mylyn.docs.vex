@@ -81,6 +81,18 @@ public class MoveDown implements ICursorMove {
 		});
 	}
 
+	private static IContentBox getParentWithoutText(final IContentBox childBox) {
+		return childBox.accept(new ParentTraversal<IContentBox>() {
+			@Override
+			public IContentBox visit(final NodeReference box) {
+				if (box == childBox || canContainText(box)) {
+					return super.visit(box);
+				}
+				return box;
+			}
+		});
+	}
+
 	private static IContentBox getFirstChild(final IContentBox parent) {
 		return parent.accept(new DepthFirstTraversal<IContentBox>() {
 			@Override
@@ -101,11 +113,8 @@ public class MoveDown implements ICursorMove {
 	private int findOffsetInNextBoxBelow(final Graphics graphics, final ContentMap contentMap, final IContentBox currentBox, final Rectangle hotArea, final int preferredX) {
 		final int x = preferredX;
 		final int y = hotArea.getY() + hotArea.getHeight() - 1;
-		final IContentBox box = findNextBoxBelow(contentMap, currentBox, x, y);
-		if (box.isEmpty()) {
-			return box.getStartOffset();
-		}
-		return box.getOffsetForCoordinates(graphics, x - box.getAbsoluteLeft(), y - box.getAbsoluteTop());
+		final IContentBox nextBoxBelow = findNextBoxBelow(contentMap, currentBox, x, y);
+		return findOffsetInBox(graphics, x, y, nextBoxBelow);
 	}
 
 	private static IContentBox findNextBoxBelow(final ContentMap contentMap, final IContentBox currentBox, final int x, final int y) {
@@ -134,26 +143,23 @@ public class MoveDown implements ICursorMove {
 			}
 		});
 
-		return currentBox.accept(new BaseBoxVisitorWithResult<IContentBox>() {
-			@Override
-			public IContentBox visit(final NodeReference box) {
-				if (containerBottomCloserThanNeighbourBelow(box, neighbourBelow, y)) {
-					return getParent(box);
-				}
-				return boxBelow;
-			}
-
-			@Override
-			public IContentBox visit(final TextContent box) {
-				return boxBelow;
-			}
-		});
+		final IContentBox parentWithoutText = getParentWithoutText(currentBox);
+		if (containerBottomCloserThanNeighbourBelow(parentWithoutText, neighbourBelow, y)) {
+			return parentWithoutText;
+		}
+		return boxBelow;
 	}
 
-	private static boolean containerBottomCloserThanNeighbourBelow(final IContentBox box, final Neighbour neighbourBelow, final int y) {
-		final IContentBox parent = getParent(box);
-		final int distanceToContainerBottom = parent.getAbsoluteTop() + parent.getHeight() - y;
+	private static boolean containerBottomCloserThanNeighbourBelow(final IContentBox parentWithoutText, final Neighbour neighbourBelow, final int y) {
+		final int distanceToContainerBottom = parentWithoutText.getAbsoluteTop() + parentWithoutText.getHeight() - y;
 		return distanceToContainerBottom <= neighbourBelow.distance;
+	}
+
+	private static int findOffsetInBox(final Graphics graphics, final int hotX, final int hotY, final IContentBox box) {
+		if (box.isEmpty()) {
+			return box.getStartOffset();
+		}
+		return box.getOffsetForCoordinates(graphics, hotX - box.getAbsoluteLeft(), hotY - box.getAbsoluteTop());
 	}
 
 	private static boolean isLastChild(final IContentBox box) {

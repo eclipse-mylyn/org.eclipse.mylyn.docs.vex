@@ -183,6 +183,16 @@ public class TestCursorPosition {
 	}
 
 	@Test
+	public void givenInParagraphWithOnlyOneLine_whenMovingUp_shouldMoveToEndOfContainingSection() throws Exception {
+		document.getDocument().insertText(endOfSecondParagraph(), "lorem");
+		visualizeDocument();
+
+		cursorAt(beginOfSecondParagraph() + 4);
+		moveCursor(down());
+		assertCursorAt(endOfFirstSection());
+	}
+
+	@Test
 	public void givenInFirstLineOfFirstParagraph_whenMovingUp_shouldMoveCursorToStartOffsetOfFirstParagraph() throws Exception {
 		cursorAt(4);
 		moveCursor(up());
