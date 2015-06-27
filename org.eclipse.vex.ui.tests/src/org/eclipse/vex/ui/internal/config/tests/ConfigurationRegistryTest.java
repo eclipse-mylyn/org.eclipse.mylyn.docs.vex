@@ -177,11 +177,6 @@ public class ConfigurationRegistryTest {
 		}
 
 		@Override
-		public boolean isLoading() {
-			return false;
-		}
-
-		@Override
 		public List<ConfigSource> getLoadedConfigSources() {
 			return loadedConfigSources;
 		}

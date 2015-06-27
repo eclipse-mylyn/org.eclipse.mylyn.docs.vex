@@ -805,7 +805,7 @@ public class VexEditor extends EditorPart {
 			final INode nodeAtCaret = reader.getNodeAtCaret();
 			if (nodeAtCaret != null) {
 				final int offsetInNode = Math.min(nodeAtCaret.getStartOffset() + positionOfCurrentNode.getOffsetInNode(), nodeAtCaret.getEndOffset());
-				vexWidget.moveTo(new ContentPosition(null, offsetInNode));
+				vexWidget.moveTo(new ContentPosition(document, offsetInNode));
 			}
 
 			loaded = true;

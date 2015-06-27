@@ -1113,6 +1113,26 @@ public class L2SimpleEditingTest {
 		assertEquals(para.getEndPosition(), widget.getCaretPosition());
 	}
 
+	@Test
+	public void undoAndRedoDelete() throws Exception {
+		final IElement para = widget.insertElement(PARA);
+		widget.moveTo(para.getEndPosition());
+		final IElement pre = widget.insertElement(PRE);
+		widget.insertText("Hello World");
+		final String beforeDeleteXml = getCurrentXML(widget);
+
+		widget.moveTo(pre.getStartPosition());
+		widget.moveTo(pre.getEndPosition().moveBy(-1), true);
+		widget.deleteSelection();
+
+		final String beforeUndoXml = getCurrentXML(widget);
+		widget.undo();
+		assertXmlEquals(beforeDeleteXml, widget);
+
+		widget.redo();
+		assertXmlEquals(beforeUndoXml, widget);
+	}
+
 	private static StyleSheet readTestStyleSheet() throws IOException {
 		return new StyleSheetReader().read(TestResources.get("test.css"));
 	}
