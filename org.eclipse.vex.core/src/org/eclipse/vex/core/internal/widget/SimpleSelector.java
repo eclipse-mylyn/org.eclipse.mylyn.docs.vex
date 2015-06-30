@@ -17,6 +17,11 @@ public class SimpleSelector extends BaseSelector {
 
 	@Override
 	public void moveTo(final int offset) {
+		endAt(offset);
+	}
+
+	@Override
+	public void endAt(final int offset) {
 		final boolean movingForward = offset > getCaretOffset();
 		final boolean movingBackward = offset < getCaretOffset();
 		final boolean movingTowardMark = movingForward && getMark() >= offset || movingBackward && getMark() <= offset;

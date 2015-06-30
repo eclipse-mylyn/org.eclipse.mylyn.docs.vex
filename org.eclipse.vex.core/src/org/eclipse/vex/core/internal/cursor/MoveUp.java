@@ -32,6 +32,11 @@ public class MoveUp implements ICursorMove {
 	}
 
 	@Override
+	public boolean isAbsolute() {
+		return false;
+	}
+
+	@Override
 	public int calculateNewOffset(final Graphics graphics, final ContentMap contentMap, final int currentOffset, final IContentBox currentBox, final Rectangle hotArea, final int preferredX) {
 		if (isAtEndOfEmptyBox(currentOffset, currentBox)) {
 			return currentBox.getStartOffset();

@@ -76,6 +76,17 @@ public class BalancedSelectorTest {
 		assertBalancedSelectionIs(section.getStartOffset(), section.getEndOffset() + 1, section.getStartOffset());
 	}
 
+	@Test
+	public void givenMarkInText_whenSelectingToEndOffsetOfNextParagraphMultipleTimes_shouldStayAtEndOfNextContainingSection() throws Exception {
+		final IElement section = document.getSection(0);
+		final IElement firstParagraph = document.getParagraphWithText(0);
+		final IElement secondParagraph = document.getEmptyParagraph(0);
+		select(firstParagraph.getStartOffset() + 4, secondParagraph.getEndOffset());
+		assertBalancedSelectionIs(firstParagraph.getStartOffset(), section.getEndOffset(), section.getEndOffset());
+		selector.endAt(secondParagraph.getEndOffset());
+		assertBalancedSelectionIs(firstParagraph.getStartOffset(), section.getEndOffset(), section.getEndOffset());
+	}
+
 	private void select(final int mark, final int caretPosition) {
 		selector.setMark(mark);
 		selector.moveTo(caretPosition);

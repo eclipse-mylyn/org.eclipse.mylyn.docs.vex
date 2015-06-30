@@ -28,20 +28,27 @@ public class BalancedSelector extends BaseSelector {
 		setMark(0);
 	}
 
+	@Override
 	public void moveTo(final int offset) {
 		if (document == null) {
 			return;
 		}
+		if (offset == getMark()) {
+			setMark(offset);
+		}
 
 		final boolean movingForward = offset > getCaretOffset();
 		final boolean movingBackward = offset < getCaretOffset();
-		final boolean movingTowardMark = movingForward && getMark() >= offset || movingBackward && getMark() <= offset;
-		final boolean movingAwayFromMark = !movingTowardMark;
+		final boolean beforeMark = offset < getMark();
+		final boolean afterMark = offset > getMark();
+		final boolean movingTowardMark = movingForward && beforeMark || movingBackward && afterMark;
+		final boolean movingAwayFromMark = movingForward && afterMark || movingBackward && beforeMark;
 
 		// expand or shrink the selection to make sure the selection is balanced
 		final int balancedStart = Math.min(getMark(), offset);
 		final int balancedEnd = Math.max(getMark(), offset);
 		final INode balancedNode = document.findCommonNode(balancedStart, balancedEnd);
+
 		if (movingForward && movingTowardMark) {
 			setStartOffset(balanceForward(balancedStart, balancedNode));
 			setEndOffset(balanceForward(balancedEnd, balancedNode));
@@ -58,6 +65,34 @@ public class BalancedSelector extends BaseSelector {
 			setStartOffset(balanceBackward(balancedStart, balancedNode));
 			setEndOffset(balanceForward(balancedEnd, balancedNode));
 			setCaretOffset(getStartOffset());
+		}
+	}
+
+	@Override
+	public void endAt(final int offset) {
+		if (document == null) {
+			return;
+		}
+		if (offset == getMark()) {
+			setMark(offset);
+		}
+
+		final boolean beforeMark = offset < getMark();
+		final boolean afterMark = offset > getMark();
+
+		// expand or shrink the selection to make sure the selection is balanced
+		final int balancedStart = Math.min(getMark(), offset);
+		final int balancedEnd = Math.max(getMark(), offset);
+		final INode balancedNode = document.findCommonNode(balancedStart, balancedEnd);
+
+		if (beforeMark) {
+			setStartOffset(balanceBackward(balancedStart, balancedNode));
+			setEndOffset(balanceForward(balancedEnd, balancedNode));
+			setCaretOffset(getStartOffset());
+		} else if (afterMark) {
+			setStartOffset(balanceBackward(balancedStart, balancedNode));
+			setEndOffset(balanceForward(balancedEnd, balancedNode));
+			setCaretOffset(getEndOffset());
 		}
 	}
 

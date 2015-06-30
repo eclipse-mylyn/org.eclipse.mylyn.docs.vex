@@ -102,7 +102,11 @@ public class Cursor {
 		for (MoveWithSelection move = moves.poll(); move != null; move = moves.poll()) {
 			offset = move.move.calculateNewOffset(graphics, contentMap, offset, box, getHotArea(), preferredX);
 			if (move.select) {
-				selector.moveTo(offset);
+				if (move.move.isAbsolute()) {
+					selector.endAt(offset);
+				} else {
+					selector.moveTo(offset);
+				}
 				offset = selector.getCaretOffset();
 			} else {
 				selector.setMark(offset);

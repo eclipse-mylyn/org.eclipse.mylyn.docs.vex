@@ -26,6 +26,10 @@ public class FakeSelector implements IContentSelector {
 	}
 
 	@Override
+	public void endAt(final int offset) {
+	}
+
+	@Override
 	public boolean isActive() {
 		return false;
 	}

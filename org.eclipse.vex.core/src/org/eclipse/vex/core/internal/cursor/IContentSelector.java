@@ -21,6 +21,8 @@ public interface IContentSelector {
 
 	void moveTo(int offset);
 
+	void endAt(int offset);
+
 	boolean isActive();
 
 	int getStartOffset();

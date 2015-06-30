@@ -22,4 +22,6 @@ public interface ICursorMove {
 	int calculateNewOffset(final Graphics graphics, final ContentMap contentMap, final int currentOffset, final IContentBox currentBox, final Rectangle hotArea, int preferredX);
 
 	boolean preferX();
+
+	boolean isAbsolute();
 }

@@ -20,7 +20,7 @@ import org.eclipse.vex.core.internal.core.Rectangle;
 public class MoveRight implements ICursorMove {
 
 	@Override
-	public int calculateNewOffset(final Graphics graphics, final ContentMap contentMap, final int currentOffset, final IContentBox currentBox, final Rectangle hotArea, int preferredX) {
+	public int calculateNewOffset(final Graphics graphics, final ContentMap contentMap, final int currentOffset, final IContentBox currentBox, final Rectangle hotArea, final int preferredX) {
 		return Math.min(currentOffset + 1, contentMap.getLastOffset());
 	}
 
@@ -29,4 +29,8 @@ public class MoveRight implements ICursorMove {
 		return true;
 	}
 
+	@Override
+	public boolean isAbsolute() {
+		return false;
+	}
 }

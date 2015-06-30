@@ -38,6 +38,11 @@ public class MoveToAbsoluteCoordinates implements ICursorMove {
 	}
 
 	@Override
+	public boolean isAbsolute() {
+		return true;
+	}
+
+	@Override
 	public int calculateNewOffset(final Graphics graphics, final ContentMap contentMap, final int currentOffset, final IContentBox currentBox, final Rectangle hotArea, final int preferredX) {
 		final IContentBox box = findClosestBoxOnLineByCoordinates(contentMap, x, y);
 		if (box.containsCoordinates(x, y)) {
