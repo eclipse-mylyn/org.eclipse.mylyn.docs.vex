@@ -10,11 +10,8 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.widget;
 
-import org.eclipse.vex.core.provisional.dom.IAxis;
+import org.eclipse.vex.core.provisional.dom.ContentRange;
 import org.eclipse.vex.core.provisional.dom.IDocument;
-import org.eclipse.vex.core.provisional.dom.INode;
-import org.eclipse.vex.core.provisional.dom.IParent;
-import org.eclipse.vex.core.provisional.dom.IText;
 
 /**
  * @author Florian Thienel
@@ -37,33 +34,20 @@ public class BalancedSelector extends BaseSelector {
 			setMark(offset);
 		}
 
-		final boolean movingForward = offset > getCaretOffset();
-		final boolean movingBackward = offset < getCaretOffset();
-		final boolean beforeMark = offset < getMark();
-		final boolean afterMark = offset > getMark();
-		final boolean movingTowardMark = movingForward && beforeMark || movingBackward && afterMark;
-		final boolean movingAwayFromMark = movingForward && afterMark || movingBackward && beforeMark;
+		final Movement movement = new Movement(offset);
+		final BalancableRange rawRange = new BalancableRange(document, getMark(), offset);
 
-		// expand or shrink the selection to make sure the selection is balanced
-		final int balancedStart = Math.min(getMark(), offset);
-		final int balancedEnd = Math.max(getMark(), offset);
-		final INode balancedNode = document.findCommonNode(balancedStart, balancedEnd);
-
-		if (movingForward && movingTowardMark) {
-			setStartOffset(balanceForward(balancedStart, balancedNode));
-			setEndOffset(balanceForward(balancedEnd, balancedNode));
+		if (movement.movingForward && movement.movingTowardMark) {
+			setRange(rawRange.reduceForward());
 			setCaretOffset(getStartOffset());
-		} else if (movingBackward && movingTowardMark) {
-			setStartOffset(balanceBackward(balancedStart, balancedNode));
-			setEndOffset(balanceBackward(balancedEnd, balancedNode));
+		} else if (movement.movingBackward && movement.movingTowardMark) {
+			setRange(rawRange.reduceBackward());
 			setCaretOffset(getEndOffset());
-		} else if (movingForward && movingAwayFromMark) {
-			setStartOffset(balanceBackward(balancedStart, balancedNode));
-			setEndOffset(balanceForward(balancedEnd, balancedNode));
+		} else if (movement.movingForward && movement.movingAwayFromMark) {
+			setRange(rawRange.expand());
 			setCaretOffset(getEndOffset());
-		} else if (movingBackward && movingAwayFromMark) {
-			setStartOffset(balanceBackward(balancedStart, balancedNode));
-			setEndOffset(balanceForward(balancedEnd, balancedNode));
+		} else if (movement.movingBackward && movement.movingAwayFromMark) {
+			setRange(rawRange.expand());
 			setCaretOffset(getStartOffset());
 		}
 	}
@@ -77,74 +61,40 @@ public class BalancedSelector extends BaseSelector {
 			setMark(offset);
 		}
 
-		final boolean beforeMark = offset < getMark();
-		final boolean afterMark = offset > getMark();
+		final Movement movement = new Movement(offset);
+		final BalancableRange rawRange = new BalancableRange(document, getMark(), offset);
 
-		// expand or shrink the selection to make sure the selection is balanced
-		final int balancedStart = Math.min(getMark(), offset);
-		final int balancedEnd = Math.max(getMark(), offset);
-		final INode balancedNode = document.findCommonNode(balancedStart, balancedEnd);
-
-		if (beforeMark) {
-			setStartOffset(balanceBackward(balancedStart, balancedNode));
-			setEndOffset(balanceForward(balancedEnd, balancedNode));
+		if (movement.beforeMark) {
+			setRange(rawRange.expand());
 			setCaretOffset(getStartOffset());
-		} else if (afterMark) {
-			setStartOffset(balanceBackward(balancedStart, balancedNode));
-			setEndOffset(balanceForward(balancedEnd, balancedNode));
+		} else if (movement.afterMark) {
+			setRange(rawRange.expand());
 			setCaretOffset(getEndOffset());
 		}
 	}
 
-	private int balanceForward(final int offset, final INode node) {
-		if (getParentForInsertionAt(offset) == node) {
-			return offset;
-		}
-
-		// Move the position to the start of the next node, this will insert in the parent
-		int balancedOffset = moveToNextNode(offset);
-		while (getParentForInsertionAt(balancedOffset) != node) {
-			balancedOffset = document.getChildAt(balancedOffset).getParent().getEndOffset() + 1;
-		}
-		return balancedOffset;
+	private void setRange(final ContentRange range) {
+		setStartOffset(range.getStartOffset());
+		setEndOffset(range.getEndOffset());
 	}
 
-	private int moveToNextNode(final int offset) {
-		final INode nodeAtOffset = getParentForInsertionAt(offset);
-		final IParent parent = nodeAtOffset.getParent();
-		if (parent == null) {
-			// No parent, so return the end of the current node
-			return nodeAtOffset.getEndOffset();
-		}
-		final IAxis<? extends INode> siblings = parent.children().after(offset);
-		if (!siblings.isEmpty()) {
-			return siblings.first().getStartOffset();
-		} else {
-			return parent.getEndOffset();
+	private class Movement {
+
+		public final boolean movingForward;
+		public final boolean movingBackward;
+		public final boolean beforeMark;
+		public final boolean afterMark;
+		public final boolean movingTowardMark;
+		public final boolean movingAwayFromMark;
+
+		public Movement(final int offset) {
+			movingForward = offset > getCaretOffset();
+			movingBackward = offset < getCaretOffset();
+			beforeMark = offset < getMark();
+			afterMark = offset > getMark();
+			movingTowardMark = movingForward && beforeMark || movingBackward && afterMark;
+			movingAwayFromMark = movingForward && afterMark || movingBackward && beforeMark;
 		}
 	}
 
-	private INode getParentForInsertionAt(final int offset) {
-		final INode node = document.getChildAt(offset);
-		if (offset == node.getStartOffset()) {
-			return node.getParent();
-		} else if (node instanceof IText) {
-			return node.getParent();
-		} else {
-			return node;
-		}
-	}
-
-	private int balanceBackward(final int offset, final INode node) {
-		if (getParentForInsertionAt(offset) == node) {
-			return offset;
-		}
-
-		// Insertion at the start position of a node inserts into the parent
-		int balancedOffset = document.getChildAt(offset).getStartOffset();
-		while (document.getChildAt(balancedOffset).getParent() != node) {
-			balancedOffset = document.getChildAt(balancedOffset).getParent().getStartOffset();
-		}
-		return balancedOffset;
-	}
 }
