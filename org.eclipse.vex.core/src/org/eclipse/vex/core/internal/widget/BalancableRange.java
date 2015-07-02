@@ -45,7 +45,7 @@ public class BalancableRange {
 
 		int balancedOffset = moveToNextNode(offset);
 		while (getParentForInsertionAt(balancedOffset) != node) {
-			balancedOffset = document.getChildAt(balancedOffset).getParent().getEndOffset() + 1;
+			balancedOffset = document.getChildAt(balancedOffset).getEndOffset() + 1;
 		}
 		return balancedOffset;
 	}

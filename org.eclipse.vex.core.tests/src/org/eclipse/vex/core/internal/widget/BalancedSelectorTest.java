@@ -87,6 +87,17 @@ public class BalancedSelectorTest {
 		assertBalancedSelectionIs(firstParagraph.getStartOffset(), section.getEndOffset(), section.getEndOffset());
 	}
 
+	@Test
+	public void givenMarkAtEndOfFourthParagraph_whenSelectingFourthAndThirdParagraph_shouldBeAbleToMoveToStartOfSecondSection() throws Exception {
+		final IElement section = document.getSection(1);
+		final IElement thirdParagraph = document.getParagraphWithText(1);
+		final IElement fourthParagraph = document.getEmptyParagraph(1);
+		select(fourthParagraph.getEndOffset(), thirdParagraph.getEndOffset());
+		assertBalancedSelectionIs(thirdParagraph.getStartOffset(), fourthParagraph.getEndOffset() + 1, thirdParagraph.getStartOffset());
+		selector.moveTo(thirdParagraph.getStartOffset() - 1);
+		assertBalancedSelectionIs(section.getStartOffset(), section.getEndOffset() + 1, section.getStartOffset());
+	}
+
 	private void select(final int mark, final int caretPosition) {
 		selector.setMark(mark);
 		selector.moveTo(caretPosition);
