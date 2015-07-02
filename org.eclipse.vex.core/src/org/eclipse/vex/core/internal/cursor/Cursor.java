@@ -103,9 +103,9 @@ public class Cursor {
 			offset = move.move.calculateNewOffset(graphics, contentMap, offset, box, getHotArea(), preferredX);
 			if (move.select) {
 				if (move.move.isAbsolute()) {
-					selector.endAt(offset);
+					selector.setEndAbsoluteTo(offset);
 				} else {
-					selector.moveTo(offset);
+					selector.moveEndTo(offset);
 				}
 				offset = selector.getCaretOffset();
 			} else {

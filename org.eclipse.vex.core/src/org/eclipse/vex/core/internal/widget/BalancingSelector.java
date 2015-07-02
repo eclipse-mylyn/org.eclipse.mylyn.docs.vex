@@ -16,7 +16,7 @@ import org.eclipse.vex.core.provisional.dom.IDocument;
 /**
  * @author Florian Thienel
  */
-public class BalancedSelector extends BaseSelector {
+public class BalancingSelector extends BaseSelector {
 
 	private IDocument document;
 
@@ -26,7 +26,7 @@ public class BalancedSelector extends BaseSelector {
 	}
 
 	@Override
-	public void moveTo(final int offset) {
+	public void moveEndTo(final int offset) {
 		if (document == null) {
 			return;
 		}
@@ -53,7 +53,7 @@ public class BalancedSelector extends BaseSelector {
 	}
 
 	@Override
-	public void endAt(final int offset) {
+	public void setEndAbsoluteTo(final int offset) {
 		if (document == null) {
 			return;
 		}

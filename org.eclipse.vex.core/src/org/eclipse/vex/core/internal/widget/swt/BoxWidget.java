@@ -35,7 +35,7 @@ import org.eclipse.vex.core.internal.core.Rectangle;
 import org.eclipse.vex.core.internal.cursor.Cursor;
 import org.eclipse.vex.core.internal.cursor.ICursorMove;
 import org.eclipse.vex.core.internal.visualization.VisualizationChain;
-import org.eclipse.vex.core.internal.widget.BalancedSelector;
+import org.eclipse.vex.core.internal.widget.BalancingSelector;
 import org.eclipse.vex.core.internal.widget.BoxView;
 import org.eclipse.vex.core.internal.widget.DOMController;
 import org.eclipse.vex.core.internal.widget.IRenderer;
@@ -50,7 +50,7 @@ import org.eclipse.vex.core.provisional.dom.IDocument;
 public class BoxWidget extends Canvas {
 
 	private final BoxView view;
-	private final BalancedSelector selector;
+	private final BalancingSelector selector;
 	private final DOMController controller;
 
 	public BoxWidget(final Composite parent, final int style) {
@@ -66,7 +66,7 @@ public class BoxWidget extends Canvas {
 
 		final IRenderer renderer = new DoubleBufferedRenderer(this);
 		final IViewPort viewPort = new ViewPort();
-		selector = new BalancedSelector();
+		selector = new BalancingSelector();
 		final Cursor cursor = new Cursor(selector);
 
 		view = new BoxView(renderer, viewPort, cursor);

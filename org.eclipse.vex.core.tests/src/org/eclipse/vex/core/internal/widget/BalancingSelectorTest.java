@@ -21,15 +21,15 @@ import org.junit.Test;
 /**
  * @author Florian Thienel
  */
-public class BalancedSelectorTest {
+public class BalancingSelectorTest {
 
-	private BalancedSelector selector;
+	private BalancingSelector selector;
 	private UniversalTestDocument document;
 
 	@Before
 	public void setUp() throws Exception {
 		document = new UniversalTestDocument(3);
-		selector = new BalancedSelector();
+		selector = new BalancingSelector();
 		selector.setDocument(document.getDocument());
 	}
 
@@ -83,7 +83,7 @@ public class BalancedSelectorTest {
 		final IElement secondParagraph = document.getEmptyParagraph(0);
 		select(firstParagraph.getStartOffset() + 4, secondParagraph.getEndOffset());
 		assertBalancedSelectionIs(firstParagraph.getStartOffset(), section.getEndOffset(), section.getEndOffset());
-		selector.endAt(secondParagraph.getEndOffset());
+		selector.setEndAbsoluteTo(secondParagraph.getEndOffset());
 		assertBalancedSelectionIs(firstParagraph.getStartOffset(), section.getEndOffset(), section.getEndOffset());
 	}
 
@@ -94,13 +94,13 @@ public class BalancedSelectorTest {
 		final IElement fourthParagraph = document.getEmptyParagraph(1);
 		select(fourthParagraph.getEndOffset(), thirdParagraph.getEndOffset());
 		assertBalancedSelectionIs(thirdParagraph.getStartOffset(), fourthParagraph.getEndOffset() + 1, thirdParagraph.getStartOffset());
-		selector.moveTo(thirdParagraph.getStartOffset() - 1);
+		selector.moveEndTo(thirdParagraph.getStartOffset() - 1);
 		assertBalancedSelectionIs(section.getStartOffset(), section.getEndOffset() + 1, section.getStartOffset());
 	}
 
 	private void select(final int mark, final int caretPosition) {
 		selector.setMark(mark);
-		selector.moveTo(caretPosition);
+		selector.moveEndTo(caretPosition);
 	}
 
 	private void assertBalancedSelectionIs(final int startOffset, final int endOffset, final int caretOffset) {

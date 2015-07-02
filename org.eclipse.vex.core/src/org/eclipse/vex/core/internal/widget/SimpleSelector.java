@@ -16,12 +16,12 @@ package org.eclipse.vex.core.internal.widget;
 public class SimpleSelector extends BaseSelector {
 
 	@Override
-	public void moveTo(final int offset) {
-		endAt(offset);
+	public void moveEndTo(final int offset) {
+		setEndAbsoluteTo(offset);
 	}
 
 	@Override
-	public void endAt(final int offset) {
+	public void setEndAbsoluteTo(final int offset) {
 		final boolean movingForward = offset > getCaretOffset();
 		final boolean movingBackward = offset < getCaretOffset();
 		final boolean movingTowardMark = movingForward && getMark() >= offset || movingBackward && getMark() <= offset;

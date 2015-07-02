@@ -19,9 +19,9 @@ public interface IContentSelector {
 
 	void setMark(int offset);
 
-	void moveTo(int offset);
+	void moveEndTo(int offset);
 
-	void endAt(int offset);
+	void setEndAbsoluteTo(int offset);
 
 	boolean isActive();
 

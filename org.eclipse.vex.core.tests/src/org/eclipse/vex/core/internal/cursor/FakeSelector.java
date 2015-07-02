@@ -22,11 +22,11 @@ public class FakeSelector implements IContentSelector {
 	}
 
 	@Override
-	public void moveTo(final int offset) {
+	public void moveEndTo(final int offset) {
 	}
 
 	@Override
-	public void endAt(final int offset) {
+	public void setEndAbsoluteTo(final int offset) {
 	}
 
 	@Override
