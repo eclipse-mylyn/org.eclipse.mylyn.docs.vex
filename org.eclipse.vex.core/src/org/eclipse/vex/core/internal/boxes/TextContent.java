@@ -42,6 +42,8 @@ public class TextContent extends BaseBox implements IInlineBox, IContentBox {
 	private final CharSequenceSplitter splitter = new CharSequenceSplitter();
 
 	private boolean layoutValid;
+	private int layoutStartOffset;
+	private int layoutEndOffset;
 
 	@Override
 	public void setParent(final IBox parent) {
@@ -114,11 +116,13 @@ public class TextContent extends BaseBox implements IInlineBox, IContentBox {
 	}
 
 	private void validateLayout() {
+		layoutStartOffset = startPosition.getOffset();
+		layoutEndOffset = endPosition.getOffset();
 		layoutValid = true;
 	}
 
 	private boolean isLayoutValid() {
-		return layoutValid;
+		return layoutValid && layoutStartOffset == startPosition.getOffset() && layoutEndOffset == endPosition.getOffset();
 	}
 
 	public void setContent(final IContent content, final ContentRange range) {
