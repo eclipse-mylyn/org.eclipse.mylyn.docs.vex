@@ -12,6 +12,7 @@ package org.eclipse.vex.core.internal.boxes;
 
 import org.eclipse.vex.core.internal.core.Color;
 import org.eclipse.vex.core.internal.core.Graphics;
+import org.eclipse.vex.core.internal.core.NodeTag;
 import org.eclipse.vex.core.internal.core.Rectangle;
 import org.eclipse.vex.core.provisional.dom.ContentRange;
 import org.eclipse.vex.core.provisional.dom.INode;
@@ -177,19 +178,27 @@ public class NodeReference extends BaseBox implements IStructuralBox, IDecorator
 				return super.visit(box);
 			}
 		});
-	}
 
-	private void drawBorder(final Graphics graphics, final Color background) {
-		graphics.setForeground(graphics.getColor(background));
-		graphics.setBackground(graphics.getColor(background));
-		graphics.setLineWidth(HIGHLIGHT_BORDER_WIDTH);
-		graphics.drawRect(getAbsoluteLeft(), getAbsoluteTop(), width, height);
+		drawTag(graphics, foreground, background);
 	}
 
 	private void fillBackground(final Graphics graphics, final Color color) {
 		graphics.setForeground(graphics.getColor(color));
 		graphics.setBackground(graphics.getColor(color));
 		graphics.fillRect(getAbsoluteLeft(), getAbsoluteTop(), width, height);
+	}
+
+	private void drawBorder(final Graphics graphics, final Color color) {
+		graphics.setForeground(graphics.getColor(color));
+		graphics.setBackground(graphics.getColor(color));
+		graphics.setLineWidth(HIGHLIGHT_BORDER_WIDTH);
+		graphics.drawRect(getAbsoluteLeft(), getAbsoluteTop(), width, height);
+	}
+
+	private void drawTag(final Graphics graphics, final Color foreground, final Color background) {
+		graphics.setForeground(graphics.getColor(foreground));
+		graphics.setBackground(graphics.getColor(background));
+		NodeTag.drawTag(graphics, node, getAbsoluteLeft() + width / 2, getAbsoluteTop() + height / 2, true, true);
 	}
 
 	private void highlightInside(final Graphics graphics, final Color foreground, final Color background) {
