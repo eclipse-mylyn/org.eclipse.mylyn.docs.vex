@@ -23,15 +23,10 @@ import org.eclipse.vex.core.internal.core.Color;
 import org.eclipse.vex.core.internal.core.ColorResource;
 import org.eclipse.vex.core.internal.core.FontSpec;
 import org.eclipse.vex.core.internal.core.Graphics;
+import org.eclipse.vex.core.internal.core.NodeTag;
 import org.eclipse.vex.core.internal.core.Rectangle;
-import org.eclipse.vex.core.provisional.dom.BaseNodeVisitorWithResult;
 import org.eclipse.vex.core.provisional.dom.ContentRange;
-import org.eclipse.vex.core.provisional.dom.IComment;
-import org.eclipse.vex.core.provisional.dom.IDocument;
-import org.eclipse.vex.core.provisional.dom.IElement;
-import org.eclipse.vex.core.provisional.dom.IIncludeNode;
 import org.eclipse.vex.core.provisional.dom.INode;
-import org.eclipse.vex.core.provisional.dom.IProcessingInstruction;
 
 /**
  * @author Florian Thienel
@@ -43,7 +38,6 @@ public class Cursor {
 	private static final Color CARET_BACKGROUND_COLOR = new Color(0, 0, 0);
 	private static final Color SELECTION_FOREGROUND_COLOR = new Color(255, 255, 255);
 	private static final Color SELECTION_BACKGROUND_COLOR = new Color(0, 0, 255);
-	private static final FontSpec FONT = new FontSpec("Arial", FontSpec.BOLD, 10.0f);
 
 	private final ContentMap contentMap = new ContentMap();
 	private final IContentSelector selector;
@@ -235,78 +229,6 @@ public class Cursor {
 		return new TextCaret(area, font, character, false);
 	}
 
-	private static String getNodeStartMarker(final INode node) {
-		return node.accept(new BaseNodeVisitorWithResult<String>() {
-			@Override
-			public String visit(final IDocument document) {
-				return "DOCUMENT";
-			}
-
-			@Override
-			public String visit(final IElement element) {
-				return "<" + element.getPrefixedName() + "...";
-			}
-
-			@Override
-			public String visit(final IComment comment) {
-				return "<!--";
-			}
-
-			@Override
-			public String visit(final IProcessingInstruction pi) {
-				return "<?" + pi.getTarget() + "...";
-			}
-
-			@Override
-			public String visit(final IIncludeNode include) {
-				return getNodeStartMarker(include.getReference());
-			}
-		});
-	}
-
-	private static String getNodeEndMarker(final INode node) {
-		return node.accept(new BaseNodeVisitorWithResult<String>() {
-			@Override
-			public String visit(final IDocument document) {
-				return "DOCUMENT";
-			}
-
-			@Override
-			public String visit(final IElement element) {
-				return "</" + element.getPrefixedName() + ">";
-			}
-
-			@Override
-			public String visit(final IComment comment) {
-				return "--!>";
-			}
-
-			@Override
-			public String visit(final IProcessingInstruction pi) {
-				return "?>";
-			}
-
-			@Override
-			public String visit(final IIncludeNode include) {
-				return getNodeEndMarker(include.getReference());
-			}
-		});
-	}
-
-	private static void drawTag(final Graphics graphics, final String text, final int x, final int y, final boolean verticallyCentered) {
-		final int textWidth = graphics.stringWidth(text);
-		final int textHeight = graphics.getFontMetrics().getHeight();
-		final int textPadding = 3;
-		final int effectiveY;
-		if (verticallyCentered) {
-			effectiveY = y - (textHeight + textPadding * 2) / 2;
-		} else {
-			effectiveY = y;
-		}
-		graphics.fillRect(x, effectiveY, textWidth + textPadding * 2, textHeight + textPadding * 2);
-		graphics.drawString(text, x + textPadding, effectiveY + textPadding);
-	}
-
 	private static interface Caret {
 		Rectangle getHotArea();
 
@@ -351,9 +273,7 @@ public class Cursor {
 			graphics.fillRect(x, y, area.getWidth(), 2);
 			graphics.fillRect(x, y, 2, area.getHeight());
 
-			graphics.setCurrentFont(graphics.getFont(FONT));
-			final String nodeName = getNodeStartMarker(node);
-			drawTag(graphics, nodeName, x + 5, y + 5, false);
+			NodeTag.drawStartTag(graphics, node, x + 5, y + 5, false);
 		}
 
 	}
@@ -395,9 +315,7 @@ public class Cursor {
 
 			graphics.fillRect(x, y, 2, area.getHeight());
 
-			graphics.setCurrentFont(graphics.getFont(FONT));
-			final String nodeName = getNodeEndMarker(node);
-			drawTag(graphics, nodeName, x + 5, y + area.getHeight() / 2, true);
+			NodeTag.drawEndTag(graphics, node, x + 5, y + area.getHeight() / 2, true);
 		}
 
 		private int getX() {
@@ -442,9 +360,7 @@ public class Cursor {
 			graphics.fillRect(x, y, area.getWidth(), 2);
 			graphics.fillRect(x + area.getWidth() - 2, y, 2, -area.getHeight());
 
-			graphics.setCurrentFont(graphics.getFont(FONT));
-			final String nodeName = getNodeEndMarker(node);
-			drawTag(graphics, nodeName, x + 5, y + 5, false);
+			NodeTag.drawEndTag(graphics, node, x + 5, y + 5, false);
 		}
 	}
 
