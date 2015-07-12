@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.boxes;
 
+import org.eclipse.vex.core.internal.core.Color;
 import org.eclipse.vex.core.internal.core.Graphics;
 import org.eclipse.vex.core.internal.core.Rectangle;
 import org.eclipse.vex.core.provisional.dom.ContentRange;
@@ -130,6 +131,11 @@ public class FakeContentBox extends BaseBox implements IContentBox {
 	@Override
 	public IBox getParent() {
 		return null;
+	}
+
+	@Override
+	public void highlight(final Graphics graphics, final Color foreground, final Color background) {
+		//ignore
 	}
 
 }

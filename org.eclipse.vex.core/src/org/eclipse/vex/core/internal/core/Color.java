@@ -61,6 +61,13 @@ public class Color {
 		return red;
 	}
 
+	public Color lighten(final float amount) {
+		final int lighterRed = Math.round(Math.min(255.0f, red + 255.0f * amount));
+		final int lighterGreen = Math.round(Math.min(255.0f, green + 255.0f * amount));
+		final int lighterBlue = Math.round(Math.min(255.0f, blue + 255.0f * amount));
+		return new Color(lighterRed, lighterGreen, lighterBlue);
+	}
+
 	@Override
 	public boolean equals(final Object obj) {
 		if (this == obj) {

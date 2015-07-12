@@ -21,6 +21,9 @@ import org.eclipse.vex.core.provisional.dom.INode;
  */
 public class NodeReference extends BaseBox implements IStructuralBox, IDecoratorBox<IStructuralBox>, IContentBox {
 
+	private static final float HIGHLIGHT_LIGHTEN_AMOUNT = 0.6f;
+	private static final int HIGHLIGHT_BORDER_WIDTH = 4;
+
 	private IBox parent;
 	private int top;
 	private int left;
@@ -155,10 +158,42 @@ public class NodeReference extends BaseBox implements IStructuralBox, IDecorator
 	}
 
 	public void highlight(final Graphics graphics, final Color foreground, final Color background) {
+		final Color lightBackground = background.lighten(HIGHLIGHT_LIGHTEN_AMOUNT);
+		fillBackground(graphics, lightBackground);
+		drawBorder(graphics, background);
+
+		accept(new DepthFirstTraversal<Object>() {
+			@Override
+			public Object visit(final NodeReference box) {
+				if (box != NodeReference.this) {
+					box.highlightInside(graphics, foreground, lightBackground);
+				}
+				return super.visit(box);
+			}
+
+			@Override
+			public Object visit(final TextContent box) {
+				box.highlight(graphics, foreground, lightBackground);
+				return super.visit(box);
+			}
+		});
+	}
+
+	private void drawBorder(final Graphics graphics, final Color background) {
 		graphics.setForeground(graphics.getColor(background));
-		graphics.setBackground(graphics.getColor(foreground));
-		graphics.setLineWidth(2);
+		graphics.setBackground(graphics.getColor(background));
+		graphics.setLineWidth(HIGHLIGHT_BORDER_WIDTH);
 		graphics.drawRect(getAbsoluteLeft(), getAbsoluteTop(), width, height);
+	}
+
+	private void fillBackground(final Graphics graphics, final Color color) {
+		graphics.setForeground(graphics.getColor(color));
+		graphics.setBackground(graphics.getColor(color));
+		graphics.fillRect(getAbsoluteLeft(), getAbsoluteTop(), width, height);
+	}
+
+	private void highlightInside(final Graphics graphics, final Color foreground, final Color background) {
+		fillBackground(graphics, background);
 	}
 
 	@Override

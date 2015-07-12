@@ -149,11 +149,11 @@ public class Cursor {
 		selectionRootBox.accept(new DepthFirstTraversal<Object>() {
 			@Override
 			public Object visit(final NodeReference box) {
-				super.visit(box);
 				if (selectedRange.contains(box.getRange())) {
 					box.highlight(graphics, SELECTION_FOREGROUND_COLOR, SELECTION_BACKGROUND_COLOR);
+					return null;
 				}
-				return null;
+				return super.visit(box);
 			}
 
 			@Override

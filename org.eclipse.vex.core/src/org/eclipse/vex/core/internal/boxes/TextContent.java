@@ -189,6 +189,15 @@ public class TextContent extends BaseBox implements IInlineBox, IContentBox {
 		graphics.setCurrentFont(font);
 	}
 
+	@Override
+	public void highlight(final Graphics graphics, final Color foreground, final Color background) {
+		graphics.setForeground(graphics.getColor(foreground));
+		graphics.setBackground(graphics.getColor(background));
+		graphics.fillRect(getAbsoluteLeft(), getAbsoluteTop(), width, height);
+		applyFont(graphics);
+		graphics.drawString(getText(), getAbsoluteLeft(), getAbsoluteTop());
+	}
+
 	public void highlight(final Graphics graphics, final int startOffset, final int endOffset, final Color foreground, final Color background) {
 		final int highlightStartOffset = Math.max(getStartOffset(), Math.min(startOffset, getEndOffset())) - getStartOffset();
 		final int highlightEndOffset = Math.max(getStartOffset(), Math.min(endOffset, getEndOffset() + 1)) - getStartOffset();

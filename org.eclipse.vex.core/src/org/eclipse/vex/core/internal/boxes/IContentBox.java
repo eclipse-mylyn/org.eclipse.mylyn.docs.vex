@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.boxes;
 
+import org.eclipse.vex.core.internal.core.Color;
 import org.eclipse.vex.core.internal.core.Graphics;
 import org.eclipse.vex.core.internal.core.Rectangle;
 import org.eclipse.vex.core.provisional.dom.ContentRange;
@@ -34,5 +35,7 @@ public interface IContentBox extends IChildBox {
 	Rectangle getPositionArea(Graphics graphics, int offset);
 
 	int getOffsetForCoordinates(Graphics graphics, int x, int y);
+
+	void highlight(Graphics graphics, Color foreground, Color background);
 
 }
