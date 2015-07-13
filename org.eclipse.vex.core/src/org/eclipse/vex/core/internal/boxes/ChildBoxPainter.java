@@ -20,14 +20,14 @@ import org.eclipse.vex.core.internal.core.Rectangle;
  */
 public class ChildBoxPainter {
 
-	public static void paint(final List<IStructuralBox> children, final Graphics graphics) {
+	public static void paint(final List<? extends IChildBox> children, final Graphics graphics) {
 		if (children.isEmpty()) {
 			return;
 		}
 		final Rectangle clipBounds = graphics.getClipBounds();
 		int i = findIndexOfFirstVisibleChild(children, clipBounds);
 		while (i < children.size()) {
-			final IStructuralBox child = children.get(i);
+			final IChildBox child = children.get(i);
 			if (!child.getBounds().intersects(clipBounds)) {
 				break;
 			}
@@ -38,13 +38,13 @@ public class ChildBoxPainter {
 		}
 	}
 
-	public static void paint(final IStructuralBox child, final Graphics graphics) {
+	public static void paint(final IChildBox child, final Graphics graphics) {
 		graphics.moveOrigin(child.getLeft(), child.getTop());
 		child.paint(graphics);
 		graphics.moveOrigin(-child.getLeft(), -child.getTop());
 	}
 
-	private static int findIndexOfFirstVisibleChild(final List<IStructuralBox> children, final Rectangle clipBounds) {
+	private static int findIndexOfFirstVisibleChild(final List<? extends IChildBox> children, final Rectangle clipBounds) {
 		int lowerBound = 0;
 		int upperBound = children.size() - 1;
 

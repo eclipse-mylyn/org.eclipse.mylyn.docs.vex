@@ -61,6 +61,11 @@ public class FakeContentBox extends BaseBox implements IContentBox {
 	}
 
 	@Override
+	public Rectangle getBounds() {
+		return area;
+	}
+
+	@Override
 	public void accept(final IBoxVisitor visitor) {
 		// ignore
 	}

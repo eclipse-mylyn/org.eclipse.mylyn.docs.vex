@@ -13,6 +13,7 @@ package org.eclipse.vex.core.internal.boxes;
 import java.util.ArrayList;
 
 import org.eclipse.vex.core.internal.core.Graphics;
+import org.eclipse.vex.core.internal.core.Rectangle;
 
 /**
  * @author Florian Thienel
@@ -53,6 +54,11 @@ public class RootBox extends BaseBox implements IParentBox<IStructuralBox> {
 
 	public int getHeight() {
 		return height;
+	}
+
+	@Override
+	public Rectangle getBounds() {
+		return new Rectangle(0, 0, width, height);
 	}
 
 	public void accept(final IBoxVisitor visitor) {

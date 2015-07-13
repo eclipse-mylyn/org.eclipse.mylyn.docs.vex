@@ -141,10 +141,6 @@ public class Line {
 	}
 
 	public void paint(final Graphics graphics) {
-		for (final IInlineBox child : children) {
-			graphics.moveOrigin(child.getLeft(), child.getTop());
-			child.paint(graphics);
-			graphics.moveOrigin(-child.getLeft(), -child.getTop());
-		}
+		ChildBoxPainter.paint(children, graphics);
 	}
 }

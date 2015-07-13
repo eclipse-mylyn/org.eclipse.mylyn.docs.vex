@@ -11,6 +11,7 @@
 package org.eclipse.vex.core.internal.boxes;
 
 import org.eclipse.vex.core.internal.core.Graphics;
+import org.eclipse.vex.core.internal.core.Rectangle;
 
 /**
  * @author Florian Thienel
@@ -28,6 +29,8 @@ public interface IBox {
 	int getWidth();
 
 	int getHeight();
+
+	Rectangle getBounds();
 
 	void accept(IBoxVisitor visitor);
 

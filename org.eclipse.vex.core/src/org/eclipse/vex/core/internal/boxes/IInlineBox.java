@@ -11,7 +11,6 @@
 package org.eclipse.vex.core.internal.boxes;
 
 import org.eclipse.vex.core.internal.core.Graphics;
-import org.eclipse.vex.core.internal.core.Rectangle;
 
 /**
  * @author Florian Thienel
@@ -24,11 +23,6 @@ public interface IInlineBox extends IChildBox {
 	 * The baseline is relative to the top of this box.
 	 */
 	int getBaseline();
-
-	/**
-	 * The bounds are always relative to the parent box.
-	 */
-	Rectangle getBounds();
 
 	boolean canJoin(IInlineBox other);
 
