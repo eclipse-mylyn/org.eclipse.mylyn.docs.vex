@@ -102,8 +102,15 @@ public class InlineContainer extends BaseBox implements IInlineBox, IParentBox<I
 
 	@Override
 	public void layout(final Graphics graphics) {
+		layoutChildren(graphics);
 		calculateBoundsAndBaseline();
 		arrangeChildrenOnBaseline();
+	}
+
+	private void layoutChildren(final Graphics graphics) {
+		for (final IInlineBox child : children) {
+			child.layout(graphics);
+		}
 	}
 
 	private void calculateBoundsAndBaseline() {

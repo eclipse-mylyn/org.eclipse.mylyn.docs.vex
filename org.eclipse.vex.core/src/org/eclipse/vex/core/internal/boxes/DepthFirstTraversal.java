@@ -48,6 +48,11 @@ public abstract class DepthFirstTraversal<T> extends BaseBoxVisitorWithResult<T>
 		return traverseChildren(box);
 	}
 
+	@Override
+	public T visit(final InlineContainer box) {
+		return traverseChildren(box);
+	}
+
 	protected final <C extends IBox> T traverseChildren(final IParentBox<C> box) {
 		for (final C child : box.getChildren()) {
 			final T childResult = child.accept(this);
