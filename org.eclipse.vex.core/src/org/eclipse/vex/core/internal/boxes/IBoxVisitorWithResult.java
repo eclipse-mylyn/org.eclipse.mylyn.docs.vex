@@ -27,6 +27,8 @@ public interface IBoxVisitorWithResult<T> {
 
 	T visit(Paragraph box);
 
+	T visit(InlineContainer box);
+
 	T visit(StaticText box);
 
 	T visit(TextContent box);
