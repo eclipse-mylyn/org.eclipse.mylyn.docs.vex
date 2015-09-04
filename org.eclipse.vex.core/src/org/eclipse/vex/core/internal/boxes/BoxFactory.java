@@ -54,32 +54,32 @@ public class BoxFactory {
 		return frame;
 	}
 
-	public static NodeReference nodeReference(final INode node) {
-		final NodeReference nodeReference = new NodeReference();
-		nodeReference.setNode(node);
-		return nodeReference;
+	public static StructuralNodeReference structuralNodeReference(final INode node) {
+		final StructuralNodeReference structuralNodeReference = new StructuralNodeReference();
+		structuralNodeReference.setNode(node);
+		return structuralNodeReference;
 	}
 
-	public static NodeReference nodeReference(final INode node, final IStructuralBox component) {
-		final NodeReference nodeReference = new NodeReference();
-		nodeReference.setNode(node);
-		nodeReference.setComponent(component);
-		return nodeReference;
+	public static StructuralNodeReference structuralNodeReference(final INode node, final IStructuralBox component) {
+		final StructuralNodeReference structuralNodeReference = new StructuralNodeReference();
+		structuralNodeReference.setNode(node);
+		structuralNodeReference.setComponent(component);
+		return structuralNodeReference;
 	}
 
-	public static NodeReference nodeReferenceWithText(final INode node) {
-		final NodeReference nodeReference = new NodeReference();
-		nodeReference.setNode(node);
-		nodeReference.setCanContainText(true);
-		return nodeReference;
+	public static StructuralNodeReference nodeReferenceWithText(final INode node) {
+		final StructuralNodeReference structuralNodeReference = new StructuralNodeReference();
+		structuralNodeReference.setNode(node);
+		structuralNodeReference.setCanContainText(true);
+		return structuralNodeReference;
 	}
 
-	public static NodeReference nodeReferenceWithText(final INode node, final IStructuralBox component) {
-		final NodeReference nodeReference = new NodeReference();
-		nodeReference.setNode(node);
-		nodeReference.setCanContainText(true);
-		nodeReference.setComponent(component);
-		return nodeReference;
+	public static StructuralNodeReference nodeReferenceWithText(final INode node, final IStructuralBox component) {
+		final StructuralNodeReference structuralNodeReference = new StructuralNodeReference();
+		structuralNodeReference.setNode(node);
+		structuralNodeReference.setCanContainText(true);
+		structuralNodeReference.setComponent(component);
+		return structuralNodeReference;
 	}
 
 	public static HorizontalBar horizontalBar(final int height) {

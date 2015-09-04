@@ -21,7 +21,7 @@ public interface IBoxVisitorWithResult<T> {
 
 	T visit(Frame box);
 
-	T visit(NodeReference box);
+	T visit(StructuralNodeReference box);
 
 	T visit(HorizontalBar box);
 

@@ -41,7 +41,7 @@ public class BaseBoxVisitorWithResult<T> implements IBoxVisitorWithResult<T> {
 	}
 
 	@Override
-	public T visit(final NodeReference box) {
+	public T visit(final StructuralNodeReference box) {
 		return defaultValue;
 	}
 

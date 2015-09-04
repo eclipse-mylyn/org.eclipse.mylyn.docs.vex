@@ -10,7 +10,7 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.visualization;
 
-import static org.eclipse.vex.core.internal.boxes.BoxFactory.nodeReference;
+import static org.eclipse.vex.core.internal.boxes.BoxFactory.structuralNodeReference;
 import static org.eclipse.vex.core.internal.boxes.BoxFactory.rootBox;
 import static org.eclipse.vex.core.internal.boxes.BoxFactory.verticalBlock;
 
@@ -20,6 +20,6 @@ import org.eclipse.vex.core.provisional.dom.IDocument;
 public final class DocumentRootVisualization extends NodeVisualization<RootBox> {
 	@Override
 	public RootBox visit(final IDocument document) {
-		return rootBox(nodeReference(document, visualizeChildrenStructure(document.children(), verticalBlock())));
+		return rootBox(structuralNodeReference(document, visualizeChildrenStructure(document.children(), verticalBlock())));
 	}
 }

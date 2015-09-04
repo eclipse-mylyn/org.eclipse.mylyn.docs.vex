@@ -20,7 +20,7 @@ import org.eclipse.vex.core.provisional.dom.INode;
 /**
  * @author Florian Thienel
  */
-public class NodeReference extends BaseBox implements IStructuralBox, IDecoratorBox<IStructuralBox>, IContentBox {
+public class StructuralNodeReference extends BaseBox implements IStructuralBox, IDecoratorBox<IStructuralBox>, IContentBox {
 
 	private static final float HIGHLIGHT_LIGHTEN_AMOUNT = 0.6f;
 	private static final int HIGHLIGHT_BORDER_WIDTH = 4;
@@ -165,8 +165,8 @@ public class NodeReference extends BaseBox implements IStructuralBox, IDecorator
 
 		accept(new DepthFirstTraversal<Object>() {
 			@Override
-			public Object visit(final NodeReference box) {
-				if (box != NodeReference.this) {
+			public Object visit(final StructuralNodeReference box) {
+				if (box != StructuralNodeReference.this) {
 					box.highlightInside(graphics, foreground, lightBackground);
 				}
 				return super.visit(box);

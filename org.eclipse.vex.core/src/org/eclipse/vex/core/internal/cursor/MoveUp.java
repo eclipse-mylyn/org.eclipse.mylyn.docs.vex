@@ -13,7 +13,7 @@ package org.eclipse.vex.core.internal.cursor;
 import org.eclipse.vex.core.internal.boxes.BaseBoxVisitorWithResult;
 import org.eclipse.vex.core.internal.boxes.DepthFirstTraversal;
 import org.eclipse.vex.core.internal.boxes.IContentBox;
-import org.eclipse.vex.core.internal.boxes.NodeReference;
+import org.eclipse.vex.core.internal.boxes.StructuralNodeReference;
 import org.eclipse.vex.core.internal.boxes.ParentTraversal;
 import org.eclipse.vex.core.internal.boxes.TextContent;
 import org.eclipse.vex.core.internal.core.Graphics;
@@ -62,7 +62,7 @@ public class MoveUp implements ICursorMove {
 	private static boolean canHaveChildren(final IContentBox box) {
 		return box.accept(new BaseBoxVisitorWithResult<Boolean>(false) {
 			@Override
-			public Boolean visit(final NodeReference box) {
+			public Boolean visit(final StructuralNodeReference box) {
 				return true;
 			}
 		});
@@ -71,7 +71,7 @@ public class MoveUp implements ICursorMove {
 	private static boolean canContainText(final IContentBox box) {
 		return box.accept(new BaseBoxVisitorWithResult<Boolean>(false) {
 			@Override
-			public Boolean visit(final NodeReference box) {
+			public Boolean visit(final StructuralNodeReference box) {
 				return box.canContainText();
 			}
 		});
@@ -80,7 +80,7 @@ public class MoveUp implements ICursorMove {
 	private static IContentBox getParent(final IContentBox childBox) {
 		return childBox.accept(new ParentTraversal<IContentBox>() {
 			@Override
-			public IContentBox visit(final NodeReference box) {
+			public IContentBox visit(final StructuralNodeReference box) {
 				if (box == childBox) {
 					return super.visit(box);
 				}
@@ -94,7 +94,7 @@ public class MoveUp implements ICursorMove {
 			private IContentBox lastChild;
 
 			@Override
-			public IContentBox visit(final NodeReference box) {
+			public IContentBox visit(final StructuralNodeReference box) {
 				if (box == parent) {
 					super.visit(box);
 					return lastChild;
@@ -131,7 +131,7 @@ public class MoveUp implements ICursorMove {
 
 		final IContentBox boxAbove = neighbourAbove.box.accept(new BaseBoxVisitorWithResult<IContentBox>() {
 			@Override
-			public IContentBox visit(final NodeReference box) {
+			public IContentBox visit(final StructuralNodeReference box) {
 				if (box.canContainText()) {
 					final IContentBox lastChild = deepestLastChild(box);
 					if (!lastChild.isLeftOf(x)) {
@@ -158,7 +158,7 @@ public class MoveUp implements ICursorMove {
 			private IContentBox lastChild;
 
 			@Override
-			public IContentBox visit(final NodeReference box) {
+			public IContentBox visit(final StructuralNodeReference box) {
 				lastChild = box;
 				super.visit(box);
 				if (box == parentBox) {

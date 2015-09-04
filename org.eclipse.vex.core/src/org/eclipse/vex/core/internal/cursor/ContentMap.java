@@ -12,7 +12,7 @@ package org.eclipse.vex.core.internal.cursor;
 
 import org.eclipse.vex.core.internal.boxes.DepthFirstTraversal;
 import org.eclipse.vex.core.internal.boxes.IContentBox;
-import org.eclipse.vex.core.internal.boxes.NodeReference;
+import org.eclipse.vex.core.internal.boxes.StructuralNodeReference;
 import org.eclipse.vex.core.internal.boxes.RootBox;
 import org.eclipse.vex.core.internal.boxes.TextContent;
 import org.eclipse.vex.core.provisional.dom.ContentRange;
@@ -33,7 +33,7 @@ public class ContentMap {
 	private IContentBox findOutmostContentBox() {
 		return rootBox.accept(new DepthFirstTraversal<IContentBox>(null) {
 			@Override
-			public IContentBox visit(final NodeReference box) {
+			public IContentBox visit(final StructuralNodeReference box) {
 				return box;
 			}
 
@@ -58,7 +58,7 @@ public class ContentMap {
 	public IContentBox findBoxForPosition(final int offset) {
 		return rootBox.accept(new DepthFirstTraversal<IContentBox>() {
 			@Override
-			public IContentBox visit(final NodeReference box) {
+			public IContentBox visit(final StructuralNodeReference box) {
 				if (box.getStartOffset() == offset || box.getEndOffset() == offset) {
 					return box;
 				}
@@ -81,7 +81,7 @@ public class ContentMap {
 	public IContentBox findBoxForRange(final ContentRange range) {
 		return rootBox.accept(new DepthFirstTraversal<IContentBox>() {
 			@Override
-			public IContentBox visit(final NodeReference box) {
+			public IContentBox visit(final StructuralNodeReference box) {
 				if (box.getRange().contains(range)) {
 					final IContentBox childBox = box.getComponent().accept(this);
 					if (childBox == null) {
@@ -109,7 +109,7 @@ public class ContentMap {
 		final Neighbourhood neighbours = new Neighbourhood();
 		rootBox.accept(new DepthFirstTraversal<IContentBox>() {
 			@Override
-			public IContentBox visit(final NodeReference box) {
+			public IContentBox visit(final StructuralNodeReference box) {
 				super.visit(box);
 				if (box.isAbove(y)) {
 					neighbours.setAbove(box, y - box.getAbsoluteTop() - box.getHeight(), preferClosest);

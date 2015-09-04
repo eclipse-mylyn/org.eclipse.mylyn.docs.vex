@@ -21,7 +21,7 @@ public interface IBoxVisitor {
 
 	void visit(Frame box);
 
-	void visit(NodeReference box);
+	void visit(StructuralNodeReference box);
 
 	void visit(HorizontalBar box);
 

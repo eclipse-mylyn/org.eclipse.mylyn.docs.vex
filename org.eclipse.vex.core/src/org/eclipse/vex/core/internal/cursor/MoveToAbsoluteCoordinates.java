@@ -12,7 +12,7 @@ package org.eclipse.vex.core.internal.cursor;
 
 import org.eclipse.vex.core.internal.boxes.BaseBoxVisitorWithResult;
 import org.eclipse.vex.core.internal.boxes.IContentBox;
-import org.eclipse.vex.core.internal.boxes.NodeReference;
+import org.eclipse.vex.core.internal.boxes.StructuralNodeReference;
 import org.eclipse.vex.core.internal.boxes.ParentTraversal;
 import org.eclipse.vex.core.internal.boxes.TextContent;
 import org.eclipse.vex.core.internal.core.Graphics;
@@ -67,7 +67,7 @@ public class MoveToAbsoluteCoordinates implements ICursorMove {
 		}
 		return environment.deepestContainer.accept(new BaseBoxVisitorWithResult<IContentBox>() {
 			@Override
-			public IContentBox visit(final NodeReference box) {
+			public IContentBox visit(final StructuralNodeReference box) {
 				final IContentBox closestOnLine = environment.neighbours.getClosestOnLine().box;
 				if (closestOnLine != null) {
 					return closestOnLine;
@@ -93,7 +93,7 @@ public class MoveToAbsoluteCoordinates implements ICursorMove {
 	private static IContentBox findParentContentBox(final IContentBox child) {
 		return child.accept(new ParentTraversal<IContentBox>() {
 			@Override
-			public IContentBox visit(final NodeReference box) {
+			public IContentBox visit(final StructuralNodeReference box) {
 				if (child == box) {
 					return super.visit(box);
 				}

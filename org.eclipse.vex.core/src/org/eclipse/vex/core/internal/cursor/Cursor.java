@@ -16,7 +16,7 @@ import org.eclipse.vex.core.internal.boxes.BaseBoxVisitorWithResult;
 import org.eclipse.vex.core.internal.boxes.DepthFirstTraversal;
 import org.eclipse.vex.core.internal.boxes.IBox;
 import org.eclipse.vex.core.internal.boxes.IContentBox;
-import org.eclipse.vex.core.internal.boxes.NodeReference;
+import org.eclipse.vex.core.internal.boxes.StructuralNodeReference;
 import org.eclipse.vex.core.internal.boxes.RootBox;
 import org.eclipse.vex.core.internal.boxes.TextContent;
 import org.eclipse.vex.core.internal.core.Color;
@@ -142,7 +142,7 @@ public class Cursor {
 		final IBox selectionRootBox = contentMap.findBoxForRange(selectedRange);
 		selectionRootBox.accept(new DepthFirstTraversal<Object>() {
 			@Override
-			public Object visit(final NodeReference box) {
+			public Object visit(final StructuralNodeReference box) {
 				if (selectedRange.contains(box.getRange())) {
 					box.highlight(graphics, SELECTION_FOREGROUND_COLOR, SELECTION_BACKGROUND_COLOR);
 					return null;
@@ -163,7 +163,7 @@ public class Cursor {
 	private Caret getCaretForBox(final Graphics graphics, final IContentBox box, final int offset) {
 		return box.accept(new BaseBoxVisitorWithResult<Caret>() {
 			@Override
-			public Caret visit(final NodeReference box) {
+			public Caret visit(final StructuralNodeReference box) {
 				return getCaretForNode(graphics, box, offset);
 			}
 
@@ -174,7 +174,7 @@ public class Cursor {
 		});
 	}
 
-	private Caret getCaretForNode(final Graphics graphics, final NodeReference box, final int offset) {
+	private Caret getCaretForNode(final Graphics graphics, final StructuralNodeReference box, final int offset) {
 		final Rectangle area = getAbsolutePositionArea(graphics, box, offset);
 		if (box.isAtStart(offset)) {
 			return new InsertBeforeNodeCaret(area, box.getNode());
@@ -193,7 +193,7 @@ public class Cursor {
 		}
 		return box.accept(new BaseBoxVisitorWithResult<Rectangle>() {
 			@Override
-			public Rectangle visit(final NodeReference box) {
+			public Rectangle visit(final StructuralNodeReference box) {
 				if (box.isAtStart(offset)) {
 					return makeAbsolute(box.getPositionArea(graphics, offset), box);
 				} else if (box.isAtEnd(offset) && box.canContainText() && !box.isEmpty()) {

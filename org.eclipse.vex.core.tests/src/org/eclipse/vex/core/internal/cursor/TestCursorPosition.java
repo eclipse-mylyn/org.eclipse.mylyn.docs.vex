@@ -20,7 +20,7 @@ import static org.junit.Assert.assertEquals;
 
 import org.eclipse.vex.core.internal.boxes.DepthFirstTraversal;
 import org.eclipse.vex.core.internal.boxes.IContentBox;
-import org.eclipse.vex.core.internal.boxes.NodeReference;
+import org.eclipse.vex.core.internal.boxes.StructuralNodeReference;
 import org.eclipse.vex.core.internal.boxes.RootBox;
 import org.eclipse.vex.core.internal.boxes.TextContent;
 import org.eclipse.vex.core.internal.io.UniversalTestDocument;
@@ -427,7 +427,7 @@ public class TestCursorPosition {
 			private String indent = "";
 
 			@Override
-			public Object visit(final NodeReference box) {
+			public Object visit(final StructuralNodeReference box) {
 				printBox(box);
 				indent += " ";
 				super.visit(box);

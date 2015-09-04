@@ -39,7 +39,7 @@ public abstract class DepthFirstTraversal<T> extends BaseBoxVisitorWithResult<T>
 	}
 
 	@Override
-	public T visit(final NodeReference box) {
+	public T visit(final StructuralNodeReference box) {
 		return box.getComponent().accept(this);
 	}
 

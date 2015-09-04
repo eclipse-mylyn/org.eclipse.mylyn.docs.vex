@@ -16,7 +16,7 @@ import org.eclipse.vex.core.internal.boxes.BaseBoxVisitorWithResult;
 import org.eclipse.vex.core.internal.boxes.DepthFirstTraversal;
 import org.eclipse.vex.core.internal.boxes.IContentBox;
 import org.eclipse.vex.core.internal.boxes.IStructuralBox;
-import org.eclipse.vex.core.internal.boxes.NodeReference;
+import org.eclipse.vex.core.internal.boxes.StructuralNodeReference;
 import org.eclipse.vex.core.internal.boxes.RootBox;
 import org.eclipse.vex.core.internal.boxes.TextContent;
 import org.eclipse.vex.core.internal.cursor.ContentMap;
@@ -74,13 +74,13 @@ public class DOMVisualization {
 		final IStructuralBox newBox = visualizationChain.visualizeStructure(node);
 		final IStructuralBox newChildBox = newBox.accept(new BaseBoxVisitorWithResult<IStructuralBox>(newBox) {
 			@Override
-			public IStructuralBox visit(final NodeReference box) {
+			public IStructuralBox visit(final StructuralNodeReference box) {
 				return box.getComponent();
 			}
 		});
 		modifiedBox.accept(new BaseBoxVisitor() {
 			@Override
-			public void visit(final NodeReference box) {
+			public void visit(final StructuralNodeReference box) {
 				box.setComponent(newChildBox);
 			}
 		});
@@ -104,7 +104,7 @@ public class DOMVisualization {
 			private TextContent lastTextContentBox;
 
 			@Override
-			public Object visit(final NodeReference box) {
+			public Object visit(final StructuralNodeReference box) {
 				lastEndOffset = box.getStartOffset();
 				box.getComponent().accept(this);
 

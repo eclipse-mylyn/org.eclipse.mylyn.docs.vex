@@ -34,7 +34,7 @@ public class ParentTraversal<T> extends BaseBoxVisitorWithResult<T> {
 	}
 
 	@Override
-	public T visit(final NodeReference box) {
+	public T visit(final StructuralNodeReference box) {
 		return box.getParent().accept(this);
 	}
 
