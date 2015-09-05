@@ -23,6 +23,8 @@
   <setupTask
       xsi:type="setup.p2:P2Task">
     <requirement
+        name="org.eclipse.pde.feature.group"/>
+    <requirement
         name="org.eclipse.pde.api.tools.ee.feature.feature.group"/>
     <requirement
         name="org.eclipse.oomph.version.feature.group"/>
@@ -63,16 +65,9 @@
   </setupTask>
   <setupTask
       xsi:type="setup:VariableTask"
-      name="tp.materialization.url"
-      label="Target Platform">
-    <choice
-        value="http://download.eclipse.org/releases/kepler"
-        label="Kepler - 4.3"/>
-    <choice
-        value="http://download.eclipse.org/releases/luna"
-        label="Luna - 4.4"/>
-    <description>The release train repository location that will be used to materialize a target platform.  Vex is built and tested with Eclipse 4.3, i.e., Kepler.</description>
-  </setupTask>
+      name="eclipse.target.platform"
+      defaultValue="Luna"
+      storageURI="scope://Workspace"/>
   <stream name="master">
     <setupTask
         xsi:type="git:GitCloneTask"
@@ -99,7 +94,8 @@
         xsi:type="setup.targlets:TargletTask">
       <targlet
           name="Vex"
-          activeRepositoryList="">
+          activeRepositoryList="${eclipse.target.platform}"
+          includeAllPlatforms="true">
         <requirement
             name="org.eclipse.platform.feature.group"/>
         <requirement
@@ -119,9 +115,23 @@
         <sourceLocator
             rootFolder="${git.clone.vex.location}"/>
         <repositoryList
-            name="Dependencies">
+            name="Mars">
           <repository
-              url="${tp.materialization.url}"/>
+              url="http://download.eclipse.org/releases/mars"/>
+          <repository
+              url="http://download.eclipse.org/modeling/emf/cdo/orbit/latest-R"/>
+        </repositoryList>
+        <repositoryList
+            name="Luna">
+          <repository
+              url="http://download.eclipse.org/releases/luna"/>
+          <repository
+              url="http://download.eclipse.org/modeling/emf/cdo/orbit/latest-R"/>
+        </repositoryList>
+        <repositoryList
+            name="Kepler">
+          <repository
+              url="http://download.eclipse.org/releases/kepler"/>
           <repository
               url="http://download.eclipse.org/modeling/emf/cdo/orbit/latest-R"/>
         </repositoryList>
