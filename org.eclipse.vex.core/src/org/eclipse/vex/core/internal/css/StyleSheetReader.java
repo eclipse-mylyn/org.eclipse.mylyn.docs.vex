@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2013 John Krasnay and others.
+ * Copyright (c) 2004, 2015 John Krasnay and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -46,6 +46,8 @@ public class StyleSheetReader {
 	public static Parser createParser() {
 		final Parser parser = new org.apache.batik.css.parser.Parser() {
 
+			private InputStream is;
+
 			/**
 			 * The batik implementation uses hardcoded values. This Override allows custom PseudoElements.
 			 */
@@ -73,7 +75,7 @@ public class StyleSheetReader {
 					return new CssScanner(r);
 				}
 
-				InputStream is = source.getByteStream();
+				is = source.getByteStream();
 				if (is != null) {
 					return new CssScanner(is, source.getEncoding());
 				}
@@ -88,6 +90,12 @@ public class StyleSheetReader {
 					is = purl.openStreamRaw(CSSConstants.CSS_MIME_TYPE);
 					return new CssScanner(is, source.getEncoding());
 				} catch (final IOException e) {
+					if (is != null) {
+						try {
+							is.close();
+						} catch (final IOException e1) {
+						}
+					}
 					throw new CSSException(e);
 				}
 			}
@@ -103,6 +111,30 @@ public class StyleSheetReader {
 					((CssScanner) scanner).joinIdentifier();
 				}
 				super.parseRuleSet();
+			}
+
+			/**
+			 * Override to close the input stream.
+			 */
+			@Override
+			public void parseStyleSheet(final InputSource source) throws CSSException, IOException {
+				try {
+					super.parseStyleSheet(source);
+				} finally {
+					closeInputStream();
+				}
+			}
+
+			/**
+			 * The original implementation does not close the input stream!
+			 */
+			public void closeInputStream() {
+				if (is != null) {
+					try {
+						is.close();
+					} catch (final IOException e1) {
+					}
+				}
 			}
 
 		};
