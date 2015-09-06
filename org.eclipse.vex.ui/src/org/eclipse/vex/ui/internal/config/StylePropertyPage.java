@@ -12,6 +12,8 @@
  *******************************************************************************/
 package org.eclipse.vex.ui.internal.config;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -121,8 +123,14 @@ public class StylePropertyPage extends PropertyPage {
 		style = (Style) pluginProject.getItemForResource(file);
 		if (style == null) {
 			style = new Style(pluginProject);
-			style.setResourceUri(file.getLocationURI());
-			pluginProject.addItem(style);
+			URI uri;
+			try {
+				uri = new URI(file.getProjectRelativePath().toString());
+				style.setResourceUri(uri);
+				pluginProject.addItem(style);
+			} catch (final URISyntaxException e) {
+				// This should never happen
+			}
 		}
 
 		// Generate a simple ID for this one if necessary

@@ -12,7 +12,9 @@
 package org.eclipse.vex.ui.internal.config;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -88,9 +90,11 @@ public abstract class ConfigSource {
 			return null;
 		}
 		final ConfigItem item = factory.createItem(this, configElements);
-		item.setSimpleId(simpleIdentifier);
-		item.setName(name);
-		this.addItem(item);
+		if (item != null) {
+			item.setSimpleId(simpleIdentifier);
+			item.setName(name);
+			this.addItem(item);
+		}
 		return item;
 
 	}
@@ -176,7 +180,16 @@ public abstract class ConfigSource {
 	 */
 	public ConfigItem getItemForResource(final IResource resource) {
 		for (final ConfigItem item : items) {
-			if (item.getResourceUri().equals(resource.getLocationURI())) {
+			URI uri;
+			try {
+				uri = new URL(getBaseUrl(), item.getResourceUri().toString()).toURI();
+			} catch (final MalformedURLException e) {
+				return null;
+			} catch (final URISyntaxException e) {
+				return null;
+			}
+			
+			if (resource.getLocationURI().equals(uri)) {
 				return item;
 			}
 		}
