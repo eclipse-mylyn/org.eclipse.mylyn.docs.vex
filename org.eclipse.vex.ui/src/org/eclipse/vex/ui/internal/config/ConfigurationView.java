@@ -89,7 +89,7 @@ public class ConfigurationView extends ViewPart {
 				return VexPlugin.getDefault().getConfigurationRegistry();
 			}
 			if (element instanceof Style) {
-				return VexPlugin.getDefault().getConfigurationRegistry().getDocumentType(((Style) element).getDocumentTypes().iterator().next(), null);
+				return VexPlugin.getDefault().getConfigurationRegistry().getDocumentType(((Style) element).getDocumentTypeIds().iterator().next(), null);
 			}
 			return null;
 		}

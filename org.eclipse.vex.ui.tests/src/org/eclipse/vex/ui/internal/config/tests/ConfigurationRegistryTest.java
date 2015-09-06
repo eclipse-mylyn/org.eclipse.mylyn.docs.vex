@@ -21,6 +21,7 @@ import java.util.Collections;
 import java.util.List;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.vex.ui.internal.config.ConfigEvent;
 import org.eclipse.vex.ui.internal.config.ConfigLoaderJob;
 import org.eclipse.vex.ui.internal.config.ConfigSource;
@@ -42,12 +43,21 @@ import org.junit.rules.TestName;
 public class ConfigurationRegistryTest {
 
 	private ConfigurationRegistry registry;
+	private IProject project;
 
 	@Rule
 	public TestName name = new TestName();
 
 	@After
 	public void disposeRegistry() {
+		if (project != null) {
+			try {
+				project.delete(true, null);
+			} catch (final CoreException e) {
+			}
+		}
+		project = null;
+
 		if (registry != null) {
 			registry.dispose();
 		}
@@ -78,7 +88,7 @@ public class ConfigurationRegistryTest {
 		registry.addConfigListener(configListener);
 		registry.loadConfigurations();
 		configListener.reset();
-		final IProject project = PluginProjectTest.createVexPluginProject(name.getMethodName());
+		project = PluginProjectTest.createVexPluginProject(name.getMethodName());
 		assertFalse(configListener.loaded);
 		assertTrue(configListener.changed);
 		assertNotNull(registry.getPluginProject(project));
@@ -88,7 +98,7 @@ public class ConfigurationRegistryTest {
 	public void reloadModifiedPluginProjectAndFireConfigChangedEvent() throws Exception {
 		registry = new ConfigurationRegistryImpl(new MockConfigurationLoader());
 		registry.loadConfigurations();
-		final IProject project = PluginProjectTest.createVexPluginProject(name.getMethodName());
+		project = PluginProjectTest.createVexPluginProject(name.getMethodName());
 		final MockConfigListener configListener = new MockConfigListener();
 		project.getFile("plugintest2.css").create(new ByteArrayInputStream(new byte[0]), true, null);
 		final String fileContent = PluginProjectTest.createVexPluginFileContent(project, "plugintest.dtd", "plugintest.css", "plugintest2.css");
@@ -104,7 +114,7 @@ public class ConfigurationRegistryTest {
 	public void removeDeletedPluginProjectAndFireConfigChangedEvent() throws Exception {
 		registry = new ConfigurationRegistryImpl(new MockConfigurationLoader());
 		registry.loadConfigurations();
-		final IProject project = PluginProjectTest.createVexPluginProject(name.getMethodName());
+		project = PluginProjectTest.createVexPluginProject(name.getMethodName());
 		final MockConfigListener configListener = new MockConfigListener();
 		registry.addConfigListener(configListener);
 		project.getFile("plugintest.css").delete(true, null);

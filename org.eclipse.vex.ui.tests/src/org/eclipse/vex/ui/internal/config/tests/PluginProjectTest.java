@@ -26,6 +26,11 @@ import org.eclipse.vex.ui.internal.config.PluginProjectNature;
  */
 public class PluginProjectTest {
 
+	public static final String CSS_FILE_NAME = "plugintest.css";
+	public static final String CSS_ID = "plugintest";
+	public static final String DTD_FILE_NAME = "plugintest.dtd";
+	public static final String DTD_DOCTYPE_ID = "-//Vex//Plugin Test//EN";
+
 	public static IProject createVexPluginProject(final String name) throws CoreException {
 		final IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(name);
 		if (project.exists()) {
@@ -33,8 +38,8 @@ public class PluginProjectTest {
 		}
 		project.create(null);
 		project.open(null);
-		project.getFile("plugintest.dtd").create(new ByteArrayInputStream(new byte[0]), true, null);
-		project.getFile("plugintest.css").create(new ByteArrayInputStream(new byte[0]), true, null);
+		project.getFile(DTD_FILE_NAME).create(new ByteArrayInputStream(new byte[0]), true, null);
+		project.getFile(CSS_FILE_NAME).create(new ByteArrayInputStream(new byte[0]), true, null);
 		createVexPluginFile(project);
 		addVexProjectNature(project);
 		return project;
@@ -46,7 +51,7 @@ public class PluginProjectTest {
 	}
 
 	public static String createVexPluginFileContent(final IProject project) {
-		return createVexPluginFileContent(project, "plugintest.dtd", "plugintest.css");
+		return createVexPluginFileContent(project, DTD_FILE_NAME, CSS_FILE_NAME);
 	}
 
 	public static String createVexPluginFileContent(final IProject project, final String dtdFilename, final String... styleFilenames) {
@@ -55,12 +60,12 @@ public class PluginProjectTest {
 		out.println("<?xml version='1.0'?>"); //$NON-NLS-1$
 		// HINT: It is important to set the id attribute, because this is used as the unique identifier for the configuration.
 		out.println("<plugin id=\"" + project.getName() + "\">"); //$NON-NLS-1$ //$NON-NLS-2$
-		out.println("<extension id=\"plugintest\" name=\"plugin test doctype\" point=\"org.eclipse.vex.ui.doctypes\">"); //$NON-NLS-1$
-		out.println("<doctype systemId=\"" + dtdFilename + "\" dtd=\"" + dtdFilename + "\" publicId=\"-//Vex//Plugin Test//EN\" />"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
+		out.println("<extension id=\"plugintest\" name=\"" + DTD_FILE_NAME + "\" point=\"org.eclipse.vex.ui.doctypes\">"); //$NON-NLS-1$ //$NON-NLS-2$
+		out.println("<doctype systemId=\"" + dtdFilename + "\" dtd=\"" + dtdFilename + "\" publicId=\"" + DTD_DOCTYPE_ID + "\" />"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		out.println("</extension>"); //$NON-NLS-1$
 		for (final String styleFilename : styleFilenames) {
 			out.println("<extension id=\"plugintest\" name=\"plugin test style\" point=\"org.eclipse.vex.ui.styles\">"); //$NON-NLS-1$
-			out.println("<style css=\"" + styleFilename + "\"><doctypeRef publicId=\"-//Vex//Plugin Test//EN\" /></style>"); //$NON-NLS-1$ //$NON-NLS-2$
+			out.println("<style css=\"" + styleFilename + "\"><doctypeRef publicId=\"" + DTD_DOCTYPE_ID + "\" /></style>"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			out.println("</extension>"); //$NON-NLS-1$
 		}
 		out.println("</plugin>"); //$NON-NLS-1$

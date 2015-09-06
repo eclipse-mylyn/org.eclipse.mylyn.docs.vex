@@ -140,6 +140,11 @@ public abstract class ConfigItem implements Comparable<ConfigItem> {
 		this.id = id;
 	}
 
+	@Override
+	public String toString() {
+		return getUniqueId();
+	}
+
 	// ==================================================== PRIVATE
 
 	private String id;

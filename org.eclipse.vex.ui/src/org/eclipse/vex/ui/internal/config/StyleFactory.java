@@ -32,9 +32,9 @@ public class StyleFactory implements IConfigItemFactory {
 		final Style style = (Style) item;
 		final ConfigurationElement element = new ConfigurationElement("style"); //$NON-NLS-1$
 		element.setAttribute("css", style.getResourceUri().toString()); //$NON-NLS-1$
-		for (final String publicId : style.getDocumentTypes()) {
+		for (final String doctypeId : style.getDocumentTypeIds()) {
 			final ConfigurationElement child = new ConfigurationElement("doctypeRef"); //$NON-NLS-1$
-			child.setAttribute("publicId", publicId); //$NON-NLS-1$
+			child.setAttribute("doctypeId", doctypeId); //$NON-NLS-1$
 			element.addChild(child);
 		}
 		return new IConfigElement[] { element };
@@ -54,7 +54,13 @@ public class StyleFactory implements IConfigItemFactory {
 		final IConfigElement[] doctypeRefs = configElement.getChildren();
 
 		for (final IConfigElement doctypeRef : doctypeRefs) {
-			style.addDocumentType(doctypeRef.getAttribute("publicId")); //$NON-NLS-1$
+			if (doctypeRef.getAttribute("publicId") != null) {
+				// This is for compatibility to older versions
+				style.addDocumentType(doctypeRef.getAttribute("publicId")); //$NON-NLS-1$
+			}
+			if (doctypeRef.getAttribute("doctypeId") != null) {
+				style.addDocumentType(doctypeRef.getAttribute("doctypeId")); //$NON-NLS-1$
+			}
 		}
 
 		return style;
