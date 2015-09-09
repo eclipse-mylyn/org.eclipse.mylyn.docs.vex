@@ -332,6 +332,7 @@ public class Document extends Parent implements IDocument {
 				fireContentInserted(new ContentChangeEvent(Document.this, pi.getParent(), new ContentRange(offset, offset + adjustedText.length() - 1), false));
 			}
 
+			@Override
 			public void visit(final IIncludeNode document) {
 				Assert.isTrue(false, "Cannot insert text into an Include.");
 			}

@@ -188,7 +188,7 @@ public abstract class ConfigSource {
 			} catch (final URISyntaxException e) {
 				return null;
 			}
-			
+
 			if (resource.getLocationURI().equals(uri)) {
 				return item;
 			}

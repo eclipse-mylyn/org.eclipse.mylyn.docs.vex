@@ -160,7 +160,7 @@ public class BaseVexWidget implements IVexWidget {
 
 			/*
 			 * Flush cached styles, since they might depend attribute values via conditional selectors.
-			 * 
+			 *
 			 * This cast is save because this event is only fired due to the attribute changes of elements.
 			 */
 			getStyleSheet().flushStyles(e.getParent());
@@ -715,8 +715,7 @@ public class BaseVexWidget implements IVexWidget {
 		return result;
 	}
 
-	private static void filterInvalidSequences(final IValidator validator, final IElement parent, final List<QualifiedName> nodesBefore, final List<QualifiedName> nodesAfter,
-			final List<QualifiedName> candidates) {
+	private static void filterInvalidSequences(final IValidator validator, final IElement parent, final List<QualifiedName> nodesBefore, final List<QualifiedName> nodesAfter, final List<QualifiedName> candidates) {
 		final int sequenceLength = nodesBefore.size() + 1 + nodesAfter.size();
 		for (final Iterator<QualifiedName> iterator = candidates.iterator(); iterator.hasNext();) {
 			final QualifiedName candidate = iterator.next();
@@ -1220,8 +1219,7 @@ public class BaseVexWidget implements IVexWidget {
 		return validator.isValidSequence(elementName, content, true);
 	}
 
-	private static boolean isValidChild(final IValidator validator, final QualifiedName parentName, final QualifiedName elementName, final List<QualifiedName> nodesBefore,
-			final List<QualifiedName> nodesAfter) {
+	private static boolean isValidChild(final IValidator validator, final QualifiedName parentName, final QualifiedName elementName, final List<QualifiedName> nodesBefore, final List<QualifiedName> nodesAfter) {
 		return validator.isValidSequence(parentName, nodesBefore, Arrays.asList(elementName), nodesAfter, true);
 	}
 
@@ -2050,7 +2048,8 @@ public class BaseVexWidget implements IVexWidget {
 	 * Returns true if the given offset represents the boundary between two different elements with the same name and
 	 * parent. This is used to determine if the elements can be joined via joinElementsAt.
 	 *
-	 * @param int offset The offset to check.
+	 * @param int
+	 *            offset The offset to check.
 	 */
 	private boolean isBetweenMatchingElements(final int offset) {
 		if (offset <= 1 || offset >= document.getLength() - 1) {

@@ -146,7 +146,7 @@ public class ContentPositionTest {
 		 * this case, the last caret position in the second line will be before the last character of the second line.
 		 * The position after that character is not reachable on the second line. It is actually at the beginning of the
 		 * third line.
-		 * 
+		 *
 		 * In fact there is no common behaviour among other editors (like Word, Open Office or Notepad++), so we stick
 		 * with this solution as it works fine for the moment and the case (no spaces in one line of text) is really
 		 * rare.

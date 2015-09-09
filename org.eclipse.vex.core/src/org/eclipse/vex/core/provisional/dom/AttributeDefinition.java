@@ -31,8 +31,8 @@ public class AttributeDefinition implements Comparable<AttributeDefinition> {
 	/**
 	 * The attribute's type.
 	 *
-	 * @see <a
-	 *      href="http://www.w3.org/TR/REC-xml/#sec-attribute-types">http://www.w3.org/TR/REC-xml/#sec-attribute-types</a>
+	 * @see <a href="http://www.w3.org/TR/REC-xml/#sec-attribute-types">http://www.w3.org/TR/REC-xml/#sec-attribute-
+	 *      types</a>
 	 */
 	public static enum Type {
 		CDATA, ID, IDREF, IDREFS, NMTOKEN, NMTOKENS, ENTITY, ENTITIES, NOTATION, ENUMERATION;

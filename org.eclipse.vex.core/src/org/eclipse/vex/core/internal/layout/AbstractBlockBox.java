@@ -697,8 +697,7 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 	 * Creates a list of block boxes for a given document range. beforeInlines and afterInlines are prepended/appended
 	 * to the first/last block child, and each may be null.
 	 */
-	protected List<Box> createBlockBoxes(final LayoutContext context, final int startOffset, final int endOffset, final int width, final List<InlineBox> beforeInlines,
-			final List<InlineBox> afterInlines) {
+	protected List<Box> createBlockBoxes(final LayoutContext context, final int startOffset, final int endOffset, final int width, final List<InlineBox> beforeInlines, final List<InlineBox> afterInlines) {
 		final List<Box> blockBoxes = new ArrayList<Box>();
 		final List<InlineBox> pendingInlines = new ArrayList<InlineBox>();
 

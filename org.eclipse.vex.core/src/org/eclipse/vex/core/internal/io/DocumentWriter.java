@@ -69,10 +69,10 @@ public class DocumentWriter {
 	}
 
 	/**
-	 * Escapes special XML characters. Changes '<', '>', and '&' to
-	 * '&lt;', '&gt;' and '&amp;', respectively.
+	 * Escapes special XML characters. Changes '<', '>', and '&' to '&lt;', '&gt;' and '&amp;', respectively.
 	 *
-	 * @param s the string to be escaped.
+	 * @param s
+	 *            the string to be escaped.
 	 * @return the escaped string
 	 */
 	public static String escape(final String s) {

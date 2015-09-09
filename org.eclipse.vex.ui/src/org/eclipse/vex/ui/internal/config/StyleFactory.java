@@ -49,7 +49,7 @@ public class StyleFactory implements IConfigItemFactory {
 		final IConfigElement configElement = configElements[0];
 
 		final Style style = new Style(config);
-		style.setResourceUri(newUri(configElement.getAttribute("css")));  //$NON-NLS-1$
+		style.setResourceUri(newUri(configElement.getAttribute("css"))); //$NON-NLS-1$
 
 		final IConfigElement[] doctypeRefs = configElement.getChildren();
 

@@ -641,6 +641,7 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 	private static final char CHAR_NONE = 0;
 
 	private static Map<KeyStroke, IVexWidgetHandler> keyMap = new HashMap<KeyStroke, IVexWidgetHandler>();
+
 	static {
 		buildKeyMap();
 	}

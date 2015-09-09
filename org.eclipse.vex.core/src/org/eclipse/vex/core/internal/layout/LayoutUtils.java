@@ -106,8 +106,7 @@ public class LayoutUtils {
 	 * @deprecated Use the overload using ContentPosition instead
 	 */
 	@Deprecated
-	public static void iterateChildrenByDisplayStyle(final StyleSheet styleSheet, final Set<String> displayStyles, final IParent parent, final int startOffset, final int endOffset,
-			final ElementOrRangeCallback callback) {
+	public static void iterateChildrenByDisplayStyle(final StyleSheet styleSheet, final Set<String> displayStyles, final IParent parent, final int startOffset, final int endOffset, final ElementOrRangeCallback callback) {
 
 		final List<INode> nonMatching = new ArrayList<INode>();
 
@@ -171,8 +170,7 @@ public class LayoutUtils {
 	 *            DisplayStyleCallback through which the caller is notified of matching elements and non-matching
 	 *            ranges.
 	 */
-	public static void iterateChildrenByDisplayStyle(final StyleSheet styleSheet, final Set<String> displayStyles, final IParent parent, final ContentPosition startPosition,
-			final ContentPosition endPosition, final ElementOrPositionRangeCallback callback) {
+	public static void iterateChildrenByDisplayStyle(final StyleSheet styleSheet, final Set<String> displayStyles, final IParent parent, final ContentPosition startPosition, final ContentPosition endPosition, final ElementOrPositionRangeCallback callback) {
 
 		final List<INode> nonMatching = new ArrayList<INode>();
 
@@ -272,8 +270,7 @@ public class LayoutUtils {
 
 	}
 
-	public static void iterateTableRows(final StyleSheet styleSheet, final IParent element, final ContentPosition startPosition, final ContentPosition endPosition,
-			final ElementOrPositionRangeCallback callback) {
+	public static void iterateTableRows(final StyleSheet styleSheet, final IParent element, final ContentPosition startPosition, final ContentPosition endPosition, final ElementOrPositionRangeCallback callback) {
 
 		iterateChildrenByDisplayStyle(styleSheet, NON_ROW_STYLES, element, startPosition, endPosition, new ElementOrPositionRangeCallback() {
 			@Override
@@ -296,8 +293,7 @@ public class LayoutUtils {
 
 	}
 
-	public static void iterateTableCells(final StyleSheet styleSheet, final IParent element, final ContentPosition startPosition, final ContentPosition endPosition,
-			final ElementOrPositionRangeCallback callback) {
+	public static void iterateTableCells(final StyleSheet styleSheet, final IParent element, final ContentPosition startPosition, final ContentPosition endPosition, final ElementOrPositionRangeCallback callback) {
 		iterateChildrenByDisplayStyle(styleSheet, CELL_STYLES, element, startPosition, endPosition, callback);
 	}
 

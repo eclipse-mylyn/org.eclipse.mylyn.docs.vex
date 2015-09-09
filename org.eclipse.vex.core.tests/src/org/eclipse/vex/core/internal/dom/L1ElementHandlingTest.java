@@ -49,8 +49,7 @@ public class L1ElementHandlingTest {
 			}
 
 			@Override
-			public boolean isValidSequence(final QualifiedName element, final List<QualifiedName> sequence1, final List<QualifiedName> sequence2, final List<QualifiedName> sequence3,
-					final boolean partial) {
+			public boolean isValidSequence(final QualifiedName element, final List<QualifiedName> sequence1, final List<QualifiedName> sequence2, final List<QualifiedName> sequence3, final boolean partial) {
 				return "root".equals(element.getLocalName()) && VALID_CHILD.equals(sequence2.get(0));
 			}
 		});

@@ -4,7 +4,7 @@
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
- * 
+ *
  * Contributors:
  *     John Krasnay - initial API and implementation
  *******************************************************************************/
@@ -29,17 +29,21 @@ import org.eclipse.vex.ui.internal.outline.IOutlineProvider;
  */
 public class XhtmlOutlineProvider implements IOutlineProvider {
 
+	@Override
 	public void init(final VexEditor editor) {
 	}
 
+	@Override
 	public ITreeContentProvider getContentProvider() {
 		return contentProvider;
 	}
 
+	@Override
 	public IBaseLabelProvider getLabelProvider() {
 		return labelProvider;
 	}
 
+	@Override
 	public IElement getOutlineElement(final IElement child) {
 		IElement element = child;
 		while (element.getParentElement() != null) {
@@ -60,16 +64,20 @@ public class XhtmlOutlineProvider implements IOutlineProvider {
 
 	private final ITreeContentProvider contentProvider = new ITreeContentProvider() {
 
+		@Override
 		public void dispose() {
 		}
 
+		@Override
 		public void inputChanged(final Viewer viewer, final Object oldInput, final Object newInput) {
 		}
 
+		@Override
 		public Object[] getChildren(final Object parentElement) {
 			return getOutlineChildren((IElement) parentElement);
 		}
 
+		@Override
 		public Object getParent(final Object element) {
 			final IElement parent = ((IElement) element).getParentElement();
 			if (parent == null) {
@@ -79,10 +87,12 @@ public class XhtmlOutlineProvider implements IOutlineProvider {
 			}
 		}
 
+		@Override
 		public boolean hasChildren(final Object element) {
 			return getOutlineChildren((IElement) element).length > 0;
 		}
 
+		@Override
 		public Object[] getElements(final Object inputElement) {
 			final IDocument document = (IDocument) inputElement;
 			return new Object[] { document.getRootElement() };
@@ -93,7 +103,7 @@ public class XhtmlOutlineProvider implements IOutlineProvider {
 	/**
 	 * Returns an array of the children of the given element that represent nodes in the outline. These are structural
 	 * elements such as "section".
-	 * 
+	 *
 	 * @param element
 	 * @return
 	 */

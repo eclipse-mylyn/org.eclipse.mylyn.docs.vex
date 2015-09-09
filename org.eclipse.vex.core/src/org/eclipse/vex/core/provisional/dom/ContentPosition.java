@@ -13,7 +13,8 @@ package org.eclipse.vex.core.provisional.dom;
 import org.eclipse.core.runtime.AssertionFailedException;
 
 /**
- * A ContentPosition wraps an offset in a document's content. The position knows the document and the node it is in.<br />
+ * A ContentPosition wraps an offset in a document's content. The position knows the document and the node it is in.
+ * <br />
  *
  */
 public class ContentPosition implements Comparable<ContentPosition> {

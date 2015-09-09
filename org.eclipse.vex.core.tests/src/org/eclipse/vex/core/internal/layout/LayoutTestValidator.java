@@ -22,6 +22,7 @@ import org.eclipse.vex.core.internal.dom.DummyValidator;
 public class LayoutTestValidator extends DummyValidator {
 
 	final static List<String> nodesForInsertion = new ArrayList<String>();
+
 	static {
 		nodesForInsertion.add("p");
 	};
