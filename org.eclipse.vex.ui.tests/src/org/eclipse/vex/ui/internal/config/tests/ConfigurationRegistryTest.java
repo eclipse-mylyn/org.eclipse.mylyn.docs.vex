@@ -103,7 +103,7 @@ public class ConfigurationRegistryTest {
 		project.getFile("plugintest2.css").create(new ByteArrayInputStream(new byte[0]), true, null);
 		final String fileContent = PluginProjectTest.createVexPluginFileContent(project, "plugintest.dtd", "plugintest.css", "plugintest2.css");
 		registry.addConfigListener(configListener);
-		project.getFile(PluginProject.PLUGIN_XML).setContents(new ByteArrayInputStream(fileContent.getBytes()), true, true, null);
+		PluginProjectTest.writePluginFile(project, fileContent, true);
 		assertFalse(configListener.loaded);
 		assertTrue(configListener.changed);
 		assertNotNull(registry.getPluginProject(project).getItemForResource(project.getFile("plugintest2.css")));

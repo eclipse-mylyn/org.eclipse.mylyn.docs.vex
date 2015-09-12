@@ -20,6 +20,7 @@ import java.util.ArrayList;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
@@ -43,18 +44,18 @@ import org.junit.Test;
  */
 public class PluginStyleConfigTest {
 
-	private IProject pluginProject;
+	private IProject project;
 	private ConfigurationRegistry configurationRegistry;
 
 	@After
 	public void dispose() {
-		if (pluginProject != null) {
+		if (project != null) {
 			try {
-				pluginProject.delete(true, null);
+				project.delete(true, null);
 			} catch (final CoreException e) {
 			}
 		}
-		pluginProject = null;
+		project = null;
 
 		if (configurationRegistry != null) {
 			configurationRegistry.dispose();
@@ -67,13 +68,13 @@ public class PluginStyleConfigTest {
 	 */
 	@Test
 	public void testCssPropertyPage() throws CoreException, NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException {
-		pluginProject = PluginProjectTest.createVexPluginProject("PropertyPageTest");
+		project = PluginProjectTest.createVexPluginProject("PropertyPageTest");
 
 		final Display display = Display.getCurrent();
 		final Shell shell = new Shell(display);
 		final StylePropertyPage page = new StylePropertyPage();
 
-		final IFile cssFile = pluginProject.getFile(PluginProjectTest.CSS_FILE_NAME);
+		final IFile cssFile = project.getFile(PluginProjectTest.CSS_FILE_NAME);
 		page.setElement(cssFile);
 		page.createControl(shell);
 
@@ -95,11 +96,11 @@ public class PluginStyleConfigTest {
 
 	@Test
 	public void testDoctypeStyle() throws Exception {
-		pluginProject = PluginProjectTest.createVexPluginProject("PropertyPageTest");
+		project = PluginProjectTest.createVexPluginProject("PropertyPageTest");
 
 		configurationRegistry = new ConfigurationRegistryImpl(new ConfigLoaderJob());
 		configurationRegistry.loadConfigurations();
-		assertNotNull(configurationRegistry.getPluginProject(pluginProject));
+		assertNotNull(configurationRegistry.getPluginProject(project));
 
 		final DocumentType doctype = configurationRegistry.getDocumentType(PluginProjectTest.DTD_DOCTYPE_ID, null);
 		assertNotNull(doctype);
@@ -111,14 +112,14 @@ public class PluginStyleConfigTest {
 
 	@Test
 	public void testAddStyle() throws Exception {
-		pluginProject = PluginProjectTest.createVexPluginProject("PropertyPageTest");
+		project = PluginProjectTest.createVexPluginProject("PropertyPageTest");
 
 		final Display display = Display.getCurrent();
 		final Shell shell = new Shell(display);
 		final StylePropertyPage page = new StylePropertyPage();
 
 		// Create a new .css file and open the property page
-		final IFile file = pluginProject.getFile("test_new.css");
+		final IFile file = project.getFile("test_new.css");
 		file.create(new ByteArrayInputStream(new byte[0]), true, null);
 		page.setElement(file);
 		page.createControl(shell);
@@ -144,8 +145,8 @@ public class PluginStyleConfigTest {
 		page.dispose();
 
 		// Reload the project
-		pluginProject.close(null);
-		pluginProject.open(null);
+		project.close(null);
+		project.open(null);
 
 		//
 		configurationRegistry = new ConfigurationRegistryImpl(new ConfigLoaderJob());
@@ -159,7 +160,97 @@ public class PluginStyleConfigTest {
 			}
 		}
 
-		assertNotNull("New style should be present an apply to the selected doctype", newStyle);
+		assertNotNull("New style should be present and apply to the selected doctype", newStyle);
 		assertEquals("test_new.css", newStyle.getResourceUri().toString());
 	}
+
+	@Test
+	public void testGetStyles1() throws Exception {
+		project = createStyleTestProject("testGetStyles", getStyle1Css());
+
+		configurationRegistry = new ConfigurationRegistryImpl(new ConfigLoaderJob());
+		configurationRegistry.loadConfigurations();
+
+		final DocumentType doctype = configurationRegistry.getDocumentType("test_pubid", null);
+		assertNotNull(doctype);
+
+		final Style[] styles = configurationRegistry.getStyles(doctype);
+		assertEquals("Style should be returned only once, even when multiple id's match", 1, styles.length);
+		assertEquals("plugin test style", styles[0].getName());
+	}
+
+	@Test
+	public void testGetStyles2() throws Exception {
+		project = createStyleTestProject("testGetStyles", getStyle2Css());
+
+		configurationRegistry = new ConfigurationRegistryImpl(new ConfigLoaderJob());
+		configurationRegistry.loadConfigurations();
+
+		final DocumentType doctype = configurationRegistry.getDocumentType("test_pubid", null);
+		assertNotNull(doctype);
+
+		final Style[] styles = configurationRegistry.getStyles(doctype);
+		assertEquals("Both defined styles should be returned.", 2, styles.length);
+		assertEquals("plugin test style1", styles[0].getName());
+		assertEquals("plugin test style2", styles[1].getName());
+	}
+
+	/**
+	 * One style with two doctype references for the same doctype.
+	 */
+	private String getStyle1Css() {
+		final StringBuilder sb = new StringBuilder();
+		sb.append("<extension id=\"plugintest\" name=\"plugin test style\" point=\"org.eclipse.vex.ui.styles\">");
+		sb.append("<style css=\"test_style1.css\">");
+		sb.append("<doctypeRef doctypeId=\"test_sysid\" />");
+		sb.append("<doctypeRef doctypeId=\"test_pubid\" />");
+		sb.append("</style>");
+		sb.append("</extension>");
+		return sb.toString();
+	}
+
+	/**
+	 * Two different styles for one doctype.
+	 */
+	private String getStyle2Css() {
+		final StringBuilder sb = new StringBuilder();
+		sb.append("<extension id=\"plugintest1\" name=\"plugin test style1\" point=\"org.eclipse.vex.ui.styles\">");
+		sb.append("<style css=\"test_style1.css\">");
+		sb.append("<doctypeRef doctypeId=\"test_sysid\" />");
+		sb.append("<doctypeRef doctypeId=\"test_pubid\" />");
+		sb.append("</style>");
+		sb.append("</extension>");
+
+		sb.append("<extension id=\"plugintest2\" name=\"plugin test style2\" point=\"org.eclipse.vex.ui.styles\">");
+		sb.append("<style css=\"test_style2.css\">");
+		sb.append("<doctypeRef doctypeId=\"test_sysid\" />");
+		sb.append("<doctypeRef doctypeId=\"test_pubid\" />");
+		sb.append("</style>");
+		sb.append("</extension>");
+
+		return sb.toString();
+	}
+
+	private IProject createStyleTestProject(final String name, final String cssConfig) throws CoreException {
+		final IProject project = ResourcesPlugin.getWorkspace().getRoot().getProject(name);
+		if (project.exists()) {
+			project.delete(true, true, null);
+		}
+		project.create(null);
+		project.open(null);
+		project.getFile(name + ".dtd").create(new ByteArrayInputStream(new byte[0]), true, null);
+		project.getFile(name + ".css").create(new ByteArrayInputStream(new byte[0]), true, null);
+
+		final StringBuilder sb = new StringBuilder();
+		sb.append("<extension id=\"plugintest\" name=\"" + name + "\" point=\"org.eclipse.vex.ui.doctypes\">");
+		sb.append("<doctype systemId=\"test_sysid\" dtd=\"" + name + ".dtd\" publicId=\"test_pubid\" />");
+		sb.append("</extension>");
+
+		sb.append(cssConfig);
+
+		PluginProjectTest.writePluginFile(project, sb.toString(), false);
+		PluginProjectTest.addVexProjectNature(project);
+		return project;
+	}
+
 }

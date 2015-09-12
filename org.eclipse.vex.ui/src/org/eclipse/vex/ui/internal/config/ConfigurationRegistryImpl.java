@@ -260,19 +260,16 @@ public class ConfigurationRegistryImpl implements ConfigurationRegistry {
 			final Style style = (Style) configItem;
 			if (style.appliesTo(doctype.getSimpleId())) {
 				resultId.add(style);
-			}
-			if (!doctype.isBlank(doctype.getPublicId()) && style.appliesTo(doctype.getPublicId())) {
+			} else if (!doctype.isBlank(doctype.getPublicId()) && style.appliesTo(doctype.getPublicId())) {
 				resultPublic.add(style);
-			}
-			if (!doctype.isBlank(doctype.getSystemId()) && style.appliesTo(doctype.getSystemId())) {
+			} else if (!doctype.isBlank(doctype.getSystemId()) && style.appliesTo(doctype.getSystemId())) {
 				resultSystem.add(style);
-			}
-			if (!doctype.isBlank(doctype.getNamespaceName()) && style.appliesTo(doctype.getNamespaceName())) {
+			} else if (!doctype.isBlank(doctype.getNamespaceName()) && style.appliesTo(doctype.getNamespaceName())) {
 				resultSchema.add(style);
 			}
 		}
 
-		// The resolved stylesheet are returned in a defined order
+		// The resolved stylesheets are returned in a defined order
 		final ArrayList<Style> result = new ArrayList<Style>();
 		result.addAll(resultId);
 		result.addAll(resultPublic);

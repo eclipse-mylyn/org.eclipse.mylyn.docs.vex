@@ -47,7 +47,7 @@ public class PluginProjectTest {
 
 	public static void createVexPluginFile(final IProject project) throws CoreException {
 		final String fileContent = createVexPluginFileContent(project);
-		project.getFile(PluginProject.PLUGIN_XML).create(new ByteArrayInputStream(fileContent.getBytes()), true, null);
+		writePluginFile(project, fileContent, false);
 	}
 
 	public static String createVexPluginFileContent(final IProject project) {
@@ -57,9 +57,7 @@ public class PluginProjectTest {
 	public static String createVexPluginFileContent(final IProject project, final String dtdFilename, final String... styleFilenames) {
 		final StringWriter result = new StringWriter();
 		final PrintWriter out = new PrintWriter(result);
-		out.println("<?xml version='1.0'?>"); //$NON-NLS-1$
-		// HINT: It is important to set the id attribute, because this is used as the unique identifier for the configuration.
-		out.println("<plugin id=\"" + project.getName() + "\">"); //$NON-NLS-1$ //$NON-NLS-2$
+
 		out.println("<extension id=\"plugintest\" name=\"" + DTD_FILE_NAME + "\" point=\"org.eclipse.vex.ui.doctypes\">"); //$NON-NLS-1$ //$NON-NLS-2$
 		out.println("<doctype systemId=\"" + dtdFilename + "\" dtd=\"" + dtdFilename + "\" publicId=\"" + DTD_DOCTYPE_ID + "\" />"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$ //$NON-NLS-4$
 		out.println("</extension>"); //$NON-NLS-1$
@@ -68,9 +66,25 @@ public class PluginProjectTest {
 			out.println("<style css=\"" + styleFilename + "\"><doctypeRef publicId=\"" + DTD_DOCTYPE_ID + "\" /></style>"); //$NON-NLS-1$ //$NON-NLS-2$ //$NON-NLS-3$
 			out.println("</extension>"); //$NON-NLS-1$
 		}
-		out.println("</plugin>"); //$NON-NLS-1$
+
 		out.close();
 		return result.toString();
+	}
+
+	public static void writePluginFile(final IProject project, final String content, final boolean replace) throws CoreException {
+		final StringWriter result = new StringWriter();
+		final PrintWriter out = new PrintWriter(result);
+		out.println("<?xml version='1.0'?>");
+		// HINT: It is important to set the id attribute, because this is used as the unique identifier for the configuration.
+		out.println("<plugin id=\"" + project.getName() + "\">");
+		out.print(content);
+		out.println("</plugin>"); //$NON-NLS-1$
+		out.close();
+		if (!replace) {
+			project.getFile(PluginProject.PLUGIN_XML).create(new ByteArrayInputStream(result.toString().getBytes()), true, null);
+		} else {
+			project.getFile(PluginProject.PLUGIN_XML).setContents(new ByteArrayInputStream(result.toString().getBytes()), true, true, null);
+		}
 	}
 
 	public static void addVexProjectNature(final IProject project) throws CoreException {
