@@ -11,6 +11,8 @@
  *******************************************************************************/
 package org.eclipse.vex.ui.internal.config;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -113,7 +115,15 @@ public class DoctypePropertyPage extends PropertyPage {
 		doctype = (DocumentType) pluginProject.getItemForResource(file);
 		if (doctype == null) {
 			doctype = new DocumentType(pluginProject);
-			doctype.setResourceUri(file.getLocationURI());
+			URI uri;
+			try {
+				uri = new URI(file.getProjectRelativePath().toString());
+				doctype.setResourceUri(uri);
+				doctype.setSystemId(uri.toString());
+			} catch (final URISyntaxException e) {
+				// This should never happen
+				VexPlugin.getDefault().log(IStatus.ERROR, Messages.getString("DoctypePropertyPage.uriError"), e);
+			}
 			pluginProject.addItem(doctype);
 		}
 

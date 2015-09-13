@@ -130,6 +130,7 @@ public class StylePropertyPage extends PropertyPage {
 				pluginProject.addItem(style);
 			} catch (final URISyntaxException e) {
 				// This should never happen
+				VexPlugin.getDefault().log(IStatus.ERROR, Messages.getString("StylePropertyPage.uriError"), e);
 			}
 		}
 
