@@ -16,7 +16,6 @@ import static org.junit.Assert.assertNotNull;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.lang.reflect.Field;
-import java.nio.charset.StandardCharsets;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
@@ -42,6 +41,7 @@ public class PluginDoctypeConfigTest {
 	private IProject project;
 	private ConfigurationRegistry configurationRegistry;
 
+	private static final String UTF_8 = "UTF-8";
 	private static final String SIMPLE_DTD = "<!ELEMENT el1 ANY><!ELEMENT el2 ANY>";
 
 	@After
@@ -64,9 +64,9 @@ public class PluginDoctypeConfigTest {
 	 * Make sure the property page is created without errors.
 	 */
 	@Test
-	public void testDtdPropertyPage() throws CoreException, NoSuchFieldException, SecurityException, IllegalArgumentException, IllegalAccessException {
+	public void testDtdPropertyPage() throws Exception {
 		project = PluginProjectTest.createVexPluginProject("DtdPropertyPageTest");
-		final InputStream is = new ByteArrayInputStream(SIMPLE_DTD.getBytes(StandardCharsets.UTF_8));
+		final InputStream is = new ByteArrayInputStream(SIMPLE_DTD.getBytes(UTF_8));
 		project.getFile(PluginProjectTest.DTD_FILE_NAME).setContents(is, true, false, null);
 
 		final Display display = Display.getCurrent();
@@ -96,7 +96,7 @@ public class PluginDoctypeConfigTest {
 
 		// Create a new .dtd file and open the property page
 		final IFile file = project.getFile("test_new.dtd");
-		final InputStream is = new ByteArrayInputStream(SIMPLE_DTD.getBytes(StandardCharsets.UTF_8));
+		final InputStream is = new ByteArrayInputStream(SIMPLE_DTD.getBytes(UTF_8));
 		file.create(is, true, null);
 		page.setElement(file);
 		page.createControl(shell);
@@ -140,4 +140,5 @@ public class PluginDoctypeConfigTest {
 		assertEquals("test_new.dtd", doctype.getResourceUri().toString());
 		assertEquals("test_new.dtd", doctype.getSystemId()); // The system id should match the filename by default
 	}
+
 }
