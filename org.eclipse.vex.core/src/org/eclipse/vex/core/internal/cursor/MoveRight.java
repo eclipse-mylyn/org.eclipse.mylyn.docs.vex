@@ -11,6 +11,8 @@
 package org.eclipse.vex.core.internal.cursor;
 
 import org.eclipse.vex.core.internal.boxes.IContentBox;
+import org.eclipse.vex.core.internal.boxes.ParentTraversal;
+import org.eclipse.vex.core.internal.boxes.StructuralNodeReference;
 import org.eclipse.vex.core.internal.core.Graphics;
 import org.eclipse.vex.core.internal.core.Rectangle;
 
@@ -20,11 +22,6 @@ import org.eclipse.vex.core.internal.core.Rectangle;
 public class MoveRight implements ICursorMove {
 
 	@Override
-	public int calculateNewOffset(final Graphics graphics, final ContentMap contentMap, final int currentOffset, final IContentBox currentBox, final Rectangle hotArea, final int preferredX) {
-		return Math.min(currentOffset + 1, contentMap.getLastOffset());
-	}
-
-	@Override
 	public boolean preferX() {
 		return true;
 	}
@@ -32,5 +29,29 @@ public class MoveRight implements ICursorMove {
 	@Override
 	public boolean isAbsolute() {
 		return false;
+	}
+
+	@Override
+	public int calculateNewOffset(final Graphics graphics, final ContentMap contentMap, final int currentOffset, final IContentBox currentBox, final Rectangle hotArea, final int preferredX) {
+		final int nextOffset = currentOffset + 1;
+		if (nextOffset > currentBox.getEndOffset()) {
+			final IContentBox parent = getParentContentBox(currentBox);
+			if (parent == null) {
+				return currentOffset;
+			}
+		}
+		return nextOffset;
+	}
+
+	private static IContentBox getParentContentBox(final IContentBox childBox) {
+		return childBox.accept(new ParentTraversal<IContentBox>() {
+			@Override
+			public IContentBox visit(final StructuralNodeReference box) {
+				if (box == childBox) {
+					return super.visit(box);
+				}
+				return box;
+			}
+		});
 	}
 }
