@@ -20,8 +20,8 @@ import static org.junit.Assert.assertEquals;
 
 import org.eclipse.vex.core.internal.boxes.DepthFirstTraversal;
 import org.eclipse.vex.core.internal.boxes.IContentBox;
-import org.eclipse.vex.core.internal.boxes.StructuralNodeReference;
 import org.eclipse.vex.core.internal.boxes.RootBox;
+import org.eclipse.vex.core.internal.boxes.StructuralNodeReference;
 import org.eclipse.vex.core.internal.boxes.TextContent;
 import org.eclipse.vex.core.internal.io.UniversalTestDocument;
 import org.eclipse.vex.core.internal.layout.FakeGraphics;
@@ -254,9 +254,9 @@ public class TestCursorPosition {
 
 	@Test
 	public void givenAtEndOfLastParagraphInSection_whenMovingDown_shouldMoveCursorToSectionEndOffset() throws Exception {
-		cursorAt(333);
+		cursorAt(335);
 		moveCursor(down());
-		assertCursorAt(334);
+		assertCursorAt(336);
 	}
 
 	@Test
@@ -268,9 +268,9 @@ public class TestCursorPosition {
 
 	@Test
 	public void givenAtSectionStartOffset_whenMovingDown_shouldMoveCursorToFirstParagraphStartOffset() throws Exception {
-		cursorAt(335);
+		cursorAt(337);
 		moveCursor(down());
-		assertCursorAt(336);
+		assertCursorAt(338);
 	}
 
 	@Test
