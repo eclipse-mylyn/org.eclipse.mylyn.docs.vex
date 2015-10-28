@@ -19,7 +19,7 @@ import org.eclipse.vex.core.internal.core.Rectangle;
  */
 public interface ICursorMove {
 
-	int calculateNewOffset(final Graphics graphics, final ContentMap contentMap, final int currentOffset, final IContentBox currentBox, final Rectangle hotArea, int preferredX);
+	int calculateNewOffset(final Graphics graphics, final ContentTopology contentTopology, final int currentOffset, final IContentBox currentBox, final Rectangle hotArea, int preferredX);
 
 	boolean preferX();
 

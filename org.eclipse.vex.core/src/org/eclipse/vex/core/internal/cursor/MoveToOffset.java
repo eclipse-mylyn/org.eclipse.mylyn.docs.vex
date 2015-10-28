@@ -26,7 +26,7 @@ public class MoveToOffset implements ICursorMove {
 	}
 
 	@Override
-	public int calculateNewOffset(final Graphics graphics, final ContentMap contentMap, final int currentOffset, final IContentBox currentBox, final Rectangle hotArea, final int preferredX) {
+	public int calculateNewOffset(final Graphics graphics, final ContentTopology contentTopology, final int currentOffset, final IContentBox currentBox, final Rectangle hotArea, final int preferredX) {
 		return offset;
 	}
 

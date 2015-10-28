@@ -10,14 +10,16 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.cursor;
 
+import static org.eclipse.vex.core.internal.cursor.ContentTopology.findHorizontallyClosestContentBox;
+import static org.eclipse.vex.core.internal.cursor.ContentTopology.getParentContentBox;
+import static org.eclipse.vex.core.internal.cursor.ContentTopology.verticalDistance;
+
 import java.util.Iterator;
 import java.util.LinkedList;
 
 import org.eclipse.vex.core.internal.boxes.BaseBoxVisitorWithResult;
 import org.eclipse.vex.core.internal.boxes.DepthFirstTraversal;
-import org.eclipse.vex.core.internal.boxes.IBox;
 import org.eclipse.vex.core.internal.boxes.IContentBox;
-import org.eclipse.vex.core.internal.boxes.ParentTraversal;
 import org.eclipse.vex.core.internal.boxes.StructuralNodeReference;
 import org.eclipse.vex.core.internal.boxes.TextContent;
 import org.eclipse.vex.core.internal.core.Graphics;
@@ -39,7 +41,7 @@ public class MoveDown implements ICursorMove {
 	}
 
 	@Override
-	public int calculateNewOffset(final Graphics graphics, final ContentMap contentMap, final int currentOffset, final IContentBox currentBox, final Rectangle hotArea, final int preferredX) {
+	public int calculateNewOffset(final Graphics graphics, final ContentTopology contentTopology, final int currentOffset, final IContentBox currentBox, final Rectangle hotArea, final int preferredX) {
 		if (isAtStartOfEmptyBox(currentOffset, currentBox)) {
 			return currentBox.getEndOffset();
 		}
@@ -85,18 +87,6 @@ public class MoveDown implements ICursorMove {
 			@Override
 			public Boolean visit(final TextContent box) {
 				return true;
-			}
-		});
-	}
-
-	private static IContentBox getParentContentBox(final IContentBox childBox) {
-		return childBox.accept(new ParentTraversal<IContentBox>() {
-			@Override
-			public IContentBox visit(final StructuralNodeReference box) {
-				if (box == childBox) {
-					return super.visit(box);
-				}
-				return box;
 			}
 		});
 	}
@@ -188,18 +178,13 @@ public class MoveDown implements ICursorMove {
 		final int[] minVerticalDistance = new int[1];
 		minVerticalDistance[0] = Integer.MAX_VALUE;
 		parent.accept(new DepthFirstTraversal<Object>() {
-
-			private boolean isBelow(final int distance) {
-				return distance > 0;
-			}
-
 			@Override
 			public Object visit(final StructuralNodeReference box) {
 				if (box == parent) {
 					super.visit(box);
 				} else {
-					final int distance = verticalDistanceFromBelow(box, y);
-					if (isBelow(distance)) {
+					final int distance = verticalDistance(box, y);
+					if (box.isBelow(y)) {
 						candidates.add(box);
 						minVerticalDistance[0] = Math.min(distance, minVerticalDistance[0]);
 					}
@@ -209,8 +194,8 @@ public class MoveDown implements ICursorMove {
 
 			@Override
 			public Object visit(final TextContent box) {
-				final int distance = verticalDistanceFromBelow(box, y);
-				if (isBelow(distance)) {
+				final int distance = verticalDistance(box, y);
+				if (box.isBelow(y)) {
 					candidates.add(box);
 					minVerticalDistance[0] = Math.min(distance, minVerticalDistance[0]);
 				}
@@ -220,48 +205,11 @@ public class MoveDown implements ICursorMove {
 
 		for (final Iterator<IContentBox> iter = candidates.iterator(); iter.hasNext();) {
 			final IContentBox candidate = iter.next();
-			if (verticalDistanceFromBelow(candidate, y) > minVerticalDistance[0]) {
+			if (verticalDistance(candidate, y) > minVerticalDistance[0]) {
 				iter.remove();
 			}
 		}
 		return candidates;
-	}
-
-	private static int verticalDistanceFromBelow(final IContentBox box, final int y) {
-		return box.accept(new BaseBoxVisitorWithResult<Integer>(0) {
-			@Override
-			public Integer visit(final StructuralNodeReference box) {
-				return box.getAbsoluteTop() - y;
-			}
-
-			@Override
-			public Integer visit(final TextContent box) {
-				return box.getAbsoluteTop() + box.getBaseline() - y;
-			}
-		});
-	}
-
-	private static IContentBox findHorizontallyClosestContentBox(final Iterable<IContentBox> candidates, final int x) {
-		IContentBox finalCandidate = null;
-		int minHorizontalDistance = Integer.MAX_VALUE;
-		for (final IContentBox candidate : candidates) {
-			final int distance = horizontalDistance(candidate, x);
-			if (distance < minHorizontalDistance) {
-				finalCandidate = candidate;
-				minHorizontalDistance = distance;
-			}
-		}
-		return finalCandidate;
-	}
-
-	private static int horizontalDistance(final IBox box, final int x) {
-		if (box.getAbsoluteLeft() > x) {
-			return box.getAbsoluteLeft() - x;
-		}
-		if (box.getAbsoluteLeft() + box.getWidth() < x) {
-			return x - box.getAbsoluteLeft() - box.getWidth();
-		}
-		return 0;
 	}
 
 	private static IContentBox handleSpecialCaseMovingIntoLastLineOfParagraph(final IContentBox candidate, final int x, final int y) {

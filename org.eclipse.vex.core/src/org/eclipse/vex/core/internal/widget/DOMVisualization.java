@@ -19,7 +19,7 @@ import org.eclipse.vex.core.internal.boxes.IStructuralBox;
 import org.eclipse.vex.core.internal.boxes.StructuralNodeReference;
 import org.eclipse.vex.core.internal.boxes.RootBox;
 import org.eclipse.vex.core.internal.boxes.TextContent;
-import org.eclipse.vex.core.internal.cursor.ContentMap;
+import org.eclipse.vex.core.internal.cursor.ContentTopology;
 import org.eclipse.vex.core.internal.cursor.Cursor;
 import org.eclipse.vex.core.internal.visualization.VisualizationChain;
 import org.eclipse.vex.core.provisional.dom.ContentRange;
@@ -31,7 +31,7 @@ import org.eclipse.vex.core.provisional.dom.INode;
  */
 public class DOMVisualization {
 
-	private final ContentMap contentMap = new ContentMap();
+	private final ContentTopology contentTopology = new ContentTopology();
 	private final Cursor cursor;
 	private final BoxView view;
 
@@ -64,13 +64,13 @@ public class DOMVisualization {
 			rootBox = new RootBox();
 		}
 
-		contentMap.setRootBox(rootBox);
+		contentTopology.setRootBox(rootBox);
 		cursor.setRootBox(rootBox);
 		view.setRootBox(rootBox);
 	}
 
 	public void rebuildStructure(final INode node) {
-		final IContentBox modifiedBox = contentMap.findBoxForRange(node.getRange());
+		final IContentBox modifiedBox = contentTopology.findBoxForRange(node.getRange());
 		final IStructuralBox newBox = visualizationChain.visualizeStructure(node);
 		final IStructuralBox newChildBox = newBox.accept(new BaseBoxVisitorWithResult<IStructuralBox>(newBox) {
 			@Override
@@ -89,7 +89,7 @@ public class DOMVisualization {
 	}
 
 	public void rebuildContentRange(final ContentRange range) {
-		final IContentBox modifiedBox = contentMap.findBoxForRange(range);
+		final IContentBox modifiedBox = contentTopology.findBoxForRange(range);
 		if (modifiedBox == null) {
 			return;
 		}

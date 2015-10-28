@@ -39,7 +39,7 @@ public class Cursor {
 	private static final Color SELECTION_FOREGROUND_COLOR = new Color(255, 255, 255);
 	private static final Color SELECTION_BACKGROUND_COLOR = new Color(0, 0, 255);
 
-	private final ContentMap contentMap = new ContentMap();
+	private final ContentTopology contentTopology = new ContentTopology();
 	private final IContentSelector selector;
 	private final LinkedList<MoveWithSelection> moves = new LinkedList<MoveWithSelection>();
 
@@ -54,7 +54,7 @@ public class Cursor {
 	}
 
 	public void setRootBox(final RootBox rootBox) {
-		contentMap.setRootBox(rootBox);
+		contentTopology.setRootBox(rootBox);
 	}
 
 	public int getOffset() {
@@ -94,7 +94,7 @@ public class Cursor {
 
 	public void applyMoves(final Graphics graphics) {
 		for (MoveWithSelection move = moves.poll(); move != null; move = moves.poll()) {
-			offset = move.move.calculateNewOffset(graphics, contentMap, offset, box, getHotArea(), preferredX);
+			offset = move.move.calculateNewOffset(graphics, contentTopology, offset, box, getHotArea(), preferredX);
 			if (move.select) {
 				if (move.move.isAbsolute()) {
 					selector.setEndAbsoluteTo(offset);
@@ -124,7 +124,7 @@ public class Cursor {
 	}
 
 	private void applyCaretForPosition(final Graphics graphics, final int offset) {
-		box = contentMap.findBoxForPosition(offset);
+		box = contentTopology.findBoxForPosition(offset);
 		if (box == null) {
 			return;
 		}
@@ -139,7 +139,7 @@ public class Cursor {
 			return;
 		}
 		final ContentRange selectedRange = selector.getRange();
-		final IBox selectionRootBox = contentMap.findBoxForRange(selectedRange);
+		final IBox selectionRootBox = contentTopology.findBoxForRange(selectedRange);
 		selectionRootBox.accept(new DepthFirstTraversal<Object>() {
 			@Override
 			public Object visit(final StructuralNodeReference box) {
@@ -198,7 +198,7 @@ public class Cursor {
 					return makeAbsolute(box.getPositionArea(graphics, offset), box);
 				} else if (box.isAtEnd(offset) && box.canContainText() && !box.isEmpty()) {
 					final int lastOffset = offset - 1;
-					final IContentBox lastBox = contentMap.findBoxForPosition(lastOffset);
+					final IContentBox lastBox = contentTopology.findBoxForPosition(lastOffset);
 					return getAbsolutePositionArea(graphics, lastBox, lastOffset);
 				} else if (box.isAtEnd(offset)) {
 					return makeAbsolute(box.getPositionArea(graphics, offset), box);
