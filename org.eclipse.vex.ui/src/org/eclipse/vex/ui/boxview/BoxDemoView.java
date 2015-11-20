@@ -15,6 +15,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.part.ViewPart;
 import org.eclipse.vex.core.internal.io.UniversalTestDocument;
 import org.eclipse.vex.core.internal.visualization.DocumentRootVisualization;
+import org.eclipse.vex.core.internal.visualization.InlineElementVisualization;
 import org.eclipse.vex.core.internal.visualization.ParagraphVisualization;
 import org.eclipse.vex.core.internal.visualization.StructureElementVisualization;
 import org.eclipse.vex.core.internal.visualization.TextVisualization;
@@ -76,6 +77,7 @@ public class BoxDemoView extends ViewPart {
 		visualizationChain.addForRoot(new DocumentRootVisualization());
 		visualizationChain.addForStructure(new ParagraphVisualization());
 		visualizationChain.addForStructure(new StructureElementVisualization());
+		visualizationChain.addForInline(new InlineElementVisualization());
 		visualizationChain.addForInline(new TextVisualization());
 		return visualizationChain;
 	}

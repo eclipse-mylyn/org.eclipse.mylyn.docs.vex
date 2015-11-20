@@ -1,6 +1,6 @@
 package org.eclipse.vex.core.internal.boxes;
 
-import java.util.ArrayList;
+import java.util.LinkedList;
 
 import org.eclipse.vex.core.internal.core.Graphics;
 import org.eclipse.vex.core.internal.core.Rectangle;
@@ -13,7 +13,7 @@ public class InlineContainer extends BaseBox implements IInlineBox, IParentBox<I
 	private int width;
 	private int height;
 	private int baseline;
-	private final ArrayList<IInlineBox> children = new ArrayList<IInlineBox>();
+	private final LinkedList<IInlineBox> children = new LinkedList<IInlineBox>();
 
 	@Override
 	public void setParent(final IBox parent) {
@@ -91,8 +91,19 @@ public class InlineContainer extends BaseBox implements IInlineBox, IParentBox<I
 
 	@Override
 	public void appendChild(final IInlineBox child) {
-		child.setParent(this);
-		children.add(child);
+		if (!joinWithLastChild(child)) {
+			child.setParent(this);
+			children.add(child);
+		}
+	}
+
+	private boolean joinWithLastChild(final IInlineBox box) {
+		if (!hasChildren()) {
+			return false;
+		}
+		final IInlineBox lastChild = children.getLast();
+		final boolean joined = lastChild.join(box);
+		return joined;
 	}
 
 	@Override
@@ -127,7 +138,7 @@ public class InlineContainer extends BaseBox implements IInlineBox, IParentBox<I
 	}
 
 	private void arrangeChildrenOnBaseline() {
-		int childLeft = left;
+		int childLeft = 0;
 		for (final IInlineBox child : children) {
 			final int childTop = baseline - child.getBaseline();
 			child.setPosition(childTop, childLeft);
@@ -164,20 +175,14 @@ public class InlineContainer extends BaseBox implements IInlineBox, IParentBox<I
 		}
 		final InlineContainer otherInlineContainer = (InlineContainer) other;
 
-		final int mergeIndex = children.size() - 1;
 		for (int i = 0; i < otherInlineContainer.children.size(); i += 1) {
 			final IInlineBox child = otherInlineContainer.children.get(i);
 			appendChild(child);
 		}
 
-		if (mergeIndex >= 0 && mergeIndex < children.size() - 1) {
-			final IInlineBox leftChild = children.get(mergeIndex);
-			final IInlineBox rightChild = children.get(mergeIndex + 1);
-			if (leftChild.join(rightChild)) {
-				children.remove(mergeIndex + 1);
-				rightChild.setParent(null);
-			}
-		}
+		calculateBoundsAndBaseline();
+		arrangeChildrenOnBaseline();
+
 		return true;
 	}
 
@@ -186,33 +191,45 @@ public class InlineContainer extends BaseBox implements IInlineBox, IParentBox<I
 		if (children.isEmpty()) {
 			return false;
 		}
+		if (children.size() == 1) {
+			return children.getFirst().canSplit();
+		}
 		return true;
 	}
 
 	@Override
-	public IInlineBox splitTail(final Graphics graphics, final int headWidth, final boolean force) {
+	public InlineContainer splitTail(final Graphics graphics, final int headWidth, final boolean force) {
 		final int splitIndex = findChildIndexToSplitAt(headWidth);
 		if (splitIndex == -1) {
-			return null;
+			return new InlineContainer();
 		}
+
 		final IInlineBox splitChild = children.get(splitIndex);
 		final IInlineBox splitChildTail = splitChild.splitTail(graphics, headWidth - splitChild.getLeft(), force);
+		if (splitChild.getWidth() == 0) {
+			children.remove(splitChild);
+			splitChild.setParent(null);
+		}
+
 		final InlineContainer tail = new InlineContainer();
 		tail.setParent(parent);
 
-		if (splitChildTail == null) {
+		if (splitChildTail.getWidth() == 0) {
 			moveChildrenTo(tail, splitIndex);
 		} else {
 			tail.appendChild(splitChildTail);
 			moveChildrenTo(tail, splitIndex + 1);
 		}
 
+		layout(graphics);
+		tail.layout(graphics);
+
 		return tail;
 	}
 
 	private int findChildIndexToSplitAt(final int headWidth) {
 		for (int i = 0; i < children.size(); i += 1) {
-			final IInlineBox child = children.get(0);
+			final IInlineBox child = children.get(i);
 			if (child.getLeft() + child.getWidth() > headWidth) {
 				return i;
 			}
