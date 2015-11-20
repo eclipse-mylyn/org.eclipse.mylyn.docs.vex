@@ -11,7 +11,7 @@
 package org.eclipse.vex.core.internal.cursor;
 
 import org.eclipse.vex.core.internal.boxes.BaseBoxVisitorWithResult;
-import org.eclipse.vex.core.internal.boxes.DepthFirstTraversal;
+import org.eclipse.vex.core.internal.boxes.DepthFirstBoxTraversal;
 import org.eclipse.vex.core.internal.boxes.IBox;
 import org.eclipse.vex.core.internal.boxes.IContentBox;
 import org.eclipse.vex.core.internal.boxes.ParentTraversal;
@@ -34,7 +34,7 @@ public class ContentTopology {
 	}
 
 	private static IContentBox findOutmostContentBox(final RootBox rootBox) {
-		return rootBox.accept(new DepthFirstTraversal<IContentBox>(null) {
+		return rootBox.accept(new DepthFirstBoxTraversal<IContentBox>(null) {
 			@Override
 			public IContentBox visit(final StructuralNodeReference box) {
 				return box;
@@ -59,7 +59,7 @@ public class ContentTopology {
 	}
 
 	public IContentBox findBoxForPosition(final int offset) {
-		return rootBox.accept(new DepthFirstTraversal<IContentBox>() {
+		return rootBox.accept(new DepthFirstBoxTraversal<IContentBox>() {
 			@Override
 			public IContentBox visit(final StructuralNodeReference box) {
 				if (box.getStartOffset() == offset || box.getEndOffset() == offset) {
@@ -82,7 +82,7 @@ public class ContentTopology {
 	}
 
 	public IContentBox findBoxForRange(final ContentRange range) {
-		return rootBox.accept(new DepthFirstTraversal<IContentBox>() {
+		return rootBox.accept(new DepthFirstBoxTraversal<IContentBox>() {
 			@Override
 			public IContentBox visit(final StructuralNodeReference box) {
 				if (box.getRange().contains(range)) {
@@ -112,7 +112,7 @@ public class ContentTopology {
 			return null;
 		}
 
-		return outmostContentBox.accept(new DepthFirstTraversal<IContentBox>() {
+		return outmostContentBox.accept(new DepthFirstBoxTraversal<IContentBox>() {
 			@Override
 			public IContentBox visit(final StructuralNodeReference box) {
 				if (!box.containsCoordinates(x, y)) {

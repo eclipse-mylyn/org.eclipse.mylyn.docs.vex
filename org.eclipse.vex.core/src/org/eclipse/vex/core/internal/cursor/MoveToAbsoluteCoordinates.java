@@ -15,7 +15,7 @@ import static org.eclipse.vex.core.internal.cursor.ContentTopology.horizontalDis
 
 import java.util.LinkedList;
 
-import org.eclipse.vex.core.internal.boxes.DepthFirstTraversal;
+import org.eclipse.vex.core.internal.boxes.DepthFirstBoxTraversal;
 import org.eclipse.vex.core.internal.boxes.IContentBox;
 import org.eclipse.vex.core.internal.boxes.TextContent;
 import org.eclipse.vex.core.internal.core.Graphics;
@@ -69,7 +69,7 @@ public class MoveToAbsoluteCoordinates implements ICursorMove {
 
 	private static IContentBox findClosestBoxInContainer(final IContentBox container, final int x, final int y) {
 		final LinkedList<IContentBox> candidates = new LinkedList<IContentBox>();
-		container.accept(new DepthFirstTraversal<Object>() {
+		container.accept(new DepthFirstBoxTraversal<Object>() {
 			@Override
 			public Object visit(final TextContent box) {
 				if (box.containsY(y)) {

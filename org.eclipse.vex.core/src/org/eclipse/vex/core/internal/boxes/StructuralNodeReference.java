@@ -163,7 +163,7 @@ public class StructuralNodeReference extends BaseBox implements IStructuralBox, 
 		fillBackground(graphics, lightBackground);
 		drawBorder(graphics, background);
 
-		accept(new DepthFirstTraversal<Object>() {
+		accept(new DepthFirstBoxTraversal<Object>() {
 			@Override
 			public Object visit(final StructuralNodeReference box) {
 				if (box != StructuralNodeReference.this) {

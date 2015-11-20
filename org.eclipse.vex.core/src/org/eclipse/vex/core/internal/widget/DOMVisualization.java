@@ -13,7 +13,7 @@ package org.eclipse.vex.core.internal.widget;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.vex.core.internal.boxes.BaseBoxVisitor;
 import org.eclipse.vex.core.internal.boxes.BaseBoxVisitorWithResult;
-import org.eclipse.vex.core.internal.boxes.DepthFirstTraversal;
+import org.eclipse.vex.core.internal.boxes.DepthFirstBoxTraversal;
 import org.eclipse.vex.core.internal.boxes.IContentBox;
 import org.eclipse.vex.core.internal.boxes.IStructuralBox;
 import org.eclipse.vex.core.internal.boxes.StructuralNodeReference;
@@ -99,7 +99,7 @@ public class DOMVisualization {
 	}
 
 	private void includeGapsInTextContent(final IContentBox box) {
-		box.accept(new DepthFirstTraversal<Object>() {
+		box.accept(new DepthFirstBoxTraversal<Object>() {
 			private int lastEndOffset = box.getStartOffset();
 			private TextContent lastTextContentBox;
 

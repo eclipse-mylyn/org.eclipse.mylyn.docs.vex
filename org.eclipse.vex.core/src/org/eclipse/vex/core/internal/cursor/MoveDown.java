@@ -18,7 +18,7 @@ import java.util.Iterator;
 import java.util.LinkedList;
 
 import org.eclipse.vex.core.internal.boxes.BaseBoxVisitorWithResult;
-import org.eclipse.vex.core.internal.boxes.DepthFirstTraversal;
+import org.eclipse.vex.core.internal.boxes.DepthFirstBoxTraversal;
 import org.eclipse.vex.core.internal.boxes.IContentBox;
 import org.eclipse.vex.core.internal.boxes.StructuralNodeReference;
 import org.eclipse.vex.core.internal.boxes.TextContent;
@@ -92,7 +92,7 @@ public class MoveDown implements ICursorMove {
 	}
 
 	private static IContentBox getFirstContentBoxChild(final IContentBox parent) {
-		return parent.accept(new DepthFirstTraversal<IContentBox>() {
+		return parent.accept(new DepthFirstBoxTraversal<IContentBox>() {
 			private IContentBox firstChild;
 
 			@Override
@@ -177,7 +177,7 @@ public class MoveDown implements ICursorMove {
 		final LinkedList<IContentBox> candidates = new LinkedList<IContentBox>();
 		final int[] minVerticalDistance = new int[1];
 		minVerticalDistance[0] = Integer.MAX_VALUE;
-		parent.accept(new DepthFirstTraversal<Object>() {
+		parent.accept(new DepthFirstBoxTraversal<Object>() {
 			@Override
 			public Object visit(final StructuralNodeReference box) {
 				if (box == parent) {
@@ -226,7 +226,7 @@ public class MoveDown implements ICursorMove {
 			return candidate;
 		}
 
-		final IContentBox lastTextContentBox = parent.accept(new DepthFirstTraversal<IContentBox>() {
+		final IContentBox lastTextContentBox = parent.accept(new DepthFirstBoxTraversal<IContentBox>() {
 			private IContentBox lastTextContentBox;
 
 			@Override

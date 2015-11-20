@@ -13,7 +13,7 @@ package org.eclipse.vex.core.internal.cursor;
 import java.util.LinkedList;
 
 import org.eclipse.vex.core.internal.boxes.BaseBoxVisitorWithResult;
-import org.eclipse.vex.core.internal.boxes.DepthFirstTraversal;
+import org.eclipse.vex.core.internal.boxes.DepthFirstBoxTraversal;
 import org.eclipse.vex.core.internal.boxes.IBox;
 import org.eclipse.vex.core.internal.boxes.IContentBox;
 import org.eclipse.vex.core.internal.boxes.StructuralNodeReference;
@@ -140,7 +140,7 @@ public class Cursor {
 		}
 		final ContentRange selectedRange = selector.getRange();
 		final IBox selectionRootBox = contentTopology.findBoxForRange(selectedRange);
-		selectionRootBox.accept(new DepthFirstTraversal<Object>() {
+		selectionRootBox.accept(new DepthFirstBoxTraversal<Object>() {
 			@Override
 			public Object visit(final StructuralNodeReference box) {
 				if (selectedRange.contains(box.getRange())) {

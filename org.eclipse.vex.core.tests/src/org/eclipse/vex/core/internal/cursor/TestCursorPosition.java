@@ -18,7 +18,7 @@ import static org.eclipse.vex.core.internal.cursor.CursorMoves.toOffset;
 import static org.eclipse.vex.core.internal.cursor.CursorMoves.up;
 import static org.junit.Assert.assertEquals;
 
-import org.eclipse.vex.core.internal.boxes.DepthFirstTraversal;
+import org.eclipse.vex.core.internal.boxes.DepthFirstBoxTraversal;
 import org.eclipse.vex.core.internal.boxes.IContentBox;
 import org.eclipse.vex.core.internal.boxes.RootBox;
 import org.eclipse.vex.core.internal.boxes.StructuralNodeReference;
@@ -423,7 +423,7 @@ public class TestCursorPosition {
 	 */
 	@SuppressWarnings("unused")
 	private void printBoxStructure() {
-		rootBox.accept(new DepthFirstTraversal<Object>() {
+		rootBox.accept(new DepthFirstBoxTraversal<Object>() {
 			private String indent = "";
 
 			@Override

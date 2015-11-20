@@ -13,13 +13,13 @@ package org.eclipse.vex.core.internal.boxes;
 /**
  * @author Florian Thienel
  */
-public abstract class DepthFirstTraversal<T> extends BaseBoxVisitorWithResult<T> {
+public abstract class DepthFirstBoxTraversal<T> extends BaseBoxVisitorWithResult<T> {
 
-	public DepthFirstTraversal() {
+	public DepthFirstBoxTraversal() {
 		this(null);
 	}
 
-	public DepthFirstTraversal(final T defaultValue) {
+	public DepthFirstBoxTraversal(final T defaultValue) {
 		super(defaultValue);
 	}
 
