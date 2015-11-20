@@ -52,19 +52,23 @@ public class UniversalTestDocument {
 	public static IDocument createTestDocument(final int sampleCount) {
 		final Document document = new Document(new QualifiedName(null, "doc"));
 		for (int i = 0; i < sampleCount; i += 1) {
-			insertSection(document.getRootElement(), i);
+			insertSection(document.getRootElement(), i, false);
 		}
 		return document;
 	}
 
-	private static void insertSection(final IParent parent, final int index) {
+	private static void insertSection(final IParent parent, final int index, final boolean withInlineElements) {
 		final IElement section = insertElement(parent, "section");
-		insertParagraph(section, index);
+		insertParagraph(section, index, withInlineElements);
 		insertEmptyParagraph(section);
 	}
 
-	private static void insertParagraph(final IParent parent, final int index) {
-		insertText(insertEmptyParagraph(parent), index + " " + LOREM_IPSUM_LONG);
+	private static void insertParagraph(final IParent parent, final int index, final boolean withInlineElements) {
+		if (withInlineElements) {
+			insertTextWithInlineElements(insertEmptyParagraph(parent), index + " " + LOREM_IPSUM_LONG);
+		} else {
+			insertText(insertEmptyParagraph(parent), index + " " + LOREM_IPSUM_LONG);
+		}
 	}
 
 	private static IElement insertEmptyParagraph(final IParent parent) {
@@ -79,6 +83,35 @@ public class UniversalTestDocument {
 	private static void insertText(final IParent parent, final String text) {
 		final IDocument document = parent.getDocument();
 		document.insertText(parent.getEndOffset(), text);
+	}
+
+	public static IDocument createTestDocumentWithInlineElements(final int sampleCount) {
+		final Document document = new Document(new QualifiedName(null, "doc"));
+		for (int i = 0; i < sampleCount; i += 1) {
+			insertSection(document.getRootElement(), i, true);
+		}
+		return document;
+	}
+
+	private static void insertTextWithInlineElements(final IParent parent, final String text) {
+		final IDocument document = parent.getDocument();
+
+		int startOffset = 0;
+		while (startOffset < text.length()) {
+			final int wordStart = text.indexOf(" ", startOffset);
+			final int wordEnd = text.indexOf(" ", wordStart + 1);
+
+			if (wordStart < 0 || wordEnd < 0) {
+				document.insertText(parent.getEndOffset(), text.substring(startOffset));
+				startOffset = text.length();
+			} else {
+				document.insertText(parent.getEndOffset(), text.substring(startOffset, wordStart + 1));
+				final IElement inlineElement = document.insertElement(parent.getEndOffset(), new QualifiedName(null, "b"));
+				document.insertText(inlineElement.getEndOffset(), text.substring(wordStart + 1, wordEnd));
+				document.insertText(parent.getEndOffset(), text.substring(wordEnd, wordEnd + 1));
+				startOffset = wordEnd + 1;
+			}
+		}
 	}
 
 }

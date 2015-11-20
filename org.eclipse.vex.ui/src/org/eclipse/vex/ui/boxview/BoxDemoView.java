@@ -58,7 +58,7 @@ public class BoxDemoView extends ViewPart {
 		}
 		boxWidget = new BoxWidget(parent, SWT.V_SCROLL);
 
-		boxWidget.setContent(UniversalTestDocument.createTestDocument(SAMPLE_COUNT));
+		boxWidget.setContent(UniversalTestDocument.createTestDocumentWithInlineElements(SAMPLE_COUNT));
 		boxWidget.setVisualizationChain(buildVisualizationChain());
 		parent.layout();
 	}
