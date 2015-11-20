@@ -86,7 +86,11 @@ public class DoubleBufferedRenderer implements IRenderer {
 
 		try {
 			for (final IRenderStep step : steps) {
-				step.render(graphics);
+				try {
+					step.render(graphics);
+				} catch (final Throwable t) {
+					t.printStackTrace(); //TODO proper logging
+				}
 			}
 		} finally {
 			graphics.dispose();
