@@ -52,10 +52,10 @@ public class BackgroundImageProperty extends AbstractProperty {
 			});
 		default:
 			VEXCorePlugin
-			.getInstance()
-			.getLog()
-			.log(new Status(IStatus.WARNING, VEXCorePlugin.ID, MessageFormat.format("Unsupported lexical unit type in ''background-image: {0}'' (type: {1})", lexicalUnit.toString(),
-					lexicalUnit.getLexicalUnitType())));
+					.getInstance()
+					.getLog()
+					.log(new Status(IStatus.WARNING, VEXCorePlugin.ID, MessageFormat.format("Unsupported lexical unit type in ''background-image: {0}'' (type: {1})", lexicalUnit.toString(),
+							lexicalUnit.getLexicalUnitType())));
 			return DEFAULT;
 		}
 	}

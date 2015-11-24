@@ -31,7 +31,8 @@ public class TextWrapperTest {
 		results = wrapper.wrap(40);
 		assertEquals(0, results.length);
 
-		inputs = new String[] { "Here ", "are ", "some ", "short ", "words ", "and here are some long ones. We make sure we have some short stuff and some long stuff, just to make sure it all wraps." };
+		inputs = new String[] { "Here ", "are ", "some ", "short ", "words ",
+				"and here are some long ones. We make sure we have some short stuff and some long stuff, just to make sure it all wraps." };
 
 		for (final String input : inputs) {
 			wrapper.add(input);

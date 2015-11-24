@@ -22,10 +22,6 @@ import javax.xml.parsers.FactoryConfigurationError;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParserFactory;
 
-import junit.framework.Test;
-import junit.framework.TestCase;
-import junit.framework.TestSuite;
-
 import org.eclipse.vex.core.internal.css.CssWhitespacePolicy;
 import org.eclipse.vex.core.internal.css.IStyleSheetProvider;
 import org.eclipse.vex.core.internal.css.StyleSheet;
@@ -46,6 +42,10 @@ import org.xml.sax.SAXException;
 import org.xml.sax.XMLReader;
 import org.xml.sax.helpers.DefaultHandler;
 
+import junit.framework.Test;
+import junit.framework.TestCase;
+import junit.framework.TestSuite;
+
 /**
  * Runs several suites of layout tests. Each suite is defined in an XML file. The XML files to run are registered in the
  * suite() method.<br />
@@ -59,7 +59,8 @@ import org.xml.sax.helpers.DefaultHandler;
  * <li>InvalidateAction="1" - Invalidates the element (only valid in BlockBox instances)</li>
  * </ul>
  * The expected layout state of an box may be checked with the attribute <code>layoutState="LAYOUT_XXX"</code> (
- * {@link AbstractBlockBox#LAYOUT_OK}, {@link AbstractBlockBox#LAYOUT_REDO}, {@link AbstractBlockBox#LAYOUT_PROPAGATE}).<br />
+ * {@link AbstractBlockBox#LAYOUT_OK}, {@link AbstractBlockBox#LAYOUT_REDO}, {@link AbstractBlockBox#LAYOUT_PROPAGATE}).
+ * <br />
  * The expected text after actions are performed is defined with the attribute <code>textAfter</code>.
  *
  */

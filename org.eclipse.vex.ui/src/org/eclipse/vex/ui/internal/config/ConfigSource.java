@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2010 John Krasnay and others.
+ * Copyright (c) 2004, 2015 John Krasnay and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -12,7 +12,9 @@
 package org.eclipse.vex.ui.internal.config;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -88,9 +90,11 @@ public abstract class ConfigSource {
 			return null;
 		}
 		final ConfigItem item = factory.createItem(this, configElements);
-		item.setSimpleId(simpleIdentifier);
-		item.setName(name);
-		this.addItem(item);
+		if (item != null) {
+			item.setSimpleId(simpleIdentifier);
+			item.setName(name);
+			this.addItem(item);
+		}
 		return item;
 
 	}
@@ -176,7 +180,16 @@ public abstract class ConfigSource {
 	 */
 	public ConfigItem getItemForResource(final IResource resource) {
 		for (final ConfigItem item : items) {
-			if (item.getResourceUri().equals(resource.getLocationURI())) {
+			URI uri;
+			try {
+				uri = new URL(getBaseUrl(), item.getResourceUri().toString()).toURI();
+			} catch (final MalformedURLException e) {
+				return null;
+			} catch (final URISyntaxException e) {
+				return null;
+			}
+
+			if (resource.getLocationURI().equals(uri)) {
 				return item;
 			}
 		}
@@ -190,7 +203,7 @@ public abstract class ConfigSource {
 	 *            URI of the resource, relative to the base URL of this configuration.
 	 */
 	public Object getParsedResource(final URI uri) {
-		return parsedResources.get(uri);
+		return parsedResources.get(resolveRelativeURI(uri));
 	}
 
 	/**
@@ -232,7 +245,7 @@ public abstract class ConfigSource {
 	public void parseResources(final IBuildProblemHandler problemHandler) {
 		parsedResources.clear();
 		for (final ConfigItem item : items) {
-			final URI uri = item.getResourceUri();
+			final URI uri = resolveRelativeURI(item.getResourceUri());
 			if (uri == null || parsedResources.containsKey(uri)) {
 				continue;
 			}
@@ -254,4 +267,14 @@ public abstract class ConfigSource {
 		return uriResolver.resolve(getBaseUrl().toString(), publicId, systemId);
 	}
 
+	private final URI resolveRelativeURI(final URI relUri) {
+		URI uri = null;
+		try {
+			// Make the relative resource URI absolute
+			uri = getBaseUrl().toURI().resolve(relUri);
+		} catch (final URISyntaxException e) {
+			e.printStackTrace();
+		}
+		return uri;
+	}
 }

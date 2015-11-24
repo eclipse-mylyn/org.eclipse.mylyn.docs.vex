@@ -43,8 +43,7 @@ public class L1TextHandlingTest {
 			}
 
 			@Override
-			public boolean isValidSequence(final QualifiedName element, final List<QualifiedName> sequence1, final List<QualifiedName> sequence2, final List<QualifiedName> sequence3,
-					final boolean partial) {
+			public boolean isValidSequence(final QualifiedName element, final List<QualifiedName> sequence1, final List<QualifiedName> sequence2, final List<QualifiedName> sequence3, final boolean partial) {
 				return "title".equals(element.getLocalName());
 			}
 		});

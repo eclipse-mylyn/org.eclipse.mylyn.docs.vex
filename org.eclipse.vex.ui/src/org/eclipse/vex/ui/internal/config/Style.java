@@ -33,21 +33,33 @@ public class Style extends ConfigItem {
 	/**
 	 * Adds the public ID of a document type to which the style applies.
 	 *
-	 * @param publicId
-	 *            public ID of the document type
+	 * @param id
+	 *            the ID of the document type (e.g. the public id or namespace name)
 	 */
-	public void addDocumentType(final String publicId) {
-		publicIds.add(publicId);
+	public void addDocumentType(final String id) {
+		if (id != null) {
+			doctypeIds.add(id);
+		}
 	}
 
 	/**
-	 * Returns true if this style applies to the documents with the given type.
+	 * Returns true if this style applies to the documents with the given id.
 	 *
-	 * @param publicId
-	 *            public ID of the document type being sought
+	 * @param id
+	 *            the ID of the document type (e.g. the public id or namespace name) being sought
 	 */
-	public boolean appliesTo(final String publicId) {
-		return publicIds.contains(publicId);
+	public boolean appliesTo(final String id) {
+		return id != null && doctypeIds.contains(id);
+	}
+
+	/**
+	 * Returns true if this style applies to the documents with the given id.
+	 *
+	 * @param id
+	 *            the ID of the document type (e.g. the public id or namespace name) being sought
+	 */
+	public boolean appliesTo(final DocumentType doctype) {
+		return doctype != null && (doctypeIds.contains(doctype.getSimpleId()) || doctypeIds.contains(doctype.getMainId()));
 	}
 
 	/**
@@ -60,8 +72,8 @@ public class Style extends ConfigItem {
 	/**
 	 * Returns a set of public IDs of all document types supported by this style.
 	 */
-	public Set<String> getDocumentTypes() {
-		return Collections.unmodifiableSet(publicIds);
+	public Set<String> getDocumentTypeIds() {
+		return Collections.unmodifiableSet(doctypeIds);
 	}
 
 	/**
@@ -80,7 +92,7 @@ public class Style extends ConfigItem {
 	 * Disassociates this style from all document types.
 	 */
 	public void removeAllDocumentTypes() {
-		publicIds.clear();
+		doctypeIds.clear();
 	}
 
 	/**
@@ -90,7 +102,7 @@ public class Style extends ConfigItem {
 	 *            public ID of the document type
 	 */
 	public void removeDocumentType(final String publicId) {
-		publicIds.remove(publicId);
+		doctypeIds.remove(publicId);
 	}
 
 	/**
@@ -106,6 +118,6 @@ public class Style extends ConfigItem {
 	// ===================================================== PRIVATE
 
 	private BoxFactory boxFactory;
-	private final Set<String> publicIds = new HashSet<String>();
+	private final Set<String> doctypeIds = new HashSet<String>();
 
 }

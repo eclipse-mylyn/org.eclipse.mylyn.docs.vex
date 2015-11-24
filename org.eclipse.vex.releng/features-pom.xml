@@ -14,7 +14,30 @@
 	</parent>
 
 	<build>
+	    <pluginManagement>
+	      <plugins>
+	        <plugin>
+	          <groupId>org.eclipse.tycho.extras</groupId>
+	          <artifactId>tycho-source-feature-plugin</artifactId>
+	          <version>${tycho-extras-version}</version>
+	        </plugin>
+	      </plugins>
+	    </pluginManagement>
 		<plugins>
+			<plugin>
+				<groupId>org.eclipse.tycho.extras</groupId>
+				<artifactId>tycho-source-feature-plugin</artifactId>
+			<executions>
+					<execution>
+						<id>generate-source-feature</id>
+						<goals>
+							<goal>source-feature</goal>
+						</goals>
+						<configuration>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
 			<plugin>
 				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>tycho-p2-plugin</artifactId>

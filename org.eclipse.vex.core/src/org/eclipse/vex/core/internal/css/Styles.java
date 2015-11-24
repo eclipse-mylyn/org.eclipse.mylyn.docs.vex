@@ -138,7 +138,8 @@ public class Styles {
 	}
 
 	/**
-	 * Returns a <code>List</code> of <code>ContentPart</code> objects representing the <code>content</code> property.<br />
+	 * Returns a <code>List</code> of <code>ContentPart</code> objects representing the <code>content</code> property.
+	 * <br />
 	 * The content is parsed on every access to get the actual values for attributes. Do not try to get the content via
 	 * the {@link #get(String)} method!
 	 *

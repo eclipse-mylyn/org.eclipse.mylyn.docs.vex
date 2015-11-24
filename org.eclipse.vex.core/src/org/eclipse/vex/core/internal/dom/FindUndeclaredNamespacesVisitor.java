@@ -80,6 +80,7 @@ public class FindUndeclaredNamespacesVisitor implements INodeVisitorWithResult<S
 		return Collections.emptySet();
 	}
 
+	@Override
 	public Set<String> visit(final IIncludeNode include) {
 		// TODO implement this
 		return Collections.emptySet();

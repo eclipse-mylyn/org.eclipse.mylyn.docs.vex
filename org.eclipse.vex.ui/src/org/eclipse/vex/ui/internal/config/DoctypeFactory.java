@@ -31,6 +31,7 @@ public class DoctypeFactory implements IConfigItemFactory {
 	private static final String ATTR_SYSTEM_ID = "systemId"; //$NON-NLS-1$
 	private static final String ATTR_PUBLIC_ID = "publicId"; //$NON-NLS-1$
 	private static final String ATTR_NAMESPACE_NAME = "namespaceName"; //$NON-NLS-1$
+	private static final String ATTR_URI = "uri"; //$NON-NLS-1$
 
 	private static final String ELT_ROOT_ELEMENT = "rootElement"; //$NON-NLS-1$
 	private static final String ATTR_NAME = "name"; //$NON-NLS-1$
@@ -39,6 +40,7 @@ public class DoctypeFactory implements IConfigItemFactory {
 	public IConfigElement[] createConfigurationElements(final ConfigItem item) {
 		final DocumentType doctype = (DocumentType) item;
 		final ConfigurationElement doctypeElement = new ConfigurationElement(ELT_DOCTYPE);
+		doctypeElement.setAttribute(ATTR_URI, doctype.getResourceUri().toString());
 		doctypeElement.setAttribute(ATTR_PUBLIC_ID, doctype.getPublicId());
 		doctypeElement.setAttribute(ATTR_SYSTEM_ID, doctype.getSystemId());
 		doctypeElement.setAttribute(ATTR_OUTLINE_PROVIDER, doctype.getOutlineProvider());
@@ -67,7 +69,14 @@ public class DoctypeFactory implements IConfigItemFactory {
 			final String systemId = configElement.getAttribute(ATTR_SYSTEM_ID);
 			doctype.setPublicId(publicId);
 			doctype.setSystemId(systemId);
-			doctype.setResourceUri(newUri(config.resolve(publicId, systemId)));
+			final String resourceUri = configElement.getAttribute(ATTR_URI);
+			if (resourceUri != null && !resourceUri.trim().isEmpty()) {
+				// Use the URI given in the Plugin configuration
+				doctype.setResourceUri(newUri(resourceUri));
+			} else {
+				// Try to resolve the URI
+				doctype.setResourceUri(newUri(config.resolve(publicId, systemId)));
+			}
 		} else {
 			final String namespaceName = configElement.getAttribute(ATTR_NAMESPACE_NAME);
 			doctype.setNamespaceName(namespaceName);

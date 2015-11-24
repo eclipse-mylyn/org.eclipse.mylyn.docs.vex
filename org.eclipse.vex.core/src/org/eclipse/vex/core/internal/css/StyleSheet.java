@@ -66,25 +66,25 @@ public class StyleSheet {
 	 * Standard CSS properties.
 	 */
 	private static final IProperty[] CSS_PROPERTIES = new IProperty[] { new DisplayProperty(), new LineHeightProperty(), new ListStyleTypeProperty(), new TextAlignProperty(),
-		new WhiteSpaceProperty(),
+			new WhiteSpaceProperty(),
 
-		new FontFamilyProperty(), new FontSizeProperty(), new FontStyleProperty(), new FontWeightProperty(), new TextDecorationProperty(),
+			new FontFamilyProperty(), new FontSizeProperty(), new FontStyleProperty(), new FontWeightProperty(), new TextDecorationProperty(),
 
-		new ColorProperty(CSS.COLOR), new ColorProperty(CSS.BACKGROUND_COLOR),
+			new ColorProperty(CSS.COLOR), new ColorProperty(CSS.BACKGROUND_COLOR),
 
-		new LengthProperty(CSS.MARGIN_BOTTOM, IProperty.Axis.VERTICAL), new LengthProperty(CSS.MARGIN_LEFT, IProperty.Axis.HORIZONTAL),
-		new LengthProperty(CSS.MARGIN_RIGHT, IProperty.Axis.HORIZONTAL), new LengthProperty(CSS.MARGIN_TOP, IProperty.Axis.VERTICAL),
+			new LengthProperty(CSS.MARGIN_BOTTOM, IProperty.Axis.VERTICAL), new LengthProperty(CSS.MARGIN_LEFT, IProperty.Axis.HORIZONTAL),
+			new LengthProperty(CSS.MARGIN_RIGHT, IProperty.Axis.HORIZONTAL), new LengthProperty(CSS.MARGIN_TOP, IProperty.Axis.VERTICAL),
 
-		new LengthProperty(CSS.PADDING_BOTTOM, IProperty.Axis.VERTICAL), new LengthProperty(CSS.PADDING_LEFT, IProperty.Axis.HORIZONTAL),
-		new LengthProperty(CSS.PADDING_RIGHT, IProperty.Axis.HORIZONTAL), new LengthProperty(CSS.PADDING_TOP, IProperty.Axis.VERTICAL),
+			new LengthProperty(CSS.PADDING_BOTTOM, IProperty.Axis.VERTICAL), new LengthProperty(CSS.PADDING_LEFT, IProperty.Axis.HORIZONTAL),
+			new LengthProperty(CSS.PADDING_RIGHT, IProperty.Axis.HORIZONTAL), new LengthProperty(CSS.PADDING_TOP, IProperty.Axis.VERTICAL),
 
-		new ColorProperty(CSS.BORDER_BOTTOM_COLOR), new ColorProperty(CSS.BORDER_LEFT_COLOR), new ColorProperty(CSS.BORDER_RIGHT_COLOR), new ColorProperty(CSS.BORDER_TOP_COLOR),
-		new BorderStyleProperty(CSS.BORDER_BOTTOM_STYLE), new BorderStyleProperty(CSS.BORDER_LEFT_STYLE), new BorderStyleProperty(CSS.BORDER_RIGHT_STYLE),
-		new BorderStyleProperty(CSS.BORDER_TOP_STYLE), new BorderWidthProperty(CSS.BORDER_BOTTOM_WIDTH, CSS.BORDER_BOTTOM_STYLE, IProperty.Axis.VERTICAL),
-		new BorderWidthProperty(CSS.BORDER_LEFT_WIDTH, CSS.BORDER_LEFT_STYLE, IProperty.Axis.HORIZONTAL),
-		new BorderWidthProperty(CSS.BORDER_RIGHT_WIDTH, CSS.BORDER_RIGHT_STYLE, IProperty.Axis.HORIZONTAL),
-		new BorderWidthProperty(CSS.BORDER_TOP_WIDTH, CSS.BORDER_TOP_STYLE, IProperty.Axis.VERTICAL), new BorderSpacingProperty(), new LengthProperty(CSS.HEIGHT, IProperty.Axis.VERTICAL),
-		new LengthProperty(CSS.WIDTH, IProperty.Axis.HORIZONTAL), new BackgroundImageProperty(), new OutlineContentProperty(), new InlineMarkerProperty() };
+			new ColorProperty(CSS.BORDER_BOTTOM_COLOR), new ColorProperty(CSS.BORDER_LEFT_COLOR), new ColorProperty(CSS.BORDER_RIGHT_COLOR), new ColorProperty(CSS.BORDER_TOP_COLOR),
+			new BorderStyleProperty(CSS.BORDER_BOTTOM_STYLE), new BorderStyleProperty(CSS.BORDER_LEFT_STYLE), new BorderStyleProperty(CSS.BORDER_RIGHT_STYLE),
+			new BorderStyleProperty(CSS.BORDER_TOP_STYLE), new BorderWidthProperty(CSS.BORDER_BOTTOM_WIDTH, CSS.BORDER_BOTTOM_STYLE, IProperty.Axis.VERTICAL),
+			new BorderWidthProperty(CSS.BORDER_LEFT_WIDTH, CSS.BORDER_LEFT_STYLE, IProperty.Axis.HORIZONTAL),
+			new BorderWidthProperty(CSS.BORDER_RIGHT_WIDTH, CSS.BORDER_RIGHT_STYLE, IProperty.Axis.HORIZONTAL),
+			new BorderWidthProperty(CSS.BORDER_TOP_WIDTH, CSS.BORDER_TOP_STYLE, IProperty.Axis.VERTICAL), new BorderSpacingProperty(), new LengthProperty(CSS.HEIGHT, IProperty.Axis.VERTICAL),
+			new LengthProperty(CSS.WIDTH, IProperty.Axis.HORIZONTAL), new BackgroundImageProperty(), new OutlineContentProperty(), new InlineMarkerProperty() };
 
 	/**
 	 * The rules that comprise the stylesheet.
@@ -95,6 +95,7 @@ public class StyleSheet {
 	 * The VEX core styles
 	 */
 	private final static List<Rule> coreRules;
+
 	static {
 		List<Rule> rules;
 		try {

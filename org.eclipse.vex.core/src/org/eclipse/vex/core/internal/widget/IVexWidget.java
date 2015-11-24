@@ -369,16 +369,18 @@ public interface IVexWidget {
 	 * Moves the caret to a new offset. The selection is not extended. This is equivalent to
 	 * <code>moveTo(offset, false)</code>.
 	 *
-	 * @param int new offset for the caret. The offset must be >= 1 and less than the document size; if not, it is
-	 *        silently ignored.
+	 * @param int
+	 *            new offset for the caret. The offset must be >= 1 and less than the document size; if not, it is
+	 *            silently ignored.
 	 */
 	void moveTo(final ContentPosition position);
 
 	/**
 	 * Moves the caret to the new offset, possibly changing the selection.
 	 *
-	 * @param int new offset for the caret. The offset must be >= 1 and less than the document size; if not, it is
-	 *        silently ignored.
+	 * @param int
+	 *            new offset for the caret. The offset must be >= 1 and less than the document size; if not, it is
+	 *            silently ignored.
 	 * @param select
 	 *            if true, the current selection is extended to match the new caret offset.
 	 */

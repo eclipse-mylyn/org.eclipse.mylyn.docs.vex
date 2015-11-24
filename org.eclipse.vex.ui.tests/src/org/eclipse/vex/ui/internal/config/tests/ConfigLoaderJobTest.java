@@ -53,6 +53,8 @@ public class ConfigLoaderJobTest {
 		final List<ConfigSource> allConfigSources = job.getLoadedConfigSources();
 		assertContainsConfiguration(allConfigSources, name.getMethodName(), pluginProject.getFile("plugintest.dtd"), pluginProject.getFile("plugintest.css"));
 		assertContainsEachPluginOnlyOnce(allConfigSources);
+
+		pluginProject.delete(true, null);
 	}
 
 	@Test

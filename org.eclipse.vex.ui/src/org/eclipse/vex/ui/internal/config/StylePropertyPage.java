@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2010 John Krasnay and others.
+ * Copyright (c) 2004, 2015 John Krasnay and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,14 +8,15 @@
  * Contributors:
  *     John Krasnay - initial API and implementation
  *     Igor Jacy Lino Campista - Java 5 warnings fixed (bug 311325)
+ *     Carsten Hiesserich - support for doctypes with no public id
  *******************************************************************************/
 package org.eclipse.vex.ui.internal.config;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Set;
-import java.util.TreeSet;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.runtime.CoreException;
@@ -122,8 +123,15 @@ public class StylePropertyPage extends PropertyPage {
 		style = (Style) pluginProject.getItemForResource(file);
 		if (style == null) {
 			style = new Style(pluginProject);
-			style.setResourceUri(file.getLocationURI());
-			pluginProject.addItem(style);
+			URI uri;
+			try {
+				uri = new URI(file.getProjectRelativePath().toString());
+				style.setResourceUri(uri);
+				pluginProject.addItem(style);
+			} catch (final URISyntaxException e) {
+				// This should never happen
+				VexPlugin.getDefault().log(IStatus.ERROR, Messages.getString("StylePropertyPage.uriError"), e);
+			}
 		}
 
 		// Generate a simple ID for this one if necessary
@@ -160,7 +168,6 @@ public class StylePropertyPage extends PropertyPage {
 	}
 
 	private void populateDoctypes() {
-		final Set<String> selectedDoctypes = new TreeSet<String>(style.getDocumentTypes());
 		doctypesTable.removeAll();
 
 		final DocumentType[] documentTypes = VexPlugin.getDefault().getConfigurationRegistry().getDocumentTypes();
@@ -168,7 +175,7 @@ public class StylePropertyPage extends PropertyPage {
 		for (final DocumentType documentType : documentTypes) {
 			final TableItem item = new TableItem(doctypesTable, SWT.NONE);
 			item.setText(documentType.getName());
-			if (selectedDoctypes.contains(documentType.getPublicId())) {
+			if (style != null && style.appliesTo(documentType)) {
 				item.setChecked(true);
 			}
 		}
@@ -197,7 +204,7 @@ public class StylePropertyPage extends PropertyPage {
 		Arrays.sort(documentTypes);
 		for (final DocumentType documentType : documentTypes) {
 			if (selectedDoctypes.contains(documentType.getName())) {
-				style.addDocumentType(documentType.getSimpleId());
+				style.addDocumentType(documentType.getMainId());
 			}
 		}
 

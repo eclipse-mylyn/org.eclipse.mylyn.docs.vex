@@ -237,8 +237,8 @@ public class FindReplaceTargetTest {
 	public void testFindWholeWord() throws Exception {
 
 		// including special chars and German umlauts: sharp s = \u00df
-		//                                             ae      = \u00e4
-		setUp("xx aa xx xyx xx-cc a-xx%c \u00e4xx xx\u00df xx");
+ //                                             ae      = \u00e4
+ setUp("xx aa xx xyx xx-cc a-xx%c \u00e4xx xx\u00df xx");
 		setFindOptions("xx", Direction.FORWARD, Case.SENSITVE, WholeWord.ON);
 		findAndAssertSelectedTextEquals("[xx] aa xx xyx xx-cc a-xx%c \u00e4xx xx\u00df xx");
 		findAndAssertSelectedTextEquals("xx aa [xx] xyx xx-cc a-xx%c \u00e4xx xx\u00df xx");
