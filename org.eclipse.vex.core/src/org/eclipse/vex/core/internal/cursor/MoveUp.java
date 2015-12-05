@@ -148,7 +148,22 @@ public class MoveUp implements ICursorMove {
 
 		final IContentBox childAbove = findClosestContentBoxChildAbove(parent, x, y);
 		if (childAbove == null) {
-			return parent;
+			return parent.accept(new BaseBoxVisitorWithResult<IContentBox>() {
+				@Override
+				public IContentBox visit(final StructuralNodeReference box) {
+					return parent;
+				}
+
+				@Override
+				public IContentBox visit(final InlineNodeReference box) {
+					return findNextContentBoxAbove(parent, x, y);
+				}
+
+				@Override
+				public IContentBox visit(final TextContent box) {
+					return findNextContentBoxAbove(parent, x, y);
+				}
+			});
 		}
 
 		return childAbove;
