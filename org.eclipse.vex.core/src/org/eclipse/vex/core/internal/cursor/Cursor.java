@@ -191,7 +191,7 @@ public class Cursor {
 	private Caret getCaretForStructuralNode(final Graphics graphics, final StructuralNodeReference box, final int offset) {
 		final Rectangle area = getAbsolutePositionArea(graphics, box, offset);
 		if (box.isAtStart(offset)) {
-			return new InsertBeforeNodeCaret(area, box.getNode());
+			return new InsertBeforeStructuralNodeCaret(area, box.getNode());
 		} else if (box.isAtEnd(offset) && box.canContainText()) {
 			return new AppendNodeWithTextCaret(area, box.getNode(), box.isEmpty());
 		} else if (box.isAtEnd(offset) && !box.canContainText()) {
@@ -248,14 +248,13 @@ public class Cursor {
 	}
 
 	private Caret getCaretForInlineNode(final Graphics graphics, final InlineNodeReference box, final int offset) {
-		// TODO implement individual carets for inline node references
 		final Rectangle area = getAbsolutePositionArea(graphics, box, offset);
 		if (box.isAtStart(offset)) {
-			return new InsertBeforeNodeCaret(area, box.getNode());
+			return new InsertBeforeInlineNodeCaret(area, box.getNode());
 		} else if (box.isAtEnd(offset) && box.canContainText()) {
 			return new AppendNodeWithTextCaret(area, box.getNode(), box.isEmpty());
 		} else if (box.isAtEnd(offset) && !box.canContainText()) {
-			return new AppendStructuralNodeCaret(area, box.getNode());
+			return new AppendNodeWithTextCaret(area, box.getNode(), box.isEmpty());
 		} else {
 			return null;
 		}
@@ -280,11 +279,11 @@ public class Cursor {
 		void paint(Graphics graphics);
 	}
 
-	private static class InsertBeforeNodeCaret implements Caret {
+	private static class InsertBeforeStructuralNodeCaret implements Caret {
 		private final Rectangle area;
 		private final INode node;
 
-		public InsertBeforeNodeCaret(final Rectangle area, final INode node) {
+		public InsertBeforeStructuralNodeCaret(final Rectangle area, final INode node) {
 			this.area = area;
 			this.node = node;
 		}
@@ -319,6 +318,45 @@ public class Cursor {
 			NodeTag.drawStartTag(graphics, node, x + 5, y + 5, false);
 		}
 
+	}
+
+	private static class InsertBeforeInlineNodeCaret implements Caret {
+		private final Rectangle area;
+		private final INode node;
+
+		public InsertBeforeInlineNodeCaret(final Rectangle area, final INode node) {
+			this.area = area;
+			this.node = node;
+		}
+
+		@Override
+		public Rectangle getHotArea() {
+			return new Rectangle(area.getX(), area.getY(), 1, 1);
+		}
+
+		@Override
+		public Rectangle getVisibleArea() {
+			return new Rectangle(area.getX(), area.getY(), area.getWidth(), CARET_BUFFER);
+		}
+
+		@Override
+		public void paint(final Graphics graphics) {
+			if (area == Rectangle.NULL) {
+				return;
+			}
+
+			final ColorResource foregroundColor = graphics.getColor(CARET_FOREGROUND_COLOR);
+			final ColorResource backgroundColor = graphics.getColor(CARET_BACKGROUND_COLOR);
+			graphics.setForeground(foregroundColor);
+			graphics.setBackground(backgroundColor);
+
+			final int x = area.getX();
+			final int y = area.getY();
+
+			graphics.fillRect(x, y, 2, area.getHeight());
+
+			NodeTag.drawStartTag(graphics, node, x + 5, y + area.getHeight() / 2, true);
+		}
 	}
 
 	private static class AppendNodeWithTextCaret implements Caret {
@@ -364,7 +402,6 @@ public class Cursor {
 		private int getX() {
 			return nodeIsEmpty ? area.getX() : area.getX() + area.getWidth();
 		}
-
 	}
 
 	private static class AppendStructuralNodeCaret implements Caret {
