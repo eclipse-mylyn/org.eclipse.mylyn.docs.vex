@@ -50,7 +50,7 @@ public class LineArrangement {
 		final boolean boxWrappedCompletely;
 		if (currentLine.canJoinWithLastChild(box)) {
 			boxWrappedCompletely = arrangeWithLastChild(graphics, box);
-		} else if (boxFitsIntoCurrentLine(box)) {
+		} else if (boxFitsIntoCurrentLine(box) || !hasVisibleContent(box)) {
 			boxWrappedCompletely = appendToCurrentLine(box);
 		} else if (box.canSplit()) {
 			boxWrappedCompletely = splitAndWrapToNextLine(graphics, box);
@@ -59,6 +59,20 @@ public class LineArrangement {
 		}
 
 		lastBoxWrappedCompletely = boxWrappedCompletely;
+	}
+
+	private static boolean hasVisibleContent(final IInlineBox box) {
+		return box.accept(new BaseBoxVisitorWithResult<Boolean>(true) {
+			@Override
+			public Boolean visit(final TextContent box) {
+				return box.getText().trim().length() > 0;
+			}
+
+			@Override
+			public Boolean visit(final StaticText box) {
+				return box.getText().trim().length() > 0;
+			}
+		});
 	}
 
 	private boolean arrangeWithLastChild(final Graphics graphics, final IInlineBox box) {

@@ -59,8 +59,7 @@ public class TestLineArrangement {
 	}
 
 	@Test
-	public void givenUnjoinableBoxFollowedByJoinableBoxWithoutProperSplitPointAtLineEnd_whenAdditionalBoxWithoutProperSplitPointDoesNotFitIntoLine_shouldWrapCompleteJoinedBoxIntoNextLine()
-			throws Exception {
+	public void givenUnjoinableBoxFollowedByJoinableBoxWithoutProperSplitPointAtLineEnd_whenAdditionalBoxWithoutProperSplitPointDoesNotFitIntoLine_shouldWrapCompleteJoinedBoxIntoNextLine() throws Exception {
 		final List<IInlineBox> boxes = boxes(square(10), staticText("L"), staticText("or"));
 		lines.arrangeBoxes(graphics, boxes.listIterator(), 18);
 
@@ -80,8 +79,72 @@ public class TestLineArrangement {
 		}
 	}
 
+	@Test
+	public void givenInlineContainerFollowedBySingleSpace_whenSplittingWithinSpace_shouldKeepSpaceOnFirstLine() throws Exception {
+		final List<IInlineBox> boxes = boxes(staticText("Lorem "), inlineContainer(staticText("ipsum")), staticText(" "));
+		layout(boxes);
+		final int widthOfHeadBoxes = boxes.get(0).getWidth() + boxes.get(1).getWidth();
+
+		lines.arrangeBoxes(graphics, boxes.listIterator(), widthOfHeadBoxes + 1);
+
+		assertEquals(1, lines.getLines().size());
+		assertEquals(boxes.get(2), lines.getLines().iterator().next().getLastChild());
+	}
+
+	@Test
+	public void givenSquareFollowedBySingleSpace_whenSplittingWithinSpace_shouldKeepSpaceOnFirstLine() throws Exception {
+		final List<IInlineBox> boxes = boxes(staticText("Lorem "), square(15), staticText(" "));
+		layout(boxes);
+		final int widthOfHeadBoxes = boxes.get(0).getWidth() + boxes.get(1).getWidth();
+
+		lines.arrangeBoxes(graphics, boxes.listIterator(), widthOfHeadBoxes + 1);
+
+		assertEquals(1, lines.getLines().size());
+		assertEquals(boxes.get(2), lines.getLines().iterator().next().getLastChild());
+	}
+
+	@Test
+	public void givenInlineContainerFollowedByTextThatStartsWithSpace_whenSplittingWithinText_shouldSplitAfterSpace() throws Exception {
+		final List<IInlineBox> boxes = boxes(staticText("Lorem "), inlineContainer(staticText("ipsum")), staticText(" dolor"));
+		layout(boxes);
+		final int widthOfHeadBoxes = boxes.get(0).getWidth() + boxes.get(1).getWidth();
+
+		lines.arrangeBoxes(graphics, boxes.listIterator(), widthOfHeadBoxes + 10);
+
+		assertEquals(2, lines.getLines().size());
+		assertEquals(" ", ((StaticText) lines.getLines().iterator().next().getLastChild()).getText());
+	}
+
+	@Test
+	public void givenInlineContainerFollowedByTextThatStartsWithSpace_whenSplittingAnywhereWithinSpaceAndText_shouldSplitAfterSpace() throws Exception {
+		for (int x = 1; x < graphics.stringWidth(" dolor"); x += 1) {
+			final List<IInlineBox> boxes = boxes(staticText("Lorem "), inlineContainer(staticText("ipsum")), staticText(" dolor"));
+			layout(boxes);
+			final int widthOfHeadBoxes = boxes.get(0).getWidth() + boxes.get(1).getWidth();
+
+			lines.arrangeBoxes(graphics, boxes.listIterator(), widthOfHeadBoxes + x);
+
+			assertEquals("x = " + x, 2, lines.getLines().size());
+			assertEquals("x = " + x, " ", ((StaticText) lines.getLines().iterator().next().getLastChild()).getText());
+		}
+	}
+
+	private void layout(final List<IInlineBox> boxes) {
+		for (final IInlineBox box : boxes) {
+			box.layout(graphics);
+		}
+	}
+
 	private static List<IInlineBox> boxes(final IInlineBox... boxes) {
 		return new ArrayList<IInlineBox>(Arrays.asList(boxes));
+	}
+
+	private static InlineContainer inlineContainer(final IInlineBox... boxes) {
+		final InlineContainer container = new InlineContainer();
+		for (final IInlineBox box : boxes) {
+			container.appendChild(box);
+		}
+		return container;
 	}
 
 	private static StaticText staticText(final String text) {

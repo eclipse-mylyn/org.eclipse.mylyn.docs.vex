@@ -46,11 +46,14 @@ public class CharSequenceSplitter {
 	public int findSplittingPositionBefore(final Graphics graphics, final int x, final int maxWidth, final boolean force) {
 		final int positionAtWidth = findPositionAfter(graphics, x, maxWidth) - 1;
 		final int properSplittingPosition = findProperSplittingPositionBefore(positionAtWidth);
+
+		if (textLength() > properSplittingPosition + 2 && isSplittingCharacter(properSplittingPosition + 1) && !isSplittingCharacter(properSplittingPosition + 2)) {
+			return properSplittingPosition + 2;
+		}
 		if (properSplittingPosition == -1 && force) {
 			return positionAtWidth + 1;
-		} else {
-			return properSplittingPosition + 1;
 		}
+		return properSplittingPosition + 1;
 	}
 
 	public int findPositionAfter(final Graphics graphics, final int x, final int maxWidth) {
