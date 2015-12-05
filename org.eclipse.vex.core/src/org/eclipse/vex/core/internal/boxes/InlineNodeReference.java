@@ -326,9 +326,18 @@ public class InlineNodeReference extends BaseBox implements IInlineBox, IDecorat
 
 	@Override
 	public IInlineBox splitTail(final Graphics graphics, final int headWidth, final boolean force) {
+		final int firstChildOffset = findStartOffset(component);
+
 		final IInlineBox tailComponent = component.splitTail(graphics, headWidth, force);
 
-		final int splitPosition = findStartOffset(tailComponent);
+		final int firstTailOffset = findStartOffset(tailComponent);
+
+		final int splitPosition;
+		if (firstChildOffset == firstTailOffset) {
+			splitPosition = startPosition.getOffset();
+		} else {
+			splitPosition = firstTailOffset;
+		}
 		Assert.isTrue(splitPosition >= getStartOffset(), MessageFormat.format("Splitposition {0} is invalid.", splitPosition));
 
 		final InlineNodeReference tail = new InlineNodeReference();
@@ -365,7 +374,7 @@ public class InlineNodeReference extends BaseBox implements IInlineBox, IDecorat
 
 	@Override
 	public String toString() {
-		return "InlineNodeReference [parent=" + parent + ", top=" + top + ", left=" + left + ", width=" + width + ", height=" + height + ", baseline=" + baseline + ", startPosition=" + startPosition
+		return "InlineNodeReference [top=" + top + ", left=" + left + ", width=" + width + ", height=" + height + ", baseline=" + baseline + ", startPosition=" + startPosition
 				+ ", endPosition=" + endPosition + ", canContainText=" + canContainText + "]";
 	}
 }

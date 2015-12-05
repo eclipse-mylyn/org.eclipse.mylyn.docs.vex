@@ -12,6 +12,7 @@ package org.eclipse.vex.core.internal.cursor;
 
 import java.util.LinkedList;
 
+import org.eclipse.core.runtime.Assert;
 import org.eclipse.vex.core.internal.boxes.BaseBoxVisitorWithResult;
 import org.eclipse.vex.core.internal.boxes.DepthFirstBoxTraversal;
 import org.eclipse.vex.core.internal.boxes.IBox;
@@ -126,9 +127,7 @@ public class Cursor {
 
 	private void applyCaretForPosition(final Graphics graphics, final int offset) {
 		box = contentTopology.findBoxForPosition(offset);
-		if (box == null) {
-			return;
-		}
+		Assert.isNotNull(box, "No enclosing box found for the current caret position");
 		caret = getCaretForBox(graphics, box, offset);
 		if (preferX) {
 			preferredX = caret.getHotArea().getX();
