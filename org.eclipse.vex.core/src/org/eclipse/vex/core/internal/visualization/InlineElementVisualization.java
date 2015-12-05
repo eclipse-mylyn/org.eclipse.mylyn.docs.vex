@@ -11,7 +11,7 @@
 package org.eclipse.vex.core.internal.visualization;
 
 import static org.eclipse.vex.core.internal.boxes.BoxFactory.inlineContainer;
-import static org.eclipse.vex.core.internal.boxes.BoxFactory.nodeReference;
+import static org.eclipse.vex.core.internal.boxes.BoxFactory.nodeReferenceWithText;
 import static org.eclipse.vex.core.internal.boxes.BoxFactory.staticText;
 
 import org.eclipse.vex.core.internal.boxes.IInlineBox;
@@ -32,7 +32,7 @@ public class InlineElementVisualization extends NodeVisualization<IInlineBox> {
 			return super.visit(element);
 		}
 
-		return nodeReference(element, visualizeInlineElement(element));
+		return nodeReferenceWithText(element, visualizeInlineElement(element));
 	}
 
 	private InlineContainer visualizeInlineElement(final IElement element) {
