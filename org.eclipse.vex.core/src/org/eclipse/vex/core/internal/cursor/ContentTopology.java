@@ -59,7 +59,14 @@ public class ContentTopology {
 	}
 
 	public IContentBox findBoxForPosition(final int offset) {
-		return rootBox.accept(new DepthFirstBoxTraversal<IContentBox>() {
+		return findBoxForPosition(offset, rootBox);
+	}
+
+	public IContentBox findBoxForPosition(final int offset, final IBox startBox) {
+		if (startBox == null) {
+			return findBoxForPosition(offset, rootBox);
+		}
+		return startBox.accept(new DepthFirstBoxTraversal<IContentBox>() {
 			@Override
 			public IContentBox visit(final StructuralNodeReference box) {
 				if (box.getStartOffset() == offset || box.getEndOffset() == offset) {

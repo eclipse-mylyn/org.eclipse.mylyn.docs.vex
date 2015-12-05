@@ -21,7 +21,14 @@ public class MoveLeft implements ICursorMove {
 
 	@Override
 	public int calculateNewOffset(final Graphics graphics, final ContentTopology contentTopology, final int currentOffset, final IContentBox currentBox, final Rectangle hotArea, final int preferredX) {
-		return Math.max(0, currentOffset - 1);
+		final IContentBox parentBox = ContentTopology.getParentContentBox(currentBox);
+
+		int nextOffset = Math.max(0, currentOffset - 1);
+		while (contentTopology.findBoxForPosition(nextOffset, parentBox) == null && nextOffset > 0) {
+			nextOffset = Math.max(0, nextOffset - 1);
+		}
+
+		return nextOffset;
 	}
 
 	@Override
