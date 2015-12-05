@@ -95,9 +95,9 @@ public class LineArrangement {
 		}
 		if (tail.getWidth() > 0) {
 			insertNextBox(tail);
+			lineBreak();
 		}
 
-		lineBreak();
 		return lastChildWrappedCompletely;
 	}
 
@@ -123,9 +123,9 @@ public class LineArrangement {
 		}
 		if (tail.getWidth() > 0) {
 			insertNextBox(tail);
+			lineBreak();
 		}
 
-		lineBreak();
 		return boxWrappedCompletely;
 	}
 
