@@ -10,16 +10,20 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.widget;
 
+import java.util.Collection;
+
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.vex.core.internal.boxes.BaseBoxVisitor;
-import org.eclipse.vex.core.internal.boxes.BaseBoxVisitorWithResult;
-import org.eclipse.vex.core.internal.boxes.DepthFirstBoxTraversal;
+import org.eclipse.vex.core.internal.boxes.Frame;
+import org.eclipse.vex.core.internal.boxes.IBox;
 import org.eclipse.vex.core.internal.boxes.IContentBox;
-import org.eclipse.vex.core.internal.boxes.IStructuralBox;
+import org.eclipse.vex.core.internal.boxes.InlineContainer;
 import org.eclipse.vex.core.internal.boxes.InlineNodeReference;
+import org.eclipse.vex.core.internal.boxes.Paragraph;
 import org.eclipse.vex.core.internal.boxes.RootBox;
 import org.eclipse.vex.core.internal.boxes.StructuralNodeReference;
 import org.eclipse.vex.core.internal.boxes.TextContent;
+import org.eclipse.vex.core.internal.boxes.VerticalBlock;
 import org.eclipse.vex.core.internal.cursor.ContentTopology;
 import org.eclipse.vex.core.internal.cursor.Cursor;
 import org.eclipse.vex.core.internal.visualization.VisualizationChain;
@@ -71,82 +75,87 @@ public class DOMVisualization {
 	}
 
 	public void rebuildStructure(final INode node) {
-		final IContentBox modifiedBox = contentTopology.findBoxForRange(node.getRange());
-		final IStructuralBox newBox = visualizationChain.visualizeStructure(node);
-		final IStructuralBox newChildBox = newBox.accept(new BaseBoxVisitorWithResult<IStructuralBox>(newBox) {
+		final Collection<IContentBox> modifiedBoxes = contentTopology.findBoxesForNode(node);
+		if (modifiedBoxes.isEmpty()) {
+			return;
+		}
+		final IBox parent = getCommonParent(modifiedBoxes);
+
+		replaceModifiedBoxesWithRebuiltVisualization(parent, modifiedBoxes, node);
+
+		view.invalidateLayout(parent);
+	}
+
+	private void replaceModifiedBoxesWithRebuiltVisualization(final IBox parent, final Collection<IContentBox> modifiedBoxes, final INode node) {
+		parent.accept(new BaseBoxVisitor() {
 			@Override
-			public IStructuralBox visit(final StructuralNodeReference box) {
-				return box.getComponent();
+			public void visit(final RootBox box) {
+				box.replaceChildren(modifiedBoxes, visualizationChain.visualizeStructure(node));
+			}
+
+			@Override
+			public void visit(final VerticalBlock box) {
+				box.replaceChildren(modifiedBoxes, visualizationChain.visualizeStructure(node));
+			}
+
+			@Override
+			public void visit(final Frame box) {
+				box.setComponent(visualizationChain.visualizeStructure(node));
+			}
+
+			@Override
+			public void visit(final StructuralNodeReference box) {
+				box.setComponent(visualizationChain.visualizeStructure(node));
+			}
+
+			@Override
+			public void visit(final Paragraph box) {
+				box.replaceChildren(modifiedBoxes, visualizationChain.visualizeInline(node));
+			}
+
+			@Override
+			public void visit(final InlineNodeReference box) {
+				box.setComponent(visualizationChain.visualizeInline(node));
+			}
+
+			@Override
+			public void visit(final InlineContainer box) {
+				box.replaceChildren(modifiedBoxes, visualizationChain.visualizeInline(node));
 			}
 		});
+	}
+
+	private IBox getCommonParent(final Collection<IContentBox> boxes) {
+		IBox parent = null;
+		for (final IContentBox box : boxes) {
+			if (parent == null) {
+				parent = box.getParent();
+			} else {
+				Assert.isTrue(parent == box.getParent(), "The modified boxes do not have a common parent box.");
+			}
+		}
+		return parent;
+	}
+
+	public void rebuildContentRange(final INode node, final ContentRange modifiedRange) {
+		final IContentBox modifiedBox = contentTopology.findBoxForRange(modifiedRange);
+		Assert.isNotNull(modifiedBox, "No box found for range " + modifiedRange);
+
 		modifiedBox.accept(new BaseBoxVisitor() {
 			@Override
 			public void visit(final StructuralNodeReference box) {
-				box.setComponent(newChildBox);
-			}
-		});
-
-		view.invalidateLayout(modifiedBox);
-	}
-
-	public void rebuildContentRange(final ContentRange range) {
-		final IContentBox modifiedBox = contentTopology.findBoxForRange(range);
-		if (modifiedBox == null) {
-			return;
-		}
-		includeGapsInTextContent(modifiedBox);
-
-		view.invalidateLayout(modifiedBox);
-	}
-
-	private void includeGapsInTextContent(final IContentBox box) {
-		box.accept(new DepthFirstBoxTraversal<Object>() {
-			private int lastEndOffset = box.getStartOffset();
-			private TextContent lastTextContentBox;
-
-			@Override
-			public Object visit(final StructuralNodeReference box) {
-				lastEndOffset = box.getStartOffset();
-				box.getComponent().accept(this);
-
-				fillTextContentGapUntilOffset(box.getEndOffset());
-
-				lastEndOffset = box.getEndOffset();
-				lastTextContentBox = null;
-				return super.visit(box);
+				rebuildStructure(node);
 			}
 
 			@Override
-			public Object visit(final InlineNodeReference box) {
-				fillTextContentGapUntilOffset(box.getStartOffset());
-
-				lastEndOffset = box.getStartOffset();
-				box.getComponent().accept(this);
-
-				fillTextContentGapUntilOffset(box.getEndOffset());
-
-				lastEndOffset = box.getEndOffset();
-				lastTextContentBox = null;
-				return super.visit(box);
+			public void visit(final InlineNodeReference box) {
+				rebuildStructure(node);
 			}
 
 			@Override
-			public Object visit(final TextContent box) {
-				if (box.getStartOffset() > lastEndOffset + 1) {
-					box.setStartOffset(lastEndOffset + 1);
-				}
-
-				lastEndOffset = box.getEndOffset();
-				lastTextContentBox = box;
-				return super.visit(box);
-			}
-
-			private void fillTextContentGapUntilOffset(final int offset) {
-				if (lastTextContentBox != null && lastTextContentBox.getEndOffset() < offset - 1) {
-					lastTextContentBox.setEndOffset(offset - 1);
-				}
+			public void visit(final TextContent box) {
+				view.invalidateLayout(modifiedBox);
 			}
 		});
 	}
-
 }

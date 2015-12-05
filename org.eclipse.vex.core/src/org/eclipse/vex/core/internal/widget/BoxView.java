@@ -12,7 +12,6 @@ package org.eclipse.vex.core.internal.widget;
 
 import org.eclipse.vex.core.internal.boxes.IBox;
 import org.eclipse.vex.core.internal.boxes.IChildBox;
-import org.eclipse.vex.core.internal.boxes.IContentBox;
 import org.eclipse.vex.core.internal.boxes.RootBox;
 import org.eclipse.vex.core.internal.core.Graphics;
 import org.eclipse.vex.core.internal.core.Rectangle;
@@ -44,7 +43,7 @@ public class BoxView {
 		this.rootBox = rootBox;
 	}
 
-	public void invalidateLayout(final IContentBox box) {
+	public void invalidateLayout(final IBox box) {
 		render(reconcileLayout(box), paintContent());
 	}
 
@@ -93,7 +92,7 @@ public class BoxView {
 		};
 	}
 
-	private IRenderStep reconcileLayout(final IContentBox box) {
+	private IRenderStep reconcileLayout(final IBox box) {
 		return new IRenderStep() {
 			@Override
 			public void render(final Graphics graphics) {
@@ -108,7 +107,7 @@ public class BoxView {
 		viewPort.reconcile(rootBox.getHeight() + Cursor.CARET_BUFFER);
 	}
 
-	private void reconcileParentsLayout(final IContentBox box, final Graphics graphics) {
+	private void reconcileParentsLayout(final IBox box, final Graphics graphics) {
 		IBox parentBox = getParentBox(box);
 		while (parentBox != null && parentBox.reconcileLayout(graphics)) {
 			parentBox = getParentBox(parentBox);

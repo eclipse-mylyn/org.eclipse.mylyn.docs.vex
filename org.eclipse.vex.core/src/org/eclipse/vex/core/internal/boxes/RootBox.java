@@ -11,6 +11,8 @@
 package org.eclipse.vex.core.internal.boxes;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.ListIterator;
 
 import org.eclipse.vex.core.internal.core.Graphics;
 import org.eclipse.vex.core.internal.core.Rectangle;
@@ -79,6 +81,23 @@ public class RootBox extends BaseBox implements IParentBox<IStructuralBox> {
 	public void appendChild(final IStructuralBox child) {
 		child.setParent(this);
 		children.add(child);
+	}
+
+	@Override
+	public void replaceChildren(final Collection<? extends IBox> oldChildren, final IStructuralBox newChild) {
+		boolean newChildInserted = false;
+
+		for (final ListIterator<IStructuralBox> iter = children.listIterator(); iter.hasNext();) {
+			final IStructuralBox child = iter.next();
+			if (oldChildren.contains(child)) {
+				iter.remove();
+				if (!newChildInserted) {
+					iter.add(newChild);
+					newChild.setParent(this);
+					newChildInserted = true;
+				}
+			}
+		}
 	}
 
 	public Iterable<IStructuralBox> getChildren() {

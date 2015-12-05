@@ -82,6 +82,10 @@ public class BoxWidget extends Canvas {
 		controller.setVisualizationChain(visualizationChain);
 	}
 
+	public DOMController getDOMController() {
+		return controller;
+	}
+
 	private void connectDispose() {
 		addDisposeListener(new DisposeListener() {
 			@Override

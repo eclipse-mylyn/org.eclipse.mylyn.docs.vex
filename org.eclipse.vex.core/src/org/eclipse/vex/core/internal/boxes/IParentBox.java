@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.boxes;
 
+import java.util.Collection;
 
 /**
  * @author Florian Thienel
@@ -19,6 +20,8 @@ public interface IParentBox<T extends IBox> extends IBox {
 	boolean hasChildren();
 
 	void appendChild(T child);
+
+	void replaceChildren(Collection<? extends IBox> oldChildren, T newChild);
 
 	Iterable<T> getChildren();
 

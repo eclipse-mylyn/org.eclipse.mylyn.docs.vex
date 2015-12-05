@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.vex.ui.boxview;
 
+import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.part.ViewPart;
@@ -20,6 +21,7 @@ import org.eclipse.vex.core.internal.visualization.ParagraphVisualization;
 import org.eclipse.vex.core.internal.visualization.StructureElementVisualization;
 import org.eclipse.vex.core.internal.visualization.TextVisualization;
 import org.eclipse.vex.core.internal.visualization.VisualizationChain;
+import org.eclipse.vex.core.internal.widget.DOMController;
 import org.eclipse.vex.core.internal.widget.swt.BoxWidget;
 
 /**
@@ -80,6 +82,11 @@ public class BoxDemoView extends ViewPart {
 		visualizationChain.addForInline(new InlineElementVisualization());
 		visualizationChain.addForInline(new TextVisualization());
 		return visualizationChain;
+	}
+
+	public void insertBold() {
+		final DOMController controller = boxWidget.getDOMController();
+		controller.insertElement(new QualifiedName(null, "b"));
 	}
 
 }

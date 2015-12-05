@@ -12,6 +12,7 @@ package org.eclipse.vex.core.internal.widget;
 
 import static org.eclipse.vex.core.internal.cursor.CursorMoves.toOffset;
 
+import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.vex.core.internal.cursor.Cursor;
 import org.eclipse.vex.core.internal.cursor.ICursorMove;
 import org.eclipse.vex.core.internal.visualization.VisualizationChain;
@@ -57,7 +58,7 @@ public class DOMController {
 			if (event.isStructuralChange()) {
 				visualization.rebuildStructure(event.getParent());
 			} else {
-				visualization.rebuildContentRange(event.getRange());
+				visualization.rebuildContentRange(event.getParent(), event.getRange());
 			}
 		}
 	};
@@ -104,6 +105,11 @@ public class DOMController {
 
 	public void enterChar(final char c) {
 		document.insertText(cursor.getOffset(), Character.toString(c));
+		moveCursor(toOffset(cursor.getOffset() + 1));
+	}
+
+	public void insertElement(final QualifiedName elementName) {
+		document.insertElement(cursor.getOffset(), elementName);
 		moveCursor(toOffset(cursor.getOffset() + 1));
 	}
 

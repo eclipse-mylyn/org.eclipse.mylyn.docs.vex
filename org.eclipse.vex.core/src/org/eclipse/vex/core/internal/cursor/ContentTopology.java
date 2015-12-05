@@ -10,6 +10,9 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.cursor;
 
+import java.util.Collection;
+import java.util.LinkedList;
+
 import org.eclipse.vex.core.internal.boxes.BaseBoxVisitorWithResult;
 import org.eclipse.vex.core.internal.boxes.DepthFirstBoxTraversal;
 import org.eclipse.vex.core.internal.boxes.IBox;
@@ -20,6 +23,7 @@ import org.eclipse.vex.core.internal.boxes.RootBox;
 import org.eclipse.vex.core.internal.boxes.StructuralNodeReference;
 import org.eclipse.vex.core.internal.boxes.TextContent;
 import org.eclipse.vex.core.provisional.dom.ContentRange;
+import org.eclipse.vex.core.provisional.dom.INode;
 
 /**
  * @author Florian Thienel
@@ -180,6 +184,41 @@ public class ContentTopology {
 					return null;
 				}
 				return box;
+			}
+		});
+	}
+
+	public Collection<IContentBox> findBoxesForNode(final INode node) {
+		return rootBox.accept(new DepthFirstBoxTraversal<Collection<IContentBox>>() {
+			private final LinkedList<IContentBox> boxesForNode = new LinkedList<IContentBox>();
+
+			@Override
+			public Collection<IContentBox> visit(final StructuralNodeReference box) {
+				if (node == box.getNode()) {
+					boxesForNode.add(box);
+					return boxesForNode;
+				}
+				if (box.getStartOffset() > node.getEndOffset()) {
+					return boxesForNode;
+				}
+				if (!box.getRange().intersects(node.getRange())) {
+					return null;
+				}
+				return super.visit(box);
+			}
+
+			@Override
+			public Collection<IContentBox> visit(final InlineNodeReference box) {
+				if (box.getStartOffset() > node.getEndOffset()) {
+					return boxesForNode;
+				}
+				if (!box.getRange().intersects(node.getRange())) {
+					return null;
+				}
+				if (node == box.getNode()) {
+					boxesForNode.add(box);
+				}
+				return super.visit(box);
 			}
 		});
 	}

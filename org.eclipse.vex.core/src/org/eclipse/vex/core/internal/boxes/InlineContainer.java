@@ -1,6 +1,8 @@
 package org.eclipse.vex.core.internal.boxes;
 
+import java.util.Collection;
 import java.util.LinkedList;
+import java.util.ListIterator;
 
 import org.eclipse.vex.core.internal.core.Graphics;
 import org.eclipse.vex.core.internal.core.Rectangle;
@@ -104,6 +106,23 @@ public class InlineContainer extends BaseBox implements IInlineBox, IParentBox<I
 		final IInlineBox lastChild = children.getLast();
 		final boolean joined = lastChild.join(box);
 		return joined;
+	}
+
+	@Override
+	public void replaceChildren(final Collection<? extends IBox> oldChildren, final IInlineBox newChild) {
+		boolean newChildInserted = false;
+
+		for (final ListIterator<IInlineBox> iter = children.listIterator(); iter.hasNext();) {
+			final IInlineBox child = iter.next();
+			if (oldChildren.contains(child)) {
+				iter.remove();
+				if (!newChildInserted) {
+					iter.add(newChild);
+					newChild.setParent(this);
+					newChildInserted = true;
+				}
+			}
+		}
 	}
 
 	@Override
