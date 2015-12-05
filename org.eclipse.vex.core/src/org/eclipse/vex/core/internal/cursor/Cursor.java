@@ -17,8 +17,11 @@ import org.eclipse.vex.core.internal.boxes.BaseBoxVisitorWithResult;
 import org.eclipse.vex.core.internal.boxes.DepthFirstBoxTraversal;
 import org.eclipse.vex.core.internal.boxes.IBox;
 import org.eclipse.vex.core.internal.boxes.IContentBox;
+import org.eclipse.vex.core.internal.boxes.IInlineBox;
 import org.eclipse.vex.core.internal.boxes.InlineNodeReference;
 import org.eclipse.vex.core.internal.boxes.RootBox;
+import org.eclipse.vex.core.internal.boxes.Square;
+import org.eclipse.vex.core.internal.boxes.StaticText;
 import org.eclipse.vex.core.internal.boxes.StructuralNodeReference;
 import org.eclipse.vex.core.internal.boxes.TextContent;
 import org.eclipse.vex.core.internal.core.Color;
@@ -213,7 +216,14 @@ public class Cursor {
 				} else if (box.isAtEnd(offset) && box.canContainText() && !box.isEmpty()) {
 					final int lastOffset = offset - 1;
 					final IContentBox lastBox = contentTopology.findBoxForPosition(lastOffset, box);
-					return getAbsolutePositionArea(graphics, lastBox, lastOffset);
+					return makeAbsolute(lastBox.getPositionArea(graphics, lastOffset), lastBox);
+				} else if (box.isAtEnd(offset) && box.canContainText() && !box.isEmpty()) {
+					final IBox lastLowestChild = findDeepestLastInlineChildBox(box);
+					if (lastLowestChild != null) {
+						return makeAbsolute(lastLowestChild.getBounds(), lastLowestChild);
+					} else {
+						return makeAbsolute(box.getPositionArea(graphics, offset), box);
+					}
 				} else if (box.isAtEnd(offset)) {
 					return makeAbsolute(box.getPositionArea(graphics, offset), box);
 				} else {
@@ -229,6 +239,13 @@ public class Cursor {
 					final int lastOffset = offset - 1;
 					final IContentBox lastBox = contentTopology.findBoxForPosition(lastOffset, box);
 					return getAbsolutePositionArea(graphics, lastBox, lastOffset);
+				} else if (box.isAtEnd(offset) && box.canContainText() && box.isEmpty()) {
+					final IBox lastLowestChild = findDeepestLastInlineChildBox(box);
+					if (lastLowestChild != null) {
+						return makeAbsolute(lastLowestChild.getBounds(), lastLowestChild);
+					} else {
+						return makeAbsolute(box.getPositionArea(graphics, offset), box);
+					}
 				} else if (box.isAtEnd(offset)) {
 					return makeAbsolute(box.getPositionArea(graphics, offset), box);
 				} else {
@@ -245,6 +262,30 @@ public class Cursor {
 
 	private static Rectangle makeAbsolute(final Rectangle rectangle, final IBox box) {
 		return new Rectangle(rectangle.getX() + box.getAbsoluteLeft(), rectangle.getY() + box.getAbsoluteTop(), rectangle.getWidth(), rectangle.getHeight());
+	}
+
+	private static IInlineBox findDeepestLastInlineChildBox(final IBox startBox) {
+		final IInlineBox[] deepestLastChildBox = new IInlineBox[1];
+		startBox.accept(new DepthFirstBoxTraversal<IBox>() {
+			@Override
+			public IBox visit(final Square box) {
+				deepestLastChildBox[0] = box;
+				return null;
+			}
+
+			@Override
+			public IBox visit(final StaticText box) {
+				deepestLastChildBox[0] = box;
+				return null;
+			}
+
+			@Override
+			public IBox visit(final TextContent box) {
+				deepestLastChildBox[0] = box;
+				return null;
+			}
+		});
+		return deepestLastChildBox[0];
 	}
 
 	private Caret getCaretForInlineNode(final Graphics graphics, final InlineNodeReference box, final int offset) {
