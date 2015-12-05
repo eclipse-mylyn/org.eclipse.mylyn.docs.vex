@@ -13,14 +13,21 @@ package org.eclipse.vex.core.internal.boxes;
 /**
  * @author Florian Thienel
  */
-public class ParentTraversal<T> extends BaseBoxVisitorWithResult<T> {
+public class ParentTraversal<T> implements IBoxVisitorWithResult<T> {
+
+	private final T defaultValue;
 
 	public ParentTraversal() {
-		super();
+		this(null);
 	}
 
 	public ParentTraversal(final T defaultValue) {
-		super(defaultValue);
+		this.defaultValue = defaultValue;
+	}
+
+	@Override
+	public T visit(final RootBox box) {
+		return defaultValue;
 	}
 
 	@Override
@@ -45,6 +52,11 @@ public class ParentTraversal<T> extends BaseBoxVisitorWithResult<T> {
 
 	@Override
 	public T visit(final Paragraph box) {
+		return box.getParent().accept(this);
+	}
+
+	@Override
+	public T visit(final InlineContainer box) {
 		return box.getParent().accept(this);
 	}
 
