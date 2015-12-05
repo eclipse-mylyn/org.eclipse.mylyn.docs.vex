@@ -95,9 +95,10 @@ public class Line {
 			return false;
 		}
 		final IInlineBox lastChild = children.getLast();
+		final int lastChildOldWidth = lastChild.getWidth();
 		final boolean joined = lastChild.join(box);
 		if (joined) {
-			width += box.getWidth();
+			width += lastChild.getWidth() - lastChildOldWidth;
 		}
 		return joined;
 	}
