@@ -20,11 +20,11 @@ import org.junit.Test;
  */
 public class TestFrame {
 
-	private Frame box;
+	private StructuralFrame box;
 
 	@Before
 	public void setUp() throws Exception {
-		box = new Frame();
+		box = new StructuralFrame();
 	}
 
 	@Test

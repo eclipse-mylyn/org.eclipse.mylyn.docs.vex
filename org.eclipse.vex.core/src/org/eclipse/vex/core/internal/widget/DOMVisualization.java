@@ -14,7 +14,7 @@ import java.util.Collection;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.vex.core.internal.boxes.BaseBoxVisitor;
-import org.eclipse.vex.core.internal.boxes.Frame;
+import org.eclipse.vex.core.internal.boxes.StructuralFrame;
 import org.eclipse.vex.core.internal.boxes.IBox;
 import org.eclipse.vex.core.internal.boxes.IContentBox;
 import org.eclipse.vex.core.internal.boxes.InlineContainer;
@@ -99,7 +99,7 @@ public class DOMVisualization {
 			}
 
 			@Override
-			public void visit(final Frame box) {
+			public void visit(final StructuralFrame box) {
 				box.setComponent(visualizationChain.visualizeStructure(node));
 			}
 

@@ -39,14 +39,14 @@ public class BoxFactory {
 		return verticalBlock;
 	}
 
-	public static Frame frame(final IStructuralBox component) {
-		final Frame frame = new Frame();
+	public static StructuralFrame frame(final IStructuralBox component) {
+		final StructuralFrame frame = new StructuralFrame();
 		frame.setComponent(component);
 		return frame;
 	}
 
-	public static Frame frame(final IStructuralBox component, final Margin margin, final Border border, final Padding padding) {
-		final Frame frame = new Frame();
+	public static StructuralFrame frame(final IStructuralBox component, final Margin margin, final Border border, final Padding padding) {
+		final StructuralFrame frame = new StructuralFrame();
 		frame.setComponent(component);
 		frame.setMargin(margin);
 		frame.setBorder(border);

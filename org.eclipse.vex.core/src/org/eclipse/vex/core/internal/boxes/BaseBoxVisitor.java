@@ -26,7 +26,7 @@ public class BaseBoxVisitor implements IBoxVisitor {
 	}
 
 	@Override
-	public void visit(final Frame box) {
+	public void visit(final StructuralFrame box) {
 		// ignore
 	}
 

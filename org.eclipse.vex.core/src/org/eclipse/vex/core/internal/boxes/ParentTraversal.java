@@ -36,7 +36,7 @@ public class ParentTraversal<T> implements IBoxVisitorWithResult<T> {
 	}
 
 	@Override
-	public T visit(final Frame box) {
+	public T visit(final StructuralFrame box) {
 		return box.getParent().accept(this);
 	}
 

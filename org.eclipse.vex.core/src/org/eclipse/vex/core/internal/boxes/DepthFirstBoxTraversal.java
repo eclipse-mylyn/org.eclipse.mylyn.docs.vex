@@ -34,7 +34,7 @@ public abstract class DepthFirstBoxTraversal<T> extends BaseBoxVisitorWithResult
 	}
 
 	@Override
-	public T visit(final Frame box) {
+	public T visit(final StructuralFrame box) {
 		return box.getComponent().accept(this);
 	}
 

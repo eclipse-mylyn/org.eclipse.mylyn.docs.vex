@@ -18,7 +18,7 @@ import org.eclipse.vex.core.internal.core.Rectangle;
 /**
  * @author Florian Thienel
  */
-public class Frame extends BaseBox implements IStructuralBox, IDecoratorBox<IStructuralBox> {
+public class StructuralFrame extends BaseBox implements IStructuralBox, IDecoratorBox<IStructuralBox> {
 
 	private IBox parent;
 	private int top;

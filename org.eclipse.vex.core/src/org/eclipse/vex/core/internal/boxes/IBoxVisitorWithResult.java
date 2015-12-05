@@ -19,7 +19,7 @@ public interface IBoxVisitorWithResult<T> {
 
 	T visit(VerticalBlock box);
 
-	T visit(Frame box);
+	T visit(StructuralFrame box);
 
 	T visit(StructuralNodeReference box);
 
