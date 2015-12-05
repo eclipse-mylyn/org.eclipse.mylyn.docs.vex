@@ -328,7 +328,7 @@ public class TextContent extends BaseBox implements IInlineBox, IContentBox {
 
 	@Override
 	public boolean isEmpty() {
-		return getEndOffset() - getStartOffset() <= 1;
+		return getEndOffset() - getStartOffset() <= 0;
 	}
 
 	public boolean isAtStart(final int offset) {
