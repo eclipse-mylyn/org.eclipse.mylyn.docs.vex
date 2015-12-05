@@ -20,6 +20,7 @@ import java.util.LinkedList;
 import org.eclipse.vex.core.internal.boxes.BaseBoxVisitorWithResult;
 import org.eclipse.vex.core.internal.boxes.DepthFirstBoxTraversal;
 import org.eclipse.vex.core.internal.boxes.IContentBox;
+import org.eclipse.vex.core.internal.boxes.InlineNodeReference;
 import org.eclipse.vex.core.internal.boxes.StructuralNodeReference;
 import org.eclipse.vex.core.internal.boxes.TextContent;
 import org.eclipse.vex.core.internal.core.Graphics;
@@ -74,6 +75,10 @@ public class MoveDown implements ICursorMove {
 				return true;
 			}
 
+			@Override
+			public Boolean visit(final InlineNodeReference box) {
+				return true;
+			}
 		});
 	}
 
@@ -81,6 +86,11 @@ public class MoveDown implements ICursorMove {
 		return box.accept(new BaseBoxVisitorWithResult<Boolean>(false) {
 			@Override
 			public Boolean visit(final StructuralNodeReference box) {
+				return box.canContainText();
+			}
+
+			@Override
+			public Boolean visit(final InlineNodeReference box) {
 				return box.canContainText();
 			}
 
@@ -97,6 +107,19 @@ public class MoveDown implements ICursorMove {
 
 			@Override
 			public IContentBox visit(final StructuralNodeReference box) {
+				if (box == parent) {
+					super.visit(box);
+					return firstChild;
+				}
+
+				if (firstChild == null) {
+					firstChild = box;
+				}
+				return box;
+			}
+
+			@Override
+			public IContentBox visit(final InlineNodeReference box) {
 				if (box == parent) {
 					super.visit(box);
 					return firstChild;
@@ -136,6 +159,14 @@ public class MoveDown implements ICursorMove {
 		return box.accept(new BaseBoxVisitorWithResult<Integer>() {
 			@Override
 			public Integer visit(final StructuralNodeReference box) {
+				if (currentOffset >= box.getStartOffset()) {
+					return box.getEndOffset();
+				}
+				return box.getStartOffset();
+			}
+
+			@Override
+			public Integer visit(final InlineNodeReference box) {
 				if (currentOffset >= box.getStartOffset()) {
 					return box.getEndOffset();
 				}

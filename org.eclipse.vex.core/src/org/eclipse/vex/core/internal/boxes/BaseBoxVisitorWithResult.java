@@ -56,6 +56,11 @@ public class BaseBoxVisitorWithResult<T> implements IBoxVisitorWithResult<T> {
 	}
 
 	@Override
+	public T visit(final InlineNodeReference box) {
+		return defaultValue;
+	}
+
+	@Override
 	public T visit(final InlineContainer box) {
 		return defaultValue;
 	}

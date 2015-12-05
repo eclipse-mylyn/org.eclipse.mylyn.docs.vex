@@ -24,6 +24,7 @@ import org.eclipse.vex.core.internal.boxes.BaseBoxVisitorWithResult;
 import org.eclipse.vex.core.internal.boxes.DepthFirstBoxTraversal;
 import org.eclipse.vex.core.internal.boxes.IBox;
 import org.eclipse.vex.core.internal.boxes.IContentBox;
+import org.eclipse.vex.core.internal.boxes.InlineNodeReference;
 import org.eclipse.vex.core.internal.boxes.StructuralNodeReference;
 import org.eclipse.vex.core.internal.boxes.TextContent;
 import org.eclipse.vex.core.internal.core.Graphics;
@@ -77,6 +78,11 @@ public class MoveUp implements ICursorMove {
 			public Boolean visit(final StructuralNodeReference box) {
 				return true;
 			}
+
+			@Override
+			public Boolean visit(final InlineNodeReference box) {
+				return true;
+			}
 		});
 	}
 
@@ -84,6 +90,11 @@ public class MoveUp implements ICursorMove {
 		return box.accept(new BaseBoxVisitorWithResult<Boolean>(false) {
 			@Override
 			public Boolean visit(final StructuralNodeReference box) {
+				return box.canContainText();
+			}
+
+			@Override
+			public Boolean visit(final InlineNodeReference box) {
 				return box.canContainText();
 			}
 
@@ -106,6 +117,12 @@ public class MoveUp implements ICursorMove {
 				}
 				lastChild = box;
 				return null;
+			}
+
+			@Override
+			public IContentBox visit(final InlineNodeReference box) {
+				lastChild = box;
+				return super.visit(box);
 			}
 
 			@Override

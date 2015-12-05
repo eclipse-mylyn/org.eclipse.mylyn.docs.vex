@@ -12,7 +12,7 @@ ailable at
 package org.eclipse.vex.core.internal.visualization;
 
 import static org.eclipse.vex.core.internal.boxes.BoxFactory.frame;
-import static org.eclipse.vex.core.internal.boxes.BoxFactory.structuralNodeReference;
+import static org.eclipse.vex.core.internal.boxes.BoxFactory.nodeReference;
 import static org.eclipse.vex.core.internal.boxes.BoxFactory.verticalBlock;
 
 import org.eclipse.vex.core.internal.boxes.Border;
@@ -24,6 +24,6 @@ import org.eclipse.vex.core.provisional.dom.IElement;
 public final class StructureElementVisualization extends NodeVisualization<IStructuralBox> {
 	@Override
 	public IStructuralBox visit(final IElement element) {
-		return structuralNodeReference(element, frame(visualizeChildrenStructure(element.children(), verticalBlock()), Margin.NULL, Border.NULL, new Padding(3, 3)));
+		return nodeReference(element, frame(visualizeChildrenStructure(element.children(), verticalBlock()), Margin.NULL, Border.NULL, new Padding(3, 3)));
 	}
 }

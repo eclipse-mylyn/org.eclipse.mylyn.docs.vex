@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 Florian Thienel and others.
+ * Copyright (c) 2015 Florian Thienel and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,17 +10,21 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.boxes;
 
+import java.text.MessageFormat;
+
+import org.eclipse.core.runtime.Assert;
 import org.eclipse.vex.core.internal.core.Color;
 import org.eclipse.vex.core.internal.core.Graphics;
 import org.eclipse.vex.core.internal.core.NodeTag;
 import org.eclipse.vex.core.internal.core.Rectangle;
 import org.eclipse.vex.core.provisional.dom.ContentRange;
 import org.eclipse.vex.core.provisional.dom.INode;
+import org.eclipse.vex.core.provisional.dom.IPosition;
 
 /**
  * @author Florian Thienel
  */
-public class StructuralNodeReference extends BaseBox implements IStructuralBox, IDecoratorBox<IStructuralBox>, IContentBox {
+public class InlineNodeReference extends BaseBox implements IInlineBox, IDecoratorBox<IInlineBox>, IContentBox {
 
 	private static final float HIGHLIGHT_LIGHTEN_AMOUNT = 0.6f;
 	private static final int HIGHLIGHT_BORDER_WIDTH = 4;
@@ -30,10 +34,13 @@ public class StructuralNodeReference extends BaseBox implements IStructuralBox, 
 	private int left;
 	private int width;
 	private int height;
+	private int baseline;
 
-	private IStructuralBox component;
+	private IInlineBox component;
 
 	private INode node;
+	private IPosition startPosition;
+	private IPosition endPosition;
 	private boolean canContainText;
 
 	@Override
@@ -84,13 +91,13 @@ public class StructuralNodeReference extends BaseBox implements IStructuralBox, 
 	}
 
 	@Override
-	public void setWidth(final int width) {
-		this.width = Math.max(0, width);
+	public int getHeight() {
+		return height;
 	}
 
 	@Override
-	public int getHeight() {
-		return height;
+	public int getBaseline() {
+		return baseline;
 	}
 
 	@Override
@@ -109,18 +116,24 @@ public class StructuralNodeReference extends BaseBox implements IStructuralBox, 
 	}
 
 	@Override
-	public void setComponent(final IStructuralBox component) {
+	public void setComponent(final IInlineBox component) {
 		this.component = component;
 		component.setParent(this);
 	}
 
 	@Override
-	public IStructuralBox getComponent() {
+	public IInlineBox getComponent() {
 		return component;
 	}
 
 	public void setNode(final INode node) {
+		setSubrange(node, node.getStartOffset(), node.getEndOffset());
+	}
+
+	private void setSubrange(final INode node, final int startOffset, final int endOffset) {
 		this.node = node;
+		startPosition = node.getContent().createPosition(startOffset);
+		endPosition = node.getContent().createPosition(endOffset);
 	}
 
 	public INode getNode() {
@@ -141,16 +154,24 @@ public class StructuralNodeReference extends BaseBox implements IStructuralBox, 
 			return;
 		}
 		component.setPosition(0, 0);
-		component.setWidth(width);
 		component.layout(graphics);
+		width = component.getWidth();
 		height = component.getHeight();
+		baseline = component.getBaseline();
 	}
 
 	@Override
 	public boolean reconcileLayout(final Graphics graphics) {
+		final int oldWidth = width;
 		final int oldHeight = height;
+		final int oldBaseline = baseline;
+		width = component.getWidth();
 		height = component.getHeight();
-		return oldHeight != height;
+		baseline = component.getBaseline();
+
+		layout(graphics);
+
+		return oldWidth != width || oldHeight != height || oldBaseline != baseline;
 	}
 
 	@Override
@@ -158,6 +179,7 @@ public class StructuralNodeReference extends BaseBox implements IStructuralBox, 
 		ChildBoxPainter.paint(component, graphics);
 	}
 
+	@Override
 	public void highlight(final Graphics graphics, final Color foreground, final Color background) {
 		final Color lightBackground = background.lighten(HIGHLIGHT_LIGHTEN_AMOUNT);
 		fillBackground(graphics, lightBackground);
@@ -165,16 +187,10 @@ public class StructuralNodeReference extends BaseBox implements IStructuralBox, 
 
 		accept(new DepthFirstBoxTraversal<Object>() {
 			@Override
-			public Object visit(final StructuralNodeReference box) {
-				if (box != StructuralNodeReference.this) {
+			public Object visit(final InlineNodeReference box) {
+				if (box != InlineNodeReference.this) {
 					box.highlightInside(graphics, foreground, lightBackground);
 				}
-				return super.visit(box);
-			}
-
-			@Override
-			public Object visit(final InlineNodeReference box) {
-				box.highlightInside(graphics, foreground, lightBackground);
 				return super.visit(box);
 			}
 
@@ -213,18 +229,12 @@ public class StructuralNodeReference extends BaseBox implements IStructuralBox, 
 
 	@Override
 	public int getStartOffset() {
-		if (node == null) {
-			return 0;
-		}
-		return node.getStartOffset();
+		return startPosition.getOffset();
 	}
 
 	@Override
 	public int getEndOffset() {
-		if (node == null) {
-			return 0;
-		}
-		return node.getEndOffset();
+		return endPosition.getOffset();
 	}
 
 	@Override
@@ -232,7 +242,7 @@ public class StructuralNodeReference extends BaseBox implements IStructuralBox, 
 		if (node == null) {
 			return ContentRange.NULL;
 		}
-		return node.getRange();
+		return new ContentRange(getStartOffset(), getEndOffset());
 	}
 
 	@Override
@@ -245,9 +255,8 @@ public class StructuralNodeReference extends BaseBox implements IStructuralBox, 
 		if (isEmpty()) {
 			return getEndOffset();
 		}
-
-		final int half = height / 2;
-		if (y < half) {
+		final int half = width / 2;
+		if (x < half) {
 			return getStartOffset();
 		} else {
 			return getEndOffset();
@@ -259,22 +268,104 @@ public class StructuralNodeReference extends BaseBox implements IStructuralBox, 
 		return getEndOffset() - getStartOffset() <= 1;
 	}
 
+	@Override
 	public boolean isAtStart(final int offset) {
 		return getStartOffset() == offset;
 	}
 
+	@Override
 	public boolean isAtEnd(final int offset) {
 		return getEndOffset() == offset;
 	}
 
 	@Override
-	public String toString() {
-		String result = "StructuralNodeReference{ ";
-		result += "x: " + left + ", y: " + top + ", width: " + width + ", height: " + height;
-		if (node != null) {
-			result += ", startOffset: " + node.getStartOffset() + ", endOffset: " + node.getEndOffset();
+	public boolean canJoin(final IInlineBox other) {
+		if (!(other instanceof InlineNodeReference)) {
+			return false;
 		}
-		result += " }";
-		return result;
+		final InlineNodeReference otherNodeReference = (InlineNodeReference) other;
+		if (node != otherNodeReference.node) {
+			return false;
+		}
+		if (endPosition.getOffset() != otherNodeReference.getStartOffset() - 1) {
+			return false;
+		}
+		if (!component.canJoin(otherNodeReference.component)) {
+			return false;
+		}
+		return true;
+	}
+
+	@Override
+	public boolean join(final IInlineBox other) {
+		if (!canJoin(other)) {
+			return false;
+		}
+		final InlineNodeReference otherNodeReference = (InlineNodeReference) other;
+
+		component.join(otherNodeReference.component);
+
+		node.getContent().removePosition(endPosition);
+		node.getContent().removePosition(otherNodeReference.startPosition);
+		endPosition = otherNodeReference.endPosition;
+
+		width = component.getWidth();
+		height = component.getHeight();
+		baseline = component.getBaseline();
+
+		return true;
+	}
+
+	@Override
+	public boolean canSplit() {
+		if (component == null) {
+			return false;
+		}
+		return component.canSplit();
+	}
+
+	@Override
+	public IInlineBox splitTail(final Graphics graphics, final int headWidth, final boolean force) {
+		final IInlineBox tailComponent = component.splitTail(graphics, headWidth, force);
+
+		final int splitPosition = findStartOffset(tailComponent);
+		Assert.isTrue(splitPosition >= getStartOffset(), MessageFormat.format("Splitposition {0} is invalid.", splitPosition));
+
+		final InlineNodeReference tail = new InlineNodeReference();
+		tail.setComponent(tailComponent);
+		tail.setSubrange(node, splitPosition, getEndOffset());
+		tail.setCanContainText(canContainText);
+		tail.setParent(parent);
+		tail.layout(graphics);
+
+		node.getContent().removePosition(endPosition);
+		endPosition = node.getContent().createPosition(splitPosition - 1);
+
+		layout(graphics);
+
+		return tail;
+	}
+
+	private int findStartOffset(final IBox startBox) {
+		return startBox.accept(new DepthFirstBoxTraversal<Integer>(-1) {
+			@Override
+			public Integer visit(final InlineNodeReference box) {
+				if (box == startBox) {
+					return super.visit(box);
+				}
+				return box.getStartOffset();
+			}
+
+			@Override
+			public Integer visit(final TextContent box) {
+				return box.getStartOffset();
+			}
+		});
+	}
+
+	@Override
+	public String toString() {
+		return "InlineNodeReference [parent=" + parent + ", top=" + top + ", left=" + left + ", width=" + width + ", height=" + height + ", baseline=" + baseline + ", startPosition=" + startPosition
+				+ ", endPosition=" + endPosition + ", canContainText=" + canContainText + "]";
 	}
 }

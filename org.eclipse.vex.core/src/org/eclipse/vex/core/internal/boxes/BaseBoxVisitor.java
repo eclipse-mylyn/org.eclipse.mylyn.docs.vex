@@ -46,6 +46,11 @@ public class BaseBoxVisitor implements IBoxVisitor {
 	}
 
 	@Override
+	public void visit(final InlineNodeReference box) {
+		// ignore
+	}
+
+	@Override
 	public void visit(final InlineContainer box) {
 		// ignore
 	}

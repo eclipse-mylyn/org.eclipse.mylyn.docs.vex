@@ -54,23 +54,10 @@ public class BoxFactory {
 		return frame;
 	}
 
-	public static StructuralNodeReference structuralNodeReference(final INode node) {
-		final StructuralNodeReference structuralNodeReference = new StructuralNodeReference();
-		structuralNodeReference.setNode(node);
-		return structuralNodeReference;
-	}
-
-	public static StructuralNodeReference structuralNodeReference(final INode node, final IStructuralBox component) {
+	public static StructuralNodeReference nodeReference(final INode node, final IStructuralBox component) {
 		final StructuralNodeReference structuralNodeReference = new StructuralNodeReference();
 		structuralNodeReference.setNode(node);
 		structuralNodeReference.setComponent(component);
-		return structuralNodeReference;
-	}
-
-	public static StructuralNodeReference nodeReferenceWithText(final INode node) {
-		final StructuralNodeReference structuralNodeReference = new StructuralNodeReference();
-		structuralNodeReference.setNode(node);
-		structuralNodeReference.setCanContainText(true);
 		return structuralNodeReference;
 	}
 
@@ -80,6 +67,21 @@ public class BoxFactory {
 		structuralNodeReference.setCanContainText(true);
 		structuralNodeReference.setComponent(component);
 		return structuralNodeReference;
+	}
+
+	public static InlineNodeReference nodeReference(final INode node, final IInlineBox component) {
+		final InlineNodeReference inlineNodeReference = new InlineNodeReference();
+		inlineNodeReference.setNode(node);
+		inlineNodeReference.setComponent(component);
+		return inlineNodeReference;
+	}
+
+	public static InlineNodeReference nodeReferenceWithText(final INode node, final IInlineBox component) {
+		final InlineNodeReference inlineNodeReference = new InlineNodeReference();
+		inlineNodeReference.setNode(node);
+		inlineNodeReference.setCanContainText(true);
+		inlineNodeReference.setComponent(component);
+		return inlineNodeReference;
 	}
 
 	public static HorizontalBar horizontalBar(final int height) {
@@ -101,6 +103,14 @@ public class BoxFactory {
 			paragraph.appendChild(child);
 		}
 		return paragraph;
+	}
+
+	public static InlineContainer inlineContainer(final IInlineBox... children) {
+		final InlineContainer inlineContainer = new InlineContainer();
+		for (final IInlineBox child : children) {
+			inlineContainer.appendChild(child);
+		}
+		return inlineContainer;
 	}
 
 	public static TextContent textContent(final IContent content, final ContentRange range, final FontSpec font) {

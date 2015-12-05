@@ -16,8 +16,9 @@ import org.eclipse.vex.core.internal.boxes.BaseBoxVisitorWithResult;
 import org.eclipse.vex.core.internal.boxes.DepthFirstBoxTraversal;
 import org.eclipse.vex.core.internal.boxes.IContentBox;
 import org.eclipse.vex.core.internal.boxes.IStructuralBox;
-import org.eclipse.vex.core.internal.boxes.StructuralNodeReference;
+import org.eclipse.vex.core.internal.boxes.InlineNodeReference;
 import org.eclipse.vex.core.internal.boxes.RootBox;
+import org.eclipse.vex.core.internal.boxes.StructuralNodeReference;
 import org.eclipse.vex.core.internal.boxes.TextContent;
 import org.eclipse.vex.core.internal.cursor.ContentTopology;
 import org.eclipse.vex.core.internal.cursor.Cursor;
@@ -108,9 +109,21 @@ public class DOMVisualization {
 				lastEndOffset = box.getStartOffset();
 				box.getComponent().accept(this);
 
-				if (lastTextContentBox != null && lastTextContentBox.getEndOffset() < box.getEndOffset() - 1) {
-					lastTextContentBox.setEndOffset(box.getEndOffset() - 1);
-				}
+				fillTextContentGapUntilOffset(box.getEndOffset());
+
+				lastEndOffset = box.getEndOffset();
+				lastTextContentBox = null;
+				return super.visit(box);
+			}
+
+			@Override
+			public Object visit(final InlineNodeReference box) {
+				fillTextContentGapUntilOffset(box.getStartOffset());
+
+				lastEndOffset = box.getStartOffset();
+				box.getComponent().accept(this);
+
+				fillTextContentGapUntilOffset(box.getEndOffset());
 
 				lastEndOffset = box.getEndOffset();
 				lastTextContentBox = null;
@@ -126,6 +139,12 @@ public class DOMVisualization {
 				lastEndOffset = box.getEndOffset();
 				lastTextContentBox = box;
 				return super.visit(box);
+			}
+
+			private void fillTextContentGapUntilOffset(final int offset) {
+				if (lastTextContentBox != null && lastTextContentBox.getEndOffset() < offset - 1) {
+					lastTextContentBox.setEndOffset(offset - 1);
+				}
 			}
 		});
 	}

@@ -49,6 +49,11 @@ public abstract class DepthFirstBoxTraversal<T> extends BaseBoxVisitorWithResult
 	}
 
 	@Override
+	public T visit(final InlineNodeReference box) {
+		return box.getComponent().accept(this);
+	}
+
+	@Override
 	public T visit(final InlineContainer box) {
 		return traverseChildren(box);
 	}

@@ -203,13 +203,14 @@ public class TextContent extends BaseBox implements IInlineBox, IContentBox {
 		final int highlightEndOffset = Math.max(getStartOffset(), Math.min(endOffset, getEndOffset() + 1)) - getStartOffset();
 		final String highlightPrefix = getText().substring(0, highlightStartOffset);
 		final String highlightText = getText().substring(highlightStartOffset, highlightEndOffset);
+
+		applyFont(graphics);
 		final int widthBefore = graphics.stringWidth(highlightPrefix);
 		final int widthHighlight = graphics.stringWidth(highlightText);
 
 		graphics.setForeground(graphics.getColor(foreground));
 		graphics.setBackground(graphics.getColor(background));
 		graphics.fillRect(getAbsoluteLeft() + widthBefore, getAbsoluteTop(), widthHighlight, height);
-		applyFont(graphics);
 		graphics.drawString(highlightText, getAbsoluteLeft() + widthBefore, getAbsoluteTop());
 	}
 

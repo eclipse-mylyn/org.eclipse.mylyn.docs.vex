@@ -16,8 +16,9 @@ import org.eclipse.vex.core.internal.boxes.BaseBoxVisitorWithResult;
 import org.eclipse.vex.core.internal.boxes.DepthFirstBoxTraversal;
 import org.eclipse.vex.core.internal.boxes.IBox;
 import org.eclipse.vex.core.internal.boxes.IContentBox;
-import org.eclipse.vex.core.internal.boxes.StructuralNodeReference;
+import org.eclipse.vex.core.internal.boxes.InlineNodeReference;
 import org.eclipse.vex.core.internal.boxes.RootBox;
+import org.eclipse.vex.core.internal.boxes.StructuralNodeReference;
 import org.eclipse.vex.core.internal.boxes.TextContent;
 import org.eclipse.vex.core.internal.core.Color;
 import org.eclipse.vex.core.internal.core.ColorResource;
@@ -151,6 +152,15 @@ public class Cursor {
 			}
 
 			@Override
+			public Object visit(final InlineNodeReference box) {
+				if (selectedRange.contains(box.getRange())) {
+					box.highlight(graphics, SELECTION_FOREGROUND_COLOR, SELECTION_BACKGROUND_COLOR);
+					return null;
+				}
+				return super.visit(box);
+			}
+
+			@Override
 			public Object visit(final TextContent box) {
 				if (selectedRange.intersects(box.getRange())) {
 					box.highlight(graphics, selectedRange.getStartOffset(), selectedRange.getEndOffset(), SELECTION_FOREGROUND_COLOR, SELECTION_BACKGROUND_COLOR);
@@ -164,7 +174,12 @@ public class Cursor {
 		return box.accept(new BaseBoxVisitorWithResult<Caret>() {
 			@Override
 			public Caret visit(final StructuralNodeReference box) {
-				return getCaretForNode(graphics, box, offset);
+				return getCaretForStructuralNode(graphics, box, offset);
+			}
+
+			@Override
+			public Caret visit(final InlineNodeReference box) {
+				return getCaretForInlineNode(graphics, box, offset);
 			}
 
 			@Override
@@ -174,7 +189,7 @@ public class Cursor {
 		});
 	}
 
-	private Caret getCaretForNode(final Graphics graphics, final StructuralNodeReference box, final int offset) {
+	private Caret getCaretForStructuralNode(final Graphics graphics, final StructuralNodeReference box, final int offset) {
 		final Rectangle area = getAbsolutePositionArea(graphics, box, offset);
 		if (box.isAtStart(offset)) {
 			return new InsertBeforeNodeCaret(area, box.getNode());
@@ -198,7 +213,22 @@ public class Cursor {
 					return makeAbsolute(box.getPositionArea(graphics, offset), box);
 				} else if (box.isAtEnd(offset) && box.canContainText() && !box.isEmpty()) {
 					final int lastOffset = offset - 1;
-					final IContentBox lastBox = contentTopology.findBoxForPosition(lastOffset);
+					final IContentBox lastBox = contentTopology.findBoxForPosition(lastOffset, box);
+					return getAbsolutePositionArea(graphics, lastBox, lastOffset);
+				} else if (box.isAtEnd(offset)) {
+					return makeAbsolute(box.getPositionArea(graphics, offset), box);
+				} else {
+					return Rectangle.NULL;
+				}
+			}
+
+			@Override
+			public Rectangle visit(final InlineNodeReference box) {
+				if (box.isAtStart(offset)) {
+					return makeAbsolute(box.getPositionArea(graphics, offset), box);
+				} else if (box.isAtEnd(offset) && box.canContainText() && !box.isEmpty()) {
+					final int lastOffset = offset - 1;
+					final IContentBox lastBox = contentTopology.findBoxForPosition(lastOffset, box);
 					return getAbsolutePositionArea(graphics, lastBox, lastOffset);
 				} else if (box.isAtEnd(offset)) {
 					return makeAbsolute(box.getPositionArea(graphics, offset), box);
@@ -216,6 +246,20 @@ public class Cursor {
 
 	private static Rectangle makeAbsolute(final Rectangle rectangle, final IBox box) {
 		return new Rectangle(rectangle.getX() + box.getAbsoluteLeft(), rectangle.getY() + box.getAbsoluteTop(), rectangle.getWidth(), rectangle.getHeight());
+	}
+
+	private Caret getCaretForInlineNode(final Graphics graphics, final InlineNodeReference box, final int offset) {
+		// TODO implement individual carets for inline node references
+		final Rectangle area = getAbsolutePositionArea(graphics, box, offset);
+		if (box.isAtStart(offset)) {
+			return new InsertBeforeNodeCaret(area, box.getNode());
+		} else if (box.isAtEnd(offset) && box.canContainText()) {
+			return new AppendNodeWithTextCaret(area, box.getNode(), box.isEmpty());
+		} else if (box.isAtEnd(offset) && !box.canContainText()) {
+			return new AppendStructuralNodeCaret(area, box.getNode());
+		} else {
+			return null;
+		}
 	}
 
 	private Caret getCaretForText(final Graphics graphics, final TextContent box, final int offset) {

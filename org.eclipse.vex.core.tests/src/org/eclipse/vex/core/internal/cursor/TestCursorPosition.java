@@ -20,6 +20,7 @@ import static org.junit.Assert.assertEquals;
 
 import org.eclipse.vex.core.internal.boxes.DepthFirstBoxTraversal;
 import org.eclipse.vex.core.internal.boxes.IContentBox;
+import org.eclipse.vex.core.internal.boxes.InlineNodeReference;
 import org.eclipse.vex.core.internal.boxes.RootBox;
 import org.eclipse.vex.core.internal.boxes.StructuralNodeReference;
 import org.eclipse.vex.core.internal.boxes.TextContent;
@@ -428,6 +429,15 @@ public class TestCursorPosition {
 
 			@Override
 			public Object visit(final StructuralNodeReference box) {
+				printBox(box);
+				indent += " ";
+				super.visit(box);
+				indent = indent.substring(1);
+				return null;
+			}
+
+			@Override
+			public Object visit(final InlineNodeReference box) {
 				printBox(box);
 				indent += " ";
 				super.visit(box);
