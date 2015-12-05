@@ -61,7 +61,7 @@ public class MoveDown implements ICursorMove {
 	}
 
 	private static boolean isAtStartOfEmptyBox(final int offset, final IContentBox box) {
-		return box.isAtStart(offset) && box.isEmpty();
+		return box.isAtStart(offset) && box.isEmpty() && box.getEndOffset() > box.getStartOffset();
 	}
 
 	private static boolean isAtStartOfBoxWithChildren(final int offset, final IContentBox box) {

@@ -65,7 +65,7 @@ public class MoveUp implements ICursorMove {
 	}
 
 	private static boolean isAtEndOfEmptyBox(final int offset, final IContentBox box) {
-		return box.isAtEnd(offset) && box.isEmpty();
+		return box.isAtEnd(offset) && box.isEmpty() && box.getEndOffset() > box.getStartOffset();
 	}
 
 	private static boolean isAtEndOfBoxWithChildren(final int offset, final IContentBox box) {
