@@ -15,7 +15,6 @@ import java.text.MessageFormat;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.vex.core.internal.core.Color;
 import org.eclipse.vex.core.internal.core.Graphics;
-import org.eclipse.vex.core.internal.core.NodeTag;
 import org.eclipse.vex.core.internal.core.Rectangle;
 import org.eclipse.vex.core.provisional.dom.ContentRange;
 import org.eclipse.vex.core.provisional.dom.INode;
@@ -25,9 +24,6 @@ import org.eclipse.vex.core.provisional.dom.IPosition;
  * @author Florian Thienel
  */
 public class InlineNodeReference extends BaseBox implements IInlineBox, IDecoratorBox<IInlineBox>, IContentBox {
-
-	private static final float HIGHLIGHT_LIGHTEN_AMOUNT = 0.6f;
-	private static final int HIGHLIGHT_BORDER_WIDTH = 4;
 
 	private IBox parent;
 	private int top;
@@ -181,46 +177,29 @@ public class InlineNodeReference extends BaseBox implements IInlineBox, IDecorat
 
 	@Override
 	public void highlight(final Graphics graphics, final Color foreground, final Color background) {
-		final Color lightBackground = background.lighten(HIGHLIGHT_LIGHTEN_AMOUNT);
-		fillBackground(graphics, lightBackground);
-		drawBorder(graphics, background);
+		fillBackground(graphics, background);
 
 		accept(new DepthFirstBoxTraversal<Object>() {
 			@Override
 			public Object visit(final InlineNodeReference box) {
 				if (box != InlineNodeReference.this) {
-					box.highlightInside(graphics, foreground, lightBackground);
+					box.highlightInside(graphics, foreground, background);
 				}
 				return super.visit(box);
 			}
 
 			@Override
 			public Object visit(final TextContent box) {
-				box.highlight(graphics, foreground, lightBackground);
+				box.highlight(graphics, foreground, background);
 				return super.visit(box);
 			}
 		});
-
-		drawTag(graphics, foreground, background);
 	}
 
 	private void fillBackground(final Graphics graphics, final Color color) {
 		graphics.setForeground(graphics.getColor(color));
 		graphics.setBackground(graphics.getColor(color));
 		graphics.fillRect(getAbsoluteLeft(), getAbsoluteTop(), width, height);
-	}
-
-	private void drawBorder(final Graphics graphics, final Color color) {
-		graphics.setForeground(graphics.getColor(color));
-		graphics.setBackground(graphics.getColor(color));
-		graphics.setLineWidth(HIGHLIGHT_BORDER_WIDTH);
-		graphics.drawRect(getAbsoluteLeft(), getAbsoluteTop(), width, height);
-	}
-
-	private void drawTag(final Graphics graphics, final Color foreground, final Color background) {
-		graphics.setForeground(graphics.getColor(foreground));
-		graphics.setBackground(graphics.getColor(background));
-		NodeTag.drawTag(graphics, node, getAbsoluteLeft() + width / 2, getAbsoluteTop() + height / 2, true, true);
 	}
 
 	public void highlightInside(final Graphics graphics, final Color foreground, final Color background) {

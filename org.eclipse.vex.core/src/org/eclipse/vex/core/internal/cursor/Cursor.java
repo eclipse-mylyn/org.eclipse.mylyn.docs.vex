@@ -152,7 +152,7 @@ public class Cursor {
 
 			@Override
 			public Object visit(final InlineNodeReference box) {
-				if (selectedRange.contains(box.getRange())) {
+				if (selectedRange.contains(box.getNode().getRange())) {
 					box.highlight(graphics, SELECTION_FOREGROUND_COLOR, SELECTION_BACKGROUND_COLOR);
 					return null;
 				}
