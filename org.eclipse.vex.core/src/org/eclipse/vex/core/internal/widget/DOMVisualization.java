@@ -14,13 +14,14 @@ import java.util.Collection;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.vex.core.internal.boxes.BaseBoxVisitor;
-import org.eclipse.vex.core.internal.boxes.StructuralFrame;
 import org.eclipse.vex.core.internal.boxes.IBox;
 import org.eclipse.vex.core.internal.boxes.IContentBox;
 import org.eclipse.vex.core.internal.boxes.InlineContainer;
+import org.eclipse.vex.core.internal.boxes.InlineFrame;
 import org.eclipse.vex.core.internal.boxes.InlineNodeReference;
 import org.eclipse.vex.core.internal.boxes.Paragraph;
 import org.eclipse.vex.core.internal.boxes.RootBox;
+import org.eclipse.vex.core.internal.boxes.StructuralFrame;
 import org.eclipse.vex.core.internal.boxes.StructuralNodeReference;
 import org.eclipse.vex.core.internal.boxes.TextContent;
 import org.eclipse.vex.core.internal.boxes.VerticalBlock;
@@ -121,6 +122,11 @@ public class DOMVisualization {
 			@Override
 			public void visit(final InlineContainer box) {
 				box.replaceChildren(modifiedBoxes, visualizationChain.visualizeInline(node));
+			}
+
+			@Override
+			public void visit(final InlineFrame box) {
+				box.setComponent(visualizationChain.visualizeInline(node));
 			}
 		});
 	}

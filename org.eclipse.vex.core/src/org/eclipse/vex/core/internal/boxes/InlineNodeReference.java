@@ -309,33 +309,40 @@ public class InlineNodeReference extends BaseBox implements IInlineBox, IDecorat
 
 		final IInlineBox tailComponent = component.splitTail(graphics, headWidth, force);
 
-		final int firstTailOffset = findStartOffset(tailComponent);
-
-		final int splitPosition;
-		if (firstChildOffset == firstTailOffset) {
-			splitPosition = startPosition.getOffset();
-		} else {
-			splitPosition = firstTailOffset;
-		}
-		Assert.isTrue(splitPosition >= getStartOffset(), MessageFormat.format("Splitposition {0} is invalid.", splitPosition));
-
 		final InlineNodeReference tail = new InlineNodeReference();
 		tail.setComponent(tailComponent);
-		tail.setSubrange(node, splitPosition, getEndOffset());
 		tail.setCanContainText(canContainText);
 		tail.setParent(parent);
 		tail.layout(graphics);
 
-		node.getContent().removePosition(endPosition);
-		endPosition = node.getContent().createPosition(splitPosition - 1);
+		adaptContentRanges(firstChildOffset, tail);
 
 		layout(graphics);
 
 		return tail;
 	}
 
+	private void adaptContentRanges(final int oldOffsetOfFirstChild, final InlineNodeReference tail) {
+		if (tail.getComponent().getWidth() == 0) {
+			return;
+		}
+
+		final int offsetOfFirstChildInTail = findStartOffset(tail.getComponent());
+		final int splitPosition;
+		if (oldOffsetOfFirstChild == offsetOfFirstChildInTail) {
+			splitPosition = startPosition.getOffset();
+		} else {
+			splitPosition = offsetOfFirstChildInTail;
+		}
+
+		Assert.isTrue(splitPosition >= getStartOffset(), MessageFormat.format("Split position {0} is invalid.", splitPosition));
+		tail.setSubrange(node, splitPosition, getEndOffset());
+		node.getContent().removePosition(endPosition);
+		endPosition = node.getContent().createPosition(splitPosition - 1);
+	}
+
 	private int findStartOffset(final IBox startBox) {
-		return startBox.accept(new DepthFirstBoxTraversal<Integer>(-1) {
+		final Integer startOffset = startBox.accept(new DepthFirstBoxTraversal<Integer>() {
 			@Override
 			public Integer visit(final InlineNodeReference box) {
 				if (box == startBox) {
@@ -349,6 +356,10 @@ public class InlineNodeReference extends BaseBox implements IInlineBox, IDecorat
 				return box.getStartOffset();
 			}
 		});
+		if (startOffset == null) {
+			return -1;
+		}
+		return startOffset;
 	}
 
 	@Override

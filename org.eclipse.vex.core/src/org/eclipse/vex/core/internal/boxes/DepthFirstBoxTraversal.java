@@ -16,11 +16,7 @@ package org.eclipse.vex.core.internal.boxes;
 public abstract class DepthFirstBoxTraversal<T> extends BaseBoxVisitorWithResult<T> {
 
 	public DepthFirstBoxTraversal() {
-		this(null);
-	}
-
-	public DepthFirstBoxTraversal(final T defaultValue) {
-		super(defaultValue);
+		super(null);
 	}
 
 	@Override
@@ -56,6 +52,11 @@ public abstract class DepthFirstBoxTraversal<T> extends BaseBoxVisitorWithResult
 	@Override
 	public T visit(final InlineContainer box) {
 		return traverseChildren(box);
+	}
+
+	@Override
+	public T visit(final InlineFrame box) {
+		return box.getComponent().accept(this);
 	}
 
 	protected final <C extends IBox> T traverseChildren(final IParentBox<C> box) {

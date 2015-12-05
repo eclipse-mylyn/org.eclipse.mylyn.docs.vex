@@ -66,6 +66,11 @@ public class BaseBoxVisitorWithResult<T> implements IBoxVisitorWithResult<T> {
 	}
 
 	@Override
+	public T visit(final InlineFrame box) {
+		return defaultValue;
+	}
+
+	@Override
 	public T visit(final StaticText box) {
 		return defaultValue;
 	}

@@ -10,12 +10,16 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.visualization;
 
+import static org.eclipse.vex.core.internal.boxes.BoxFactory.frame;
 import static org.eclipse.vex.core.internal.boxes.BoxFactory.inlineContainer;
 import static org.eclipse.vex.core.internal.boxes.BoxFactory.nodeReferenceWithText;
 import static org.eclipse.vex.core.internal.boxes.BoxFactory.staticText;
 
+import org.eclipse.vex.core.internal.boxes.Border;
 import org.eclipse.vex.core.internal.boxes.IInlineBox;
 import org.eclipse.vex.core.internal.boxes.InlineContainer;
+import org.eclipse.vex.core.internal.boxes.Margin;
+import org.eclipse.vex.core.internal.boxes.Padding;
 import org.eclipse.vex.core.internal.core.FontSpec;
 import org.eclipse.vex.core.provisional.dom.IElement;
 
@@ -32,16 +36,16 @@ public class InlineElementVisualization extends NodeVisualization<IInlineBox> {
 			return super.visit(element);
 		}
 
-		return nodeReferenceWithText(element, visualizeInlineElement(element));
+		return nodeReferenceWithText(element, frame(visualizeInlineElement(element), new Margin(4), new Border(2), new Padding(5)));
 	}
 
 	private InlineContainer visualizeInlineElement(final IElement element) {
 		final InlineContainer container = inlineContainer();
 		if (element.hasChildren()) {
-			return visualizeChildrenInline(element.children(), container);
+			visualizeChildrenInline(element.children(), container);
 		} else {
 			container.appendChild(staticText(" ", TIMES_NEW_ROMAN));
-			return container;
 		}
+		return container;
 	}
 }

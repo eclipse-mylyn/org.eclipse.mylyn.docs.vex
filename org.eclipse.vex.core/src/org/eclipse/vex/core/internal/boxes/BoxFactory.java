@@ -54,6 +54,21 @@ public class BoxFactory {
 		return frame;
 	}
 
+	public static InlineFrame frame(final IInlineBox component) {
+		final InlineFrame frame = new InlineFrame();
+		frame.setComponent(component);
+		return frame;
+	}
+
+	public static InlineFrame frame(final IInlineBox component, final Margin margin, final Border border, final Padding padding) {
+		final InlineFrame frame = new InlineFrame();
+		frame.setComponent(component);
+		frame.setMargin(margin);
+		frame.setBorder(border);
+		frame.setPadding(padding);
+		return frame;
+	}
+
 	public static StructuralNodeReference nodeReference(final INode node, final IStructuralBox component) {
 		final StructuralNodeReference structuralNodeReference = new StructuralNodeReference();
 		structuralNodeReference.setNode(node);

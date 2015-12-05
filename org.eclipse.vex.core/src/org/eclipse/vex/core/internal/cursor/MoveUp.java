@@ -233,7 +233,7 @@ public class MoveUp implements ICursorMove {
 	}
 
 	private static List<TextContent> findVerticallyClosestTextContentChildrenAbove(final IBox parent, final int y) {
-		return parent.accept(new DepthFirstBoxTraversal<List<TextContent>>(Collections.<TextContent> emptyList()) {
+		final List<TextContent> candidates = parent.accept(new DepthFirstBoxTraversal<List<TextContent>>() {
 			private final LinkedList<TextContent> candidates = new LinkedList<TextContent>();
 			private int minVerticalDistance = Integer.MAX_VALUE;
 
@@ -262,6 +262,10 @@ public class MoveUp implements ICursorMove {
 				return null;
 			}
 		});
+		if (candidates == null) {
+			return Collections.<TextContent> emptyList();
+		}
+		return candidates;
 	}
 
 	private static void removeVerticallyDistantBoxes(final List<? extends IContentBox> boxes, final int y, final int minVerticalDistance) {

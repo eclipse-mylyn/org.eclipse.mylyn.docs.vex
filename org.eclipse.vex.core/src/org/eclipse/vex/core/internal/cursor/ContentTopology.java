@@ -39,7 +39,7 @@ public class ContentTopology {
 	}
 
 	private static IContentBox findOutmostContentBox(final RootBox rootBox) {
-		return rootBox.accept(new DepthFirstBoxTraversal<IContentBox>(null) {
+		return rootBox.accept(new DepthFirstBoxTraversal<IContentBox>() {
 			@Override
 			public IContentBox visit(final StructuralNodeReference box) {
 				return box;

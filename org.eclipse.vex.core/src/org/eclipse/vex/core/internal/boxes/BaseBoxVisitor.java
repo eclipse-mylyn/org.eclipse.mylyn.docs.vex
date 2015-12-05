@@ -56,6 +56,11 @@ public class BaseBoxVisitor implements IBoxVisitor {
 	}
 
 	@Override
+	public void visit(final InlineFrame box) {
+		// ignore
+	}
+
+	@Override
 	public void visit(final StaticText box) {
 		// ignore
 	}
