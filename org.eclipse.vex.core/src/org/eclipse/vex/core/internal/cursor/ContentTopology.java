@@ -168,7 +168,7 @@ public class ContentTopology {
 		});
 	}
 
-	public static IContentBox findHorizontallyClosestContentBox(final Iterable<IContentBox> candidates, final int x) {
+	public static IContentBox findHorizontallyClosestContentBox(final Iterable<? extends IContentBox> candidates, final int x) {
 		IContentBox finalCandidate = null;
 		int minHorizontalDistance = Integer.MAX_VALUE;
 		for (final IContentBox candidate : candidates) {
