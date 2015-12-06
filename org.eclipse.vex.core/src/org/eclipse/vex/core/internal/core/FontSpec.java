@@ -87,6 +87,10 @@ public class FontSpec {
 		return new FontSpec(names, style | BOLD, size);
 	}
 
+	public FontSpec italic() {
+		return new FontSpec(names, style | ITALIC, size);
+	}
+
 	@Override
 	public String toString() {
 		return "FontSpec [names=" + Arrays.toString(names) + ", size=" + size + ", style=" + styleToString(style) + "]";

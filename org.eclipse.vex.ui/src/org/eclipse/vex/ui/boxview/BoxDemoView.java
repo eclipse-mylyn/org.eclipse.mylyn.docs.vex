@@ -74,4 +74,9 @@ public class BoxDemoView extends ViewPart {
 		controller.insertElement(new QualifiedName(null, "b"));
 	}
 
+	public void insertItalic() {
+		final DOMController controller = boxWidget.getDOMController();
+		controller.insertElement(new QualifiedName(null, "i"));
+	}
+
 }

@@ -194,6 +194,11 @@
             id="org.eclipse.vex.ui.Bold"
             name="Bold">
       </command>
+      <command
+            categoryId="org.eclipse.vex.ui.commands.category"
+            id="org.eclipse.vex.ui.Italic"
+            name="Italic">
+      </command>
 
    </extension>
    <extension
@@ -792,6 +797,10 @@
             class="org.eclipse.vex.ui.boxview.InsertBoldHandler"
             commandId="org.eclipse.vex.ui.Bold">
       </handler>
+      <handler
+            class="org.eclipse.vex.ui.boxview.InsertItalicHandler"
+            commandId="org.eclipse.vex.ui.Italic">
+      </handler>
 
       <!-- TODO:
 		   - org.eclipse.ui.edit.text.join.lines
@@ -1301,6 +1310,12 @@
                commandId="org.eclipse.vex.ui.Bold"
                icon="icons/style_bold.gif"
                label="Bold"
+               style="push">
+         </command>
+         <command
+               commandId="org.eclipse.vex.ui.Italic"
+               icon="icons/style_italic.gif"
+               label="Italic"
                style="push">
          </command>
       </menuContribution>

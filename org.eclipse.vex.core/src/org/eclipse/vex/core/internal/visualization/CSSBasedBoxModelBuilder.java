@@ -90,6 +90,12 @@ public class CSSBasedBoxModelBuilder implements IBoxModelBuilder {
 					properties.pop(PROPERTY_TEXT_FONT);
 					return box;
 				}
+				if ("i".equals(element.getLocalName())) {
+					properties.push(PROPERTY_TEXT_FONT, properties.<FontSpec> peek(PROPERTY_TEXT_FONT).italic());
+					final InlineNodeReference box = nodeReferenceWithText(element, frame(visualizeInlineElementContent(element), Margin.NULL, Border.NULL, Padding.NULL));
+					properties.pop(PROPERTY_TEXT_FONT);
+					return box;
+				}
 				return nodeReferenceWithText(element, frame(visualizeInlineElementContent(element), Margin.NULL, Border.NULL, Padding.NULL));
 			}
 
