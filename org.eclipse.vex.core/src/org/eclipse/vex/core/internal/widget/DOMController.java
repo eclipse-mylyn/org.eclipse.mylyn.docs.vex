@@ -15,7 +15,7 @@ import static org.eclipse.vex.core.internal.cursor.CursorMoves.toOffset;
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.vex.core.internal.cursor.Cursor;
 import org.eclipse.vex.core.internal.cursor.ICursorMove;
-import org.eclipse.vex.core.internal.visualization.VisualizationChain;
+import org.eclipse.vex.core.internal.visualization.IBoxModelBuilder;
 import org.eclipse.vex.core.provisional.dom.AttributeChangeEvent;
 import org.eclipse.vex.core.provisional.dom.ContentChangeEvent;
 import org.eclipse.vex.core.provisional.dom.IDocument;
@@ -89,8 +89,8 @@ public class DOMController {
 		}
 	}
 
-	public void setVisualizationChain(final VisualizationChain visualizationChain) {
-		visualization.setVisualizationChain(visualizationChain);
+	public void setBoxModelBuilder(final IBoxModelBuilder boxModelBuilder) {
+		visualization.setBoxModelBuilder(boxModelBuilder);
 	}
 
 	public void moveCursor(final ICursorMove move) {

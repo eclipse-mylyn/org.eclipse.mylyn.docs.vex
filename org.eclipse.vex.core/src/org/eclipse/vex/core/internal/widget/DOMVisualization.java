@@ -27,7 +27,7 @@ import org.eclipse.vex.core.internal.boxes.TextContent;
 import org.eclipse.vex.core.internal.boxes.VerticalBlock;
 import org.eclipse.vex.core.internal.cursor.ContentTopology;
 import org.eclipse.vex.core.internal.cursor.Cursor;
-import org.eclipse.vex.core.internal.visualization.VisualizationChain;
+import org.eclipse.vex.core.internal.visualization.IBoxModelBuilder;
 import org.eclipse.vex.core.provisional.dom.ContentRange;
 import org.eclipse.vex.core.provisional.dom.IDocument;
 import org.eclipse.vex.core.provisional.dom.INode;
@@ -41,7 +41,7 @@ public class DOMVisualization {
 	private final Cursor cursor;
 	private final BoxView view;
 
-	private VisualizationChain visualizationChain;
+	private IBoxModelBuilder boxModelBuilder;
 	private IDocument document;
 
 	public DOMVisualization(final Cursor cursor, final BoxView view) {
@@ -54,21 +54,18 @@ public class DOMVisualization {
 		buildAll();
 	}
 
-	public void setVisualizationChain(final VisualizationChain visualizationChain) {
-		Assert.isNotNull(visualizationChain);
-		this.visualizationChain = visualizationChain;
+	public void setBoxModelBuilder(final IBoxModelBuilder boxModelBuilder) {
+		Assert.isNotNull(boxModelBuilder);
+		this.boxModelBuilder = boxModelBuilder;
 		buildAll();
 	}
 
 	public void buildAll() {
-		if (visualizationChain == null) {
+		if (boxModelBuilder == null) {
 			return;
 		}
 
-		RootBox rootBox = visualizationChain.visualizeRoot(document);
-		if (rootBox == null) {
-			rootBox = new RootBox();
-		}
+		final RootBox rootBox = boxModelBuilder.visualizeRoot(document);
 
 		contentTopology.setRootBox(rootBox);
 		cursor.setRootBox(rootBox);
@@ -91,42 +88,42 @@ public class DOMVisualization {
 		parent.accept(new BaseBoxVisitor() {
 			@Override
 			public void visit(final RootBox box) {
-				box.replaceChildren(modifiedBoxes, visualizationChain.visualizeStructure(node));
+				box.replaceChildren(modifiedBoxes, boxModelBuilder.visualizeStructure(node));
 			}
 
 			@Override
 			public void visit(final VerticalBlock box) {
-				box.replaceChildren(modifiedBoxes, visualizationChain.visualizeStructure(node));
+				box.replaceChildren(modifiedBoxes, boxModelBuilder.visualizeStructure(node));
 			}
 
 			@Override
 			public void visit(final StructuralFrame box) {
-				box.setComponent(visualizationChain.visualizeStructure(node));
+				box.setComponent(boxModelBuilder.visualizeStructure(node));
 			}
 
 			@Override
 			public void visit(final StructuralNodeReference box) {
-				box.setComponent(visualizationChain.visualizeStructure(node));
+				box.setComponent(boxModelBuilder.visualizeStructure(node));
 			}
 
 			@Override
 			public void visit(final Paragraph box) {
-				box.replaceChildren(modifiedBoxes, visualizationChain.visualizeInline(node));
+				box.replaceChildren(modifiedBoxes, boxModelBuilder.visualizeInline(node));
 			}
 
 			@Override
 			public void visit(final InlineNodeReference box) {
-				box.setComponent(visualizationChain.visualizeInline(node));
+				box.setComponent(boxModelBuilder.visualizeInline(node));
 			}
 
 			@Override
 			public void visit(final InlineContainer box) {
-				box.replaceChildren(modifiedBoxes, visualizationChain.visualizeInline(node));
+				box.replaceChildren(modifiedBoxes, boxModelBuilder.visualizeInline(node));
 			}
 
 			@Override
 			public void visit(final InlineFrame box) {
-				box.setComponent(visualizationChain.visualizeInline(node));
+				box.setComponent(boxModelBuilder.visualizeInline(node));
 			}
 		});
 	}

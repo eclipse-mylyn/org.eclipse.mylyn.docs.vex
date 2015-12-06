@@ -11,15 +11,15 @@
 package org.eclipse.vex.core.internal.visualization;
 
 import org.eclipse.vex.core.internal.boxes.IBox;
-import org.eclipse.vex.core.internal.boxes.IStructuralBox;
 import org.eclipse.vex.core.internal.boxes.IInlineBox;
 import org.eclipse.vex.core.internal.boxes.IParentBox;
+import org.eclipse.vex.core.internal.boxes.IStructuralBox;
 import org.eclipse.vex.core.provisional.dom.BaseNodeVisitorWithResult;
 import org.eclipse.vex.core.provisional.dom.INode;
 
 public class NodeVisualization<T extends IBox> extends BaseNodeVisitorWithResult<T> implements Comparable<NodeVisualization<?>> {
 	private final int priority;
-	private VisualizationChain chain;
+	private IBoxModelBuilder boxModelBuilder;
 
 	public NodeVisualization() {
 		this(0);
@@ -38,13 +38,13 @@ public class NodeVisualization<T extends IBox> extends BaseNodeVisitorWithResult
 		return other.priority - priority;
 	}
 
-	public final void setChain(final VisualizationChain chain) {
-		this.chain = chain;
+	public final void setChain(final IBoxModelBuilder boxModelBuilder) {
+		this.boxModelBuilder = boxModelBuilder;
 	}
 
 	protected final <P extends IParentBox<IStructuralBox>> P visualizeChildrenStructure(final Iterable<INode> children, final P parentBox) {
 		for (final INode child : children) {
-			final IStructuralBox childBox = chain.visualizeStructure(child);
+			final IStructuralBox childBox = boxModelBuilder.visualizeStructure(child);
 			if (childBox != null) {
 				parentBox.appendChild(childBox);
 			}
@@ -54,7 +54,7 @@ public class NodeVisualization<T extends IBox> extends BaseNodeVisitorWithResult
 
 	protected final <P extends IParentBox<IInlineBox>> P visualizeChildrenInline(final Iterable<INode> children, final P parentBox) {
 		for (final INode child : children) {
-			final IInlineBox childBox = chain.visualizeInline(child);
+			final IInlineBox childBox = boxModelBuilder.visualizeInline(child);
 			if (childBox != null) {
 				parentBox.appendChild(childBox);
 			}

@@ -13,24 +13,31 @@ package org.eclipse.vex.core.internal.visualization;
 import java.util.TreeSet;
 
 import org.eclipse.vex.core.internal.boxes.IBox;
-import org.eclipse.vex.core.internal.boxes.IStructuralBox;
 import org.eclipse.vex.core.internal.boxes.IInlineBox;
+import org.eclipse.vex.core.internal.boxes.IStructuralBox;
 import org.eclipse.vex.core.internal.boxes.RootBox;
 import org.eclipse.vex.core.provisional.dom.INode;
 
-public final class VisualizationChain {
+public final class VisualizationChain implements IBoxModelBuilder {
 	private final TreeSet<NodeVisualization<RootBox>> rootChain = new TreeSet<NodeVisualization<RootBox>>();
 	private final TreeSet<NodeVisualization<IStructuralBox>> structureChain = new TreeSet<NodeVisualization<IStructuralBox>>();
 	private final TreeSet<NodeVisualization<IInlineBox>> inlineChain = new TreeSet<NodeVisualization<IInlineBox>>();
 
+	@Override
 	public RootBox visualizeRoot(final INode node) {
-		return visualize(node, rootChain);
+		final RootBox rootBox = visualize(node, rootChain);
+		if (rootBox == null) {
+			return new RootBox();
+		}
+		return rootBox;
 	}
 
+	@Override
 	public IStructuralBox visualizeStructure(final INode node) {
 		return visualize(node, structureChain);
 	}
 
+	@Override
 	public IInlineBox visualizeInline(final INode node) {
 		return visualize(node, inlineChain);
 	}

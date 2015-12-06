@@ -34,7 +34,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.vex.core.internal.core.Rectangle;
 import org.eclipse.vex.core.internal.cursor.Cursor;
 import org.eclipse.vex.core.internal.cursor.ICursorMove;
-import org.eclipse.vex.core.internal.visualization.VisualizationChain;
+import org.eclipse.vex.core.internal.visualization.IBoxModelBuilder;
 import org.eclipse.vex.core.internal.widget.BalancingSelector;
 import org.eclipse.vex.core.internal.widget.BoxView;
 import org.eclipse.vex.core.internal.widget.DOMController;
@@ -78,8 +78,8 @@ public class BoxWidget extends Canvas {
 		selector.setDocument(document);
 	}
 
-	public void setVisualizationChain(final VisualizationChain visualizationChain) {
-		controller.setVisualizationChain(visualizationChain);
+	public void setBoxModelBuilder(final IBoxModelBuilder visualizationChain) {
+		controller.setBoxModelBuilder(visualizationChain);
 	}
 
 	public DOMController getDOMController() {
