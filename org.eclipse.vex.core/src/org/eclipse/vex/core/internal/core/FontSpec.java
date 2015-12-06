@@ -83,6 +83,10 @@ public class FontSpec {
 		return style;
 	}
 
+	public FontSpec bold() {
+		return new FontSpec(names, style | BOLD, size);
+	}
+
 	@Override
 	public String toString() {
 		return "FontSpec [names=" + Arrays.toString(names) + ", size=" + size + ", style=" + styleToString(style) + "]";

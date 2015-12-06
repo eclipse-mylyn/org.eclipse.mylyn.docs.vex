@@ -25,10 +25,12 @@ import org.eclipse.vex.core.internal.boxes.IInlineBox;
 import org.eclipse.vex.core.internal.boxes.IParentBox;
 import org.eclipse.vex.core.internal.boxes.IStructuralBox;
 import org.eclipse.vex.core.internal.boxes.InlineContainer;
+import org.eclipse.vex.core.internal.boxes.InlineNodeReference;
 import org.eclipse.vex.core.internal.boxes.Margin;
 import org.eclipse.vex.core.internal.boxes.Padding;
 import org.eclipse.vex.core.internal.boxes.Paragraph;
 import org.eclipse.vex.core.internal.boxes.RootBox;
+import org.eclipse.vex.core.internal.boxes.StaticText;
 import org.eclipse.vex.core.internal.core.FontSpec;
 import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.provisional.dom.BaseNodeVisitorWithResult;
@@ -44,7 +46,15 @@ public class CSSBasedBoxModelBuilder implements IBoxModelBuilder {
 
 	private static final FontSpec TIMES_NEW_ROMAN = new FontSpec("Times New Roman", FontSpec.PLAIN, 20.0f);
 
+	private static final String PROPERTY_TEXT_FONT = "textFont";
+
 	private final StyleSheet styleSheet;
+
+	private final CascadingProperties properties = new CascadingProperties() {
+		{
+			push(PROPERTY_TEXT_FONT, TIMES_NEW_ROMAN);
+		}
+	};
 
 	public CSSBasedBoxModelBuilder(final StyleSheet styleSheet) {
 		this.styleSheet = styleSheet;
@@ -74,12 +84,18 @@ public class CSSBasedBoxModelBuilder implements IBoxModelBuilder {
 		return node.accept(new BaseNodeVisitorWithResult<IInlineBox>() {
 			@Override
 			public IInlineBox visit(final IElement element) {
-				return nodeReferenceWithText(element, frame(visualizeInlineElementContent(element), new Margin(4), new Border(2), new Padding(5)));
+				if ("b".equals(element.getLocalName())) {
+					properties.push(PROPERTY_TEXT_FONT, properties.<FontSpec> peek(PROPERTY_TEXT_FONT).bold());
+					final InlineNodeReference box = nodeReferenceWithText(element, frame(visualizeInlineElementContent(element), Margin.NULL, Border.NULL, Padding.NULL));
+					properties.pop(PROPERTY_TEXT_FONT);
+					return box;
+				}
+				return nodeReferenceWithText(element, frame(visualizeInlineElementContent(element), Margin.NULL, Border.NULL, Padding.NULL));
 			}
 
 			@Override
 			public IInlineBox visit(final IText text) {
-				return textContent(text.getContent(), text.getRange(), TIMES_NEW_ROMAN);
+				return textContent(text.getContent(), text.getRange(), properties.<FontSpec> peek(PROPERTY_TEXT_FONT));
 			}
 		});
 	}
@@ -100,7 +116,7 @@ public class CSSBasedBoxModelBuilder implements IBoxModelBuilder {
 
 	private Paragraph visualizeEmptyParagraph(final IElement element) {
 		final Paragraph paragraph = paragraph();
-		paragraph.appendChild(staticText(" ", TIMES_NEW_ROMAN));
+		paragraph.appendChild(placeholderForEmptyElement());
 		return paragraph;
 	}
 
@@ -109,9 +125,13 @@ public class CSSBasedBoxModelBuilder implements IBoxModelBuilder {
 		if (element.hasChildren()) {
 			visualizeChildrenInline(element.children(), container);
 		} else {
-			container.appendChild(staticText(" ", TIMES_NEW_ROMAN));
+			container.appendChild(placeholderForEmptyElement());
 		}
 		return container;
+	}
+
+	private StaticText placeholderForEmptyElement() {
+		return staticText(" ", properties.<FontSpec> peek(PROPERTY_TEXT_FONT));
 	}
 
 	private <P extends IParentBox<IStructuralBox>> P visualizeChildrenStructure(final Iterable<INode> children, final P parentBox) {
