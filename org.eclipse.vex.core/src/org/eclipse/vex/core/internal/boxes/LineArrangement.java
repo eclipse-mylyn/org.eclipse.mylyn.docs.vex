@@ -62,7 +62,7 @@ public class LineArrangement {
 	}
 
 	private static boolean hasVisibleContent(final IInlineBox box) {
-		return box.accept(new BaseBoxVisitorWithResult<Boolean>(true) {
+		final Boolean result = box.accept(new DepthFirstBoxTraversal<Boolean>() {
 			@Override
 			public Boolean visit(final TextContent box) {
 				return box.getText().trim().length() > 0;
@@ -73,6 +73,10 @@ public class LineArrangement {
 				return box.getText().trim().length() > 0;
 			}
 		});
+		if (result == null) {
+			return true;
+		}
+		return result;
 	}
 
 	private boolean arrangeWithLastChild(final Graphics graphics, final IInlineBox box) {

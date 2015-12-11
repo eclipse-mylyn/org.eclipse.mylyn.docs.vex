@@ -275,17 +275,21 @@ public class TextContent extends BaseBox implements IInlineBox, IContentBox {
 		applyFont(graphics);
 		splitter.setContent(content, startPosition.getOffset(), endPosition.getOffset());
 		final int splittingPosition = splitter.findSplittingPositionBefore(graphics, headWidth, width, force);
+		final int splittingOffset = startPosition.getOffset() + splittingPosition;
+		if (splittingOffset > endPosition.getOffset()) {
+			return new TextContent();
+		}
 
-		final TextContent tail = createTail(splittingPosition);
+		final TextContent tail = createTail(splittingOffset);
 		tail.layout(graphics);
 		removeTail(tail);
 
 		return tail;
 	}
 
-	private TextContent createTail(final int splittingPosition) {
+	private TextContent createTail(final int splittingOffset) {
 		final TextContent tail = new TextContent();
-		tail.setContent(content, new ContentRange(startPosition.getOffset() + splittingPosition, endPosition.getOffset()));
+		tail.setContent(content, new ContentRange(splittingOffset, endPosition.getOffset()));
 		tail.setFont(fontSpec);
 		tail.setParent(parent);
 		return tail;

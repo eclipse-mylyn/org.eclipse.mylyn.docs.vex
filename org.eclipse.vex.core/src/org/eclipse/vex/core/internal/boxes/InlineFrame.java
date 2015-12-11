@@ -251,7 +251,7 @@ public class InlineFrame extends BaseBox implements IInlineBox, IDecoratorBox<II
 	public IInlineBox splitTail(final Graphics graphics, final int headWidth, final boolean force) {
 		final IInlineBox tailComponent;
 		final int tailHeadWidth = headWidth - leftFrame();
-		if (tailHeadWidth <= 0) {
+		if (tailHeadWidth < 0) {
 			tailComponent = component;
 			component = null;
 		} else {

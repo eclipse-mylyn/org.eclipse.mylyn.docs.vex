@@ -22,7 +22,7 @@ public class CharSequenceSplitter {
 	private int endPosition;
 
 	public void setContent(final CharSequence charSequence) {
-		setContent(charSequence, 0, charSequence.length());
+		setContent(charSequence, 0, charSequence.length() - 1);
 	}
 
 	public void setContent(final CharSequence charSequence, final int startPosition, final int endPosition) {
@@ -32,7 +32,7 @@ public class CharSequenceSplitter {
 	}
 
 	private int textLength() {
-		return endPosition - startPosition;
+		return endPosition - startPosition + 1;
 	}
 
 	private String substring(final int beginIndex, final int endIndex) {
@@ -48,6 +48,9 @@ public class CharSequenceSplitter {
 		final int properSplittingPosition = findProperSplittingPositionBefore(positionAtWidth);
 
 		if (textLength() > properSplittingPosition + 2 && isSplittingCharacter(properSplittingPosition + 1) && !isSplittingCharacter(properSplittingPosition + 2)) {
+			return properSplittingPosition + 2;
+		}
+		if (textLength() == properSplittingPosition + 2 && isSplittingCharacter(properSplittingPosition + 1)) {
 			return properSplittingPosition + 2;
 		}
 		if (properSplittingPosition == -1 && force) {
