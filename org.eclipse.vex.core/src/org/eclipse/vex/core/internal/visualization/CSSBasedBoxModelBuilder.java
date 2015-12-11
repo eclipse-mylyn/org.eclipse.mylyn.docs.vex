@@ -25,7 +25,6 @@ import org.eclipse.vex.core.internal.boxes.IInlineBox;
 import org.eclipse.vex.core.internal.boxes.IParentBox;
 import org.eclipse.vex.core.internal.boxes.IStructuralBox;
 import org.eclipse.vex.core.internal.boxes.InlineContainer;
-import org.eclipse.vex.core.internal.boxes.InlineNodeReference;
 import org.eclipse.vex.core.internal.boxes.Margin;
 import org.eclipse.vex.core.internal.boxes.Padding;
 import org.eclipse.vex.core.internal.boxes.Paragraph;
@@ -61,10 +60,11 @@ public class CSSBasedBoxModelBuilder implements IBoxModelBuilder {
 		return node.accept(new BaseNodeVisitorWithResult<IStructuralBox>() {
 			@Override
 			public IStructuralBox visit(final IElement element) {
+				final Styles styles = styleSheet.getStyles(element);
 				if ("para".equals(element.getLocalName())) {
-					return nodeReferenceWithText(element, frame(visualizeParagraphElementContent(element), Margin.NULL, Border.NULL, new Padding(5, 4)));
+					return nodeReferenceWithText(element, frame(visualizeParagraphElementContent(element), Margin.NULL, Border.NULL, getPadding(styles)));
 				}
-				return nodeReference(element, frame(visualizeChildrenStructure(element.children(), verticalBlock()), Margin.NULL, Border.NULL, new Padding(3, 3)));
+				return nodeReference(element, frame(visualizeChildrenStructure(element.children(), verticalBlock()), Margin.NULL, Border.NULL, getPadding(styles)));
 			}
 		});
 	}
@@ -74,15 +74,8 @@ public class CSSBasedBoxModelBuilder implements IBoxModelBuilder {
 		return node.accept(new BaseNodeVisitorWithResult<IInlineBox>() {
 			@Override
 			public IInlineBox visit(final IElement element) {
-				if ("b".equals(element.getLocalName())) {
-					final InlineNodeReference box = nodeReferenceWithText(element, frame(visualizeInlineElementContent(element), Margin.NULL, Border.NULL, Padding.NULL));
-					return box;
-				}
-				if ("i".equals(element.getLocalName())) {
-					final InlineNodeReference box = nodeReferenceWithText(element, frame(visualizeInlineElementContent(element), Margin.NULL, Border.NULL, Padding.NULL));
-					return box;
-				}
-				return nodeReferenceWithText(element, frame(visualizeInlineElementContent(element), Margin.NULL, Border.NULL, Padding.NULL));
+				final Styles styles = styleSheet.getStyles(node);
+				return nodeReferenceWithText(element, frame(visualizeInlineElementContent(element), Margin.NULL, Border.NULL, getPadding(styles)));
 			}
 
 			@Override
@@ -147,4 +140,14 @@ public class CSSBasedBoxModelBuilder implements IBoxModelBuilder {
 		}
 		return parentBox;
 	}
+
+	private static Padding getPadding(final Styles styles) {
+		final int top = styles.getPaddingTop().get(1);
+		final int left = styles.getPaddingLeft().get(1);
+		final int bottom = styles.getPaddingBottom().get(1);
+		final int right = styles.getPaddingRight().get(1);
+
+		return new Padding(top, left, bottom, right);
+	}
+
 }
