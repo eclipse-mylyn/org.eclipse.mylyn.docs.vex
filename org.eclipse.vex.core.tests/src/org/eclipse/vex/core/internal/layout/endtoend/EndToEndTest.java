@@ -15,7 +15,6 @@ import static org.junit.Assert.assertEquals;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.PrintStream;
 
 import javax.xml.parsers.ParserConfigurationException;
@@ -40,9 +39,6 @@ import org.xml.sax.SAXException;
  */
 public class EndToEndTest {
 
-	private static final String UNIX_SEPARATOR = "\n";
-	private static final String LINE_SEPARATOR = "line.separator";
-
 	@Rule
 	public TestName name = new TestName();
 
@@ -63,22 +59,14 @@ public class EndToEndTest {
 
 	private static String traceRendering(final IDocument document, final StyleSheet styleSheet) throws IOException, ParserConfigurationException, SAXException {
 		final ByteArrayOutputStream traceBuffer = new ByteArrayOutputStream();
-		final PrintStream printStream = createUnixPrintStream(traceBuffer);
+		final PrintStream printStream = new PrintStream(traceBuffer);
 
 		DisplayDevice.setCurrent(DisplayDevice._72DPI);
 		final TracingHostComponent hostComponent = new TracingHostComponent(printStream);
 		final BaseVexWidget widget = new BaseVexWidget(hostComponent);
 		widget.setDocument(document, styleSheet);
 		widget.paint(hostComponent.createDefaultGraphics(), 0, 0);
-		return new String(traceBuffer.toByteArray());
-	}
-
-	private static PrintStream createUnixPrintStream(final OutputStream target) {
-		final String originalSeparator = System.getProperty(LINE_SEPARATOR);
-		System.setProperty(LINE_SEPARATOR, UNIX_SEPARATOR);
-		final PrintStream printStream = new PrintStream(target, true);
-		System.setProperty(LINE_SEPARATOR, originalSeparator);
-		return printStream;
+		return normalizeLineSeparators(new String(traceBuffer.toByteArray()));
 	}
 
 	private StyleSheet readStyleSheet() throws IOException {
@@ -98,8 +86,12 @@ public class EndToEndTest {
 		return reader.read(getClass().getResource(inputName()));
 	}
 
+	private static String normalizeLineSeparators(final String s) {
+		return s.replaceAll("[\n\r]+", "\n");
+	}
+
 	private String readExpectedTrace() throws IOException {
-		return readAndCloseStream(getClass().getResourceAsStream(outputName()));
+		return normalizeLineSeparators(readAndCloseStream(getClass().getResourceAsStream(outputName())));
 	}
 
 	private static String readAndCloseStream(final InputStream in) throws IOException {

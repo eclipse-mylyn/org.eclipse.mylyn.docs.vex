@@ -18,7 +18,6 @@ import static org.junit.Assert.assertEquals;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.PrintStream;
 
 import org.eclipse.vex.core.internal.core.Color;
@@ -34,9 +33,6 @@ import org.junit.rules.TestName;
  * @author Florian Thienel
  */
 public class TestWithTracing {
-
-	private static final String UNIX_SEPARATOR = "\n";
-	private static final String LINE_SEPARATOR = "line.separator";
 
 	private RootBox rootBox;
 
@@ -55,15 +51,15 @@ public class TestWithTracing {
 		rootBox.appendChild(frame);
 		rootBox.setWidth(300);
 
-		final String expected = readExpectedTrace();
-		final String actual = traceRendering(rootBox);
+		final String expected = normalizeLineSeparators(readExpectedTrace());
+		final String actual = normalizeLineSeparators(traceRendering(rootBox));
 
 		assertEquals(expected, actual);
 	}
 
 	private static String traceRendering(final RootBox rootBox) {
 		final ByteArrayOutputStream traceBuffer = new ByteArrayOutputStream();
-		final PrintStream printStream = createUnixPrintStream(traceBuffer);
+		final PrintStream printStream = new PrintStream(traceBuffer);
 
 		DisplayDevice.setCurrent(DisplayDevice._72DPI);
 		final TracingHostComponent hostComponent = new TracingHostComponent(printStream);
@@ -73,12 +69,8 @@ public class TestWithTracing {
 		return new String(traceBuffer.toByteArray());
 	}
 
-	private static PrintStream createUnixPrintStream(final OutputStream target) {
-		final String originalSeparator = System.getProperty(LINE_SEPARATOR);
-		System.setProperty(LINE_SEPARATOR, UNIX_SEPARATOR);
-		final PrintStream printStream = new PrintStream(target, true);
-		System.setProperty(LINE_SEPARATOR, originalSeparator);
-		return printStream;
+	private static String normalizeLineSeparators(final String s) {
+		return s.replaceAll("[\n\r]+", "\n");
 	}
 
 	private static String readAndCloseStream(final InputStream in) throws IOException {
