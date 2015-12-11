@@ -20,11 +20,7 @@ import org.eclipse.vex.core.provisional.dom.IParent;
 public class DepthFirstNodeTraversal<T> extends BaseNodeVisitorWithResult<T> {
 
 	public DepthFirstNodeTraversal() {
-		this(null);
-	}
-
-	public DepthFirstNodeTraversal(final T defaultValue) {
-		super(defaultValue);
+		super(null);
 	}
 
 	@Override
