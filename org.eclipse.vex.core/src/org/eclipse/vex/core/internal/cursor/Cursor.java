@@ -290,14 +290,14 @@ public class Cursor {
 
 	private Caret getCaretForInlineNode(final Graphics graphics, final InlineNodeReference box, final int offset) {
 		final Rectangle area = getAbsolutePositionArea(graphics, box, offset);
-		if (box.isAtStart(offset)) {
+		if (box.getNode().getStartOffset() == offset) {
 			return new InsertBeforeInlineNodeCaret(area, box.getNode());
-		} else if (box.isAtEnd(offset) && box.canContainText()) {
+		} else if (box.getNode().getEndOffset() == offset && box.canContainText()) {
 			return new AppendNodeWithTextCaret(area, box.getNode(), box.isEmpty());
-		} else if (box.isAtEnd(offset) && !box.canContainText()) {
+		} else if (box.getNode().getEndOffset() == offset && !box.canContainText()) {
 			return new AppendNodeWithTextCaret(area, box.getNode(), box.isEmpty());
 		} else {
-			return null;
+			return new IntermediateInlineCaret(area, box.isAtStart(offset));
 		}
 	}
 
@@ -442,6 +442,47 @@ public class Cursor {
 
 		private int getX() {
 			return nodeIsEmpty ? area.getX() : area.getX() + area.getWidth();
+		}
+	}
+
+	private static class IntermediateInlineCaret implements Caret {
+		private final Rectangle area;
+		private final boolean isAtBoxStart;
+
+		public IntermediateInlineCaret(final Rectangle area, final boolean isAtBoxStart) {
+			this.area = area;
+			this.isAtBoxStart = isAtBoxStart;
+		}
+
+		@Override
+		public Rectangle getHotArea() {
+			return new Rectangle(getX(), area.getY(), 1, area.getHeight());
+		}
+
+		@Override
+		public Rectangle getVisibleArea() {
+			return area;
+		}
+
+		@Override
+		public void paint(final Graphics graphics) {
+			if (area == Rectangle.NULL) {
+				return;
+			}
+
+			final ColorResource foregroundColor = graphics.getColor(CARET_FOREGROUND_COLOR);
+			final ColorResource backgroundColor = graphics.getColor(CARET_BACKGROUND_COLOR);
+			graphics.setForeground(foregroundColor);
+			graphics.setBackground(backgroundColor);
+
+			final int x = getX();
+			final int y = area.getY();
+
+			graphics.fillRect(x, y, 2, area.getHeight());
+		}
+
+		private int getX() {
+			return isAtBoxStart ? area.getX() : area.getX() + area.getWidth();
 		}
 	}
 

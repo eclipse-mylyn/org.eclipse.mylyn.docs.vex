@@ -91,6 +91,10 @@ public class ContentTopology {
 			@Override
 			public IContentBox visit(final InlineNodeReference box) {
 				if (box.getStartOffset() == offset || box.getEndOffset() == offset) {
+					final IContentBox childBox = box.getComponent().accept(this);
+					if (childBox != null) {
+						return childBox;
+					}
 					return box;
 				}
 				if (box.getStartOffset() < offset && box.getEndOffset() > offset) {

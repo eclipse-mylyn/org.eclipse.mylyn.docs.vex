@@ -31,13 +31,24 @@ public class MoveRight implements ICursorMove {
 
 	@Override
 	public int calculateNewOffset(final Graphics graphics, final ContentTopology contentTopology, final int currentOffset, final IContentBox currentBox, final Rectangle hotArea, final int preferredX) {
-		final IContentBox parentBox = ContentTopology.getParentContentBox(currentBox);
-
 		int nextOffset = Math.min(currentOffset + 1, contentTopology.getLastOffset());
-		while (contentTopology.findBoxForPosition(nextOffset, parentBox) == null && nextOffset < contentTopology.getLastOffset()) {
+
+		final IContentBox searchStartBox = getSearchStartBox(currentBox, nextOffset);
+		while (contentTopology.findBoxForPosition(nextOffset, searchStartBox) == null && nextOffset < contentTopology.getLastOffset()) {
 			nextOffset = Math.min(nextOffset + 1, contentTopology.getLastOffset());
 		}
 
 		return nextOffset;
+	}
+
+	private static IContentBox getSearchStartBox(final IContentBox currentBox, final int nextOffset) {
+		final IContentBox parentBox = ContentTopology.getParentContentBox(currentBox);
+		if (parentBox == null) {
+			return currentBox;
+		}
+		if (parentBox.getRange().contains(nextOffset)) {
+			return parentBox;
+		}
+		return getSearchStartBox(parentBox, nextOffset);
 	}
 }
