@@ -49,12 +49,16 @@ import org.eclipse.vex.core.provisional.dom.IDocument;
  */
 public class BoxWidget extends Canvas {
 
+	private final org.eclipse.swt.graphics.Cursor mouseCursor;
 	private final BoxView view;
 	private final BalancingSelector selector;
 	private final DOMController controller;
 
 	public BoxWidget(final Composite parent, final int style) {
 		super(parent, style | SWT.NO_BACKGROUND);
+
+		mouseCursor = new org.eclipse.swt.graphics.Cursor(parent.getDisplay(), SWT.CURSOR_IBEAM);
+		setCursor(mouseCursor);
 
 		connectDispose();
 		connectResize();
@@ -139,6 +143,7 @@ public class BoxWidget extends Canvas {
 
 	private void widgetDisposed() {
 		view.dispose();
+		mouseCursor.dispose();
 	}
 
 	private void resize(final ControlEvent event) {
