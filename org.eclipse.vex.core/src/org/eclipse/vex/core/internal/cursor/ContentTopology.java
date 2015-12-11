@@ -200,7 +200,7 @@ public class ContentTopology {
 			public Collection<IContentBox> visit(final StructuralNodeReference box) {
 				if (node == box.getNode()) {
 					boxesForNode.add(box);
-					return boxesForNode;
+					return null;
 				}
 				if (box.getStartOffset() > node.getEndOffset()) {
 					return boxesForNode;
@@ -208,21 +208,23 @@ public class ContentTopology {
 				if (!box.getRange().intersects(node.getRange())) {
 					return null;
 				}
-				return super.visit(box);
+				super.visit(box);
+				return boxesForNode;
 			}
 
 			@Override
 			public Collection<IContentBox> visit(final InlineNodeReference box) {
+				if (node == box.getNode()) {
+					boxesForNode.add(box);
+				}
 				if (box.getStartOffset() > node.getEndOffset()) {
 					return boxesForNode;
 				}
 				if (!box.getRange().intersects(node.getRange())) {
 					return null;
 				}
-				if (node == box.getNode()) {
-					boxesForNode.add(box);
-				}
-				return super.visit(box);
+				super.visit(box);
+				return boxesForNode;
 			}
 		});
 	}
