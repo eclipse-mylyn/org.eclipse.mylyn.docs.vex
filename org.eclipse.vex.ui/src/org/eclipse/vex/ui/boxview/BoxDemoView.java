@@ -10,14 +10,22 @@
  *******************************************************************************/
 package org.eclipse.vex.ui.boxview;
 
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
+
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.part.ViewPart;
+import org.eclipse.vex.core.internal.css.StyleSheet;
+import org.eclipse.vex.core.internal.css.StyleSheetReader;
 import org.eclipse.vex.core.internal.io.UniversalTestDocument;
 import org.eclipse.vex.core.internal.visualization.CSSBasedBoxModelBuilder;
 import org.eclipse.vex.core.internal.widget.DOMController;
 import org.eclipse.vex.core.internal.widget.swt.BoxWidget;
+import org.w3c.css.sac.CSSException;
+import org.w3c.css.sac.InputSource;
 
 /**
  * This is a viewer for the new box model - just to do visual experiments.
@@ -57,7 +65,7 @@ public class BoxDemoView extends ViewPart {
 		boxWidget = new BoxWidget(parent, SWT.V_SCROLL);
 
 		boxWidget.setContent(UniversalTestDocument.createTestDocumentWithInlineElements(SAMPLE_COUNT));
-		boxWidget.setBoxModelBuilder(new CSSBasedBoxModelBuilder(null));
+		boxWidget.setBoxModelBuilder(new CSSBasedBoxModelBuilder(readStyleSheet()));
 		parent.layout();
 	}
 
@@ -67,6 +75,20 @@ public class BoxDemoView extends ViewPart {
 		 * reference to parent instead.
 		 */
 		parent.setFocus();
+	}
+
+	private StyleSheet readStyleSheet() {
+		try {
+			final InputSource inputSource = new InputSource(new InputStreamReader(getClass().getResourceAsStream("box-demo.css"), "utf-8"));
+			return new StyleSheetReader().read(inputSource, null);
+		} catch (final UnsupportedEncodingException e) {
+			e.printStackTrace();
+		} catch (final CSSException e) {
+			e.printStackTrace();
+		} catch (final IOException e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 
 	public void insertBold() {

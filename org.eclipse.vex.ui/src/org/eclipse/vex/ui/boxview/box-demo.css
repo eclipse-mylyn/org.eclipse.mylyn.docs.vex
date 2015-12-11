@@ -1,0 +1,25 @@
+doc {
+	display: block;
+	padding: 3px 3px;
+	font: normal normal 12pt "Verdana";
+}
+
+section {
+	display: block;
+	padding: 3px 3px;
+}
+
+para {
+	display: block;
+	padding: 5px 4px;
+}
+
+b {
+	display: inline;
+	font-weight: bold;
+}
+
+i {
+	display: inline;
+	font-style: italic;
+}
