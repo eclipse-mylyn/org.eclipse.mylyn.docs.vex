@@ -31,9 +31,8 @@ import org.eclipse.vex.core.internal.boxes.Padding;
 import org.eclipse.vex.core.internal.boxes.Paragraph;
 import org.eclipse.vex.core.internal.boxes.RootBox;
 import org.eclipse.vex.core.internal.boxes.StaticText;
-import org.eclipse.vex.core.internal.core.FontSpec;
-import org.eclipse.vex.core.internal.css.CSS;
 import org.eclipse.vex.core.internal.css.StyleSheet;
+import org.eclipse.vex.core.internal.css.Styles;
 import org.eclipse.vex.core.provisional.dom.BaseNodeVisitorWithResult;
 import org.eclipse.vex.core.provisional.dom.IDocument;
 import org.eclipse.vex.core.provisional.dom.IElement;
@@ -46,12 +45,6 @@ import org.eclipse.vex.core.provisional.dom.IText;
 public class CSSBasedBoxModelBuilder implements IBoxModelBuilder {
 
 	private final StyleSheet styleSheet;
-
-	private final CascadingProperties properties = new CascadingProperties() {
-		{
-			push(CSS.FONT, new FontSpec("Times New Roman", FontSpec.PLAIN, 20.0f));
-		}
-	};
 
 	public CSSBasedBoxModelBuilder(final StyleSheet styleSheet) {
 		this.styleSheet = styleSheet;
@@ -82,15 +75,11 @@ public class CSSBasedBoxModelBuilder implements IBoxModelBuilder {
 			@Override
 			public IInlineBox visit(final IElement element) {
 				if ("b".equals(element.getLocalName())) {
-					properties.push(CSS.FONT, currentFont().bold());
 					final InlineNodeReference box = nodeReferenceWithText(element, frame(visualizeInlineElementContent(element), Margin.NULL, Border.NULL, Padding.NULL));
-					properties.pop(CSS.FONT);
 					return box;
 				}
 				if ("i".equals(element.getLocalName())) {
-					properties.push(CSS.FONT, currentFont().italic());
 					final InlineNodeReference box = nodeReferenceWithText(element, frame(visualizeInlineElementContent(element), Margin.NULL, Border.NULL, Padding.NULL));
-					properties.pop(CSS.FONT);
 					return box;
 				}
 				return nodeReferenceWithText(element, frame(visualizeInlineElementContent(element), Margin.NULL, Border.NULL, Padding.NULL));
@@ -98,7 +87,8 @@ public class CSSBasedBoxModelBuilder implements IBoxModelBuilder {
 
 			@Override
 			public IInlineBox visit(final IText text) {
-				return textContent(text.getContent(), text.getRange(), currentFont());
+				final Styles styles = styleSheet.getStyles(node);
+				return textContent(text.getContent(), text.getRange(), styles.getFont());
 			}
 		});
 	}
@@ -119,7 +109,7 @@ public class CSSBasedBoxModelBuilder implements IBoxModelBuilder {
 
 	private Paragraph visualizeEmptyParagraph(final IElement element) {
 		final Paragraph paragraph = paragraph();
-		paragraph.appendChild(placeholderForEmptyElement());
+		paragraph.appendChild(placeholderForEmptyElement(element));
 		return paragraph;
 	}
 
@@ -128,13 +118,14 @@ public class CSSBasedBoxModelBuilder implements IBoxModelBuilder {
 		if (element.hasChildren()) {
 			visualizeChildrenInline(element.children(), container);
 		} else {
-			container.appendChild(placeholderForEmptyElement());
+			container.appendChild(placeholderForEmptyElement(element));
 		}
 		return container;
 	}
 
-	private StaticText placeholderForEmptyElement() {
-		return staticText(" ", currentFont());
+	private StaticText placeholderForEmptyElement(final IElement element) {
+		final Styles styles = styleSheet.getStyles(element);
+		return staticText(" ", styles.getFont());
 	}
 
 	private <P extends IParentBox<IStructuralBox>> P visualizeChildrenStructure(final Iterable<INode> children, final P parentBox) {
@@ -156,9 +147,4 @@ public class CSSBasedBoxModelBuilder implements IBoxModelBuilder {
 		}
 		return parentBox;
 	}
-
-	private FontSpec currentFont() {
-		return properties.<FontSpec> peek(CSS.FONT);
-	}
-
 }
