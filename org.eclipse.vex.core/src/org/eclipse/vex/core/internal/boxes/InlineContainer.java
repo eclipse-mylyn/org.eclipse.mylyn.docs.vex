@@ -233,10 +233,13 @@ public class InlineContainer extends BaseBox implements IInlineBox, IParentBox<I
 		final InlineContainer tail = new InlineContainer();
 		tail.setParent(parent);
 
-		if (splitChildTail.getWidth() == 0) {
+		if (splitChildTail.getWidth() > 0) {
+			tail.appendChild(splitChildTail);
+		}
+
+		if (splitChild.getWidth() == 0) {
 			moveChildrenTo(tail, splitIndex);
 		} else {
-			tail.appendChild(splitChildTail);
 			moveChildrenTo(tail, splitIndex + 1);
 		}
 
