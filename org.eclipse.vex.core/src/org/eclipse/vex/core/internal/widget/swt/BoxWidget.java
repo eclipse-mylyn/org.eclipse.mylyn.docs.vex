@@ -17,6 +17,12 @@ import static org.eclipse.vex.core.internal.cursor.CursorMoves.toAbsoluteCoordin
 import static org.eclipse.vex.core.internal.cursor.CursorMoves.toOffset;
 import static org.eclipse.vex.core.internal.cursor.CursorMoves.up;
 
+import org.eclipse.core.runtime.Assert;
+import org.eclipse.core.runtime.ListenerList;
+import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.jface.viewers.ISelectionChangedListener;
+import org.eclipse.jface.viewers.ISelectionProvider;
+import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ControlAdapter;
 import org.eclipse.swt.events.ControlEvent;
@@ -34,6 +40,7 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.vex.core.internal.core.Rectangle;
 import org.eclipse.vex.core.internal.cursor.Cursor;
 import org.eclipse.vex.core.internal.cursor.ICursorMove;
+import org.eclipse.vex.core.internal.cursor.ICursorPositionListener;
 import org.eclipse.vex.core.internal.visualization.IBoxModelBuilder;
 import org.eclipse.vex.core.internal.widget.BalancingSelector;
 import org.eclipse.vex.core.internal.widget.BoxView;
@@ -47,12 +54,15 @@ import org.eclipse.vex.core.provisional.dom.IDocument;
  *
  * @author Florian Thienel
  */
-public class BoxWidget extends Canvas {
+public class BoxWidget extends Canvas implements ISelectionProvider {
 
 	private final org.eclipse.swt.graphics.Cursor mouseCursor;
 	private final BoxView view;
+	private final Cursor cursor;
 	private final BalancingSelector selector;
 	private final DOMController controller;
+
+	private final ListenerList selectionChangedListeners = new ListenerList();
 
 	public BoxWidget(final Composite parent, final int style) {
 		super(parent, style | SWT.NO_BACKGROUND);
@@ -71,7 +81,8 @@ public class BoxWidget extends Canvas {
 		final IRenderer renderer = new DoubleBufferedRenderer(this);
 		final IViewPort viewPort = new ViewPort();
 		selector = new BalancingSelector();
-		final Cursor cursor = new Cursor(selector);
+		cursor = new Cursor(selector);
+		connectCursor();
 
 		view = new BoxView(renderer, viewPort, cursor);
 		controller = new DOMController(cursor, view);
@@ -141,6 +152,15 @@ public class BoxWidget extends Canvas {
 		});
 	}
 
+	private void connectCursor() {
+		cursor.addPositionListener(new ICursorPositionListener() {
+			@Override
+			public void positionChanged(final int offset) {
+				cursorPositionChanged(offset);
+			}
+		});
+	}
+
 	private void widgetDisposed() {
 		view.dispose();
 		mouseCursor.dispose();
@@ -200,6 +220,59 @@ public class BoxWidget extends Canvas {
 		controller.moveSelection(toAbsoluteCoordinates(event.x, absoluteY));
 	}
 
+	private void cursorPositionChanged(final int offset) {
+		fireSelectionChanged(createSelectionForOffset(offset));
+	}
+
+	@Override
+	public IVexSelection getSelection() {
+		return createSelectionForOffset(cursor.getOffset());
+	}
+
+	@Override
+	public void setSelection(final ISelection selection) {
+		Assert.isLegal(selection instanceof IVexSelection, "BoxWidget can only handle instances of IVexSelection");
+		final IVexSelection vexSelection = (IVexSelection) selection;
+
+		controller.moveCursor(toOffset(vexSelection.getCaretOffset()));
+	};
+
+	@Override
+	public void addSelectionChangedListener(final ISelectionChangedListener listener) {
+		selectionChangedListeners.add(listener);
+
+	}
+
+	@Override
+	public void removeSelectionChangedListener(final ISelectionChangedListener listener) {
+		selectionChangedListeners.remove(listener);
+	}
+
+	private void fireSelectionChanged(final IVexSelection selection) {
+		for (final Object listener : selectionChangedListeners.getListeners()) {
+			try {
+				((ISelectionChangedListener) listener).selectionChanged(new SelectionChangedEvent(this, selection));
+			} catch (final Throwable t) {
+				t.printStackTrace();
+				// TODO remove listener?
+			}
+		}
+	}
+
+	private IVexSelection createSelectionForOffset(final int offset) {
+		return new IVexSelection() {
+			@Override
+			public boolean isEmpty() {
+				return true;
+			}
+
+			@Override
+			public int getCaretOffset() {
+				return offset;
+			}
+		};
+	}
+
 	private final class ViewPort implements IViewPort {
 		@Override
 		public void reconcile(final int maximumHeight) {
@@ -222,6 +295,5 @@ public class BoxWidget extends Canvas {
 		public Rectangle getVisibleArea() {
 			return new Rectangle(0, getVerticalBar().getSelection(), getSize().x, getSize().y);
 		}
-	};
-
+	}
 }

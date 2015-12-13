@@ -11,7 +11,8 @@ public class RefreshHandler extends AbstractHandler {
 	@Override
 	public Object execute(final ExecutionEvent event) throws ExecutionException {
 		final BoxDemoView boxView = (BoxDemoView) ((IEvaluationContext) event.getApplicationContext()).getVariable(ISources.ACTIVE_PART_NAME);
-		boxView.refresh();
+		boxView.recreateBoxWidget();
+		boxView.setFocus();
 		System.gc();
 
 		return null;
