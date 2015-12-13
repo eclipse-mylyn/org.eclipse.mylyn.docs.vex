@@ -17,6 +17,7 @@ import static org.eclipse.vex.core.internal.cursor.CursorMoves.toAbsoluteCoordin
 import static org.eclipse.vex.core.internal.cursor.CursorMoves.toOffset;
 import static org.eclipse.vex.core.internal.cursor.CursorMoves.up;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 import org.eclipse.vex.core.internal.boxes.DepthFirstBoxTraversal;
 import org.eclipse.vex.core.internal.boxes.IContentBox;
@@ -356,6 +357,40 @@ public class TestCursorPosition {
 		cursorAt(0);
 		moveCursor(toAbsoluteCoordinates(10, 395));
 		assertCursorAt(document.getEmptyParagraph(1).getEndOffset());
+	}
+
+	@Test
+	public void whenCursorMoves_shouldFirePositionChanged() throws Exception {
+		final int[] announcedOffset = new int[1];
+		announcedOffset[0] = -1;
+		cursor.addPositionListener(new ICursorPositionListener() {
+			@Override
+			public void positionChanged(final int offset) {
+				announcedOffset[0] = offset;
+			}
+		});
+
+		cursorAt(123);
+		moveCursor(right());
+
+		assertEquals(cursor.getOffset(), announcedOffset[0]);
+	}
+
+	@Test
+	public void whenCursorMoveIsProhibited_shouldNotFirePositionChanged() throws Exception {
+		final boolean[] receivedPositionChangedMessage = new boolean[1];
+		receivedPositionChangedMessage[0] = false;
+		cursor.addPositionListener(new ICursorPositionListener() {
+			@Override
+			public void positionChanged(final int offset) {
+				receivedPositionChangedMessage[0] = true;
+			}
+		});
+
+		cursorAt(0);
+		moveCursor(left());
+
+		assertFalse(receivedPositionChangedMessage[0]);
 	}
 
 	private void cursorAt(final int offset) {

@@ -54,6 +54,8 @@ public class Cursor {
 	private int preferredX;
 	private boolean preferX;
 
+	private final LinkedList<ICursorPositionListener> cursorPositionListeners = new LinkedList<ICursorPositionListener>();
+
 	public Cursor(final IContentSelector selector) {
 		this.selector = selector;
 	}
@@ -84,6 +86,25 @@ public class Cursor {
 		return caret.getVisibleArea();
 	}
 
+	public void addPositionListener(final ICursorPositionListener listener) {
+		cursorPositionListeners.add(listener);
+	}
+
+	public void removePositionListener(final ICursorPositionListener listener) {
+		cursorPositionListeners.remove(listener);
+	}
+
+	private void firePositionChanged(final int offset) {
+		for (final ICursorPositionListener listener : cursorPositionListeners) {
+			try {
+				listener.positionChanged(offset);
+			} catch (final Throwable t) {
+				t.printStackTrace();
+				// TODO remove listener?
+			}
+		}
+	}
+
 	public void move(final ICursorMove move) {
 		moves.add(new MoveWithSelection(move, false));
 	}
@@ -99,6 +120,7 @@ public class Cursor {
 
 	public void applyMoves(final Graphics graphics) {
 		for (MoveWithSelection move = moves.poll(); move != null; move = moves.poll()) {
+			final int oldOffset = offset;
 			offset = move.move.calculateNewOffset(graphics, contentTopology, offset, box, getHotArea(), preferredX);
 			if (move.select) {
 				if (move.move.isAbsolute()) {
@@ -112,6 +134,10 @@ public class Cursor {
 			}
 			preferX = move.move.preferX();
 			applyCaretForPosition(graphics, offset);
+
+			if (oldOffset != offset) {
+				firePositionChanged(offset);
+			}
 		}
 	}
 
