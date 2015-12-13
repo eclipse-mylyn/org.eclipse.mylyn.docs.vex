@@ -27,6 +27,7 @@ public class BoxView {
 	private final IViewPort viewPort;
 	private final Cursor cursor;
 	private RootBox rootBox;
+	private int width;
 
 	public BoxView(final IRenderer renderer, final IViewPort viewPort, final Cursor cursor) {
 		this.renderer = renderer;
@@ -43,6 +44,10 @@ public class BoxView {
 		this.rootBox = rootBox;
 	}
 
+	public void setWidth(final int width) {
+		this.width = width;
+	}
+
 	public void invalidateLayout(final IBox box) {
 		render(reconcileLayout(box), paintContent());
 	}
@@ -56,6 +61,12 @@ public class BoxView {
 	}
 
 	public void invalidateWidth(final int width) {
+		this.width = width;
+		invalidateEverything();
+	}
+
+	public void invalidateEverything() {
+		final int width = this.width;
 		final IRenderStep invalidateWidth = new IRenderStep() {
 			@Override
 			public void render(final Graphics graphics) {

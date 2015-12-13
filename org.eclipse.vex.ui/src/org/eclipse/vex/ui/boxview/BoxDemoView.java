@@ -91,6 +91,11 @@ public class BoxDemoView extends ViewPart {
 		return null;
 	}
 
+	public void rebuildBoxModel() {
+		final DOMController controller = boxWidget.getDOMController();
+		controller.rebuildBoxModel();
+	}
+
 	public void insertBold() {
 		final DOMController controller = boxWidget.getDOMController();
 		controller.insertElement(new QualifiedName(null, "b"));

@@ -191,6 +191,11 @@
       </command>
       <command
             categoryId="org.eclipse.vex.ui.commands.category"
+            id="org.eclipse.vex.ui.RebuildBoxModel"
+            name="Rebuild Box Model">
+      </command>
+      <command
+            categoryId="org.eclipse.vex.ui.commands.category"
             id="org.eclipse.vex.ui.Bold"
             name="Bold">
       </command>
@@ -794,6 +799,10 @@
          </activeWhen>
       </handler>
       <handler
+            class="org.eclipse.vex.ui.boxview.RebuildBoxModelHandler"
+            commandId="org.eclipse.vex.ui.RebuildBoxModel">
+      </handler>
+      <handler
             class="org.eclipse.vex.ui.boxview.InsertBoldHandler"
             commandId="org.eclipse.vex.ui.Bold">
       </handler>
@@ -1305,6 +1314,12 @@
                label="Refresh"
                style="push"
                tooltip="Refresh the BoxView">
+         </command>
+         <command
+               commandId="org.eclipse.vex.ui.RebuildBoxModel"
+               icon="icons/rebuild_structure.gif"
+               label="Rebuild Box Model"
+               style="push">
          </command>
          <command
                commandId="org.eclipse.vex.ui.Bold"

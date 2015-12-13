@@ -93,6 +93,11 @@ public class DOMController {
 		visualization.setBoxModelBuilder(boxModelBuilder);
 	}
 
+	public void rebuildBoxModel() {
+		visualization.buildAll();
+		view.invalidateEverything();
+	}
+
 	public void moveCursor(final ICursorMove move) {
 		cursor.move(move);
 		view.invalidateCursor();
