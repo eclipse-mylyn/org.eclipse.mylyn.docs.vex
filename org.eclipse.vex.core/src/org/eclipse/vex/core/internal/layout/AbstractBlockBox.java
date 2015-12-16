@@ -22,6 +22,7 @@ import org.eclipse.vex.core.internal.core.ColorResource;
 import org.eclipse.vex.core.internal.core.FontMetrics;
 import org.eclipse.vex.core.internal.core.Graphics;
 import org.eclipse.vex.core.internal.core.Insets;
+import org.eclipse.vex.core.internal.core.LineStyle;
 import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.css.Styles;
 import org.eclipse.vex.core.provisional.dom.BaseNodeVisitorWithResult;
@@ -579,7 +580,7 @@ public abstract class AbstractBlockBox extends AbstractBox implements BlockBox {
 
 		final FontMetrics fm = g.getFontMetrics();
 		final ColorResource oldColor = g.setColor(background);
-		g.setLineStyle(Graphics.LINE_SOLID);
+		g.setLineStyle(LineStyle.SOLID);
 		g.setLineWidth(1);
 		final String frameName = getSelectionFrameName(node);
 		final int tabWidth = g.stringWidth(frameName) + fm.getLeading();

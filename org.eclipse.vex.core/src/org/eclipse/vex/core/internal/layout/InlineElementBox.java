@@ -19,6 +19,7 @@ import org.eclipse.vex.core.internal.core.Drawable;
 import org.eclipse.vex.core.internal.core.FontMetrics;
 import org.eclipse.vex.core.internal.core.FontResource;
 import org.eclipse.vex.core.internal.core.Graphics;
+import org.eclipse.vex.core.internal.core.LineStyle;
 import org.eclipse.vex.core.internal.core.Rectangle;
 import org.eclipse.vex.core.internal.css.CSS;
 import org.eclipse.vex.core.internal.css.Styles;
@@ -386,7 +387,7 @@ public class InlineElementBox extends CompositeInlineBox {
 		final Drawable drawable = new Drawable() {
 			@Override
 			public void draw(final Graphics g, final int x, int y) {
-				g.setLineStyle(Graphics.LINE_SOLID);
+				g.setLineStyle(LineStyle.SOLID);
 				g.setLineWidth(1);
 				y -= lift;
 				g.drawLine(x, y - size, x, y);
@@ -408,7 +409,7 @@ public class InlineElementBox extends CompositeInlineBox {
 		final Drawable drawable = new Drawable() {
 			@Override
 			public void draw(final Graphics g, final int x, int y) {
-				g.setLineStyle(Graphics.LINE_SOLID);
+				g.setLineStyle(LineStyle.SOLID);
 				g.setLineWidth(1);
 				y -= lift;
 				g.drawLine(x + size - 1, y - size, x + size - 1, y);

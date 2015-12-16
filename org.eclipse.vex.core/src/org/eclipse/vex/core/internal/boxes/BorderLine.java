@@ -11,21 +11,21 @@
 package org.eclipse.vex.core.internal.boxes;
 
 import org.eclipse.vex.core.internal.core.Color;
-import org.eclipse.vex.core.internal.core.Graphics;
+import org.eclipse.vex.core.internal.core.LineStyle;
 
 public class BorderLine {
 
 	public static final BorderLine NULL = new BorderLine(0);
 
 	public final int width;
-	public final int style;
+	public final LineStyle style;
 	public final Color color;
 
 	public BorderLine(final int width) {
-		this(width, Graphics.LINE_SOLID, Color.BLACK);
+		this(width, LineStyle.SOLID, Color.BLACK);
 	}
 
-	public BorderLine(final int width, final int style, final Color color) {
+	public BorderLine(final int width, final LineStyle style, final Color color) {
 		this.width = width;
 		this.style = style;
 		this.color = color;
@@ -36,7 +36,7 @@ public class BorderLine {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + (color == null ? 0 : color.hashCode());
-		result = prime * result + style;
+		result = prime * result + (style == null ? 0 : style.hashCode());
 		result = prime * result + width;
 		return result;
 	}

@@ -21,7 +21,7 @@ import org.eclipse.vex.core.internal.boxes.StaticText;
 import org.eclipse.vex.core.internal.boxes.StructuralFrame;
 import org.eclipse.vex.core.internal.boxes.TextContent;
 import org.eclipse.vex.core.internal.core.FontSpec;
-import org.eclipse.vex.core.internal.core.Graphics;
+import org.eclipse.vex.core.internal.core.LineStyle;
 import org.eclipse.vex.core.internal.css.CSS;
 import org.eclipse.vex.core.internal.css.Styles;
 import org.eclipse.vex.core.provisional.dom.ContentRange;
@@ -77,17 +77,13 @@ public class CssBoxFactory {
 		return new Border(top, left, bottom, right);
 	}
 
-	public static int borderStyle(final String borderStyleName) {
-		if (CSS.HIDDEN.equals(borderStyleName)) {
-			return Graphics.LINE_SOLID;
-		} else if (CSS.DOTTED.equals(borderStyleName)) {
-			return Graphics.LINE_DOT;
+	public static LineStyle borderStyle(final String borderStyleName) {
+		if (CSS.DOTTED.equals(borderStyleName)) {
+			return LineStyle.DOTTED;
 		} else if (CSS.DASHED.equals(borderStyleName)) {
-			return Graphics.LINE_DASH;
-		} else if (CSS.SOLID.equals(borderStyleName)) {
-			return Graphics.LINE_SOLID;
+			return LineStyle.DASHED;
 		} else {
-			return Graphics.LINE_SOLID;
+			return LineStyle.SOLID;
 		}
 	}
 

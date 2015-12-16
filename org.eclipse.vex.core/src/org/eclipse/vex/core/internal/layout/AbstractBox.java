@@ -16,6 +16,7 @@ import org.eclipse.vex.core.internal.core.Color;
 import org.eclipse.vex.core.internal.core.ColorResource;
 import org.eclipse.vex.core.internal.core.Graphics;
 import org.eclipse.vex.core.internal.core.Insets;
+import org.eclipse.vex.core.internal.core.LineStyle;
 import org.eclipse.vex.core.internal.core.Rectangle;
 import org.eclipse.vex.core.internal.css.CSS;
 import org.eclipse.vex.core.internal.css.Styles;
@@ -407,15 +408,14 @@ public abstract class AbstractBox implements Box {
 	/**
 	 * Convert a CSS line style string (e.g. "dotted") to the corresponding Graphics.LINE_XXX style.
 	 */
-	private static int lineStyle(final String style) {
-		if (style.equals(CSS.DOTTED)) {
-			return Graphics.LINE_DOT;
-		} else if (style.equals(CSS.DASHED)) {
-			return Graphics.LINE_DASH;
+	private static LineStyle lineStyle(final String style) {
+		if (CSS.DOTTED.equals(style)) {
+			return LineStyle.DOTTED;
+		} else if (CSS.DASHED.equals(style)) {
+			return LineStyle.DASHED;
 		} else {
-			return Graphics.LINE_SOLID;
+			return LineStyle.SOLID;
 		}
-
 	}
 
 	/**

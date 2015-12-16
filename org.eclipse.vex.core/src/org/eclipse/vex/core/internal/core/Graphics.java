@@ -20,10 +20,6 @@ import java.net.URL;
  */
 public interface Graphics {
 
-	public static final int LINE_SOLID = 0;
-	public static final int LINE_DASH = 1;
-	public static final int LINE_DOT = 2;
-
 	public int charsWidth(char[] data, int offset, int length);
 
 	public ColorResource getColor(Color rgb);
@@ -62,7 +58,7 @@ public interface Graphics {
 
 	public FontResource getCurrentFont();
 
-	public int getLineStyle();
+	public LineStyle getLineStyle();
 
 	public int getLineWidth();
 
@@ -90,7 +86,7 @@ public interface Graphics {
 
 	public FontResource setCurrentFont(FontResource font);
 
-	public void setLineStyle(int style);
+	public void setLineStyle(LineStyle style);
 
 	public void setLineWidth(int width);
 

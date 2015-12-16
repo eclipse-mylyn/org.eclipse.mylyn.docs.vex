@@ -19,6 +19,7 @@ import org.eclipse.vex.core.internal.core.FontResource;
 import org.eclipse.vex.core.internal.core.FontSpec;
 import org.eclipse.vex.core.internal.core.Graphics;
 import org.eclipse.vex.core.internal.core.Image;
+import org.eclipse.vex.core.internal.core.LineStyle;
 import org.eclipse.vex.core.internal.core.Rectangle;
 import org.eclipse.vex.core.internal.layout.FakeImage;
 
@@ -55,7 +56,7 @@ public class TracingGraphics implements Graphics {
 
 	private boolean antiAliased;
 	private int lineWidth;
-	private int lineStyle;
+	private LineStyle lineStyle;
 	private FontResource font;
 	private ColorResource color;
 	private ColorResource foreground;
@@ -163,7 +164,7 @@ public class TracingGraphics implements Graphics {
 	}
 
 	@Override
-	public int getLineStyle() {
+	public LineStyle getLineStyle() {
 		return lineStyle;
 	}
 
@@ -248,7 +249,7 @@ public class TracingGraphics implements Graphics {
 	}
 
 	@Override
-	public void setLineStyle(final int style) {
+	public void setLineStyle(final LineStyle style) {
 		tracer.trace("Graphics.setLineStyle({0})", style);
 		lineStyle = style;
 	}

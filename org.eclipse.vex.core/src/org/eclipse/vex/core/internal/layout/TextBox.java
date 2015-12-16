@@ -17,6 +17,7 @@ import org.eclipse.vex.core.internal.core.FontMetrics;
 import org.eclipse.vex.core.internal.core.FontResource;
 import org.eclipse.vex.core.internal.core.FontSpec;
 import org.eclipse.vex.core.internal.core.Graphics;
+import org.eclipse.vex.core.internal.core.LineStyle;
 import org.eclipse.vex.core.internal.css.Styles;
 import org.eclipse.vex.core.provisional.dom.ContentPosition;
 import org.eclipse.vex.core.provisional.dom.INode;
@@ -229,7 +230,7 @@ public abstract class TextBox extends AbstractInlineBox implements InlineBox {
 		final FontMetrics fm = g.getFontMetrics();
 		final int width = g.stringWidth(s);
 		final int lineWidth = fm.getAscent() / 12;
-		g.setLineStyle(Graphics.LINE_SOLID);
+		g.setLineStyle(LineStyle.SOLID);
 		g.setLineWidth(lineWidth);
 		g.drawLine(x, y, x + width, y);
 	}

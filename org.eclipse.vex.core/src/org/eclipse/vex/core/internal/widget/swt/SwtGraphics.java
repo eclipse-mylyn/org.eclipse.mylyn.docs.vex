@@ -36,6 +36,7 @@ import org.eclipse.vex.core.internal.core.FontResource;
 import org.eclipse.vex.core.internal.core.FontSpec;
 import org.eclipse.vex.core.internal.core.Graphics;
 import org.eclipse.vex.core.internal.core.Image;
+import org.eclipse.vex.core.internal.core.LineStyle;
 import org.eclipse.vex.core.internal.core.Rectangle;
 
 /**
@@ -52,7 +53,7 @@ public class SwtGraphics implements Graphics {
 
 	private SwtFont currentFont;
 	private SwtFontMetrics currentFontMetrics;
-	private int lineStyle = LINE_SOLID;
+	private LineStyle lineStyle = LineStyle.SOLID;
 
 	/**
 	 * @param gc
@@ -188,7 +189,7 @@ public class SwtGraphics implements Graphics {
 	}
 
 	@Override
-	public int getLineStyle() {
+	public LineStyle getLineStyle() {
 		return lineStyle;
 	}
 
@@ -271,13 +272,13 @@ public class SwtGraphics implements Graphics {
 	}
 
 	@Override
-	public void setLineStyle(final int lineStyle) {
-		this.lineStyle = lineStyle;
-		switch (lineStyle) {
-		case LINE_DASH:
+	public void setLineStyle(final LineStyle style) {
+		lineStyle = style;
+		switch (style) {
+		case DASHED:
 			gc.setLineStyle(SWT.LINE_DASH);
 			break;
-		case LINE_DOT:
+		case DOTTED:
 			gc.setLineStyle(SWT.LINE_DOT);
 			break;
 		default:

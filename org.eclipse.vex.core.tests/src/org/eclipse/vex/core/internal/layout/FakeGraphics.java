@@ -22,6 +22,7 @@ import org.eclipse.vex.core.internal.core.FontResource;
 import org.eclipse.vex.core.internal.core.FontSpec;
 import org.eclipse.vex.core.internal.core.Graphics;
 import org.eclipse.vex.core.internal.core.Image;
+import org.eclipse.vex.core.internal.core.LineStyle;
 import org.eclipse.vex.core.internal.core.Rectangle;
 
 /**
@@ -172,8 +173,8 @@ public class FakeGraphics implements Graphics {
 	}
 
 	@Override
-	public int getLineStyle() {
-		return 0;
+	public LineStyle getLineStyle() {
+		return LineStyle.SOLID;
 	}
 
 	@Override
@@ -245,7 +246,7 @@ public class FakeGraphics implements Graphics {
 	}
 
 	@Override
-	public void setLineStyle(final int style) {
+	public void setLineStyle(final LineStyle style) {
 	}
 
 	@Override

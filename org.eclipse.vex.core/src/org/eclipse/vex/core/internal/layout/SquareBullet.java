@@ -11,6 +11,7 @@
 package org.eclipse.vex.core.internal.layout;
 
 import org.eclipse.vex.core.internal.core.Graphics;
+import org.eclipse.vex.core.internal.core.LineStyle;
 import org.eclipse.vex.core.internal.core.Rectangle;
 
 /**
@@ -24,7 +25,7 @@ public class SquareBullet extends Bullet {
 
 	@Override
 	public void draw(final Graphics g, final int x, final int y) {
-		g.setLineStyle(Graphics.LINE_SOLID);
+		g.setLineStyle(LineStyle.SOLID);
 		g.setLineWidth(1);
 		g.drawRect(x, y - size - lift, size, size);
 	}
