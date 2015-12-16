@@ -30,13 +30,9 @@ import org.eclipse.vex.core.internal.boxes.Border;
 import org.eclipse.vex.core.internal.boxes.IInlineBox;
 import org.eclipse.vex.core.internal.boxes.IParentBox;
 import org.eclipse.vex.core.internal.boxes.IStructuralBox;
-import org.eclipse.vex.core.internal.boxes.InlineContainer;
 import org.eclipse.vex.core.internal.boxes.Margin;
 import org.eclipse.vex.core.internal.boxes.Padding;
-import org.eclipse.vex.core.internal.boxes.Paragraph;
 import org.eclipse.vex.core.internal.boxes.RootBox;
-import org.eclipse.vex.core.internal.boxes.StaticText;
-import org.eclipse.vex.core.internal.boxes.StructuralFrame;
 import org.eclipse.vex.core.internal.css.CSS;
 import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.css.Styles;
@@ -80,7 +76,7 @@ public class CSSBasedBoxModelBuilder implements IBoxModelBuilder {
 
 	private IStructuralBox asStructuralBox(final VisualizeResult visualizeResult) {
 		if (visualizeResult.inline) {
-			return visualizeStructure(visualizeResult.node, visualizeResult.childrenResults);
+			return visualizeAsBlock(visualizeResult.node, visualizeResult.childrenResults);
 		} else {
 			return visualizeResult.structuralBox;
 		}
@@ -91,7 +87,7 @@ public class CSSBasedBoxModelBuilder implements IBoxModelBuilder {
 		return asInlineBox(visualize(node));
 	}
 
-	private <P extends IParentBox<IInlineBox>> P visualizeChildrenAsInline(final Iterable<VisualizeResult> childrenResults, final P parentBox) {
+	private <P extends IParentBox<IInlineBox>> P visualizeChildrenInline(final Iterable<VisualizeResult> childrenResults, final P parentBox) {
 		for (final VisualizeResult visualizeResult : childrenResults) {
 			parentBox.appendChild(asInlineBox(visualizeResult));
 		}
@@ -129,7 +125,7 @@ public class CSSBasedBoxModelBuilder implements IBoxModelBuilder {
 				final Collection<VisualizeResult> childrenResults = traverseChildren(element);
 				final Styles styles = styleSheet.getStyles(element);
 				if (isDisplayedAsBlock(element, styles)) {
-					return new VisualizeResult(element, childrenResults, visualizeStructure(element, childrenResults));
+					return new VisualizeResult(element, childrenResults, visualizeAsBlock(element, childrenResults));
 				} else {
 					return new VisualizeResult(element, childrenResults, visualizeInline(element, childrenResults));
 				}
@@ -151,25 +147,23 @@ public class CSSBasedBoxModelBuilder implements IBoxModelBuilder {
 	 * Render as Block
 	 */
 
-	private IStructuralBox visualizeStructure(final INode node, final Collection<VisualizeResult> childrenResults) {
+	private IStructuralBox visualizeAsBlock(final INode node, final Collection<VisualizeResult> childrenResults) {
 		final Styles styles = styleSheet.getStyles(node);
 		return node.accept(new BaseNodeVisitorWithResult<IStructuralBox>() {
 			@Override
 			public IStructuralBox visit(final IElement element) {
-				if (containsInlineContent(childrenResults)) {
-					final StructuralFrame framedContent = frame(visualizeParagraphElementContent(styles, childrenResults), Margin.NULL, Border.NULL, getPadding(styles));
-					if (mayContainText(element)) {
-						return nodeReferenceWithText(element, framedContent);
-					} else {
-						return nodeReference(element, framedContent);
-					}
+				final boolean mayContainText = mayContainText(element);
+				final IStructuralBox content;
+				if (mayContainText || containsInlineContent(childrenResults)) {
+					content = visualizeInlineElementContent(styles, childrenResults, paragraph());
 				} else {
-					if (mayContainText(element)) {
-						final StructuralFrame framedContent = frame(visualizeParagraphElementContent(styles, childrenResults), Margin.NULL, Border.NULL, getPadding(styles));
-						return nodeReferenceWithText(element, framedContent);
-					} else {
-						return nodeReference(element, frame(visualizeChildrenAsStructure(childrenResults, verticalBlock()), Margin.NULL, Border.NULL, getPadding(styles)));
-					}
+					content = visualizeChildrenAsStructure(childrenResults, verticalBlock());
+				}
+
+				if (mayContainText) {
+					return nodeReferenceWithText(element, frame(content, Margin.NULL, Border.NULL, getPadding(styles)));
+				} else {
+					return nodeReference(element, frame(content, Margin.NULL, Border.NULL, getPadding(styles)));
 				}
 			}
 		});
@@ -189,28 +183,6 @@ public class CSSBasedBoxModelBuilder implements IBoxModelBuilder {
 		return validItems.contains(IValidator.PCDATA);
 	}
 
-	// "Paragraph" is a special case of "Block"
-
-	private Paragraph visualizeParagraphElementContent(final Styles styles, final Collection<VisualizeResult> childrenResults) {
-		if (!childrenResults.isEmpty()) {
-			return visualizeParagraphWithChildren(childrenResults);
-		} else {
-			return visualizeEmptyParagraph(styles);
-		}
-	}
-
-	private Paragraph visualizeParagraphWithChildren(final Collection<VisualizeResult> childrenResults) {
-		final Paragraph paragraph = paragraph();
-		visualizeChildrenAsInline(childrenResults, paragraph);
-		return paragraph;
-	}
-
-	private Paragraph visualizeEmptyParagraph(final Styles styles) {
-		final Paragraph paragraph = paragraph();
-		paragraph.appendChild(placeholderForEmptyElement(styles));
-		return paragraph;
-	}
-
 	/*
 	 * Render inline elements
 	 */
@@ -220,7 +192,11 @@ public class CSSBasedBoxModelBuilder implements IBoxModelBuilder {
 		return node.accept(new BaseNodeVisitorWithResult<IInlineBox>() {
 			@Override
 			public IInlineBox visit(final IElement element) {
-				return nodeReferenceWithText(element, frame(visualizeInlineElementContent(styles, childrenResults), Margin.NULL, Border.NULL, getPadding(styles)));
+				if (mayContainText(element)) {
+					return nodeReferenceWithText(element, frame(visualizeInlineElementContent(styles, childrenResults, inlineContainer()), Margin.NULL, Border.NULL, getPadding(styles)));
+				} else {
+					return nodeReference(element, frame(visualizeInlineElementContent(styles, childrenResults, inlineContainer()), Margin.NULL, Border.NULL, getPadding(styles)));
+				}
 			}
 
 			@Override
@@ -230,18 +206,17 @@ public class CSSBasedBoxModelBuilder implements IBoxModelBuilder {
 		});
 	}
 
-	private InlineContainer visualizeInlineElementContent(final Styles styles, final Collection<VisualizeResult> childrenResults) {
-		final InlineContainer container = inlineContainer();
+	private <P extends IParentBox<IInlineBox>> P visualizeInlineElementContent(final Styles styles, final Collection<VisualizeResult> childrenResults, final P parent) {
 		if (!childrenResults.isEmpty()) {
-			visualizeChildrenAsInline(childrenResults, container);
+			return visualizeChildrenInline(childrenResults, parent);
 		} else {
-			container.appendChild(placeholderForEmptyElement(styles));
+			return placeholderForEmptyElement(styles, parent);
 		}
-		return container;
 	}
 
-	private StaticText placeholderForEmptyElement(final Styles styles) {
-		return staticText(" ", styles.getFont());
+	private <P extends IParentBox<IInlineBox>> P placeholderForEmptyElement(final Styles styles, final P parent) {
+		parent.appendChild(staticText(" ", styles.getFont()));
+		return parent;
 	}
 
 	private static Padding getPadding(final Styles styles) {
