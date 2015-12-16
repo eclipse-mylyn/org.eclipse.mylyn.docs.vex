@@ -11,6 +11,8 @@
 package org.eclipse.vex.core.internal.widget;
 
 import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.vex.core.internal.boxes.BaseBoxVisitor;
@@ -73,15 +75,27 @@ public class DOMVisualization {
 	}
 
 	public void rebuildStructure(final INode node) {
-		final Collection<IContentBox> modifiedBoxes = contentTopology.findBoxesForNode(node);
-		if (modifiedBoxes.isEmpty()) {
+		final Collection<IContentBox> boxesToReplace = contentTopology.findBoxesForNode(node);
+		final Collection<IBox> affectedParents = parents(boxesToReplace);
+		if (affectedParents.size() > 1) {
+			rebuildStructure(node.getParent());
 			return;
 		}
-		final IBox parent = getCommonParent(modifiedBoxes);
+		final IBox parentBox = affectedParents.iterator().next();
 
-		replaceModifiedBoxesWithRebuiltVisualization(parent, modifiedBoxes, node);
+		replaceModifiedBoxesWithRebuiltVisualization(parentBox, boxesToReplace, node);
+		view.invalidateLayout(parentBox);
+	}
 
-		view.invalidateLayout(parent);
+	private static Set<IBox> parents(final Collection<IContentBox> boxes) {
+		final Set<IBox> parents = new HashSet<IBox>();
+		for (final IContentBox box : boxes) {
+			final IBox parent = box.getParent();
+			if (parent != null) {
+				parents.add(parent);
+			}
+		}
+		return parents;
 	}
 
 	private void replaceModifiedBoxesWithRebuiltVisualization(final IBox parent, final Collection<IContentBox> modifiedBoxes, final INode node) {
@@ -126,18 +140,6 @@ public class DOMVisualization {
 				box.setComponent(boxModelBuilder.visualizeInline(node));
 			}
 		});
-	}
-
-	private IBox getCommonParent(final Collection<IContentBox> boxes) {
-		IBox parent = null;
-		for (final IContentBox box : boxes) {
-			if (parent == null) {
-				parent = box.getParent();
-			} else {
-				Assert.isTrue(parent == box.getParent(), "The modified boxes do not have a common parent box.");
-			}
-		}
-		return parent;
 	}
 
 	public void rebuildContentRange(final INode node, final ContentRange modifiedRange) {

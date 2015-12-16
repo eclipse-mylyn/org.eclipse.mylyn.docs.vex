@@ -197,6 +197,12 @@ public class ContentTopology {
 			private final LinkedList<IContentBox> boxesForNode = new LinkedList<IContentBox>();
 
 			@Override
+			public Collection<IContentBox> visit(final RootBox box) {
+				super.visit(box);
+				return boxesForNode;
+			}
+
+			@Override
 			public Collection<IContentBox> visit(final StructuralNodeReference box) {
 				if (node == box.getNode()) {
 					boxesForNode.add(box);
@@ -209,7 +215,7 @@ public class ContentTopology {
 					return null;
 				}
 				super.visit(box);
-				return boxesForNode;
+				return null;
 			}
 
 			@Override
@@ -224,7 +230,7 @@ public class ContentTopology {
 					return null;
 				}
 				super.visit(box);
-				return boxesForNode;
+				return null;
 			}
 		});
 	}
