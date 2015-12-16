@@ -10,15 +10,15 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.visualization;
 
-import static org.eclipse.vex.core.internal.boxes.BoxFactory.frame;
 import static org.eclipse.vex.core.internal.boxes.BoxFactory.inlineContainer;
 import static org.eclipse.vex.core.internal.boxes.BoxFactory.nodeReference;
 import static org.eclipse.vex.core.internal.boxes.BoxFactory.nodeReferenceWithText;
 import static org.eclipse.vex.core.internal.boxes.BoxFactory.paragraph;
 import static org.eclipse.vex.core.internal.boxes.BoxFactory.rootBox;
-import static org.eclipse.vex.core.internal.boxes.BoxFactory.staticText;
-import static org.eclipse.vex.core.internal.boxes.BoxFactory.textContent;
 import static org.eclipse.vex.core.internal.boxes.BoxFactory.verticalBlock;
+import static org.eclipse.vex.core.internal.visualization.CssBoxFactory.frame;
+import static org.eclipse.vex.core.internal.visualization.CssBoxFactory.staticText;
+import static org.eclipse.vex.core.internal.visualization.CssBoxFactory.textContent;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -26,12 +26,9 @@ import java.util.List;
 import java.util.Set;
 
 import org.eclipse.core.runtime.QualifiedName;
-import org.eclipse.vex.core.internal.boxes.Border;
 import org.eclipse.vex.core.internal.boxes.IInlineBox;
 import org.eclipse.vex.core.internal.boxes.IParentBox;
 import org.eclipse.vex.core.internal.boxes.IStructuralBox;
-import org.eclipse.vex.core.internal.boxes.Margin;
-import org.eclipse.vex.core.internal.boxes.Padding;
 import org.eclipse.vex.core.internal.boxes.RootBox;
 import org.eclipse.vex.core.internal.css.CSS;
 import org.eclipse.vex.core.internal.css.StyleSheet;
@@ -161,9 +158,9 @@ public class CSSBasedBoxModelBuilder implements IBoxModelBuilder {
 				}
 
 				if (mayContainText) {
-					return nodeReferenceWithText(element, frame(content, Margin.NULL, Border.NULL, getPadding(styles)));
+					return nodeReferenceWithText(element, frame(content, styles));
 				} else {
-					return nodeReference(element, frame(content, Margin.NULL, Border.NULL, getPadding(styles)));
+					return nodeReference(element, frame(content, styles));
 				}
 			}
 		});
@@ -193,15 +190,15 @@ public class CSSBasedBoxModelBuilder implements IBoxModelBuilder {
 			@Override
 			public IInlineBox visit(final IElement element) {
 				if (mayContainText(element)) {
-					return nodeReferenceWithText(element, frame(visualizeInlineElementContent(styles, childrenResults, inlineContainer()), Margin.NULL, Border.NULL, getPadding(styles)));
+					return nodeReferenceWithText(element, frame(visualizeInlineElementContent(styles, childrenResults, inlineContainer()), styles));
 				} else {
-					return nodeReference(element, frame(visualizeInlineElementContent(styles, childrenResults, inlineContainer()), Margin.NULL, Border.NULL, getPadding(styles)));
+					return nodeReference(element, frame(visualizeInlineElementContent(styles, childrenResults, inlineContainer()), styles));
 				}
 			}
 
 			@Override
 			public IInlineBox visit(final IText text) {
-				return textContent(text.getContent(), text.getRange(), styles.getFont());
+				return textContent(text.getContent(), text.getRange(), styles);
 			}
 		});
 	}
@@ -215,17 +212,8 @@ public class CSSBasedBoxModelBuilder implements IBoxModelBuilder {
 	}
 
 	private <P extends IParentBox<IInlineBox>> P placeholderForEmptyElement(final Styles styles, final P parent) {
-		parent.appendChild(staticText(" ", styles.getFont()));
+		parent.appendChild(staticText(" ", styles));
 		return parent;
-	}
-
-	private static Padding getPadding(final Styles styles) {
-		final int top = styles.getPaddingTop().get(1);
-		final int left = styles.getPaddingLeft().get(1);
-		final int bottom = styles.getPaddingBottom().get(1);
-		final int right = styles.getPaddingRight().get(1);
-
-		return new Padding(top, left, bottom, right);
 	}
 
 	private static class VisualizeResult {
