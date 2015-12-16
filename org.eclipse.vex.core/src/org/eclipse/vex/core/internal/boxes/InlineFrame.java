@@ -131,8 +131,11 @@ public class InlineFrame extends BaseBox implements IInlineBox, IDecoratorBox<II
 
 	@Override
 	public void layout(final Graphics graphics) {
-		layoutComponent(graphics);
+		if (component == null) {
+			return;
+		}
 
+		layoutComponent(graphics);
 		calculateBounds();
 	}
 
@@ -141,17 +144,14 @@ public class InlineFrame extends BaseBox implements IInlineBox, IDecoratorBox<II
 			height = 0;
 			width = 0;
 		} else {
-			height = topFrame() + component.getHeight() + bottomFrame();
-			width = leftFrame() + component.getWidth() + rightFrame();
+			height = topFrame(component.getHeight()) + component.getHeight() + bottomFrame(component.getHeight());
+			width = leftFrame(component.getWidth()) + component.getWidth() + rightFrame(component.getWidth());
 		}
 	}
 
 	private void layoutComponent(final Graphics graphics) {
-		if (component == null) {
-			return;
-		}
-		component.setPosition(topFrame(), leftFrame());
 		component.layout(graphics);
+		component.setPosition(topFrame(component.getHeight()), leftFrame(component.getWidth()));
 	}
 
 	@Override
@@ -164,20 +164,20 @@ public class InlineFrame extends BaseBox implements IInlineBox, IDecoratorBox<II
 		return oldHeight != height || oldWidth != width;
 	}
 
-	private int rightFrame() {
-		return margin.right + border.right + padding.right;
+	private int topFrame(final int componentHeight) {
+		return margin.top + border.top + padding.top.get(componentHeight);
 	}
 
-	private int leftFrame() {
-		return margin.left + border.left + padding.left;
+	private int leftFrame(final int componentWidth) {
+		return margin.left + border.left + padding.left.get(componentWidth);
 	}
 
-	private int bottomFrame() {
-		return margin.bottom + border.bottom + padding.bottom;
+	private int bottomFrame(final int componentHeight) {
+		return margin.bottom + border.bottom + padding.bottom.get(componentHeight);
 	}
 
-	private int topFrame() {
-		return margin.top + border.top + padding.top;
+	private int rightFrame(final int componentWidth) {
+		return margin.right + border.right + padding.right.get(componentWidth);
 	}
 
 	@Override
@@ -250,7 +250,7 @@ public class InlineFrame extends BaseBox implements IInlineBox, IDecoratorBox<II
 	@Override
 	public IInlineBox splitTail(final Graphics graphics, final int headWidth, final boolean force) {
 		final IInlineBox tailComponent;
-		final int tailHeadWidth = headWidth - leftFrame();
+		final int tailHeadWidth = headWidth - leftFrame(component.getWidth());
 		if (tailHeadWidth < 0) {
 			tailComponent = component;
 			component = null;

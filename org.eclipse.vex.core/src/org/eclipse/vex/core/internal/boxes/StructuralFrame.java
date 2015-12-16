@@ -136,32 +136,47 @@ public class StructuralFrame extends BaseBox implements IStructuralBox, IDecorat
 
 	@Override
 	public void layout(final Graphics graphics) {
-		height = margin.top + border.top + padding.top;
-		layoutComponent(graphics);
-		height += margin.bottom + border.bottom + padding.bottom;
-	}
-
-	private void layoutComponent(final Graphics graphics) {
 		if (component == null) {
 			return;
 		}
 
-		final int componentLeft = margin.left + border.left + padding.left;
-		final int componentRight = padding.right + border.right + margin.right;
-		final int componentWidth = width - (componentLeft + componentRight);
-		component.setPosition(height, componentLeft);
+		layoutComponent(graphics);
+
+		height = component.getHeight();
+		height += topFrame(component.getHeight());
+		height += bottomFrame(component.getHeight());
+	}
+
+	private void layoutComponent(final Graphics graphics) {
+		final int componentWidth = width - (leftFrame() + rightFrame());
 		component.setWidth(componentWidth);
 		component.layout(graphics);
-		height += component.getHeight();
+		component.setPosition(topFrame(component.getHeight()), leftFrame());
+	}
+
+	private int topFrame(final int componentHeight) {
+		return margin.top + border.top + padding.top.get(componentHeight);
+	}
+
+	private int leftFrame() {
+		return margin.left + border.left + padding.left.get(width);
+	}
+
+	private int bottomFrame(final int componentHeight) {
+		return margin.bottom + border.bottom + padding.bottom.get(componentHeight);
+	}
+
+	private int rightFrame() {
+		return margin.right + border.right + padding.right.get(width);
 	}
 
 	@Override
 	public boolean reconcileLayout(final Graphics graphics) {
 		final int oldHeight = height;
 
-		height = margin.top + border.top + padding.top;
-		height += component.getHeight();
-		height += margin.bottom + border.bottom + padding.bottom;
+		height = component.getHeight();
+		height += topFrame(component.getHeight());
+		height += bottomFrame(component.getHeight());
 
 		return oldHeight != height;
 	}

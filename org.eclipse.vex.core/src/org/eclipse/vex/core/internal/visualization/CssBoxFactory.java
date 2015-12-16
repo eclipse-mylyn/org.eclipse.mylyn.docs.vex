@@ -76,12 +76,7 @@ public class CssBoxFactory {
 	}
 
 	public static Padding padding(final Styles styles) {
-		final int top = styles.getPaddingTop().get(1);
-		final int left = styles.getPaddingLeft().get(1);
-		final int bottom = styles.getPaddingBottom().get(1);
-		final int right = styles.getPaddingRight().get(1);
-
-		return new Padding(top, left, bottom, right);
+		return new Padding(styles.getPaddingTop(), styles.getPaddingLeft(), styles.getPaddingBottom(), styles.getPaddingRight());
 	}
 
 	public static FontSpec font(final Styles styles) {

@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.boxes;
 
+import org.eclipse.vex.core.internal.core.Length;
+
 /**
  * @author Florian Thienel
  */
@@ -17,10 +19,10 @@ public class Padding {
 
 	public static final Padding NULL = new Padding(0);
 
-	public final int top;
-	public final int left;
-	public final int bottom;
-	public final int right;
+	public final Length top;
+	public final Length left;
+	public final Length bottom;
+	public final Length right;
 
 	public Padding(final int size) {
 		this(size, size, size, size);
@@ -31,6 +33,10 @@ public class Padding {
 	}
 
 	public Padding(final int top, final int left, final int bottom, final int right) {
+		this(Length.absolute(top), Length.absolute(left), Length.absolute(bottom), Length.absolute(right));
+	}
+
+	public Padding(final Length top, final Length left, final Length bottom, final Length right) {
 		this.top = top;
 		this.left = left;
 		this.bottom = bottom;
@@ -41,10 +47,10 @@ public class Padding {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + bottom;
-		result = prime * result + left;
-		result = prime * result + right;
-		result = prime * result + top;
+		result = prime * result + (bottom == null ? 0 : bottom.hashCode());
+		result = prime * result + (left == null ? 0 : left.hashCode());
+		result = prime * result + (right == null ? 0 : right.hashCode());
+		result = prime * result + (top == null ? 0 : top.hashCode());
 		return result;
 	}
 
@@ -60,16 +66,32 @@ public class Padding {
 			return false;
 		}
 		final Padding other = (Padding) obj;
-		if (bottom != other.bottom) {
+		if (bottom == null) {
+			if (other.bottom != null) {
+				return false;
+			}
+		} else if (!bottom.equals(other.bottom)) {
 			return false;
 		}
-		if (left != other.left) {
+		if (left == null) {
+			if (other.left != null) {
+				return false;
+			}
+		} else if (!left.equals(other.left)) {
 			return false;
 		}
-		if (right != other.right) {
+		if (right == null) {
+			if (other.right != null) {
+				return false;
+			}
+		} else if (!right.equals(other.right)) {
 			return false;
 		}
-		if (top != other.top) {
+		if (top == null) {
+			if (other.top != null) {
+				return false;
+			}
+		} else if (!top.equals(other.top)) {
 			return false;
 		}
 		return true;
