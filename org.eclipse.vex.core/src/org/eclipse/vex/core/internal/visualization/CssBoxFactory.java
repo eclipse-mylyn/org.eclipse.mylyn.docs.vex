@@ -11,6 +11,7 @@
 package org.eclipse.vex.core.internal.visualization;
 
 import org.eclipse.vex.core.internal.boxes.Border;
+import org.eclipse.vex.core.internal.boxes.BorderLine;
 import org.eclipse.vex.core.internal.boxes.IInlineBox;
 import org.eclipse.vex.core.internal.boxes.IStructuralBox;
 import org.eclipse.vex.core.internal.boxes.InlineFrame;
@@ -20,6 +21,8 @@ import org.eclipse.vex.core.internal.boxes.StaticText;
 import org.eclipse.vex.core.internal.boxes.StructuralFrame;
 import org.eclipse.vex.core.internal.boxes.TextContent;
 import org.eclipse.vex.core.internal.core.FontSpec;
+import org.eclipse.vex.core.internal.core.Graphics;
+import org.eclipse.vex.core.internal.css.CSS;
 import org.eclipse.vex.core.internal.css.Styles;
 import org.eclipse.vex.core.provisional.dom.ContentRange;
 import org.eclipse.vex.core.provisional.dom.IContent;
@@ -63,11 +66,25 @@ public class CssBoxFactory {
 	}
 
 	public static Border border(final Styles styles) {
-		final int top = styles.getBorderTopWidth();
-		final int left = styles.getBorderLeftWidth();
-		final int bottom = styles.getBorderBottomWidth();
-		final int right = styles.getBorderRightWidth();
+		final BorderLine top = new BorderLine(styles.getBorderTopWidth(), borderStyle(styles.getBorderTopStyle()), styles.getBorderTopColor());
+		final BorderLine left = new BorderLine(styles.getBorderLeftWidth(), borderStyle(styles.getBorderLeftStyle()), styles.getBorderLeftColor());
+		final BorderLine bottom = new BorderLine(styles.getBorderBottomWidth(), borderStyle(styles.getBorderBottomStyle()), styles.getBorderBottomColor());
+		final BorderLine right = new BorderLine(styles.getBorderRightWidth(), borderStyle(styles.getBorderRightStyle()), styles.getBorderRightColor());
 		return new Border(top, left, bottom, right);
+	}
+
+	public static int borderStyle(final String borderStyleName) {
+		if (CSS.HIDDEN.equals(borderStyleName)) {
+			return Graphics.LINE_SOLID;
+		} else if (CSS.DOTTED.equals(borderStyleName)) {
+			return Graphics.LINE_DOT;
+		} else if (CSS.DASHED.equals(borderStyleName)) {
+			return Graphics.LINE_DASH;
+		} else if (CSS.SOLID.equals(borderStyleName)) {
+			return Graphics.LINE_SOLID;
+		} else {
+			return Graphics.LINE_SOLID;
+		}
 	}
 
 	public static Padding padding(final Styles styles) {

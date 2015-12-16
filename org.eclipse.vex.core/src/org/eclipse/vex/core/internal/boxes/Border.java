@@ -15,12 +15,12 @@ package org.eclipse.vex.core.internal.boxes;
  */
 public class Border {
 
-	public static final Border NULL = new Border(0);
+	public static final Border NULL = new Border(BorderLine.NULL);
 
-	public final int top;
-	public final int left;
-	public final int bottom;
-	public final int right;
+	public final BorderLine top;
+	public final BorderLine left;
+	public final BorderLine bottom;
+	public final BorderLine right;
 
 	public Border(final int size) {
 		this(size, size, size, size);
@@ -31,6 +31,14 @@ public class Border {
 	}
 
 	public Border(final int top, final int left, final int bottom, final int right) {
+		this(new BorderLine(top), new BorderLine(left), new BorderLine(bottom), new BorderLine(right));
+	}
+
+	public Border(final BorderLine border) {
+		this(border, border, border, border);
+	}
+
+	public Border(final BorderLine top, final BorderLine left, final BorderLine bottom, final BorderLine right) {
 		this.top = top;
 		this.left = left;
 		this.bottom = bottom;
@@ -41,10 +49,10 @@ public class Border {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + bottom;
-		result = prime * result + left;
-		result = prime * result + right;
-		result = prime * result + top;
+		result = prime * result + (bottom == null ? 0 : bottom.hashCode());
+		result = prime * result + (left == null ? 0 : left.hashCode());
+		result = prime * result + (right == null ? 0 : right.hashCode());
+		result = prime * result + (top == null ? 0 : top.hashCode());
 		return result;
 	}
 
@@ -60,16 +68,32 @@ public class Border {
 			return false;
 		}
 		final Border other = (Border) obj;
-		if (bottom != other.bottom) {
+		if (bottom == null) {
+			if (other.bottom != null) {
+				return false;
+			}
+		} else if (!bottom.equals(other.bottom)) {
 			return false;
 		}
-		if (left != other.left) {
+		if (left == null) {
+			if (other.left != null) {
+				return false;
+			}
+		} else if (!left.equals(other.left)) {
 			return false;
 		}
-		if (right != other.right) {
+		if (right == null) {
+			if (other.right != null) {
+				return false;
+			}
+		} else if (!right.equals(other.right)) {
 			return false;
 		}
-		if (top != other.top) {
+		if (top == null) {
+			if (other.top != null) {
+				return false;
+			}
+		} else if (!top.equals(other.top)) {
 			return false;
 		}
 		return true;
@@ -79,5 +103,4 @@ public class Border {
 	public String toString() {
 		return "Border [top=" + top + ", left=" + left + ", bottom=" + bottom + ", right=" + right + "]";
 	}
-
 }
