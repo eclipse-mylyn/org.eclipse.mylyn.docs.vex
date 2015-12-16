@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.boxes;
 
+import org.eclipse.vex.core.internal.core.Color;
 import org.eclipse.vex.core.internal.core.FontMetrics;
 import org.eclipse.vex.core.internal.core.FontResource;
 import org.eclipse.vex.core.internal.core.FontSpec;
@@ -30,6 +31,7 @@ public class StaticText extends BaseBox implements IInlineBox {
 
 	private String text;
 	private FontSpec fontSpec;
+	private Color color;
 
 	private final CharSequenceSplitter splitter = new CharSequenceSplitter();
 
@@ -115,6 +117,15 @@ public class StaticText extends BaseBox implements IInlineBox {
 		layoutValid = false;
 	}
 
+	public Color getColor() {
+		return color;
+	}
+
+	public void setColor(final Color color) {
+		this.color = color;
+		layoutValid = false;
+	}
+
 	@Override
 	public void accept(final IBoxVisitor visitor) {
 		visitor.visit(this);
@@ -155,6 +166,7 @@ public class StaticText extends BaseBox implements IInlineBox {
 	@Override
 	public void paint(final Graphics graphics) {
 		applyFont(graphics);
+		graphics.setColor(graphics.getColor(color));
 		graphics.drawString(getText(), 0, 0);
 	}
 
@@ -171,6 +183,9 @@ public class StaticText extends BaseBox implements IInlineBox {
 		if (!hasEqualFont((StaticText) other)) {
 			return false;
 		}
+		if (!hasEqualColor((StaticText) other)) {
+			return false;
+		}
 
 		return true;
 	}
@@ -183,6 +198,16 @@ public class StaticText extends BaseBox implements IInlineBox {
 			return false;
 		}
 
+		return true;
+	}
+
+	private boolean hasEqualColor(final StaticText other) {
+		if (color != null && !color.equals(other.color)) {
+			return false;
+		}
+		if (color == null && other.color != null) {
+			return false;
+		}
 		return true;
 	}
 
@@ -225,6 +250,7 @@ public class StaticText extends BaseBox implements IInlineBox {
 			tail.setText("");
 		}
 		tail.setFont(fontSpec);
+		tail.setColor(color);
 		tail.setParent(parent);
 		return tail;
 	}

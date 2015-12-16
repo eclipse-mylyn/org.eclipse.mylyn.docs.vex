@@ -130,17 +130,19 @@ public class BoxFactory {
 		return inlineContainer;
 	}
 
-	public static TextContent textContent(final IContent content, final ContentRange range, final FontSpec font) {
+	public static TextContent textContent(final IContent content, final ContentRange range, final FontSpec font, final Color color) {
 		final TextContent textContent = new TextContent();
 		textContent.setContent(content, range);
 		textContent.setFont(font);
+		textContent.setColor(color);
 		return textContent;
 	}
 
-	public static StaticText staticText(final String text, final FontSpec font) {
+	public static StaticText staticText(final String text, final FontSpec font, final Color color) {
 		final StaticText staticText = new StaticText();
 		staticText.setText(text);
 		staticText.setFont(font);
+		staticText.setColor(color);
 		return staticText;
 	}
 

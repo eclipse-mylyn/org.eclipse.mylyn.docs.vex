@@ -38,6 +38,7 @@ public class TextContent extends BaseBox implements IInlineBox, IContentBox {
 	private IPosition endPosition;
 
 	private FontSpec fontSpec;
+	private Color color;
 
 	private final CharSequenceSplitter splitter = new CharSequenceSplitter();
 
@@ -141,6 +142,15 @@ public class TextContent extends BaseBox implements IInlineBox, IContentBox {
 		invalidateLayout();
 	}
 
+	public Color getColor() {
+		return color;
+	}
+
+	public void setColor(final Color color) {
+		this.color = color;
+		invalidateLayout();
+	}
+
 	@Override
 	public void accept(final IBoxVisitor visitor) {
 		visitor.visit(this);
@@ -181,6 +191,7 @@ public class TextContent extends BaseBox implements IInlineBox, IContentBox {
 	@Override
 	public void paint(final Graphics graphics) {
 		applyFont(graphics);
+		graphics.setForeground(graphics.getColor(color));
 		graphics.drawString(getText(), 0, 0);
 	}
 
@@ -225,6 +236,9 @@ public class TextContent extends BaseBox implements IInlineBox, IContentBox {
 		if (!hasEqualFont((TextContent) other)) {
 			return false;
 		}
+		if (!hasEqualColor((TextContent) other)) {
+			return false;
+		}
 
 		return true;
 	}
@@ -247,6 +261,16 @@ public class TextContent extends BaseBox implements IInlineBox, IContentBox {
 			return false;
 		}
 
+		return true;
+	}
+
+	private boolean hasEqualColor(final TextContent other) {
+		if (color != null && !color.equals(other.color)) {
+			return false;
+		}
+		if (color == null && other.color != null) {
+			return false;
+		}
 		return true;
 	}
 
@@ -291,6 +315,7 @@ public class TextContent extends BaseBox implements IInlineBox, IContentBox {
 		final TextContent tail = new TextContent();
 		tail.setContent(content, new ContentRange(splittingOffset, endPosition.getOffset()));
 		tail.setFont(fontSpec);
+		tail.setColor(color);
 		tail.setParent(parent);
 		return tail;
 	}

@@ -53,6 +53,7 @@ public class CssBoxFactory {
 		final TextContent textContent = new TextContent();
 		textContent.setContent(content, range);
 		textContent.setFont(font(styles));
+		textContent.setColor(styles.getColor());
 		return textContent;
 	}
 
@@ -60,6 +61,7 @@ public class CssBoxFactory {
 		final StaticText staticText = new StaticText();
 		staticText.setText(text);
 		staticText.setFont(font(styles));
+		staticText.setColor(styles.getColor());
 		return staticText;
 	}
 

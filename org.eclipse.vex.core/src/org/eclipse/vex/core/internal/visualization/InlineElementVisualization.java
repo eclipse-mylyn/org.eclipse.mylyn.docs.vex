@@ -20,6 +20,7 @@ import org.eclipse.vex.core.internal.boxes.IInlineBox;
 import org.eclipse.vex.core.internal.boxes.InlineContainer;
 import org.eclipse.vex.core.internal.boxes.Margin;
 import org.eclipse.vex.core.internal.boxes.Padding;
+import org.eclipse.vex.core.internal.core.Color;
 import org.eclipse.vex.core.internal.core.FontSpec;
 import org.eclipse.vex.core.provisional.dom.IElement;
 
@@ -44,7 +45,7 @@ public class InlineElementVisualization extends NodeVisualization<IInlineBox> {
 		if (element.hasChildren()) {
 			visualizeChildrenInline(element.children(), container);
 		} else {
-			container.appendChild(staticText(" ", TIMES_NEW_ROMAN));
+			container.appendChild(staticText(" ", TIMES_NEW_ROMAN, Color.BLACK));
 		}
 		return container;
 	}

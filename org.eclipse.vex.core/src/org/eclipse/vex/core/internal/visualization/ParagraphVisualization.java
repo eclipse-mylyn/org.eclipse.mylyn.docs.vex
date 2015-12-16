@@ -20,6 +20,7 @@ import org.eclipse.vex.core.internal.boxes.IStructuralBox;
 import org.eclipse.vex.core.internal.boxes.Margin;
 import org.eclipse.vex.core.internal.boxes.Padding;
 import org.eclipse.vex.core.internal.boxes.Paragraph;
+import org.eclipse.vex.core.internal.core.Color;
 import org.eclipse.vex.core.internal.core.FontSpec;
 import org.eclipse.vex.core.provisional.dom.IElement;
 
@@ -56,7 +57,7 @@ public final class ParagraphVisualization extends NodeVisualization<IStructuralB
 
 	private Paragraph visualizeEmptyElement(final IElement element) {
 		final Paragraph paragraph = paragraph();
-		paragraph.appendChild(staticText(" ", TIMES_NEW_ROMAN));
+		paragraph.appendChild(staticText(" ", TIMES_NEW_ROMAN, Color.BLACK));
 		return paragraph;
 	}
 }

@@ -13,6 +13,7 @@ package org.eclipse.vex.core.internal.visualization;
 import static org.eclipse.vex.core.internal.boxes.BoxFactory.textContent;
 
 import org.eclipse.vex.core.internal.boxes.IInlineBox;
+import org.eclipse.vex.core.internal.core.Color;
 import org.eclipse.vex.core.internal.core.FontSpec;
 import org.eclipse.vex.core.provisional.dom.IText;
 
@@ -22,6 +23,6 @@ public final class TextVisualization extends NodeVisualization<IInlineBox> {
 
 	@Override
 	public IInlineBox visit(final IText text) {
-		return textContent(text.getContent(), text.getRange(), TIMES_NEW_ROMAN);
+		return textContent(text.getContent(), text.getRange(), TIMES_NEW_ROMAN, Color.BLACK);
 	}
 }
