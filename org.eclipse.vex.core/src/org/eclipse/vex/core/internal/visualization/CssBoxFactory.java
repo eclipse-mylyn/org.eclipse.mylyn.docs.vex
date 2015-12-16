@@ -29,8 +29,8 @@ public class CssBoxFactory {
 	public static StructuralFrame frame(final IStructuralBox component, final Styles styles) {
 		final StructuralFrame frame = new StructuralFrame();
 		frame.setComponent(component);
-		frame.setMargin(Margin.NULL);
-		frame.setBorder(Border.NULL);
+		frame.setMargin(margin(styles));
+		frame.setBorder(border(styles));
 		frame.setPadding(padding(styles));
 		return frame;
 	}
@@ -38,8 +38,8 @@ public class CssBoxFactory {
 	public static InlineFrame frame(final IInlineBox component, final Styles styles) {
 		final InlineFrame frame = new InlineFrame();
 		frame.setComponent(component);
-		frame.setMargin(Margin.NULL);
-		frame.setBorder(Border.NULL);
+		frame.setMargin(margin(styles));
+		frame.setBorder(border(styles));
 		frame.setPadding(padding(styles));
 		return frame;
 	}
@@ -56,6 +56,23 @@ public class CssBoxFactory {
 		staticText.setText(text);
 		staticText.setFont(font(styles));
 		return staticText;
+	}
+
+	public static Margin margin(final Styles styles) {
+		final int top = styles.getMarginTop().get(1);
+		final int left = styles.getMarginLeft().get(1);
+		final int bottom = styles.getMarginBottom().get(1);
+		final int right = styles.getMarginRight().get(1);
+
+		return new Margin(top, left, bottom, right);
+	}
+
+	public static Border border(final Styles styles) {
+		final int top = styles.getBorderTopWidth();
+		final int left = styles.getBorderLeftWidth();
+		final int bottom = styles.getBorderBottomWidth();
+		final int right = styles.getBorderRightWidth();
+		return new Border(top, left, bottom, right);
 	}
 
 	public static Padding padding(final Styles styles) {
