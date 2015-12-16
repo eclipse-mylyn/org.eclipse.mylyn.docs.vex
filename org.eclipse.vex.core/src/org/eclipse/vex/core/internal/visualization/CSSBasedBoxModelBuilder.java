@@ -20,6 +20,12 @@ import static org.eclipse.vex.core.internal.boxes.BoxFactory.staticText;
 import static org.eclipse.vex.core.internal.boxes.BoxFactory.textContent;
 import static org.eclipse.vex.core.internal.boxes.BoxFactory.verticalBlock;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+
+import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.vex.core.internal.boxes.Border;
 import org.eclipse.vex.core.internal.boxes.IInlineBox;
 import org.eclipse.vex.core.internal.boxes.IParentBox;
@@ -30,13 +36,18 @@ import org.eclipse.vex.core.internal.boxes.Padding;
 import org.eclipse.vex.core.internal.boxes.Paragraph;
 import org.eclipse.vex.core.internal.boxes.RootBox;
 import org.eclipse.vex.core.internal.boxes.StaticText;
+import org.eclipse.vex.core.internal.boxes.StructuralFrame;
+import org.eclipse.vex.core.internal.css.CSS;
 import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.css.Styles;
+import org.eclipse.vex.core.internal.dom.CollectingNodeTraversal;
 import org.eclipse.vex.core.provisional.dom.BaseNodeVisitorWithResult;
 import org.eclipse.vex.core.provisional.dom.IDocument;
+import org.eclipse.vex.core.provisional.dom.IDocumentFragment;
 import org.eclipse.vex.core.provisional.dom.IElement;
 import org.eclipse.vex.core.provisional.dom.INode;
 import org.eclipse.vex.core.provisional.dom.IText;
+import org.eclipse.vex.core.provisional.dom.IValidator;
 
 /**
  * @author Florian Thienel
@@ -52,90 +63,170 @@ public class CSSBasedBoxModelBuilder implements IBoxModelBuilder {
 	@Override
 	public RootBox visualizeRoot(final INode node) {
 		final IDocument document = node.getDocument();
-		return rootBox(nodeReference(document, visualizeChildrenStructure(document.children(), verticalBlock())));
+		return rootBox(visualize(document).structuralBox);
 	}
 
 	@Override
 	public IStructuralBox visualizeStructure(final INode node) {
-		return node.accept(new BaseNodeVisitorWithResult<IStructuralBox>() {
-			@Override
-			public IStructuralBox visit(final IElement element) {
-				final Styles styles = styleSheet.getStyles(element);
-				if ("para".equals(element.getLocalName())) {
-					return nodeReferenceWithText(element, frame(visualizeParagraphElementContent(element), Margin.NULL, Border.NULL, getPadding(styles)));
-				}
-				return nodeReference(element, frame(visualizeChildrenStructure(element.children(), verticalBlock()), Margin.NULL, Border.NULL, getPadding(styles)));
-			}
-		});
+		final VisualizeResult result = visualize(node);
+		if (result.inline) {
+			return visualizeStructure(result.node, result.childrenResults);
+		} else {
+			return result.structuralBox;
+		}
 	}
 
 	@Override
 	public IInlineBox visualizeInline(final INode node) {
+		final VisualizeResult result = visualize(node);
+		if (result.inline) {
+			return result.inlineBox;
+		} else {
+			return visualizeInline(result.node, result.childrenResults);
+		}
+	}
+
+	private VisualizeResult visualize(final INode node) {
+		return node.accept(new CollectingNodeTraversal<VisualizeResult>() {
+			@Override
+			public VisualizeResult visit(final IDocument document) {
+				final Collection<VisualizeResult> childrenResults = traverseChildren(document);
+				return new VisualizeResult(document, childrenResults, nodeReference(document, visualizeChildrenStructure(childrenResults, verticalBlock())));
+			}
+
+			@Override
+			public VisualizeResult visit(final IDocumentFragment documentFragment) {
+				final Collection<VisualizeResult> childrenResults = traverseChildren(documentFragment);
+				return new VisualizeResult(documentFragment, childrenResults, nodeReference(documentFragment, visualizeChildrenStructure(childrenResults, verticalBlock())));
+			}
+
+			@Override
+			public VisualizeResult visit(final IElement element) {
+				final Collection<VisualizeResult> childrenResults = traverseChildren(element);
+				final Styles styles = styleSheet.getStyles(element);
+				if (isDisplayedAsBlock(element, styles)) {
+					return new VisualizeResult(element, childrenResults, visualizeStructure(element, childrenResults));
+				} else {
+					return new VisualizeResult(element, childrenResults, visualizeInline(element, childrenResults));
+				}
+			}
+
+			@Override
+			public VisualizeResult visit(final IText text) {
+				final List<VisualizeResult> childrenResults = Collections.<VisualizeResult> emptyList();
+				return new VisualizeResult(text, childrenResults, visualizeInline(text, childrenResults));
+			}
+		});
+	}
+
+	private static boolean mayContainText(final IElement element) {
+		final Set<QualifiedName> validItems = element.getDocument().getValidator().getValidItems(element);
+		return validItems.contains(IValidator.PCDATA);
+	}
+
+	private static boolean isDisplayedAsBlock(final IElement element, final Styles styles) {
+		return CSS.BLOCK.equals(styles.getDisplay()); // TODO provide real implementation
+	}
+
+	private static boolean containsInlineContent(final Collection<VisualizeResult> visualizeResults) {
+		for (final VisualizeResult visualizeResult : visualizeResults) {
+			if (visualizeResult.inline) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private IStructuralBox visualizeStructure(final INode node, final Collection<VisualizeResult> childrenResults) {
+		final Styles styles = styleSheet.getStyles(node);
+		return node.accept(new BaseNodeVisitorWithResult<IStructuralBox>() {
+			@Override
+			public IStructuralBox visit(final IElement element) {
+				if (containsInlineContent(childrenResults)) {
+					final StructuralFrame framedContent = frame(visualizeParagraphElementContent(styles, childrenResults), Margin.NULL, Border.NULL, getPadding(styles));
+					if (mayContainText(element)) {
+						return nodeReferenceWithText(element, framedContent);
+					} else {
+						return nodeReference(element, framedContent);
+					}
+				} else {
+					if (mayContainText(element)) {
+						final StructuralFrame framedContent = frame(visualizeParagraphElementContent(styles, childrenResults), Margin.NULL, Border.NULL, getPadding(styles));
+						return nodeReferenceWithText(element, framedContent);
+					} else {
+						return nodeReference(element, frame(visualizeChildrenStructure(childrenResults, verticalBlock()), Margin.NULL, Border.NULL, getPadding(styles)));
+					}
+				}
+			}
+		});
+	}
+
+	private IInlineBox visualizeInline(final INode node, final Collection<VisualizeResult> childrenResults) {
+		final Styles styles = styleSheet.getStyles(node);
 		return node.accept(new BaseNodeVisitorWithResult<IInlineBox>() {
 			@Override
 			public IInlineBox visit(final IElement element) {
-				final Styles styles = styleSheet.getStyles(node);
-				return nodeReferenceWithText(element, frame(visualizeInlineElementContent(element), Margin.NULL, Border.NULL, getPadding(styles)));
+				return nodeReferenceWithText(element, frame(visualizeInlineElementContent(styles, childrenResults), Margin.NULL, Border.NULL, getPadding(styles)));
 			}
 
 			@Override
 			public IInlineBox visit(final IText text) {
-				final Styles styles = styleSheet.getStyles(node);
 				return textContent(text.getContent(), text.getRange(), styles.getFont());
 			}
 		});
 	}
 
-	private Paragraph visualizeParagraphElementContent(final IElement element) {
-		if (element.hasChildren()) {
-			return visualizeParagraphWithChildren(element);
+	private Paragraph visualizeParagraphElementContent(final Styles styles, final Collection<VisualizeResult> childrenResults) {
+		if (!childrenResults.isEmpty()) {
+			return visualizeParagraphWithChildren(childrenResults);
 		} else {
-			return visualizeEmptyParagraph(element);
+			return visualizeEmptyParagraph(styles);
 		}
 	}
 
-	private Paragraph visualizeParagraphWithChildren(final IElement element) {
+	private Paragraph visualizeParagraphWithChildren(final Collection<VisualizeResult> childrenResults) {
 		final Paragraph paragraph = paragraph();
-		visualizeChildrenInline(element.children(), paragraph);
+		visualizeChildrenInline(childrenResults, paragraph);
 		return paragraph;
 	}
 
-	private Paragraph visualizeEmptyParagraph(final IElement element) {
+	private Paragraph visualizeEmptyParagraph(final Styles styles) {
 		final Paragraph paragraph = paragraph();
-		paragraph.appendChild(placeholderForEmptyElement(element));
+		paragraph.appendChild(placeholderForEmptyElement(styles));
 		return paragraph;
 	}
 
-	private InlineContainer visualizeInlineElementContent(final IElement element) {
+	private InlineContainer visualizeInlineElementContent(final Styles styles, final Collection<VisualizeResult> childrenResults) {
 		final InlineContainer container = inlineContainer();
-		if (element.hasChildren()) {
-			visualizeChildrenInline(element.children(), container);
+		if (!childrenResults.isEmpty()) {
+			visualizeChildrenInline(childrenResults, container);
 		} else {
-			container.appendChild(placeholderForEmptyElement(element));
+			container.appendChild(placeholderForEmptyElement(styles));
 		}
 		return container;
 	}
 
-	private StaticText placeholderForEmptyElement(final IElement element) {
-		final Styles styles = styleSheet.getStyles(element);
+	private StaticText placeholderForEmptyElement(final Styles styles) {
 		return staticText(" ", styles.getFont());
 	}
 
-	private <P extends IParentBox<IStructuralBox>> P visualizeChildrenStructure(final Iterable<INode> children, final P parentBox) {
-		for (final INode child : children) {
-			final IStructuralBox childBox = visualizeStructure(child);
-			if (childBox != null) {
-				parentBox.appendChild(childBox);
+	private <P extends IParentBox<IStructuralBox>> P visualizeChildrenStructure(final Iterable<VisualizeResult> childrenResults, final P parentBox) {
+		for (final VisualizeResult visualizeResult : childrenResults) {
+			if (visualizeResult.inline) {
+				parentBox.appendChild(visualizeStructure(visualizeResult.node, visualizeResult.childrenResults));
+			} else {
+				parentBox.appendChild(visualizeResult.structuralBox);
 			}
 		}
 		return parentBox;
 	}
 
-	private <P extends IParentBox<IInlineBox>> P visualizeChildrenInline(final Iterable<INode> children, final P parentBox) {
-		for (final INode child : children) {
-			final IInlineBox childBox = visualizeInline(child);
-			if (childBox != null) {
-				parentBox.appendChild(childBox);
+	private <P extends IParentBox<IInlineBox>> P visualizeChildrenInline(final Iterable<VisualizeResult> childrenResults, final P parentBox) {
+		for (final VisualizeResult visualizeResult : childrenResults) {
+			if (visualizeResult.inline) {
+				parentBox.appendChild(visualizeResult.inlineBox);
+			} else {
+				parentBox.appendChild(visualizeInline(visualizeResult.node, visualizeResult.childrenResults));
 			}
 		}
 		return parentBox;
@@ -148,6 +239,30 @@ public class CSSBasedBoxModelBuilder implements IBoxModelBuilder {
 		final int right = styles.getPaddingRight().get(1);
 
 		return new Padding(top, left, bottom, right);
+	}
+
+	private static class VisualizeResult {
+		public final INode node;
+		public final Collection<VisualizeResult> childrenResults;
+		public final boolean inline;
+		public final IInlineBox inlineBox;
+		public final IStructuralBox structuralBox;
+
+		public VisualizeResult(final INode node, final Collection<VisualizeResult> childrenResults, final IStructuralBox box) {
+			this.node = node;
+			this.childrenResults = childrenResults;
+			inline = false;
+			inlineBox = null;
+			structuralBox = box;
+		}
+
+		public VisualizeResult(final INode node, final Collection<VisualizeResult> childrenResults, final IInlineBox box) {
+			this.node = node;
+			this.childrenResults = childrenResults;
+			inline = true;
+			inlineBox = box;
+			structuralBox = null;
+		}
 	}
 
 }
