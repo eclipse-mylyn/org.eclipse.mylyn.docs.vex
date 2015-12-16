@@ -224,7 +224,7 @@ public class InlineContainer extends BaseBox implements IInlineBox, IParentBox<I
 		}
 
 		final IInlineBox splitChild = children.get(splitIndex);
-		final IInlineBox splitChildTail = splitChild.splitTail(graphics, headWidth - splitChild.getLeft(), force);
+		final IInlineBox splitChildTail = splitChild.splitTail(graphics, headWidth - splitChild.getLeft(), force && splitIndex == 0);
 		if (splitChild.getWidth() == 0) {
 			children.remove(splitChild);
 			splitChild.setParent(null);
