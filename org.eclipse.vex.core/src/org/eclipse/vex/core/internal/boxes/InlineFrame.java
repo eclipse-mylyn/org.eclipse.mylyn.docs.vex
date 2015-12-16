@@ -16,6 +16,7 @@ public class InlineFrame extends BaseBox implements IInlineBox, IDecoratorBox<II
 	private Margin margin = Margin.NULL;
 	private Border border = Border.NULL;
 	private Padding padding = Padding.NULL;
+	private Color backgroundColor = null;
 
 	private IInlineBox component;
 
@@ -118,6 +119,14 @@ public class InlineFrame extends BaseBox implements IInlineBox, IDecoratorBox<II
 		this.padding = padding;
 	}
 
+	public Color getBackgroundColor() {
+		return backgroundColor;
+	}
+
+	public void setBackgroundColor(final Color backgroundColor) {
+		this.backgroundColor = backgroundColor;
+	}
+
 	@Override
 	public void setComponent(final IInlineBox component) {
 		this.component = component;
@@ -182,8 +191,18 @@ public class InlineFrame extends BaseBox implements IInlineBox, IDecoratorBox<II
 
 	@Override
 	public void paint(final Graphics graphics) {
+		drawBackground(graphics);
 		drawBorder(graphics);
 		paintComponent(graphics);
+	}
+
+	private void drawBackground(final Graphics graphics) {
+		if (backgroundColor == null) {
+			return;
+		}
+
+		graphics.setBackground(graphics.getColor(backgroundColor));
+		graphics.fillRect(left, top, width, height);
 	}
 
 	private void drawBorder(final Graphics graphics) {
@@ -223,6 +242,9 @@ public class InlineFrame extends BaseBox implements IInlineBox, IDecoratorBox<II
 		final InlineFrame otherFrame = (InlineFrame) other;
 
 		if (!margin.equals(otherFrame.margin) || !border.equals(otherFrame.border) || !padding.equals(otherFrame.padding)) {
+			return false;
+		}
+		if (backgroundColor == null && otherFrame.backgroundColor != null || backgroundColor != null && !backgroundColor.equals(otherFrame.backgroundColor)) {
 			return false;
 		}
 		if (!component.canJoin(otherFrame.component)) {
@@ -271,6 +293,7 @@ public class InlineFrame extends BaseBox implements IInlineBox, IDecoratorBox<II
 		tail.setMargin(margin);
 		tail.setBorder(border);
 		tail.setPadding(padding);
+		tail.setBackgroundColor(backgroundColor);
 		tail.layout(graphics);
 
 		layout(graphics);

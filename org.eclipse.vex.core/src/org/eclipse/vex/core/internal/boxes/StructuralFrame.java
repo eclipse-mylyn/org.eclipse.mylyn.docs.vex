@@ -29,6 +29,7 @@ public class StructuralFrame extends BaseBox implements IStructuralBox, IDecorat
 	private Margin margin = Margin.NULL;
 	private Border border = Border.NULL;
 	private Padding padding = Padding.NULL;
+	private Color backgroundColor = null;
 
 	private IStructuralBox component;
 
@@ -124,6 +125,14 @@ public class StructuralFrame extends BaseBox implements IStructuralBox, IDecorat
 		this.padding = padding;
 	}
 
+	public Color getBackgroundColor() {
+		return backgroundColor;
+	}
+
+	public void setBackgroundColor(final Color backgroundColor) {
+		this.backgroundColor = backgroundColor;
+	}
+
 	public void setComponent(final IStructuralBox component) {
 		this.component = component;
 		component.setParent(this);
@@ -183,8 +192,18 @@ public class StructuralFrame extends BaseBox implements IStructuralBox, IDecorat
 
 	@Override
 	public void paint(final Graphics graphics) {
+		drawBackground(graphics);
 		drawBorder(graphics);
 		paintComponent(graphics);
+	}
+
+	private void drawBackground(final Graphics graphics) {
+		if (backgroundColor == null) {
+			return;
+		}
+
+		graphics.setBackground(graphics.getColor(backgroundColor));
+		graphics.fillRect(left, top, width, height);
 	}
 
 	private void drawBorder(final Graphics graphics) {

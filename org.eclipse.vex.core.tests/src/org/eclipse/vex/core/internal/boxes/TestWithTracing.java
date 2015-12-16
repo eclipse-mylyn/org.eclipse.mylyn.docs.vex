@@ -46,7 +46,7 @@ public class TestWithTracing {
 
 	@Test
 	public void verticalBlockHorizontalBar() throws Exception {
-		final StructuralFrame frame = frame(verticalBlock(horizontalBar(10, Color.BLACK)), new Margin(10, 20, 30, 40), new Border(10), new Padding(15, 25, 35, 45));
+		final StructuralFrame frame = frame(verticalBlock(horizontalBar(10, Color.BLACK)), new Margin(10, 20, 30, 40), new Border(10), new Padding(15, 25, 35, 45), null);
 
 		rootBox.appendChild(frame);
 		rootBox.setWidth(300);

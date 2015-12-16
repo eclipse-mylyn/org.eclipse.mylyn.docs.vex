@@ -37,7 +37,7 @@ public final class ParagraphVisualization extends NodeVisualization<IStructuralB
 		}
 
 		final Paragraph paragraph = visualizeParagraphElement(element);
-		return nodeReferenceWithText(element, frame(paragraph, Margin.NULL, Border.NULL, new Padding(5, 4)));
+		return nodeReferenceWithText(element, frame(paragraph, Margin.NULL, Border.NULL, new Padding(5, 4), null));
 	}
 
 	private Paragraph visualizeParagraphElement(final IElement element) {

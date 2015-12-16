@@ -45,12 +45,13 @@ public class BoxFactory {
 		return frame;
 	}
 
-	public static StructuralFrame frame(final IStructuralBox component, final Margin margin, final Border border, final Padding padding) {
+	public static StructuralFrame frame(final IStructuralBox component, final Margin margin, final Border border, final Padding padding, final Color backgroundColor) {
 		final StructuralFrame frame = new StructuralFrame();
 		frame.setComponent(component);
 		frame.setMargin(margin);
 		frame.setBorder(border);
 		frame.setPadding(padding);
+		frame.setBackgroundColor(backgroundColor);
 		return frame;
 	}
 
@@ -60,12 +61,13 @@ public class BoxFactory {
 		return frame;
 	}
 
-	public static InlineFrame frame(final IInlineBox component, final Margin margin, final Border border, final Padding padding) {
+	public static InlineFrame frame(final IInlineBox component, final Margin margin, final Border border, final Padding padding, final Color backgroundColor) {
 		final InlineFrame frame = new InlineFrame();
 		frame.setComponent(component);
 		frame.setMargin(margin);
 		frame.setBorder(border);
 		frame.setPadding(padding);
+		frame.setBackgroundColor(backgroundColor);
 		return frame;
 	}
 

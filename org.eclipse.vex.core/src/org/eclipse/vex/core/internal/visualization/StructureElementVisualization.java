@@ -23,6 +23,6 @@ import org.eclipse.vex.core.provisional.dom.IElement;
 public final class StructureElementVisualization extends NodeVisualization<IStructuralBox> {
 	@Override
 	public IStructuralBox visit(final IElement element) {
-		return nodeReference(element, frame(visualizeChildrenStructure(element.children(), verticalBlock()), Margin.NULL, Border.NULL, new Padding(3, 3)));
+		return nodeReference(element, frame(visualizeChildrenStructure(element.children(), verticalBlock()), Margin.NULL, Border.NULL, new Padding(3, 3), null));
 	}
 }

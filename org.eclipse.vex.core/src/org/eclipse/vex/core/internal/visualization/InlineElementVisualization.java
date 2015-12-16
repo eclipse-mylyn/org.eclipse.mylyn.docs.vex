@@ -36,7 +36,7 @@ public class InlineElementVisualization extends NodeVisualization<IInlineBox> {
 			return super.visit(element);
 		}
 
-		return nodeReferenceWithText(element, frame(visualizeInlineElement(element), new Margin(4), new Border(2), new Padding(5)));
+		return nodeReferenceWithText(element, frame(visualizeInlineElement(element), new Margin(4), new Border(2), new Padding(5), null));
 	}
 
 	private InlineContainer visualizeInlineElement(final IElement element) {

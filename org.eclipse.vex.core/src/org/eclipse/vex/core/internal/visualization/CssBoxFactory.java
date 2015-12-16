@@ -35,6 +35,7 @@ public class CssBoxFactory {
 		frame.setMargin(margin(styles));
 		frame.setBorder(border(styles));
 		frame.setPadding(padding(styles));
+		frame.setBackgroundColor(styles.getBackgroundColor());
 		return frame;
 	}
 
@@ -44,6 +45,7 @@ public class CssBoxFactory {
 		frame.setMargin(margin(styles));
 		frame.setBorder(border(styles));
 		frame.setPadding(padding(styles));
+		frame.setBackgroundColor(styles.getBackgroundColor());
 		return frame;
 	}
 
