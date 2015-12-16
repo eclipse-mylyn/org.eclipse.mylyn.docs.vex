@@ -47,6 +47,9 @@ public class MoveToAbsoluteCoordinates implements ICursorMove {
 	@Override
 	public int calculateNewOffset(final Graphics graphics, final ContentTopology contentTopology, final int currentOffset, final IContentBox currentBox, final Rectangle hotArea, final int preferredX) {
 		final IContentBox box = findClosestBoxByCoordinates(contentTopology, x, y);
+		if (box == null) {
+			return currentOffset;
+		}
 		if (box.containsCoordinates(x, y)) {
 			return box.getOffsetForCoordinates(graphics, x - box.getAbsoluteLeft(), y - box.getAbsoluteTop());
 		} else if (box.isLeftOf(x)) {
@@ -64,6 +67,9 @@ public class MoveToAbsoluteCoordinates implements ICursorMove {
 
 	private static IContentBox findClosestBoxByCoordinates(final ContentTopology contentTopology, final int x, final int y) {
 		final IContentBox deepestContainer = contentTopology.findBoxForCoordinates(x, y);
+		if (deepestContainer == null) {
+			return null;
+		}
 		return findClosestBoxInContainer(deepestContainer, x, y);
 	}
 
