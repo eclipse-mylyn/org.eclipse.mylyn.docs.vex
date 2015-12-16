@@ -16,6 +16,7 @@ import java.util.ListIterator;
 
 import org.eclipse.vex.core.internal.core.Graphics;
 import org.eclipse.vex.core.internal.core.Rectangle;
+import org.eclipse.vex.core.internal.core.TextAlign;
 
 /**
  * @author Florian Thienel
@@ -26,6 +27,8 @@ public class Paragraph extends BaseBox implements IStructuralBox, IParentBox<IIn
 	private int top;
 	private int left;
 	private int width;
+
+	private TextAlign textAlign = TextAlign.LEFT;
 
 	private final LinkedList<IInlineBox> children = new LinkedList<IInlineBox>();
 	private final LineArrangement lines = new LineArrangement();
@@ -92,6 +95,14 @@ public class Paragraph extends BaseBox implements IStructuralBox, IParentBox<IIn
 		return new Rectangle(left, top, width, lines.getHeight());
 	}
 
+	public TextAlign getTextAlign() {
+		return textAlign;
+	}
+
+	public void setTextAlign(final TextAlign textAlign) {
+		this.textAlign = textAlign;
+	}
+
 	@Override
 	public void accept(final IBoxVisitor visitor) {
 		visitor.visit(this);
@@ -149,7 +160,7 @@ public class Paragraph extends BaseBox implements IStructuralBox, IParentBox<IIn
 	}
 
 	private void arrangeChildrenOnLines(final Graphics graphics) {
-		lines.arrangeBoxes(graphics, children.listIterator(), width);
+		lines.arrangeBoxes(graphics, children.listIterator(), width, textAlign);
 	}
 
 	@Override

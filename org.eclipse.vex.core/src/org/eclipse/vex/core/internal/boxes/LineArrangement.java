@@ -15,6 +15,7 @@ import java.util.LinkedList;
 import java.util.ListIterator;
 
 import org.eclipse.vex.core.internal.core.Graphics;
+import org.eclipse.vex.core.internal.core.TextAlign;
 
 public class LineArrangement {
 
@@ -26,7 +27,7 @@ public class LineArrangement {
 	private boolean lastBoxWrappedCompletely;
 	private Line currentLine;
 
-	public void arrangeBoxes(final Graphics graphics, final ListIterator<IInlineBox> boxIterator, final int width) {
+	public void arrangeBoxes(final Graphics graphics, final ListIterator<IInlineBox> boxIterator, final int width, final TextAlign textAlign) {
 		this.boxIterator = boxIterator;
 		this.width = width;
 		reset();
@@ -37,6 +38,8 @@ public class LineArrangement {
 			appendBox(graphics, box);
 		}
 		finalizeCurrentLine();
+
+		alignLines(textAlign);
 	}
 
 	private void reset() {
@@ -169,6 +172,26 @@ public class LineArrangement {
 		currentLine.setPosition(height, 0);
 		height += currentLine.getHeight();
 		lines.add(currentLine);
+	}
+
+	private void alignLines(final TextAlign textAlign) {
+		if (textAlign == TextAlign.LEFT) {
+			return;
+		}
+		for (final Line line : lines) {
+			line.shiftBy(alignmentOffset(line, textAlign));
+		}
+	}
+
+	private int alignmentOffset(final Line line, final TextAlign textAlign) {
+		switch (textAlign) {
+		case CENTER:
+			return (width - line.getWidth()) / 2;
+		case RIGHT:
+			return width - line.getWidth();
+		default:
+			return 0;
+		}
 	}
 
 	public Collection<Line> getLines() {

@@ -17,11 +17,13 @@ import org.eclipse.vex.core.internal.boxes.IStructuralBox;
 import org.eclipse.vex.core.internal.boxes.InlineFrame;
 import org.eclipse.vex.core.internal.boxes.Margin;
 import org.eclipse.vex.core.internal.boxes.Padding;
+import org.eclipse.vex.core.internal.boxes.Paragraph;
 import org.eclipse.vex.core.internal.boxes.StaticText;
 import org.eclipse.vex.core.internal.boxes.StructuralFrame;
 import org.eclipse.vex.core.internal.boxes.TextContent;
 import org.eclipse.vex.core.internal.core.FontSpec;
 import org.eclipse.vex.core.internal.core.LineStyle;
+import org.eclipse.vex.core.internal.core.TextAlign;
 import org.eclipse.vex.core.internal.css.CSS;
 import org.eclipse.vex.core.internal.css.Styles;
 import org.eclipse.vex.core.provisional.dom.ContentRange;
@@ -47,6 +49,15 @@ public class CssBoxFactory {
 		frame.setPadding(padding(styles));
 		frame.setBackgroundColor(styles.getBackgroundColor());
 		return frame;
+	}
+
+	public static Paragraph paragraph(final Styles styles, final IInlineBox... children) {
+		final Paragraph paragraph = new Paragraph();
+		for (final IInlineBox child : children) {
+			paragraph.appendChild(child);
+		}
+		paragraph.setTextAlign(textAlign(styles));
+		return paragraph;
 	}
 
 	public static TextContent textContent(final IContent content, final ContentRange range, final Styles styles) {
@@ -93,5 +104,16 @@ public class CssBoxFactory {
 
 	public static FontSpec font(final Styles styles) {
 		return styles.getFont();
+	}
+
+	public static TextAlign textAlign(final Styles styles) {
+		final String textAlign = styles.getTextAlign();
+		if (CSS.CENTER.equals(textAlign)) {
+			return TextAlign.CENTER;
+		} else if (CSS.RIGHT.equals(textAlign)) {
+			return TextAlign.RIGHT;
+		} else {
+			return TextAlign.LEFT;
+		}
 	}
 }

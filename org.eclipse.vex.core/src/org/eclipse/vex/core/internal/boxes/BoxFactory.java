@@ -12,6 +12,7 @@ package org.eclipse.vex.core.internal.boxes;
 
 import org.eclipse.vex.core.internal.core.Color;
 import org.eclipse.vex.core.internal.core.FontSpec;
+import org.eclipse.vex.core.internal.core.TextAlign;
 import org.eclipse.vex.core.provisional.dom.ContentRange;
 import org.eclipse.vex.core.provisional.dom.IContent;
 import org.eclipse.vex.core.provisional.dom.INode;
@@ -119,6 +120,15 @@ public class BoxFactory {
 		for (final IInlineBox child : children) {
 			paragraph.appendChild(child);
 		}
+		return paragraph;
+	}
+
+	public static Paragraph paragraph(final TextAlign textAlign, final IInlineBox... children) {
+		final Paragraph paragraph = new Paragraph();
+		for (final IInlineBox child : children) {
+			paragraph.appendChild(child);
+		}
+		paragraph.setTextAlign(textAlign);
 		return paragraph;
 	}
 

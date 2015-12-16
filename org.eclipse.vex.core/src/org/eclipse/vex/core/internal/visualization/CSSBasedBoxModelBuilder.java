@@ -13,10 +13,10 @@ package org.eclipse.vex.core.internal.visualization;
 import static org.eclipse.vex.core.internal.boxes.BoxFactory.inlineContainer;
 import static org.eclipse.vex.core.internal.boxes.BoxFactory.nodeReference;
 import static org.eclipse.vex.core.internal.boxes.BoxFactory.nodeReferenceWithText;
-import static org.eclipse.vex.core.internal.boxes.BoxFactory.paragraph;
 import static org.eclipse.vex.core.internal.boxes.BoxFactory.rootBox;
 import static org.eclipse.vex.core.internal.boxes.BoxFactory.verticalBlock;
 import static org.eclipse.vex.core.internal.visualization.CssBoxFactory.frame;
+import static org.eclipse.vex.core.internal.visualization.CssBoxFactory.paragraph;
 import static org.eclipse.vex.core.internal.visualization.CssBoxFactory.staticText;
 import static org.eclipse.vex.core.internal.visualization.CssBoxFactory.textContent;
 
@@ -152,7 +152,7 @@ public class CSSBasedBoxModelBuilder implements IBoxModelBuilder {
 				final boolean mayContainText = mayContainText(element);
 				final IStructuralBox content;
 				if (mayContainText || containsInlineContent(childrenResults)) {
-					content = visualizeInlineElementContent(styles, childrenResults, paragraph());
+					content = visualizeInlineElementContent(styles, childrenResults, paragraph(styles));
 				} else {
 					content = visualizeChildrenAsStructure(childrenResults, verticalBlock());
 				}

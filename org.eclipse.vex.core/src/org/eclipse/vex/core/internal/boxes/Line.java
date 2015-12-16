@@ -114,6 +114,15 @@ public class Line {
 		children.removeLast();
 	}
 
+	public void shiftBy(final int xOffset) {
+		if (xOffset == 0) {
+			return;
+		}
+		for (final IInlineBox child : children) {
+			child.setPosition(child.getTop(), child.getLeft() + xOffset);
+		}
+	}
+
 	public void arrangeChildren() {
 		calculateBoundsAndBaseline();
 		arrangeChildrenOnBaseline();

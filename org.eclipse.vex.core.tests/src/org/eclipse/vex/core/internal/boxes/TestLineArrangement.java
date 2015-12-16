@@ -18,6 +18,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.eclipse.vex.core.internal.core.FontSpec;
+import org.eclipse.vex.core.internal.core.TextAlign;
 import org.eclipse.vex.core.internal.layout.FakeGraphics;
 import org.junit.Before;
 import org.junit.Test;
@@ -42,26 +43,26 @@ public class TestLineArrangement {
 
 	@Test
 	public void givenAllBoxesFitIntoOneLine_shouldArrangeBoxesInOneLine() throws Exception {
-		lines.arrangeBoxes(graphics, joinableBoxes.listIterator(), 210);
+		lines.arrangeBoxes(graphics, joinableBoxes.listIterator(), 210, TextAlign.LEFT);
 		assertEquals(1, lines.getLines().size());
 	}
 
 	@Test
 	public void givenJoinableBoxes_whenBoxesFitIntoSameLine_shouldJoinBoxes() throws Exception {
-		lines.arrangeBoxes(graphics, joinableBoxes.listIterator(), 210);
+		lines.arrangeBoxes(graphics, joinableBoxes.listIterator(), 210, TextAlign.LEFT);
 		assertEquals(1, joinableBoxes.size());
 	}
 
 	@Test
 	public void givenUnjoinableBoxes_whenBoxesFitIntoSameLane_shouldNotJoinBoxes() throws Exception {
-		lines.arrangeBoxes(graphics, unjoinableBoxes.listIterator(), 210);
+		lines.arrangeBoxes(graphics, unjoinableBoxes.listIterator(), 210, TextAlign.LEFT);
 		assertEquals(3, unjoinableBoxes.size());
 	}
 
 	@Test
 	public void givenUnjoinableBoxFollowedByJoinableBoxWithoutProperSplitPointAtLineEnd_whenAdditionalBoxWithoutProperSplitPointDoesNotFitIntoLine_shouldWrapCompleteJoinedBoxIntoNextLine() throws Exception {
 		final List<IInlineBox> boxes = boxes(square(10), staticText("L"), staticText("or"));
-		lines.arrangeBoxes(graphics, boxes.listIterator(), 18);
+		lines.arrangeBoxes(graphics, boxes.listIterator(), 18, TextAlign.LEFT);
 
 		assertEquals(2, boxes.size());
 		assertEquals("Lor", ((StaticText) boxes.get(1)).getText());
@@ -70,7 +71,7 @@ public class TestLineArrangement {
 	@Test
 	public void givenUnjoinableBoxFollowedByJoinableBoxWithoutProperSplitPointAtLineEnd_whenAdditionalBoxWithoutProperSplitPointDoesNotFitIntoLine_shouldRemoveOriginalLastBox() throws Exception {
 		final List<IInlineBox> boxes = boxes(square(10), staticText("L"), staticText("or"));
-		lines.arrangeBoxes(graphics, boxes.listIterator(), 18);
+		lines.arrangeBoxes(graphics, boxes.listIterator(), 18, TextAlign.LEFT);
 
 		for (final IInlineBox box : boxes) {
 			if (box.getWidth() == 0) {
@@ -85,7 +86,7 @@ public class TestLineArrangement {
 		layout(boxes);
 		final int widthOfHeadBoxes = boxes.get(0).getWidth() + boxes.get(1).getWidth();
 
-		lines.arrangeBoxes(graphics, boxes.listIterator(), widthOfHeadBoxes + 1);
+		lines.arrangeBoxes(graphics, boxes.listIterator(), widthOfHeadBoxes + 1, TextAlign.LEFT);
 
 		assertEquals(1, lines.getLines().size());
 		assertEquals(boxes.get(2), lines.getLines().iterator().next().getLastChild());
@@ -97,7 +98,7 @@ public class TestLineArrangement {
 		layout(boxes);
 		final int widthOfHeadBoxes = boxes.get(0).getWidth() + boxes.get(1).getWidth();
 
-		lines.arrangeBoxes(graphics, boxes.listIterator(), widthOfHeadBoxes + 1);
+		lines.arrangeBoxes(graphics, boxes.listIterator(), widthOfHeadBoxes + 1, TextAlign.LEFT);
 
 		assertEquals(1, lines.getLines().size());
 		assertEquals(boxes.get(2), lines.getLines().iterator().next().getLastChild());
@@ -109,7 +110,7 @@ public class TestLineArrangement {
 		layout(boxes);
 		final int widthOfHeadBoxes = boxes.get(0).getWidth() + boxes.get(1).getWidth();
 
-		lines.arrangeBoxes(graphics, boxes.listIterator(), widthOfHeadBoxes + 10);
+		lines.arrangeBoxes(graphics, boxes.listIterator(), widthOfHeadBoxes + 10, TextAlign.LEFT);
 
 		assertEquals(2, lines.getLines().size());
 		assertEquals(" ", ((StaticText) lines.getLines().iterator().next().getLastChild()).getText());
@@ -122,7 +123,7 @@ public class TestLineArrangement {
 			layout(boxes);
 			final int widthOfHeadBoxes = boxes.get(0).getWidth() + boxes.get(1).getWidth();
 
-			lines.arrangeBoxes(graphics, boxes.listIterator(), widthOfHeadBoxes + x);
+			lines.arrangeBoxes(graphics, boxes.listIterator(), widthOfHeadBoxes + x, TextAlign.LEFT);
 
 			assertEquals("x = " + x, 2, lines.getLines().size());
 			assertEquals("x = " + x, " ", ((StaticText) lines.getLines().iterator().next().getLastChild()).getText());
