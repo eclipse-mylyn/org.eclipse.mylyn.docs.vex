@@ -59,12 +59,7 @@ public class CssBoxFactory {
 	}
 
 	public static Margin margin(final Styles styles) {
-		final int top = styles.getMarginTop().get(1);
-		final int left = styles.getMarginLeft().get(1);
-		final int bottom = styles.getMarginBottom().get(1);
-		final int right = styles.getMarginRight().get(1);
-
-		return new Margin(top, left, bottom, right);
+		return new Margin(styles.getMarginTop(), styles.getMarginLeft(), styles.getMarginBottom(), styles.getMarginRight());
 	}
 
 	public static Border border(final Styles styles) {

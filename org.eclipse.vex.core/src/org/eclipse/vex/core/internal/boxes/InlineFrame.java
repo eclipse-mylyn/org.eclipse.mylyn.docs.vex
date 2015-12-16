@@ -165,19 +165,19 @@ public class InlineFrame extends BaseBox implements IInlineBox, IDecoratorBox<II
 	}
 
 	private int topFrame(final int componentHeight) {
-		return margin.top + border.top + padding.top.get(componentHeight);
+		return margin.top.get(componentHeight) + border.top + padding.top.get(componentHeight);
 	}
 
 	private int leftFrame(final int componentWidth) {
-		return margin.left + border.left + padding.left.get(componentWidth);
+		return margin.left.get(componentWidth) + border.left + padding.left.get(componentWidth);
 	}
 
 	private int bottomFrame(final int componentHeight) {
-		return margin.bottom + border.bottom + padding.bottom.get(componentHeight);
+		return margin.bottom.get(componentHeight) + border.bottom + padding.bottom.get(componentHeight);
 	}
 
 	private int rightFrame(final int componentWidth) {
-		return margin.right + border.right + padding.right.get(componentWidth);
+		return margin.right.get(componentWidth) + border.right + padding.right.get(componentWidth);
 	}
 
 	@Override
@@ -190,10 +190,15 @@ public class InlineFrame extends BaseBox implements IInlineBox, IDecoratorBox<II
 		final ColorResource colorResource = graphics.getColor(Color.BLACK); // TODO store border color
 		graphics.setColor(colorResource);
 
-		drawBorderLine(graphics, border.top, margin.top, margin.left - border.left / 2, margin.top, width - margin.right + border.right / 2);
-		drawBorderLine(graphics, border.left, margin.top - border.top / 2, margin.left, height - margin.bottom + border.bottom / 2, margin.left);
-		drawBorderLine(graphics, border.bottom, height - margin.bottom, margin.left - border.left / 2, height - margin.bottom, width - margin.right + border.right / 2);
-		drawBorderLine(graphics, border.right, margin.top - border.top / 2, width - margin.right, height - margin.bottom + border.bottom / 2, width - margin.right);
+		final int rectTop = margin.top.get(component.getHeight());
+		final int rectLeft = margin.left.get(component.getWidth());
+		final int rectBottom = height - margin.bottom.get(component.getHeight());
+		final int rectRight = width - margin.right.get(component.getWidth());
+
+		drawBorderLine(graphics, border.top, rectTop, rectLeft - border.left / 2, rectTop, rectRight + border.right / 2);
+		drawBorderLine(graphics, border.left, rectTop - border.top / 2, rectLeft, rectBottom + border.bottom / 2, rectLeft);
+		drawBorderLine(graphics, border.bottom, rectBottom, rectLeft - border.left / 2, rectBottom, rectRight + border.right / 2);
+		drawBorderLine(graphics, border.right, rectTop - border.top / 2, rectRight, rectBottom + border.bottom / 2, rectRight);
 	}
 
 	private void drawBorderLine(final Graphics graphics, final int lineWidth, final int top, final int left, final int bottom, final int right) {
