@@ -243,10 +243,10 @@ public class Cursor {
 					final int lastOffset = offset - 1;
 					final IContentBox lastBox = contentTopology.findBoxForPosition(lastOffset, box);
 					return makeAbsolute(lastBox.getPositionArea(graphics, lastOffset), lastBox);
-				} else if (box.isAtEnd(offset) && box.canContainText() && !box.isEmpty()) {
+				} else if (box.isAtEnd(offset) && box.canContainText() && box.isEmpty()) {
 					final IBox lastLowestChild = findDeepestLastInlineChildBox(box);
 					if (lastLowestChild != null) {
-						return makeAbsolute(lastLowestChild.getBounds(), lastLowestChild);
+						return new Rectangle(lastLowestChild.getAbsoluteLeft(), lastLowestChild.getAbsoluteTop(), lastLowestChild.getWidth(), lastLowestChild.getHeight());
 					} else {
 						return makeAbsolute(box.getPositionArea(graphics, offset), box);
 					}
