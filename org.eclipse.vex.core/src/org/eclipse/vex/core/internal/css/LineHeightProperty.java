@@ -11,6 +11,7 @@
 package org.eclipse.vex.core.internal.css;
 
 import org.eclipse.vex.core.internal.core.DisplayDevice;
+import org.eclipse.vex.core.internal.core.Length;
 import org.eclipse.vex.core.provisional.dom.INode;
 import org.w3c.css.sac.LexicalUnit;
 
@@ -38,23 +39,23 @@ public class LineHeightProperty extends AbstractProperty {
 		final int ppi = DisplayDevice.getCurrent().getVerticalPPI();
 
 		if (isLength(lu)) {
-			return RelativeLength.createAbsolute(Math.round(getIntLength(lu, styles.getFontSize(), ppi) / styles.getFontSize()));
+			return Length.absolute(Math.round(getIntLength(lu, styles.getFontSize(), ppi) / styles.getFontSize()));
 		} else if (isNumber(lu)) {
 			if (getNumber(lu) <= 0) {
-				return RelativeLength.createRelative(LINE_HEIGHT_NORMAL);
+				return Length.relative(LINE_HEIGHT_NORMAL);
 			} else {
-				return RelativeLength.createRelative(getNumber(lu));
+				return Length.relative(getNumber(lu));
 			}
 		} else if (isPercentage(lu)) {
 			if (lu.getFloatValue() <= 0) {
-				return RelativeLength.createRelative(LINE_HEIGHT_NORMAL);
+				return Length.relative(LINE_HEIGHT_NORMAL);
 			} else {
-				return RelativeLength.createRelative(lu.getFloatValue() / 100);
+				return Length.relative(lu.getFloatValue() / 100);
 			}
 		} else {
 			// not specified, "inherit", or other unknown value
 			if (parentStyles == null) {
-				return RelativeLength.createRelative(LINE_HEIGHT_NORMAL);
+				return Length.relative(LINE_HEIGHT_NORMAL);
 			} else {
 				return parentStyles.get(CSS.LINE_HEIGHT);
 			}

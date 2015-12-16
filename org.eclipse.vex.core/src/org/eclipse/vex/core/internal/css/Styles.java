@@ -20,6 +20,7 @@ import java.util.Map;
 
 import org.eclipse.vex.core.internal.core.Color;
 import org.eclipse.vex.core.internal.core.FontSpec;
+import org.eclipse.vex.core.internal.core.Length;
 import org.eclipse.vex.core.provisional.dom.BaseNodeVisitor;
 import org.eclipse.vex.core.provisional.dom.IElement;
 import org.eclipse.vex.core.provisional.dom.INode;
@@ -240,7 +241,7 @@ public class Styles {
 	 * Returns the value of the <code>lineHeight</code> property.
 	 */
 	public int getLineHeight() {
-		return ((RelativeLength) values.get(CSS.LINE_HEIGHT)).get(Math.round(getFontSize()));
+		return ((Length) values.get(CSS.LINE_HEIGHT)).get(Math.round(getFontSize()));
 	}
 
 	/**
@@ -326,12 +327,12 @@ public class Styles {
 		this.font = font;
 	}
 
-	public RelativeLength getElementWidth() {
-		return (RelativeLength) values.get(CSS.WIDTH);
+	public Length getElementWidth() {
+		return (Length) values.get(CSS.WIDTH);
 	}
 
-	public RelativeLength getElementHeight() {
-		return (RelativeLength) values.get(CSS.HEIGHT);
+	public Length getElementHeight() {
+		return (Length) values.get(CSS.HEIGHT);
 	}
 
 	public boolean hasBackgroundImage() {
@@ -377,58 +378,58 @@ public class Styles {
 	/**
 	 * @return the value of margin-bottom
 	 */
-	public RelativeLength getMarginBottom() {
-		return (RelativeLength) values.get(CSS.MARGIN_BOTTOM);
+	public Length getMarginBottom() {
+		return (Length) values.get(CSS.MARGIN_BOTTOM);
 		// return marginBottom;
 	}
 
 	/**
 	 * @return the value of margin-left
 	 */
-	public RelativeLength getMarginLeft() {
-		return (RelativeLength) values.get(CSS.MARGIN_LEFT);
+	public Length getMarginLeft() {
+		return (Length) values.get(CSS.MARGIN_LEFT);
 	}
 
 	/**
 	 * @return the value of margin-right
 	 */
-	public RelativeLength getMarginRight() {
-		return (RelativeLength) values.get(CSS.MARGIN_RIGHT);
+	public Length getMarginRight() {
+		return (Length) values.get(CSS.MARGIN_RIGHT);
 	}
 
 	/**
 	 * @return the value of margin-top
 	 */
-	public RelativeLength getMarginTop() {
-		return (RelativeLength) values.get(CSS.MARGIN_TOP);
+	public Length getMarginTop() {
+		return (Length) values.get(CSS.MARGIN_TOP);
 	}
 
 	/**
 	 * @return the value of padding-bottom
 	 */
-	public RelativeLength getPaddingBottom() {
-		return (RelativeLength) values.get(CSS.PADDING_BOTTOM);
+	public Length getPaddingBottom() {
+		return (Length) values.get(CSS.PADDING_BOTTOM);
 	}
 
 	/**
 	 * @return the value of padding-left
 	 */
-	public RelativeLength getPaddingLeft() {
-		return (RelativeLength) values.get(CSS.PADDING_LEFT);
+	public Length getPaddingLeft() {
+		return (Length) values.get(CSS.PADDING_LEFT);
 	}
 
 	/**
 	 * @return the value of padding-right
 	 */
-	public RelativeLength getPaddingRight() {
-		return (RelativeLength) values.get(CSS.PADDING_RIGHT);
+	public Length getPaddingRight() {
+		return (Length) values.get(CSS.PADDING_RIGHT);
 	}
 
 	/**
 	 * @return the value of padding-top
 	 */
-	public RelativeLength getPaddingTop() {
-		return (RelativeLength) values.get(CSS.PADDING_TOP);
+	public Length getPaddingTop() {
+		return (Length) values.get(CSS.PADDING_TOP);
 	}
 
 	/**

@@ -17,6 +17,7 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.vex.core.internal.VEXCorePlugin;
 import org.eclipse.vex.core.internal.core.DisplayDevice;
+import org.eclipse.vex.core.internal.core.Length;
 import org.eclipse.vex.core.provisional.dom.BaseNodeVisitorWithResult;
 import org.eclipse.vex.core.provisional.dom.IElement;
 import org.eclipse.vex.core.provisional.dom.INode;
@@ -41,7 +42,7 @@ public class LengthProperty extends AbstractProperty {
 	public Object calculate(final LexicalUnit lu, final Styles parentStyles, final Styles styles, final INode node) {
 		final int ppi = getPpi();
 		if (isAttr(lu)) {
-			return node.accept(new BaseNodeVisitorWithResult<Object>(RelativeLength.createAbsolute(0)) {
+			return node.accept(new BaseNodeVisitorWithResult<Object>(Length.absolute(0)) {
 				@Override
 				public Object visit(final IElement element) {
 					return calculate(parseAttribute(lu, element), parentStyles, styles, element);
@@ -50,14 +51,14 @@ public class LengthProperty extends AbstractProperty {
 		}
 		if (isLength(lu)) {
 			final int length = getIntLength(lu, styles.getFontSize(), ppi);
-			return RelativeLength.createAbsolute(length);
+			return Length.absolute(length);
 		} else if (isPercentage(lu)) {
-			return RelativeLength.createRelative(lu.getFloatValue() / 100);
+			return Length.relative(lu.getFloatValue() / 100);
 		} else if (isInherit(lu) && parentStyles != null) {
 			return parentStyles.get(getName());
 		} else {
 			// not specified, "auto", or other unknown value
-			return RelativeLength.createAbsolute(0);
+			return Length.absolute(0);
 		}
 	}
 
