@@ -350,6 +350,68 @@ public class Document extends Parent implements IDocument {
 		return new String(characters);
 	}
 
+	@Override
+	public void insertLineBreak(final int offset) throws DocumentValidationException {
+		Assert.isTrue(offset > getStartOffset() && offset <= getEndOffset(), MessageFormat.format("Offset must be in [{0}, {1}]", getStartOffset() + 1, getEndOffset()));
+
+		final INode insertionNode = getNodeForInsertionAt(offset);
+		insertionNode.accept(new INodeVisitor() {
+			@Override
+			public void visit(final IDocument document) {
+				Assert.isTrue(false, "Cannot insert a line break directly into Document.");
+			}
+
+			@Override
+			public void visit(final IDocumentFragment fragment) {
+				Assert.isTrue(false, "DocumentFragment is never a child of Document.");
+			}
+
+			@Override
+			public void visit(final IElement element) {
+				if (!canInsertAt(element, offset, IValidator.PCDATA)) {
+					throw new DocumentValidationException(MessageFormat.format("Cannot insert a line break into a {0} element at offset {1}.", element.getLocalName(), offset));
+				}
+				insertLineBreak(offset, element);
+			}
+
+			@Override
+			public void visit(final IText text) {
+				insertLineBreak(offset, text.getParent());
+			}
+
+			@Override
+			public void visit(final IComment comment) {
+				insertLineBreak(offset, comment.getParent());
+			}
+
+			@Override
+			public void visit(final IProcessingInstruction pi) {
+				// The target is validated to ensure the instruction is valid after the insertion
+				final String charBefore = pi.getText(new ContentRange(offset - 1, offset - 1));
+				final String charAfter = pi.getText(new ContentRange(offset, offset));
+				final String candidate = charBefore + '\n' + charAfter; // TODO '\n' is an implementation detail that we should not have to rely on at this point!
+
+				final IValidationResult result = XML.validateProcessingInstructionData(candidate);
+				if (!result.isOK()) {
+					throw new DocumentValidationException(result.getMessage());
+				}
+
+				insertLineBreak(offset, pi.getParent());
+			}
+
+			private void insertLineBreak(final int offset, final IParent parent) {
+				fireBeforeContentInserted(new ContentChangeEvent(Document.this, parent, new ContentRange(offset, offset), true));
+				getContent().insertLineBreak(offset);
+				fireContentInserted(new ContentChangeEvent(Document.this, parent, new ContentRange(offset, offset), true));
+			}
+
+			@Override
+			public void visit(final IIncludeNode document) {
+				Assert.isTrue(false, "Cannot insert text into an Include.");
+			}
+		});
+	}
+
 	/**
 	 * Inserts a node at the given offset. There is no check that the insertion is valid.
 	 *

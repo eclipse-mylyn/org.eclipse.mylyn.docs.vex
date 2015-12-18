@@ -145,6 +145,8 @@ public interface IDocument extends IParent {
 	 */
 	void insertText(int offset, String text) throws DocumentValidationException;
 
+	void insertLineBreak(int offset) throws DocumentValidationException;
+
 	/**
 	 * @return true if a comment can be inserted a the given offset
 	 */

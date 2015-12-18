@@ -191,6 +191,8 @@ public class BoxWidget extends Canvas implements ISelectionProvider {
 		case SWT.HOME:
 			moveOrSelect(event.stateMask, toOffset(0));
 			break;
+		case SWT.CR:
+			controller.insertLineBreak();
 		default:
 			if (event.character > 0 && Character.isDefined(event.character)) {
 				controller.enterChar(event.character);

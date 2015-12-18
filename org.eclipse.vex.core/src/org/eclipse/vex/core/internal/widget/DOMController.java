@@ -113,6 +113,11 @@ public class DOMController {
 		moveCursor(toOffset(cursor.getOffset() + 1));
 	}
 
+	public void insertLineBreak() {
+		document.insertLineBreak(cursor.getOffset());
+		moveCursor(toOffset(cursor.getOffset() + 1));
+	}
+
 	public void insertElement(final QualifiedName elementName) {
 		document.insertElement(cursor.getOffset(), elementName);
 		moveCursor(toOffset(cursor.getOffset() + 1));
