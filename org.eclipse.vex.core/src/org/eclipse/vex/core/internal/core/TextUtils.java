@@ -10,7 +10,11 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.core;
 
+import java.util.regex.Pattern;
+
 public class TextUtils {
+
+	private static final Pattern ANY_LINE_BREAKS = Pattern.compile("(\r\n|\r|\n)");
 
 	public static int countWhitespaceAtStart(final String text) {
 		int whitespaceCount = 0;
@@ -35,6 +39,10 @@ public class TextUtils {
 			}
 		}
 		return whitespaceCount;
+	}
+
+	public static String[] lines(final String s) {
+		return ANY_LINE_BREAKS.split(s, -1);
 	}
 
 }
