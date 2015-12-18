@@ -23,6 +23,7 @@ import org.eclipse.core.runtime.Assert;
 import org.eclipse.vex.core.provisional.dom.ContentRange;
 import org.eclipse.vex.core.provisional.dom.IContent;
 import org.eclipse.vex.core.provisional.dom.IPosition;
+import org.eclipse.vex.core.provisional.dom.MultilineText;
 
 /**
  * Implementation of the <code>Content</code> interface that manages changes efficiently. Implements a buffer that keeps
@@ -37,6 +38,7 @@ public class GapContent implements IContent {
 	private static final float GROWTH_RATE_SLOW = 1.1f;
 
 	private static final char TAG_MARKER = '\0';
+	private static final char LINE_BREAK = '\n';
 
 	private char[] content;
 	private int gapStart;
@@ -152,6 +154,18 @@ public class GapContent implements IContent {
 		return c == TAG_MARKER;
 	}
 
+	public boolean isLineBreak(final int offset) {
+		if (offset < 0 || offset >= length()) {
+			return false;
+		}
+
+		return isLineBreak(content[getIndex(offset)]);
+	}
+
+	private boolean isLineBreak(final char c) {
+		return c == LINE_BREAK;
+	}
+
 	@Override
 	public void remove(final ContentRange range) {
 		assertOffset(range.getStartOffset(), 0, length() - range.length());
@@ -240,6 +254,35 @@ public class GapContent implements IContent {
 	}
 
 	@Override
+	public MultilineText getMultilineText(final ContentRange range) {
+		Assert.isTrue(getRange().contains(range));
+		final MultilineText result = new MultilineText();
+
+		StringBuilder currentLine = new StringBuilder();
+		int lineStart = range.getStartOffset();
+		for (int i = range.getStartOffset(); i <= range.getEndOffset(); i += 1) {
+			final char c = charAt(i);
+			if (isTagMarker(c)) {
+				// ignore tag markers
+			} else if (isLineBreak(c)) {
+				currentLine.append(c);
+				final ContentRange lineRange = new ContentRange(lineStart, i);
+				result.appendLine(currentLine.toString(), lineRange);
+				currentLine = new StringBuilder();
+				lineStart = i + 1;
+			} else {
+				currentLine.append(c);
+			}
+		}
+
+		if (currentLine.length() > 0) {
+			result.appendLine(currentLine.toString(), new ContentRange(lineStart, range.getEndOffset()));
+		}
+
+		return result;
+	}
+
+	@Override
 	public void insertContent(final int offset, final IContent content) {
 		assertOffset(offset, 0, length());
 
@@ -294,11 +337,7 @@ public class GapContent implements IContent {
 	 */
 	@Override
 	public char charAt(final int offset) {
-		if (offset < gapStart) {
-			return content[offset];
-		} else {
-			return content[offset - gapStart + gapEnd];
-		}
+		return content[getIndex(offset)];
 	}
 
 	/**

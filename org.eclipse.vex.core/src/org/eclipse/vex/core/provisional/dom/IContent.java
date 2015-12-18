@@ -77,6 +77,8 @@ public interface IContent extends CharSequence {
 	 */
 	String getRawText();
 
+	MultilineText getMultilineText(final ContentRange range);
+
 	/**
 	 * Insert the given content into this content at the given offset.
 	 *

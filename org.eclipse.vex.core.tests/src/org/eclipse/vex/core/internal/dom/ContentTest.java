@@ -17,6 +17,7 @@ import static org.junit.Assert.assertTrue;
 import org.eclipse.vex.core.provisional.dom.ContentRange;
 import org.eclipse.vex.core.provisional.dom.IContent;
 import org.eclipse.vex.core.provisional.dom.IPosition;
+import org.eclipse.vex.core.provisional.dom.MultilineText;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -234,6 +235,43 @@ public abstract class ContentTest {
 		assertFalse("first deleted", firstDeletedPosition.isValid());
 		assertFalse("last deleted", lastDeletedPosition.isValid());
 		assertTrue("after", positionAfter.isValid());
+	}
+
+	@Test
+	public void givenTextWithLineBreaks_shouldProvideLinesWithRanges() throws Exception {
+		content.insertText(0, "line 1\nline 2\nline 3");
+
+		final MultilineText multilineText = content.getMultilineText(content.getRange());
+
+		assertEquals(3, multilineText.size());
+		assertEquals("line 1\n", multilineText.getText(0));
+		assertEquals(new ContentRange(0, 6), multilineText.getRange(0));
+		assertEquals("line 2\n", multilineText.getText(1));
+		assertEquals(new ContentRange(7, 13), multilineText.getRange(1));
+		assertEquals("line 3", multilineText.getText(2));
+		assertEquals(new ContentRange(14, 19), multilineText.getRange(2));
+	}
+
+	@Test
+	public void givenTextWithoutLineBreaks_shouldProvideSingleLineWithRange() throws Exception {
+		content.insertText(0, "line 1");
+
+		final MultilineText multilineText = content.getMultilineText(content.getRange());
+
+		assertEquals(1, multilineText.size());
+		assertEquals("line 1", multilineText.getText(0));
+		assertEquals(new ContentRange(0, 5), multilineText.getRange(0));
+	}
+
+	@Test
+	public void givenTextWithLineBreaks_whenTextEndsWithLineBreak_shouldNotProvideEmptyLineAsLastLine() throws Exception {
+		content.insertText(0, "line 1\nline 2\nline 3\n");
+
+		final MultilineText multilineText = content.getMultilineText(content.getRange());
+
+		assertEquals(3, multilineText.size());
+		assertEquals("line 3\n", multilineText.getText(2));
+		assertEquals(new ContentRange(14, 20), multilineText.getRange(2));
 	}
 
 }
