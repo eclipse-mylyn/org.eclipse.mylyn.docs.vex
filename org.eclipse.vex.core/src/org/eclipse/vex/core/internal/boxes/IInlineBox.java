@@ -24,6 +24,10 @@ public interface IInlineBox extends IChildBox {
 	 */
 	int getBaseline();
 
+	int getInvisibleGapLeft(Graphics graphics);
+
+	int getInvisibleGapRight(Graphics graphics);
+
 	boolean canJoin(IInlineBox other);
 
 	boolean join(IInlineBox other);

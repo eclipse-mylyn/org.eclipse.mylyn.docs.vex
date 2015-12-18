@@ -39,7 +39,7 @@ public class LineArrangement {
 		}
 		finalizeCurrentLine();
 
-		alignLines(textAlign);
+		alignLines(graphics, textAlign);
 	}
 
 	private void reset() {
@@ -174,21 +174,21 @@ public class LineArrangement {
 		lines.add(currentLine);
 	}
 
-	private void alignLines(final TextAlign textAlign) {
+	private void alignLines(final Graphics graphics, final TextAlign textAlign) {
 		if (textAlign == TextAlign.LEFT) {
 			return;
 		}
 		for (final Line line : lines) {
-			line.shiftBy(alignmentOffset(line, textAlign));
+			line.shiftBy(alignmentOffset(graphics, line, textAlign));
 		}
 	}
 
-	private int alignmentOffset(final Line line, final TextAlign textAlign) {
+	private int alignmentOffset(final Graphics graphics, final Line line, final TextAlign textAlign) {
 		switch (textAlign) {
 		case CENTER:
 			return (width - line.getWidth()) / 2;
 		case RIGHT:
-			return width - line.getWidth();
+			return width - line.getWidth() + line.getInvisibleGapRight(graphics);
 		default:
 			return 0;
 		}

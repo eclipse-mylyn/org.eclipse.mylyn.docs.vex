@@ -1,3 +1,13 @@
+/*******************************************************************************
+ * Copyright (c) 2015 Florian Thienel and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ * 		Florian Thienel - initial API and implementation
+ *******************************************************************************/
 package org.eclipse.vex.core.internal.boxes;
 
 import java.util.Collection;
@@ -74,6 +84,16 @@ public class InlineContainer extends BaseBox implements IInlineBox, IParentBox<I
 	@Override
 	public int getBaseline() {
 		return baseline;
+	}
+
+	@Override
+	public int getInvisibleGapLeft(final Graphics graphics) {
+		return 0;
+	}
+
+	@Override
+	public int getInvisibleGapRight(final Graphics graphics) {
+		return 0;
 	}
 
 	@Override

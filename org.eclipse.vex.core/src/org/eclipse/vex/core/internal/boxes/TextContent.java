@@ -10,6 +10,9 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.boxes;
 
+import static org.eclipse.vex.core.internal.core.TextUtils.countWhitespaceAtEnd;
+import static org.eclipse.vex.core.internal.core.TextUtils.countWhitespaceAtStart;
+
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.vex.core.internal.core.Color;
 import org.eclipse.vex.core.internal.core.FontMetrics;
@@ -110,6 +113,18 @@ public class TextContent extends BaseBox implements IInlineBox, IContentBox {
 
 	public String getText() {
 		return content.getText(new ContentRange(startPosition.getOffset(), endPosition.getOffset()));
+	}
+
+	public int getInvisibleGapLeft(final Graphics graphics) {
+		final String text = getText();
+		final int whitespaceCount = countWhitespaceAtStart(text);
+		return graphics.stringWidth(text.substring(0, whitespaceCount));
+	}
+
+	public int getInvisibleGapRight(final Graphics graphics) {
+		final String text = getText();
+		final int whitespaceCount = countWhitespaceAtEnd(text);
+		return graphics.stringWidth(text.substring(text.length() - whitespaceCount, text.length()));
 	}
 
 	private void invalidateLayout() {

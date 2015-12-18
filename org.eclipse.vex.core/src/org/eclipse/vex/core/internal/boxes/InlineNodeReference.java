@@ -97,6 +97,16 @@ public class InlineNodeReference extends BaseBox implements IInlineBox, IDecorat
 	}
 
 	@Override
+	public int getInvisibleGapLeft(final Graphics graphics) {
+		return 0;
+	}
+
+	@Override
+	public int getInvisibleGapRight(final Graphics graphics) {
+		return 0;
+	}
+
+	@Override
 	public Rectangle getBounds() {
 		return new Rectangle(left, top, width, height);
 	}

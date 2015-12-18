@@ -92,6 +92,16 @@ public class Square extends BaseBox implements IInlineBox {
 	}
 
 	@Override
+	public int getInvisibleGapLeft(final Graphics graphics) {
+		return 0;
+	}
+
+	@Override
+	public int getInvisibleGapRight(final Graphics graphics) {
+		return 0;
+	}
+
+	@Override
 	public void accept(final IBoxVisitor visitor) {
 		visitor.visit(this);
 	}

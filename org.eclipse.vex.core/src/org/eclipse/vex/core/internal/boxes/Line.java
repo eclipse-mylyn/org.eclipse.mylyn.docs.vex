@@ -64,6 +64,20 @@ public class Line {
 		return baseline;
 	}
 
+	public int getInvisibleGapLeft(final Graphics graphics) {
+		if (children.isEmpty()) {
+			return 0;
+		}
+		return children.getFirst().getInvisibleGapLeft(graphics);
+	}
+
+	public int getInvisibleGapRight(final Graphics graphics) {
+		if (children.isEmpty()) {
+			return 0;
+		}
+		return children.getLast().getInvisibleGapRight(graphics);
+	}
+
 	public boolean hasChildren() {
 		return !children.isEmpty();
 	}

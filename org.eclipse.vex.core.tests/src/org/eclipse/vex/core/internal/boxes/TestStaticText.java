@@ -212,6 +212,57 @@ public class TestStaticText {
 		assertSplitEquals("1234 ", "567890", text, tail);
 	}
 
+	@Test
+	public void givenTextWithWhitespaceAtEnd_shouldProvideWidthOfWhitespace() throws Exception {
+		final FakeGraphics graphics = new FakeGraphics();
+		final StaticText text = new StaticText();
+		text.setText("abc ");
+		text.layout(graphics);
+
+		assertEquals(graphics.stringWidth(" "), text.getInvisibleGapRight(graphics));
+	}
+
+	@Test
+	public void givenTextWithoutWhitespaceAtEnd_shouldProvideZeroWidthOfWhitespace() throws Exception {
+		final FakeGraphics graphics = new FakeGraphics();
+		final StaticText text = new StaticText();
+		text.setText("abc");
+		text.layout(graphics);
+
+		assertEquals(0, text.getInvisibleGapRight(graphics));
+	}
+
+	@Test
+	public void givenTextWithWhitespaceAtStart_shouldProvideWidthOfWhitespace() throws Exception {
+		final FakeGraphics graphics = new FakeGraphics();
+		final StaticText text = new StaticText();
+		text.setText(" abc");
+		text.layout(graphics);
+
+		assertEquals(graphics.stringWidth(" "), text.getInvisibleGapLeft(graphics));
+	}
+
+	@Test
+	public void givenTextWithoutWhitespaceAtStart_shouldProvideZeroWidthOfWhitespace() throws Exception {
+		final FakeGraphics graphics = new FakeGraphics();
+		final StaticText text = new StaticText();
+		text.setText("abc");
+		text.layout(graphics);
+
+		assertEquals(0, text.getInvisibleGapLeft(graphics));
+	}
+
+	@Test
+	public void givenTextWithOnlyWhitespace_shouldProvideSameWidthOfWhitespaceForLeftAndRight() throws Exception {
+		final FakeGraphics graphics = new FakeGraphics();
+		final StaticText text = new StaticText();
+		text.setText("   ");
+		text.layout(graphics);
+
+		assertEquals("left", graphics.stringWidth("   "), text.getInvisibleGapLeft(graphics));
+		assertEquals("right", graphics.stringWidth("   "), text.getInvisibleGapRight(graphics));
+	}
+
 	private static void assertSplitEquals(final String head, final String tail, final StaticText headBox, final StaticText tailBox) {
 		assertEquals(head, headBox.getText());
 		assertEquals(tail, tailBox.getText());
