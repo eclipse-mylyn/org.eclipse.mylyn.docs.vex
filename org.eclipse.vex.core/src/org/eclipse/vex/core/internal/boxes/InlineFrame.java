@@ -161,6 +161,8 @@ public class InlineFrame extends BaseBox implements IInlineBox, IDecoratorBox<II
 	@Override
 	public void layout(final Graphics graphics) {
 		if (component == null) {
+			width = 0;
+			height = 0;
 			return;
 		}
 

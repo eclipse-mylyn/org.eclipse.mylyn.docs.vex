@@ -51,7 +51,7 @@ public class RootBox extends BaseBox implements IParentBox<IStructuralBox> {
 	}
 
 	public void setWidth(final int width) {
-		this.width = width;
+		this.width = Math.max(0, width);
 	}
 
 	public int getHeight() {
