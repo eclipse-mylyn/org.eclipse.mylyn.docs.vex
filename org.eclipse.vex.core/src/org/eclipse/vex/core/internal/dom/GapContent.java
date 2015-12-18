@@ -13,7 +13,9 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.dom;
 
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
@@ -180,18 +182,28 @@ public class GapContent implements IContent {
 	public String getText(final ContentRange range) {
 		Assert.isTrue(getRange().contains(range));
 
-		final int delta = gapEnd - gapStart;
+		final List<ContentRange> affectedRanges = expandAroundGap(range);
+
 		// Use range length as initial capacity. This might be a bit too much, but that's better than having to resize the StringBuilder.
 		final StringBuilder result = new StringBuilder(range.length());
-		if (range.getEndOffset() < gapStart) {
-			appendPlainText(result, range);
-		} else if (range.getStartOffset() >= gapStart) {
-			appendPlainText(result, range.moveBy(delta));
-		} else {
-			appendPlainText(result, new ContentRange(range.getStartOffset(), gapStart - 1));
-			appendPlainText(result, new ContentRange(gapEnd, range.getEndOffset() + delta));
+		for (final ContentRange affectedRange : affectedRanges) {
+			appendPlainText(result, affectedRange);
 		}
 		return result.toString();
+	}
+
+	private List<ContentRange> expandAroundGap(final ContentRange range) {
+		final List<ContentRange> affectedRanges = new ArrayList<ContentRange>();
+		final int delta = gapEnd - gapStart;
+		if (range.getEndOffset() < gapStart) {
+			affectedRanges.add(range);
+		} else if (range.getStartOffset() >= gapStart) {
+			affectedRanges.add(range.moveBy(delta));
+		} else {
+			affectedRanges.add(new ContentRange(range.getStartOffset(), gapStart - 1));
+			affectedRanges.add(new ContentRange(gapEnd, range.getEndOffset() + delta));
+		}
+		return affectedRanges;
 	}
 
 	private void appendPlainText(final StringBuilder stringBuilder, final ContentRange range) {
@@ -213,17 +225,14 @@ public class GapContent implements IContent {
 	public String getRawText(final ContentRange range) {
 		Assert.isTrue(getRange().contains(range));
 
-		final int delta = gapEnd - gapStart;
-		if (range.getEndOffset() < gapStart) {
-			return new String(content, range.getStartOffset(), range.length());
-		} else if (range.getStartOffset() >= gapStart) {
-			return new String(content, range.getStartOffset() + delta, range.length());
-		} else {
-			final StringBuilder result = new StringBuilder(range.length());
-			appendRawText(result, new ContentRange(range.getStartOffset(), gapStart - 1));
-			appendRawText(result, new ContentRange(gapEnd, range.getEndOffset() + delta));
-			return result.toString();
+		final List<ContentRange> affectedRanges = expandAroundGap(range);
+
+		// Use range length as initial capacity. This might be a bit too much, but that's better than having to resize the StringBuilder.
+		final StringBuilder result = new StringBuilder(range.length());
+		for (final ContentRange affectedRange : affectedRanges) {
+			appendRawText(result, affectedRange);
 		}
+		return result.toString();
 	}
 
 	private void appendRawText(final StringBuilder stringBuilder, final ContentRange range) {
