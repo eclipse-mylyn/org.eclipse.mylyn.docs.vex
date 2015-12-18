@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.boxes;
 
+import org.eclipse.vex.core.XML;
 import org.eclipse.vex.core.internal.core.Graphics;
 
 /**
@@ -104,7 +105,7 @@ public class CharSequenceSplitter {
 	}
 
 	private boolean isSplittingCharacter(final int position) {
-		return Character.isWhitespace(charAt(position));
+		return XML.isWhitespace(charAt(position));
 	}
 
 }

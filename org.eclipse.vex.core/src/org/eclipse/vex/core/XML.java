@@ -44,7 +44,7 @@ public class XML {
 		return c == 0x20 || c == 0x9 || c == 0xD || c == 0xA;
 	}
 
-	public static Pattern XML_WHITESPACE_PATTERN = Pattern.compile("[\\u0020\\u0009\\u000d\\u000a]");
+	public static final Pattern XML_WHITESPACE_PATTERN = Pattern.compile("[\\u0020\\u0009\\u000d\\u000a]");
 
 	/**
 	 * Replace runs of XML whitespace (see {@link #isWhitespace}) with a single space. Newlines in the input should be

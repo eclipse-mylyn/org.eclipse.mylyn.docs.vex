@@ -12,6 +12,8 @@ package org.eclipse.vex.core.internal.core;
 
 import java.util.regex.Pattern;
 
+import org.eclipse.vex.core.XML;
+
 public class TextUtils {
 
 	private static final Pattern ANY_LINE_BREAKS = Pattern.compile("(\r\n|\r|\n)");
@@ -19,7 +21,7 @@ public class TextUtils {
 	public static int countWhitespaceAtStart(final String text) {
 		int whitespaceCount = 0;
 		while (whitespaceCount < text.length()) {
-			if (Character.isWhitespace(text.charAt(whitespaceCount))) {
+			if (XML.isWhitespace(text.charAt(whitespaceCount))) {
 				whitespaceCount += 1;
 			} else {
 				break;
@@ -32,7 +34,7 @@ public class TextUtils {
 		int whitespaceCount = 0;
 		while (whitespaceCount < text.length()) {
 			final int i = text.length() - 1 - whitespaceCount;
-			if (Character.isWhitespace(text.charAt(i))) {
+			if (XML.isWhitespace(text.charAt(i))) {
 				whitespaceCount += 1;
 			} else {
 				break;
