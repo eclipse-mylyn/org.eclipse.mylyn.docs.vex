@@ -57,6 +57,7 @@ public class CssBoxFactory {
 			paragraph.appendChild(child);
 		}
 		paragraph.setTextAlign(textAlign(styles));
+		paragraph.setPreservingWhitespace(CSS.PRE.equals(styles.getWhiteSpace()));
 		return paragraph;
 	}
 

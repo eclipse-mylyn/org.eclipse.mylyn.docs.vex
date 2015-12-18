@@ -27,7 +27,7 @@ public class LineArrangement {
 	private boolean lastBoxWrappedCompletely;
 	private Line currentLine;
 
-	public void arrangeBoxes(final Graphics graphics, final ListIterator<IInlineBox> boxIterator, final int width, final TextAlign textAlign) {
+	public void arrangeBoxes(final Graphics graphics, final ListIterator<IInlineBox> boxIterator, final int width, final TextAlign textAlign, final boolean preservingWhitespace) {
 		this.boxIterator = boxIterator;
 		this.width = width;
 		reset();
