@@ -274,4 +274,14 @@ public abstract class ContentTest {
 		assertEquals(new ContentRange(14, 20), multilineText.getRange(2));
 	}
 
+	@Test
+	public void allowToInsertALineBreak() throws Exception {
+		content.insertText(0, "line 1line 2");
+		content.insertLineBreak(7);
+
+		final MultilineText multilineText = content.getMultilineText(content.getRange());
+
+		assertEquals(2, multilineText.size());
+	}
+
 }

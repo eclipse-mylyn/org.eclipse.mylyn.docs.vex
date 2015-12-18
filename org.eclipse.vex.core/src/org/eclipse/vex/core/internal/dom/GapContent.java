@@ -254,6 +254,11 @@ public class GapContent implements IContent {
 	}
 
 	@Override
+	public void insertLineBreak(final int offset) {
+		insertText(offset, Character.toString(LINE_BREAK));
+	}
+
+	@Override
 	public MultilineText getMultilineText(final ContentRange range) {
 		Assert.isTrue(getRange().contains(range));
 		final MultilineText result = new MultilineText();
