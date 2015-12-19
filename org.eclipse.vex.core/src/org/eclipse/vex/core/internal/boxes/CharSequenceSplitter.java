@@ -60,7 +60,7 @@ public class CharSequenceSplitter {
 		return properSplittingPosition + 1;
 	}
 
-	public int findPositionAfter(final Graphics graphics, final int x, final int maxWidth) {
+	private int findPositionAfter(final Graphics graphics, final int x, final int maxWidth) {
 		if (x < 0) {
 			return 0;
 		}

@@ -340,10 +340,10 @@ public class Document extends Parent implements IDocument {
 		});
 	}
 
-	private String convertControlCharactersToSpaces(final String text) {
+	private static String convertControlCharactersToSpaces(final String text) {
 		final char[] characters = text.toCharArray();
 		for (int i = 0; i < characters.length; i++) {
-			if (Character.isISOControl(characters[i]) && characters[i] != '\n') {
+			if (Character.isISOControl(characters[i]) && characters[i] != '\n' && characters[i] != '\t') {
 				characters[i] = ' ';
 			}
 		}

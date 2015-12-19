@@ -115,14 +115,18 @@ public class TextContent extends BaseBox implements IInlineBox, IContentBox {
 		return content.getText(new ContentRange(startPosition.getOffset(), endPosition.getOffset()));
 	}
 
+	private static String renderText(final String rawText) {
+		return rawText.replaceAll("\n", " ").replaceAll("\t", "    ");
+	}
+
 	public int getInvisibleGapLeft(final Graphics graphics) {
-		final String text = getText();
+		final String text = renderText(getText());
 		final int whitespaceCount = countWhitespaceAtStart(text);
 		return graphics.stringWidth(text.substring(0, whitespaceCount));
 	}
 
 	public int getInvisibleGapRight(final Graphics graphics) {
-		final String text = getText();
+		final String text = renderText(getText());
 		final int whitespaceCount = countWhitespaceAtEnd(text);
 		return graphics.stringWidth(text.substring(text.length() - whitespaceCount, text.length()));
 	}
@@ -183,7 +187,7 @@ public class TextContent extends BaseBox implements IInlineBox, IContentBox {
 		}
 
 		applyFont(graphics);
-		width = graphics.stringWidth(getText());
+		width = graphics.stringWidth(renderText(getText()));
 
 		final FontMetrics fontMetrics = graphics.getFontMetrics();
 		height = fontMetrics.getHeight();
@@ -207,7 +211,7 @@ public class TextContent extends BaseBox implements IInlineBox, IContentBox {
 	public void paint(final Graphics graphics) {
 		applyFont(graphics);
 		graphics.setForeground(graphics.getColor(color));
-		graphics.drawString(getText(), 0, 0);
+		graphics.drawString(renderText(getText()), 0, 0);
 	}
 
 	private void applyFont(final Graphics graphics) {
@@ -221,14 +225,15 @@ public class TextContent extends BaseBox implements IInlineBox, IContentBox {
 		graphics.setBackground(graphics.getColor(background));
 		graphics.fillRect(getAbsoluteLeft(), getAbsoluteTop(), width, height);
 		applyFont(graphics);
-		graphics.drawString(getText(), getAbsoluteLeft(), getAbsoluteTop());
+		graphics.drawString(renderText(getText()), getAbsoluteLeft(), getAbsoluteTop());
 	}
 
 	public void highlight(final Graphics graphics, final int startOffset, final int endOffset, final Color foreground, final Color background) {
 		final int highlightStartOffset = Math.max(getStartOffset(), Math.min(startOffset, getEndOffset())) - getStartOffset();
 		final int highlightEndOffset = Math.max(getStartOffset(), Math.min(endOffset, getEndOffset() + 1)) - getStartOffset();
-		final String highlightPrefix = getText().substring(0, highlightStartOffset);
-		final String highlightText = getText().substring(highlightStartOffset, highlightEndOffset);
+		final String text = getText();
+		final String highlightPrefix = renderText(text.substring(0, highlightStartOffset));
+		final String highlightText = renderText(text.substring(highlightStartOffset, highlightEndOffset));
 
 		applyFont(graphics);
 		final int widthBefore = graphics.stringWidth(highlightPrefix);
@@ -392,7 +397,7 @@ public class TextContent extends BaseBox implements IInlineBox, IContentBox {
 
 		applyFont(graphics);
 		final char c = content.charAt(offset);
-		final String head = content.subSequence(startPosition.getOffset(), offset).toString();
+		final String head = renderText(content.subSequence(startPosition.getOffset(), offset).toString());
 		final int left = graphics.stringWidth(head);
 		final int charWidth = graphics.stringWidth(Character.toString(c));
 		return new Rectangle(left, 0, charWidth, height);
@@ -400,9 +405,21 @@ public class TextContent extends BaseBox implements IInlineBox, IContentBox {
 
 	@Override
 	public int getOffsetForCoordinates(final Graphics graphics, final int x, final int y) {
+		if (x < 0) {
+			return getStartOffset();
+		}
+		if (x > width) {
+			return getEndOffset();
+		}
+
 		applyFont(graphics);
-		splitter.setContent(content, startPosition.getOffset(), endPosition.getOffset());
-		final int offset = getStartOffset() + splitter.findPositionAfter(graphics, x, width);
+		final String text = getText();
+		int i = 0;
+		while (renderedWidth(graphics, text.substring(0, i)) < x && i < text.length()) {
+			i += 1;
+		}
+		final int offset = Math.max(getStartOffset(), getStartOffset() + i - 1);
+
 		final Rectangle area = getPositionArea(graphics, offset);
 		final int halfWidth = area.getWidth() / 2 + 1;
 		if (x < area.getX() + halfWidth) {
@@ -410,6 +427,10 @@ public class TextContent extends BaseBox implements IInlineBox, IContentBox {
 		} else {
 			return Math.min(offset + 1, getEndOffset());
 		}
+	}
+
+	private static int renderedWidth(final Graphics graphics, final String text) {
+		return graphics.stringWidth(renderText(text));
 	}
 
 	@Override

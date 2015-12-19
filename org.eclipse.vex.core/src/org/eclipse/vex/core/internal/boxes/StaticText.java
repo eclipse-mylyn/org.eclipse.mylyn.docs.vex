@@ -103,11 +103,13 @@ public class StaticText extends BaseBox implements IInlineBox {
 	}
 
 	public int getInvisibleGapLeft(final Graphics graphics) {
+		final String text = renderText(getText());
 		final int whitespaceCount = countWhitespaceAtStart(text);
 		return graphics.stringWidth(text.substring(0, whitespaceCount));
 	}
 
 	public int getInvisibleGapRight(final Graphics graphics) {
+		final String text = renderText(getText());
 		final int whitespaceCount = countWhitespaceAtEnd(text);
 		return graphics.stringWidth(text.substring(text.length() - whitespaceCount, text.length()));
 	}
@@ -156,13 +158,17 @@ public class StaticText extends BaseBox implements IInlineBox {
 		}
 
 		applyFont(graphics);
-		width = graphics.stringWidth(getText());
+		width = graphics.stringWidth(renderText(getText()));
 
 		final FontMetrics fontMetrics = graphics.getFontMetrics();
 		height = fontMetrics.getHeight();
 		baseline = fontMetrics.getAscent() + fontMetrics.getLeading();
 
 		layoutValid = true;
+	}
+
+	private static String renderText(final String rawText) {
+		return rawText.replaceAll("\n", " ").replaceAll("\t", "    ");
 	}
 
 	@Override
@@ -180,7 +186,7 @@ public class StaticText extends BaseBox implements IInlineBox {
 	public void paint(final Graphics graphics) {
 		applyFont(graphics);
 		graphics.setColor(graphics.getColor(color));
-		graphics.drawString(getText(), 0, 0);
+		graphics.drawString(renderText(getText()), 0, 0);
 	}
 
 	private void applyFont(final Graphics graphics) {
