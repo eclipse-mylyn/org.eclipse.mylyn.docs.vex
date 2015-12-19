@@ -14,6 +14,7 @@ import static org.eclipse.vex.core.internal.boxes.BoxFactory.inlineContainer;
 import static org.eclipse.vex.core.internal.boxes.BoxFactory.nodeReference;
 import static org.eclipse.vex.core.internal.boxes.BoxFactory.nodeReferenceWithText;
 import static org.eclipse.vex.core.internal.boxes.BoxFactory.rootBox;
+import static org.eclipse.vex.core.internal.boxes.BoxFactory.square;
 import static org.eclipse.vex.core.internal.boxes.BoxFactory.verticalBlock;
 import static org.eclipse.vex.core.internal.visualization.CssBoxFactory.frame;
 import static org.eclipse.vex.core.internal.visualization.CssBoxFactory.paragraph;
@@ -29,6 +30,7 @@ import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.vex.core.internal.boxes.IInlineBox;
 import org.eclipse.vex.core.internal.boxes.IParentBox;
 import org.eclipse.vex.core.internal.boxes.IStructuralBox;
+import org.eclipse.vex.core.internal.boxes.InlineContainer;
 import org.eclipse.vex.core.internal.boxes.RootBox;
 import org.eclipse.vex.core.internal.css.CSS;
 import org.eclipse.vex.core.internal.css.StyleSheet;
@@ -41,6 +43,7 @@ import org.eclipse.vex.core.provisional.dom.IElement;
 import org.eclipse.vex.core.provisional.dom.INode;
 import org.eclipse.vex.core.provisional.dom.IText;
 import org.eclipse.vex.core.provisional.dom.IValidator;
+import org.eclipse.vex.core.provisional.dom.MultilineText;
 
 /**
  * @author Florian Thienel
@@ -198,7 +201,19 @@ public class CSSBasedBoxModelBuilder implements IBoxModelBuilder {
 
 			@Override
 			public IInlineBox visit(final IText text) {
-				return textContent(text.getContent(), text.getRange(), styles);
+				if (!CSS.PRE.equals(styles.getWhiteSpace())) { // TODO use IWhitespacePolicy
+					return textContent(text.getContent(), text.getRange(), styles);
+				}
+
+				final InlineContainer lineContainer = inlineContainer();
+				final MultilineText lines = text.getContent().getMultilineText(text.getRange());
+				for (int i = 0; i < lines.size(); i += 1) {
+					lineContainer.appendChild(textContent(text.getContent(), lines.getRange(i), styles));
+					if (text.getContent().isLineBreak(lines.getRange(i).getEndOffset())) {
+						lineContainer.appendChild(square(10));
+					}
+				}
+				return lineContainer;
 			}
 		});
 	}

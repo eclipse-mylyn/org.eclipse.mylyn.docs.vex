@@ -122,6 +122,14 @@ public interface IContent extends CharSequence {
 	boolean isTagMarker(int offset);
 
 	/**
+	 * Indicate if there is a line break at the given offset.
+	 *
+	 * @param offset
+	 *            offset at which to check if a line break is present.
+	 */
+	boolean isLineBreak(int offset);
+
+	/**
 	 * Delete the given range of characters.
 	 *
 	 * @param range
