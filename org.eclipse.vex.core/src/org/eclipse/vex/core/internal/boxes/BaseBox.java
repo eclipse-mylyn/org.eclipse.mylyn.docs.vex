@@ -10,6 +10,9 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.boxes;
 
+import org.eclipse.vex.core.internal.core.Color;
+import org.eclipse.vex.core.internal.core.Graphics;
+
 /**
  * @author Florian Thienel
  */
@@ -50,4 +53,9 @@ public abstract class BaseBox implements IBox {
 		return x >= getAbsoluteLeft() + getWidth();
 	}
 
+	protected final void drawDebugBounds(final Graphics graphics) {
+		graphics.setForeground(graphics.getColor(Color.BLACK));
+		graphics.setLineWidth(1);
+		graphics.drawRect(0, 0, getWidth(), getHeight());
+	}
 }
