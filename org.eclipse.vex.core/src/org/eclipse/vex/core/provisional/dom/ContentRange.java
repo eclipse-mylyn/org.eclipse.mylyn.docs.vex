@@ -52,6 +52,20 @@ public class ContentRange {
 		}
 	}
 
+	/**
+	 * Create a ContentRange around the given offset with the given window size in each direction. The length of the
+	 * created range is twice the given window size.
+	 *
+	 * @param offset
+	 *            the offset
+	 * @param windowSize
+	 *            the number of characters to include on each side of offset
+	 * @return the range around offset
+	 */
+	public static ContentRange window(final int offset, final int windowSize) {
+		return new ContentRange(offset - windowSize, offset + windowSize);
+	}
+
 	public int getStartOffset() {
 		return startOffset;
 	}
@@ -129,6 +143,15 @@ public class ContentRange {
 	 */
 	public ContentRange resizeBy(final int deltaStart, final int deltaEnd) {
 		return new ContentRange(startOffset + deltaStart, endOffset + deltaEnd);
+	}
+
+	/**
+	 * Resize this range to fit into the given limiting range.
+	 *
+	 * @return the resized range
+	 */
+	public ContentRange limitTo(final ContentRange limitingRange) {
+		return new ContentRange(Math.max(limitingRange.startOffset, startOffset), Math.min(endOffset, limitingRange.endOffset));
 	}
 
 	@Override

@@ -10,6 +10,11 @@
  *******************************************************************************/
 package org.eclipse.vex.ui.boxview;
 
+import static org.eclipse.vex.core.internal.core.TextUtils.ANY_LINE_BREAKS;
+import static org.eclipse.vex.core.internal.core.TextUtils.CURRENCY_SIGN;
+import static org.eclipse.vex.core.internal.core.TextUtils.PARAGRAPH_SIGN;
+import static org.eclipse.vex.core.internal.core.TextUtils.RAQUO;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -46,6 +51,9 @@ import org.eclipse.vex.core.internal.visualization.CSSBasedBoxModelBuilder;
 import org.eclipse.vex.core.internal.widget.DOMController;
 import org.eclipse.vex.core.internal.widget.swt.BoxWidget;
 import org.eclipse.vex.core.internal.widget.swt.IVexSelection;
+import org.eclipse.vex.core.provisional.dom.ContentRange;
+import org.eclipse.vex.core.provisional.dom.IContent;
+import org.eclipse.vex.core.provisional.dom.IDocument;
 import org.w3c.css.sac.CSSException;
 import org.w3c.css.sac.InputSource;
 
@@ -56,19 +64,21 @@ import org.w3c.css.sac.InputSource;
  */
 public class BoxDemoView extends ViewPart {
 
+	private static final int CONTEXT_WINDOW = 5;
 	private static final int SAMPLE_COUNT = 25;
 	private static final IPath CSS_WORKSPACE_FILE = new Path("/test/box-demo.css");
 
 	private Composite boxWidgetParent;
 	private BoxWidget boxWidget;
-
+	private IDocument document;
+	
 	private Label offsetLabel;
+	private Label contextLabel;
 
 	private final ISelectionChangedListener selectionChangedListener = new ISelectionChangedListener() {
 		@Override
 		public void selectionChanged(final SelectionChangedEvent event) {
-			final ISelection selection = event.getSelection();
-			offsetLabel.setText(caretPositionAsText(selection));
+			updateInfoPanel(event.getSelection());
 		}
 	};
 
@@ -112,8 +122,12 @@ public class BoxDemoView extends ViewPart {
 		infoPanel.setLayout(new RowLayout());
 
 		new Label(infoPanel, SWT.NONE).setText("Caret Position:");
-		offsetLabel = new Label(infoPanel, SWT.RIGHT);
+		offsetLabel = new Label(infoPanel, SWT.LEFT);
 		offsetLabel.setLayoutData(new RowData(40, SWT.DEFAULT));
+
+		new Label(infoPanel, SWT.NONE).setText("Caret Context:");
+		contextLabel = new Label(infoPanel, SWT.LEFT);
+		contextLabel.setLayoutData(new RowData(SWT.DEFAULT, SWT.DEFAULT));
 
 		recreateBoxWidget();
 	}
@@ -139,12 +153,13 @@ public class BoxDemoView extends ViewPart {
 		}
 		boxWidget = new BoxWidget(boxWidgetParent, SWT.V_SCROLL);
 
-		boxWidget.setContent(UniversalTestDocument.createTestDocumentWithInlineElements(SAMPLE_COUNT));
+		document = UniversalTestDocument.createTestDocumentWithInlineElements(SAMPLE_COUNT);
+		boxWidget.setContent(document);
 		boxWidget.setBoxModelBuilder(new CSSBasedBoxModelBuilder(readStyleSheet()));
 		boxWidgetParent.layout();
 		boxWidget.addSelectionChangedListener(selectionChangedListener);
 
-		offsetLabel.setText(caretPositionAsText(boxWidget.getSelection()));
+		updateInfoPanel(boxWidget.getSelection());
 	}
 
 	private void cleanStaleReferenceInShell() {
@@ -153,6 +168,29 @@ public class BoxDemoView extends ViewPart {
 		 * reference to parent instead.
 		 */
 		boxWidgetParent.setFocus();
+	}
+
+	private void updateInfoPanel(final ISelection selection) {
+		final int caretPosition = caretPosition(selection);
+		offsetLabel.setText(Integer.toString(caretPosition));
+		contextLabel.setText(caretContext(caretPosition, document.getContent()));
+		contextLabel.getParent().layout();
+	}
+
+	private static int caretPosition(final ISelection selection) {
+		return ((IVexSelection) selection).getCaretOffset();
+	}
+
+	private static String caretContext(final int caretPosition, final IContent content) {
+		final ContentRange contextRange = ContentRange.window(caretPosition, CONTEXT_WINDOW).limitTo(content.getRange());
+		final String rawContext = content.getRawText(contextRange);
+		final int caretIndexInText = caretPosition - contextRange.getStartOffset();
+
+		final String caretContext = (rawContext.substring(0, caretIndexInText) + "|" + rawContext.substring(caretIndexInText))
+				.replaceAll(ANY_LINE_BREAKS.pattern(), Character.toString(PARAGRAPH_SIGN))
+				.replaceAll("\0", Character.toString(CURRENCY_SIGN))
+				.replaceAll("\t", Character.toString(RAQUO));
+		return caretContext;
 	}
 
 	private void reloadStyleSheet() {
@@ -182,10 +220,6 @@ public class BoxDemoView extends ViewPart {
 			e.printStackTrace();
 		}
 		return null;
-	}
-
-	private static String caretPositionAsText(final ISelection selection) {
-		return Integer.toString(((IVexSelection) selection).getCaretOffset());
 	}
 
 	public void rebuildBoxModel() {

@@ -16,7 +16,11 @@ import org.eclipse.vex.core.XML;
 
 public class TextUtils {
 
-	private static final Pattern ANY_LINE_BREAKS = Pattern.compile("(\r\n|\r|\n)");
+	public static final char CURRENCY_SIGN = '\u00A4';
+	public static final char PARAGRAPH_SIGN = '\u00B6';
+	public static final char RAQUO = '\u00BB';
+
+	public static final Pattern ANY_LINE_BREAKS = Pattern.compile("(\r\n|\r|\n)");
 
 	public static int countWhitespaceAtStart(final String text) {
 		int whitespaceCount = 0;
@@ -46,5 +50,4 @@ public class TextUtils {
 	public static String[] lines(final String s) {
 		return ANY_LINE_BREAKS.split(s, -1);
 	}
-
 }
