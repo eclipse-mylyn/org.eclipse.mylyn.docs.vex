@@ -87,13 +87,19 @@ public class InlineContainer extends BaseBox implements IInlineBox, IParentBox<I
 	}
 
 	@Override
-	public int getInvisibleGapLeft(final Graphics graphics) {
-		return 0;
+	public int getInvisibleGapAtStart(final Graphics graphics) {
+		if (children.isEmpty()) {
+			return 0;
+		}
+		return children.getFirst().getInvisibleGapAtStart(graphics);
 	}
 
 	@Override
-	public int getInvisibleGapRight(final Graphics graphics) {
-		return 0;
+	public int getInvisibleGapAtEnd(final Graphics graphics) {
+		if (children.isEmpty()) {
+			return 0;
+		}
+		return children.getLast().getInvisibleGapAtEnd(graphics);
 	}
 
 	@Override

@@ -68,14 +68,14 @@ public class Line {
 		if (children.isEmpty()) {
 			return 0;
 		}
-		return children.getFirst().getInvisibleGapLeft(graphics);
+		return children.getFirst().getInvisibleGapAtStart(graphics);
 	}
 
 	public int getInvisibleGapRight(final Graphics graphics) {
 		if (children.isEmpty()) {
 			return 0;
 		}
-		return children.getLast().getInvisibleGapRight(graphics);
+		return children.getLast().getInvisibleGapAtEnd(graphics);
 	}
 
 	public boolean hasChildren() {

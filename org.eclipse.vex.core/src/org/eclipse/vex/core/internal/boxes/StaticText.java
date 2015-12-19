@@ -102,13 +102,13 @@ public class StaticText extends BaseBox implements IInlineBox {
 		return baseline;
 	}
 
-	public int getInvisibleGapLeft(final Graphics graphics) {
+	public int getInvisibleGapAtStart(final Graphics graphics) {
 		final String text = renderText(getText());
 		final int whitespaceCount = countWhitespaceAtStart(text);
 		return graphics.stringWidth(text.substring(0, whitespaceCount));
 	}
 
-	public int getInvisibleGapRight(final Graphics graphics) {
+	public int getInvisibleGapAtEnd(final Graphics graphics) {
 		final String text = renderText(getText());
 		final int whitespaceCount = countWhitespaceAtEnd(text);
 		return graphics.stringWidth(text.substring(text.length() - whitespaceCount, text.length()));

@@ -97,13 +97,19 @@ public class InlineNodeReference extends BaseBox implements IInlineBox, IDecorat
 	}
 
 	@Override
-	public int getInvisibleGapLeft(final Graphics graphics) {
-		return 0;
+	public int getInvisibleGapAtStart(final Graphics graphics) {
+		if (component == null) {
+			return 0;
+		}
+		return component.getInvisibleGapAtStart(graphics);
 	}
 
 	@Override
-	public int getInvisibleGapRight(final Graphics graphics) {
-		return 0;
+	public int getInvisibleGapAtEnd(final Graphics graphics) {
+		if (component == null) {
+			return 0;
+		}
+		return component.getInvisibleGapAtEnd(graphics);
 	}
 
 	@Override

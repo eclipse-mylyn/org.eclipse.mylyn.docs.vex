@@ -219,7 +219,7 @@ public class TestStaticText {
 		text.setText("abc ");
 		text.layout(graphics);
 
-		assertEquals(graphics.stringWidth(" "), text.getInvisibleGapRight(graphics));
+		assertEquals(graphics.stringWidth(" "), text.getInvisibleGapAtEnd(graphics));
 	}
 
 	@Test
@@ -229,7 +229,7 @@ public class TestStaticText {
 		text.setText("abc");
 		text.layout(graphics);
 
-		assertEquals(0, text.getInvisibleGapRight(graphics));
+		assertEquals(0, text.getInvisibleGapAtEnd(graphics));
 	}
 
 	@Test
@@ -239,7 +239,7 @@ public class TestStaticText {
 		text.setText(" abc");
 		text.layout(graphics);
 
-		assertEquals(graphics.stringWidth(" "), text.getInvisibleGapLeft(graphics));
+		assertEquals(graphics.stringWidth(" "), text.getInvisibleGapAtStart(graphics));
 	}
 
 	@Test
@@ -249,7 +249,7 @@ public class TestStaticText {
 		text.setText("abc");
 		text.layout(graphics);
 
-		assertEquals(0, text.getInvisibleGapLeft(graphics));
+		assertEquals(0, text.getInvisibleGapAtStart(graphics));
 	}
 
 	@Test
@@ -259,8 +259,8 @@ public class TestStaticText {
 		text.setText("   ");
 		text.layout(graphics);
 
-		assertEquals("left", graphics.stringWidth("   "), text.getInvisibleGapLeft(graphics));
-		assertEquals("right", graphics.stringWidth("   "), text.getInvisibleGapRight(graphics));
+		assertEquals("left", graphics.stringWidth("   "), text.getInvisibleGapAtStart(graphics));
+		assertEquals("right", graphics.stringWidth("   "), text.getInvisibleGapAtEnd(graphics));
 	}
 
 	private static void assertSplitEquals(final String head, final String tail, final StaticText headBox, final StaticText tailBox) {
