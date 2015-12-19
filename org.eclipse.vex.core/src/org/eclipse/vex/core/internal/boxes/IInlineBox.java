@@ -28,6 +28,12 @@ public interface IInlineBox extends IChildBox {
 
 	int getInvisibleGapAtEnd(Graphics graphics);
 
+	LineWrappingRule getLineWrappingAtStart();
+
+	LineWrappingRule getLineWrappingAtEnd();
+
+	boolean requiresSplitForLineWrapping();
+
 	boolean canJoin(IInlineBox other);
 
 	boolean join(IInlineBox other);

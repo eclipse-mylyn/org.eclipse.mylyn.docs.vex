@@ -27,7 +27,7 @@ public class LineArrangement {
 	private boolean lastBoxWrappedCompletely;
 	private Line currentLine;
 
-	public void arrangeBoxes(final Graphics graphics, final ListIterator<IInlineBox> boxIterator, final int width, final TextAlign textAlign, final boolean preservingWhitespace) {
+	public void arrangeBoxes(final Graphics graphics, final ListIterator<IInlineBox> boxIterator, final int width, final TextAlign textAlign) {
 		this.boxIterator = boxIterator;
 		this.width = width;
 		reset();
@@ -53,7 +53,7 @@ public class LineArrangement {
 		final boolean boxWrappedCompletely;
 		if (currentLine.canJoinWithLastChild(box)) {
 			boxWrappedCompletely = arrangeWithLastChild(graphics, box);
-		} else if (boxFitsIntoCurrentLine(box) || !hasVisibleContent(box)) {
+		} else if ((boxFitsIntoCurrentLine(box) || !hasVisibleContent(box)) && !box.requiresSplitForLineWrapping()) {
 			boxWrappedCompletely = appendToCurrentLine(box);
 		} else if (box.canSplit()) {
 			boxWrappedCompletely = splitAndWrapToNextLine(graphics, box);
@@ -120,6 +120,10 @@ public class LineArrangement {
 	}
 
 	private boolean splitAndWrapToNextLine(final Graphics graphics, final IInlineBox box) {
+		if (box.getLineWrappingAtStart() == LineWrappingRule.REQUIRED) {
+			return wrapCompletelyToNextLine(box);
+		}
+
 		final int headWidth = width - currentLine.getWidth();
 		final IInlineBox tail = box.splitTail(graphics, headWidth, !currentLine.hasChildren());
 		final boolean boxWrappedCompletely = box.getWidth() == 0;
@@ -128,8 +132,11 @@ public class LineArrangement {
 		} else {
 			currentLine.appendChild(box);
 		}
+
 		if (tail.getWidth() > 0) {
 			insertNextBox(tail);
+			lineBreak();
+		} else if (box.getLineWrappingAtEnd() == LineWrappingRule.REQUIRED) {
 			lineBreak();
 		}
 

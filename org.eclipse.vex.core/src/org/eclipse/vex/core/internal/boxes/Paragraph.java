@@ -29,7 +29,6 @@ public class Paragraph extends BaseBox implements IStructuralBox, IParentBox<IIn
 	private int width;
 
 	private TextAlign textAlign = TextAlign.LEFT;
-	private boolean preservingWhitespace = false;
 
 	private final LinkedList<IInlineBox> children = new LinkedList<IInlineBox>();
 	private final LineArrangement lines = new LineArrangement();
@@ -104,14 +103,6 @@ public class Paragraph extends BaseBox implements IStructuralBox, IParentBox<IIn
 		this.textAlign = textAlign;
 	}
 
-	public boolean isPreservingWhitespace() {
-		return preservingWhitespace;
-	}
-
-	public void setPreservingWhitespace(final boolean preservingWhitespace) {
-		this.preservingWhitespace = preservingWhitespace;
-	}
-
 	@Override
 	public void accept(final IBoxVisitor visitor) {
 		visitor.visit(this);
@@ -169,7 +160,7 @@ public class Paragraph extends BaseBox implements IStructuralBox, IParentBox<IIn
 	}
 
 	private void arrangeChildrenOnLines(final Graphics graphics) {
-		lines.arrangeBoxes(graphics, children.listIterator(), width, textAlign, preservingWhitespace);
+		lines.arrangeBoxes(graphics, children.listIterator(), width, textAlign);
 	}
 
 	@Override

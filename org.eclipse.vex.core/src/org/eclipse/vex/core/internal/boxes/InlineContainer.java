@@ -25,6 +25,8 @@ public class InlineContainer extends BaseBox implements IInlineBox, IParentBox<I
 	private int width;
 	private int height;
 	private int baseline;
+	private boolean containsChildThatRequiresLineWrapping;
+
 	private final LinkedList<IInlineBox> children = new LinkedList<IInlineBox>();
 
 	@Override
@@ -103,6 +105,27 @@ public class InlineContainer extends BaseBox implements IInlineBox, IParentBox<I
 	}
 
 	@Override
+	public LineWrappingRule getLineWrappingAtStart() {
+		if (children.isEmpty()) {
+			return LineWrappingRule.ALLOWED;
+		}
+		return children.getFirst().getLineWrappingAtStart();
+	}
+
+	@Override
+	public LineWrappingRule getLineWrappingAtEnd() {
+		if (children.isEmpty()) {
+			return LineWrappingRule.ALLOWED;
+		}
+		return children.getLast().getLineWrappingAtEnd();
+	}
+
+	@Override
+	public boolean requiresSplitForLineWrapping() {
+		return containsChildThatRequiresLineWrapping;
+	}
+
+	@Override
 	public void accept(final IBoxVisitor visitor) {
 		visitor.visit(this);
 	}
@@ -161,11 +184,13 @@ public class InlineContainer extends BaseBox implements IInlineBox, IParentBox<I
 		layoutChildren(graphics);
 		calculateBoundsAndBaseline();
 		arrangeChildrenOnBaseline();
+		updateRequiresSplitForLineWrapping();
 	}
 
 	private void layoutChildren(final Graphics graphics) {
 		for (final IInlineBox child : children) {
 			child.layout(graphics);
+			containsChildThatRequiresLineWrapping |= child.requiresSplitForLineWrapping();
 		}
 	}
 
@@ -188,6 +213,13 @@ public class InlineContainer extends BaseBox implements IInlineBox, IParentBox<I
 			final int childTop = baseline - child.getBaseline();
 			child.setPosition(childTop, childLeft);
 			childLeft += child.getWidth();
+		}
+	}
+
+	private void updateRequiresSplitForLineWrapping() {
+		containsChildThatRequiresLineWrapping = false;
+		for (final IInlineBox child : children) {
+			containsChildThatRequiresLineWrapping |= child.requiresSplitForLineWrapping();
 		}
 	}
 
@@ -282,11 +314,21 @@ public class InlineContainer extends BaseBox implements IInlineBox, IParentBox<I
 	}
 
 	private int findChildIndexToSplitAt(final int headWidth) {
-		for (int i = 0; i < children.size(); i += 1) {
-			final IInlineBox child = children.get(i);
+		int i = 0;
+		for (final IInlineBox child : children) {
+			if (child.getLineWrappingAtStart() == LineWrappingRule.REQUIRED && i > 0) {
+				return i - 1;
+			}
+			if (child.getLineWrappingAtEnd() == LineWrappingRule.REQUIRED) {
+				return i;
+			}
+			if (child.requiresSplitForLineWrapping()) {
+				return i;
+			}
 			if (child.getLeft() + child.getWidth() > headWidth) {
 				return i;
 			}
+			i += 1;
 		}
 		return -1;
 	}

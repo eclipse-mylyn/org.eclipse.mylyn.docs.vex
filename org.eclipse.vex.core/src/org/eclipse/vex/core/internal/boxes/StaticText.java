@@ -35,6 +35,8 @@ public class StaticText extends BaseBox implements IInlineBox {
 	private String text;
 	private FontSpec fontSpec;
 	private Color color;
+	private LineWrappingRule lineWrappingAtStart;
+	private LineWrappingRule lineWrappingAtEnd;
 
 	private final CharSequenceSplitter splitter = new CharSequenceSplitter();
 
@@ -112,6 +114,29 @@ public class StaticText extends BaseBox implements IInlineBox {
 		final String text = renderText(getText());
 		final int whitespaceCount = countWhitespaceAtEnd(text);
 		return graphics.stringWidth(text.substring(text.length() - whitespaceCount, text.length()));
+	}
+
+	@Override
+	public LineWrappingRule getLineWrappingAtStart() {
+		return lineWrappingAtStart;
+	}
+
+	public void setLineWrappingAtStart(final LineWrappingRule wrappingRule) {
+		lineWrappingAtStart = wrappingRule;
+	}
+
+	@Override
+	public LineWrappingRule getLineWrappingAtEnd() {
+		return lineWrappingAtEnd;
+	}
+
+	public void setLineWrappingAtEnd(final LineWrappingRule wrappingRule) {
+		lineWrappingAtEnd = wrappingRule;
+	}
+
+	@Override
+	public boolean requiresSplitForLineWrapping() {
+		return lineWrappingAtStart == LineWrappingRule.REQUIRED || lineWrappingAtEnd == LineWrappingRule.REQUIRED;
 	}
 
 	public String getText() {
@@ -199,6 +224,9 @@ public class StaticText extends BaseBox implements IInlineBox {
 		if (!(other instanceof StaticText)) {
 			return false;
 		}
+		if (!lineSplittingRulesAllowJoining((StaticText) other)) {
+			return false;
+		}
 		if (!hasEqualFont((StaticText) other)) {
 			return false;
 		}
@@ -206,6 +234,16 @@ public class StaticText extends BaseBox implements IInlineBox {
 			return false;
 		}
 
+		return true;
+	}
+
+	private boolean lineSplittingRulesAllowJoining(final StaticText other) {
+		if (lineWrappingAtEnd == LineWrappingRule.REQUIRED) {
+			return false;
+		}
+		if (other.lineWrappingAtStart == LineWrappingRule.REQUIRED) {
+			return false;
+		}
 		return true;
 	}
 
@@ -258,6 +296,8 @@ public class StaticText extends BaseBox implements IInlineBox {
 		tail.layout(graphics);
 		removeTail(tail);
 
+		adjustSplittingRules(tail);
+
 		return tail;
 	}
 
@@ -280,4 +320,13 @@ public class StaticText extends BaseBox implements IInlineBox {
 		width -= tail.width;
 	}
 
+	private void adjustSplittingRules(final StaticText tail) {
+		if (width <= 0) {
+			tail.setLineWrappingAtStart(lineWrappingAtStart);
+		}
+		if (tail.getWidth() > 0) {
+			tail.setLineWrappingAtEnd(lineWrappingAtEnd);
+			lineWrappingAtEnd = LineWrappingRule.ALLOWED;
+		}
+	}
 }

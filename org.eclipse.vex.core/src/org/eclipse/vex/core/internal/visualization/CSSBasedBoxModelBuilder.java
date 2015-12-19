@@ -14,7 +14,6 @@ import static org.eclipse.vex.core.internal.boxes.BoxFactory.inlineContainer;
 import static org.eclipse.vex.core.internal.boxes.BoxFactory.nodeReference;
 import static org.eclipse.vex.core.internal.boxes.BoxFactory.nodeReferenceWithText;
 import static org.eclipse.vex.core.internal.boxes.BoxFactory.rootBox;
-import static org.eclipse.vex.core.internal.boxes.BoxFactory.square;
 import static org.eclipse.vex.core.internal.boxes.BoxFactory.verticalBlock;
 import static org.eclipse.vex.core.internal.visualization.CssBoxFactory.frame;
 import static org.eclipse.vex.core.internal.visualization.CssBoxFactory.paragraph;
@@ -31,12 +30,16 @@ import org.eclipse.vex.core.internal.boxes.IInlineBox;
 import org.eclipse.vex.core.internal.boxes.IParentBox;
 import org.eclipse.vex.core.internal.boxes.IStructuralBox;
 import org.eclipse.vex.core.internal.boxes.InlineContainer;
+import org.eclipse.vex.core.internal.boxes.LineWrappingRule;
 import org.eclipse.vex.core.internal.boxes.RootBox;
+import org.eclipse.vex.core.internal.boxes.TextContent;
 import org.eclipse.vex.core.internal.css.CSS;
 import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.css.Styles;
 import org.eclipse.vex.core.internal.dom.CollectingNodeTraversal;
 import org.eclipse.vex.core.provisional.dom.BaseNodeVisitorWithResult;
+import org.eclipse.vex.core.provisional.dom.ContentRange;
+import org.eclipse.vex.core.provisional.dom.IContent;
 import org.eclipse.vex.core.provisional.dom.IDocument;
 import org.eclipse.vex.core.provisional.dom.IDocumentFragment;
 import org.eclipse.vex.core.provisional.dom.IElement;
@@ -201,17 +204,20 @@ public class CSSBasedBoxModelBuilder implements IBoxModelBuilder {
 
 			@Override
 			public IInlineBox visit(final IText text) {
+				final IContent content = text.getContent();
+				final ContentRange textRange = text.getRange();
 				if (!CSS.PRE.equals(styles.getWhiteSpace())) { // TODO use IWhitespacePolicy
-					return textContent(text.getContent(), text.getRange(), styles);
+					return textContent(content, textRange, styles);
 				}
 
 				final InlineContainer lineContainer = inlineContainer();
-				final MultilineText lines = text.getContent().getMultilineText(text.getRange());
+				final MultilineText lines = content.getMultilineText(textRange);
 				for (int i = 0; i < lines.size(); i += 1) {
-					lineContainer.appendChild(textContent(text.getContent(), lines.getRange(i), styles));
-					if (text.getContent().isLineBreak(lines.getRange(i).getEndOffset())) {
-						lineContainer.appendChild(square(10));
+					final TextContent textLine = textContent(content, lines.getRange(i), styles);
+					if (content.isLineBreak(lines.getRange(i).getEndOffset())) {
+						textLine.setLineWrappingAtEnd(LineWrappingRule.REQUIRED);
 					}
+					lineContainer.appendChild(textLine);
 				}
 				return lineContainer;
 			}

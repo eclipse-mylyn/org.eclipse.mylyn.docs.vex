@@ -35,6 +35,8 @@ public class TextContent extends BaseBox implements IInlineBox, IContentBox {
 	private int width;
 	private int height;
 	private int baseline;
+	private LineWrappingRule lineWrappingAtStart;
+	private LineWrappingRule lineWrappingAtEnd;
 
 	private IContent content;
 	private IPosition startPosition;
@@ -129,6 +131,29 @@ public class TextContent extends BaseBox implements IInlineBox, IContentBox {
 		final String text = renderText(getText());
 		final int whitespaceCount = countWhitespaceAtEnd(text);
 		return graphics.stringWidth(text.substring(text.length() - whitespaceCount, text.length()));
+	}
+
+	@Override
+	public LineWrappingRule getLineWrappingAtStart() {
+		return lineWrappingAtStart;
+	}
+
+	public void setLineWrappingAtStart(final LineWrappingRule wrappingRule) {
+		lineWrappingAtStart = wrappingRule;
+	}
+
+	@Override
+	public LineWrappingRule getLineWrappingAtEnd() {
+		return lineWrappingAtEnd;
+	}
+
+	public void setLineWrappingAtEnd(final LineWrappingRule wrappingRule) {
+		lineWrappingAtEnd = wrappingRule;
+	}
+
+	@Override
+	public boolean requiresSplitForLineWrapping() {
+		return lineWrappingAtStart == LineWrappingRule.REQUIRED || lineWrappingAtEnd == LineWrappingRule.REQUIRED;
 	}
 
 	private void invalidateLayout() {
@@ -253,6 +278,9 @@ public class TextContent extends BaseBox implements IInlineBox, IContentBox {
 		if (!isAdjacent((TextContent) other)) {
 			return false;
 		}
+		if (!lineSplittingRulesAllowJoining((TextContent) other)) {
+			return false;
+		}
 		if (!hasEqualFont((TextContent) other)) {
 			return false;
 		}
@@ -268,6 +296,16 @@ public class TextContent extends BaseBox implements IInlineBox, IContentBox {
 			return false;
 		}
 		if (endPosition.getOffset() != other.startPosition.getOffset() - 1) {
+			return false;
+		}
+		return true;
+	}
+
+	private boolean lineSplittingRulesAllowJoining(final TextContent other) {
+		if (lineWrappingAtEnd == LineWrappingRule.REQUIRED) {
+			return false;
+		}
+		if (other.lineWrappingAtStart == LineWrappingRule.REQUIRED) {
 			return false;
 		}
 		return true;
@@ -306,6 +344,8 @@ public class TextContent extends BaseBox implements IInlineBox, IContentBox {
 		endPosition = otherText.endPosition;
 		width += otherText.width;
 
+		lineWrappingAtEnd = otherText.lineWrappingAtEnd;
+
 		return true;
 	}
 
@@ -328,6 +368,8 @@ public class TextContent extends BaseBox implements IInlineBox, IContentBox {
 		tail.layout(graphics);
 		removeTail(tail);
 
+		adjustSplittingRules(tail);
+
 		return tail;
 	}
 
@@ -345,6 +387,16 @@ public class TextContent extends BaseBox implements IInlineBox, IContentBox {
 		content.removePosition(endPosition);
 		endPosition = content.createPosition(startPosition.getOffset() + headLength - 1);
 		width -= tail.width;
+	}
+
+	private void adjustSplittingRules(final TextContent tail) {
+		if (width <= 0) {
+			tail.setLineWrappingAtStart(lineWrappingAtStart);
+		}
+		if (tail.getWidth() > 0) {
+			tail.setLineWrappingAtEnd(lineWrappingAtEnd);
+			lineWrappingAtEnd = LineWrappingRule.ALLOWED;
+		}
 	}
 
 	@Override

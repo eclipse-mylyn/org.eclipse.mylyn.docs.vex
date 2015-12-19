@@ -107,6 +107,30 @@ public class InlineFrame extends BaseBox implements IInlineBox, IDecoratorBox<II
 	}
 
 	@Override
+	public LineWrappingRule getLineWrappingAtStart() {
+		if (component == null) {
+			return LineWrappingRule.ALLOWED;
+		}
+		return component.getLineWrappingAtStart();
+	}
+
+	@Override
+	public LineWrappingRule getLineWrappingAtEnd() {
+		if (component == null) {
+			return LineWrappingRule.ALLOWED;
+		}
+		return component.getLineWrappingAtEnd();
+	}
+
+	@Override
+	public boolean requiresSplitForLineWrapping() {
+		if (component == null) {
+			return false;
+		}
+		return component.requiresSplitForLineWrapping();
+	}
+
+	@Override
 	public Rectangle getBounds() {
 		return new Rectangle(left, top, width, height);
 	}

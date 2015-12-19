@@ -25,6 +25,9 @@ public class Square extends BaseBox implements IInlineBox {
 	private int left;
 	private int size;
 
+	private LineWrappingRule lineWrappingAtStart = LineWrappingRule.ALLOWED;
+	private LineWrappingRule lineWrappingAtEnd = LineWrappingRule.ALLOWED;
+
 	@Override
 	public void setParent(final IBox parent) {
 		this.parent = parent;
@@ -99,6 +102,29 @@ public class Square extends BaseBox implements IInlineBox {
 	@Override
 	public int getInvisibleGapAtEnd(final Graphics graphics) {
 		return 0;
+	}
+
+	@Override
+	public LineWrappingRule getLineWrappingAtStart() {
+		return lineWrappingAtStart;
+	}
+
+	public void setLineWrappingAtStart(final LineWrappingRule wrappingRule) {
+		lineWrappingAtStart = wrappingRule;
+	}
+
+	@Override
+	public LineWrappingRule getLineWrappingAtEnd() {
+		return lineWrappingAtEnd;
+	}
+
+	public void setLineWrappingAtEnd(final LineWrappingRule wrappingRule) {
+		lineWrappingAtEnd = wrappingRule;
+	}
+
+	@Override
+	public boolean requiresSplitForLineWrapping() {
+		return lineWrappingAtStart == LineWrappingRule.REQUIRED || lineWrappingAtEnd == LineWrappingRule.REQUIRED;
 	}
 
 	@Override

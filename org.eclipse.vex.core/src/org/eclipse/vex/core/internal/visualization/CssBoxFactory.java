@@ -15,6 +15,7 @@ import org.eclipse.vex.core.internal.boxes.BorderLine;
 import org.eclipse.vex.core.internal.boxes.IInlineBox;
 import org.eclipse.vex.core.internal.boxes.IStructuralBox;
 import org.eclipse.vex.core.internal.boxes.InlineFrame;
+import org.eclipse.vex.core.internal.boxes.LineWrappingRule;
 import org.eclipse.vex.core.internal.boxes.Margin;
 import org.eclipse.vex.core.internal.boxes.Padding;
 import org.eclipse.vex.core.internal.boxes.Paragraph;
@@ -57,7 +58,6 @@ public class CssBoxFactory {
 			paragraph.appendChild(child);
 		}
 		paragraph.setTextAlign(textAlign(styles));
-		paragraph.setPreservingWhitespace(CSS.PRE.equals(styles.getWhiteSpace()));
 		return paragraph;
 	}
 
@@ -69,11 +69,23 @@ public class CssBoxFactory {
 		return textContent;
 	}
 
+	public static TextContent textContentWithLineBreak(final IContent content, final ContentRange range, final Styles styles) {
+		final TextContent textContent = textContent(content, range, styles);
+		textContent.setLineWrappingAtEnd(LineWrappingRule.REQUIRED);
+		return textContent;
+	}
+
 	public static StaticText staticText(final String text, final Styles styles) {
 		final StaticText staticText = new StaticText();
 		staticText.setText(text);
 		staticText.setFont(font(styles));
 		staticText.setColor(styles.getColor());
+		return staticText;
+	}
+
+	public static StaticText staticTextWithLineBreak(final String text, final Styles styles) {
+		final StaticText staticText = staticText(text, styles);
+		staticText.setLineWrappingAtEnd(LineWrappingRule.REQUIRED);
 		return staticText;
 	}
 

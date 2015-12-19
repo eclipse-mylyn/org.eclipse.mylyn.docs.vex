@@ -132,25 +132,6 @@ public class BoxFactory {
 		return paragraph;
 	}
 
-	public static Paragraph paragraphPreservingWhitespace(final IInlineBox... children) {
-		final Paragraph paragraph = new Paragraph();
-		for (final IInlineBox child : children) {
-			paragraph.appendChild(child);
-		}
-		paragraph.setPreservingWhitespace(true);
-		return paragraph;
-	}
-
-	public static Paragraph paragraphPreservingWhitespace(final TextAlign textAlign, final IInlineBox... children) {
-		final Paragraph paragraph = new Paragraph();
-		for (final IInlineBox child : children) {
-			paragraph.appendChild(child);
-		}
-		paragraph.setTextAlign(textAlign);
-		paragraph.setPreservingWhitespace(true);
-		return paragraph;
-	}
-
 	public static InlineContainer inlineContainer(final IInlineBox... children) {
 		final InlineContainer inlineContainer = new InlineContainer();
 		for (final IInlineBox child : children) {
