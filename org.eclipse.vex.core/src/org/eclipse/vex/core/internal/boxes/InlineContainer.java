@@ -250,20 +250,26 @@ public class InlineContainer extends BaseBox implements IInlineBox, IParentBox<I
 		}
 
 		final IInlineBox splitChild = children.get(splitIndex);
-		final IInlineBox splitChildTail = splitChild.splitTail(graphics, headWidth - splitChild.getLeft(), force && splitIndex == 0);
-		if (splitChild.getWidth() == 0) {
-			children.remove(splitChild);
-			splitChild.setParent(null);
+
+		final IInlineBox splitChildTail;
+		if (splitChild.canSplit()) {
+			splitChildTail = splitChild.splitTail(graphics, headWidth - splitChild.getLeft(), force && splitIndex == 0);
+			if (splitChild.getWidth() == 0) {
+				children.remove(splitChild);
+				splitChild.setParent(null);
+			}
+		} else {
+			splitChildTail = splitChild;
 		}
 
 		final InlineContainer tail = new InlineContainer();
 		tail.setParent(parent);
 
-		if (splitChildTail.getWidth() > 0) {
+		if (splitChildTail.getWidth() > 0 && splitChild != splitChildTail) {
 			tail.appendChild(splitChildTail);
 		}
 
-		if (splitChild.getWidth() == 0) {
+		if (splitChild.getWidth() == 0 || splitChild == splitChildTail) {
 			moveChildrenTo(tail, splitIndex);
 		} else {
 			moveChildrenTo(tail, splitIndex + 1);

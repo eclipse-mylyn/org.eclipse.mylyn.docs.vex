@@ -347,6 +347,8 @@ public class InlineNodeReference extends BaseBox implements IInlineBox, IDecorat
 		final int splitPosition;
 		if (oldOffsetOfFirstChild == offsetOfFirstChildInTail) {
 			splitPosition = startPosition.getOffset();
+		} else if (offsetOfFirstChildInTail == -1) {
+			splitPosition = endPosition.getOffset();
 		} else {
 			splitPosition = offsetOfFirstChildInTail;
 		}
