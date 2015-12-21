@@ -71,6 +71,11 @@ public class BaseBoxVisitor implements IBoxVisitor {
 	}
 
 	@Override
+	public void visit(final NodeEndOffsetPlaceholder box) {
+		// ignore
+	}
+
+	@Override
 	public void visit(final Square box) {
 		// ignore
 	}

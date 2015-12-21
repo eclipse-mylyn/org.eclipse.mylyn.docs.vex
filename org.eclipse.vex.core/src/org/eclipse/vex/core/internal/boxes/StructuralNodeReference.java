@@ -183,6 +183,12 @@ public class StructuralNodeReference extends BaseBox implements IStructuralBox, 
 				box.highlight(graphics, foreground, lightBackground);
 				return super.visit(box);
 			}
+
+			@Override
+			public Object visit(final NodeEndOffsetPlaceholder box) {
+				box.highlight(graphics, foreground, lightBackground);
+				return super.visit(box);
+			}
 		});
 
 		drawTag(graphics, foreground, background);

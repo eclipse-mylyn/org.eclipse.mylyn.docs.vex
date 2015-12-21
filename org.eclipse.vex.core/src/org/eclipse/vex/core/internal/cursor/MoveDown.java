@@ -20,6 +20,7 @@ import java.util.LinkedList;
 import org.eclipse.vex.core.internal.boxes.BaseBoxVisitorWithResult;
 import org.eclipse.vex.core.internal.boxes.DepthFirstBoxTraversal;
 import org.eclipse.vex.core.internal.boxes.IContentBox;
+import org.eclipse.vex.core.internal.boxes.NodeEndOffsetPlaceholder;
 import org.eclipse.vex.core.internal.boxes.InlineNodeReference;
 import org.eclipse.vex.core.internal.boxes.StructuralNodeReference;
 import org.eclipse.vex.core.internal.boxes.TextContent;
@@ -98,6 +99,11 @@ public class MoveDown implements ICursorMove {
 			public Boolean visit(final TextContent box) {
 				return true;
 			}
+
+			@Override
+			public Boolean visit(final NodeEndOffsetPlaceholder box) {
+				return true;
+			}
 		});
 	}
 
@@ -142,6 +148,18 @@ public class MoveDown implements ICursorMove {
 				}
 				return box;
 			}
+
+			@Override
+			public IContentBox visit(final NodeEndOffsetPlaceholder box) {
+				if (box == parent) {
+					return null;
+				}
+
+				if (firstChild == null) {
+					firstChild = box;
+				}
+				return box;
+			}
 		});
 	}
 
@@ -175,6 +193,11 @@ public class MoveDown implements ICursorMove {
 
 			@Override
 			public Integer visit(final TextContent box) {
+				return box.getOffsetForCoordinates(graphics, hotX - box.getAbsoluteLeft(), hotY - box.getAbsoluteTop());
+			}
+
+			@Override
+			public Integer visit(final NodeEndOffsetPlaceholder box) {
 				return box.getOffsetForCoordinates(graphics, hotX - box.getAbsoluteLeft(), hotY - box.getAbsoluteTop());
 			}
 		});
@@ -232,6 +255,16 @@ public class MoveDown implements ICursorMove {
 				}
 				return null;
 			}
+
+			@Override
+			public Object visit(final NodeEndOffsetPlaceholder box) {
+				final int distance = verticalDistance(box, y);
+				if (box.isBelow(y)) {
+					candidates.add(box);
+					minVerticalDistance[0] = Math.min(distance, minVerticalDistance[0]);
+				}
+				return null;
+			}
 		});
 
 		for (final Iterator<IContentBox> iter = candidates.iterator(); iter.hasNext();) {
@@ -271,6 +304,12 @@ public class MoveDown implements ICursorMove {
 
 			@Override
 			public IContentBox visit(final TextContent box) {
+				lastTextContentBox = box;
+				return super.visit(box);
+			}
+
+			@Override
+			public IContentBox visit(final NodeEndOffsetPlaceholder box) {
 				lastTextContentBox = box;
 				return super.visit(box);
 			}

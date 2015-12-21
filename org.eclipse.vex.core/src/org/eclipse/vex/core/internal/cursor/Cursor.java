@@ -19,6 +19,7 @@ import org.eclipse.vex.core.internal.boxes.IBox;
 import org.eclipse.vex.core.internal.boxes.IContentBox;
 import org.eclipse.vex.core.internal.boxes.IInlineBox;
 import org.eclipse.vex.core.internal.boxes.InlineNodeReference;
+import org.eclipse.vex.core.internal.boxes.NodeEndOffsetPlaceholder;
 import org.eclipse.vex.core.internal.boxes.RootBox;
 import org.eclipse.vex.core.internal.boxes.Square;
 import org.eclipse.vex.core.internal.boxes.StaticText;
@@ -195,6 +196,15 @@ public class Cursor {
 				}
 				return null;
 			}
+
+			@Override
+			public Object visit(final NodeEndOffsetPlaceholder box) {
+				if (selectedRange.contains(box.getRange())) {
+					box.highlight(graphics, SELECTION_FOREGROUND_COLOR, SELECTION_BACKGROUND_COLOR);
+					return null;
+				}
+				return null;
+			}
 		});
 	}
 
@@ -213,6 +223,11 @@ public class Cursor {
 			@Override
 			public Caret visit(final TextContent box) {
 				return getCaretForText(graphics, box, offset);
+			}
+
+			@Override
+			public Caret visit(final NodeEndOffsetPlaceholder box) {
+				return getCaretForEndOffsetPlaceholder(graphics, box, offset);
 			}
 		});
 	}
@@ -283,6 +298,11 @@ public class Cursor {
 			public Rectangle visit(final TextContent box) {
 				return makeAbsolute(box.getPositionArea(graphics, offset), box);
 			}
+
+			@Override
+			public Rectangle visit(final NodeEndOffsetPlaceholder box) {
+				return makeAbsolute(box.getPositionArea(graphics, offset), box);
+			}
 		});
 	}
 
@@ -310,6 +330,12 @@ public class Cursor {
 				deepestLastChildBox[0] = box;
 				return null;
 			}
+
+			@Override
+			public IBox visit(final NodeEndOffsetPlaceholder box) {
+				deepestLastChildBox[0] = box;
+				return null;
+			}
 		});
 		return deepestLastChildBox[0];
 	}
@@ -318,9 +344,7 @@ public class Cursor {
 		final Rectangle area = getAbsolutePositionArea(graphics, box, offset);
 		if (box.getNode().getStartOffset() == offset) {
 			return new InsertBeforeInlineNodeCaret(area, box.getNode());
-		} else if (box.getNode().getEndOffset() == offset && box.canContainText()) {
-			return new AppendNodeWithTextCaret(area, box.getNode(), box.isEmpty());
-		} else if (box.getNode().getEndOffset() == offset && !box.canContainText()) {
+		} else if (box.getNode().getEndOffset() == offset) {
 			return new AppendNodeWithTextCaret(area, box.getNode(), box.isEmpty());
 		} else {
 			return new IntermediateInlineCaret(area, box.isAtStart(offset));
@@ -336,6 +360,11 @@ public class Cursor {
 		final FontSpec font = box.getFont();
 		final String character = box.getText().substring(offset - box.getStartOffset(), offset - box.getStartOffset() + 1);
 		return new TextCaret(area, font, character, false);
+	}
+
+	private Caret getCaretForEndOffsetPlaceholder(final Graphics graphics, final NodeEndOffsetPlaceholder box, final int offset) {
+		final Rectangle area = getAbsolutePositionArea(graphics, box, offset);
+		return new AppendNodeWithTextCaret(area, box.getNode(), box.isEmpty());
 	}
 
 	private static interface Caret {

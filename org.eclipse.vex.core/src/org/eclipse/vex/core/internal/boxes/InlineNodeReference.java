@@ -233,6 +233,12 @@ public class InlineNodeReference extends BaseBox implements IInlineBox, IDecorat
 				box.highlight(graphics, foreground, background);
 				return super.visit(box);
 			}
+
+			@Override
+			public Object visit(final NodeEndOffsetPlaceholder box) {
+				box.highlight(graphics, foreground, background);
+				return super.visit(box);
+			}
 		});
 	}
 
@@ -395,6 +401,11 @@ public class InlineNodeReference extends BaseBox implements IInlineBox, IDecorat
 
 			@Override
 			public Integer visit(final TextContent box) {
+				return box.getStartOffset();
+			}
+
+			@Override
+			public Integer visit(final NodeEndOffsetPlaceholder box) {
 				return box.getStartOffset();
 			}
 		});

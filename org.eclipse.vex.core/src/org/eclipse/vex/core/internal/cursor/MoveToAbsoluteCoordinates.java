@@ -17,6 +17,7 @@ import java.util.LinkedList;
 
 import org.eclipse.vex.core.internal.boxes.DepthFirstBoxTraversal;
 import org.eclipse.vex.core.internal.boxes.IContentBox;
+import org.eclipse.vex.core.internal.boxes.NodeEndOffsetPlaceholder;
 import org.eclipse.vex.core.internal.boxes.TextContent;
 import org.eclipse.vex.core.internal.core.Graphics;
 import org.eclipse.vex.core.internal.core.Rectangle;
@@ -78,6 +79,14 @@ public class MoveToAbsoluteCoordinates implements ICursorMove {
 		container.accept(new DepthFirstBoxTraversal<Object>() {
 			@Override
 			public Object visit(final TextContent box) {
+				if (box.containsY(y)) {
+					candidates.add(box);
+				}
+				return null;
+			}
+
+			@Override
+			public Object visit(final NodeEndOffsetPlaceholder box) {
 				if (box.containsY(y)) {
 					candidates.add(box);
 				}

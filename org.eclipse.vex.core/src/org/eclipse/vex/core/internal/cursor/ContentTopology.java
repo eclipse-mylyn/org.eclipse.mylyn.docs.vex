@@ -17,6 +17,7 @@ import org.eclipse.vex.core.internal.boxes.BaseBoxVisitorWithResult;
 import org.eclipse.vex.core.internal.boxes.DepthFirstBoxTraversal;
 import org.eclipse.vex.core.internal.boxes.IBox;
 import org.eclipse.vex.core.internal.boxes.IContentBox;
+import org.eclipse.vex.core.internal.boxes.NodeEndOffsetPlaceholder;
 import org.eclipse.vex.core.internal.boxes.InlineNodeReference;
 import org.eclipse.vex.core.internal.boxes.ParentTraversal;
 import org.eclipse.vex.core.internal.boxes.RootBox;
@@ -54,6 +55,11 @@ public class ContentTopology {
 			public IContentBox visit(final TextContent box) {
 				return box;
 			}
+
+			@Override
+			public IContentBox visit(final NodeEndOffsetPlaceholder box) {
+				return box;
+			}
 		});
 	}
 
@@ -80,6 +86,10 @@ public class ContentTopology {
 			@Override
 			public IContentBox visit(final StructuralNodeReference box) {
 				if (box.getStartOffset() == offset || box.getEndOffset() == offset) {
+					final IContentBox childBox = box.getComponent().accept(this);
+					if (childBox != null) {
+						return childBox;
+					}
 					return box;
 				}
 				if (box.getStartOffset() < offset && box.getEndOffset() > offset) {
@@ -105,6 +115,14 @@ public class ContentTopology {
 
 			@Override
 			public IContentBox visit(final TextContent box) {
+				if (box.getStartOffset() <= offset && box.getEndOffset() >= offset) {
+					return box;
+				}
+				return null;
+			}
+
+			@Override
+			public IContentBox visit(final NodeEndOffsetPlaceholder box) {
 				if (box.getStartOffset() <= offset && box.getEndOffset() >= offset) {
 					return box;
 				}
@@ -149,6 +167,14 @@ public class ContentTopology {
 				}
 				return null;
 			}
+
+			@Override
+			public IContentBox visit(final NodeEndOffsetPlaceholder box) {
+				if (box.getRange().contains(range)) {
+					return box;
+				}
+				return null;
+			}
 		});
 	}
 
@@ -184,6 +210,14 @@ public class ContentTopology {
 
 			@Override
 			public IContentBox visit(final TextContent box) {
+				if (!box.containsCoordinates(x, y)) {
+					return null;
+				}
+				return box;
+			}
+
+			@Override
+			public IContentBox visit(final NodeEndOffsetPlaceholder box) {
 				if (!box.containsCoordinates(x, y)) {
 					return null;
 				}
@@ -269,6 +303,11 @@ public class ContentTopology {
 
 			@Override
 			public Integer visit(final TextContent box) {
+				return Math.abs(y - box.getAbsoluteTop() - box.getBaseline());
+			}
+
+			@Override
+			public Integer visit(final NodeEndOffsetPlaceholder box) {
 				return Math.abs(y - box.getAbsoluteTop() - box.getBaseline());
 			}
 		});

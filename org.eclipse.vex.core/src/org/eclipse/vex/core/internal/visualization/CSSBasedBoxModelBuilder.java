@@ -15,11 +15,13 @@ import static org.eclipse.vex.core.internal.boxes.BoxFactory.nodeReference;
 import static org.eclipse.vex.core.internal.boxes.BoxFactory.nodeReferenceWithText;
 import static org.eclipse.vex.core.internal.boxes.BoxFactory.rootBox;
 import static org.eclipse.vex.core.internal.boxes.BoxFactory.verticalBlock;
+import static org.eclipse.vex.core.internal.visualization.CssBoxFactory.endOffsetPlaceholder;
 import static org.eclipse.vex.core.internal.visualization.CssBoxFactory.frame;
 import static org.eclipse.vex.core.internal.visualization.CssBoxFactory.paragraph;
 import static org.eclipse.vex.core.internal.visualization.CssBoxFactory.staticText;
 import static org.eclipse.vex.core.internal.visualization.CssBoxFactory.textContent;
 
+import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -143,7 +145,7 @@ public class CSSBasedBoxModelBuilder implements IBoxModelBuilder {
 	}
 
 	private static boolean isDisplayedAsBlock(final IElement element, final Styles styles) {
-		return CSS.BLOCK.equals(styles.getDisplay()); // TODO provide real implementation
+		return CSS.BLOCK.equals(styles.getDisplay()); // TODO provide real implementation, use IWhitespacePolicy
 	}
 
 	/*
@@ -158,7 +160,7 @@ public class CSSBasedBoxModelBuilder implements IBoxModelBuilder {
 				final boolean mayContainText = mayContainText(element);
 				final IStructuralBox content;
 				if (mayContainText || containsInlineContent(childrenResults)) {
-					content = visualizeInlineElementContent(styles, childrenResults, paragraph(styles));
+					content = visualizeInlineElementContent(element, styles, childrenResults, paragraph(styles));
 				} else {
 					content = visualizeChildrenAsStructure(childrenResults, verticalBlock());
 				}
@@ -192,19 +194,20 @@ public class CSSBasedBoxModelBuilder implements IBoxModelBuilder {
 
 	private IInlineBox visualizeInline(final INode node, final Collection<VisualizeResult> childrenResults) {
 		final Styles styles = styleSheet.getStyles(node);
+		final IContent content = node.getContent();
 		return node.accept(new BaseNodeVisitorWithResult<IInlineBox>() {
 			@Override
 			public IInlineBox visit(final IElement element) {
+				final InlineContainer inlineElementContent = visualizeInlineElementContent(element, styles, childrenResults, inlineContainer());
 				if (mayContainText(element)) {
-					return nodeReferenceWithText(element, frame(visualizeInlineElementContent(styles, childrenResults, inlineContainer()), styles));
+					return nodeReferenceWithText(element, frame(inlineElementContent, styles));
 				} else {
-					return nodeReference(element, frame(visualizeInlineElementContent(styles, childrenResults, inlineContainer()), styles));
+					return nodeReference(element, frame(inlineElementContent, styles));
 				}
 			}
 
 			@Override
 			public IInlineBox visit(final IText text) {
-				final IContent content = text.getContent();
 				final ContentRange textRange = text.getRange();
 				if (!CSS.PRE.equals(styles.getWhiteSpace())) { // TODO use IWhitespacePolicy
 					return textContent(content, textRange, styles);
@@ -224,16 +227,26 @@ public class CSSBasedBoxModelBuilder implements IBoxModelBuilder {
 		});
 	}
 
-	private <P extends IParentBox<IInlineBox>> P visualizeInlineElementContent(final Styles styles, final Collection<VisualizeResult> childrenResults, final P parent) {
+	private <P extends IParentBox<IInlineBox>> P visualizeInlineElementContent(final IElement element, final Styles styles, final Collection<VisualizeResult> childrenResults, final P parent) {
 		if (!childrenResults.isEmpty()) {
-			return visualizeChildrenInline(childrenResults, parent);
+			visualizeChildrenInline(childrenResults, parent);
+
+			// TODO use IWhitespacePolicy
+			if (CSS.PRE.equals(styles.getWhiteSpace()) && element.getContent().isLineBreak(element.getEndOffset() - 1)) {
+				parent.appendChild(endOffsetPlaceholder(element, styles));
+			}
+
+			return parent;
 		} else {
-			return placeholderForEmptyElement(styles, parent);
+			return placeholderForEmptyElement(element, styles, parent);
 		}
 	}
 
-	private <P extends IParentBox<IInlineBox>> P placeholderForEmptyElement(final Styles styles, final P parent) {
-		parent.appendChild(staticText(" ", styles));
+	private <P extends IParentBox<IInlineBox>> P placeholderForEmptyElement(final IElement element, final Styles styles, final P parent) {
+		parent.appendChild(endOffsetPlaceholder(element, styles));
+		if (false) { // TODO allow to provide a placeholder text in the CSS
+			parent.appendChild(staticText(MessageFormat.format("[placeholder for empty <{0}> element]", element.getLocalName()), styles));
+		}
 		return parent;
 	}
 

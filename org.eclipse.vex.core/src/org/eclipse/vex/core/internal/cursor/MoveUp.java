@@ -25,6 +25,7 @@ import org.eclipse.vex.core.internal.boxes.DepthFirstBoxTraversal;
 import org.eclipse.vex.core.internal.boxes.IBox;
 import org.eclipse.vex.core.internal.boxes.IContentBox;
 import org.eclipse.vex.core.internal.boxes.InlineNodeReference;
+import org.eclipse.vex.core.internal.boxes.NodeEndOffsetPlaceholder;
 import org.eclipse.vex.core.internal.boxes.StructuralNodeReference;
 import org.eclipse.vex.core.internal.boxes.TextContent;
 import org.eclipse.vex.core.internal.core.Graphics;
@@ -50,6 +51,9 @@ public class MoveUp implements ICursorMove {
 		if (isAtEndOfEmptyBox(currentOffset, currentBox)) {
 			return currentBox.getStartOffset();
 		}
+		if (isAtPlaceholderForEndOfEmptyBox(currentOffset, currentBox)) {
+			return getParentContentBox(currentBox).getStartOffset();
+		}
 		if (isAtEndOfBoxWithChildren(currentOffset, currentBox)) {
 			final IContentBox lastChild = getLastContentBoxChild(currentBox);
 			if (lastChild != null) {
@@ -66,6 +70,19 @@ public class MoveUp implements ICursorMove {
 
 	private static boolean isAtEndOfEmptyBox(final int offset, final IContentBox box) {
 		return box.isAtEnd(offset) && box.isEmpty() && box.getEndOffset() > box.getStartOffset();
+	}
+
+	private boolean isAtPlaceholderForEndOfEmptyBox(final int offset, final IContentBox box) {
+		final boolean isAtPlaceholder = box.accept(new BaseBoxVisitorWithResult<Boolean>(false) {
+			@Override
+			public Boolean visit(final NodeEndOffsetPlaceholder box) {
+				return true;
+			}
+		});
+		if (isAtPlaceholder) {
+			return isAtEndOfEmptyBox(offset, getParentContentBox(box));
+		}
+		return false;
 	}
 
 	private static boolean isAtEndOfBoxWithChildren(final int offset, final IContentBox box) {
@@ -102,6 +119,11 @@ public class MoveUp implements ICursorMove {
 			public Boolean visit(final TextContent box) {
 				return true;
 			}
+
+			@Override
+			public Boolean visit(final NodeEndOffsetPlaceholder box) {
+				return true;
+			}
 		});
 	}
 
@@ -129,6 +151,12 @@ public class MoveUp implements ICursorMove {
 			public IContentBox visit(final TextContent box) {
 				lastChild = box;
 				return null;
+			}
+
+			@Override
+			public IContentBox visit(final NodeEndOffsetPlaceholder box) {
+				lastChild = box;
+				return super.visit(box);
 			}
 		});
 	}
@@ -161,6 +189,11 @@ public class MoveUp implements ICursorMove {
 
 				@Override
 				public IContentBox visit(final TextContent box) {
+					return findNextContentBoxAbove(parent, x, y);
+				}
+
+				@Override
+				public IContentBox visit(final NodeEndOffsetPlaceholder box) {
 					return findNextContentBoxAbove(parent, x, y);
 				}
 			});
@@ -208,6 +241,16 @@ public class MoveUp implements ICursorMove {
 				}
 				return null;
 			}
+
+			@Override
+			public Object visit(final NodeEndOffsetPlaceholder box) {
+				final int distance = verticalDistance(box, y);
+				if (box.isAbove(y) && distance <= minVerticalDistance[0]) {
+					candidates.add(box);
+					minVerticalDistance[0] = Math.min(distance, minVerticalDistance[0]);
+				}
+				return null;
+			}
 		});
 
 		removeVerticallyDistantBoxes(candidates, y, minVerticalDistance[0]);
@@ -222,7 +265,7 @@ public class MoveUp implements ICursorMove {
 			return candidate;
 		}
 
-		final List<TextContent> candidates = findVerticallyClosestTextContentChildrenAbove(candidate, y);
+		final List<IContentBox> candidates = findVerticallyClosestTextContentChildrenAbove(candidate, y);
 		final IContentBox closestTextContentBox = findHorizontallyClosestContentBox(candidates, x);
 
 		if (closestTextContentBox != null && !closestTextContentBox.isLeftOf(x)) {
@@ -232,13 +275,13 @@ public class MoveUp implements ICursorMove {
 		return candidate;
 	}
 
-	private static List<TextContent> findVerticallyClosestTextContentChildrenAbove(final IBox parent, final int y) {
-		final List<TextContent> candidates = parent.accept(new DepthFirstBoxTraversal<List<TextContent>>() {
-			private final LinkedList<TextContent> candidates = new LinkedList<TextContent>();
+	private static List<IContentBox> findVerticallyClosestTextContentChildrenAbove(final IBox parent, final int y) {
+		final List<IContentBox> candidates = parent.accept(new DepthFirstBoxTraversal<List<IContentBox>>() {
+			private final LinkedList<IContentBox> candidates = new LinkedList<IContentBox>();
 			private int minVerticalDistance = Integer.MAX_VALUE;
 
 			@Override
-			public List<TextContent> visit(final StructuralNodeReference box) {
+			public List<IContentBox> visit(final StructuralNodeReference box) {
 				if (box != parent) {
 					return Collections.emptyList();
 				}
@@ -250,7 +293,20 @@ public class MoveUp implements ICursorMove {
 			}
 
 			@Override
-			public List<TextContent> visit(final TextContent box) {
+			public List<IContentBox> visit(final TextContent box) {
+				final int distance = verticalDistance(box, y);
+				if (distance <= minVerticalDistance) {
+					minVerticalDistance = Math.min(distance, minVerticalDistance);
+					candidates.add(box);
+				}
+				if (box == parent) {
+					return candidates;
+				}
+				return null;
+			}
+
+			@Override
+			public List<IContentBox> visit(final NodeEndOffsetPlaceholder box) {
 				final int distance = verticalDistance(box, y);
 				if (distance <= minVerticalDistance) {
 					minVerticalDistance = Math.min(distance, minVerticalDistance);
@@ -263,7 +319,7 @@ public class MoveUp implements ICursorMove {
 			}
 		});
 		if (candidates == null) {
-			return Collections.<TextContent> emptyList();
+			return Collections.<IContentBox> emptyList();
 		}
 		return candidates;
 	}

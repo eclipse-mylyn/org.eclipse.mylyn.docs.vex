@@ -81,6 +81,11 @@ public class BaseBoxVisitorWithResult<T> implements IBoxVisitorWithResult<T> {
 	}
 
 	@Override
+	public T visit(final NodeEndOffsetPlaceholder box) {
+		return defaultValue;
+	}
+
+	@Override
 	public T visit(final Square box) {
 		return defaultValue;
 	}

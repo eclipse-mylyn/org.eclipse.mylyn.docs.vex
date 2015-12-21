@@ -37,6 +37,8 @@ public interface IBoxVisitorWithResult<T> {
 
 	T visit(TextContent box);
 
+	T visit(NodeEndOffsetPlaceholder box);
+
 	T visit(Square box);
 
 }

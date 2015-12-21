@@ -21,6 +21,7 @@ import static org.junit.Assert.assertFalse;
 
 import org.eclipse.vex.core.internal.boxes.DepthFirstBoxTraversal;
 import org.eclipse.vex.core.internal.boxes.IContentBox;
+import org.eclipse.vex.core.internal.boxes.NodeEndOffsetPlaceholder;
 import org.eclipse.vex.core.internal.boxes.InlineNodeReference;
 import org.eclipse.vex.core.internal.boxes.RootBox;
 import org.eclipse.vex.core.internal.boxes.StructuralNodeReference;
@@ -482,6 +483,12 @@ public class TestCursorPosition {
 
 			@Override
 			public Object visit(final TextContent box) {
+				printBox(box);
+				return null;
+			}
+
+			@Override
+			public Object visit(final NodeEndOffsetPlaceholder box) {
 				printBox(box);
 				return null;
 			}

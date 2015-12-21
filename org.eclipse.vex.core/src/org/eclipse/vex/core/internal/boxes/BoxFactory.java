@@ -148,6 +148,13 @@ public class BoxFactory {
 		return textContent;
 	}
 
+	public static NodeEndOffsetPlaceholder endOffsetPlaceholder(final INode node, final FontSpec font) {
+		final NodeEndOffsetPlaceholder contentPlaceholder = new NodeEndOffsetPlaceholder();
+		contentPlaceholder.setNode(node);
+		contentPlaceholder.setFont(font);
+		return contentPlaceholder;
+	}
+
 	public static StaticText staticText(final String text, final FontSpec font, final Color color) {
 		final StaticText staticText = new StaticText();
 		staticText.setText(text);

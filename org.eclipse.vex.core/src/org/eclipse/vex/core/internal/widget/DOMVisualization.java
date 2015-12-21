@@ -19,6 +19,7 @@ import org.eclipse.vex.core.internal.boxes.BaseBoxVisitor;
 import org.eclipse.vex.core.internal.boxes.IBox;
 import org.eclipse.vex.core.internal.boxes.IContentBox;
 import org.eclipse.vex.core.internal.boxes.InlineContainer;
+import org.eclipse.vex.core.internal.boxes.NodeEndOffsetPlaceholder;
 import org.eclipse.vex.core.internal.boxes.InlineFrame;
 import org.eclipse.vex.core.internal.boxes.InlineNodeReference;
 import org.eclipse.vex.core.internal.boxes.Paragraph;
@@ -159,6 +160,11 @@ public class DOMVisualization {
 
 			@Override
 			public void visit(final TextContent box) {
+				view.invalidateLayout(modifiedBox);
+			}
+
+			@Override
+			public void visit(final NodeEndOffsetPlaceholder box) {
 				view.invalidateLayout(modifiedBox);
 			}
 		});
