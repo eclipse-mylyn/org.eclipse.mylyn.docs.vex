@@ -101,6 +101,8 @@
         <requirement
             name="org.eclipse.jdt.feature.group"/>
         <requirement
+            name="org.eclipse.pde.feature.group"/>
+        <requirement
             name="org.eclipse.wst.xml_ui.feature.feature.group"/>
         <requirement
             name="org.eclipse.vex.feature.feature.group"/>
