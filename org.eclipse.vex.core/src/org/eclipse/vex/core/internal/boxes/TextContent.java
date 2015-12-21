@@ -451,7 +451,7 @@ public class TextContent extends BaseBox implements IInlineBox, IContentBox {
 		final char c = content.charAt(offset);
 		final String head = renderText(content.subSequence(startPosition.getOffset(), offset).toString());
 		final int left = graphics.stringWidth(head);
-		final int charWidth = graphics.stringWidth(Character.toString(c));
+		final int charWidth = graphics.stringWidth(renderText(Character.toString(c)));
 		return new Rectangle(left, 0, charWidth, height);
 	}
 
