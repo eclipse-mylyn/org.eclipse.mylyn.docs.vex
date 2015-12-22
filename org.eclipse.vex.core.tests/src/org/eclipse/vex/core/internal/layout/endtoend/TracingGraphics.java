@@ -135,7 +135,11 @@ public class TracingGraphics implements Graphics {
 
 	@Override
 	public void drawRect(final int x, final int y, final int width, final int height) {
-		tracer.trace("Graphics.drawRect({0,number,#}, {1,number,#}, {2,number,#}, {3,number,#})", x, y, width, height);
+	}
+
+	@Override
+	public void drawRoundRect(final int x, final int y, final int width, final int height, final int arcWidth, final int arcHeight) {
+		tracer.trace("Graphics.drawRoundRect({0,number,#}, {1,number,#}, {2,number,#}, {3,number,#}, {4,number,#}, {5,number,#})", x, y, width, height, arcWidth, arcHeight);
 	}
 
 	@Override
@@ -151,6 +155,11 @@ public class TracingGraphics implements Graphics {
 	@Override
 	public void fillRect(final int x, final int y, final int width, final int height) {
 		tracer.trace("Graphics.fillRect({0,number,#}, {1,number,#}, {2,number,#}, {3,number,#})", x, y, width, height);
+	}
+
+	@Override
+	public void fillRoundRect(final int x, final int y, final int width, final int height, final int arcWidth, final int arcHeight) {
+		tracer.trace("Graphics.fillRoundRect({0,number,#}, {1,number,#}, {2,number,#}, {3,number,#}, {4,number,#}, {5,number,#})", x, y, width, height, arcWidth, arcHeight);
 	}
 
 	@Override

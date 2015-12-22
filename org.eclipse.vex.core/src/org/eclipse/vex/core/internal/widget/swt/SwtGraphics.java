@@ -126,6 +126,11 @@ public class SwtGraphics implements Graphics {
 	}
 
 	@Override
+	public void drawRoundRect(final int x, final int y, final int width, final int height, final int arcWidth, final int arcHeight) {
+		gc.drawRoundRectangle(x + offsetX, y + offsetY, width, height, arcWidth, arcHeight);
+	}
+
+	@Override
 	public void drawString(final String s, final int x, final int y) {
 		gc.drawString(s, x + offsetX, y + offsetY, true);
 	}
@@ -157,6 +162,11 @@ public class SwtGraphics implements Graphics {
 	@Override
 	public void fillRect(final int x, final int y, final int width, final int height) {
 		gc.fillRectangle(x + offsetX, y + offsetY, width, height);
+	}
+
+	@Override
+	public void fillRoundRect(final int x, final int y, final int width, final int height, final int arcWidth, final int arcHeight) {
+		gc.fillRoundRectangle(x + offsetX, y + offsetY, width, height, arcWidth, arcHeight);
 	}
 
 	@Override

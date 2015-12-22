@@ -48,11 +48,15 @@ public interface Graphics {
 
 	public void drawRect(int x, int y, int width, int height);
 
+	public void drawRoundRect(int x, int y, int width, int height, int arcWidth, int arcHeight);
+
 	public void drawImage(Image image, int x, int y, int width, int height);
 
 	public void fillOval(int x, int y, int width, int height);
 
 	public void fillRect(int x, int y, int width, int height);
+
+	public void fillRoundRect(int x, int y, int width, int height, int arcWidth, int arcHeight);
 
 	public Rectangle getClipBounds();
 
