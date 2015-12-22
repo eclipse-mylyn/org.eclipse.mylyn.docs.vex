@@ -193,7 +193,7 @@ public class LineArrangement {
 	private int alignmentOffset(final Graphics graphics, final Line line, final TextAlign textAlign) {
 		switch (textAlign) {
 		case CENTER:
-			return (width - line.getWidth()) / 2;
+			return (width - line.getWidth() + line.getInvisibleGapLeft(graphics) + line.getInvisibleGapRight(graphics)) / 2 - line.getInvisibleGapLeft(graphics);
 		case RIGHT:
 			return width - line.getWidth() + line.getInvisibleGapRight(graphics);
 		default:
