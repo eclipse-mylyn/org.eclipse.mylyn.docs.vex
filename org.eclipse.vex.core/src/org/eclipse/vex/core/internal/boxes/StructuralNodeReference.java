@@ -12,7 +12,7 @@ package org.eclipse.vex.core.internal.boxes;
 
 import org.eclipse.vex.core.internal.core.Color;
 import org.eclipse.vex.core.internal.core.Graphics;
-import org.eclipse.vex.core.internal.core.NodeTag;
+import org.eclipse.vex.core.internal.core.NodeGraphics;
 import org.eclipse.vex.core.internal.core.Rectangle;
 import org.eclipse.vex.core.provisional.dom.ContentRange;
 import org.eclipse.vex.core.provisional.dom.INode;
@@ -210,7 +210,7 @@ public class StructuralNodeReference extends BaseBox implements IStructuralBox, 
 	private void drawTag(final Graphics graphics, final Color foreground, final Color background) {
 		graphics.setForeground(graphics.getColor(foreground));
 		graphics.setBackground(graphics.getColor(background));
-		NodeTag.drawTag(graphics, node, getAbsoluteLeft() + width / 2, getAbsoluteTop() + height / 2, true, true);
+		NodeGraphics.drawTag(graphics, node, getAbsoluteLeft() + width / 2, getAbsoluteTop() + height / 2, true, true);
 	}
 
 	public void highlightInside(final Graphics graphics, final Color foreground, final Color background) {

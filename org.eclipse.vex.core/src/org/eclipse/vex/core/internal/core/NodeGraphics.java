@@ -21,7 +21,7 @@ import org.eclipse.vex.core.provisional.dom.IProcessingInstruction;
 /**
  * @author Florian Thienel
  */
-public class NodeTag {
+public class NodeGraphics {
 
 	private static final FontSpec FONT = new FontSpec("Arial", FontSpec.BOLD, 10.0f);
 

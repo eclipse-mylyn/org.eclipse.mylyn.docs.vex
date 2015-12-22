@@ -29,7 +29,7 @@ import org.eclipse.vex.core.internal.core.Color;
 import org.eclipse.vex.core.internal.core.ColorResource;
 import org.eclipse.vex.core.internal.core.FontSpec;
 import org.eclipse.vex.core.internal.core.Graphics;
-import org.eclipse.vex.core.internal.core.NodeTag;
+import org.eclipse.vex.core.internal.core.NodeGraphics;
 import org.eclipse.vex.core.internal.core.Rectangle;
 import org.eclipse.vex.core.provisional.dom.ContentRange;
 import org.eclipse.vex.core.provisional.dom.INode;
@@ -411,7 +411,7 @@ public class Cursor {
 			graphics.fillRect(x, y, area.getWidth(), 2);
 			graphics.fillRect(x, y, 2, area.getHeight());
 
-			NodeTag.drawStartTag(graphics, node, x + 5, y + 5, false);
+			NodeGraphics.drawStartTag(graphics, node, x + 5, y + 5, false);
 		}
 
 	}
@@ -451,7 +451,7 @@ public class Cursor {
 
 			graphics.fillRect(x, y, 2, area.getHeight());
 
-			NodeTag.drawStartTag(graphics, node, x + 5, y + area.getHeight() / 2, true);
+			NodeGraphics.drawStartTag(graphics, node, x + 5, y + area.getHeight() / 2, true);
 		}
 	}
 
@@ -492,7 +492,7 @@ public class Cursor {
 
 			graphics.fillRect(x, y, 2, area.getHeight());
 
-			NodeTag.drawEndTag(graphics, node, x + 5, y + area.getHeight() / 2, true);
+			NodeGraphics.drawEndTag(graphics, node, x + 5, y + area.getHeight() / 2, true);
 		}
 
 		private int getX() {
@@ -577,7 +577,7 @@ public class Cursor {
 			graphics.fillRect(x, y, area.getWidth(), 2);
 			graphics.fillRect(x + area.getWidth() - 2, y, 2, -area.getHeight());
 
-			NodeTag.drawEndTag(graphics, node, x + 5, y + 5, false);
+			NodeGraphics.drawEndTag(graphics, node, x + 5, y + 5, false);
 		}
 	}
 
