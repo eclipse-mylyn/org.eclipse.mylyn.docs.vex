@@ -19,6 +19,8 @@ public interface IParentBox<T extends IBox> extends IBox {
 
 	boolean hasChildren();
 
+	void prependChild(T child);
+
 	void appendChild(T child);
 
 	void replaceChildren(Collection<? extends IBox> oldChildren, T newChild);

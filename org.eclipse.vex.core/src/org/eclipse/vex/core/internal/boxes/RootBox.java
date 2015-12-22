@@ -78,7 +78,19 @@ public class RootBox extends BaseBox implements IParentBox<IStructuralBox> {
 	}
 
 	@Override
+	public void prependChild(final IStructuralBox child) {
+		if (child == null) {
+			return;
+		}
+		child.setParent(this);
+		children.add(0, child);
+	}
+
+	@Override
 	public void appendChild(final IStructuralBox child) {
+		if (child == null) {
+			return;
+		}
 		child.setParent(this);
 		children.add(child);
 	}

@@ -104,7 +104,18 @@ public class VerticalBlock extends BaseBox implements IStructuralBox, IParentBox
 		return !children.isEmpty();
 	}
 
+	public void prependChild(final IStructuralBox child) {
+		if (child == null) {
+			return;
+		}
+		child.setParent(this);
+		children.add(0, child);
+	}
+
 	public void appendChild(final IStructuralBox child) {
+		if (child == null) {
+			return;
+		}
 		child.setParent(this);
 		children.add(child);
 	}

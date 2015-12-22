@@ -117,10 +117,36 @@ public class Paragraph extends BaseBox implements IStructuralBox, IParentBox<IIn
 		return !children.isEmpty();
 	}
 
-	public void appendChild(final IInlineBox box) {
-		if (!joinWithLastChild(box)) {
-			box.setParent(this);
-			children.add(box);
+	public void prependChild(final IInlineBox child) {
+		if (child == null) {
+			return;
+		}
+		if (!joinWithFirstChild(child)) {
+			child.setParent(this);
+			children.addFirst(child);
+		}
+	}
+
+	private boolean joinWithFirstChild(final IInlineBox box) {
+		if (!hasChildren()) {
+			return false;
+		}
+		final IInlineBox firstChild = children.getFirst();
+		final boolean joined = firstChild.join(box);
+		if (joined) {
+			children.removeFirst();
+			children.addFirst(box);
+		}
+		return joined;
+	}
+
+	public void appendChild(final IInlineBox child) {
+		if (child == null) {
+			return;
+		}
+		if (!joinWithLastChild(child)) {
+			child.setParent(this);
+			children.add(child);
 		}
 	}
 

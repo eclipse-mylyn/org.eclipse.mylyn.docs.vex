@@ -141,10 +141,37 @@ public class InlineContainer extends BaseBox implements IInlineBox, IParentBox<I
 	}
 
 	@Override
+	public void prependChild(final IInlineBox child) {
+		if (child == null) {
+			return;
+		}
+		if (!joinWithFirstChild(child)) {
+			child.setParent(this);
+			children.addFirst(child);
+		}
+	}
+
+	private boolean joinWithFirstChild(final IInlineBox box) {
+		if (!hasChildren()) {
+			return false;
+		}
+		final IInlineBox firstChild = children.getFirst();
+		final boolean joined = box.join(firstChild);
+		if (joined) {
+			children.removeFirst();
+			children.addFirst(box);
+		}
+		return joined;
+	}
+
+	@Override
 	public void appendChild(final IInlineBox child) {
+		if (child == null) {
+			return;
+		}
 		if (!joinWithLastChild(child)) {
 			child.setParent(this);
-			children.add(child);
+			children.addLast(child);
 		}
 	}
 
