@@ -204,6 +204,11 @@
             id="org.eclipse.vex.ui.Italic"
             name="Italic">
       </command>
+      <command
+            categoryId="org.eclipse.vex.ui.commands.category"
+            id="org.eclipse.vex.ui.Anchor"
+            name="Anchor">
+      </command>
 
    </extension>
    <extension
@@ -810,6 +815,10 @@
             class="org.eclipse.vex.ui.boxview.InsertItalicHandler"
             commandId="org.eclipse.vex.ui.Italic">
       </handler>
+      <handler
+            class="org.eclipse.vex.ui.boxview.InsertAnchorHandler"
+            commandId="org.eclipse.vex.ui.Anchor">
+      </handler>
 
       <!-- TODO:
 		   - org.eclipse.ui.edit.text.join.lines
@@ -1331,6 +1340,12 @@
                commandId="org.eclipse.vex.ui.Italic"
                icon="icons/style_italic.gif"
                label="Italic"
+               style="push">
+         </command>
+         <command
+               commandId="org.eclipse.vex.ui.Anchor"
+               icon="icons/anchor.gif"
+               label="Anchor"
                style="push">
          </command>
       </menuContribution>

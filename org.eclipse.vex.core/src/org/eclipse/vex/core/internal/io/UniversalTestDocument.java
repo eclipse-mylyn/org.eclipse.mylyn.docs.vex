@@ -37,6 +37,7 @@ public class UniversalTestDocument {
 	private static final QualifiedName DOC = new QualifiedName(null, "doc");
 	private static final QualifiedName SECTION = new QualifiedName(null, "section");
 	private static final QualifiedName PARA = new QualifiedName(null, "para");
+	private static final QualifiedName ANCHOR = new QualifiedName(null, "anchor");
 	private static final QualifiedName B = new QualifiedName(null, "b");
 	private static final QualifiedName I = new QualifiedName(null, "i");
 
@@ -145,10 +146,11 @@ public class UniversalTestDocument {
 
 			{
 				put(DOC, set(SECTION));
-				put(SECTION, set(PARA));
-				put(PARA, set(IValidator.PCDATA, B, I));
-				put(B, set(IValidator.PCDATA, B, I));
-				put(I, set(IValidator.PCDATA, B, I));
+				put(SECTION, set(PARA, ANCHOR));
+				put(PARA, set(IValidator.PCDATA, B, I, ANCHOR));
+				put(ANCHOR, set());
+				put(B, set(IValidator.PCDATA, B, I, ANCHOR));
+				put(I, set(IValidator.PCDATA, B, I, ANCHOR));
 			}
 		};
 

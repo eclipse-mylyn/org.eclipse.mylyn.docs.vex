@@ -71,7 +71,7 @@ public class BoxDemoView extends ViewPart {
 	private Composite boxWidgetParent;
 	private BoxWidget boxWidget;
 	private IDocument document;
-	
+
 	private Label offsetLabel;
 	private Label contextLabel;
 
@@ -236,4 +236,10 @@ public class BoxDemoView extends ViewPart {
 		final DOMController controller = boxWidget.getDOMController();
 		controller.insertElement(new QualifiedName(null, "i"));
 	}
+
+	public void insertAnchor() {
+		final DOMController controller = boxWidget.getDOMController();
+		controller.insertElement(new QualifiedName(null, "anchor"));
+	}
+
 }
