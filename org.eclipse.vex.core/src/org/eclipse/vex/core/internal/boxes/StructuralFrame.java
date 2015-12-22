@@ -11,7 +11,6 @@
 package org.eclipse.vex.core.internal.boxes;
 
 import org.eclipse.vex.core.internal.core.Color;
-import org.eclipse.vex.core.internal.core.ColorResource;
 import org.eclipse.vex.core.internal.core.Graphics;
 import org.eclipse.vex.core.internal.core.Rectangle;
 
@@ -203,13 +202,10 @@ public class StructuralFrame extends BaseBox implements IStructuralBox, IDecorat
 		}
 
 		graphics.setBackground(graphics.getColor(backgroundColor));
-		graphics.fillRect(left, top, width, height);
+		graphics.fillRect(0, 0, width, height);
 	}
 
 	private void drawBorder(final Graphics graphics) {
-		final ColorResource colorResource = graphics.getColor(Color.BLACK); // TODO store border color
-		graphics.setColor(colorResource);
-
 		final int rectTop = margin.top.get(component.getHeight()) + border.top.width / 2;
 		final int rectLeft = margin.left.get(width) + border.left.width / 2;
 		final int rectBottom = height - margin.bottom.get(component.getHeight()) - border.bottom.width / 2;
