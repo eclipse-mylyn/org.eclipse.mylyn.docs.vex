@@ -47,7 +47,7 @@ import org.eclipse.ui.part.ViewPart;
 import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.css.StyleSheetReader;
 import org.eclipse.vex.core.internal.io.UniversalTestDocument;
-import org.eclipse.vex.core.internal.visualization.CSSBasedBoxModelBuilder;
+import org.eclipse.vex.core.internal.visualization.CssBasedBoxModelBuilder;
 import org.eclipse.vex.core.internal.widget.DOMController;
 import org.eclipse.vex.core.internal.widget.swt.BoxWidget;
 import org.eclipse.vex.core.internal.widget.swt.IVexSelection;
@@ -155,7 +155,7 @@ public class BoxDemoView extends ViewPart {
 
 		document = UniversalTestDocument.createTestDocumentWithInlineElements(SAMPLE_COUNT);
 		boxWidget.setContent(document);
-		boxWidget.setBoxModelBuilder(new CSSBasedBoxModelBuilder(readStyleSheet()));
+		boxWidget.setBoxModelBuilder(new CssBasedBoxModelBuilder(readStyleSheet()));
 		boxWidgetParent.layout();
 		boxWidget.addSelectionChangedListener(selectionChangedListener);
 
@@ -194,7 +194,7 @@ public class BoxDemoView extends ViewPart {
 	}
 
 	private void reloadStyleSheet() {
-		boxWidget.setBoxModelBuilder(new CSSBasedBoxModelBuilder(readStyleSheet()));
+		boxWidget.setBoxModelBuilder(new CssBasedBoxModelBuilder(readStyleSheet()));
 		rebuildBoxModel();
 	}
 

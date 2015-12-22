@@ -53,11 +53,11 @@ import org.eclipse.vex.core.provisional.dom.MultilineText;
 /**
  * @author Florian Thienel
  */
-public class CSSBasedBoxModelBuilder implements IBoxModelBuilder {
+public class CssBasedBoxModelBuilder implements IBoxModelBuilder {
 
 	private final StyleSheet styleSheet;
 
-	public CSSBasedBoxModelBuilder(final StyleSheet styleSheet) {
+	public CssBasedBoxModelBuilder(final StyleSheet styleSheet) {
 		this.styleSheet = styleSheet;
 	}
 
