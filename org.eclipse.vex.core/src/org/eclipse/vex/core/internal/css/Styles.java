@@ -32,6 +32,27 @@ import org.w3c.css.sac.LexicalUnit;
  */
 public class Styles {
 
+	public static enum PseudoElement {
+		BEFORE, AFTER;
+
+		public static PseudoElement parse(final String string) {
+			if (string == null) {
+				throw new NullPointerException("Cannot parse 'null' as PseudoElement.");
+			}
+			final String lowerString = string.toLowerCase();
+			for (final PseudoElement value : values()) {
+				if (value.toString().toLowerCase().equals(lowerString)) {
+					return value;
+				}
+			}
+			throw new IllegalArgumentException("'" + string + "' is not a valid PseudoElement name.");
+		}
+
+		public String key() {
+			return toString().toLowerCase();
+		}
+	}
+
 	/** Maps property name (String) => value (Object) */
 	private final Map<String, Object> values = new HashMap<String, Object>();
 
@@ -284,15 +305,15 @@ public class Styles {
 		values.put(propertyName, value);
 	}
 
-	public void putPseudoElementStyles(final String pseudoElementName, final Styles pseudoElStyles) {
-		pseudoElementStyles.put(pseudoElementName, pseudoElStyles);
+	public void putPseudoElementStyles(final PseudoElement pseudoElement, final Styles styles) {
+		pseudoElementStyles.put(pseudoElement.key(), styles);
 	}
 
-	public Styles getPseudoElementStyles(final String pseudoElementName) {
-		if (pseudoElementStyles.containsKey(pseudoElementName.toLowerCase())) {
-			return pseudoElementStyles.get(pseudoElementName.toLowerCase());
+	public Styles getPseudoElementStyles(final PseudoElement pseudoElement) {
+		if (hasPseudoElement(pseudoElement)) {
+			return pseudoElementStyles.get(pseudoElement.key());
 		} else {
-			// There are no styles for the given pseudo element - return this
+			// There are no styles for the given pseudo element - return this; better save than sorry!
 			return this;
 		}
 	}
@@ -300,11 +321,11 @@ public class Styles {
 	/**
 	 * Check if the given pseudo element is defined for this node.
 	 *
-	 * @param pseudoElementName
+	 * @param pseudoElement
 	 * @return <code>true</code> when the given pseudo element is defined.
 	 */
-	public boolean hasPseudoElement(final String pseudoElementName) {
-		return pseudoElementStyles.containsKey(pseudoElementName.toLowerCase());
+	public boolean hasPseudoElement(final PseudoElement pseudoElement) {
+		return pseudoElementStyles.containsKey(pseudoElement.key());
 	}
 
 	/**

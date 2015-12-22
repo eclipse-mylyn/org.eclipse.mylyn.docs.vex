@@ -163,6 +163,7 @@ public class StyleSheet {
 	 * @return the 'before' pseudo-element for the given parent element, or null if there is no such element defined in
 	 *         the stylesheet
 	 */
+	@Deprecated
 	public IElement getPseudoElementBefore(final INode parent) {
 		return getPseudoElement(parent, CSS.PSEUDO_BEFORE);
 	}
@@ -173,6 +174,7 @@ public class StyleSheet {
 	 * @return the 'after' pseudo-element for the given parent element, or null if there is no such element defined in
 	 *         the stylesheet
 	 */
+	@Deprecated
 	public IElement getPseudoElementAfter(final INode parent) {
 		return getPseudoElement(parent, CSS.PSEUDO_AFTER);
 	}
@@ -180,18 +182,18 @@ public class StyleSheet {
 	private IElement getPseudoElement(final INode parent, final String pseudoElementName) {
 		Assert.isNotNull(parent, "The parent node must not be null!");
 
-		final String name = pseudoElementName.toLowerCase();
+		final org.eclipse.vex.core.internal.css.Styles.PseudoElement pseudoElement = org.eclipse.vex.core.internal.css.Styles.PseudoElement.parse(pseudoElementName);
 		final Styles parentStyles = getStyles(parent);
-		if (parentStyles == null || !parentStyles.hasPseudoElement(name)) {
+		if (parentStyles == null || !parentStyles.hasPseudoElement(pseudoElement)) {
 			return null;
 		}
 
-		final Styles pseudoElementStyles = parentStyles.getPseudoElementStyles(name);
+		final Styles pseudoElementStyles = parentStyles.getPseudoElementStyles(pseudoElement);
 		if (pseudoElementStyles == null || !pseudoElementStyles.isContentDefined()) {
 			return null;
 		}
 
-		return new PseudoElement(parent, name);
+		return new PseudoElement(parent, pseudoElementName.toLowerCase());
 	}
 
 	/**
@@ -203,7 +205,7 @@ public class StyleSheet {
 	public Styles getStyles(final INode node) {
 
 		if (node instanceof PseudoElement) {
-			return getStyles(((PseudoElement) node).getParentNode()).getPseudoElementStyles(((PseudoElement) node).getName());
+			return getStyles(((PseudoElement) node).getParentNode()).getPseudoElementStyles(org.eclipse.vex.core.internal.css.Styles.PseudoElement.parse(((PseudoElement) node).getName()));
 		} else {
 			if (styleMap.containsKey(node)) {
 				return styleMap.get(node);
@@ -237,7 +239,7 @@ public class StyleSheet {
 		for (final Entry<String, Map<String, LexicalUnit>> entry : decls.entrySet()) {
 			final String pseudoElement = entry.getKey();
 			final Styles pseudoElementStyles = calculateNodeStyles(node, entry.getValue(), styles);
-			styles.putPseudoElementStyles(pseudoElement, pseudoElementStyles);
+			styles.putPseudoElementStyles(org.eclipse.vex.core.internal.css.Styles.PseudoElement.parse(pseudoElement), pseudoElementStyles);
 		}
 
 		return styles;
