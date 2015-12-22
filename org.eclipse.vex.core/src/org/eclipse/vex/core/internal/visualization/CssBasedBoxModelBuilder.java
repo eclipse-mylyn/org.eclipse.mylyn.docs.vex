@@ -38,6 +38,7 @@ import org.eclipse.vex.core.internal.boxes.TextContent;
 import org.eclipse.vex.core.internal.css.CSS;
 import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.css.Styles;
+import org.eclipse.vex.core.internal.css.Styles.PseudoElement;
 import org.eclipse.vex.core.internal.dom.CollectingNodeTraversal;
 import org.eclipse.vex.core.provisional.dom.BaseNodeVisitorWithResult;
 import org.eclipse.vex.core.provisional.dom.ContentRange;
@@ -129,7 +130,7 @@ public class CssBasedBoxModelBuilder implements IBoxModelBuilder {
 			public VisualizeResult visit(final IElement element) {
 				final Collection<VisualizeResult> childrenResults = traverseChildren(element);
 				final Styles styles = styleSheet.getStyles(element);
-				if (isDisplayedAsBlock(element, styles)) {
+				if (isDisplayedAsBlock(styles)) {
 					return new VisualizeResult(element, childrenResults, visualizeAsBlock(element, childrenResults));
 				} else {
 					return new VisualizeResult(element, childrenResults, visualizeInline(element, childrenResults));
@@ -144,13 +145,17 @@ public class CssBasedBoxModelBuilder implements IBoxModelBuilder {
 		});
 	}
 
-	private static boolean isDisplayedAsBlock(final IElement element, final Styles styles) {
+	private static boolean isDisplayedAsBlock(final Styles styles) {
 		// currently we can only render blocks or inline, hence everything that is not inline must be a block
-		return !CSS.INLINE.equals(styles.getDisplay());
+		return !isDisplayedInline(styles);
 	}
 
-	private static boolean isDisplayedPreservingWhitespace(final IText text, final Styles styles) {
-		return CSS.PRE.equals(styles.getDisplay());
+	private static boolean isDisplayedInline(final Styles styles) {
+		return CSS.INLINE.equals(styles.getDisplay());
+	}
+
+	private static boolean isPreservingWhitespace(final Styles styles) {
+		return CSS.PRE.equals(styles.getWhiteSpace());
 	}
 
 	/*
@@ -171,12 +176,40 @@ public class CssBasedBoxModelBuilder implements IBoxModelBuilder {
 				}
 
 				if (mayContainText) {
-					return nodeReferenceWithText(element, frame(content, styles));
+					return nodeReferenceWithText(element, surroundWithPseudoElements(frame(content, styles), element, styles));
 				} else {
-					return nodeReference(element, frame(content, styles));
+					return nodeReference(element, surroundWithPseudoElements(frame(content, styles), element, styles));
 				}
 			}
 		});
+	}
+
+	private static IStructuralBox surroundWithPseudoElements(final IStructuralBox content, final INode node, final Styles styles) {
+		final IStructuralBox pseudoElementBefore = visualizePseudoElementAsBlock(styles, node, PseudoElement.BEFORE);
+		final IStructuralBox pseudoElementAfter = visualizePseudoElementAsBlock(styles, node, PseudoElement.AFTER);
+
+		if (pseudoElementBefore == null && pseudoElementAfter == null) {
+			return content;
+		}
+
+		return verticalBlock(pseudoElementBefore, content, pseudoElementAfter);
+	}
+
+	private static IStructuralBox visualizePseudoElementAsBlock(final Styles styles, final INode node, final PseudoElement pseudoElement) {
+		if (!styles.hasPseudoElement(pseudoElement)) {
+			return null;
+		}
+
+		final Styles pseudoElementStyles = styles.getPseudoElementStyles(pseudoElement);
+		if (!isDisplayedAsBlock(pseudoElementStyles)) {
+			return null;
+		}
+
+		final StringBuilder content = new StringBuilder();
+		for (final String part : pseudoElementStyles.getContent(node)) {
+			content.append(part);
+		}
+		return frame(paragraph(pseudoElementStyles, staticText(content.toString(), pseudoElementStyles)), pseudoElementStyles);
 	}
 
 	private static boolean containsInlineContent(final Collection<VisualizeResult> visualizeResults) {
@@ -203,7 +236,7 @@ public class CssBasedBoxModelBuilder implements IBoxModelBuilder {
 		return node.accept(new BaseNodeVisitorWithResult<IInlineBox>() {
 			@Override
 			public IInlineBox visit(final IElement element) {
-				final InlineContainer inlineElementContent = visualizeInlineElementContent(element, styles, childrenResults, inlineContainer());
+				final IInlineBox inlineElementContent = visualizeInlineElementContent(element, styles, childrenResults, inlineContainer());
 				if (mayContainText(element)) {
 					return nodeReferenceWithText(element, frame(inlineElementContent, styles));
 				} else {
@@ -214,7 +247,7 @@ public class CssBasedBoxModelBuilder implements IBoxModelBuilder {
 			@Override
 			public IInlineBox visit(final IText text) {
 				final ContentRange textRange = text.getRange();
-				if (isDisplayedPreservingWhitespace(text, styles)) {
+				if (isPreservingWhitespace(styles)) {
 					return visualizeAsMultilineText(text, styles);
 				} else {
 					return textContent(content, textRange, styles);
@@ -226,7 +259,7 @@ public class CssBasedBoxModelBuilder implements IBoxModelBuilder {
 
 	private <P extends IParentBox<IInlineBox>> P visualizeInlineElementContent(final IElement element, final Styles styles, final Collection<VisualizeResult> childrenResults, final P parent) {
 		if (!childrenResults.isEmpty()) {
-			return visualizeChildrenInline(childrenResults, parent);
+			return surroundWithPseudoElements(visualizeChildrenInline(childrenResults, parent), element, styles);
 		} else {
 			return placeholderForEmptyElement(element, styles, parent);
 		}
@@ -252,6 +285,37 @@ public class CssBasedBoxModelBuilder implements IBoxModelBuilder {
 		}
 
 		return lineContainer;
+	}
+
+	private static <P extends IParentBox<IInlineBox>> P surroundWithPseudoElements(final P parent, final INode node, final Styles styles) {
+		final IInlineBox pseudoElementBefore = visualizePseudoElementInline(styles, node, PseudoElement.BEFORE);
+		final IInlineBox pseudoElementAfter = visualizePseudoElementInline(styles, node, PseudoElement.AFTER);
+
+		if (pseudoElementBefore != null) {
+			parent.prependChild(pseudoElementBefore);
+		}
+		if (pseudoElementAfter != null) {
+			parent.appendChild(pseudoElementAfter);
+		}
+
+		return parent;
+	}
+
+	private static IInlineBox visualizePseudoElementInline(final Styles styles, final INode node, final PseudoElement pseudoElement) {
+		if (!styles.hasPseudoElement(pseudoElement)) {
+			return null;
+		}
+
+		final Styles pseudoElementStyles = styles.getPseudoElementStyles(pseudoElement);
+		if (!isDisplayedInline(pseudoElementStyles)) {
+			return null;
+		}
+
+		final StringBuilder content = new StringBuilder();
+		for (final String part : pseudoElementStyles.getContent(node)) {
+			content.append(part);
+		}
+		return frame(inlineContainer(staticText(content.toString(), pseudoElementStyles)), pseudoElementStyles);
 	}
 
 	private static <P extends IParentBox<IInlineBox>> P placeholderForEmptyElement(final IElement element, final Styles styles, final P parent) {
