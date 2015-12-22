@@ -145,7 +145,12 @@ public class CssBasedBoxModelBuilder implements IBoxModelBuilder {
 	}
 
 	private static boolean isDisplayedAsBlock(final IElement element, final Styles styles) {
-		return CSS.BLOCK.equals(styles.getDisplay()); // TODO provide real implementation, use IWhitespacePolicy
+		// currently we can only render blocks or inline, hence everything that is not inline must be a block
+		return !CSS.INLINE.equals(styles.getDisplay());
+	}
+
+	private static boolean isDisplayedPreservingWhitespace(final IText text, final Styles styles) {
+		return CSS.PRE.equals(styles.getDisplay());
 	}
 
 	/*
@@ -209,40 +214,47 @@ public class CssBasedBoxModelBuilder implements IBoxModelBuilder {
 			@Override
 			public IInlineBox visit(final IText text) {
 				final ContentRange textRange = text.getRange();
-				if (!CSS.PRE.equals(styles.getWhiteSpace())) { // TODO use IWhitespacePolicy
+				if (isDisplayedPreservingWhitespace(text, styles)) {
+					return visualizeAsMultilineText(text, styles);
+				} else {
 					return textContent(content, textRange, styles);
 				}
-
-				final InlineContainer lineContainer = inlineContainer();
-				final MultilineText lines = content.getMultilineText(textRange);
-				for (int i = 0; i < lines.size(); i += 1) {
-					final TextContent textLine = textContent(content, lines.getRange(i), styles);
-					if (content.isLineBreak(lines.getRange(i).getEndOffset())) {
-						textLine.setLineWrappingAtEnd(LineWrappingRule.REQUIRED);
-					}
-					lineContainer.appendChild(textLine);
-				}
-				return lineContainer;
 			}
+
 		});
 	}
 
 	private <P extends IParentBox<IInlineBox>> P visualizeInlineElementContent(final IElement element, final Styles styles, final Collection<VisualizeResult> childrenResults, final P parent) {
 		if (!childrenResults.isEmpty()) {
-			visualizeChildrenInline(childrenResults, parent);
-
-			// TODO use IWhitespacePolicy
-			if (CSS.PRE.equals(styles.getWhiteSpace()) && element.getContent().isLineBreak(element.getEndOffset() - 1)) {
-				parent.appendChild(endOffsetPlaceholder(element, styles));
-			}
-
-			return parent;
+			return visualizeChildrenInline(childrenResults, parent);
 		} else {
 			return placeholderForEmptyElement(element, styles, parent);
 		}
 	}
 
-	private <P extends IParentBox<IInlineBox>> P placeholderForEmptyElement(final IElement element, final Styles styles, final P parent) {
+	private static IInlineBox visualizeAsMultilineText(final IText text, final Styles styles) {
+		final IContent content = text.getContent();
+		final ContentRange textRange = text.getRange();
+
+		final InlineContainer lineContainer = inlineContainer();
+		final MultilineText lines = content.getMultilineText(textRange);
+		for (int i = 0; i < lines.size(); i += 1) {
+			final TextContent textLine = textContent(content, lines.getRange(i), styles);
+			if (content.isLineBreak(lines.getRange(i).getEndOffset())) {
+				textLine.setLineWrappingAtEnd(LineWrappingRule.REQUIRED);
+			}
+			lineContainer.appendChild(textLine);
+		}
+
+		final INode parent = text.getParent();
+		if (textRange.getEndOffset() == parent.getEndOffset() - 1 && content.isLineBreak(textRange.getEndOffset())) {
+			lineContainer.appendChild(endOffsetPlaceholder(parent, styles));
+		}
+
+		return lineContainer;
+	}
+
+	private static <P extends IParentBox<IInlineBox>> P placeholderForEmptyElement(final IElement element, final Styles styles, final P parent) {
 		parent.appendChild(endOffsetPlaceholder(element, styles));
 		if (false) { // TODO allow to provide a placeholder text in the CSS
 			parent.appendChild(staticText(MessageFormat.format("[placeholder for empty <{0}> element]", element.getLocalName()), styles));
