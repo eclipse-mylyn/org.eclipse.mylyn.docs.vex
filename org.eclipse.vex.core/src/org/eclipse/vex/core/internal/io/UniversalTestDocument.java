@@ -45,7 +45,7 @@ public class UniversalTestDocument {
 	private final IDocument document;
 
 	public UniversalTestDocument(final int sampleCount) {
-		document = createTestDocument(sampleCount);
+		document = createSimpleTestDocument(sampleCount);
 	}
 
 	public IDocument getDocument() {
@@ -69,7 +69,7 @@ public class UniversalTestDocument {
 		return paragraph.getStartOffset() + 5;
 	}
 
-	public static IDocument createTestDocument(final int sampleCount) {
+	public static IDocument createSimpleTestDocument(final int sampleCount) {
 		final Document document = new Document(DOC);
 		document.setValidator(new UniversalTestDocumentValidator());
 
@@ -107,7 +107,7 @@ public class UniversalTestDocument {
 		document.insertText(parent.getEndOffset(), text);
 	}
 
-	public static IDocument createTestDocumentWithInlineElements(final int sampleCount) {
+	public static IDocument createTestDocumentWithAllFeatures(final int sampleCount) {
 		final Document document = new Document(DOC);
 		document.setValidator(new UniversalTestDocumentValidator());
 

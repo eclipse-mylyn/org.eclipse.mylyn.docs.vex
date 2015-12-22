@@ -153,7 +153,7 @@ public class BoxDemoView extends ViewPart {
 		}
 		boxWidget = new BoxWidget(boxWidgetParent, SWT.V_SCROLL);
 
-		document = UniversalTestDocument.createTestDocumentWithInlineElements(SAMPLE_COUNT);
+		document = UniversalTestDocument.createTestDocumentWithAllFeatures(SAMPLE_COUNT);
 		boxWidget.setContent(document);
 		boxWidget.setBoxModelBuilder(new CssBasedBoxModelBuilder(readStyleSheet()));
 		boxWidgetParent.layout();
