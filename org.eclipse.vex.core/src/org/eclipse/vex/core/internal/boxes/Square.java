@@ -13,62 +13,13 @@ package org.eclipse.vex.core.internal.boxes;
 import org.eclipse.vex.core.internal.core.Color;
 import org.eclipse.vex.core.internal.core.ColorResource;
 import org.eclipse.vex.core.internal.core.Graphics;
-import org.eclipse.vex.core.internal.core.Rectangle;
 
 /**
  * @author Florian Thienel
  */
-public class Square extends BaseBox implements IInlineBox {
+public class Square extends SimpleInlineBox {
 
-	private IBox parent;
-	private int top;
-	private int left;
 	private int size;
-
-	private LineWrappingRule lineWrappingAtStart = LineWrappingRule.ALLOWED;
-	private LineWrappingRule lineWrappingAtEnd = LineWrappingRule.ALLOWED;
-
-	@Override
-	public void setParent(final IBox parent) {
-		this.parent = parent;
-	}
-
-	@Override
-	public IBox getParent() {
-		return parent;
-	}
-
-	@Override
-	public int getAbsoluteTop() {
-		if (parent == null) {
-			return top;
-		}
-		return parent.getAbsoluteTop() + top;
-	}
-
-	@Override
-	public int getAbsoluteLeft() {
-		if (parent == null) {
-			return left;
-		}
-		return parent.getAbsoluteLeft() + left;
-	}
-
-	@Override
-	public int getTop() {
-		return top;
-	}
-
-	@Override
-	public int getLeft() {
-		return left;
-	}
-
-	@Override
-	public void setPosition(final int top, final int left) {
-		this.top = top;
-		this.left = left;
-	}
 
 	@Override
 	public int getWidth() {
@@ -81,50 +32,12 @@ public class Square extends BaseBox implements IInlineBox {
 	}
 
 	@Override
-	public Rectangle getBounds() {
-		return new Rectangle(left, top, size, size);
-	}
-
-	public void setSize(final int size) {
-		this.size = size;
-	}
-
-	@Override
 	public int getBaseline() {
 		return size;
 	}
 
-	@Override
-	public int getInvisibleGapAtStart(final Graphics graphics) {
-		return 0;
-	}
-
-	@Override
-	public int getInvisibleGapAtEnd(final Graphics graphics) {
-		return 0;
-	}
-
-	@Override
-	public LineWrappingRule getLineWrappingAtStart() {
-		return lineWrappingAtStart;
-	}
-
-	public void setLineWrappingAtStart(final LineWrappingRule wrappingRule) {
-		lineWrappingAtStart = wrappingRule;
-	}
-
-	@Override
-	public LineWrappingRule getLineWrappingAtEnd() {
-		return lineWrappingAtEnd;
-	}
-
-	public void setLineWrappingAtEnd(final LineWrappingRule wrappingRule) {
-		lineWrappingAtEnd = wrappingRule;
-	}
-
-	@Override
-	public boolean requiresSplitForLineWrapping() {
-		return lineWrappingAtStart == LineWrappingRule.REQUIRED || lineWrappingAtEnd == LineWrappingRule.REQUIRED;
+	public void setSize(final int size) {
+		this.size = size;
 	}
 
 	@Override
@@ -154,25 +67,5 @@ public class Square extends BaseBox implements IInlineBox {
 		graphics.setColor(colorResource);
 
 		graphics.fillRect(0, 0, size, size);
-	}
-
-	@Override
-	public boolean canJoin(final IInlineBox other) {
-		return false;
-	}
-
-	@Override
-	public boolean join(final IInlineBox other) {
-		return false;
-	}
-
-	@Override
-	public boolean canSplit() {
-		return false;
-	}
-
-	@Override
-	public IInlineBox splitTail(final Graphics graphics, final int headWidth, final boolean force) {
-		throw new UnsupportedOperationException("Splitting is not supported for Square.");
 	}
 }
