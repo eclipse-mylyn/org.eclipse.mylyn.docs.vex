@@ -1,7 +1,5 @@
 HostComponent.createDefaultGraphics()
 Graphics.moveOrigin(0, 0)
-Graphics.createColor(Color[r=0,g=0,b=0])
-Graphics.setColor(TracingColorResource [color=Color[r=0,g=0,b=0], id=-1])
 Graphics.setLineWidth(10)
 Graphics.setLineStyle(SOLID)
 Graphics.createColor(Color[r=0,g=0,b=0])
