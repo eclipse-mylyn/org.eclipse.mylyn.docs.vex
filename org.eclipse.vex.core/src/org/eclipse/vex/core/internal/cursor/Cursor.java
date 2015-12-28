@@ -400,10 +400,8 @@ public class Cursor {
 				return;
 			}
 
-			final ColorResource foregroundColor = graphics.getColor(CARET_FOREGROUND_COLOR);
-			final ColorResource backgroundColor = graphics.getColor(CARET_BACKGROUND_COLOR);
-			graphics.setForeground(foregroundColor);
-			graphics.setBackground(backgroundColor);
+			graphics.setForeground(graphics.getColor(CARET_FOREGROUND_COLOR));
+			graphics.setBackground(graphics.getColor(CARET_BACKGROUND_COLOR));
 
 			final int x = area.getX();
 			final int y = area.getY();
@@ -441,10 +439,8 @@ public class Cursor {
 				return;
 			}
 
-			final ColorResource foregroundColor = graphics.getColor(CARET_FOREGROUND_COLOR);
-			final ColorResource backgroundColor = graphics.getColor(CARET_BACKGROUND_COLOR);
-			graphics.setForeground(foregroundColor);
-			graphics.setBackground(backgroundColor);
+			graphics.setForeground(graphics.getColor(CARET_FOREGROUND_COLOR));
+			graphics.setBackground(graphics.getColor(CARET_BACKGROUND_COLOR));
 
 			final int x = area.getX();
 			final int y = area.getY();
@@ -482,10 +478,8 @@ public class Cursor {
 				return;
 			}
 
-			final ColorResource foregroundColor = graphics.getColor(CARET_FOREGROUND_COLOR);
-			final ColorResource backgroundColor = graphics.getColor(CARET_BACKGROUND_COLOR);
-			graphics.setForeground(foregroundColor);
-			graphics.setBackground(backgroundColor);
+			graphics.setForeground(graphics.getColor(CARET_FOREGROUND_COLOR));
+			graphics.setBackground(graphics.getColor(CARET_BACKGROUND_COLOR));
 
 			final int x = getX();
 			final int y = area.getY();
@@ -525,10 +519,8 @@ public class Cursor {
 				return;
 			}
 
-			final ColorResource foregroundColor = graphics.getColor(CARET_FOREGROUND_COLOR);
-			final ColorResource backgroundColor = graphics.getColor(CARET_BACKGROUND_COLOR);
-			graphics.setForeground(foregroundColor);
-			graphics.setBackground(backgroundColor);
+			graphics.setForeground(graphics.getColor(CARET_FOREGROUND_COLOR));
+			graphics.setBackground(graphics.getColor(CARET_BACKGROUND_COLOR));
 
 			final int x = getX();
 			final int y = area.getY();
@@ -566,10 +558,8 @@ public class Cursor {
 				return;
 			}
 
-			final ColorResource foregroundColor = graphics.getColor(CARET_FOREGROUND_COLOR);
-			final ColorResource backgroundColor = graphics.getColor(CARET_BACKGROUND_COLOR);
-			graphics.setForeground(foregroundColor);
-			graphics.setBackground(backgroundColor);
+			graphics.setForeground(graphics.getColor(CARET_FOREGROUND_COLOR));
+			graphics.setBackground(graphics.getColor(CARET_BACKGROUND_COLOR));
 
 			final int x = area.getX();
 			final int y = area.getY() + area.getHeight();
