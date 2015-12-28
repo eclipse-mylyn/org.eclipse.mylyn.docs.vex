@@ -17,6 +17,7 @@ import static org.eclipse.vex.core.internal.boxes.BoxFactory.rootBox;
 import static org.eclipse.vex.core.internal.boxes.BoxFactory.verticalBlock;
 import static org.eclipse.vex.core.internal.visualization.CssBoxFactory.endOffsetPlaceholder;
 import static org.eclipse.vex.core.internal.visualization.CssBoxFactory.frame;
+import static org.eclipse.vex.core.internal.visualization.CssBoxFactory.nodeTag;
 import static org.eclipse.vex.core.internal.visualization.CssBoxFactory.paragraph;
 import static org.eclipse.vex.core.internal.visualization.CssBoxFactory.staticText;
 import static org.eclipse.vex.core.internal.visualization.CssBoxFactory.textContent;
@@ -169,7 +170,9 @@ public class CssBasedBoxModelBuilder implements IBoxModelBuilder {
 			public IStructuralBox visit(final IElement element) {
 				final boolean mayContainText = mayContainText(element);
 				final IStructuralBox content;
-				if (mayContainText || containsInlineContent(childrenResults)) {
+				if (isEmptyElement(element)) {
+					content = visualizeEmptyElement(styles, element);
+				} else if (mayContainText || containsInlineContent(childrenResults)) {
 					content = visualizeInlineElementContent(element, styles, childrenResults, paragraph(styles));
 				} else {
 					content = visualizeChildrenAsStructure(childrenResults, verticalBlock());
@@ -182,6 +185,10 @@ public class CssBasedBoxModelBuilder implements IBoxModelBuilder {
 				}
 			}
 		});
+	}
+
+	private IStructuralBox visualizeEmptyElement(final Styles styles, final IElement element) {
+		return paragraph(styles, nodeTag(element, styles));
 	}
 
 	private static IStructuralBox surroundWithPseudoElements(final IStructuralBox content, final INode node, final Styles styles) {
@@ -226,6 +233,11 @@ public class CssBasedBoxModelBuilder implements IBoxModelBuilder {
 		return validItems.contains(IValidator.PCDATA);
 	}
 
+	private static boolean isEmptyElement(final IElement element) {
+		final Set<QualifiedName> validItems = element.getDocument().getValidator().getValidItems(element);
+		return validItems.isEmpty() && !element.hasChildren();
+	}
+
 	/*
 	 * Render inline elements
 	 */
@@ -236,6 +248,9 @@ public class CssBasedBoxModelBuilder implements IBoxModelBuilder {
 		return node.accept(new BaseNodeVisitorWithResult<IInlineBox>() {
 			@Override
 			public IInlineBox visit(final IElement element) {
+				if (isEmptyElement(element)) {
+					return nodeReference(element, frame(visualizeEmptyElementInline(element, styles), styles));
+				}
 				final IInlineBox inlineElementContent = visualizeInlineElementContent(element, styles, childrenResults, inlineContainer());
 				if (mayContainText(element)) {
 					return nodeReferenceWithText(element, frame(inlineElementContent, styles));
@@ -263,6 +278,10 @@ public class CssBasedBoxModelBuilder implements IBoxModelBuilder {
 		} else {
 			return placeholderForEmptyElement(element, styles, parent);
 		}
+	}
+
+	private static IInlineBox visualizeEmptyElementInline(final IElement element, final Styles styles) {
+		return nodeTag(element, styles);
 	}
 
 	private static IInlineBox visualizeAsMultilineText(final IText text, final Styles styles) {
