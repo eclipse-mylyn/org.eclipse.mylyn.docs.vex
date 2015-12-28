@@ -249,6 +249,10 @@ public class FakeGraphics implements Graphics {
 	}
 
 	@Override
+	public void swapColors() {
+	}
+
+	@Override
 	public FontResource setCurrentFont(final FontResource font) {
 		return null;
 	}

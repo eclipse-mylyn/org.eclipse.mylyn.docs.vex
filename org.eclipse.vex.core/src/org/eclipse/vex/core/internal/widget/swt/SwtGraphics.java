@@ -282,6 +282,11 @@ public class SwtGraphics implements Graphics {
 	}
 
 	@Override
+	public void swapColors() {
+		setForeground(setBackground(getForeground()));
+	}
+
+	@Override
 	public void setLineStyle(final LineStyle style) {
 		lineStyle = style;
 		switch (style) {

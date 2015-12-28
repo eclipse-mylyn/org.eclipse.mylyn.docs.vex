@@ -88,6 +88,8 @@ public interface Graphics {
 
 	public ColorResource setBackground(ColorResource color);
 
+	public void swapColors();
+
 	public FontResource setCurrentFont(FontResource font);
 
 	public void setLineStyle(LineStyle style);

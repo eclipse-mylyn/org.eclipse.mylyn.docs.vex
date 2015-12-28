@@ -250,6 +250,11 @@ public class TracingGraphics implements Graphics {
 	}
 
 	@Override
+	public void swapColors() {
+		tracer.trace("Graphics.swapColors()");
+	}
+
+	@Override
 	public FontResource setCurrentFont(final FontResource font) {
 		tracer.trace("Graphics.setFont({0})", font);
 		final FontResource oldFont = getCurrentFont();
