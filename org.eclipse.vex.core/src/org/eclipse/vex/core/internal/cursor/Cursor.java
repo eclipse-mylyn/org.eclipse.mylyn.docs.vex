@@ -26,7 +26,6 @@ import org.eclipse.vex.core.internal.boxes.StaticText;
 import org.eclipse.vex.core.internal.boxes.StructuralNodeReference;
 import org.eclipse.vex.core.internal.boxes.TextContent;
 import org.eclipse.vex.core.internal.core.Color;
-import org.eclipse.vex.core.internal.core.ColorResource;
 import org.eclipse.vex.core.internal.core.FontSpec;
 import org.eclipse.vex.core.internal.core.Graphics;
 import org.eclipse.vex.core.internal.core.NodeGraphics;
@@ -406,6 +405,11 @@ public class Cursor {
 			final int x = area.getX();
 			final int y = area.getY();
 
+			graphics.swapColors();
+			graphics.fillRect(x - 2, y - 2, area.getWidth(), 6);
+			graphics.fillRect(x - 2, y - 2, 6, area.getHeight());
+			graphics.swapColors();
+
 			graphics.fillRect(x, y, area.getWidth(), 2);
 			graphics.fillRect(x, y, 2, area.getHeight());
 
@@ -563,6 +567,11 @@ public class Cursor {
 
 			final int x = area.getX();
 			final int y = area.getY() + area.getHeight();
+
+			graphics.swapColors();
+			graphics.fillRect(x - 2, y - 2, area.getWidth(), 6);
+			graphics.fillRect(x - 2, y - 2, 6, area.getHeight());
+			graphics.swapColors();
 
 			graphics.fillRect(x, y, area.getWidth(), 2);
 			graphics.fillRect(x + area.getWidth() - 2, y, 2, -area.getHeight());

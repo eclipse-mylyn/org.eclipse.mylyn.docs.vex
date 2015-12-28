@@ -26,7 +26,7 @@ public class NodeGraphics {
 	private static final FontSpec FONT = new FontSpec("Arial", FontSpec.BOLD, 10.0f);
 
 	public static void drawStartTag(final Graphics graphics, final INode node, final int x, final int y, final boolean verticallyCentered) {
-		drawTag(graphics, getNodeStartMarker(node), x, y, false, verticallyCentered);
+		drawSimpleTag(graphics, getNodeStartMarker(node), x, y, false, verticallyCentered);
 	}
 
 	public static void drawTag(final Graphics graphics, final INode node, final int x, final int y, final boolean horizontallyCentered, final boolean verticallyCentered) {
@@ -34,30 +34,60 @@ public class NodeGraphics {
 	}
 
 	public static void drawEndTag(final Graphics graphics, final INode node, final int x, final int y, final boolean verticallyCentered) {
-		drawTag(graphics, getNodeEndMarker(node), x, y, false, verticallyCentered);
+		drawSimpleTag(graphics, getNodeEndMarker(node), x, y, false, verticallyCentered);
 	}
 
-	private static void drawTag(final Graphics graphics, final String text, final int x, final int y, final boolean horizontallyCentered, final boolean verticallyCentered) {
+	private static void drawSimpleTag(final Graphics graphics, final String text, final int x, final int y, final boolean horizontallyCentered, final boolean verticallyCentered) {
 		graphics.setCurrentFont(graphics.getFont(FONT));
-		final int textWidth = graphics.stringWidth(text);
-		final int textHeight = graphics.getFontMetrics().getHeight();
 		final int textPadding = 3;
+		final int textWidth = graphics.stringWidth(text) + textPadding * 2;
+		final int textHeight = graphics.getFontMetrics().getHeight() + textPadding * 2;
 
 		final int effectiveX;
 		if (horizontallyCentered) {
-			effectiveX = x - (textWidth + textPadding * 2) / 2;
+			effectiveX = x - textWidth / 2;
 		} else {
 			effectiveX = x;
 		}
 
 		final int effectiveY;
 		if (verticallyCentered) {
-			effectiveY = y - (textHeight + textPadding * 2) / 2;
+			effectiveY = y - textHeight / 2;
 		} else {
 			effectiveY = y;
 		}
 
-		graphics.fillRect(effectiveX, effectiveY, textWidth + textPadding * 2, textHeight + textPadding * 2);
+		graphics.setLineWidth(1);
+		graphics.fillRect(effectiveX, effectiveY, textWidth, textHeight);
+		graphics.drawRect(effectiveX, effectiveY, textWidth, textHeight);
+		graphics.drawString(text, effectiveX + textPadding, effectiveY + textPadding);
+	}
+
+	private static void drawTag(final Graphics graphics, final String text, final int x, final int y, final boolean horizontallyCentered, final boolean verticallyCentered) {
+		graphics.setCurrentFont(graphics.getFont(FONT));
+		final int textPadding = 3;
+		final int textWidth = graphics.stringWidth(text) + textPadding * 2;
+		final int textHeight = graphics.getFontMetrics().getHeight() + textPadding * 2;
+		final int arc = textHeight / 3;
+		final int margin = 2;
+
+		final int effectiveX;
+		if (horizontallyCentered) {
+			effectiveX = x - textWidth / 2;
+		} else {
+			effectiveX = x;
+		}
+
+		final int effectiveY;
+		if (verticallyCentered) {
+			effectiveY = y - textHeight / 2;
+		} else {
+			effectiveY = y;
+		}
+
+		graphics.setLineWidth(1);
+		graphics.fillRoundRect(effectiveX - margin, effectiveY - margin, textWidth + margin * 2 + 1, textHeight + margin * 2 + 1, arc, arc);
+		graphics.drawRoundRect(effectiveX, effectiveY, textWidth, textHeight, arc, arc);
 		graphics.drawString(text, effectiveX + textPadding, effectiveY + textPadding);
 	}
 
