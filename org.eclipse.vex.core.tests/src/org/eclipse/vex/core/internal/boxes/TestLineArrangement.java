@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.eclipse.vex.core.internal.core.Color;
 import org.eclipse.vex.core.internal.core.FontSpec;
 import org.eclipse.vex.core.internal.core.TextAlign;
 import org.eclipse.vex.core.internal.layout.FakeGraphics;
@@ -158,6 +159,7 @@ public class TestLineArrangement {
 	private static Square square(final int size) {
 		final Square square = new Square();
 		square.setSize(size);
+		square.setColor(Color.BLACK);
 		return square;
 	}
 }

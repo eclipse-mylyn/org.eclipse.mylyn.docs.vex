@@ -163,9 +163,10 @@ public class BoxFactory {
 		return staticText;
 	}
 
-	public static Square square(final int size) {
+	public static Square square(final int size, final Color color) {
 		final Square square = new Square();
 		square.setSize(size);
+		square.setColor(color);
 		return square;
 	}
 

@@ -16,6 +16,7 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.Iterator;
 
+import org.eclipse.vex.core.internal.core.Color;
 import org.eclipse.vex.core.internal.core.FontSpec;
 import org.eclipse.vex.core.internal.layout.FakeGraphics;
 import org.junit.Before;
@@ -192,6 +193,7 @@ public class TestInlineContainer {
 	private static Square square(final int size) {
 		final Square square = new Square();
 		square.setSize(size);
+		square.setColor(Color.BLACK);
 		return square;
 	}
 

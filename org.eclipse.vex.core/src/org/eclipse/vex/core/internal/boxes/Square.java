@@ -11,7 +11,6 @@
 package org.eclipse.vex.core.internal.boxes;
 
 import org.eclipse.vex.core.internal.core.Color;
-import org.eclipse.vex.core.internal.core.ColorResource;
 import org.eclipse.vex.core.internal.core.Graphics;
 
 /**
@@ -20,6 +19,7 @@ import org.eclipse.vex.core.internal.core.Graphics;
 public class Square extends SimpleInlineBox {
 
 	private int size;
+	private Color color;
 
 	@Override
 	public int getWidth() {
@@ -38,6 +38,10 @@ public class Square extends SimpleInlineBox {
 
 	public void setSize(final int size) {
 		this.size = size;
+	}
+
+	public void setColor(final Color color) {
+		this.color = color;
 	}
 
 	@Override
@@ -63,9 +67,7 @@ public class Square extends SimpleInlineBox {
 
 	@Override
 	public void paint(final Graphics graphics) {
-		final ColorResource colorResource = graphics.getColor(Color.BLACK); // TODO store square color
-		graphics.setColor(colorResource);
-
+		graphics.setColor(graphics.getColor(color));
 		graphics.fillRect(0, 0, size, size);
 	}
 }

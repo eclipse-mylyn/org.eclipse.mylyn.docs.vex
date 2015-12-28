@@ -21,6 +21,7 @@ import org.eclipse.vex.core.internal.boxes.NodeEndOffsetPlaceholder;
 import org.eclipse.vex.core.internal.boxes.NodeTag;
 import org.eclipse.vex.core.internal.boxes.Padding;
 import org.eclipse.vex.core.internal.boxes.Paragraph;
+import org.eclipse.vex.core.internal.boxes.Square;
 import org.eclipse.vex.core.internal.boxes.StaticText;
 import org.eclipse.vex.core.internal.boxes.StructuralFrame;
 import org.eclipse.vex.core.internal.boxes.TextContent;
@@ -97,6 +98,13 @@ public class CssBoxFactory {
 		final StaticText staticText = staticText(text, styles);
 		staticText.setLineWrappingAtEnd(LineWrappingRule.REQUIRED);
 		return staticText;
+	}
+
+	public static Square square(final int size, final Styles styles) {
+		final Square square = new Square();
+		square.setSize(size);
+		square.setColor(styles.getColor());
+		return square;
 	}
 
 	public static NodeTag nodeTag(final INode node, final Styles styles) {
