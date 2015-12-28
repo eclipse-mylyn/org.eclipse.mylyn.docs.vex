@@ -79,4 +79,9 @@ public class BaseBoxVisitor implements IBoxVisitor {
 	public void visit(final Square box) {
 		// ignore
 	}
+
+	@Override
+	public void visit(final NodeTag box) {
+		// ignore
+	}
 }

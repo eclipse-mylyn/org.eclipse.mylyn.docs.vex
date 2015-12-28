@@ -20,6 +20,7 @@ import org.eclipse.vex.core.internal.boxes.IContentBox;
 import org.eclipse.vex.core.internal.boxes.IInlineBox;
 import org.eclipse.vex.core.internal.boxes.InlineNodeReference;
 import org.eclipse.vex.core.internal.boxes.NodeEndOffsetPlaceholder;
+import org.eclipse.vex.core.internal.boxes.NodeTag;
 import org.eclipse.vex.core.internal.boxes.RootBox;
 import org.eclipse.vex.core.internal.boxes.Square;
 import org.eclipse.vex.core.internal.boxes.StaticText;
@@ -335,6 +336,12 @@ public class Cursor {
 				deepestLastChildBox[0] = box;
 				return null;
 			}
+
+			@Override
+			public IBox visit(final NodeTag box) {
+				deepestLastChildBox[0] = box;
+				return null;
+			}
 		});
 		return deepestLastChildBox[0];
 	}
@@ -344,7 +351,7 @@ public class Cursor {
 		if (box.getNode().getStartOffset() == offset) {
 			return new InsertBeforeInlineNodeCaret(area, box.getNode());
 		} else if (box.getNode().getEndOffset() == offset) {
-			return new AppendNodeWithTextCaret(area, box.getNode(), box.isEmpty());
+			return new AppendNodeWithTextCaret(area, box.getNode(), box.isEmpty() && box.canContainText());
 		} else {
 			return new IntermediateInlineCaret(area, box.isAtStart(offset));
 		}

@@ -168,4 +168,11 @@ public class BoxFactory {
 		square.setSize(size);
 		return square;
 	}
+
+	public static NodeTag nodeTag(final INode node, final Color foreground) {
+		final NodeTag nodeTag = new NodeTag();
+		nodeTag.setNode(node);
+		nodeTag.setColor(foreground);
+		return nodeTag;
+	}
 }

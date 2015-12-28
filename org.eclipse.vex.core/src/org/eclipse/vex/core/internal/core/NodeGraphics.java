@@ -29,8 +29,25 @@ public class NodeGraphics {
 		drawSimpleTag(graphics, getNodeStartMarker(node), x, y, false, verticallyCentered);
 	}
 
-	public static void drawTag(final Graphics graphics, final INode node, final int x, final int y, final boolean horizontallyCentered, final boolean verticallyCentered) {
-		drawTag(graphics, getNodeName(node), x, y, horizontallyCentered, verticallyCentered);
+	public static void drawTag(final Graphics graphics, final INode node, final int x, final int y, final boolean horizontallyCentered, final boolean verticallyCentered, final boolean transparent) {
+		drawTag(graphics, getNodeName(node), x, y, horizontallyCentered, verticallyCentered, transparent);
+	}
+
+	public static Point getTagSize(final Graphics graphics, final INode node) {
+		graphics.setCurrentFont(graphics.getFont(FONT));
+		final int textPadding = 3;
+		final int margin = 2;
+		final int width = graphics.stringWidth(getNodeName(node)) + (textPadding + margin) * 2 + 1;
+		final int height = graphics.getFontMetrics().getHeight() + (textPadding + margin) * 2 + 1;
+		return new Point(width, height);
+	}
+
+	public static int getTagBaseline(final Graphics graphics) {
+		graphics.setCurrentFont(graphics.getFont(FONT));
+		final int textPadding = 3;
+		final int margin = 2;
+		final FontMetrics fontMetrics = graphics.getFontMetrics();
+		return fontMetrics.getAscent() + fontMetrics.getLeading() + textPadding + margin;
 	}
 
 	public static void drawEndTag(final Graphics graphics, final INode node, final int x, final int y, final boolean verticallyCentered) {
@@ -63,7 +80,7 @@ public class NodeGraphics {
 		graphics.drawString(text, effectiveX + textPadding, effectiveY + textPadding);
 	}
 
-	private static void drawTag(final Graphics graphics, final String text, final int x, final int y, final boolean horizontallyCentered, final boolean verticallyCentered) {
+	private static void drawTag(final Graphics graphics, final String text, final int x, final int y, final boolean horizontallyCentered, final boolean verticallyCentered, final boolean transparent) {
 		graphics.setCurrentFont(graphics.getFont(FONT));
 		final int textPadding = 3;
 		final int textWidth = graphics.stringWidth(text) + textPadding * 2;
@@ -85,10 +102,12 @@ public class NodeGraphics {
 			effectiveY = y;
 		}
 
+		if (!transparent) {
+			graphics.fillRoundRect(effectiveX, effectiveY, textWidth + margin * 2 + 1, textHeight + margin * 2 + 1, arc, arc);
+		}
 		graphics.setLineWidth(1);
-		graphics.fillRoundRect(effectiveX - margin, effectiveY - margin, textWidth + margin * 2 + 1, textHeight + margin * 2 + 1, arc, arc);
-		graphics.drawRoundRect(effectiveX, effectiveY, textWidth, textHeight, arc, arc);
-		graphics.drawString(text, effectiveX + textPadding, effectiveY + textPadding);
+		graphics.drawRoundRect(effectiveX + margin, effectiveY + margin, textWidth, textHeight, arc, arc);
+		graphics.drawString(text, effectiveX + textPadding + margin, effectiveY + textPadding + margin);
 	}
 
 	private static String getNodeName(final INode node) {

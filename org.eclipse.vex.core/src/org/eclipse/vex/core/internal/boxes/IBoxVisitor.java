@@ -40,4 +40,6 @@ public interface IBoxVisitor {
 	void visit(NodeEndOffsetPlaceholder box);
 
 	void visit(Square box);
+
+	void visit(NodeTag box);
 }

@@ -90,4 +90,9 @@ public class BaseBoxVisitorWithResult<T> implements IBoxVisitorWithResult<T> {
 		return defaultValue;
 	}
 
+	@Override
+	public T visit(final NodeTag box) {
+		return defaultValue;
+	}
+
 }

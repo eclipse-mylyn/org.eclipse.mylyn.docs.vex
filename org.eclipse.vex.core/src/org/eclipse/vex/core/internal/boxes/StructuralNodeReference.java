@@ -210,7 +210,7 @@ public class StructuralNodeReference extends BaseBox implements IStructuralBox, 
 	private void drawTag(final Graphics graphics, final Color foreground, final Color background) {
 		graphics.setForeground(graphics.getColor(foreground));
 		graphics.setBackground(graphics.getColor(background));
-		NodeGraphics.drawTag(graphics, node, getAbsoluteLeft() + width / 2, getAbsoluteTop() + height / 2, true, true);
+		NodeGraphics.drawTag(graphics, node, getAbsoluteLeft() + width / 2, getAbsoluteTop() + height / 2, true, true, false);
 	}
 
 	public void highlightInside(final Graphics graphics, final Color foreground, final Color background) {

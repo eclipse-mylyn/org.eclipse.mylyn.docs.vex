@@ -41,4 +41,5 @@ public interface IBoxVisitorWithResult<T> {
 
 	T visit(Square box);
 
+	T visit(NodeTag box);
 }
