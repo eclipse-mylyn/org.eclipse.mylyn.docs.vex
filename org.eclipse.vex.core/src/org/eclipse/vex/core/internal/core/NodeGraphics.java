@@ -26,7 +26,7 @@ public class NodeGraphics {
 	private static final FontSpec FONT = new FontSpec("Arial", FontSpec.BOLD, 10.0f);
 
 	public static void drawStartTag(final Graphics graphics, final INode node, final int x, final int y, final boolean verticallyCentered) {
-		drawStartTag(graphics, getNodeStartMarker(node), x, y, verticallyCentered, false);
+		drawStartTag(graphics, getNodeName(node), x, y, verticallyCentered, false);
 	}
 
 	public static void drawTag(final Graphics graphics, final INode node, final int x, final int y, final boolean horizontallyCentered, final boolean verticallyCentered, final boolean transparent) {
@@ -53,7 +53,7 @@ public class NodeGraphics {
 	}
 
 	public static void drawEndTag(final Graphics graphics, final INode node, final int x, final int y, final boolean verticallyCentered) {
-		drawSimpleTag(graphics, getNodeEndMarker(node), x, y, false, verticallyCentered);
+		drawEndTag(graphics, getNodeName(node), x, y, verticallyCentered, false);
 	}
 
 	private static void drawSimpleTag(final Graphics graphics, final String text, final int x, final int y, final boolean horizontallyCentered, final boolean verticallyCentered) {
@@ -147,6 +147,41 @@ public class NodeGraphics {
 				x, effectiveY + textHeight);
 
 		graphics.drawString(text, x + textPadding, effectiveY + textPadding);
+	}
+
+	private static void drawEndTag(final Graphics graphics, final String text, final int x, final int y, final boolean verticallyCentered, final boolean transparent) {
+		final int textPadding = 3;
+
+		graphics.setCurrentFont(graphics.getFont(FONT));
+		final int textWidth = graphics.stringWidth(text) + textPadding * 2;
+		final int textHeight = graphics.getFontMetrics().getHeight() + textPadding * 2;
+		final int arrow = textHeight / 2;
+
+		final int effectiveY;
+		if (verticallyCentered) {
+			effectiveY = y - textHeight / 2;
+		} else {
+			effectiveY = y;
+		}
+
+		if (!transparent) {
+			graphics.fillPolygon(
+					x, effectiveY + textHeight / 2,
+					x + arrow, effectiveY,
+					x + arrow + textWidth, effectiveY,
+					x + arrow + textWidth, effectiveY + textHeight,
+					x + arrow, effectiveY + textHeight);
+		}
+
+		graphics.setLineWidth(1);
+		graphics.drawPolygon(
+				x, effectiveY + textHeight / 2,
+				x + arrow, effectiveY,
+				x + arrow + textWidth, effectiveY,
+				x + arrow + textWidth, effectiveY + textHeight,
+				x + arrow, effectiveY + textHeight);
+
+		graphics.drawString(text, x + arrow + textPadding, effectiveY + textPadding);
 	}
 
 	private static String getNodeName(final INode node) {
