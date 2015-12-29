@@ -131,6 +131,23 @@ public class SwtGraphics implements Graphics {
 	}
 
 	@Override
+	public void drawPolygon(final int... coordinates) {
+		gc.drawPolygon(translateCoordinates(coordinates));
+	}
+
+	private int[] translateCoordinates(final int... coordinates) {
+		final int[] transformedCoordinates = new int[coordinates.length];
+		for (int i = 0; i < coordinates.length; i += 1) {
+			if (i % 2 == 0) {
+				transformedCoordinates[i] = coordinates[i] + offsetX;
+			} else {
+				transformedCoordinates[i] = coordinates[i] + offsetY;
+			}
+		}
+		return transformedCoordinates;
+	}
+
+	@Override
 	public void drawString(final String s, final int x, final int y) {
 		gc.drawString(s, x + offsetX, y + offsetY, true);
 	}
@@ -167,6 +184,11 @@ public class SwtGraphics implements Graphics {
 	@Override
 	public void fillRoundRect(final int x, final int y, final int width, final int height, final int arcWidth, final int arcHeight) {
 		gc.fillRoundRectangle(x + offsetX, y + offsetY, width, height, arcWidth, arcHeight);
+	}
+
+	@Override
+	public void fillPolygon(final int... coordinates) {
+		gc.fillPolygon(translateCoordinates(coordinates));
 	}
 
 	@Override

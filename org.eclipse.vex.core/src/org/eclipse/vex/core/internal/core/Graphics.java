@@ -50,6 +50,8 @@ public interface Graphics {
 
 	public void drawRoundRect(int x, int y, int width, int height, int arcWidth, int arcHeight);
 
+	public void drawPolygon(int... coordinates);
+
 	public void drawImage(Image image, int x, int y, int width, int height);
 
 	public void fillOval(int x, int y, int width, int height);
@@ -57,6 +59,8 @@ public interface Graphics {
 	public void fillRect(int x, int y, int width, int height);
 
 	public void fillRoundRect(int x, int y, int width, int height, int arcWidth, int arcHeight);
+
+	public void fillPolygon(int... coordinates);
 
 	public Rectangle getClipBounds();
 

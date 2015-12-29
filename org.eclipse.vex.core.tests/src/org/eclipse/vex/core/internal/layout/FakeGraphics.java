@@ -145,6 +145,10 @@ public class FakeGraphics implements Graphics {
 	}
 
 	@Override
+	public void drawPolygon(final int... coordinates) {
+	}
+
+	@Override
 	public void drawImage(final Image image, final int x, final int y, final int width, final int height) {
 		Assert.isTrue(image instanceof FakeImage);
 		lastDrawnImageUrl = ((FakeImage) image).url;
@@ -164,6 +168,10 @@ public class FakeGraphics implements Graphics {
 
 	@Override
 	public void fillRoundRect(final int x, final int y, final int width, final int height, final int arcWidth, final int arcHeight) {
+	}
+
+	@Override
+	public void fillPolygon(final int... coordinates) {
 	}
 
 	@Override

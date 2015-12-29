@@ -143,6 +143,11 @@ public class TracingGraphics implements Graphics {
 	}
 
 	@Override
+	public void drawPolygon(final int... coordinates) {
+		tracer.trace("Graphics.drawPolygon(int[{0}])", coordinates.length);
+	}
+
+	@Override
 	public void drawImage(final Image image, final int x, final int y, final int width, final int height) {
 		tracer.trace("Graphics.drawImage({0}, {1,number,#}, {2,number,#}, {3,number,#}, {4,number,#})", image, x, y, width, height);
 	}
@@ -160,6 +165,11 @@ public class TracingGraphics implements Graphics {
 	@Override
 	public void fillRoundRect(final int x, final int y, final int width, final int height, final int arcWidth, final int arcHeight) {
 		tracer.trace("Graphics.fillRoundRect({0,number,#}, {1,number,#}, {2,number,#}, {3,number,#}, {4,number,#}, {5,number,#})", x, y, width, height, arcWidth, arcHeight);
+	}
+
+	@Override
+	public void fillPolygon(final int... coordinates) {
+		tracer.trace("Graphics.fillPolygon(int[{0}])", coordinates.length);
 	}
 
 	@Override
