@@ -247,4 +247,9 @@ public class BoxDemoView extends ViewPart {
 		controller.insertComment();
 	}
 
+	public void insertProcessingInstruction(final String target) {
+		final DOMController controller = boxWidget.getDOMController();
+		controller.insertProcessingInstruction(target);
+	}
+
 }

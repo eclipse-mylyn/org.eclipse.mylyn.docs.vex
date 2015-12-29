@@ -22,6 +22,7 @@ import org.eclipse.vex.core.provisional.dom.IComment;
 import org.eclipse.vex.core.provisional.dom.IDocument;
 import org.eclipse.vex.core.provisional.dom.IDocumentListener;
 import org.eclipse.vex.core.provisional.dom.IElement;
+import org.eclipse.vex.core.provisional.dom.IProcessingInstruction;
 import org.eclipse.vex.core.provisional.dom.NamespaceDeclarationChangeEvent;
 
 /**
@@ -128,6 +129,11 @@ public class DOMController {
 	public void insertComment() {
 		final IComment comment = document.insertComment(cursor.getOffset());
 		moveCursor(toOffset(comment.getEndOffset()));
+	}
+
+	public void insertProcessingInstruction(final String target) {
+		final IProcessingInstruction pi = document.insertProcessingInstruction(cursor.getOffset(), target);
+		moveCursor(toOffset(pi.getEndOffset()));
 	}
 
 }

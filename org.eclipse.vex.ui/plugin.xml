@@ -828,6 +828,15 @@
             </reference>
          </activeWhen>
       </handler>
+      <handler
+            class="org.eclipse.vex.ui.boxview.InsertProcessingInstructionHandler"
+            commandId="org.eclipse.vex.ui.AddProcessingInstructionCommand">
+         <activeWhen>
+            <reference
+                  definitionId="org.eclipse.vex.ui.activeBoxView">
+            </reference>
+         </activeWhen>
+      </handler>
 
       <!-- TODO:
 		   - org.eclipse.ui.edit.text.join.lines
@@ -1361,6 +1370,12 @@
                commandId="org.eclipse.vex.ui.AddCommentCommand"
                icon="icons/comment_obj.gif"
                label="Comment"
+               style="push">
+         </command>
+         <command
+               commandId="org.eclipse.vex.ui.AddProcessingInstructionCommand"
+               icon="icons/proinst_obj.gif"
+               label="Processing Instruction"
                style="push">
          </command>
       </menuContribution>
