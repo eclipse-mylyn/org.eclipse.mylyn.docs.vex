@@ -420,7 +420,7 @@ public class Cursor {
 			graphics.fillRect(x, y, area.getWidth(), 2);
 			graphics.fillRect(x, y, 2, area.getHeight());
 
-			NodeGraphics.drawStartTag(graphics, node, x + 5, y + 5, false);
+			NodeGraphics.drawStartTag(graphics, node, x + 5, y + 5, false, false);
 		}
 
 	}
@@ -458,7 +458,7 @@ public class Cursor {
 
 			graphics.fillRect(x, y, 2, area.getHeight());
 
-			NodeGraphics.drawStartTag(graphics, node, x + 5, y + area.getHeight() / 2, true);
+			NodeGraphics.drawStartTag(graphics, node, x + 5, y + area.getHeight() / 2, true, false);
 		}
 	}
 
@@ -497,7 +497,7 @@ public class Cursor {
 
 			graphics.fillRect(x, y, 2, area.getHeight());
 
-			NodeGraphics.drawEndTag(graphics, node, x + 5, y + area.getHeight() / 2, true);
+			NodeGraphics.drawEndTag(graphics, node, x + 5, y + area.getHeight() / 2, true, false);
 		}
 
 		private int getX() {
@@ -583,7 +583,7 @@ public class Cursor {
 			graphics.fillRect(x, y, area.getWidth(), 2);
 			graphics.fillRect(x + area.getWidth() - 2, y, 2, -area.getHeight());
 
-			NodeGraphics.drawEndTag(graphics, node, x + 5, y + 5, false);
+			NodeGraphics.drawEndTag(graphics, node, x + 5, y + 5, false, false);
 		}
 	}
 

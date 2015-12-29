@@ -16,9 +16,11 @@ import static org.eclipse.vex.core.internal.boxes.BoxFactory.nodeReferenceWithTe
 import static org.eclipse.vex.core.internal.boxes.BoxFactory.rootBox;
 import static org.eclipse.vex.core.internal.boxes.BoxFactory.verticalBlock;
 import static org.eclipse.vex.core.internal.visualization.CssBoxFactory.endOffsetPlaceholder;
+import static org.eclipse.vex.core.internal.visualization.CssBoxFactory.endTag;
 import static org.eclipse.vex.core.internal.visualization.CssBoxFactory.frame;
 import static org.eclipse.vex.core.internal.visualization.CssBoxFactory.nodeTag;
 import static org.eclipse.vex.core.internal.visualization.CssBoxFactory.paragraph;
+import static org.eclipse.vex.core.internal.visualization.CssBoxFactory.startTag;
 import static org.eclipse.vex.core.internal.visualization.CssBoxFactory.staticText;
 import static org.eclipse.vex.core.internal.visualization.CssBoxFactory.textContent;
 
@@ -159,6 +161,10 @@ public class CssBasedBoxModelBuilder implements IBoxModelBuilder {
 		return CSS.PRE.equals(styles.getWhiteSpace());
 	}
 
+	private static boolean isWrappedInInlineMarkers(final Styles styles) {
+		return CSS.NORMAL.equals(styles.getInlineMarker());
+	}
+
 	/*
 	 * Render as Block
 	 */
@@ -251,7 +257,11 @@ public class CssBasedBoxModelBuilder implements IBoxModelBuilder {
 				if (isEmptyElement(element)) {
 					return nodeReference(element, frame(visualizeEmptyElementInline(element, styles), styles));
 				}
-				final IInlineBox inlineElementContent = visualizeInlineElementContent(element, styles, childrenResults, inlineContainer());
+
+				final InlineContainer inlineElementContent = surroundWithInlineMarkers(element, styles,
+						visualizeInlineElementContent(element, styles, childrenResults,
+								inlineContainer()));
+
 				if (mayContainText(element)) {
 					return nodeReferenceWithText(element, frame(inlineElementContent, styles));
 				} else {
@@ -270,6 +280,14 @@ public class CssBasedBoxModelBuilder implements IBoxModelBuilder {
 			}
 
 		});
+	}
+
+	private static <P extends IParentBox<IInlineBox>> P surroundWithInlineMarkers(final IElement element, final Styles styles, final P parent) {
+		if (isWrappedInInlineMarkers(styles)) {
+			parent.prependChild(startTag(element, styles));
+			parent.appendChild(endTag(element, styles));
+		}
+		return parent;
 	}
 
 	private <P extends IParentBox<IInlineBox>> P visualizeInlineElementContent(final IElement element, final Styles styles, final Collection<VisualizeResult> childrenResults, final P parent) {

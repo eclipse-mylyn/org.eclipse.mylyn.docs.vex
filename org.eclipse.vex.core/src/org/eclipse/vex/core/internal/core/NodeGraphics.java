@@ -52,16 +52,20 @@ public class NodeGraphics {
 		}
 
 		if (!transparent) {
-			graphics.fillRoundRect(effectiveX, effectiveY, textWidth + MARGIN * 2 + 1, textHeight + MARGIN * 2 + 1, arc, arc);
+			graphics.fillRoundRect(effectiveX, effectiveY, textWidth + MARGIN * 2 - 1, textHeight + MARGIN * 2 - 1, arc, arc);
 		}
 		graphics.setLineWidth(1);
-		graphics.drawRoundRect(effectiveX + MARGIN, effectiveY + MARGIN, textWidth, textHeight, arc, arc);
-		graphics.drawString(text, effectiveX + TEXT_PADDING + MARGIN, effectiveY + TEXT_PADDING + MARGIN);
+		graphics.drawRoundRect(effectiveX + MARGIN - 1, effectiveY + MARGIN - 1, textWidth, textHeight, arc, arc);
+		graphics.drawString(text, effectiveX + TEXT_PADDING + MARGIN - 1, effectiveY + TEXT_PADDING + MARGIN - 1);
 	}
 
 	public static Point getTagSize(final Graphics graphics, final INode node) {
+		return getTagSize(graphics, getNodeName(node));
+	}
+
+	public static Point getTagSize(final Graphics graphics, final String text) {
 		graphics.setCurrentFont(graphics.getFont(FONT));
-		final int width = graphics.stringWidth(getNodeName(node)) + (TEXT_PADDING + MARGIN) * 2 + 1;
+		final int width = graphics.stringWidth(text) + (TEXT_PADDING + MARGIN) * 2 + 1;
 		final int height = graphics.getFontMetrics().getHeight() + (TEXT_PADDING + MARGIN) * 2 + 1;
 		return new Point(width, height);
 	}
@@ -72,7 +76,7 @@ public class NodeGraphics {
 		return fontMetrics.getAscent() + fontMetrics.getLeading() + TEXT_PADDING + MARGIN;
 	}
 
-	public static void drawStartTag(final Graphics graphics, final INode node, final int x, final int y, final boolean verticallyCentered) {
+	public static void drawStartTag(final Graphics graphics, final INode node, final int x, final int y, final boolean verticallyCentered, final boolean transparent) {
 		drawStartTag(graphics, getNodeName(node), x, y, verticallyCentered, false);
 	}
 
@@ -83,19 +87,19 @@ public class NodeGraphics {
 
 		final int effectiveY;
 		if (verticallyCentered) {
-			effectiveY = y - textHeight / 2;
+			effectiveY = y - textHeight / 2 - MARGIN;
 		} else {
 			effectiveY = y;
 		}
 
 		if (!transparent) {
-			graphics.fillPolygon(arrowRight(x, effectiveY, textWidth, textHeight));
+			graphics.fillPolygon(arrowRight(x, effectiveY, textWidth + 2 * MARGIN, textHeight + MARGIN * 2 - 1));
 		}
 
 		graphics.setLineWidth(1);
-		graphics.drawPolygon(arrowRight(x, effectiveY, textWidth, textHeight));
+		graphics.drawPolygon(arrowRight(x + MARGIN, effectiveY + MARGIN - 1, textWidth, textHeight));
 
-		graphics.drawString(text, x + TEXT_PADDING, effectiveY + TEXT_PADDING);
+		graphics.drawString(text, x + TEXT_PADDING + MARGIN, effectiveY + TEXT_PADDING + MARGIN - 1);
 	}
 
 	private static int[] arrowRight(final int x, final int y, final int width, final int height) {
@@ -109,7 +113,18 @@ public class NodeGraphics {
 		};
 	}
 
-	public static void drawEndTag(final Graphics graphics, final INode node, final int x, final int y, final boolean verticallyCentered) {
+	public static Point getStartTagSize(final Graphics graphics, final INode node) {
+		return getStartTagSize(graphics, getNodeName(node));
+	}
+
+	public static Point getStartTagSize(final Graphics graphics, final String text) {
+		graphics.setCurrentFont(graphics.getFont(FONT));
+		final int height = graphics.getFontMetrics().getHeight() + (TEXT_PADDING + MARGIN) * 2;
+		final int width = graphics.stringWidth(text) + TEXT_PADDING + MARGIN * 2 + height / 2;
+		return new Point(width, height);
+	}
+
+	public static void drawEndTag(final Graphics graphics, final INode node, final int x, final int y, final boolean verticallyCentered, final boolean transparent) {
 		drawEndTag(graphics, getNodeName(node), x, y, verticallyCentered, false);
 	}
 
@@ -117,23 +132,23 @@ public class NodeGraphics {
 		graphics.setCurrentFont(graphics.getFont(FONT));
 		final int textWidth = graphics.stringWidth(text) + TEXT_PADDING;
 		final int textHeight = graphics.getFontMetrics().getHeight() + TEXT_PADDING * 2;
-		final int arrow = textHeight / 2;
+		final int arrow = textHeight / 2 + MARGIN;
 
 		final int effectiveY;
 		if (verticallyCentered) {
-			effectiveY = y - textHeight / 2;
+			effectiveY = y - textHeight / 2 - MARGIN;
 		} else {
 			effectiveY = y;
 		}
 
 		if (!transparent) {
-			graphics.fillPolygon(arrowLeft(x, effectiveY, textWidth, textHeight));
+			graphics.fillPolygon(arrowLeft(x, effectiveY, textWidth + MARGIN + 1, textHeight + MARGIN * 2 - 1));
 		}
 
 		graphics.setLineWidth(1);
-		graphics.drawPolygon(arrowLeft(x, effectiveY, textWidth, textHeight));
+		graphics.drawPolygon(arrowLeft(x + MARGIN, effectiveY + MARGIN - 1, textWidth, textHeight));
 
-		graphics.drawString(text, x + arrow, effectiveY + TEXT_PADDING);
+		graphics.drawString(text, x + arrow, effectiveY + TEXT_PADDING + MARGIN - 1);
 	}
 
 	private static int[] arrowLeft(final int x, final int y, final int width, final int height) {
@@ -145,6 +160,17 @@ public class NodeGraphics {
 				x + arrow + width, y + height,
 				x + arrow, y + height
 		};
+	}
+
+	public static Point getEndTagSize(final Graphics graphics, final INode node) {
+		return getStartTagSize(graphics, getNodeName(node));
+	}
+
+	public static Point getEndTagSize(final Graphics graphics, final String text) {
+		graphics.setCurrentFont(graphics.getFont(FONT));
+		final int height = graphics.getFontMetrics().getHeight() + (TEXT_PADDING + MARGIN) * 2;
+		final int width = graphics.stringWidth(text) + TEXT_PADDING + MARGIN * 2 + height / 2;
+		return new Point(width, height);
 	}
 
 	public static String getNodeName(final INode node) {

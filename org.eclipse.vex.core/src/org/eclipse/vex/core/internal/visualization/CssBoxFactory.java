@@ -109,8 +109,28 @@ public class CssBoxFactory {
 
 	public static NodeTag nodeTag(final INode node, final Styles styles) {
 		final NodeTag nodeTag = new NodeTag();
+		nodeTag.setKind(NodeTag.Kind.NODE);
 		nodeTag.setNode(node);
 		nodeTag.setColor(styles.getColor());
+		nodeTag.setShowText(true);
+		return nodeTag;
+	}
+
+	public static NodeTag startTag(final INode node, final Styles styles) {
+		final NodeTag nodeTag = new NodeTag();
+		nodeTag.setKind(NodeTag.Kind.START);
+		nodeTag.setNode(node);
+		nodeTag.setColor(styles.getColor());
+		nodeTag.setShowText(false);
+		return nodeTag;
+	}
+
+	public static NodeTag endTag(final INode node, final Styles styles) {
+		final NodeTag nodeTag = new NodeTag();
+		nodeTag.setKind(NodeTag.Kind.END);
+		nodeTag.setNode(node);
+		nodeTag.setColor(styles.getColor());
+		nodeTag.setShowText(false);
 		return nodeTag;
 	}
 

@@ -21,13 +21,18 @@ import org.eclipse.vex.core.provisional.dom.INode;
  */
 public class NodeTag extends SimpleInlineBox {
 
+	public static enum Kind {
+		NODE, START, END;
+	}
+
 	private int width;
 	private int height;
 	private int baseline;
 
-	private Color color;
-
+	private Kind kind;
 	private INode node;
+	private Color color;
+	private boolean showText;
 
 	@Override
 	public int getWidth() {
@@ -44,8 +49,8 @@ public class NodeTag extends SimpleInlineBox {
 		return baseline;
 	}
 
-	public void setColor(final Color color) {
-		this.color = color;
+	public void setKind(final Kind kind) {
+		this.kind = kind;
 	}
 
 	public void setNode(final INode node) {
@@ -54,6 +59,14 @@ public class NodeTag extends SimpleInlineBox {
 
 	public INode getNode() {
 		return node;
+	}
+
+	public void setColor(final Color color) {
+		this.color = color;
+	}
+
+	public void setShowText(final boolean showText) {
+		this.showText = showText;
 	}
 
 	@Override
@@ -68,10 +81,30 @@ public class NodeTag extends SimpleInlineBox {
 
 	@Override
 	public void layout(final Graphics graphics) {
-		final Point tagSize = NodeGraphics.getTagSize(graphics, node);
+		final Point tagSize = getTagSize(graphics);
 		width = tagSize.getX();
 		height = tagSize.getY();
 		baseline = NodeGraphics.getTagBaseline(graphics);
+	}
+
+	private Point getTagSize(final Graphics graphics) {
+		switch (kind) {
+		case NODE:
+			return NodeGraphics.getTagSize(graphics, getText());
+		case START:
+			return NodeGraphics.getStartTagSize(graphics, getText());
+		case END:
+			return NodeGraphics.getEndTagSize(graphics, getText());
+		default:
+			throw new IllegalStateException("Unknown kind " + kind + " of NodeTag.");
+		}
+	}
+
+	private String getText() {
+		if (!showText) {
+			return "";
+		}
+		return NodeGraphics.getNodeName(node);
 	}
 
 	@Override
@@ -85,6 +118,18 @@ public class NodeTag extends SimpleInlineBox {
 	@Override
 	public void paint(final Graphics graphics) {
 		graphics.setForeground(graphics.getColor(color));
-		NodeGraphics.drawTag(graphics, node, 0, 0, false, false, true);
+		switch (kind) {
+		case NODE:
+			NodeGraphics.drawTag(graphics, getText(), 0, 0, false, false, true);
+			break;
+		case START:
+			NodeGraphics.drawStartTag(graphics, getText(), 0, 0, false, true);
+			break;
+		case END:
+			NodeGraphics.drawEndTag(graphics, getText(), 0, 0, false, true);
+			break;
+		default:
+			throw new IllegalStateException("Unknown kind " + kind + " of NodeTag.");
+		}
 	}
 }

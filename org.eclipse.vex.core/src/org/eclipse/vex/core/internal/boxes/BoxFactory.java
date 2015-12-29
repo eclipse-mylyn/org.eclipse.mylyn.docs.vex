@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.boxes;
 
+import org.eclipse.vex.core.internal.boxes.NodeTag.Kind;
 import org.eclipse.vex.core.internal.core.Color;
 import org.eclipse.vex.core.internal.core.FontSpec;
 import org.eclipse.vex.core.internal.core.TextAlign;
@@ -170,8 +171,9 @@ public class BoxFactory {
 		return square;
 	}
 
-	public static NodeTag nodeTag(final INode node, final Color foreground) {
+	public static NodeTag nodeTag(final Kind kind, final INode node, final Color foreground) {
 		final NodeTag nodeTag = new NodeTag();
+		nodeTag.setKind(kind);
 		nodeTag.setNode(node);
 		nodeTag.setColor(foreground);
 		return nodeTag;
