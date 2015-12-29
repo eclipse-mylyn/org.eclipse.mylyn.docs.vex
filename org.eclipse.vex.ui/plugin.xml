@@ -819,6 +819,15 @@
             class="org.eclipse.vex.ui.boxview.InsertAnchorHandler"
             commandId="org.eclipse.vex.ui.Anchor">
       </handler>
+      <handler
+            class="org.eclipse.vex.ui.boxview.InsertCommentHandler"
+            commandId="org.eclipse.vex.ui.AddCommentCommand">
+         <activeWhen>
+            <reference
+                  definitionId="org.eclipse.vex.ui.activeBoxView">
+            </reference>
+         </activeWhen>
+      </handler>
 
       <!-- TODO:
 		   - org.eclipse.ui.edit.text.join.lines
@@ -1346,6 +1355,12 @@
                commandId="org.eclipse.vex.ui.Anchor"
                icon="icons/anchor.gif"
                label="Anchor"
+               style="push">
+         </command>
+         <command
+               commandId="org.eclipse.vex.ui.AddCommentCommand"
+               icon="icons/comment_obj.gif"
+               label="Comment"
                style="push">
          </command>
       </menuContribution>

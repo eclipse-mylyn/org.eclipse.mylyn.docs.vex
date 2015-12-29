@@ -18,8 +18,10 @@ import org.eclipse.vex.core.internal.cursor.ICursorMove;
 import org.eclipse.vex.core.internal.visualization.IBoxModelBuilder;
 import org.eclipse.vex.core.provisional.dom.AttributeChangeEvent;
 import org.eclipse.vex.core.provisional.dom.ContentChangeEvent;
+import org.eclipse.vex.core.provisional.dom.IComment;
 import org.eclipse.vex.core.provisional.dom.IDocument;
 import org.eclipse.vex.core.provisional.dom.IDocumentListener;
+import org.eclipse.vex.core.provisional.dom.IElement;
 import org.eclipse.vex.core.provisional.dom.NamespaceDeclarationChangeEvent;
 
 /**
@@ -119,8 +121,13 @@ public class DOMController {
 	}
 
 	public void insertElement(final QualifiedName elementName) {
-		document.insertElement(cursor.getOffset(), elementName);
-		moveCursor(toOffset(cursor.getOffset() + 1));
+		final IElement element = document.insertElement(cursor.getOffset(), elementName);
+		moveCursor(toOffset(element.getEndOffset()));
+	}
+
+	public void insertComment() {
+		final IComment comment = document.insertComment(cursor.getOffset());
+		moveCursor(toOffset(comment.getEndOffset()));
 	}
 
 }

@@ -242,4 +242,9 @@ public class BoxDemoView extends ViewPart {
 		controller.insertElement(new QualifiedName(null, "anchor"));
 	}
 
+	public void insertComment() {
+		final DOMController controller = boxWidget.getDOMController();
+		controller.insertComment();
+	}
+
 }
