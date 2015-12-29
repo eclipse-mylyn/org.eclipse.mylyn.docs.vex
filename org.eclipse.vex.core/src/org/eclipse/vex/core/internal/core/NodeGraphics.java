@@ -192,7 +192,7 @@ public class NodeGraphics {
 
 			@Override
 			public String visit(final IProcessingInstruction pi) {
-				return pi.getTarget();
+				return "?" + pi.getTarget();
 			}
 
 			@Override

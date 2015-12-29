@@ -51,6 +51,7 @@ import org.eclipse.vex.core.provisional.dom.IDocument;
 import org.eclipse.vex.core.provisional.dom.IDocumentFragment;
 import org.eclipse.vex.core.provisional.dom.IElement;
 import org.eclipse.vex.core.provisional.dom.INode;
+import org.eclipse.vex.core.provisional.dom.IProcessingInstruction;
 import org.eclipse.vex.core.provisional.dom.IText;
 import org.eclipse.vex.core.provisional.dom.IValidator;
 import org.eclipse.vex.core.provisional.dom.MultilineText;
@@ -153,6 +154,17 @@ public class CssBasedBoxModelBuilder implements IBoxModelBuilder {
 			}
 
 			@Override
+			public VisualizeResult visit(final IProcessingInstruction pi) {
+				final List<VisualizeResult> childrenResults = Collections.<VisualizeResult> emptyList();
+				final Styles styles = styleSheet.getStyles(pi);
+				if (isDisplayedAsBlock(styles)) {
+					return new VisualizeResult(pi, childrenResults, visualizeAsBlock(pi, childrenResults));
+				} else {
+					return new VisualizeResult(pi, childrenResults, visualizeInline(pi, childrenResults));
+				}
+			}
+
+			@Override
 			public VisualizeResult visit(final IText text) {
 				final List<VisualizeResult> childrenResults = Collections.<VisualizeResult> emptyList();
 				return new VisualizeResult(text, childrenResults, visualizeInline(text, childrenResults));
@@ -213,6 +225,18 @@ public class CssBasedBoxModelBuilder implements IBoxModelBuilder {
 				}
 
 				return nodeReferenceWithText(comment, surroundWithPseudoElements(frame(surroundWithInlinePseudoElements(inlineElementContent, comment, styles), styles), comment, styles));
+			}
+
+			@Override
+			public IStructuralBox visit(final IProcessingInstruction pi) {
+				final Paragraph inlineElementContent;
+				if (pi.isEmpty()) {
+					inlineElementContent = placeholderForEmptyNode(node, styles, paragraph(styles));
+				} else {
+					inlineElementContent = paragraph(styles, visualizeText(pi.getContent(), pi.getRange().resizeBy(1, -1), pi, styles));
+				}
+
+				return nodeReferenceWithText(pi, surroundWithPseudoElements(frame(surroundWithInlinePseudoElements(inlineElementContent, pi, styles), styles), pi, styles));
 			}
 		});
 	}
@@ -303,6 +327,18 @@ public class CssBasedBoxModelBuilder implements IBoxModelBuilder {
 				}
 
 				return nodeReferenceWithText(comment, frame(surroundWithInlinePseudoElements(inlineElementContent, comment, styles), styles));
+			}
+
+			@Override
+			public IInlineBox visit(final IProcessingInstruction pi) {
+				final InlineContainer inlineElementContent;
+				if (pi.isEmpty()) {
+					inlineElementContent = placeholderForEmptyNode(node, styles, inlineContainer());
+				} else {
+					inlineElementContent = inlineContainer(visualizeText(content, pi.getRange().resizeBy(1, -1), pi, styles));
+				}
+
+				return nodeReferenceWithText(pi, frame(surroundWithInlinePseudoElements(inlineElementContent, pi, styles), styles));
 			}
 
 			@Override
