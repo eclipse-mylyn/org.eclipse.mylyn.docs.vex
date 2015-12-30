@@ -34,12 +34,12 @@ import org.eclipse.vex.core.provisional.dom.IValidator;
  */
 public class UniversalTestDocument {
 
-	private static final QualifiedName DOC = new QualifiedName(null, "doc");
-	private static final QualifiedName SECTION = new QualifiedName(null, "section");
-	private static final QualifiedName PARA = new QualifiedName(null, "para");
-	private static final QualifiedName ANCHOR = new QualifiedName(null, "anchor");
-	private static final QualifiedName B = new QualifiedName(null, "b");
-	private static final QualifiedName I = new QualifiedName(null, "i");
+	public static final QualifiedName DOC = new QualifiedName(null, "doc");
+	public static final QualifiedName SECTION = new QualifiedName(null, "section");
+	public static final QualifiedName PARA = new QualifiedName(null, "para");
+	public static final QualifiedName ANCHOR = new QualifiedName(null, "anchor");
+	public static final QualifiedName B = new QualifiedName(null, "b");
+	public static final QualifiedName I = new QualifiedName(null, "i");
 
 	private static final String LOREM_IPSUM_LONG = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec a diam lectus. Sed sit amet ipsum mauris. Maecenas congue ligula ac quam viverra nec consectetur ante hendrerit. Donec et mollis dolor. Praesent et diam eget libero egestas mattis sit amet vitae augue. Nam tincidunt congue enim, ut porta lorem lacinia consectetur.";
 
