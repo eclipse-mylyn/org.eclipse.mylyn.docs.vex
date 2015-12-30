@@ -18,6 +18,7 @@ import org.eclipse.vex.core.internal.cursor.ICursorMove;
 import org.eclipse.vex.core.internal.visualization.IBoxModelBuilder;
 import org.eclipse.vex.core.provisional.dom.AttributeChangeEvent;
 import org.eclipse.vex.core.provisional.dom.ContentChangeEvent;
+import org.eclipse.vex.core.provisional.dom.DocumentValidationException;
 import org.eclipse.vex.core.provisional.dom.IComment;
 import org.eclipse.vex.core.provisional.dom.IDocument;
 import org.eclipse.vex.core.provisional.dom.IDocumentListener;
@@ -121,19 +122,22 @@ public class DOMController {
 		moveCursor(toOffset(cursor.getOffset() + 1));
 	}
 
-	public void insertElement(final QualifiedName elementName) {
+	public IElement insertElement(final QualifiedName elementName) throws DocumentValidationException {
 		final IElement element = document.insertElement(cursor.getOffset(), elementName);
 		moveCursor(toOffset(element.getEndOffset()));
+		return element;
 	}
 
-	public void insertComment() {
+	public IComment insertComment() throws DocumentValidationException {
 		final IComment comment = document.insertComment(cursor.getOffset());
 		moveCursor(toOffset(comment.getEndOffset()));
+		return comment;
 	}
 
-	public void insertProcessingInstruction(final String target) {
+	public IProcessingInstruction insertProcessingInstruction(final String target) {
 		final IProcessingInstruction pi = document.insertProcessingInstruction(cursor.getOffset(), target);
 		moveCursor(toOffset(pi.getEndOffset()));
+		return pi;
 	}
 
 }

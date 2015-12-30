@@ -19,6 +19,7 @@ import static org.eclipse.vex.core.internal.cursor.CursorMoves.up;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.ListenerList;
+import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.ISelectionProvider;
@@ -41,13 +42,19 @@ import org.eclipse.vex.core.internal.core.Rectangle;
 import org.eclipse.vex.core.internal.cursor.Cursor;
 import org.eclipse.vex.core.internal.cursor.ICursorMove;
 import org.eclipse.vex.core.internal.cursor.ICursorPositionListener;
+import org.eclipse.vex.core.internal.undo.CannotRedoException;
 import org.eclipse.vex.core.internal.visualization.IBoxModelBuilder;
 import org.eclipse.vex.core.internal.widget.BalancingSelector;
 import org.eclipse.vex.core.internal.widget.BoxView;
 import org.eclipse.vex.core.internal.widget.DOMController;
 import org.eclipse.vex.core.internal.widget.IRenderer;
 import org.eclipse.vex.core.internal.widget.IViewPort;
+import org.eclipse.vex.core.internal.widget.ReadOnlyException;
+import org.eclipse.vex.core.provisional.dom.DocumentValidationException;
+import org.eclipse.vex.core.provisional.dom.IComment;
 import org.eclipse.vex.core.provisional.dom.IDocument;
+import org.eclipse.vex.core.provisional.dom.IElement;
+import org.eclipse.vex.core.provisional.dom.IProcessingInstruction;
 
 /**
  * A widget to display the new box model.
@@ -95,10 +102,6 @@ public class BoxWidget extends Canvas implements ISelectionProvider {
 
 	public void setBoxModelBuilder(final IBoxModelBuilder visualizationChain) {
 		controller.setBoxModelBuilder(visualizationChain);
-	}
-
-	public DOMController getDOMController() {
-		return controller;
 	}
 
 	private void connectDispose() {
@@ -276,6 +279,22 @@ public class BoxWidget extends Canvas implements ISelectionProvider {
 		};
 	}
 
+	public void refresh() {
+		controller.rebuildBoxModel();
+	}
+
+	public IElement insertElement(final QualifiedName elementName) throws DocumentValidationException {
+		return controller.insertElement(elementName);
+	}
+
+	public IComment insertComment() throws DocumentValidationException {
+		return controller.insertComment();
+	}
+
+	public IProcessingInstruction insertProcessingInstruction(final String target) throws CannotRedoException, ReadOnlyException {
+		return controller.insertProcessingInstruction(target);
+	}
+
 	private final class ViewPort implements IViewPort {
 		@Override
 		public void reconcile(final int maximumHeight) {
@@ -299,4 +318,5 @@ public class BoxWidget extends Canvas implements ISelectionProvider {
 			return new Rectangle(0, getVerticalBar().getSelection(), getSize().x, getSize().y);
 		}
 	}
+
 }

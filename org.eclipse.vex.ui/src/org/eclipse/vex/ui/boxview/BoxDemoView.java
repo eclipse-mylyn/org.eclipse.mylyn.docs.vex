@@ -14,6 +14,9 @@ import static org.eclipse.vex.core.internal.core.TextUtils.ANY_LINE_BREAKS;
 import static org.eclipse.vex.core.internal.core.TextUtils.CURRENCY_SIGN;
 import static org.eclipse.vex.core.internal.core.TextUtils.PARAGRAPH_SIGN;
 import static org.eclipse.vex.core.internal.core.TextUtils.RAQUO;
+import static org.eclipse.vex.core.internal.io.UniversalTestDocument.ANCHOR;
+import static org.eclipse.vex.core.internal.io.UniversalTestDocument.B;
+import static org.eclipse.vex.core.internal.io.UniversalTestDocument.I;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -29,7 +32,6 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
@@ -48,7 +50,6 @@ import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.css.StyleSheetReader;
 import org.eclipse.vex.core.internal.io.UniversalTestDocument;
 import org.eclipse.vex.core.internal.visualization.CssBasedBoxModelBuilder;
-import org.eclipse.vex.core.internal.widget.DOMController;
 import org.eclipse.vex.core.internal.widget.swt.BoxWidget;
 import org.eclipse.vex.core.internal.widget.swt.IVexSelection;
 import org.eclipse.vex.core.provisional.dom.ContentRange;
@@ -223,33 +224,27 @@ public class BoxDemoView extends ViewPart {
 	}
 
 	public void rebuildBoxModel() {
-		final DOMController controller = boxWidget.getDOMController();
-		controller.rebuildBoxModel();
+		boxWidget.refresh();
 	}
 
 	public void insertBold() {
-		final DOMController controller = boxWidget.getDOMController();
-		controller.insertElement(new QualifiedName(null, "b"));
+		boxWidget.insertElement(B);
 	}
 
 	public void insertItalic() {
-		final DOMController controller = boxWidget.getDOMController();
-		controller.insertElement(new QualifiedName(null, "i"));
+		boxWidget.insertElement(I);
 	}
 
 	public void insertAnchor() {
-		final DOMController controller = boxWidget.getDOMController();
-		controller.insertElement(new QualifiedName(null, "anchor"));
+		boxWidget.insertElement(ANCHOR);
 	}
 
 	public void insertComment() {
-		final DOMController controller = boxWidget.getDOMController();
-		controller.insertComment();
+		boxWidget.insertComment();
 	}
 
 	public void insertProcessingInstruction(final String target) {
-		final DOMController controller = boxWidget.getDOMController();
-		controller.insertProcessingInstruction(target);
+		boxWidget.insertProcessingInstruction(target);
 	}
 
 }
