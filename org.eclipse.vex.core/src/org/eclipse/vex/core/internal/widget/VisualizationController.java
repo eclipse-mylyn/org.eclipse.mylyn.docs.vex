@@ -10,26 +10,19 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.widget;
 
-import static org.eclipse.vex.core.internal.cursor.CursorMoves.toOffset;
-
-import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.vex.core.internal.cursor.Cursor;
 import org.eclipse.vex.core.internal.cursor.ICursorMove;
 import org.eclipse.vex.core.internal.visualization.IBoxModelBuilder;
 import org.eclipse.vex.core.provisional.dom.AttributeChangeEvent;
 import org.eclipse.vex.core.provisional.dom.ContentChangeEvent;
-import org.eclipse.vex.core.provisional.dom.DocumentValidationException;
-import org.eclipse.vex.core.provisional.dom.IComment;
 import org.eclipse.vex.core.provisional.dom.IDocument;
 import org.eclipse.vex.core.provisional.dom.IDocumentListener;
-import org.eclipse.vex.core.provisional.dom.IElement;
-import org.eclipse.vex.core.provisional.dom.IProcessingInstruction;
 import org.eclipse.vex.core.provisional.dom.NamespaceDeclarationChangeEvent;
 
 /**
  * @author Florian Thienel
  */
-public class DOMController {
+public class VisualizationController {
 
 	private IDocument document;
 	private final Cursor cursor;
@@ -67,7 +60,7 @@ public class DOMController {
 		}
 	};
 
-	public DOMController(final Cursor cursor, final BoxView view) {
+	public VisualizationController(final Cursor cursor, final BoxView view) {
 		this.cursor = cursor;
 		this.view = view;
 		visualization = new DOMVisualization(cursor, view);
@@ -111,33 +104,4 @@ public class DOMController {
 		cursor.select(move);
 		view.invalidateCursor();
 	}
-
-	public void enterChar(final char c) {
-		document.insertText(cursor.getOffset(), Character.toString(c));
-		moveCursor(toOffset(cursor.getOffset() + 1));
-	}
-
-	public void insertLineBreak() {
-		document.insertLineBreak(cursor.getOffset());
-		moveCursor(toOffset(cursor.getOffset() + 1));
-	}
-
-	public IElement insertElement(final QualifiedName elementName) throws DocumentValidationException {
-		final IElement element = document.insertElement(cursor.getOffset(), elementName);
-		moveCursor(toOffset(element.getEndOffset()));
-		return element;
-	}
-
-	public IComment insertComment() throws DocumentValidationException {
-		final IComment comment = document.insertComment(cursor.getOffset());
-		moveCursor(toOffset(comment.getEndOffset()));
-		return comment;
-	}
-
-	public IProcessingInstruction insertProcessingInstruction(final String target) {
-		final IProcessingInstruction pi = document.insertProcessingInstruction(cursor.getOffset(), target);
-		moveCursor(toOffset(pi.getEndOffset()));
-		return pi;
-	}
-
 }

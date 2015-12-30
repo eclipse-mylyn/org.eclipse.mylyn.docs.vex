@@ -46,7 +46,7 @@ import org.eclipse.vex.core.internal.undo.CannotApplyException;
 import org.eclipse.vex.core.internal.visualization.IBoxModelBuilder;
 import org.eclipse.vex.core.internal.widget.BalancingSelector;
 import org.eclipse.vex.core.internal.widget.BoxView;
-import org.eclipse.vex.core.internal.widget.DOMController;
+import org.eclipse.vex.core.internal.widget.VisualizationController;
 import org.eclipse.vex.core.internal.widget.IRenderer;
 import org.eclipse.vex.core.internal.widget.IViewPort;
 import org.eclipse.vex.core.internal.widget.ReadOnlyException;
@@ -64,10 +64,12 @@ import org.eclipse.vex.core.provisional.dom.IProcessingInstruction;
 public class BoxWidget extends Canvas implements ISelectionProvider {
 
 	private final org.eclipse.swt.graphics.Cursor mouseCursor;
+
+	private IDocument document;
 	private final BoxView view;
 	private final Cursor cursor;
 	private final BalancingSelector selector;
-	private final DOMController controller;
+	private final VisualizationController controller;
 
 	private final ListenerList selectionChangedListeners = new ListenerList();
 
@@ -92,10 +94,11 @@ public class BoxWidget extends Canvas implements ISelectionProvider {
 		connectCursor();
 
 		view = new BoxView(renderer, viewPort, cursor);
-		controller = new DOMController(cursor, view);
+		controller = new VisualizationController(cursor, view);
 	}
 
 	public void setContent(final IDocument document) {
+		this.document = document;
 		controller.setDocument(document);
 		selector.setDocument(document);
 	}
@@ -195,11 +198,11 @@ public class BoxWidget extends Canvas implements ISelectionProvider {
 			moveOrSelect(event.stateMask, toOffset(0));
 			break;
 		case SWT.CR:
-			controller.insertLineBreak();
+			insertLineBreak();
 			break;
 		default:
 			if (event.character > 0 && Character.isDefined(event.character)) {
-				controller.enterChar(event.character);
+				enterChar(event.character);
 			}
 			break;
 		}
@@ -283,16 +286,32 @@ public class BoxWidget extends Canvas implements ISelectionProvider {
 		controller.rebuildBoxModel();
 	}
 
+	public void enterChar(final char c) {
+		document.insertText(cursor.getOffset(), Character.toString(c));
+		controller.moveCursor(toOffset(cursor.getOffset() + 1));
+	}
+
+	public void insertLineBreak() {
+		document.insertLineBreak(cursor.getOffset());
+		controller.moveCursor(toOffset(cursor.getOffset() + 1));
+	}
+
 	public IElement insertElement(final QualifiedName elementName) throws DocumentValidationException {
-		return controller.insertElement(elementName);
+		final IElement element = document.insertElement(cursor.getOffset(), elementName);
+		controller.moveCursor(toOffset(element.getEndOffset()));
+		return element;
 	}
 
 	public IComment insertComment() throws DocumentValidationException {
-		return controller.insertComment();
+		final IComment comment = document.insertComment(cursor.getOffset());
+		controller.moveCursor(toOffset(comment.getEndOffset()));
+		return comment;
 	}
 
 	public IProcessingInstruction insertProcessingInstruction(final String target) throws CannotApplyException, ReadOnlyException {
-		return controller.insertProcessingInstruction(target);
+		final IProcessingInstruction pi = document.insertProcessingInstruction(cursor.getOffset(), target);
+		controller.moveCursor(toOffset(pi.getEndOffset()));
+		return pi;
 	}
 
 	private final class ViewPort implements IViewPort {
