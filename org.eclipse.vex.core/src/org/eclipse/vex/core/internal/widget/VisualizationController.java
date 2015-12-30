@@ -90,9 +90,17 @@ public class VisualizationController {
 		visualization.setBoxModelBuilder(boxModelBuilder);
 	}
 
-	public void rebuildBoxModel() {
+	public void refreshAll() {
 		visualization.buildAll();
 		view.invalidateEverything();
+	}
+
+	public void refreshViewport() {
+		view.invalidateViewport();
+	}
+
+	public void resize(final int width) {
+		view.invalidateWidth(width);
 	}
 
 	public void moveCursor(final ICursorMove move) {

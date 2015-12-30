@@ -46,10 +46,10 @@ import org.eclipse.vex.core.internal.undo.CannotApplyException;
 import org.eclipse.vex.core.internal.visualization.IBoxModelBuilder;
 import org.eclipse.vex.core.internal.widget.BalancingSelector;
 import org.eclipse.vex.core.internal.widget.BoxView;
-import org.eclipse.vex.core.internal.widget.VisualizationController;
 import org.eclipse.vex.core.internal.widget.IRenderer;
 import org.eclipse.vex.core.internal.widget.IViewPort;
 import org.eclipse.vex.core.internal.widget.ReadOnlyException;
+import org.eclipse.vex.core.internal.widget.VisualizationController;
 import org.eclipse.vex.core.provisional.dom.DocumentValidationException;
 import org.eclipse.vex.core.provisional.dom.IComment;
 import org.eclipse.vex.core.provisional.dom.IDocument;
@@ -173,11 +173,11 @@ public class BoxWidget extends Canvas implements ISelectionProvider {
 	}
 
 	private void resize(final ControlEvent event) {
-		view.invalidateWidth(getClientArea().width);
+		controller.resize(getClientArea().width);
 	}
 
 	private void scrollVertically(final SelectionEvent event) {
-		view.invalidateViewport();
+		controller.refreshViewport();
 	}
 
 	private void keyPressed(final KeyEvent event) {
@@ -283,7 +283,7 @@ public class BoxWidget extends Canvas implements ISelectionProvider {
 	}
 
 	public void refresh() {
-		controller.rebuildBoxModel();
+		controller.refreshAll();
 	}
 
 	public void enterChar(final char c) {
