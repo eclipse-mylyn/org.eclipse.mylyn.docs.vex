@@ -20,7 +20,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import org.eclipse.vex.core.internal.css.StyleSheet;
-import org.eclipse.vex.core.internal.undo.CannotRedoException;
+import org.eclipse.vex.core.internal.undo.CannotApplyException;
 import org.eclipse.vex.core.provisional.dom.IDocumentFragment;
 import org.eclipse.vex.core.provisional.dom.INode;
 import org.eclipse.vex.core.provisional.dom.IProcessingInstruction;
@@ -51,7 +51,7 @@ public class L2ProcessingInstructionEditingTest {
 		assertEquals("data", pi.getText());
 	}
 
-	@Test(expected = CannotRedoException.class)
+	@Test(expected = CannotApplyException.class)
 	public void shouldNotInsertInvalidProcessingInstruction() throws Exception {
 		widget.insertElement(TITLE);
 		widget.insertProcessingInstruction(" tar get");

@@ -47,7 +47,7 @@ public class ChangeNamespaceEdit extends AbstractUndoableEdit {
 	}
 
 	@Override
-	protected void performRedo() throws CannotRedoException {
+	protected void performRedo() throws CannotApplyException {
 		try {
 			final IElement element = document.getElementForInsertionAt(offset);
 			if (newUri == null) {
@@ -56,7 +56,7 @@ public class ChangeNamespaceEdit extends AbstractUndoableEdit {
 				element.declareNamespace(prefix, newUri);
 			}
 		} catch (final DocumentValidationException e) {
-			throw new CannotRedoException(e);
+			throw new CannotApplyException(e);
 		}
 	}
 }

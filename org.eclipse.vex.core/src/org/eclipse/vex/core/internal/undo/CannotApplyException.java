@@ -13,14 +13,14 @@ package org.eclipse.vex.core.internal.undo;
 /**
  * Thrown when an IUndoableEdit cannot be undone.
  */
-public class CannotRedoException extends RuntimeException {
+public class CannotApplyException extends RuntimeException {
 
 	private static final long serialVersionUID = 1L;
 
 	/**
 	 * Class constructor.
 	 */
-	public CannotRedoException() {
+	public CannotApplyException() {
 	}
 
 	/**
@@ -29,7 +29,7 @@ public class CannotRedoException extends RuntimeException {
 	 * @param message
 	 *            Message indicating the reason for the failure.
 	 */
-	public CannotRedoException(final String message) {
+	public CannotApplyException(final String message) {
 		super(message);
 	}
 
@@ -39,7 +39,7 @@ public class CannotRedoException extends RuntimeException {
 	 * @param cause
 	 *            Root cause of the failure.
 	 */
-	public CannotRedoException(final Throwable cause) {
+	public CannotApplyException(final Throwable cause) {
 		super(cause);
 	}
 
@@ -51,7 +51,7 @@ public class CannotRedoException extends RuntimeException {
 	 * @param cause
 	 *            Root cause of the failure.
 	 */
-	public CannotRedoException(final String message, final Throwable cause) {
+	public CannotApplyException(final String message, final Throwable cause) {
 		super(message, cause);
 	}
 

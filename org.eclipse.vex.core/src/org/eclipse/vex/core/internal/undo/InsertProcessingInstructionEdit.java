@@ -44,12 +44,12 @@ public class InsertProcessingInstructionEdit extends AbstractUndoableEdit {
 	}
 
 	@Override
-	protected void performRedo() throws CannotRedoException {
+	protected void performRedo() throws CannotApplyException {
 		try {
 			pi = document.insertProcessingInstruction(offset, target);
 			contentRange = pi.getRange();
 		} catch (final DocumentValidationException e) {
-			throw new CannotRedoException(e);
+			throw new CannotApplyException(e);
 		}
 	}
 

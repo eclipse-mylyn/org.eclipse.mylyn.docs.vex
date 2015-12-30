@@ -31,7 +31,7 @@ public interface IUndoableEdit {
 	/**
 	 * Redo the edit.
 	 */
-	public void redo() throws CannotRedoException;
+	public void redo() throws CannotApplyException;
 
 	/**
 	 * Undo the edit.

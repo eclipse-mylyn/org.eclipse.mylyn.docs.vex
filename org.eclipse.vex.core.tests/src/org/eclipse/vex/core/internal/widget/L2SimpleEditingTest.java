@@ -32,7 +32,7 @@ import java.util.List;
 import org.eclipse.vex.core.internal.css.CssWhitespacePolicy;
 import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.css.StyleSheetReader;
-import org.eclipse.vex.core.internal.undo.CannotRedoException;
+import org.eclipse.vex.core.internal.undo.CannotApplyException;
 import org.eclipse.vex.core.provisional.dom.DocumentValidationException;
 import org.eclipse.vex.core.provisional.dom.IComment;
 import org.eclipse.vex.core.provisional.dom.IDocumentFragment;
@@ -535,7 +535,7 @@ public class L2SimpleEditingTest {
 		assertFalse(widget.canSplit());
 	}
 
-	@Test(expected = CannotRedoException.class)
+	@Test(expected = CannotApplyException.class)
 	public void givenElementWithSingleOccurrence_whenSplitting_shouldThrowCannotRedoException() throws Exception {
 		widget.insertElement(TITLE);
 		widget.split();
@@ -663,7 +663,7 @@ public class L2SimpleEditingTest {
 		assertCanMorphOnlyTo(widget /* nothing */);
 	}
 
-	@Test(expected = CannotRedoException.class)
+	@Test(expected = CannotApplyException.class)
 	public void givenElementWithChildren_whenStructureIsInvalidAfterMorphing_shouldNotMorph() throws Exception {
 		widget.insertElement(PARA);
 		widget.insertText("before");
@@ -753,7 +753,7 @@ public class L2SimpleEditingTest {
 		assertFalse(widget.canUnwrap());
 	}
 
-	@Test(expected = CannotRedoException.class)
+	@Test(expected = CannotApplyException.class)
 	public void givenElementWithText_whenParentDoesNotAllowText_shouldNotUnwrap() throws Exception {
 		widget.insertElement(PARA);
 		widget.insertText("text");
@@ -769,7 +769,7 @@ public class L2SimpleEditingTest {
 		assertFalse(widget.canUnwrap());
 	}
 
-	@Test(expected = CannotRedoException.class)
+	@Test(expected = CannotApplyException.class)
 	public void givenElementWithChildren_whenParentDoesNotAllowChildren_shouldNotUnwrap() throws Exception {
 		widget.insertElement(PARA);
 		widget.insertElement(PRE);
@@ -891,7 +891,7 @@ public class L2SimpleEditingTest {
 		assertFalse(widget.canJoin());
 	}
 
-	@Test(expected = CannotRedoException.class)
+	@Test(expected = CannotApplyException.class)
 	public void givenMultipleElementsOfSameKindSelected_whenStructureAfterJoinWouldBeInvalid_shouldJoin() throws Exception {
 		widget.setDocument(createDocumentWithDTD(TEST_DTD, "one-kind-of-child"), readTestStyleSheet());
 		rootElement = widget.getDocument().getRootElement();

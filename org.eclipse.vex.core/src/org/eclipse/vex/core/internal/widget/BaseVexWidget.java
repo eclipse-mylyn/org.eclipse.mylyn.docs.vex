@@ -51,7 +51,7 @@ import org.eclipse.vex.core.internal.layout.CssBoxFactory;
 import org.eclipse.vex.core.internal.layout.LayoutContext;
 import org.eclipse.vex.core.internal.layout.RootBox;
 import org.eclipse.vex.core.internal.layout.VerticalRange;
-import org.eclipse.vex.core.internal.undo.CannotRedoException;
+import org.eclipse.vex.core.internal.undo.CannotApplyException;
 import org.eclipse.vex.core.internal.undo.CannotUndoException;
 import org.eclipse.vex.core.internal.undo.ChangeAttributeEdit;
 import org.eclipse.vex.core.internal.undo.ChangeNamespaceEdit;
@@ -1067,14 +1067,14 @@ public class BaseVexWidget implements IVexWidget {
 	}
 
 	@Override
-	public void editProcessingInstruction(final String target, final String data) throws CannotRedoException, ReadOnlyException {
+	public void editProcessingInstruction(final String target, final String data) throws CannotApplyException, ReadOnlyException {
 		if (readOnly) {
 			throw new ReadOnlyException("Cannot change processing instruction, because the editor is read-only.");
 		}
 
 		final INode node = getCurrentNode();
 		if (!(node instanceof IProcessingInstruction)) {
-			throw new CannotRedoException("Current node is not a processing instruction");
+			throw new CannotApplyException("Current node is not a processing instruction");
 		}
 
 		boolean success = false;
@@ -1573,12 +1573,12 @@ public class BaseVexWidget implements IVexWidget {
 	}
 
 	@Override
-	public void redo() throws CannotRedoException, ReadOnlyException {
+	public void redo() throws CannotApplyException, ReadOnlyException {
 		if (readOnly) {
 			throw new ReadOnlyException("Cannot redo, because the editor is read-only.");
 		}
 		if (redoList.isEmpty()) {
-			throw new CannotRedoException();
+			throw new CannotApplyException();
 		}
 		final UndoableAndOffset event = redoList.removeLast();
 		this.moveTo(new ContentPosition(document, event.caretOffset), false);

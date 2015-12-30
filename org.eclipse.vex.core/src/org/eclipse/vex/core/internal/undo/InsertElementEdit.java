@@ -45,12 +45,12 @@ public class InsertElementEdit extends AbstractUndoableEdit {
 	}
 
 	@Override
-	protected void performRedo() throws CannotRedoException {
+	protected void performRedo() throws CannotApplyException {
 		try {
 			element = document.insertElement(offset, elementName);
 			elementRange = element.getRange();
 		} catch (final DocumentValidationException e) {
-			throw new CannotRedoException(e);
+			throw new CannotApplyException(e);
 		}
 	}
 

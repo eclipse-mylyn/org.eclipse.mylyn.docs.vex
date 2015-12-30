@@ -15,7 +15,7 @@ import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.vex.core.internal.core.ElementName;
 import org.eclipse.vex.core.internal.css.IWhitespacePolicy;
 import org.eclipse.vex.core.internal.css.StyleSheet;
-import org.eclipse.vex.core.internal.undo.CannotRedoException;
+import org.eclipse.vex.core.internal.undo.CannotApplyException;
 import org.eclipse.vex.core.internal.undo.CannotUndoException;
 import org.eclipse.vex.core.provisional.dom.ContentPosition;
 import org.eclipse.vex.core.provisional.dom.ContentPositionRange;
@@ -131,10 +131,10 @@ public interface IVexWidget {
 	/**
 	 * Redoes the last action on the redo stack.
 	 *
-	 * @throws CannotRedoException
+	 * @throws CannotApplyException
 	 *             if the last action cannot be re-done, or if there is nothing to redo.
 	 */
-	void redo() throws CannotRedoException;
+	void redo() throws CannotApplyException;
 
 	/**
 	 * Returns true if an undo can be performed.
@@ -595,7 +595,7 @@ public interface IVexWidget {
 	 *
 	 * @return the new comment
 	 */
-	IProcessingInstruction insertProcessingInstruction(final String target) throws CannotRedoException, ReadOnlyException;
+	IProcessingInstruction insertProcessingInstruction(final String target) throws CannotApplyException, ReadOnlyException;
 
 	/**
 	 * Edits the processing instruction at the current caret position. Updates target and data with the given Strings.
@@ -605,7 +605,7 @@ public interface IVexWidget {
 	 * @param data
 	 *            The data to set. May be null to keep the old value.
 	 */
-	void editProcessingInstruction(final String target, final String data) throws CannotRedoException, ReadOnlyException;
+	void editProcessingInstruction(final String target, final String data) throws CannotApplyException, ReadOnlyException;
 
 	/**
 	 * Inserts the given XML fragment at the current caret position. Any selected content is first deleted.

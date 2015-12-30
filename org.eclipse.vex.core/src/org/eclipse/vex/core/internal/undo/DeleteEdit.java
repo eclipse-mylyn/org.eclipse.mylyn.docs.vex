@@ -39,12 +39,12 @@ public class DeleteEdit extends AbstractUndoableEdit {
 	}
 
 	@Override
-	protected void performRedo() throws CannotRedoException {
+	protected void performRedo() throws CannotApplyException {
 		try {
 			fragment = document.getFragment(range);
 			document.delete(range);
 		} catch (final DocumentValidationException e) {
-			throw new CannotRedoException(e);
+			throw new CannotApplyException(e);
 		}
 	}
 

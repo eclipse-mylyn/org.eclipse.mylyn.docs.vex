@@ -42,7 +42,7 @@ import org.eclipse.vex.core.internal.core.Rectangle;
 import org.eclipse.vex.core.internal.cursor.Cursor;
 import org.eclipse.vex.core.internal.cursor.ICursorMove;
 import org.eclipse.vex.core.internal.cursor.ICursorPositionListener;
-import org.eclipse.vex.core.internal.undo.CannotRedoException;
+import org.eclipse.vex.core.internal.undo.CannotApplyException;
 import org.eclipse.vex.core.internal.visualization.IBoxModelBuilder;
 import org.eclipse.vex.core.internal.widget.BalancingSelector;
 import org.eclipse.vex.core.internal.widget.BoxView;
@@ -291,7 +291,7 @@ public class BoxWidget extends Canvas implements ISelectionProvider {
 		return controller.insertComment();
 	}
 
-	public IProcessingInstruction insertProcessingInstruction(final String target) throws CannotRedoException, ReadOnlyException {
+	public IProcessingInstruction insertProcessingInstruction(final String target) throws CannotApplyException, ReadOnlyException {
 		return controller.insertProcessingInstruction(target);
 	}
 

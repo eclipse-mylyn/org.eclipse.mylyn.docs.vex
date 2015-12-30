@@ -43,12 +43,12 @@ public class InsertCommentEdit extends AbstractUndoableEdit {
 	}
 
 	@Override
-	protected void performRedo() throws CannotRedoException {
+	protected void performRedo() throws CannotApplyException {
 		try {
 			comment = document.insertComment(offset);
 			commentRange = comment.getRange();
 		} catch (final DocumentValidationException e) {
-			throw new CannotRedoException(e);
+			throw new CannotApplyException(e);
 		}
 	}
 

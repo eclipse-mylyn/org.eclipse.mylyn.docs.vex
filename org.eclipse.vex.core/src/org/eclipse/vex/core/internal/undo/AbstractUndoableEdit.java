@@ -44,15 +44,15 @@ public abstract class AbstractUndoableEdit implements IUndoableEdit {
 	}
 
 	@Override
-	public void redo() throws CannotRedoException {
+	public void redo() throws CannotApplyException {
 		if (!canRedo()) {
-			throw new CannotRedoException();
+			throw new CannotApplyException();
 		}
 
 		try {
 			performRedo();
 			hasBeenDone = true;
-		} catch (final CannotRedoException ex) {
+		} catch (final CannotApplyException ex) {
 			hasBeenDone = false;
 			throw ex;
 		}
@@ -61,9 +61,9 @@ public abstract class AbstractUndoableEdit implements IUndoableEdit {
 	/**
 	 * To be implemented by subclasses to perform the actual Redo action.
 	 *
-	 * @throws CannotRedoException
+	 * @throws CannotApplyException
 	 */
-	protected abstract void performRedo() throws CannotRedoException;
+	protected abstract void performRedo() throws CannotApplyException;
 
 	@Override
 	public void undo() throws CannotUndoException {

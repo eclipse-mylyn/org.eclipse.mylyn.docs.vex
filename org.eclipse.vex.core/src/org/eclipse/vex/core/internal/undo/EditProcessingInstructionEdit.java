@@ -49,16 +49,16 @@ public class EditProcessingInstructionEdit extends AbstractUndoableEdit {
 			document.insertText(pi.getEndOffset(), oldData);
 
 		} catch (final DocumentValidationException e) {
-			throw new CannotRedoException(e);
+			throw new CannotApplyException(e);
 		}
 	}
 
 	@Override
-	protected void performRedo() throws CannotRedoException {
+	protected void performRedo() throws CannotApplyException {
 		try {
 			final INode node = document.getNodeForInsertionAt(offset);
 			if (!(node instanceof IProcessingInstruction)) {
-				throw new CannotRedoException("Current Node is not a processing instruction.");
+				throw new CannotApplyException("Current Node is not a processing instruction.");
 			}
 
 			final IProcessingInstruction pi = (IProcessingInstruction) node;
@@ -70,14 +70,14 @@ public class EditProcessingInstructionEdit extends AbstractUndoableEdit {
 			if (target != null) {
 				final IValidationResult resultTarget = XML.validateProcessingInstructionTarget(target);
 				if (!resultTarget.isOK()) {
-					throw new CannotRedoException(resultTarget.getMessage());
+					throw new CannotApplyException(resultTarget.getMessage());
 				}
 			}
 
 			if (data != null) {
 				final IValidationResult resultData = XML.validateProcessingInstructionData(data);
 				if (!resultData.isOK()) {
-					throw new CannotRedoException(resultData.getMessage());
+					throw new CannotApplyException(resultData.getMessage());
 				}
 			}
 
@@ -91,7 +91,7 @@ public class EditProcessingInstructionEdit extends AbstractUndoableEdit {
 			}
 
 		} catch (final DocumentValidationException e) {
-			throw new CannotRedoException(e);
+			throw new CannotApplyException(e);
 		}
 	}
 }

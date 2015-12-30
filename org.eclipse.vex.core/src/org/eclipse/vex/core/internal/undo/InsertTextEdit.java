@@ -50,11 +50,11 @@ public class InsertTextEdit extends AbstractUndoableEdit {
 	}
 
 	@Override
-	protected void performRedo() throws CannotRedoException {
+	protected void performRedo() throws CannotApplyException {
 		try {
 			document.insertText(offset, text);
 		} catch (final DocumentValidationException ex) {
-			throw new CannotRedoException();
+			throw new CannotApplyException();
 		}
 	}
 
