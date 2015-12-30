@@ -24,7 +24,7 @@ public abstract class AbstractUndoableEdit implements IUndoableEdit {
 	private boolean hasBeenDone = false;
 
 	@Override
-	public boolean combine(final IUndoableEdit edit) {
+	public final boolean combine(final IUndoableEdit edit) {
 		if (hasBeenDone) {
 			return performCombine(edit);
 		}
@@ -44,7 +44,7 @@ public abstract class AbstractUndoableEdit implements IUndoableEdit {
 	}
 
 	@Override
-	public void redo() throws CannotApplyException {
+	public final void redo() throws CannotApplyException {
 		if (!canRedo()) {
 			throw new CannotApplyException();
 		}
@@ -66,7 +66,7 @@ public abstract class AbstractUndoableEdit implements IUndoableEdit {
 	protected abstract void performRedo() throws CannotApplyException;
 
 	@Override
-	public void undo() throws CannotUndoException {
+	public final void undo() throws CannotUndoException {
 		if (!canUndo()) {
 			throw new CannotUndoException();
 		}
@@ -95,5 +95,4 @@ public abstract class AbstractUndoableEdit implements IUndoableEdit {
 	public boolean canRedo() {
 		return !hasBeenDone;
 	}
-
 }

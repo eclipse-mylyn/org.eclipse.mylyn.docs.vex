@@ -20,11 +20,7 @@ import java.util.List;
  */
 public class CompoundEdit extends AbstractUndoableEdit {
 
-	/**
-	 * Class constructor.
-	 */
-	public CompoundEdit() {
-	}
+	private final List<IUndoableEdit> edits = new ArrayList<IUndoableEdit>();
 
 	/**
 	 * Adds an edit to the list.
@@ -72,7 +68,4 @@ public class CompoundEdit extends AbstractUndoableEdit {
 		return true;
 	}
 
-	// ===================================================== PRIVATE
-
-	private final List<IUndoableEdit> edits = new ArrayList<IUndoableEdit>();
 }
