@@ -58,4 +58,11 @@ public class InsertTextEdit extends AbstractUndoableEdit {
 		}
 	}
 
+	public int getOffsetBefore() {
+		return offset;
+	}
+
+	public int getOffsetAfter() {
+		return offset + text.length();
+	}
 }

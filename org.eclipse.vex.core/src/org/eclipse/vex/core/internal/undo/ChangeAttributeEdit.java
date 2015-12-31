@@ -52,4 +52,12 @@ public class ChangeAttributeEdit extends AbstractUndoableEdit {
 			throw new CannotApplyException(e);
 		}
 	}
+
+	public int getOffsetBefore() {
+		return offset;
+	}
+
+	public int getOffsetAfter() {
+		return offset;
+	}
 }

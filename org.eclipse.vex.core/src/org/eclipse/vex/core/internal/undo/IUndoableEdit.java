@@ -51,4 +51,8 @@ public interface IUndoableEdit {
 	 * @return <code>true</code> to indicate that this edit can be redone, <code>false</code> otherwise.
 	 */
 	public boolean canRedo();
+
+	public int getOffsetBefore();
+
+	public int getOffsetAfter();
 }

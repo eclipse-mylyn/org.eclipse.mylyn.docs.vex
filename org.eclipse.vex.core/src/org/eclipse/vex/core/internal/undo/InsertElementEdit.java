@@ -58,4 +58,11 @@ public class InsertElementEdit extends AbstractUndoableEdit {
 		return element;
 	}
 
+	public int getOffsetBefore() {
+		return offset;
+	}
+
+	public int getOffsetAfter() {
+		return element.getEndOffset();
+	}
 }

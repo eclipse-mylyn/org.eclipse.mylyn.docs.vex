@@ -94,4 +94,12 @@ public class EditProcessingInstructionEdit extends AbstractUndoableEdit {
 			throw new CannotApplyException(e);
 		}
 	}
+
+	public int getOffsetBefore() {
+		return offset;
+	}
+
+	public int getOffsetAfter() {
+		return offset;
+	}
 }

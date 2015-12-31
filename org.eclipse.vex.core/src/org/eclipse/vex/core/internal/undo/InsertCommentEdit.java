@@ -56,4 +56,11 @@ public class InsertCommentEdit extends AbstractUndoableEdit {
 		return comment;
 	}
 
+	public int getOffsetBefore() {
+		return offset;
+	}
+
+	public int getOffsetAfter() {
+		return comment.getEndOffset();
+	}
 }

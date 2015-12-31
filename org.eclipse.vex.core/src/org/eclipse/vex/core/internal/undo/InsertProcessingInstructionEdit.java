@@ -56,4 +56,12 @@ public class InsertProcessingInstructionEdit extends AbstractUndoableEdit {
 	public IProcessingInstruction getProcessingInstruction() {
 		return pi;
 	}
+
+	public int getOffsetBefore() {
+		return offset;
+	}
+
+	public int getOffsetAfter() {
+		return pi.getEndOffset();
+	}
 }

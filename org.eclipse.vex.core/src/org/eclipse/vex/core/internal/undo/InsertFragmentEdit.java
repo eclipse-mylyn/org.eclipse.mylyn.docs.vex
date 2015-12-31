@@ -46,4 +46,11 @@ public class InsertFragmentEdit extends AbstractUndoableEdit {
 		}
 	}
 
+	public int getOffsetBefore() {
+		return offset;
+	}
+
+	public int getOffsetAfter() {
+		return fragment.getContent().getRange().moveBy(offset).getEndOffset();
+	}
 }

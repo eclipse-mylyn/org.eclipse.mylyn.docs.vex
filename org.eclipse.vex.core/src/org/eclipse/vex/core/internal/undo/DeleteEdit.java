@@ -48,4 +48,11 @@ public class DeleteEdit extends AbstractUndoableEdit {
 		}
 	}
 
+	public int getOffsetBefore() {
+		return range.getStartOffset();
+	}
+
+	public int getOffsetAfter() {
+		return range.getStartOffset();
+	}
 }
