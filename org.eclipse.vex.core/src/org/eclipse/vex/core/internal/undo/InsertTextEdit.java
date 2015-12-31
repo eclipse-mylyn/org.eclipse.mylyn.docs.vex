@@ -44,8 +44,8 @@ public class InsertTextEdit extends AbstractUndoableEdit {
 	protected void performUndo() throws CannotUndoException {
 		try {
 			document.delete(new ContentRange(offset, offset + text.length() - 1));
-		} catch (final DocumentValidationException ex) {
-			throw new CannotUndoException();
+		} catch (final DocumentValidationException e) {
+			throw new CannotUndoException(e);
 		}
 	}
 
@@ -53,8 +53,8 @@ public class InsertTextEdit extends AbstractUndoableEdit {
 	protected void performRedo() throws CannotApplyException {
 		try {
 			document.insertText(offset, text);
-		} catch (final DocumentValidationException ex) {
-			throw new CannotApplyException();
+		} catch (final DocumentValidationException e) {
+			throw new CannotApplyException(e);
 		}
 	}
 
