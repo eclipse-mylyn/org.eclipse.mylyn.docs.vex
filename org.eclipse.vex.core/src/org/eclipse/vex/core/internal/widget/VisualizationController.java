@@ -48,6 +48,11 @@ public class VisualizationController {
 
 		@Override
 		public void contentDeleted(final ContentChangeEvent event) {
+			if (event.isStructuralChange()) {
+				visualization.rebuildStructure(event.getParent());
+			} else {
+				visualization.rebuildContentRange(event.getParent(), event.getRange());
+			}
 		}
 
 		@Override
