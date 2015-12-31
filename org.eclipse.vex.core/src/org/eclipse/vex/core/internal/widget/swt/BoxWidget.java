@@ -43,6 +43,13 @@ import org.eclipse.vex.core.internal.cursor.Cursor;
 import org.eclipse.vex.core.internal.cursor.ICursorMove;
 import org.eclipse.vex.core.internal.cursor.ICursorPositionListener;
 import org.eclipse.vex.core.internal.undo.CannotApplyException;
+import org.eclipse.vex.core.internal.undo.EditStack;
+import org.eclipse.vex.core.internal.undo.IUndoableEdit;
+import org.eclipse.vex.core.internal.undo.InsertCommentEdit;
+import org.eclipse.vex.core.internal.undo.InsertElementEdit;
+import org.eclipse.vex.core.internal.undo.InsertLineBreakEdit;
+import org.eclipse.vex.core.internal.undo.InsertProcessingInstructionEdit;
+import org.eclipse.vex.core.internal.undo.InsertTextEdit;
 import org.eclipse.vex.core.internal.visualization.IBoxModelBuilder;
 import org.eclipse.vex.core.internal.widget.BalancingSelector;
 import org.eclipse.vex.core.internal.widget.BoxView;
@@ -66,10 +73,12 @@ public class BoxWidget extends Canvas implements ISelectionProvider {
 	private final org.eclipse.swt.graphics.Cursor mouseCursor;
 
 	private IDocument document;
+
 	private final BoxView view;
 	private final Cursor cursor;
 	private final BalancingSelector selector;
 	private final VisualizationController controller;
+	private final EditStack editStack;
 
 	private final ListenerList selectionChangedListeners = new ListenerList();
 
@@ -95,6 +104,8 @@ public class BoxWidget extends Canvas implements ISelectionProvider {
 
 		view = new BoxView(renderer, viewPort, cursor);
 		controller = new VisualizationController(cursor, view);
+
+		editStack = new EditStack();
 	}
 
 	public void setContent(final IDocument document) {
@@ -200,9 +211,19 @@ public class BoxWidget extends Canvas implements ISelectionProvider {
 		case SWT.CR:
 			insertLineBreak();
 			break;
+		case 0x79:
+			if ((event.stateMask & SWT.CTRL) == SWT.CTRL && canRedo()) {
+				redo();
+			}
+			break;
+		case 0x7A:
+			if ((event.stateMask & SWT.CTRL) == SWT.CTRL && canUndo()) {
+				undo();
+			}
+			break;
 		default:
 			if (event.character > 0 && Character.isDefined(event.character)) {
-				enterChar(event.character);
+				insertChar(event.character);
 			}
 			break;
 		}
@@ -286,31 +307,52 @@ public class BoxWidget extends Canvas implements ISelectionProvider {
 		controller.refreshAll();
 	}
 
-	public void enterChar(final char c) {
-		document.insertText(cursor.getOffset(), Character.toString(c));
-		controller.moveCursor(toOffset(cursor.getOffset() + 1));
+	public void undo() {
+		final IUndoableEdit edit = editStack.undo();
+		controller.moveCursor(toOffset(edit.getOffsetBefore()));
+	}
+
+	public void redo() {
+		final IUndoableEdit edit = editStack.redo();
+		controller.moveCursor(toOffset(edit.getOffsetAfter()));
+	}
+
+	public boolean canUndo() {
+		return editStack.canUndo();
+	}
+
+	public boolean canRedo() {
+		return editStack.canRedo();
+	}
+
+	public void insertChar(final char c) {
+		final InsertTextEdit insertText = editStack.apply(new InsertTextEdit(document, cursor.getOffset(), Character.toString(c)));
+		controller.moveCursor(toOffset(insertText.getOffsetAfter()));
 	}
 
 	public void insertLineBreak() {
-		document.insertLineBreak(cursor.getOffset());
-		controller.moveCursor(toOffset(cursor.getOffset() + 1));
+		final InsertLineBreakEdit insertLineBreak = editStack.apply(new InsertLineBreakEdit(document, cursor.getOffset()));
+		controller.moveCursor(toOffset(insertLineBreak.getOffsetAfter()));
 	}
 
 	public IElement insertElement(final QualifiedName elementName) throws DocumentValidationException {
-		final IElement element = document.insertElement(cursor.getOffset(), elementName);
-		controller.moveCursor(toOffset(element.getEndOffset()));
+		final InsertElementEdit insertElement = editStack.apply(new InsertElementEdit(document, cursor.getOffset(), elementName));
+		final IElement element = insertElement.getElement();
+		controller.moveCursor(toOffset(insertElement.getOffsetAfter()));
 		return element;
 	}
 
 	public IComment insertComment() throws DocumentValidationException {
-		final IComment comment = document.insertComment(cursor.getOffset());
-		controller.moveCursor(toOffset(comment.getEndOffset()));
+		final InsertCommentEdit insertComment = editStack.apply(new InsertCommentEdit(document, cursor.getOffset()));
+		final IComment comment = insertComment.getComment();
+		controller.moveCursor(toOffset(insertComment.getOffsetAfter()));
 		return comment;
 	}
 
 	public IProcessingInstruction insertProcessingInstruction(final String target) throws CannotApplyException, ReadOnlyException {
-		final IProcessingInstruction pi = document.insertProcessingInstruction(cursor.getOffset(), target);
-		controller.moveCursor(toOffset(pi.getEndOffset()));
+		final InsertProcessingInstructionEdit insertPI = editStack.apply(new InsertProcessingInstructionEdit(document, cursor.getOffset(), target));
+		final IProcessingInstruction pi = insertPI.getProcessingInstruction();
+		controller.moveCursor(toOffset(insertPI.getOffsetAfter()));
 		return pi;
 	}
 
