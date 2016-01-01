@@ -212,13 +212,21 @@ public class BoxWidget extends Canvas implements ISelectionProvider {
 			insertLineBreak();
 			break;
 		case 0x79:
-			if ((event.stateMask & SWT.CTRL) == SWT.CTRL && canRedo()) {
-				redo();
+			if ((event.stateMask & SWT.CTRL) == SWT.CTRL) {
+				if (canRedo()) {
+					redo();
+				}
+			} else {
+				insertChar(event.character);
 			}
 			break;
 		case 0x7A:
-			if ((event.stateMask & SWT.CTRL) == SWT.CTRL && canUndo()) {
-				undo();
+			if ((event.stateMask & SWT.CTRL) == SWT.CTRL) {
+				if (canUndo()) {
+					undo();
+				}
+			} else {
+				insertChar(event.character);
 			}
 			break;
 		default:
