@@ -81,9 +81,12 @@ public class BalancableRange {
 		}
 
 		int balancedOffset = document.getChildAt(offset).getStartOffset();
-		while (document.getChildAt(balancedOffset).getParent() != node) {
-			balancedOffset = document.getChildAt(balancedOffset).getParent().getStartOffset();
+		IParent parent = document.getChildAt(balancedOffset).getParent();
+		while (parent != null && parent != node) {
+			balancedOffset = parent.getStartOffset();
+			parent = document.getChildAt(balancedOffset).getParent();
 		}
+
 		return balancedOffset;
 	}
 
