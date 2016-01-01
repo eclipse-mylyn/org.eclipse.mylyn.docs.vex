@@ -19,9 +19,9 @@ import org.eclipse.vex.core.internal.boxes.BaseBoxVisitor;
 import org.eclipse.vex.core.internal.boxes.IBox;
 import org.eclipse.vex.core.internal.boxes.IContentBox;
 import org.eclipse.vex.core.internal.boxes.InlineContainer;
-import org.eclipse.vex.core.internal.boxes.NodeEndOffsetPlaceholder;
 import org.eclipse.vex.core.internal.boxes.InlineFrame;
 import org.eclipse.vex.core.internal.boxes.InlineNodeReference;
+import org.eclipse.vex.core.internal.boxes.NodeEndOffsetPlaceholder;
 import org.eclipse.vex.core.internal.boxes.Paragraph;
 import org.eclipse.vex.core.internal.boxes.RootBox;
 import org.eclipse.vex.core.internal.boxes.StructuralFrame;
@@ -160,7 +160,11 @@ public class DOMVisualization {
 
 			@Override
 			public void visit(final TextContent box) {
-				view.invalidateLayout(modifiedBox);
+				if (modifiedRange.getStartOffset() == modifiedBox.getStartOffset() || modifiedRange.getEndOffset() == modifiedBox.getEndOffset()) {
+					rebuildStructure(node);
+				} else {
+					view.invalidateLayout(modifiedBox);
+				}
 			}
 
 			@Override
