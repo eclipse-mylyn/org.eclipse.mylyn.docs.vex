@@ -221,8 +221,8 @@ public class StructuralFrame extends BaseBox implements IStructuralBox, IDecorat
 		if (borderLine.width <= 0) {
 			return;
 		}
-		graphics.setLineWidth(borderLine.width);
 		graphics.setLineStyle(borderLine.style);
+		graphics.setLineWidth(borderLine.width);
 		graphics.setColor(graphics.getColor(borderLine.color));
 		graphics.drawLine(left, top, right, bottom);
 	}

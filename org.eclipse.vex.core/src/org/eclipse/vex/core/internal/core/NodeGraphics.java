@@ -54,8 +54,8 @@ public class NodeGraphics {
 		if (!transparent) {
 			graphics.fillRoundRect(effectiveX, effectiveY, textWidth + MARGIN * 2 - 1, textHeight + MARGIN * 2 - 1, arc, arc);
 		}
-		graphics.setLineWidth(1);
 		graphics.setLineStyle(LineStyle.SOLID);
+		graphics.setLineWidth(1);
 		graphics.drawRoundRect(effectiveX + MARGIN - 1, effectiveY + MARGIN - 1, textWidth, textHeight, arc, arc);
 		graphics.drawString(text, effectiveX + TEXT_PADDING + MARGIN - 1, effectiveY + TEXT_PADDING + MARGIN - 1);
 	}
@@ -97,8 +97,8 @@ public class NodeGraphics {
 			graphics.fillPolygon(arrowRight(x, effectiveY, textWidth + 2 * MARGIN, textHeight + MARGIN * 2 - 1));
 		}
 
-		graphics.setLineWidth(1);
 		graphics.setLineStyle(LineStyle.SOLID);
+		graphics.setLineWidth(1);
 		graphics.drawPolygon(arrowRight(x + MARGIN, effectiveY + MARGIN - 1, textWidth, textHeight));
 
 		graphics.drawString(text, x + TEXT_PADDING + MARGIN, effectiveY + TEXT_PADDING + MARGIN - 1);
@@ -147,8 +147,8 @@ public class NodeGraphics {
 			graphics.fillPolygon(arrowLeft(x, effectiveY, textWidth + MARGIN + 1, textHeight + MARGIN * 2 - 1));
 		}
 
-		graphics.setLineWidth(1);
 		graphics.setLineStyle(LineStyle.SOLID);
+		graphics.setLineWidth(1);
 		graphics.drawPolygon(arrowLeft(x + MARGIN, effectiveY + MARGIN - 1, textWidth, textHeight));
 
 		graphics.drawString(text, x + arrow, effectiveY + TEXT_PADDING + MARGIN - 1);

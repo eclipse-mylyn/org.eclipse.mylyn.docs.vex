@@ -12,6 +12,7 @@ package org.eclipse.vex.core.internal.boxes;
 
 import org.eclipse.vex.core.internal.core.Color;
 import org.eclipse.vex.core.internal.core.Graphics;
+import org.eclipse.vex.core.internal.core.LineStyle;
 import org.eclipse.vex.core.internal.core.NodeGraphics;
 import org.eclipse.vex.core.internal.core.Rectangle;
 import org.eclipse.vex.core.provisional.dom.ContentRange;
@@ -203,6 +204,7 @@ public class StructuralNodeReference extends BaseBox implements IStructuralBox, 
 	private void drawBorder(final Graphics graphics, final Color color) {
 		graphics.setForeground(graphics.getColor(color));
 		graphics.setBackground(graphics.getColor(color));
+		graphics.setLineStyle(LineStyle.SOLID);
 		graphics.setLineWidth(HIGHLIGHT_BORDER_WIDTH);
 		graphics.drawRect(getAbsoluteLeft(), getAbsoluteTop(), width, height);
 	}

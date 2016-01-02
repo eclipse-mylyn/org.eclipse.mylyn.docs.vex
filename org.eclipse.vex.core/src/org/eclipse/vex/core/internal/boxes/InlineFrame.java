@@ -272,8 +272,8 @@ public class InlineFrame extends BaseBox implements IInlineBox, IDecoratorBox<II
 		if (borderLine.width <= 0) {
 			return;
 		}
-		graphics.setLineWidth(borderLine.width);
 		graphics.setLineStyle(borderLine.style);
+		graphics.setLineWidth(borderLine.width);
 		graphics.setColor(graphics.getColor(borderLine.color));
 		graphics.drawLine(left, top, right, bottom);
 	}
