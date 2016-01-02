@@ -20,12 +20,14 @@ public class DeleteEdit extends AbstractUndoableEdit {
 
 	private final IDocument document;
 	private final ContentRange range;
+	private final int offsetToRestore;
 	private IDocumentFragment fragment = null;
 
-	public DeleteEdit(final IDocument document, final ContentRange range) {
+	public DeleteEdit(final IDocument document, final ContentRange range, final int offsetToRestore) {
 		super();
 		this.document = document;
 		this.range = range;
+		this.offsetToRestore = offsetToRestore;
 	}
 
 	@Override
@@ -49,7 +51,7 @@ public class DeleteEdit extends AbstractUndoableEdit {
 	}
 
 	public int getOffsetBefore() {
-		return range.getStartOffset();
+		return offsetToRestore;
 	}
 
 	public int getOffsetAfter() {

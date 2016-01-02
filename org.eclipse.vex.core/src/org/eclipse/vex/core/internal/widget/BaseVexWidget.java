@@ -484,7 +484,7 @@ public class BaseVexWidget implements IVexWidget {
 			if (hasSelection()) {
 				// The position has to be moved here, because selectionStart may be invalid after the deletion.
 				final ContentPosition positionAfterDelete = getSelectionStart().moveBy(-1);
-				applyEdit(new DeleteEdit(document, getSelectedRange()), getSelectionEnd().getOffset());
+				applyEdit(new DeleteEdit(document, getSelectedRange(), getSelectionEnd().getOffset()), getSelectionEnd().getOffset());
 				this.moveTo(positionAfterDelete.moveBy(1));
 			}
 		} catch (final DocumentValidationException e) {
@@ -495,7 +495,7 @@ public class BaseVexWidget implements IVexWidget {
 	private void deleteNextToCaret() {
 		try {
 			final ContentPosition nextToCaret = getCaretPosition();
-			applyEdit(new DeleteEdit(document, new ContentRange(nextToCaret, nextToCaret)), nextToCaret.getOffset());
+			applyEdit(new DeleteEdit(document, new ContentRange(nextToCaret, nextToCaret), nextToCaret.getOffset()), nextToCaret.getOffset());
 			this.moveTo(nextToCaret);
 		} catch (final DocumentValidationException e) {
 			e.printStackTrace(); // This should never happen, because we constrain the selection
@@ -505,7 +505,7 @@ public class BaseVexWidget implements IVexWidget {
 	private void deleteBeforeCaret() {
 		try {
 			final ContentPosition beforeCaret = getCaretPosition().moveBy(-1);
-			applyEdit(new DeleteEdit(document, new ContentRange(beforeCaret, beforeCaret)), beforeCaret.getOffset() + 1);
+			applyEdit(new DeleteEdit(document, new ContentRange(beforeCaret, beforeCaret), beforeCaret.getOffset() + 1), beforeCaret.getOffset() + 1);
 			this.moveTo(beforeCaret);
 		} catch (final DocumentValidationException e) {
 			e.printStackTrace(); // This should never happen, because we constrain the selection
@@ -980,7 +980,7 @@ public class BaseVexWidget implements IVexWidget {
 					final String compressedContent = XML.compressWhitespace(text.getText(), false, false, false);
 					final ContentRange originalTextRange = text.getRange();
 					final CompoundEdit compoundEdit = new CompoundEdit();
-					compoundEdit.addEdit(new DeleteEdit(document, originalTextRange));
+					compoundEdit.addEdit(new DeleteEdit(document, originalTextRange, originalTextRange.getStartOffset()));
 					compoundEdit.addEdit(new InsertTextEdit(document, originalTextRange.getStartOffset(), compressedContent));
 					applyEdit(compoundEdit, originalTextRange.getStartOffset());
 				}

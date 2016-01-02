@@ -366,10 +366,10 @@ public class BoxWidget extends Canvas implements ISelectionProvider {
 			edit = new JoinElementsAtOffsetEdit(document, offset);
 		} else if (document.getNodeForInsertionAt(offset).isEmpty()) {
 			final ContentRange range = document.getNodeForInsertionAt(offset).getRange();
-			edit = new DeleteEdit(document, range);
+			edit = new DeleteEdit(document, range, offset);
 		} else if (document.getNodeForInsertionAt(offset + 1).isEmpty()) {
 			final ContentRange range = document.getNodeForInsertionAt(offset + 1).getRange();
-			edit = new DeleteEdit(document, range);
+			edit = new DeleteEdit(document, range, offset);
 		} else if (!document.isTagAt(offset)) {
 			edit = new DeleteNextCharEdit(document, offset);
 		} else {
@@ -397,10 +397,10 @@ public class BoxWidget extends Canvas implements ISelectionProvider {
 			edit = new JoinElementsAtOffsetEdit(document, offset);
 		} else if (document.getNodeForInsertionAt(offset).isEmpty()) {
 			final ContentRange range = document.getNodeForInsertionAt(offset).getRange();
-			edit = new DeleteEdit(document, range);
+			edit = new DeleteEdit(document, range, offset);
 		} else if (document.getNodeForInsertionAt(offset - 1).isEmpty()) {
 			final ContentRange range = document.getNodeForInsertionAt(offset + 1).getRange();
-			edit = new DeleteEdit(document, range);
+			edit = new DeleteEdit(document, range, offset);
 		} else if (!document.isTagAt(offset - 1)) {
 			edit = new DeletePreviousCharEdit(document, offset);
 		} else {
