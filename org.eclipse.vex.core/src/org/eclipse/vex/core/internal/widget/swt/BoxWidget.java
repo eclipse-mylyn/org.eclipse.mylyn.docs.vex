@@ -43,6 +43,8 @@ import org.eclipse.vex.core.internal.cursor.Cursor;
 import org.eclipse.vex.core.internal.cursor.ICursorMove;
 import org.eclipse.vex.core.internal.cursor.ICursorPositionListener;
 import org.eclipse.vex.core.internal.undo.CannotApplyException;
+import org.eclipse.vex.core.internal.undo.DeleteEdit;
+import org.eclipse.vex.core.internal.undo.DeleteNextCharEdit;
 import org.eclipse.vex.core.internal.undo.EditStack;
 import org.eclipse.vex.core.internal.undo.IUndoableEdit;
 import org.eclipse.vex.core.internal.undo.InsertCommentEdit;
@@ -50,6 +52,7 @@ import org.eclipse.vex.core.internal.undo.InsertElementEdit;
 import org.eclipse.vex.core.internal.undo.InsertLineBreakEdit;
 import org.eclipse.vex.core.internal.undo.InsertProcessingInstructionEdit;
 import org.eclipse.vex.core.internal.undo.InsertTextEdit;
+import org.eclipse.vex.core.internal.undo.JoinElementsAtOffsetEdit;
 import org.eclipse.vex.core.internal.visualization.IBoxModelBuilder;
 import org.eclipse.vex.core.internal.widget.BalancingSelector;
 import org.eclipse.vex.core.internal.widget.BoxView;
@@ -57,6 +60,7 @@ import org.eclipse.vex.core.internal.widget.IRenderer;
 import org.eclipse.vex.core.internal.widget.IViewPort;
 import org.eclipse.vex.core.internal.widget.ReadOnlyException;
 import org.eclipse.vex.core.internal.widget.VisualizationController;
+import org.eclipse.vex.core.provisional.dom.ContentRange;
 import org.eclipse.vex.core.provisional.dom.DocumentValidationException;
 import org.eclipse.vex.core.provisional.dom.IComment;
 import org.eclipse.vex.core.provisional.dom.IDocument;
@@ -211,6 +215,9 @@ public class BoxWidget extends Canvas implements ISelectionProvider {
 		case SWT.CR:
 			insertLineBreak();
 			break;
+		case SWT.DEL:
+			deleteForward();
+			break;
 		case 0x79:
 			if ((event.stateMask & SWT.CTRL) == SWT.CTRL) {
 				if (canRedo()) {
@@ -341,6 +348,36 @@ public class BoxWidget extends Canvas implements ISelectionProvider {
 	public void insertLineBreak() {
 		final InsertLineBreakEdit insertLineBreak = editStack.apply(new InsertLineBreakEdit(document, cursor.getOffset()));
 		controller.moveCursor(toOffset(insertLineBreak.getOffsetAfter()));
+	}
+
+	public void deleteForward() {
+		final IUndoableEdit edit;
+		final int offset = cursor.getOffset();
+		if (offset == document.getLength()) {
+			// ignore
+			edit = null;
+		} else if (JoinElementsAtOffsetEdit.isBetweenMatchingElements(document, offset)) {
+			edit = new JoinElementsAtOffsetEdit(document, offset);
+		} else if (JoinElementsAtOffsetEdit.isBetweenMatchingElements(document, offset + 1)) {
+			edit = new JoinElementsAtOffsetEdit(document, offset);
+		} else if (document.getNodeForInsertionAt(offset).isEmpty()) {
+			final ContentRange range = document.getNodeForInsertionAt(offset).getRange();
+			edit = new DeleteEdit(document, range);
+		} else if (document.getNodeForInsertionAt(offset + 1).isEmpty()) {
+			final ContentRange range = document.getNodeForInsertionAt(offset + 1).getRange();
+			edit = new DeleteEdit(document, range);
+		} else if (!document.isTagAt(offset)) {
+			edit = new DeleteNextCharEdit(document, offset);
+		} else {
+			edit = null;
+		}
+
+		if (edit == null) {
+			return;
+		}
+
+		editStack.apply(edit);
+		controller.moveCursor(toOffset(edit.getOffsetAfter()));
 	}
 
 	public IElement insertElement(final QualifiedName elementName) throws DocumentValidationException {
