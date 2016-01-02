@@ -45,6 +45,7 @@ import org.eclipse.vex.core.internal.cursor.ICursorPositionListener;
 import org.eclipse.vex.core.internal.undo.CannotApplyException;
 import org.eclipse.vex.core.internal.undo.DeleteEdit;
 import org.eclipse.vex.core.internal.undo.DeleteNextCharEdit;
+import org.eclipse.vex.core.internal.undo.DeletePreviousCharEdit;
 import org.eclipse.vex.core.internal.undo.EditStack;
 import org.eclipse.vex.core.internal.undo.IUndoableEdit;
 import org.eclipse.vex.core.internal.undo.InsertCommentEdit;
@@ -218,6 +219,9 @@ public class BoxWidget extends Canvas implements ISelectionProvider {
 		case SWT.DEL:
 			deleteForward();
 			break;
+		case SWT.BS:
+			deleteBackward();
+			break;
 		case 0x79:
 			if ((event.stateMask & SWT.CTRL) == SWT.CTRL) {
 				if (canRedo()) {
@@ -368,6 +372,37 @@ public class BoxWidget extends Canvas implements ISelectionProvider {
 			edit = new DeleteEdit(document, range);
 		} else if (!document.isTagAt(offset)) {
 			edit = new DeleteNextCharEdit(document, offset);
+		} else {
+			edit = null;
+		}
+
+		if (edit == null) {
+			return;
+		}
+
+		editStack.apply(edit);
+		controller.moveCursor(toOffset(edit.getOffsetAfter()));
+	}
+
+	public void deleteBackward() {
+		final IUndoableEdit edit;
+		final int offset = cursor.getOffset();
+
+		if (offset == 1) {
+			//ignore
+			edit = null;
+		} else if (JoinElementsAtOffsetEdit.isBetweenMatchingElements(document, offset)) {
+			edit = new JoinElementsAtOffsetEdit(document, offset);
+		} else if (JoinElementsAtOffsetEdit.isBetweenMatchingElements(document, offset - 1)) {
+			edit = new JoinElementsAtOffsetEdit(document, offset);
+		} else if (document.getNodeForInsertionAt(offset).isEmpty()) {
+			final ContentRange range = document.getNodeForInsertionAt(offset).getRange();
+			edit = new DeleteEdit(document, range);
+		} else if (document.getNodeForInsertionAt(offset - 1).isEmpty()) {
+			final ContentRange range = document.getNodeForInsertionAt(offset + 1).getRange();
+			edit = new DeleteEdit(document, range);
+		} else if (!document.isTagAt(offset - 1)) {
+			edit = new DeletePreviousCharEdit(document, offset);
 		} else {
 			edit = null;
 		}
