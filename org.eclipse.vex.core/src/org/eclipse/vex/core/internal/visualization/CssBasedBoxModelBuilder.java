@@ -361,7 +361,7 @@ public class CssBasedBoxModelBuilder implements IBoxModelBuilder {
 		if (!childrenResults.isEmpty()) {
 			return surroundWithInlinePseudoElements(visualizeChildrenInline(childrenResults, parent), node, styles);
 		} else {
-			return placeholderForEmptyNode(node, styles, parent);
+			return surroundWithInlinePseudoElements(placeholderForEmptyNode(node, styles, parent), node, styles);
 		}
 	}
 
