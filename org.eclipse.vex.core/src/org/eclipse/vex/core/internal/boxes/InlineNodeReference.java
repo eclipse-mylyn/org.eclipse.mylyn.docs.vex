@@ -312,7 +312,7 @@ public class InlineNodeReference extends BaseBox implements IInlineBox, IDecorat
 		if (node != otherNodeReference.node) {
 			return false;
 		}
-		if (endPosition.getOffset() != otherNodeReference.getStartOffset() - 1) {
+		if (endPosition.getOffset() != otherNodeReference.getStartOffset() - 1 && endPosition.getOffset() != otherNodeReference.getStartOffset()) {
 			return false;
 		}
 		if (!component.canJoin(otherNodeReference.component)) {
@@ -361,32 +361,36 @@ public class InlineNodeReference extends BaseBox implements IInlineBox, IDecorat
 		tail.setParent(parent);
 		tail.layout(graphics);
 
-		adaptContentRanges(firstChildOffset, tail);
-
 		layout(graphics);
+
+		adaptContentRanges(firstChildOffset, tail);
 
 		return tail;
 	}
 
 	private void adaptContentRanges(final int oldOffsetOfFirstChild, final InlineNodeReference tail) {
-		if (tail.getComponent().getWidth() == 0) {
+		if (tail.getWidth() == 0) {
 			return;
 		}
 
 		final int offsetOfFirstChildInTail = findStartOffset(tail.getComponent());
 		final int splitPosition;
-		if (oldOffsetOfFirstChild == offsetOfFirstChildInTail) {
-			splitPosition = startPosition.getOffset();
-		} else if (offsetOfFirstChildInTail == -1) {
+		if (offsetOfFirstChildInTail == -1) {
 			splitPosition = endPosition.getOffset();
+		} else if (offsetOfFirstChildInTail == oldOffsetOfFirstChild && width == 0) {
+			splitPosition = startPosition.getOffset();
 		} else {
 			splitPosition = offsetOfFirstChildInTail;
 		}
 
 		Assert.isTrue(splitPosition >= getStartOffset(), MessageFormat.format("Split position {0} is invalid.", splitPosition));
+
 		tail.setSubrange(node, splitPosition, getEndOffset());
 		node.getContent().removePosition(endPosition);
-		endPosition = node.getContent().createPosition(splitPosition - 1);
+		endPosition = node.getContent().createPosition(Math.max(startPosition.getOffset(), splitPosition - 1));
+
+		Assert.isTrue(startPosition.getOffset() <= endPosition.getOffset(), "InlineNodeReference head range is invalid: [" + startPosition + ", " + endPosition + "]");
+		Assert.isTrue(tail.startPosition.getOffset() <= tail.endPosition.getOffset(), "InlineNodeReference tail range is invalid: [" + tail.startPosition + ", " + tail.endPosition + "]");
 	}
 
 	private int findStartOffset(final IBox startBox) {
