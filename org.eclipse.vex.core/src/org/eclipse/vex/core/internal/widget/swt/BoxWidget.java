@@ -61,12 +61,16 @@ import org.eclipse.vex.core.internal.widget.IRenderer;
 import org.eclipse.vex.core.internal.widget.IViewPort;
 import org.eclipse.vex.core.internal.widget.ReadOnlyException;
 import org.eclipse.vex.core.internal.widget.VisualizationController;
+import org.eclipse.vex.core.provisional.dom.BaseNodeVisitorWithResult;
+import org.eclipse.vex.core.provisional.dom.ContentPosition;
 import org.eclipse.vex.core.provisional.dom.ContentRange;
 import org.eclipse.vex.core.provisional.dom.DocumentValidationException;
 import org.eclipse.vex.core.provisional.dom.IComment;
 import org.eclipse.vex.core.provisional.dom.IDocument;
 import org.eclipse.vex.core.provisional.dom.IElement;
+import org.eclipse.vex.core.provisional.dom.INode;
 import org.eclipse.vex.core.provisional.dom.IProcessingInstruction;
+import org.eclipse.vex.core.provisional.dom.IText;
 
 /**
  * A widget to display the new box model.
@@ -86,6 +90,9 @@ public class BoxWidget extends Canvas implements ISelectionProvider {
 	private final EditStack editStack;
 
 	private final ListenerList selectionChangedListeners = new ListenerList();
+
+	private INode currentNode;
+	private ContentPosition caretPosition;
 
 	public BoxWidget(final Composite parent, final int style) {
 		super(parent, style | SWT.NO_BACKGROUND);
@@ -113,14 +120,18 @@ public class BoxWidget extends Canvas implements ISelectionProvider {
 		editStack = new EditStack();
 	}
 
-	public void setContent(final IDocument document) {
+	public void setDocument(final IDocument document) {
 		this.document = document;
 		controller.setDocument(document);
 		selector.setDocument(document);
 	}
 
-	public void setBoxModelBuilder(final IBoxModelBuilder visualizationChain) {
-		controller.setBoxModelBuilder(visualizationChain);
+	public IDocument getDocument() {
+		return document;
+	}
+
+	public void setBoxModelBuilder(final IBoxModelBuilder boxModelBuilder) {
+		controller.setBoxModelBuilder(boxModelBuilder);
 	}
 
 	private void connectDispose() {
@@ -270,7 +281,41 @@ public class BoxWidget extends Canvas implements ISelectionProvider {
 	}
 
 	private void cursorPositionChanged(final int offset) {
+		currentNode = document.getNodeForInsertionAt(cursor.getOffset());
+		caretPosition = new ContentPosition(currentNode.getDocument(), cursor.getOffset());
 		fireSelectionChanged(createSelectionForOffset(offset));
+	}
+
+	public ContentPosition getCaretPosition() {
+		return caretPosition;
+	}
+
+	public IElement getCurrentElement() {
+		return currentNode.accept(new BaseNodeVisitorWithResult<IElement>(null) {
+			@Override
+			public IElement visit(final IElement element) {
+				return element;
+			}
+
+			@Override
+			public IElement visit(final IComment comment) {
+				return comment.getParent().accept(this);
+			}
+
+			@Override
+			public IElement visit(final IText text) {
+				return text.getParent().accept(this);
+			}
+
+			@Override
+			public IElement visit(final IProcessingInstruction pi) {
+				return pi.getParent().accept(this);
+			}
+		});
+	}
+
+	public INode getCurrentNode() {
+		return currentNode;
 	}
 
 	@Override

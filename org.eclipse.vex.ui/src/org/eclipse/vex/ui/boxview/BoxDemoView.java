@@ -155,7 +155,7 @@ public class BoxDemoView extends ViewPart {
 		boxWidget = new BoxWidget(boxWidgetParent, SWT.V_SCROLL);
 
 		document = UniversalTestDocument.createTestDocumentWithAllFeatures(SAMPLE_COUNT);
-		boxWidget.setContent(document);
+		boxWidget.setDocument(document);
 		boxWidget.setBoxModelBuilder(new CssBasedBoxModelBuilder(readStyleSheet()));
 		boxWidgetParent.layout();
 		boxWidget.addSelectionChangedListener(selectionChangedListener);
