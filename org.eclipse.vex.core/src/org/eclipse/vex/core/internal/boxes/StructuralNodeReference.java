@@ -190,6 +190,30 @@ public class StructuralNodeReference extends BaseBox implements IStructuralBox, 
 				box.highlight(graphics, foreground, lightBackground);
 				return super.visit(box);
 			}
+
+			@Override
+			public Object visit(final NodeTag box) {
+				paintBox(graphics, box);
+				return super.visit(box);
+			}
+
+			@Override
+			public Object visit(final Square box) {
+				paintBox(graphics, box);
+				return super.visit(box);
+			}
+
+			@Override
+			public Object visit(final StaticText box) {
+				paintBox(graphics, box);
+				return super.visit(box);
+			}
+
+			private void paintBox(final Graphics graphics, final IBox box) {
+				graphics.moveOrigin(box.getAbsoluteLeft(), box.getAbsoluteTop());
+				box.paint(graphics);
+				graphics.moveOrigin(-box.getAbsoluteLeft(), -box.getAbsoluteTop());
+			}
 		});
 
 		drawTag(graphics, foreground, background);
