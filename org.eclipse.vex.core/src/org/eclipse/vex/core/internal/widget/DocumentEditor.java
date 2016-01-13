@@ -959,27 +959,31 @@ public class DocumentEditor implements IDocumentEditor {
 			throw new ReadOnlyException(MessageFormat.format("Cannot insert element {0}, because the editor is read-only.", elementName));
 		}
 
-		final IElement result;
-		try {
-			editStack.beginWork();
-
-			IDocumentFragment selectedFragment = null;
-			if (hasSelection()) {
-				selectedFragment = getSelectedFragment();
-				deleteSelection();
-			}
-
-			result = apply(new InsertElementEdit(document, cursor.getOffset(), elementName)).getElement();
-
-			if (selectedFragment != null) {
-				insertFragment(selectedFragment);
-			}
-			editStack.commitWork();
-		} catch (final DocumentValidationException e) {
-			editStack.rollbackWork();
-			throw e;
+		final ContentRange selectedRange = getSelectedRange();
+		final IDocumentFragment selectedFragment;
+		if (hasSelection()) {
+			selectedFragment = getSelectedFragment();
+		} else {
+			selectedFragment = null;
 		}
-		return result;
+
+		final IElement[] result = new IElement[1];
+		doWork(new Runnable() {
+			@Override
+			public void run() {
+				if (hasSelection()) {
+					apply(new DeleteEdit(document, selectedRange, cursor.getOffset()));
+				}
+
+				result[0] = apply(new InsertElementEdit(document, cursor.getOffset(), elementName)).getElement();
+
+				if (selectedFragment != null) {
+					insertFragment(selectedFragment);
+				}
+			}
+		});
+
+		return result[0];
 	}
 
 	@Override
