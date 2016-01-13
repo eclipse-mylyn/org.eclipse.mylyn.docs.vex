@@ -76,10 +76,14 @@ public class VisualizationController {
 		}
 	};
 
-	public VisualizationController(final Cursor cursor, final BoxView view) {
+	public VisualizationController(final IRenderer renderer, final IViewPort viewPort, final Cursor cursor) {
 		cursor.addPositionListener(cursorListener);
-		this.view = view;
+		view = new BoxView(renderer, viewPort, cursor);
 		visualization = new DOMVisualization(cursor, view);
+	}
+
+	public void dispose() {
+		view.dispose();
 	}
 
 	public void setDocument(final IDocument document) {

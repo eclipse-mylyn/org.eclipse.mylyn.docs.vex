@@ -56,8 +56,6 @@ import org.eclipse.vex.core.internal.undo.InsertTextEdit;
 import org.eclipse.vex.core.internal.undo.JoinElementsAtOffsetEdit;
 import org.eclipse.vex.core.internal.visualization.IBoxModelBuilder;
 import org.eclipse.vex.core.internal.widget.BalancingSelector;
-import org.eclipse.vex.core.internal.widget.BoxView;
-import org.eclipse.vex.core.internal.widget.IRenderer;
 import org.eclipse.vex.core.internal.widget.IViewPort;
 import org.eclipse.vex.core.internal.widget.ReadOnlyException;
 import org.eclipse.vex.core.internal.widget.VisualizationController;
@@ -83,7 +81,6 @@ public class BoxWidget extends Canvas implements ISelectionProvider {
 
 	private IDocument document;
 
-	private final BoxView view;
 	private final Cursor cursor;
 	private final BalancingSelector selector;
 	private final VisualizationController controller;
@@ -108,14 +105,11 @@ public class BoxWidget extends Canvas implements ISelectionProvider {
 		connectKeyboard();
 		connectMouse();
 
-		final IRenderer renderer = new DoubleBufferedRenderer(this);
-		final IViewPort viewPort = new ViewPort();
 		selector = new BalancingSelector();
 		cursor = new Cursor(selector);
 		connectCursor();
 
-		view = new BoxView(renderer, viewPort, cursor);
-		controller = new VisualizationController(cursor, view);
+		controller = new VisualizationController(new DoubleBufferedRenderer(this), new ViewPort(), cursor);
 
 		editStack = new EditStack();
 	}
@@ -200,7 +194,7 @@ public class BoxWidget extends Canvas implements ISelectionProvider {
 	}
 
 	private void widgetDisposed() {
-		view.dispose();
+		controller.dispose();
 		mouseCursor.dispose();
 	}
 
