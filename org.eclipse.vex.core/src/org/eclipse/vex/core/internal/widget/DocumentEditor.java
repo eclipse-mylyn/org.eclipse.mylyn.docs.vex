@@ -126,6 +126,7 @@ public class DocumentEditor implements IDocumentEditor {
 	@Override
 	public void setDocument(final IDocument document) {
 		this.document = document;
+		cursor.move(toOffset(document.getRootElement().getStartOffset() + 1));
 	}
 
 	@Override
