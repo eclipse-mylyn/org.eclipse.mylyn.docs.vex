@@ -307,6 +307,11 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 	}
 
 	@Override
+	public void insertLineBreak() throws DocumentValidationException {
+		impl.insertLineBreak();
+	}
+
+	@Override
 	public boolean canInsertFragment(final IDocumentFragment fragment) {
 		return impl.canInsertFragment(fragment);
 	}

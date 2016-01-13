@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014, 2015 Florian Thienel and others.
+ * Copyright (c) 2014, 2016 Florian Thienel and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -38,45 +38,39 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.vex.core.internal.core.ElementName;
 import org.eclipse.vex.core.internal.core.Rectangle;
+import org.eclipse.vex.core.internal.css.IWhitespacePolicy;
 import org.eclipse.vex.core.internal.cursor.Cursor;
 import org.eclipse.vex.core.internal.cursor.ICursor;
 import org.eclipse.vex.core.internal.cursor.ICursorMove;
 import org.eclipse.vex.core.internal.cursor.ICursorPositionListener;
 import org.eclipse.vex.core.internal.undo.CannotApplyException;
-import org.eclipse.vex.core.internal.undo.DeleteEdit;
-import org.eclipse.vex.core.internal.undo.DeleteNextCharEdit;
-import org.eclipse.vex.core.internal.undo.DeletePreviousCharEdit;
-import org.eclipse.vex.core.internal.undo.EditStack;
-import org.eclipse.vex.core.internal.undo.IUndoableEdit;
-import org.eclipse.vex.core.internal.undo.InsertCommentEdit;
-import org.eclipse.vex.core.internal.undo.InsertElementEdit;
-import org.eclipse.vex.core.internal.undo.InsertLineBreakEdit;
-import org.eclipse.vex.core.internal.undo.InsertProcessingInstructionEdit;
-import org.eclipse.vex.core.internal.undo.InsertTextEdit;
-import org.eclipse.vex.core.internal.undo.JoinElementsAtOffsetEdit;
+import org.eclipse.vex.core.internal.undo.CannotUndoException;
 import org.eclipse.vex.core.internal.visualization.IBoxModelBuilder;
 import org.eclipse.vex.core.internal.widget.BalancingSelector;
+import org.eclipse.vex.core.internal.widget.DocumentEditor;
+import org.eclipse.vex.core.internal.widget.IDocumentEditor;
 import org.eclipse.vex.core.internal.widget.IViewPort;
 import org.eclipse.vex.core.internal.widget.ReadOnlyException;
 import org.eclipse.vex.core.internal.widget.VisualizationController;
-import org.eclipse.vex.core.provisional.dom.BaseNodeVisitorWithResult;
 import org.eclipse.vex.core.provisional.dom.ContentPosition;
+import org.eclipse.vex.core.provisional.dom.ContentPositionRange;
 import org.eclipse.vex.core.provisional.dom.ContentRange;
 import org.eclipse.vex.core.provisional.dom.DocumentValidationException;
 import org.eclipse.vex.core.provisional.dom.IComment;
 import org.eclipse.vex.core.provisional.dom.IDocument;
+import org.eclipse.vex.core.provisional.dom.IDocumentFragment;
 import org.eclipse.vex.core.provisional.dom.IElement;
 import org.eclipse.vex.core.provisional.dom.INode;
 import org.eclipse.vex.core.provisional.dom.IProcessingInstruction;
-import org.eclipse.vex.core.provisional.dom.IText;
 
 /**
  * A widget to display the new box model.
  *
  * @author Florian Thienel
  */
-public class BoxWidget extends Canvas implements ISelectionProvider {
+public class BoxWidget extends Canvas implements ISelectionProvider, IDocumentEditor {
 
 	private final org.eclipse.swt.graphics.Cursor mouseCursor;
 
@@ -85,12 +79,10 @@ public class BoxWidget extends Canvas implements ISelectionProvider {
 	private final Cursor cursor;
 	private final BalancingSelector selector;
 	private final VisualizationController controller;
-	private final EditStack editStack;
 
 	private final ListenerList selectionChangedListeners = new ListenerList();
 
-	private INode currentNode;
-	private ContentPosition caretPosition;
+	private final DocumentEditor editor;
 
 	public BoxWidget(final Composite parent, final int style) {
 		super(parent, style | SWT.NO_BACKGROUND);
@@ -111,14 +103,14 @@ public class BoxWidget extends Canvas implements ISelectionProvider {
 		connectCursor();
 
 		controller = new VisualizationController(new DoubleBufferedRenderer(this), new ViewPort(), cursor);
-
-		editStack = new EditStack();
+		editor = new DocumentEditor(cursor);
 	}
 
 	public void setDocument(final IDocument document) {
 		this.document = document;
-		controller.setDocument(document);
 		selector.setDocument(document);
+		controller.setDocument(document);
+		editor.setDocument(document);
 	}
 
 	public IDocument getDocument() {
@@ -196,6 +188,7 @@ public class BoxWidget extends Canvas implements ISelectionProvider {
 
 	private void widgetDisposed() {
 		controller.dispose();
+		editor.dispose();
 		mouseCursor.dispose();
 	}
 
@@ -225,7 +218,11 @@ public class BoxWidget extends Canvas implements ISelectionProvider {
 			moveOrSelect(event.stateMask, toOffset(0));
 			break;
 		case SWT.CR:
-			insertLineBreak();
+			if (editor.getWhitespacePolicy().isPre(editor.getCurrentElement())) {
+				insertLineBreak();
+			} else {
+				split();
+			}
 			break;
 		case SWT.DEL:
 			deleteForward();
@@ -281,42 +278,16 @@ public class BoxWidget extends Canvas implements ISelectionProvider {
 	}
 
 	private void cursorPositionChanged(final int offset) {
-		currentNode = document.getNodeForInsertionAt(cursor.getOffset());
-		caretPosition = new ContentPosition(currentNode.getDocument(), cursor.getOffset());
 		fireSelectionChanged(createSelectionForCursor(cursor));
 	}
 
-	public ContentPosition getCaretPosition() {
-		return caretPosition;
+	public void refresh() {
+		controller.refreshAll();
 	}
 
-	public IElement getCurrentElement() {
-		return currentNode.accept(new BaseNodeVisitorWithResult<IElement>(null) {
-			@Override
-			public IElement visit(final IElement element) {
-				return element;
-			}
-
-			@Override
-			public IElement visit(final IComment comment) {
-				return comment.getParent().accept(this);
-			}
-
-			@Override
-			public IElement visit(final IText text) {
-				return text.getParent().accept(this);
-			}
-
-			@Override
-			public IElement visit(final IProcessingInstruction pi) {
-				return pi.getParent().accept(this);
-			}
-		});
-	}
-
-	public INode getCurrentNode() {
-		return currentNode;
-	}
+	/*
+	 * ISelectionProvider
+	 */
 
 	@Override
 	public IVexSelection getSelection() {
@@ -378,119 +349,329 @@ public class BoxWidget extends Canvas implements ISelectionProvider {
 		};
 	}
 
-	public void refresh() {
-		controller.refreshAll();
+	/*
+	 * IDocumentEditor
+	 */
+
+	@Override
+	public IWhitespacePolicy getWhitespacePolicy() {
+		return editor.getWhitespacePolicy();
 	}
 
-	public void undo() {
-		final IUndoableEdit edit = editStack.undo();
-		cursor.move(toOffset(edit.getOffsetBefore()));
+	@Override
+	public void setWhitespacePolicy(final IWhitespacePolicy policy) {
+		editor.setWhitespacePolicy(policy);
 	}
 
-	public void redo() {
-		final IUndoableEdit edit = editStack.redo();
-		cursor.move(toOffset(edit.getOffsetAfter()));
+	public boolean isReadOnly() {
+		return editor.isReadOnly();
 	}
 
-	public boolean canUndo() {
-		return editStack.canUndo();
+	public void setReadOnly(final boolean readOnly) {
+		editor.setReadOnly(readOnly);
 	}
 
 	public boolean canRedo() {
-		return editStack.canRedo();
+		return editor.canRedo();
 	}
 
-	public void insertChar(final char c) {
-		final InsertTextEdit insertText = editStack.apply(new InsertTextEdit(document, cursor.getOffset(), Character.toString(c)));
-		cursor.move(toOffset(insertText.getOffsetAfter()));
+	public void redo() throws CannotApplyException {
+		editor.redo();
 	}
 
-	public void insertLineBreak() {
-		final InsertLineBreakEdit insertLineBreak = editStack.apply(new InsertLineBreakEdit(document, cursor.getOffset()));
-		cursor.move(toOffset(insertLineBreak.getOffsetAfter()));
+	public boolean canUndo() {
+		return editor.canUndo();
 	}
 
-	public void deleteForward() {
-		final IUndoableEdit edit;
-		final int offset = cursor.getOffset();
-		if (offset == document.getLength()) {
-			// ignore
-			edit = null;
-		} else if (JoinElementsAtOffsetEdit.isBetweenMatchingElements(document, offset)) {
-			edit = new JoinElementsAtOffsetEdit(document, offset);
-		} else if (JoinElementsAtOffsetEdit.isBetweenMatchingElements(document, offset + 1)) {
-			edit = new JoinElementsAtOffsetEdit(document, offset);
-		} else if (document.getNodeForInsertionAt(offset).isEmpty()) {
-			final ContentRange range = document.getNodeForInsertionAt(offset).getRange();
-			edit = new DeleteEdit(document, range, offset);
-		} else if (document.getNodeForInsertionAt(offset + 1).isEmpty()) {
-			final ContentRange range = document.getNodeForInsertionAt(offset + 1).getRange();
-			edit = new DeleteEdit(document, range, offset);
-		} else if (!document.isTagAt(offset)) {
-			edit = new DeleteNextCharEdit(document, offset);
-		} else {
-			edit = null;
-		}
-
-		if (edit == null) {
-			return;
-		}
-
-		editStack.apply(edit);
-		cursor.move(toOffset(edit.getOffsetAfter()));
+	public void undo() throws CannotUndoException {
+		editor.undo();
 	}
 
-	public void deleteBackward() {
-		final IUndoableEdit edit;
-		final int offset = cursor.getOffset();
+	public void doWork(final Runnable runnable) throws CannotApplyException {
+		editor.doWork(runnable);
+	}
 
-		if (offset == 1) {
-			//ignore
-			edit = null;
-		} else if (JoinElementsAtOffsetEdit.isBetweenMatchingElements(document, offset)) {
-			edit = new JoinElementsAtOffsetEdit(document, offset);
-		} else if (JoinElementsAtOffsetEdit.isBetweenMatchingElements(document, offset - 1)) {
-			edit = new JoinElementsAtOffsetEdit(document, offset);
-		} else if (document.getNodeForInsertionAt(offset).isEmpty()) {
-			final ContentRange range = document.getNodeForInsertionAt(offset).getRange();
-			edit = new DeleteEdit(document, range, offset);
-		} else if (document.getNodeForInsertionAt(offset - 1).isEmpty()) {
-			final ContentRange range = document.getNodeForInsertionAt(offset + 1).getRange();
-			edit = new DeleteEdit(document, range, offset);
-		} else if (!document.isTagAt(offset - 1)) {
-			edit = new DeletePreviousCharEdit(document, offset);
-		} else {
-			edit = null;
-		}
+	public void doWork(final Runnable runnable, final boolean savePosition) throws CannotApplyException {
+		editor.doWork(runnable, savePosition);
+	}
 
-		if (edit == null) {
-			return;
-		}
+	public void savePosition(final Runnable runnable) {
+		editor.savePosition(runnable);
+	}
 
-		editStack.apply(edit);
-		cursor.move(toOffset(edit.getOffsetAfter()));
+	public void cutSelection() {
+		editor.cutSelection();
+	}
+
+	public void copySelection() {
+		editor.copySelection();
+	}
+
+	public boolean canPaste() {
+		return editor.canPaste();
+	}
+
+	public void paste() throws DocumentValidationException {
+		editor.paste();
+	}
+
+	public boolean canPasteText() {
+		return editor.canPasteText();
+	}
+
+	public void pasteText() throws DocumentValidationException {
+		editor.pasteText();
+	}
+
+	public ContentPosition getCaretPosition() {
+		return editor.getCaretPosition();
+	}
+
+	public IElement getCurrentElement() {
+		return editor.getCurrentElement();
+	}
+
+	public INode getCurrentNode() {
+		return editor.getCurrentNode();
+	}
+
+	@Override
+	public String toString() {
+		return editor.toString();
+	}
+
+	public boolean hasSelection() {
+		return editor.hasSelection();
+	}
+
+	public ContentRange getSelectedRange() {
+		return editor.getSelectedRange();
+	}
+
+	public ContentPositionRange getSelectedPositionRange() {
+		return editor.getSelectedPositionRange();
+	}
+
+	public IDocumentFragment getSelectedFragment() {
+		return editor.getSelectedFragment();
+	}
+
+	public String getSelectedText() {
+		return editor.getSelectedText();
+	}
+
+	public void selectAll() {
+		editor.selectAll();
+	}
+
+	public void selectWord() {
+		editor.selectWord();
+	}
+
+	public void selectContentOf(final INode node) {
+		editor.selectContentOf(node);
+	}
+
+	public void select(final INode node) {
+		editor.select(node);
+	}
+
+	public boolean canDeleteSelection() {
+		return editor.canDeleteSelection();
+	}
+
+	public void deleteSelection() {
+		editor.deleteSelection();
+	}
+
+	public void moveBy(final int distance) {
+		editor.moveBy(distance);
+	}
+
+	public void moveBy(final int distance, final boolean select) {
+		editor.moveBy(distance, select);
+	}
+
+	public void moveTo(final ContentPosition position) {
+		editor.moveTo(position);
+	}
+
+	public void moveTo(final ContentPosition position, final boolean select) {
+		editor.moveTo(position, select);
+	}
+
+	public void moveToLineEnd(final boolean select) {
+		editor.moveToLineEnd(select);
+	}
+
+	public void moveToLineStart(final boolean select) {
+		editor.moveToLineStart(select);
+	}
+
+	public void moveToNextLine(final boolean select) {
+		editor.moveToNextLine(select);
+	}
+
+	public void moveToNextPage(final boolean select) {
+		editor.moveToNextPage(select);
+	}
+
+	public void moveToNextWord(final boolean select) {
+		editor.moveToNextWord(select);
+	}
+
+	public void moveToPreviousLine(final boolean select) {
+		editor.moveToPreviousLine(select);
+	}
+
+	public void moveToPreviousPage(final boolean select) {
+		editor.moveToPreviousPage(select);
+	}
+
+	public void moveToPreviousWord(final boolean select) {
+		editor.moveToPreviousWord(select);
+	}
+
+	public void declareNamespace(final String namespacePrefix, final String namespaceURI) {
+		editor.declareNamespace(namespacePrefix, namespaceURI);
+	}
+
+	public void removeNamespace(final String namespacePrefix) {
+		editor.removeNamespace(namespacePrefix);
+	}
+
+	public void declareDefaultNamespace(final String namespaceURI) {
+		editor.declareDefaultNamespace(namespaceURI);
+	}
+
+	public void removeDefaultNamespace() {
+		editor.removeDefaultNamespace();
+	}
+
+	public boolean canSetAttribute(final String attributeName, final String value) {
+		return editor.canSetAttribute(attributeName, value);
+	}
+
+	public void setAttribute(final String attributeName, final String value) {
+		editor.setAttribute(attributeName, value);
+	}
+
+	public boolean canRemoveAttribute(final String attributeName) {
+		return editor.canRemoveAttribute(attributeName);
+	}
+
+	public void removeAttribute(final String attributeName) {
+		editor.removeAttribute(attributeName);
+	}
+
+	public boolean canInsertText() {
+		return editor.canInsertText();
+	}
+
+	public void insertChar(final char c) throws DocumentValidationException {
+		editor.insertChar(c);
+	}
+
+	@Override
+	public void insertLineBreak() throws DocumentValidationException {
+		editor.insertLineBreak();
+	}
+
+	public void deleteForward() throws DocumentValidationException {
+		editor.deleteForward();
+	}
+
+	public void deleteBackward() throws DocumentValidationException {
+		editor.deleteBackward();
+	}
+
+	public void insertText(final String text) throws DocumentValidationException {
+		editor.insertText(text);
+	}
+
+	public void insertXML(final String xml) throws DocumentValidationException {
+		editor.insertXML(xml);
+	}
+
+	public ElementName[] getValidInsertElements() {
+		return editor.getValidInsertElements();
+	}
+
+	public ElementName[] getValidMorphElements() {
+		return editor.getValidMorphElements();
+	}
+
+	public boolean canInsertElement(final QualifiedName elementName) {
+		return editor.canInsertElement(elementName);
 	}
 
 	public IElement insertElement(final QualifiedName elementName) throws DocumentValidationException {
-		final InsertElementEdit insertElement = editStack.apply(new InsertElementEdit(document, cursor.getOffset(), elementName));
-		final IElement element = insertElement.getElement();
-		cursor.move(toOffset(insertElement.getOffsetAfter()));
-		return element;
+		return editor.insertElement(elementName);
+	}
+
+	public boolean canInsertComment() {
+		return editor.canInsertComment();
 	}
 
 	public IComment insertComment() throws DocumentValidationException {
-		final InsertCommentEdit insertComment = editStack.apply(new InsertCommentEdit(document, cursor.getOffset()));
-		final IComment comment = insertComment.getComment();
-		cursor.move(toOffset(insertComment.getOffsetAfter()));
-		return comment;
+		return editor.insertComment();
+	}
+
+	public boolean canInsertProcessingInstruction() {
+		return editor.canInsertProcessingInstruction();
 	}
 
 	public IProcessingInstruction insertProcessingInstruction(final String target) throws CannotApplyException, ReadOnlyException {
-		final InsertProcessingInstructionEdit insertPI = editStack.apply(new InsertProcessingInstructionEdit(document, cursor.getOffset(), target));
-		final IProcessingInstruction pi = insertPI.getProcessingInstruction();
-		cursor.move(toOffset(insertPI.getOffsetAfter()));
-		return pi;
+		return editor.insertProcessingInstruction(target);
 	}
+
+	public void editProcessingInstruction(final String target, final String data) throws CannotApplyException, ReadOnlyException {
+		editor.editProcessingInstruction(target, data);
+	}
+
+	public boolean canInsertFragment(final IDocumentFragment fragment) {
+		return editor.canInsertFragment(fragment);
+	}
+
+	public void insertFragment(final IDocumentFragment fragment) throws DocumentValidationException {
+		editor.insertFragment(fragment);
+	}
+
+	public boolean canUnwrap() {
+		return editor.canUnwrap();
+	}
+
+	public void unwrap() throws DocumentValidationException {
+		editor.unwrap();
+	}
+
+	public boolean canMorph(final QualifiedName elementName) {
+		return editor.canMorph(elementName);
+	}
+
+	public void morph(final QualifiedName elementName) throws DocumentValidationException {
+		editor.morph(elementName);
+	}
+
+	public boolean canJoin() {
+		return editor.canJoin();
+	}
+
+	public void join() throws DocumentValidationException {
+		editor.join();
+	}
+
+	public boolean canSplit() {
+		return editor.canSplit();
+	}
+
+	public void split() throws DocumentValidationException {
+		editor.split();
+	}
+
+	/*
+	 * Inner Classes
+	 */
 
 	private final class ViewPort implements IViewPort {
 		@Override
@@ -515,5 +696,4 @@ public class BoxWidget extends Canvas implements ISelectionProvider {
 			return new Rectangle(0, getVerticalBar().getSelection(), getSize().x, getSize().y);
 		}
 	}
-
 }

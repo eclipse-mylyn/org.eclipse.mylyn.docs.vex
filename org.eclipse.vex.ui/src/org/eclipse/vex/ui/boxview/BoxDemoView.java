@@ -46,6 +46,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.ui.IViewSite;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.ViewPart;
+import org.eclipse.vex.core.internal.css.CssWhitespacePolicy;
 import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.css.StyleSheetReader;
 import org.eclipse.vex.core.internal.io.UniversalTestDocument;
@@ -156,7 +157,9 @@ public class BoxDemoView extends ViewPart {
 
 		document = UniversalTestDocument.createTestDocumentWithAllFeatures(SAMPLE_COUNT);
 		boxWidget.setDocument(document);
-		boxWidget.setBoxModelBuilder(new CssBasedBoxModelBuilder(readStyleSheet()));
+		final StyleSheet styleSheet = readStyleSheet();
+		boxWidget.setBoxModelBuilder(new CssBasedBoxModelBuilder(styleSheet));
+		boxWidget.setWhitespacePolicy(new CssWhitespacePolicy(styleSheet));
 		boxWidgetParent.layout();
 		boxWidget.addSelectionChangedListener(selectionChangedListener);
 
@@ -195,7 +198,9 @@ public class BoxDemoView extends ViewPart {
 	}
 
 	private void reloadStyleSheet() {
-		boxWidget.setBoxModelBuilder(new CssBasedBoxModelBuilder(readStyleSheet()));
+		final StyleSheet styleSheet = readStyleSheet();
+		boxWidget.setBoxModelBuilder(new CssBasedBoxModelBuilder(styleSheet));
+		boxWidget.setWhitespacePolicy(new CssWhitespacePolicy(styleSheet));
 		rebuildBoxModel();
 	}
 

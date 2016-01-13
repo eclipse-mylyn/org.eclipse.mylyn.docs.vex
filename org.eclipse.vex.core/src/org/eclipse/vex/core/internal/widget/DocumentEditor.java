@@ -78,10 +78,10 @@ import org.eclipse.vex.core.provisional.dom.IValidator;
 public class DocumentEditor implements IDocumentEditor {
 
 	private final ICursor cursor;
-	private final IWhitespacePolicy whitespacePolicy;
 	private final EditStack editStack;
 
 	private IDocument document;
+	private IWhitespacePolicy whitespacePolicy;
 	private boolean readOnly;
 
 	private INode currentNode;
@@ -127,6 +127,20 @@ public class DocumentEditor implements IDocumentEditor {
 	public void setDocument(final IDocument document) {
 		this.document = document;
 		cursor.move(toOffset(document.getRootElement().getStartOffset() + 1));
+	}
+
+	@Override
+	public IWhitespacePolicy getWhitespacePolicy() {
+		return whitespacePolicy;
+	}
+
+	@Override
+	public void setWhitespacePolicy(final IWhitespacePolicy whitespacePolicy) {
+		if (whitespacePolicy == null) {
+			this.whitespacePolicy = IWhitespacePolicy.NULL;
+		} else {
+			this.whitespacePolicy = whitespacePolicy;
+		}
 	}
 
 	@Override
@@ -654,6 +668,19 @@ public class DocumentEditor implements IDocumentEditor {
 		}
 
 		apply(new InsertTextEdit(document, cursor.getOffset(), Character.toString(c)));
+	}
+
+	@Override
+	public void insertLineBreak() throws DocumentValidationException {
+		if (isReadOnly()) {
+			throw new ReadOnlyException("Cannot insert a character, because the editor is read-only.");
+		}
+
+		if (hasSelection()) {
+			deleteSelection();
+		}
+
+		apply(new InsertLineBreakEdit(document, cursor.getOffset()));
 	}
 
 	@Override

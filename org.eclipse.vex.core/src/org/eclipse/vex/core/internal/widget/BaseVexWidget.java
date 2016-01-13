@@ -62,6 +62,7 @@ import org.eclipse.vex.core.internal.undo.IUndoableEdit;
 import org.eclipse.vex.core.internal.undo.InsertCommentEdit;
 import org.eclipse.vex.core.internal.undo.InsertElementEdit;
 import org.eclipse.vex.core.internal.undo.InsertFragmentEdit;
+import org.eclipse.vex.core.internal.undo.InsertLineBreakEdit;
 import org.eclipse.vex.core.internal.undo.InsertProcessingInstructionEdit;
 import org.eclipse.vex.core.internal.undo.InsertTextEdit;
 import org.eclipse.vex.core.provisional.dom.AttributeChangeEvent;
@@ -1014,6 +1015,19 @@ public class BaseVexWidget implements IVexWidget {
 		}
 		applyEdit(new InsertTextEdit(document, getCaretOffset(), Character.toString(c)), getCaretOffset());
 		this.moveBy(+1);
+	}
+
+	@Override
+	public void insertLineBreak() throws DocumentValidationException {
+		if (isReadOnly()) {
+			throw new ReadOnlyException("Cannot insert a character, because the editor is read-only.");
+		}
+
+		if (hasSelection()) {
+			deleteSelection();
+		}
+
+		applyEdit(new InsertLineBreakEdit(document, getCaretOffset()), getCaretOffset());
 	}
 
 	@Override

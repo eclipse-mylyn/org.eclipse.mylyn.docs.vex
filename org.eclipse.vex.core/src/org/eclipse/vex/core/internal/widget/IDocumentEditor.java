@@ -12,6 +12,7 @@ package org.eclipse.vex.core.internal.widget;
 
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.vex.core.internal.core.ElementName;
+import org.eclipse.vex.core.internal.css.IWhitespacePolicy;
 import org.eclipse.vex.core.internal.undo.CannotApplyException;
 import org.eclipse.vex.core.internal.undo.CannotUndoException;
 import org.eclipse.vex.core.provisional.dom.ContentPosition;
@@ -43,6 +44,10 @@ public interface IDocumentEditor {
 	 *            new Document to edit
 	 */
 	void setDocument(IDocument document);
+
+	IWhitespacePolicy getWhitespacePolicy();
+
+	void setWhitespacePolicy(IWhitespacePolicy policy);
 
 	/**
 	 * @return true if this editor is read-only
@@ -415,6 +420,8 @@ public interface IDocumentEditor {
 	 *            Character to insert.
 	 */
 	void insertChar(char c) throws DocumentValidationException;
+
+	void insertLineBreak() throws DocumentValidationException;
 
 	/**
 	 * Deletes the character to the right of the caret.
