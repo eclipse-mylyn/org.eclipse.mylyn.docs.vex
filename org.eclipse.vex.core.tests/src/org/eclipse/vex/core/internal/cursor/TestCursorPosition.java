@@ -7,6 +7,7 @@
  *
  * Contributors:
  * 		Florian Thienel - initial API and implementation
+ *      Carsten Hiesserich - moveToNextWord, moveToPreviousWord
  *******************************************************************************/
 package org.eclipse.vex.core.internal.cursor;
 
@@ -14,7 +15,9 @@ import static org.eclipse.vex.core.internal.cursor.CursorMoves.down;
 import static org.eclipse.vex.core.internal.cursor.CursorMoves.left;
 import static org.eclipse.vex.core.internal.cursor.CursorMoves.right;
 import static org.eclipse.vex.core.internal.cursor.CursorMoves.toAbsoluteCoordinates;
+import static org.eclipse.vex.core.internal.cursor.CursorMoves.toNextWord;
 import static org.eclipse.vex.core.internal.cursor.CursorMoves.toOffset;
+import static org.eclipse.vex.core.internal.cursor.CursorMoves.toPreviousWord;
 import static org.eclipse.vex.core.internal.cursor.CursorMoves.up;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -402,6 +405,24 @@ public class TestCursorPosition {
 		assertFalse(receivedPositionChangedMessage[0]);
 	}
 
+	@Test
+	public void moveToNextWord() throws Exception {
+		cursorAt(beginOfFirstText()); //|0 Lorem
+		moveCursor(toNextWord());
+		assertCursorAt(beginOfFirstText() + 2); //0 |Lorem
+	}
+
+	@Test
+	public void moveToPreviousWord() throws Exception {
+		cursorAt(endOfFirstText() - 1); // consectur|.
+		moveCursor(toPreviousWord());
+		assertCursorAt(endOfFirstText() - 13); //lacinia| consectur.
+	}
+
+	/*
+	 * Utility methods
+	 */
+
 	private void cursorAt(final int offset) {
 		moveCursor(toOffset(offset));
 	}
@@ -429,6 +450,14 @@ public class TestCursorPosition {
 		visualizationChain.addForStructure(new StructureElementVisualization());
 		visualizationChain.addForInline(new TextVisualization());
 		return visualizationChain;
+	}
+
+	private int beginOfFirstText() {
+		return document.getParagraphWithText(0).getStartOffset() + 1;
+	}
+
+	private int endOfFirstText() {
+		return endOfFirstParagraph();
 	}
 
 	private int endOfFirstParagraph() {

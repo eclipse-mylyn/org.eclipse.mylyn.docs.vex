@@ -22,11 +22,11 @@ public class MoveToNextWord implements ICursorMove {
 		final IContent content = currentBox.getContent();
 		final int lastOffset = contentTopology.getLastOffset();
 		int offset = currentOffset;
-		while (offset < lastOffset && !Character.isLetterOrDigit(content.charAt(offset))) {
+		while (offset < lastOffset && Character.isLetterOrDigit(content.charAt(offset))) {
 			offset++;
 		}
 
-		while (offset < lastOffset && Character.isLetterOrDigit(content.charAt(offset))) {
+		while (offset < lastOffset && !Character.isLetterOrDigit(content.charAt(offset))) {
 			offset++;
 		}
 		return offset;
