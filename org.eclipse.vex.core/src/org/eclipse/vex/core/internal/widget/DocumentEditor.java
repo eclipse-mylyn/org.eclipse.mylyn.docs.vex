@@ -159,6 +159,12 @@ public class DocumentEditor implements IDocumentEditor {
 		cursor.move(toOffset(edit.getOffsetBefore()));
 	}
 
+	private <T extends IUndoableEdit> T apply(final T edit) throws CannotApplyException {
+		final T result = editStack.apply(edit);
+		cursor.move(toOffset(result.getOffsetAfter()));
+		return result;
+	}
+
 	/*
 	 * Transaction Handling
 	 */
@@ -369,8 +375,7 @@ public class DocumentEditor implements IDocumentEditor {
 			return;
 		}
 
-		final DeleteEdit deleteEdit = editStack.apply(new DeleteEdit(document, getSelectedRange(), cursor.getOffset()));
-		cursor.move(toOffset(deleteEdit.getOffsetAfter()));
+		apply(new DeleteEdit(document, getSelectedRange(), cursor.getOffset()));
 	}
 
 	/*
@@ -464,8 +469,7 @@ public class DocumentEditor implements IDocumentEditor {
 			return;
 		}
 		final String currentNamespaceURI = element.getNamespaceURI(namespacePrefix);
-		final ChangeNamespaceEdit changeNamespace = editStack.apply(new ChangeNamespaceEdit(document, cursor.getOffset(), namespacePrefix, currentNamespaceURI, namespaceURI));
-		cursor.move(toOffset(changeNamespace.getOffsetAfter()));
+		apply(new ChangeNamespaceEdit(document, cursor.getOffset(), namespacePrefix, currentNamespaceURI, namespaceURI));
 	}
 
 	@Override
@@ -479,8 +483,7 @@ public class DocumentEditor implements IDocumentEditor {
 			return;
 		}
 		final String currentNamespaceURI = element.getNamespaceURI(namespacePrefix);
-		final ChangeNamespaceEdit changeNamespace = editStack.apply(new ChangeNamespaceEdit(document, cursor.getOffset(), namespacePrefix, currentNamespaceURI, null));
-		cursor.move(toOffset(changeNamespace.getOffsetAfter()));
+		apply(new ChangeNamespaceEdit(document, cursor.getOffset(), namespacePrefix, currentNamespaceURI, null));
 	}
 
 	@Override
@@ -494,8 +497,7 @@ public class DocumentEditor implements IDocumentEditor {
 			return;
 		}
 		final String currentNamespaceURI = element.getDefaultNamespaceURI();
-		final ChangeNamespaceEdit changeNamespace = editStack.apply(new ChangeNamespaceEdit(document, cursor.getOffset(), null, currentNamespaceURI, namespaceURI));
-		cursor.move(toOffset(changeNamespace.getOffsetAfter()));
+		apply(new ChangeNamespaceEdit(document, cursor.getOffset(), null, currentNamespaceURI, namespaceURI));
 	}
 
 	@Override
@@ -509,8 +511,7 @@ public class DocumentEditor implements IDocumentEditor {
 			return;
 		}
 		final String currentNamespaceURI = element.getDefaultNamespaceURI();
-		final ChangeNamespaceEdit changeNamespace = editStack.apply(new ChangeNamespaceEdit(document, cursor.getOffset(), null, currentNamespaceURI, null));
-		cursor.move(toOffset(changeNamespace.getOffsetAfter()));
+		apply(new ChangeNamespaceEdit(document, cursor.getOffset(), null, currentNamespaceURI, null));
 	}
 
 	/*
@@ -546,8 +547,7 @@ public class DocumentEditor implements IDocumentEditor {
 		if (value == null) {
 			removeAttribute(attributeName);
 		} else if (!value.equals(currentAttributeValue)) {
-			final ChangeAttributeEdit changeAttribute = editStack.apply(new ChangeAttributeEdit(document, cursor.getOffset(), qualifiedAttributeName, currentAttributeValue, value));
-			cursor.move(toOffset(changeAttribute.getOffsetAfter()));
+			apply(new ChangeAttributeEdit(document, cursor.getOffset(), qualifiedAttributeName, currentAttributeValue, value));
 		}
 	}
 
@@ -580,8 +580,7 @@ public class DocumentEditor implements IDocumentEditor {
 		final QualifiedName qualifiedAttributeName = element.qualify(attributeName);
 		final String currentAttributeValue = element.getAttributeValue(qualifiedAttributeName);
 		if (currentAttributeValue != null) {
-			final ChangeAttributeEdit changeAttribute = editStack.apply(new ChangeAttributeEdit(document, cursor.getOffset(), qualifiedAttributeName, currentAttributeValue, null));
-			cursor.move(toOffset(changeAttribute.getOffsetAfter()));
+			apply(new ChangeAttributeEdit(document, cursor.getOffset(), qualifiedAttributeName, currentAttributeValue, null));
 		}
 	}
 
@@ -630,8 +629,7 @@ public class DocumentEditor implements IDocumentEditor {
 			deleteSelection();
 		}
 
-		final InsertTextEdit insertText = editStack.apply(new InsertTextEdit(document, cursor.getOffset(), Character.toString(c)));
-		cursor.move(toOffset(insertText.getOffsetAfter()));
+		apply(new InsertTextEdit(document, cursor.getOffset(), Character.toString(c)));
 	}
 
 	@Override
@@ -665,8 +663,7 @@ public class DocumentEditor implements IDocumentEditor {
 			return;
 		}
 
-		editStack.apply(edit);
-		cursor.move(toOffset(edit.getOffsetAfter()));
+		apply(edit);
 	}
 
 	@Override
@@ -701,8 +698,7 @@ public class DocumentEditor implements IDocumentEditor {
 			return;
 		}
 
-		editStack.apply(edit);
-		cursor.move(toOffset(edit.getOffsetAfter()));
+		apply(edit);
 	}
 
 	@Override
@@ -735,13 +731,11 @@ public class DocumentEditor implements IDocumentEditor {
 						break;
 					}
 					if (nextLineBreak - i > 0) {
-						final InsertTextEdit insertText = editStack.apply(new InsertTextEdit(document, cursor.getOffset(), toInsert.substring(i, nextLineBreak)));
-						cursor.move(toOffset(insertText.getOffsetAfter()));
+						apply(new InsertTextEdit(document, cursor.getOffset(), toInsert.substring(i, nextLineBreak)));
 					}
 
 					if (isPreformatted) {
-						final InsertLineBreakEdit insertLineBreak = editStack.apply(new InsertLineBreakEdit(document, cursor.getOffset()));
-						cursor.move(toOffset(insertLineBreak.getOffsetAfter()));
+						apply(new InsertLineBreakEdit(document, cursor.getOffset()));
 					} else {
 						split();
 					}
@@ -749,8 +743,7 @@ public class DocumentEditor implements IDocumentEditor {
 				}
 
 				if (i < toInsert.length()) {
-					final InsertTextEdit insertText = editStack.apply(new InsertTextEdit(document, cursor.getOffset(), toInsert.substring(i)));
-					cursor.move(toOffset(insertText.getOffsetAfter()));
+					apply(new InsertTextEdit(document, cursor.getOffset(), toInsert.substring(i)));
 				}
 			}
 		});
@@ -976,10 +969,7 @@ public class DocumentEditor implements IDocumentEditor {
 				deleteSelection();
 			}
 
-			final InsertElementEdit insertElement = editStack.apply(new InsertElementEdit(document, cursor.getOffset(), elementName));
-			cursor.move(toOffset(insertElement.getOffsetAfter()));
-
-			result = insertElement.getElement();
+			result = apply(new InsertElementEdit(document, cursor.getOffset(), elementName)).getElement();
 
 			if (selectedFragment != null) {
 				insertFragment(selectedFragment);
@@ -1014,10 +1004,7 @@ public class DocumentEditor implements IDocumentEditor {
 			deleteSelection();
 		}
 
-		final InsertCommentEdit insertComment = editStack.apply(new InsertCommentEdit(document, cursor.getOffset()));
-		cursor.move(toOffset(insertComment.getOffsetAfter()));
-
-		return insertComment.getComment();
+		return apply(new InsertCommentEdit(document, cursor.getOffset())).getComment();
 	}
 
 	@Override
@@ -1038,9 +1025,11 @@ public class DocumentEditor implements IDocumentEditor {
 		}
 		Assert.isTrue(canInsertProcessingInstruction());
 
-		final InsertProcessingInstructionEdit insertProcessingInstruction = editStack.apply(new InsertProcessingInstructionEdit(document, cursor.getOffset(), target));
-		cursor.move(toOffset(insertProcessingInstruction.getOffsetAfter()));
-		return insertProcessingInstruction.getProcessingInstruction();
+		if (hasSelection()) {
+			deleteSelection();
+		}
+
+		return apply(new InsertProcessingInstructionEdit(document, cursor.getOffset(), target)).getProcessingInstruction();
 	}
 
 	@Override
@@ -1053,8 +1042,7 @@ public class DocumentEditor implements IDocumentEditor {
 			throw new CannotApplyException("Current node is not a processing instruction");
 		}
 
-		final EditProcessingInstructionEdit editProcessingInstruction = editStack.apply(new EditProcessingInstructionEdit(document, cursor.getOffset(), target, data));
-		cursor.move(toOffset(editProcessingInstruction.getOffsetAfter()));
+		apply(new EditProcessingInstructionEdit(document, cursor.getOffset(), target, data));
 	}
 
 	@Override
