@@ -44,7 +44,7 @@ public class L2SelectionTest {
 
 		editor.selectContentOf(title);
 
-		assertEquals(title.getRange().resizeBy(1, -1), editor.getSelectedRange());
+		assertEquals(title.getRange().resizeBy(1, 0), editor.getSelectedRange());
 		assertTrue(editor.hasSelection());
 	}
 
@@ -65,7 +65,7 @@ public class L2SelectionTest {
 
 		editor.select(title);
 
-		assertEquals(title.getRange(), editor.getSelectedRange());
+		assertEquals(title.getRange().resizeBy(0, 1), editor.getSelectedRange());
 		assertTrue(editor.hasSelection());
 	}
 }

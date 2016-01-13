@@ -77,7 +77,7 @@ public class GapContent implements IContent {
 
 	@Override
 	public void removePosition(final IPosition position) {
-		if (positions.contains(position)) {
+		if (position.isValid() && positions.contains(position)) {
 			/*
 			 * This cast is save: if the position can be removed, this instance must have created it, hence it is a
 			 * GapContentPosition.
@@ -503,6 +503,11 @@ public class GapContent implements IContent {
 			gapStart += length;
 			gapEnd += length;
 		}
+	}
+
+	@Override
+	public String toString() {
+		return getRawText();
 	}
 
 }

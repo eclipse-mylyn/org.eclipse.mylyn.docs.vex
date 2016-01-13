@@ -99,7 +99,7 @@ public interface IDocumentEditor {
 	 * @param runnable
 	 *            Runnable implementing the work to be done.
 	 */
-	void doWork(Runnable runnable) throws DocumentValidationException;
+	void doWork(Runnable runnable) throws CannotApplyException;
 
 	/**
 	 * Perform the runnable's run method within a transaction. All operations in the runnable are treated as a single
@@ -111,7 +111,7 @@ public interface IDocumentEditor {
 	 * @param savePosition
 	 *            If true, the current caret position is saved and restored once the operation is complete.
 	 */
-	void doWork(Runnable runnable, boolean savePosition) throws DocumentValidationException;
+	void doWork(Runnable runnable, boolean savePosition) throws CannotApplyException;
 
 	/**
 	 * Execute a Runnable, restoring the caret position to its original position afterward.

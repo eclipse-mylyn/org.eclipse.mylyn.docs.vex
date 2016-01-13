@@ -16,37 +16,43 @@ public class FakeCursor implements ICursor {
 	private final LinkedList<ICursorPositionListener> cursorPositionListeners = new LinkedList<ICursorPositionListener>();
 	private final Graphics graphics = new FakeGraphics();
 	private final ContentTopology contentTopology;
+	private final BalancingSelector selector;
 
-	private int offset;
-	private boolean hasSelection;
-	private int selectionStartOffset;
-	private int selectionEndOffset;
+	private IDocument document;
 
 	public FakeCursor(final IDocument document) {
+		this.document = document;
 		contentTopology = new ContentTopology() {
 			@Override
 			public int getLastOffset() {
-				return document.getEndOffset();
+				return FakeCursor.this.document.getEndOffset();
 			}
 		};
+		selector = new BalancingSelector();
+		selector.setDocument(document);
+	}
+
+	public void setDocument(final IDocument document) {
+		this.document = document;
+		selector.setDocument(document);
 	}
 
 	@Override
 	public int getOffset() {
-		return offset;
+		return selector.getCaretOffset();
 	}
 
 	@Override
 	public boolean hasSelection() {
-		return hasSelection;
+		return selector.isActive();
 	}
 
 	@Override
 	public ContentRange getSelectedRange() {
-		if (hasSelection) {
-			return new ContentRange(selectionStartOffset, selectionEndOffset);
+		if (selector.isActive()) {
+			return selector.getRange();
 		} else {
-			return new ContentRange(offset, offset);
+			return new ContentRange(selector.getCaretOffset(), selector.getCaretOffset());
 		}
 	}
 
@@ -75,21 +81,20 @@ public class FakeCursor implements ICursor {
 	@Override
 	public void move(final ICursorMove move) {
 		firePositionAboutToChange();
-		offset = move.calculateNewOffset(graphics, contentTopology, offset, null, null, 0);
-		hasSelection = false;
-		firePositionChanged(offset);
+		selector.setMark(move.calculateNewOffset(graphics, contentTopology, selector.getCaretOffset(), null, null, 0));
+		firePositionChanged(selector.getCaretOffset());
 	}
 
 	@Override
 	public void select(final ICursorMove move) {
 		firePositionAboutToChange();
-		if (!hasSelection) {
-			selectionStartOffset = offset;
+		final int newOffset = move.calculateNewOffset(graphics, contentTopology, selector.getCaretOffset(), null, null, 0);
+		if (move.isAbsolute()) {
+			selector.setEndAbsoluteTo(newOffset);
+		} else {
+			selector.moveEndTo(newOffset);
 		}
-		offset = move.calculateNewOffset(graphics, contentTopology, offset, null, null, 0);
-		hasSelection = true;
-		selectionEndOffset = offset;
-		firePositionChanged(offset);
+		firePositionChanged(selector.getCaretOffset());
 	}
 
 }

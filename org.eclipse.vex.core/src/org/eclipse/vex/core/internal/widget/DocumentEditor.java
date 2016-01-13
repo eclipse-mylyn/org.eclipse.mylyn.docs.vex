@@ -176,25 +176,29 @@ public class DocumentEditor implements IDocumentEditor {
 	 */
 
 	@Override
-	public void doWork(final Runnable runnable) throws DocumentValidationException {
+	public void doWork(final Runnable runnable) throws CannotApplyException {
 		doWork(runnable, false);
 	}
 
 	@Override
-	public void doWork(final Runnable runnable, final boolean savePosition) throws DocumentValidationException {
+	public void doWork(final Runnable runnable, final boolean savePosition) throws CannotApplyException {
 		final IPosition position = document.createPosition(cursor.getOffset());
 		editStack.beginWork();
 		try {
 			runnable.run();
 			final IUndoableEdit work = editStack.commitWork();
 			cursor.move(toOffset(work.getOffsetAfter()));
-		} catch (final DocumentValidationException e) {
+		} catch (final CannotApplyException e) {
 			final IUndoableEdit work = editStack.rollbackWork();
-			cursor.move(toOffset(work.getOffsetBefore()));
+			if (work.getOffsetBefore() > 0) {
+				cursor.move(toOffset(work.getOffsetBefore()));
+			}
 			throw e;
 		} catch (final Throwable t) {
 			final IUndoableEdit work = editStack.rollbackWork();
-			cursor.move(toOffset(work.getOffsetBefore()));
+			if (work.getOffsetBefore() > 0) {
+				cursor.move(toOffset(work.getOffsetBefore()));
+			}
 			// TODO throw exception? at least log error?
 		} finally {
 			if (savePosition) {
@@ -335,8 +339,8 @@ public class DocumentEditor implements IDocumentEditor {
 
 	@Override
 	public void selectAll() {
-		cursor.move(toOffset(document.getStartOffset()));
-		cursor.select(toOffset(document.getEndOffset()));
+		cursor.move(toOffset(document.getStartOffset() + 1));
+		cursor.select(toOffset(document.getEndOffset() - 1));
 	}
 
 	@Override
@@ -351,7 +355,7 @@ public class DocumentEditor implements IDocumentEditor {
 			cursor.move(toOffset(node.getEndOffset()));
 		} else {
 			cursor.move(toOffset(node.getStartOffset() + 1));
-			cursor.select(toOffset(node.getEndOffset() - 1));
+			cursor.select(toOffset(node.getEndOffset()));
 		}
 	}
 
@@ -369,7 +373,7 @@ public class DocumentEditor implements IDocumentEditor {
 		if (!hasSelection()) {
 			return false;
 		}
-		return document.canDelete(getSelectedRange());
+		return document.canDelete(getSelectedRange().resizeBy(0, -1));
 	}
 
 	@Override
@@ -381,7 +385,7 @@ public class DocumentEditor implements IDocumentEditor {
 			return;
 		}
 
-		apply(new DeleteEdit(document, getSelectedRange(), cursor.getOffset()));
+		apply(new DeleteEdit(document, getSelectedRange().resizeBy(0, -1), cursor.getOffset()));
 	}
 
 	/*
@@ -688,7 +692,7 @@ public class DocumentEditor implements IDocumentEditor {
 
 	@Override
 	public void deleteBackward() throws DocumentValidationException {
-		if (readOnly) {
+		if (isReadOnly()) {
 			throw new ReadOnlyException("Cannot delete, because the editor is read-only.");
 		}
 
@@ -706,7 +710,7 @@ public class DocumentEditor implements IDocumentEditor {
 			final ContentRange range = document.getNodeForInsertionAt(offset).getRange();
 			edit = new DeleteEdit(document, range, offset);
 		} else if (document.getNodeForInsertionAt(offset - 1).isEmpty()) {
-			final ContentRange range = document.getNodeForInsertionAt(offset + 1).getRange();
+			final ContentRange range = document.getNodeForInsertionAt(offset - 1).getRange();
 			edit = new DeleteEdit(document, range, offset);
 		} else if (!document.isTagAt(offset - 1)) {
 			edit = new DeletePreviousCharEdit(document, offset);
@@ -1171,7 +1175,12 @@ public class DocumentEditor implements IDocumentEditor {
 		}
 
 		final ContentRange elementRange = currentElement.getRange();
-		final IDocumentFragment elementContent = document.getFragment(elementRange.resizeBy(1, -1));
+		final IDocumentFragment elementContent;
+		if (currentElement.isEmpty()) {
+			elementContent = null;
+		} else {
+			elementContent = document.getFragment(elementRange.resizeBy(1, -1));
+		}
 
 		doWork(new Runnable() {
 			@Override
@@ -1216,7 +1225,12 @@ public class DocumentEditor implements IDocumentEditor {
 		}
 
 		final ContentRange elementRange = currentElement.getRange();
-		final IDocumentFragment elementContent = document.getFragment(elementRange.resizeBy(1, -1));
+		final IDocumentFragment elementContent;
+		if (currentElement.isEmpty()) {
+			elementContent = null;
+		} else {
+			elementContent = document.getFragment(elementRange.resizeBy(1, -1));
+		}
 
 		doWork(new Runnable() {
 			@Override
@@ -1239,8 +1253,9 @@ public class DocumentEditor implements IDocumentEditor {
 			return false;
 		}
 
-		final IElement parent = document.getElementForInsertionAt(cursor.getOffset());
-		final IAxis<? extends INode> selectedNodes = parent.children().in(getSelectedRange());
+		final ContentRange selectedRange = getSelectedRange();
+		final IElement parent = document.getElementForInsertionAt(selectedRange.getStartOffset());
+		final IAxis<? extends INode> selectedNodes = parent.children().in(selectedRange);
 		if (selectedNodes.isEmpty()) {
 			return false;
 		}
@@ -1288,8 +1303,8 @@ public class DocumentEditor implements IDocumentEditor {
 			return;
 		}
 
-		final IElement parent = document.getElementForInsertionAt(cursor.getOffset());
 		final ContentRange selectedRange = getSelectedRange();
+		final IElement parent = document.getElementForInsertionAt(selectedRange.getStartOffset());
 		final IAxis<? extends INode> selectedNodes = parent.children().in(selectedRange);
 		if (selectedNodes.isEmpty()) {
 			return;
@@ -1313,8 +1328,11 @@ public class DocumentEditor implements IDocumentEditor {
 		doWork(new Runnable() {
 			@Override
 			public void run() {
-				final DeleteEdit deletePreservedContent = editStack.apply(new DeleteEdit(document, new ContentRange(firstNode.getEndOffset() + 1, selectedRange.getEndOffset()), cursor.getOffset()));
-				editStack.apply(new DeleteEdit(document, firstNode.getRange().resizeBy(1, -1), deletePreservedContent.getOffsetAfter()));
+				final DeleteEdit deletePreservedContent = editStack
+						.apply(new DeleteEdit(document, new ContentRange(firstNode.getEndOffset() + 1, selectedRange.getEndOffset() - 1), cursor.getOffset()));
+				if (!firstNode.isEmpty()) {
+					editStack.apply(new DeleteEdit(document, firstNode.getRange().resizeBy(1, -1), deletePreservedContent.getOffsetAfter()));
+				}
 				for (final IDocumentFragment contentPart : contentToJoin) {
 					editStack.apply(new InsertFragmentEdit(document, firstNode.getEndOffset(), contentPart));
 				}

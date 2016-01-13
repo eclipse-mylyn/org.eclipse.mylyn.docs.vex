@@ -35,6 +35,7 @@ import org.eclipse.vex.core.internal.css.StyleSheetReader;
 import org.eclipse.vex.core.internal.undo.CannotApplyException;
 import org.eclipse.vex.core.provisional.dom.DocumentValidationException;
 import org.eclipse.vex.core.provisional.dom.IComment;
+import org.eclipse.vex.core.provisional.dom.IDocument;
 import org.eclipse.vex.core.provisional.dom.IDocumentFragment;
 import org.eclipse.vex.core.provisional.dom.IElement;
 import org.eclipse.vex.core.provisional.dom.INode;
@@ -49,15 +50,22 @@ import org.junit.Test;
  */
 public class L2SimpleEditingTest {
 
+	private FakeCursor cursor;
 	private IDocumentEditor editor;
 	private IElement rootElement;
 
 	@Before
 	public void setUp() throws Exception {
-		editor = new BaseVexWidget(new MockHostComponent());
-		editor.setDocument(createDocumentWithDTD(TEST_DTD, "section"));
-		// TODO move dependency to whitespace policy into a BaseVexWidget specific set-up method
-		((BaseVexWidget) editor).setWhitespacePolicy(new CssWhitespacePolicy(readTestStyleSheet()));
+		final IDocument document = createDocumentWithDTD(TEST_DTD, "section");
+		cursor = new FakeCursor(document);
+		editor = new DocumentEditor(cursor, new CssWhitespacePolicy(readTestStyleSheet()));
+		editor.setDocument(document);
+		rootElement = editor.getDocument().getRootElement();
+	}
+
+	private void useDocument(final IDocument document) {
+		cursor.setDocument(document);
+		editor.setDocument(document);
 		rootElement = editor.getDocument().getRootElement();
 	}
 
@@ -77,7 +85,7 @@ public class L2SimpleEditingTest {
 	public void shouldProvideInsertionElementAsCurrentElement() throws Exception {
 		final IElement titleElement = editor.insertElement(TITLE);
 		editor.moveBy(-1);
-		assertEquals(titleElement.getStartPosition(), editor.getCaretPosition());
+		assertEquals(titleElement.getStartPosition().getOffset(), editor.getCaretPosition().getOffset());
 		assertSame(rootElement, editor.getCurrentElement());
 	}
 
@@ -874,8 +882,7 @@ public class L2SimpleEditingTest {
 
 	@Test
 	public void givenMultipleElementsOfSameKindSelected_whenStructureAfterJoinWouldBeInvalid_cannotJoin() throws Exception {
-		editor.setDocument(createDocumentWithDTD(TEST_DTD, "one-kind-of-child"));
-		rootElement = editor.getDocument().getRootElement();
+		useDocument(createDocumentWithDTD(TEST_DTD, "one-kind-of-child"));
 
 		final IElement firstSection = editor.insertElement(SECTION);
 		editor.insertElement(TITLE);
@@ -894,8 +901,7 @@ public class L2SimpleEditingTest {
 
 	@Test(expected = CannotApplyException.class)
 	public void givenMultipleElementsOfSameKindSelected_whenStructureAfterJoinWouldBeInvalid_shouldJoin() throws Exception {
-		editor.setDocument(createDocumentWithDTD(TEST_DTD, "one-kind-of-child"));
-		rootElement = editor.getDocument().getRootElement();
+		useDocument(createDocumentWithDTD(TEST_DTD, "one-kind-of-child"));
 
 		final IElement firstSection = editor.insertElement(SECTION);
 		editor.insertElement(TITLE);
@@ -1093,7 +1099,7 @@ public class L2SimpleEditingTest {
 		editor.insertText("Hello World");
 		editor.moveTo(title.getStartPosition().moveBy(1));
 		editor.moveBy(5, true);
-		final int expectedCaretPosition = editor.getSelectedRange().getEndOffset() + 1;
+		final int expectedCaretPosition = editor.getSelectedRange().getEndOffset();
 
 		editor.deleteSelection();
 		editor.undo();
