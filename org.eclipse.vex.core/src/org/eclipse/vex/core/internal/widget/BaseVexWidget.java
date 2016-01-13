@@ -248,7 +248,6 @@ public class BaseVexWidget implements IVexWidget {
 		styleSheet = null;
 	}
 
-	@Override
 	public void beginWork() {
 		if (beginWorkCount == 0) {
 			beginWorkCaretPosition = getCaretPosition();
@@ -257,7 +256,6 @@ public class BaseVexWidget implements IVexWidget {
 		beginWorkCount++;
 	}
 
-	@Override
 	public void endWork(final boolean success) {
 		beginWorkCount--;
 		if (beginWorkCount == 0) {

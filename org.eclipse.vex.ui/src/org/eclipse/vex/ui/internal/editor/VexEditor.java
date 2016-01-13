@@ -1186,13 +1186,13 @@ public class VexEditor extends EditorPart {
 					final VexWidget vexWidget = getVexWidget();
 
 					// because of Undo this action must be atomic
-					vexWidget.beginWork();
-					try {
-						vexWidget.deleteSelection();
-						vexWidget.insertText(text.toString());
-					} finally {
-						vexWidget.endWork(true);
-					}
+					vexWidget.doWork(new Runnable() {
+						@Override
+						public void run() {
+							vexWidget.deleteSelection();
+							vexWidget.insertText(text.toString());
+						}
+					});
 				}
 
 			};

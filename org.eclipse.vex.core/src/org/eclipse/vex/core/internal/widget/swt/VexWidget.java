@@ -136,11 +136,6 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 	}
 
 	@Override
-	public void beginWork() {
-		impl.beginWork();
-	}
-
-	@Override
 	public boolean canInsertComment() {
 		return impl.canInsertComment();
 	}
@@ -239,11 +234,6 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 	@Override
 	public void doWork(final Runnable runnable, final boolean savePosition) {
 		impl.doWork(runnable, savePosition);
-	}
-
-	@Override
-	public void endWork(final boolean success) {
-		impl.endWork(success);
 	}
 
 	@Override

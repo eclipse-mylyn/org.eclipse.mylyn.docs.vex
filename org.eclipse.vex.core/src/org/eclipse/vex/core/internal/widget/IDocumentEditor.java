@@ -92,42 +92,9 @@ public interface IDocumentEditor {
 	 */
 
 	/**
-	 * Signals the start of a set of operations that should be considered a single unit for undo/redo purposes.
-	 *
-	 * <p>
-	 * <b>It is <i>strongly</i> recommended to use the {@link #doWork(IRunnable)} method instead of manually
-	 * implementing beginWork/endWork.</b>
-	 * </p>
-	 *
-	 * <p>
-	 * Each call to beginWork should be matched with a call to {@link #endWork(boolean)}. The following pattern can be
-	 * used to enforce this rules even in the face of exceptions.
-	 * </p>
-	 *
-	 * <pre>
-	 * VexComponent c = ...;
-	 * boolean success = false;
-	 * try {
-	 *     c.beginWork();
-	 *     // do multiple inserts/deletes
-	 *     success = true;
-	 * } finally {
-	 *     c.endWork(success);
-	 * }
-	 * </pre>
-	 *
-	 * <p>
-	 * In the case of nested beginWork/endWork calls, only the outermost results in an undoable event.
-	 * </p>
-	 *
-	 * @see endWork(boolean)
-	 */
-	void beginWork(); // TODO remove
-
-	/**
-	 * Perform the runnable's run method within a beginWork/endWork pair. All operations in the runnable are treated as
-	 * a single unit of work, and can be undone in one operation by the user. Also, if a later operation fails, all
-	 * earlier operations are also undone.
+	 * Perform the runnable's run method within a transaction. All operations in the runnable are treated as a single
+	 * unit of work, and can be undone in one operation by the user. Also, if a later operation fails, all earlier
+	 * operations are also undone.
 	 *
 	 * @param runnable
 	 *            Runnable implementing the work to be done.
@@ -135,9 +102,9 @@ public interface IDocumentEditor {
 	void doWork(Runnable runnable) throws DocumentValidationException;
 
 	/**
-	 * Perform the runnable's run method within a beginWork/endWork pair. All operations in the runnable are treated as
-	 * a single unit of work, and can be undone in one operation by the user. Also, if a later operation fails, all
-	 * earlier operations are also undone.
+	 * Perform the runnable's run method within a transaction. All operations in the runnable are treated as a single
+	 * unit of work, and can be undone in one operation by the user. Also, if a later operation fails, all earlier
+	 * operations are also undone.
 	 *
 	 * @param runnable
 	 *            Runnable implementing the work to be done.
@@ -145,17 +112,6 @@ public interface IDocumentEditor {
 	 *            If true, the current caret position is saved and restored once the operation is complete.
 	 */
 	void doWork(Runnable runnable, boolean savePosition) throws DocumentValidationException;
-
-	/**
-	 * Signals the end of a set of operations that should be treated as a single unit for undo/redo purposes.
-	 *
-	 * @param success
-	 *            If true, an edit is added to the undo stack. If false, all the changes since the matching beginWork
-	 *            call are undone.
-	 *
-	 * @see #beginWork()
-	 */
-	void endWork(boolean success); // TODO remove
 
 	/**
 	 * Execute a Runnable, restoring the caret position to its original position afterward.

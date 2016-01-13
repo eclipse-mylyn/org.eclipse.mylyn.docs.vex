@@ -164,11 +164,6 @@ public class DocumentEditor implements IDocumentEditor {
 	 */
 
 	@Override
-	public void beginWork() {
-		editStack.beginWork();
-	}
-
-	@Override
 	public void doWork(final Runnable runnable) throws DocumentValidationException {
 		doWork(runnable, false);
 	}
@@ -194,18 +189,6 @@ public class DocumentEditor implements IDocumentEditor {
 				cursor.move(toOffset(position.getOffset()));
 			}
 			document.removePosition(position);
-		}
-	}
-
-	@Override
-	public void endWork(final boolean success) {
-		// TODO split in two different methods (commitWork and rollbackWork)
-		if (success) {
-			final IUndoableEdit work = editStack.commitWork();
-			cursor.move(toOffset(work.getOffsetAfter()));
-		} else {
-			final IUndoableEdit work = editStack.rollbackWork();
-			cursor.move(toOffset(work.getOffsetBefore()));
 		}
 	}
 

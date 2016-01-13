@@ -25,10 +25,12 @@ public class EditNamespacesHandler extends AbstractVexWidgetHandler {
 		final EditNamespacesController controller = new EditNamespacesController(widget);
 		final EditNamespacesDialog dialog = new EditNamespacesDialog(widget.getShell(), controller);
 		if (dialog.open() == Window.OK) {
-			widget.beginWork();
-			controller.applyToElement();
-			widget.endWork(true);
-			; // TODO maybe we have to refresh something in the widget...
+			widget.doWork(new Runnable() {
+				@Override
+				public void run() {
+					controller.applyToElement();
+				}
+			}); // TODO maybe we have to refresh something in the widget...
 		}
 	}
 
