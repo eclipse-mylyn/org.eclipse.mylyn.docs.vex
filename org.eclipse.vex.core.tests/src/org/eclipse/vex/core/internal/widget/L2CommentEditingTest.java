@@ -23,6 +23,7 @@ import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
 import org.eclipse.vex.core.provisional.dom.IComment;
+import org.eclipse.vex.core.provisional.dom.IDocument;
 import org.eclipse.vex.core.provisional.dom.IDocumentFragment;
 import org.eclipse.vex.core.provisional.dom.IElement;
 import org.eclipse.vex.core.provisional.dom.INode;
@@ -39,8 +40,9 @@ public class L2CommentEditingTest {
 
 	@Before
 	public void setUp() throws Exception {
-		editor = new BaseVexWidget(new MockHostComponent());
-		editor.setDocument(createDocumentWithDTD(TEST_DTD, "section"));
+		final IDocument document = createDocumentWithDTD(TEST_DTD, "section");
+		editor = new DocumentEditor(new FakeCursor(document));
+		editor.setDocument(document);
 		rootElement = editor.getDocument().getRootElement();
 	}
 
