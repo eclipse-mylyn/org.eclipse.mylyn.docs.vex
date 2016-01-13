@@ -15,12 +15,18 @@ import static org.eclipse.vex.core.internal.cursor.CursorMoves.toWordEnd;
 import static org.eclipse.vex.core.internal.cursor.CursorMoves.toWordStart;
 
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
+import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.vex.core.XML;
 import org.eclipse.vex.core.internal.core.ElementName;
+import org.eclipse.vex.core.internal.core.QualifiedNameComparator;
 import org.eclipse.vex.core.internal.css.IWhitespacePolicy;
 import org.eclipse.vex.core.internal.cursor.Cursor;
 import org.eclipse.vex.core.internal.cursor.ICursorPositionListener;
@@ -30,20 +36,28 @@ import org.eclipse.vex.core.internal.undo.CannotApplyException;
 import org.eclipse.vex.core.internal.undo.CannotUndoException;
 import org.eclipse.vex.core.internal.undo.ChangeAttributeEdit;
 import org.eclipse.vex.core.internal.undo.ChangeNamespaceEdit;
+import org.eclipse.vex.core.internal.undo.CompoundEdit;
 import org.eclipse.vex.core.internal.undo.DeleteEdit;
 import org.eclipse.vex.core.internal.undo.DeleteNextCharEdit;
 import org.eclipse.vex.core.internal.undo.DeletePreviousCharEdit;
+import org.eclipse.vex.core.internal.undo.EditProcessingInstructionEdit;
 import org.eclipse.vex.core.internal.undo.EditStack;
 import org.eclipse.vex.core.internal.undo.IUndoableEdit;
+import org.eclipse.vex.core.internal.undo.InsertCommentEdit;
+import org.eclipse.vex.core.internal.undo.InsertElementEdit;
+import org.eclipse.vex.core.internal.undo.InsertFragmentEdit;
 import org.eclipse.vex.core.internal.undo.InsertLineBreakEdit;
+import org.eclipse.vex.core.internal.undo.InsertProcessingInstructionEdit;
 import org.eclipse.vex.core.internal.undo.InsertTextEdit;
 import org.eclipse.vex.core.internal.undo.JoinElementsAtOffsetEdit;
+import org.eclipse.vex.core.provisional.dom.BaseNodeVisitor;
 import org.eclipse.vex.core.provisional.dom.BaseNodeVisitorWithResult;
 import org.eclipse.vex.core.provisional.dom.ContentPosition;
 import org.eclipse.vex.core.provisional.dom.ContentPositionRange;
 import org.eclipse.vex.core.provisional.dom.ContentRange;
 import org.eclipse.vex.core.provisional.dom.DocumentValidationException;
 import org.eclipse.vex.core.provisional.dom.Filters;
+import org.eclipse.vex.core.provisional.dom.IAxis;
 import org.eclipse.vex.core.provisional.dom.IComment;
 import org.eclipse.vex.core.provisional.dom.IDocument;
 import org.eclipse.vex.core.provisional.dom.IDocumentFragment;
@@ -154,18 +168,22 @@ public class DocumentEditor implements IDocumentEditor {
 	}
 
 	@Override
-	public void doWork(final Runnable runnable) {
+	public void doWork(final Runnable runnable) throws DocumentValidationException {
 		doWork(runnable, false);
 	}
 
 	@Override
-	public void doWork(final Runnable runnable, final boolean savePosition) {
+	public void doWork(final Runnable runnable, final boolean savePosition) throws DocumentValidationException {
 		final IPosition position = document.createPosition(cursor.getOffset());
 		editStack.beginWork();
 		try {
 			runnable.run();
 			final IUndoableEdit work = editStack.commitWork();
 			cursor.move(toOffset(work.getOffsetAfter()));
+		} catch (final DocumentValidationException e) {
+			final IUndoableEdit work = editStack.rollbackWork();
+			cursor.move(toOffset(work.getOffsetBefore()));
+			throw e;
 		} catch (final Throwable t) {
 			final IUndoableEdit work = editStack.rollbackWork();
 			cursor.move(toOffset(work.getOffsetBefore()));
@@ -247,7 +265,7 @@ public class DocumentEditor implements IDocumentEditor {
 
 	private void cursorPositionChanged(final int offset) {
 		currentNode = document.getNodeForInsertionAt(cursor.getOffset());
-		caretPosition = new ContentPosition(currentNode.getDocument(), cursor.getOffset());
+		caretPosition = new ContentPosition(currentNode, cursor.getOffset());
 	}
 
 	@Override
@@ -811,116 +829,577 @@ public class DocumentEditor implements IDocumentEditor {
 
 	@Override
 	public ElementName[] getValidInsertElements() {
-		// TODO Auto-generated method stub
-		return null;
+		if (isReadOnly()) {
+			return new ElementName[0];
+		}
+		if (document == null) {
+			return new ElementName[0];
+		}
+		final IValidator validator = document.getValidator();
+		if (validator == null) {
+			return new ElementName[0];
+		}
+
+		final ContentRange selectedRange = cursor.getSelectedRange();
+
+		final INode parentNode = document.getNodeForInsertionAt(cursor.getOffset());
+		final boolean parentNodeIsElement = Filters.elements().matches(parentNode);
+		if (!parentNodeIsElement) {
+			return new ElementName[0];
+		}
+
+		final IElement parent = (IElement) parentNode;
+
+		final List<QualifiedName> nodesBefore = Node.getNodeNames(parent.children().before(selectedRange.getStartOffset()));
+		final List<QualifiedName> nodesAfter = Node.getNodeNames(parent.children().after(selectedRange.getEndOffset()));
+		final List<QualifiedName> selectedNodes = Node.getNodeNames(parent.children().in(selectedRange));
+		final List<QualifiedName> candidates = createCandidatesList(validator, parent, IValidator.PCDATA);
+
+		filterInvalidSequences(validator, parent, nodesBefore, nodesAfter, candidates);
+
+		// If there's a selection, root out those candidates that can't contain the selection.
+		if (hasSelection()) {
+			filterInvalidSelectionParents(validator, selectedNodes, candidates);
+		}
+
+		Collections.sort(candidates, new QualifiedNameComparator());
+
+		final ElementName[] result = toElementNames(parent, candidates);
+		return result;
+	}
+
+	private static List<QualifiedName> createCandidatesList(final IValidator validator, final IElement parent, final QualifiedName... exceptions) {
+		final Set<QualifiedName> validItems = validator.getValidItems(parent);
+		final List<QualifiedName> exceptionItems = Arrays.asList(exceptions);
+		final List<QualifiedName> result = new ArrayList<QualifiedName>();
+		for (final QualifiedName validItem : validItems) {
+			if (!exceptionItems.contains(validItem)) {
+				result.add(validItem);
+			}
+		}
+		return result;
+	}
+
+	private static void filterInvalidSequences(final IValidator validator, final IElement parent, final List<QualifiedName> nodesBefore, final List<QualifiedName> nodesAfter, final List<QualifiedName> candidates) {
+		final int sequenceLength = nodesBefore.size() + 1 + nodesAfter.size();
+		for (final Iterator<QualifiedName> iterator = candidates.iterator(); iterator.hasNext();) {
+			final QualifiedName candidate = iterator.next();
+			final List<QualifiedName> sequence = new ArrayList<QualifiedName>(sequenceLength);
+			sequence.addAll(nodesBefore);
+			sequence.add(candidate);
+			sequence.addAll(nodesAfter);
+			if (!canContainContent(validator, parent.getQualifiedName(), sequence)) {
+				iterator.remove();
+			}
+		}
+	}
+
+	private static void filterInvalidSelectionParents(final IValidator validator, final List<QualifiedName> selectedNodes, final List<QualifiedName> candidates) {
+		for (final Iterator<QualifiedName> iter = candidates.iterator(); iter.hasNext();) {
+			final QualifiedName candidate = iter.next();
+			if (!canContainContent(validator, candidate, selectedNodes)) {
+				iter.remove();
+			}
+		}
+	}
+
+	private static boolean canContainContent(final IValidator validator, final QualifiedName elementName, final List<QualifiedName> content) {
+		return validator.isValidSequence(elementName, content, true);
+	}
+
+	private static ElementName[] toElementNames(final IElement parent, final List<QualifiedName> candidates) {
+		final ElementName[] result = new ElementName[candidates.size()];
+		int i = 0;
+		for (final QualifiedName candidate : candidates) {
+			result[i++] = new ElementName(candidate, parent.getNamespacePrefix(candidate.getQualifier()));
+		}
+		return result;
 	}
 
 	@Override
 	public ElementName[] getValidMorphElements() {
-		// TODO Auto-generated method stub
-		return null;
+		final IElement currentElement = document.getElementForInsertionAt(cursor.getOffset());
+		if (!canMorphElement(currentElement)) {
+			return new ElementName[0];
+		}
+
+		final IValidator validator = document.getValidator();
+		final IElement parent = currentElement.getParentElement();
+		final List<QualifiedName> candidates = createCandidatesList(validator, parent, IValidator.PCDATA, currentElement.getQualifiedName());
+		if (candidates.isEmpty()) {
+			return new ElementName[0];
+		}
+
+		final List<QualifiedName> content = Node.getNodeNames(currentElement.children());
+		final List<QualifiedName> nodesBefore = Node.getNodeNames(parent.children().before(currentElement.getStartOffset()));
+		final List<QualifiedName> nodesAfter = Node.getNodeNames(parent.children().after(currentElement.getEndOffset()));
+
+		for (final Iterator<QualifiedName> iter = candidates.iterator(); iter.hasNext();) {
+			final QualifiedName candidate = iter.next();
+			if (!canContainContent(validator, candidate, content)) {
+				iter.remove();
+			} else if (!isValidChild(validator, parent.getQualifiedName(), candidate, nodesBefore, nodesAfter)) {
+				iter.remove();
+			}
+		}
+
+		Collections.sort(candidates, new QualifiedNameComparator());
+		return toElementNames(parent, candidates);
+	}
+
+	private boolean canMorphElement(final IElement element) {
+		if (isReadOnly()) {
+			return false;
+		}
+		if (document == null) {
+			return false;
+		}
+		if (document.getValidator() == null) {
+			return false;
+		}
+		if (element.getParentElement() == null) {
+			return false;
+		}
+		if (element == document.getRootElement()) {
+			return false;
+		}
+
+		return true;
+	}
+
+	private static boolean isValidChild(final IValidator validator, final QualifiedName parentName, final QualifiedName elementName, final List<QualifiedName> nodesBefore, final List<QualifiedName> nodesAfter) {
+		return validator.isValidSequence(parentName, nodesBefore, Arrays.asList(elementName), nodesAfter, true);
 	}
 
 	@Override
 	public boolean canInsertElement(final QualifiedName elementName) {
-		// TODO Auto-generated method stub
-		return false;
+		return canReplaceCurrentSelectionWith(elementName);
 	}
 
 	@Override
 	public IElement insertElement(final QualifiedName elementName) throws DocumentValidationException {
-		// TODO Auto-generated method stub
-		return null;
+		if (isReadOnly()) {
+			throw new ReadOnlyException(MessageFormat.format("Cannot insert element {0}, because the editor is read-only.", elementName));
+		}
+
+		final IElement result;
+		try {
+			editStack.beginWork();
+
+			IDocumentFragment selectedFragment = null;
+			if (hasSelection()) {
+				selectedFragment = getSelectedFragment();
+				deleteSelection();
+			}
+
+			final InsertElementEdit insertElement = editStack.apply(new InsertElementEdit(document, cursor.getOffset(), elementName));
+			cursor.move(toOffset(insertElement.getOffsetAfter()));
+
+			result = insertElement.getElement();
+
+			if (selectedFragment != null) {
+				insertFragment(selectedFragment);
+			}
+			editStack.commitWork();
+		} catch (final DocumentValidationException e) {
+			editStack.rollbackWork();
+			throw e;
+		}
+		return result;
 	}
 
 	@Override
 	public boolean canInsertComment() {
-		// TODO Auto-generated method stub
-		return false;
+		if (isReadOnly()) {
+			return false;
+		}
+		if (document == null) {
+			return false;
+		}
+		return document.canInsertComment(cursor.getOffset());
 	}
 
 	@Override
 	public IComment insertComment() throws DocumentValidationException {
-		// TODO Auto-generated method stub
-		return null;
+		if (isReadOnly()) {
+			throw new ReadOnlyException("Cannot insert comment, because the editor is read-only.");
+		}
+		Assert.isTrue(canInsertComment());
+
+		if (hasSelection()) {
+			deleteSelection();
+		}
+
+		final InsertCommentEdit insertComment = editStack.apply(new InsertCommentEdit(document, cursor.getOffset()));
+		cursor.move(toOffset(insertComment.getOffsetAfter()));
+
+		return insertComment.getComment();
 	}
 
 	@Override
 	public boolean canInsertProcessingInstruction() {
-		// TODO Auto-generated method stub
-		return false;
+		if (isReadOnly()) {
+			return false;
+		}
+		if (document == null) {
+			return false;
+		}
+		return document.canInsertProcessingInstruction(cursor.getOffset(), null);
 	}
 
 	@Override
 	public IProcessingInstruction insertProcessingInstruction(final String target) throws CannotApplyException, ReadOnlyException {
-		// TODO Auto-generated method stub
-		return null;
+		if (isReadOnly()) {
+			throw new ReadOnlyException("Cannot insert processing instruction, because the editor is read-only.");
+		}
+		Assert.isTrue(canInsertProcessingInstruction());
+
+		final InsertProcessingInstructionEdit insertProcessingInstruction = editStack.apply(new InsertProcessingInstructionEdit(document, cursor.getOffset(), target));
+		cursor.move(toOffset(insertProcessingInstruction.getOffsetAfter()));
+		return insertProcessingInstruction.getProcessingInstruction();
 	}
 
 	@Override
 	public void editProcessingInstruction(final String target, final String data) throws CannotApplyException, ReadOnlyException {
-		// TODO Auto-generated method stub
+		if (isReadOnly()) {
+			throw new ReadOnlyException("Cannot change processing instruction, because the editor is read-only.");
+		}
+		final INode node = getCurrentNode();
+		if (!(node instanceof IProcessingInstruction)) {
+			throw new CannotApplyException("Current node is not a processing instruction");
+		}
 
+		final EditProcessingInstructionEdit editProcessingInstruction = editStack.apply(new EditProcessingInstructionEdit(document, cursor.getOffset(), target, data));
+		cursor.move(toOffset(editProcessingInstruction.getOffsetAfter()));
 	}
 
 	@Override
 	public boolean canInsertFragment(final IDocumentFragment fragment) {
-		// TODO Auto-generated method stub
-		return false;
+		return canInsertAtCurrentSelection(fragment.getNodeNames());
 	}
 
 	@Override
-	public void insertFragment(final IDocumentFragment frag) throws DocumentValidationException {
-		// TODO Auto-generated method stub
+	public void insertFragment(final IDocumentFragment fragment) throws DocumentValidationException {
+		if (isReadOnly()) {
+			throw new ReadOnlyException("Cannot insert fragment, because the editor is read-only");
+		}
 
+		if (hasSelection()) {
+			deleteSelection();
+		}
+
+		final IElement surroundingElement = document.getElementForInsertionAt(cursor.getOffset());
+
+		doWork(new Runnable() {
+			@Override
+			public void run() {
+				final InsertFragmentEdit insertFragment = editStack.apply(new InsertFragmentEdit(document, cursor.getOffset(), fragment));
+				final IPosition finalCaretPosition = document.createPosition(insertFragment.getOffsetAfter());
+
+				applyWhitespacePolicy(surroundingElement);
+
+				// TODO this move has to be stored in a special IUndoableEdit to make sure that doWork moves the cursor to the desired position for us
+				cursor.move(toOffset(finalCaretPosition.getOffset()));
+				document.removePosition(finalCaretPosition);
+			}
+		});
+	}
+
+	private void applyWhitespacePolicy(final INode node) {
+		node.accept(new BaseNodeVisitor() {
+			@Override
+			public void visit(final IDocument document) {
+				document.children().accept(this);
+			}
+
+			@Override
+			public void visit(final IDocumentFragment fragment) {
+				fragment.children().accept(this);
+			}
+
+			@Override
+			public void visit(final IElement element) {
+				element.children().accept(this);
+			}
+
+			@Override
+			public void visit(final IText text) {
+				final IParent parentElement = text.ancestors().matching(Filters.elements()).first();
+				if (!whitespacePolicy.isPre(parentElement)) {
+					final String compressedContent = XML.compressWhitespace(text.getText(), false, false, false);
+					final ContentRange originalTextRange = text.getRange();
+					final CompoundEdit compoundEdit = new CompoundEdit();
+					compoundEdit.addEdit(new DeleteEdit(document, originalTextRange, originalTextRange.getStartOffset()));
+					compoundEdit.addEdit(new InsertTextEdit(document, originalTextRange.getStartOffset(), compressedContent));
+					editStack.apply(compoundEdit);
+				}
+			}
+		});
 	}
 
 	@Override
 	public boolean canUnwrap() {
-		// TODO Auto-generated method stub
-		return false;
+		if (isReadOnly()) {
+			return false;
+		}
+		if (document == null) {
+			return false;
+		}
+		final IValidator validator = document.getValidator();
+		if (validator == null) {
+			return false;
+		}
+
+		final IElement element = document.getElementForInsertionAt(cursor.getOffset());
+		final IElement parent = element.getParentElement();
+		if (parent == null) {
+			// can't unwrap the root
+			return false;
+		}
+
+		final List<QualifiedName> nodesBefore = Node.getNodeNames(parent.children().before(element.getStartOffset()));
+		final List<QualifiedName> newNodes = Node.getNodeNames(element.children());
+		final List<QualifiedName> nodesAfter = Node.getNodeNames(parent.children().after(element.getEndOffset()));
+
+		return validator.isValidSequence(parent.getQualifiedName(), nodesBefore, newNodes, nodesAfter, true);
 	}
 
 	@Override
 	public void unwrap() throws DocumentValidationException {
-		// TODO Auto-generated method stub
+		if (isReadOnly()) {
+			throw new ReadOnlyException("Cannot unwrap the element, because the editor is read-only.");
+		}
 
+		final IElement currentElement = document.getElementForInsertionAt(cursor.getOffset());
+		if (currentElement == document.getRootElement()) {
+			throw new DocumentValidationException("Cannot unwrap the root element.");
+		}
+
+		final ContentRange elementRange = currentElement.getRange();
+		final IDocumentFragment elementContent = document.getFragment(elementRange.resizeBy(1, -1));
+
+		doWork(new Runnable() {
+			@Override
+			public void run() {
+				editStack.apply(new DeleteEdit(document, currentElement.getRange(), cursor.getOffset()));
+				if (elementContent != null) {
+					editStack.apply(new InsertFragmentEdit(document, elementRange.getStartOffset(), elementContent));
+				}
+			}
+		});
 	}
 
 	@Override
 	public boolean canMorph(final QualifiedName elementName) {
-		// TODO Auto-generated method stub
-		return false;
+		final IElement currentElement = document.getElementForInsertionAt(cursor.getOffset());
+		if (!canMorphElement(currentElement)) {
+			return false;
+		}
+
+		final IValidator validator = document.getValidator();
+
+		if (!canContainContent(validator, elementName, Node.getNodeNames(currentElement.children()))) {
+			return false;
+		}
+
+		final IElement parent = currentElement.getParentElement();
+		final List<QualifiedName> nodesBefore = Node.getNodeNames(parent.children().before(currentElement.getStartOffset()));
+		final List<QualifiedName> nodesAfter = Node.getNodeNames(parent.children().after(currentElement.getEndOffset()));
+
+		return isValidChild(validator, parent.getQualifiedName(), elementName, nodesBefore, nodesAfter);
 	}
 
 	@Override
 	public void morph(final QualifiedName elementName) throws DocumentValidationException {
-		// TODO Auto-generated method stub
+		if (isReadOnly()) {
+			throw new ReadOnlyException(MessageFormat.format("Cannot morph to element {0}, because the editor is read-only.", elementName));
+		}
 
+		final IElement currentElement = document.getElementForInsertionAt(cursor.getOffset());
+		if (currentElement == document.getRootElement()) {
+			throw new DocumentValidationException("Cannot morph the root element.");
+		}
+
+		final ContentRange elementRange = currentElement.getRange();
+		final IDocumentFragment elementContent = document.getFragment(elementRange.resizeBy(1, -1));
+
+		doWork(new Runnable() {
+			@Override
+			public void run() {
+				editStack.apply(new DeleteEdit(document, currentElement.getRange(), cursor.getOffset()));
+				final InsertElementEdit insertElement = editStack.apply(new InsertElementEdit(document, elementRange.getStartOffset(), elementName));
+				if (elementContent != null) {
+					editStack.apply(new InsertFragmentEdit(document, insertElement.getElement().getEndOffset(), elementContent));
+				}
+			}
+		});
 	}
 
 	@Override
 	public boolean canJoin() {
-		// TODO Auto-generated method stub
-		return false;
+		if (isReadOnly()) {
+			return false;
+		}
+		if (!hasSelection()) {
+			return false;
+		}
+
+		final IElement parent = document.getElementForInsertionAt(cursor.getOffset());
+		final IAxis<? extends INode> selectedNodes = parent.children().in(getSelectedRange());
+		if (selectedNodes.isEmpty()) {
+			return false;
+		}
+
+		final IValidator validator = document.getValidator();
+		final INode firstNode = selectedNodes.first();
+		final List<QualifiedName> childNodeNames = new ArrayList<QualifiedName>();
+		int count = 0;
+		for (final INode selectedNode : selectedNodes) {
+			if (!selectedNode.isKindOf(firstNode)) {
+				return false;
+			}
+			childNodeNames.addAll(selectedNode.accept(new BaseNodeVisitorWithResult<List<QualifiedName>>(Collections.<QualifiedName> emptyList()) {
+				@Override
+				public List<QualifiedName> visit(final IElement element) {
+					return Node.getNodeNames(element.children());
+				}
+			}));
+			count++;
+		}
+
+		if (count <= 1) {
+			return false;
+		}
+
+		final boolean joinedChildrenValid = firstNode.accept(new BaseNodeVisitorWithResult<Boolean>(true) {
+			@Override
+			public Boolean visit(final IElement element) {
+				return validator.isValidSequence(element.getQualifiedName(), childNodeNames, true);
+			}
+		});
+		if (!joinedChildrenValid) {
+			return false;
+		}
+
+		return true;
 	}
 
 	@Override
 	public void join() throws DocumentValidationException {
-		// TODO Auto-generated method stub
+		if (isReadOnly()) {
+			return;
+		}
+		if (!hasSelection()) {
+			return;
+		}
 
+		final IElement parent = document.getElementForInsertionAt(cursor.getOffset());
+		final ContentRange selectedRange = getSelectedRange();
+		final IAxis<? extends INode> selectedNodes = parent.children().in(selectedRange);
+		if (selectedNodes.isEmpty()) {
+			return;
+		}
+
+		final INode firstNode = selectedNodes.first();
+		final ArrayList<IDocumentFragment> contentToJoin = new ArrayList<IDocumentFragment>();
+		for (final INode selectedNode : selectedNodes) {
+			if (!selectedNode.isKindOf(firstNode) && !contentToJoin.isEmpty()) {
+				throw new DocumentValidationException("Cannot join nodes of different kind.");
+			}
+			if (!selectedNode.isEmpty()) {
+				contentToJoin.add(document.getFragment(selectedNode.getRange().resizeBy(1, -1)));
+			}
+		}
+
+		if (contentToJoin.size() <= 1) {
+			return;
+		}
+
+		doWork(new Runnable() {
+			@Override
+			public void run() {
+				final DeleteEdit deletePreservedContent = editStack.apply(new DeleteEdit(document, new ContentRange(firstNode.getEndOffset() + 1, selectedRange.getEndOffset()), cursor.getOffset()));
+				editStack.apply(new DeleteEdit(document, firstNode.getRange().resizeBy(1, -1), deletePreservedContent.getOffsetAfter()));
+				for (final IDocumentFragment contentPart : contentToJoin) {
+					editStack.apply(new InsertFragmentEdit(document, firstNode.getEndOffset(), contentPart));
+				}
+			}
+		});
 	}
 
 	@Override
 	public boolean canSplit() {
-		// TODO Auto-generated method stub
-		return false;
+		if (isReadOnly()) {
+			return false;
+		}
+		if (document == null) {
+			return false;
+		}
+
+		final IValidator validator = document.getValidator();
+		if (validator == null) {
+			return true;
+		}
+
+		if (!Filters.elements().matches(currentNode)) {
+			return false;
+		}
+
+		final IElement element = (IElement) currentNode;
+		final IElement parent = element.getParentElement();
+		if (parent == null) {
+			return false;
+		}
+
+		final int startOffset = element.getStartOffset();
+		final int endOffset = element.getEndOffset();
+
+		final List<QualifiedName> nodesBefore = Node.getNodeNames(parent.children().before(startOffset));
+		final List<QualifiedName> newNodes = Arrays.asList(element.getQualifiedName(), element.getQualifiedName());
+		final List<QualifiedName> nodesAfter = Node.getNodeNames(parent.children().after(endOffset));
+
+		return validator.isValidSequence(parent.getQualifiedName(), nodesBefore, newNodes, nodesAfter, true);
 	}
 
 	@Override
 	public void split() throws DocumentValidationException {
-		// TODO Auto-generated method stub
+		if (isReadOnly()) {
+			throw new ReadOnlyException("Cannot split, because the editor is read-only.");
+		}
 
+		if (!Filters.elements().matches(currentNode)) {
+			throw new DocumentValidationException("Can only split elements.");
+		}
+		final IElement element = (IElement) currentNode;
+
+		if (hasSelection()) {
+			deleteSelection();
+		}
+
+		final boolean splitAtEnd = cursor.getOffset() == element.getEndOffset();
+		final ContentRange splittingRange;
+		final IDocumentFragment splittedFragment;
+		if (!splitAtEnd) {
+			splittingRange = new ContentRange(cursor.getOffset(), element.getEndOffset() - 1);
+			splittedFragment = document.getFragment(splittingRange);
+		} else {
+			splittingRange = null;
+			splittedFragment = null;
+		}
+
+		doWork(new Runnable() {
+			@Override
+			public void run() {
+				if (!splitAtEnd) {
+					editStack.apply(new DeleteEdit(document, splittingRange, cursor.getOffset()));
+				}
+				final IElement newElement = editStack.apply(new InsertElementEdit(document, element.getEndOffset() + 1, element.getQualifiedName())).getElement();
+				if (!splitAtEnd) {
+					editStack.apply(new InsertFragmentEdit(document, newElement.getEndOffset(), splittedFragment));
+				}
+				// TODO move cursor to newElement.getStartOffset() - 1
+			}
+		});
 	}
 
 }

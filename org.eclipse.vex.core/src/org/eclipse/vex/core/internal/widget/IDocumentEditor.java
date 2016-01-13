@@ -122,7 +122,7 @@ public interface IDocumentEditor {
 	 *
 	 * @see endWork(boolean)
 	 */
-	void beginWork();
+	void beginWork(); // TODO remove
 
 	/**
 	 * Perform the runnable's run method within a beginWork/endWork pair. All operations in the runnable are treated as
@@ -132,7 +132,7 @@ public interface IDocumentEditor {
 	 * @param runnable
 	 *            Runnable implementing the work to be done.
 	 */
-	void doWork(Runnable runnable);
+	void doWork(Runnable runnable) throws DocumentValidationException;
 
 	/**
 	 * Perform the runnable's run method within a beginWork/endWork pair. All operations in the runnable are treated as
@@ -144,7 +144,7 @@ public interface IDocumentEditor {
 	 * @param savePosition
 	 *            If true, the current caret position is saved and restored once the operation is complete.
 	 */
-	void doWork(Runnable runnable, boolean savePosition);
+	void doWork(Runnable runnable, boolean savePosition) throws DocumentValidationException;
 
 	/**
 	 * Signals the end of a set of operations that should be treated as a single unit for undo/redo purposes.
@@ -155,7 +155,7 @@ public interface IDocumentEditor {
 	 *
 	 * @see #beginWork()
 	 */
-	void endWork(boolean success);
+	void endWork(boolean success); // TODO remove
 
 	/**
 	 * Execute a Runnable, restoring the caret position to its original position afterward.
@@ -568,7 +568,7 @@ public interface IDocumentEditor {
 	 * @param frag
 	 *            DocumentFragment to insert.
 	 */
-	void insertFragment(IDocumentFragment frag) throws DocumentValidationException;
+	void insertFragment(IDocumentFragment fragment) throws DocumentValidationException;
 
 	/**
 	 * Returns true if the current element can be unwrapped, i.e. replaced with its content.
