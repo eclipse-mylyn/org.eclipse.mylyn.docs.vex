@@ -10,11 +10,15 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.widget;
 
+import static org.eclipse.vex.core.internal.cursor.CursorMoves.toOffset;
+
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.vex.core.internal.core.ElementName;
 import org.eclipse.vex.core.internal.cursor.Cursor;
 import org.eclipse.vex.core.internal.undo.CannotApplyException;
 import org.eclipse.vex.core.internal.undo.CannotUndoException;
+import org.eclipse.vex.core.internal.undo.EditStack;
+import org.eclipse.vex.core.internal.undo.IUndoableEdit;
 import org.eclipse.vex.core.provisional.dom.ContentPosition;
 import org.eclipse.vex.core.provisional.dom.ContentPositionRange;
 import org.eclipse.vex.core.provisional.dom.ContentRange;
@@ -30,12 +34,14 @@ import org.eclipse.vex.core.provisional.dom.IProcessingInstruction;
 public class DocumentEditor implements IDocumentEditor {
 
 	private final Cursor cursor;
+	private final EditStack editStack;
 
 	private IDocument document;
 	private boolean readOnly;
 
 	public DocumentEditor(final Cursor cursor) {
 		this.cursor = cursor;
+		editStack = new EditStack();
 	}
 
 	/*
@@ -68,26 +74,24 @@ public class DocumentEditor implements IDocumentEditor {
 
 	@Override
 	public boolean canRedo() {
-		// TODO Auto-generated method stub
-
+		return editStack.canRedo();
 	}
 
 	@Override
 	public void redo() throws CannotApplyException {
-		// TODO Auto-generated method stub
-
+		final IUndoableEdit edit = editStack.redo();
+		cursor.move(toOffset(edit.getOffsetAfter()));
 	}
 
 	@Override
 	public boolean canUndo() {
-		// TODO Auto-generated method stub
-
+		return editStack.canUndo();
 	}
 
 	@Override
 	public void undo() throws CannotUndoException {
-		// TODO Auto-generated method stub
-
+		final IUndoableEdit edit = editStack.undo();
+		cursor.move(toOffset(edit.getOffsetBefore()));
 	}
 
 	/*
