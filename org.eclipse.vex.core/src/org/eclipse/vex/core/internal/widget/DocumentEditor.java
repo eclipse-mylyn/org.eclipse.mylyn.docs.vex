@@ -10,9 +10,14 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.widget;
 
+import static org.eclipse.vex.core.internal.cursor.CursorMoves.by;
+import static org.eclipse.vex.core.internal.cursor.CursorMoves.down;
+import static org.eclipse.vex.core.internal.cursor.CursorMoves.toNextWord;
 import static org.eclipse.vex.core.internal.cursor.CursorMoves.toOffset;
+import static org.eclipse.vex.core.internal.cursor.CursorMoves.toPreviousWord;
 import static org.eclipse.vex.core.internal.cursor.CursorMoves.toWordEnd;
 import static org.eclipse.vex.core.internal.cursor.CursorMoves.toWordStart;
+import static org.eclipse.vex.core.internal.cursor.CursorMoves.up;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -384,26 +389,30 @@ public class DocumentEditor implements IDocumentEditor {
 
 	@Override
 	public void moveBy(final int distance) {
-		// TODO Auto-generated method stub
-
+		moveBy(distance, false);
 	}
 
 	@Override
 	public void moveBy(final int distance, final boolean select) {
-		// TODO Auto-generated method stub
-
+		if (select) {
+			cursor.select(by(distance));
+		} else {
+			cursor.move(by(distance));
+		}
 	}
 
 	@Override
 	public void moveTo(final ContentPosition position) {
-		// TODO Auto-generated method stub
-
+		moveTo(position, false);
 	}
 
 	@Override
 	public void moveTo(final ContentPosition position, final boolean select) {
-		// TODO Auto-generated method stub
-
+		if (select) {
+			cursor.select(toOffset(position.getOffset()));
+		} else {
+			cursor.move(toOffset(position.getOffset()));
+		}
 	}
 
 	@Override
@@ -420,26 +429,33 @@ public class DocumentEditor implements IDocumentEditor {
 
 	@Override
 	public void moveToNextLine(final boolean select) {
-		// TODO Auto-generated method stub
-
+		if (select) {
+			cursor.select(down());
+		} else {
+			cursor.move(down());
+		}
 	}
 
 	@Override
 	public void moveToNextPage(final boolean select) {
-		// TODO Auto-generated method stub
-
 	}
 
 	@Override
 	public void moveToNextWord(final boolean select) {
-		// TODO Auto-generated method stub
-
+		if (select) {
+			cursor.select(toNextWord());
+		} else {
+			cursor.move(toNextWord());
+		}
 	}
 
 	@Override
 	public void moveToPreviousLine(final boolean select) {
-		// TODO Auto-generated method stub
-
+		if (select) {
+			cursor.select(up());
+		} else {
+			cursor.move(up());
+		}
 	}
 
 	@Override
@@ -450,8 +466,11 @@ public class DocumentEditor implements IDocumentEditor {
 
 	@Override
 	public void moveToPreviousWord(final boolean select) {
-		// TODO Auto-generated method stub
-
+		if (select) {
+			cursor.select(toPreviousWord());
+		} else {
+			cursor.move(toPreviousWord());
+		}
 	}
 
 	/*

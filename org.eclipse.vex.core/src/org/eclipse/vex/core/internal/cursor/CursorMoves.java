@@ -21,6 +21,8 @@ public class CursorMoves {
 	private static final ICursorMove DOWN = new MoveDown();
 	private static final ICursorMove TO_WORD_START = new MoveToWordStart();
 	private static final ICursorMove TO_WORD_END = new MoveToWordEnd();
+	private static final ICursorMove TO_NEXT_WORD = new MoveToNextWord();
+	private static final ICursorMove TO_PREVIOUS_WORD = new MoveToPreviousWord();
 
 	public static ICursorMove toOffset(final int offset) {
 		return new MoveToOffset(offset);
@@ -28,6 +30,10 @@ public class CursorMoves {
 
 	public static ICursorMove toAbsoluteCoordinates(final int x, final int y) {
 		return new MoveToAbsoluteCoordinates(x, y);
+	}
+
+	public static ICursorMove by(final int distance) {
+		return new MoveBy(distance);
 	}
 
 	public static ICursorMove left() {
@@ -52,5 +58,13 @@ public class CursorMoves {
 
 	public static ICursorMove toWordEnd() {
 		return TO_WORD_END;
+	}
+
+	public static ICursorMove toNextWord() {
+		return TO_NEXT_WORD;
+	}
+
+	public static ICursorMove toPreviousWord() {
+		return TO_PREVIOUS_WORD;
 	}
 }
