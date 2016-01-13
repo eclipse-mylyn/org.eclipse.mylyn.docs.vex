@@ -100,32 +100,55 @@ public class DocumentEditor implements IDocumentEditor {
 
 	@Override
 	public void beginWork() {
-		// TODO Auto-generated method stub
-
+		editStack.beginWork();
 	}
 
 	@Override
 	public void doWork(final Runnable runnable) {
-		// TODO Auto-generated method stub
-
+		doWork(runnable, false);
 	}
 
 	@Override
 	public void doWork(final Runnable runnable, final boolean savePosition) {
-		// TODO Auto-generated method stub
-
+		final IPosition position = document.createPosition(cursor.getOffset());
+		editStack.beginWork();
+		try {
+			runnable.run();
+			final IUndoableEdit work = editStack.commitWork();
+			cursor.move(toOffset(work.getOffsetAfter()));
+		} catch (final Throwable t) {
+			final IUndoableEdit work = editStack.rollbackWork();
+			cursor.move(toOffset(work.getOffsetBefore()));
+			// TODO throw exception? at least log error?
+		} finally {
+			if (savePosition) {
+				cursor.move(toOffset(position.getOffset()));
+			}
+			document.removePosition(position);
+		}
 	}
 
 	@Override
 	public void endWork(final boolean success) {
-		// TODO Auto-generated method stub
-
+		// TODO split in two different methods (commitWork and rollbackWork)
+		if (success) {
+			final IUndoableEdit work = editStack.commitWork();
+			cursor.move(toOffset(work.getOffsetAfter()));
+		} else {
+			final IUndoableEdit work = editStack.rollbackWork();
+			cursor.move(toOffset(work.getOffsetBefore()));
+		}
 	}
 
 	@Override
 	public void savePosition(final Runnable runnable) {
-		// TODO Auto-generated method stub
-
+		final IPosition position = document.createPosition(cursor.getOffset());
+		try {
+			runnable.run();
+		} finally {
+			cursor.move(toOffset(position.getOffset()));
+			document.removePosition(position);
+		}
 	}
 
 	/*
