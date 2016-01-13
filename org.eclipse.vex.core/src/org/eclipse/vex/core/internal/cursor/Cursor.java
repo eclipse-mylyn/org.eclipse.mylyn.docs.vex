@@ -106,12 +106,25 @@ public class Cursor {
 		}
 	}
 
+	private void firePositionAboutToChange() {
+		for (final ICursorPositionListener listener : cursorPositionListeners) {
+			try {
+				listener.positionAboutToChange();
+			} catch (final Throwable t) {
+				t.printStackTrace();
+				// TODO remove listener?
+			}
+		}
+	}
+
 	public void move(final ICursorMove move) {
 		moves.add(new MoveWithSelection(move, false));
+		firePositionAboutToChange();
 	}
 
 	public void select(final ICursorMove move) {
 		moves.add(new MoveWithSelection(move, true));
+		firePositionAboutToChange();
 	}
 
 	public void reconcile(final Graphics graphics) {

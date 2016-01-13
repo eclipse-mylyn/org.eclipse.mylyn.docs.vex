@@ -21,8 +21,8 @@ import static org.junit.Assert.assertFalse;
 
 import org.eclipse.vex.core.internal.boxes.DepthFirstBoxTraversal;
 import org.eclipse.vex.core.internal.boxes.IContentBox;
-import org.eclipse.vex.core.internal.boxes.NodeEndOffsetPlaceholder;
 import org.eclipse.vex.core.internal.boxes.InlineNodeReference;
+import org.eclipse.vex.core.internal.boxes.NodeEndOffsetPlaceholder;
 import org.eclipse.vex.core.internal.boxes.RootBox;
 import org.eclipse.vex.core.internal.boxes.StructuralNodeReference;
 import org.eclipse.vex.core.internal.boxes.TextContent;
@@ -369,6 +369,10 @@ public class TestCursorPosition {
 			public void positionChanged(final int offset) {
 				announcedOffset[0] = offset;
 			}
+
+			@Override
+			public void positionAboutToChange() {
+			}
 		});
 
 		cursorAt(123);
@@ -385,6 +389,10 @@ public class TestCursorPosition {
 			@Override
 			public void positionChanged(final int offset) {
 				receivedPositionChangedMessage[0] = true;
+			}
+
+			@Override
+			public void positionAboutToChange() {
 			}
 		});
 

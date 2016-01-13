@@ -188,6 +188,11 @@ public class BoxWidget extends Canvas implements ISelectionProvider {
 	private void connectCursor() {
 		cursor.addPositionListener(new ICursorPositionListener() {
 			@Override
+			public void positionAboutToChange() {
+				// ignore
+			}
+
+			@Override
 			public void positionChanged(final int offset) {
 				cursorPositionChanged(offset);
 			}
@@ -261,9 +266,9 @@ public class BoxWidget extends Canvas implements ISelectionProvider {
 
 	private void moveOrSelect(final int stateMask, final ICursorMove move) {
 		if ((stateMask & SWT.SHIFT) == SWT.SHIFT) {
-			controller.moveSelection(move);
+			cursor.select(move);
 		} else {
-			controller.moveCursor(move);
+			cursor.move(move);
 		}
 	}
 
@@ -277,7 +282,7 @@ public class BoxWidget extends Canvas implements ISelectionProvider {
 			return;
 		}
 		final int absoluteY = event.y + getVerticalBar().getSelection();
-		controller.moveSelection(toAbsoluteCoordinates(event.x, absoluteY));
+		cursor.select(toAbsoluteCoordinates(event.x, absoluteY));
 	}
 
 	private void cursorPositionChanged(final int offset) {
@@ -328,7 +333,7 @@ public class BoxWidget extends Canvas implements ISelectionProvider {
 		Assert.isLegal(selection instanceof IVexSelection, "BoxWidget can only handle instances of IVexSelection");
 		final IVexSelection vexSelection = (IVexSelection) selection;
 
-		controller.moveCursor(toOffset(vexSelection.getCaretOffset()));
+		cursor.move(toOffset(vexSelection.getCaretOffset()));
 	};
 
 	@Override
@@ -373,12 +378,12 @@ public class BoxWidget extends Canvas implements ISelectionProvider {
 
 	public void undo() {
 		final IUndoableEdit edit = editStack.undo();
-		controller.moveCursor(toOffset(edit.getOffsetBefore()));
+		cursor.move(toOffset(edit.getOffsetBefore()));
 	}
 
 	public void redo() {
 		final IUndoableEdit edit = editStack.redo();
-		controller.moveCursor(toOffset(edit.getOffsetAfter()));
+		cursor.move(toOffset(edit.getOffsetAfter()));
 	}
 
 	public boolean canUndo() {
@@ -391,12 +396,12 @@ public class BoxWidget extends Canvas implements ISelectionProvider {
 
 	public void insertChar(final char c) {
 		final InsertTextEdit insertText = editStack.apply(new InsertTextEdit(document, cursor.getOffset(), Character.toString(c)));
-		controller.moveCursor(toOffset(insertText.getOffsetAfter()));
+		cursor.move(toOffset(insertText.getOffsetAfter()));
 	}
 
 	public void insertLineBreak() {
 		final InsertLineBreakEdit insertLineBreak = editStack.apply(new InsertLineBreakEdit(document, cursor.getOffset()));
-		controller.moveCursor(toOffset(insertLineBreak.getOffsetAfter()));
+		cursor.move(toOffset(insertLineBreak.getOffsetAfter()));
 	}
 
 	public void deleteForward() {
@@ -426,7 +431,7 @@ public class BoxWidget extends Canvas implements ISelectionProvider {
 		}
 
 		editStack.apply(edit);
-		controller.moveCursor(toOffset(edit.getOffsetAfter()));
+		cursor.move(toOffset(edit.getOffsetAfter()));
 	}
 
 	public void deleteBackward() {
@@ -457,27 +462,27 @@ public class BoxWidget extends Canvas implements ISelectionProvider {
 		}
 
 		editStack.apply(edit);
-		controller.moveCursor(toOffset(edit.getOffsetAfter()));
+		cursor.move(toOffset(edit.getOffsetAfter()));
 	}
 
 	public IElement insertElement(final QualifiedName elementName) throws DocumentValidationException {
 		final InsertElementEdit insertElement = editStack.apply(new InsertElementEdit(document, cursor.getOffset(), elementName));
 		final IElement element = insertElement.getElement();
-		controller.moveCursor(toOffset(insertElement.getOffsetAfter()));
+		cursor.move(toOffset(insertElement.getOffsetAfter()));
 		return element;
 	}
 
 	public IComment insertComment() throws DocumentValidationException {
 		final InsertCommentEdit insertComment = editStack.apply(new InsertCommentEdit(document, cursor.getOffset()));
 		final IComment comment = insertComment.getComment();
-		controller.moveCursor(toOffset(insertComment.getOffsetAfter()));
+		cursor.move(toOffset(insertComment.getOffsetAfter()));
 		return comment;
 	}
 
 	public IProcessingInstruction insertProcessingInstruction(final String target) throws CannotApplyException, ReadOnlyException {
 		final InsertProcessingInstructionEdit insertPI = editStack.apply(new InsertProcessingInstructionEdit(document, cursor.getOffset(), target));
 		final IProcessingInstruction pi = insertPI.getProcessingInstruction();
-		controller.moveCursor(toOffset(insertPI.getOffsetAfter()));
+		cursor.move(toOffset(insertPI.getOffsetAfter()));
 		return pi;
 	}
 

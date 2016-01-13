@@ -11,7 +11,7 @@
 package org.eclipse.vex.core.internal.widget;
 
 import org.eclipse.vex.core.internal.cursor.Cursor;
-import org.eclipse.vex.core.internal.cursor.ICursorMove;
+import org.eclipse.vex.core.internal.cursor.ICursorPositionListener;
 import org.eclipse.vex.core.internal.visualization.IBoxModelBuilder;
 import org.eclipse.vex.core.provisional.dom.AttributeChangeEvent;
 import org.eclipse.vex.core.provisional.dom.ContentChangeEvent;
@@ -25,7 +25,6 @@ import org.eclipse.vex.core.provisional.dom.NamespaceDeclarationChangeEvent;
 public class VisualizationController {
 
 	private IDocument document;
-	private final Cursor cursor;
 	private final BoxView view;
 	private final DOMVisualization visualization;
 
@@ -65,8 +64,20 @@ public class VisualizationController {
 		}
 	};
 
+	private final ICursorPositionListener cursorListener = new ICursorPositionListener() {
+		@Override
+		public void positionAboutToChange() {
+			view.invalidateCursor();
+		}
+
+		@Override
+		public void positionChanged(final int offset) {
+			// ignore
+		}
+	};
+
 	public VisualizationController(final Cursor cursor, final BoxView view) {
-		this.cursor = cursor;
+		cursor.addPositionListener(cursorListener);
 		this.view = view;
 		visualization = new DOMVisualization(cursor, view);
 	}
@@ -106,15 +117,5 @@ public class VisualizationController {
 
 	public void resize(final int width) {
 		view.invalidateWidth(width);
-	}
-
-	public void moveCursor(final ICursorMove move) {
-		cursor.move(move);
-		view.invalidateCursor();
-	}
-
-	public void moveSelection(final ICursorMove move) {
-		cursor.select(move);
-		view.invalidateCursor();
 	}
 }

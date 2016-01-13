@@ -15,6 +15,8 @@ package org.eclipse.vex.core.internal.cursor;
  */
 public interface ICursorPositionListener {
 
+	void positionAboutToChange();
+
 	void positionChanged(int offset);
 
 }
