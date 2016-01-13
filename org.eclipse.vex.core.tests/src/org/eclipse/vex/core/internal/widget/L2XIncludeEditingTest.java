@@ -19,6 +19,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import org.eclipse.vex.core.internal.io.XMLFragment;
+import org.eclipse.vex.core.provisional.dom.IDocument;
 import org.eclipse.vex.core.provisional.dom.IElement;
 import org.eclipse.vex.core.provisional.dom.IIncludeNode;
 import org.junit.Before;
@@ -36,8 +37,9 @@ public class L2XIncludeEditingTest {
 
 	@Before
 	public void setUp() throws Exception {
-		editor = new BaseVexWidget(new MockHostComponent());
-		editor.setDocument(createDocumentWithDTD(TEST_DTD, "section"));
+		final IDocument document = createDocumentWithDTD(TEST_DTD, "section");
+		editor = new DocumentEditor(new FakeCursor(document));
+		editor.setDocument(document);
 	}
 
 	@Test
