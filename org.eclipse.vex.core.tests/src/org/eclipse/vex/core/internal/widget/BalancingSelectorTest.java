@@ -7,10 +7,12 @@
  *
  * Contributors:
  * 		Florian Thienel - initial API and implementation
+ *      Carsten Hiesserich - moved additional tests from L2SelectionTest
  *******************************************************************************/
 package org.eclipse.vex.core.internal.widget;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 import org.eclipse.vex.core.internal.io.UniversalTestDocument;
 import org.eclipse.vex.core.provisional.dom.ContentRange;
@@ -97,6 +99,32 @@ public class BalancingSelectorTest {
 		selector.moveEndTo(thirdParagraph.getStartOffset() - 1);
 		assertBalancedSelectionIs(section.getStartOffset(), section.getEndOffset() + 1, section.getStartOffset());
 	}
+
+	@Test
+	public void givenMarkAtStartOffsetOfParagraphWithText_whenSelectingForward_shouldSelectWholeParagraph() throws Exception {
+		final IElement paragraphWithText = document.getParagraphWithText(0);
+		select(paragraphWithText.getStartOffset(), paragraphWithText.getStartOffset() + 1);
+		assertBalancedSelectionIs(paragraphWithText.getStartOffset(), paragraphWithText.getEndOffset() + 1, paragraphWithText.getEndOffset() + 1);
+	}
+
+	@Test
+	public void givenMarkAtEndOffsetOfParagraphWithText_whenSelectingBackwardOneCharBehindStartOffset_shouldNotIncludeEndOffsetInSelectedRange() throws Exception {
+		final IElement paragraphWithText = document.getParagraphWithText(0);
+		select(paragraphWithText.getEndOffset(), paragraphWithText.getStartOffset() + 1);
+		assertBalancedSelectionIs(paragraphWithText.getStartOffset() + 1, paragraphWithText.getEndOffset(), paragraphWithText.getStartOffset() + 1);
+	}
+
+	@Test
+	public void givenMarkAtStartOffsetOfParagraphWithText_whenSelectingOneForwardAndOneBackward_shouldSelectNothing() throws Exception {
+		final IElement paragraphWithText = document.getParagraphWithText(0);
+		select(paragraphWithText.getStartOffset(), paragraphWithText.getStartOffset() + 1);
+		selector.moveEndTo(paragraphWithText.getStartOffset());
+		assertFalse(selector.isActive());
+	}
+
+	/*
+	 * Utility Methods
+	 */
 
 	private void select(final int mark, final int caretPosition) {
 		selector.setMark(mark);

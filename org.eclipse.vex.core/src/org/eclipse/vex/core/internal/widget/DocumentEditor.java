@@ -351,7 +351,7 @@ public class DocumentEditor implements IDocumentEditor {
 			cursor.move(toOffset(node.getEndOffset()));
 		} else {
 			cursor.move(toOffset(node.getStartOffset() + 1));
-			cursor.select(toOffset(node.getEndOffset()));
+			cursor.select(toOffset(node.getEndOffset() - 1));
 		}
 	}
 
