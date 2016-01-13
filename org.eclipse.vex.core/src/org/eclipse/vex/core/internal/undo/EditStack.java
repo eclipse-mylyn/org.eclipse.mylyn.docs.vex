@@ -75,20 +75,22 @@ public class EditStack {
 		pendingEdits.push(new CompoundEdit());
 	}
 
-	public void commitWork() {
+	public IUndoableEdit commitWork() {
 		if (pendingEdits.isEmpty()) {
 			throw new CannotApplyException("No edit pending, cannot commit!");
 		}
 
-		apply(pendingEdits.pop());
+		return apply(pendingEdits.pop());
 	}
 
-	public void rollbackWork() {
+	public IUndoableEdit rollbackWork() {
 		if (pendingEdits.isEmpty()) {
 			throw new CannotUndoException("No edit pending, cannot rollback!");
 		}
 
-		pendingEdits.pop().undo();
+		final CompoundEdit work = pendingEdits.pop();
+		work.undo();
+		return work;
 	}
 
 	public boolean inTransaction() {

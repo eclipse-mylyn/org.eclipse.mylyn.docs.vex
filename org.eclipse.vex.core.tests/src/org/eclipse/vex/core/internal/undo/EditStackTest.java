@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.undo;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -245,6 +246,36 @@ public class EditStackTest {
 		assertTrue("undo edit3", edit3.undoCalled);
 	}
 
+	@Test
+	public void threeEditsCommitted_shouldProvideOffsetAfterLastEdit() throws Exception {
+		final EditStack stack = new EditStack();
+		final MockEdit lastEdit = new MockEdit();
+		lastEdit.offsetAfter = 123;
+
+		stack.beginWork();
+		stack.apply(new MockEdit());
+		stack.apply(new MockEdit());
+		stack.apply(lastEdit);
+		final IUndoableEdit committedEdit = stack.commitWork();
+
+		assertEquals(123, committedEdit.getOffsetAfter());
+	}
+
+	@Test
+	public void threeEditsRolledBack_shouldProvideOffsetBeforeFirstEdit() throws Exception {
+		final EditStack stack = new EditStack();
+		final MockEdit firstEdit = new MockEdit();
+		firstEdit.offsetBefore = 123;
+
+		stack.beginWork();
+		stack.apply(firstEdit);
+		stack.apply(new MockEdit());
+		stack.apply(new MockEdit());
+		final IUndoableEdit rolledbackEdit = stack.rollbackWork();
+
+		assertEquals(123, rolledbackEdit.getOffsetBefore());
+	}
+
 	private static class MockEdit implements IUndoableEdit {
 
 		public boolean redoCalled;
@@ -253,6 +284,8 @@ public class EditStackTest {
 		private final boolean canUndo;
 		private final boolean canRedo;
 		public boolean canCombine;
+		public int offsetBefore;
+		public int offsetAfter;
 
 		public MockEdit() {
 			this(true, true);
@@ -290,11 +323,11 @@ public class EditStackTest {
 		}
 
 		public int getOffsetBefore() {
-			return 0;
+			return offsetBefore;
 		}
 
 		public int getOffsetAfter() {
-			return 0;
+			return offsetAfter;
 		}
 	}
 }
