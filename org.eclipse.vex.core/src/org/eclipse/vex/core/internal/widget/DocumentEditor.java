@@ -348,10 +348,10 @@ public class DocumentEditor implements IDocumentEditor {
 	public void selectContentOf(final INode node) {
 		if (node.isEmpty()) {
 			cursor.move(toOffset(node.getEndOffset()));
+		} else {
+			cursor.move(toOffset(node.getStartOffset() + 1));
+			cursor.select(toOffset(node.getEndOffset()));
 		}
-
-		cursor.move(toOffset(node.getStartOffset() + 1));
-		cursor.select(toOffset(node.getEndOffset()));
 	}
 
 	@Override
