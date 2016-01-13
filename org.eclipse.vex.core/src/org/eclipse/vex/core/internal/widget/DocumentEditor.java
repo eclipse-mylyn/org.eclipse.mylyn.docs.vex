@@ -37,6 +37,7 @@ import org.eclipse.vex.core.internal.undo.CannotUndoException;
 import org.eclipse.vex.core.internal.undo.ChangeAttributeEdit;
 import org.eclipse.vex.core.internal.undo.ChangeNamespaceEdit;
 import org.eclipse.vex.core.internal.undo.CompoundEdit;
+import org.eclipse.vex.core.internal.undo.DefineOffsetEdit;
 import org.eclipse.vex.core.internal.undo.DeleteEdit;
 import org.eclipse.vex.core.internal.undo.DeleteNextCharEdit;
 import org.eclipse.vex.core.internal.undo.DeletePreviousCharEdit;
@@ -1094,13 +1095,12 @@ public class DocumentEditor implements IDocumentEditor {
 			@Override
 			public void run() {
 				final InsertFragmentEdit insertFragment = editStack.apply(new InsertFragmentEdit(document, cursor.getOffset(), fragment));
-				final IPosition finalCaretPosition = document.createPosition(insertFragment.getOffsetAfter());
+				final IPosition finalOffset = document.createPosition(insertFragment.getOffsetAfter());
 
 				applyWhitespacePolicy(surroundingElement);
 
-				// TODO this move has to be stored in a special IUndoableEdit to make sure that doWork moves the cursor to the desired position for us
-				cursor.move(toOffset(finalCaretPosition.getOffset()));
-				document.removePosition(finalCaretPosition);
+				editStack.apply(new DefineOffsetEdit(insertFragment.getOffsetAfter(), finalOffset.getOffset()));
+				document.removePosition(finalOffset);
 			}
 		});
 	}
@@ -1397,7 +1397,7 @@ public class DocumentEditor implements IDocumentEditor {
 				if (!splitAtEnd) {
 					editStack.apply(new InsertFragmentEdit(document, newElement.getEndOffset(), splittedFragment));
 				}
-				// TODO move cursor to newElement.getStartOffset() - 1
+				editStack.apply(new DefineOffsetEdit(cursor.getOffset(), newElement.getStartOffset() + 1));
 			}
 		});
 	}
