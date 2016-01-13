@@ -37,7 +37,7 @@ import org.eclipse.vex.core.provisional.dom.INode;
 /**
  * @author Florian Thienel
  */
-public class Cursor {
+public class Cursor implements ICursor {
 
 	public static final int CARET_BUFFER = 30;
 	private static final Color CARET_FOREGROUND_COLOR = new Color(255, 255, 255);
@@ -65,14 +65,17 @@ public class Cursor {
 		contentTopology.setRootBox(rootBox);
 	}
 
+	@Override
 	public int getOffset() {
 		return offset;
 	}
 
+	@Override
 	public boolean hasSelection() {
 		return selector.isActive();
 	}
 
+	@Override
 	public ContentRange getSelectedRange() {
 		if (!hasSelection()) {
 			return new ContentRange(offset, offset);
@@ -98,10 +101,12 @@ public class Cursor {
 		return caret.getVisibleArea();
 	}
 
+	@Override
 	public void addPositionListener(final ICursorPositionListener listener) {
 		cursorPositionListeners.add(listener);
 	}
 
+	@Override
 	public void removePositionListener(final ICursorPositionListener listener) {
 		cursorPositionListeners.remove(listener);
 	}
@@ -128,11 +133,13 @@ public class Cursor {
 		}
 	}
 
+	@Override
 	public void move(final ICursorMove move) {
 		moves.add(new MoveWithSelection(move, false));
 		firePositionAboutToChange();
 	}
 
+	@Override
 	public void select(final ICursorMove move) {
 		moves.add(new MoveWithSelection(move, true));
 		firePositionAboutToChange();

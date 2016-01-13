@@ -33,7 +33,7 @@ import org.eclipse.vex.core.XML;
 import org.eclipse.vex.core.internal.core.ElementName;
 import org.eclipse.vex.core.internal.core.QualifiedNameComparator;
 import org.eclipse.vex.core.internal.css.IWhitespacePolicy;
-import org.eclipse.vex.core.internal.cursor.Cursor;
+import org.eclipse.vex.core.internal.cursor.ICursor;
 import org.eclipse.vex.core.internal.cursor.ICursorPositionListener;
 import org.eclipse.vex.core.internal.dom.Node;
 import org.eclipse.vex.core.internal.io.XMLFragment;
@@ -77,7 +77,7 @@ import org.eclipse.vex.core.provisional.dom.IValidator;
 
 public class DocumentEditor implements IDocumentEditor {
 
-	private final Cursor cursor;
+	private final ICursor cursor;
 	private final IWhitespacePolicy whitespacePolicy;
 	private final EditStack editStack;
 
@@ -98,11 +98,11 @@ public class DocumentEditor implements IDocumentEditor {
 		}
 	};
 
-	public DocumentEditor(final Cursor cursor) {
+	public DocumentEditor(final ICursor cursor) {
 		this(cursor, IWhitespacePolicy.NULL);
 	}
 
-	public DocumentEditor(final Cursor cursor, final IWhitespacePolicy whitespacePolicy) {
+	public DocumentEditor(final ICursor cursor, final IWhitespacePolicy whitespacePolicy) {
 		this.cursor = cursor;
 		cursor.addPositionListener(cursorListener);
 		this.whitespacePolicy = whitespacePolicy;

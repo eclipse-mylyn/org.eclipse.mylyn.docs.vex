@@ -40,6 +40,7 @@ import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.vex.core.internal.core.Rectangle;
 import org.eclipse.vex.core.internal.cursor.Cursor;
+import org.eclipse.vex.core.internal.cursor.ICursor;
 import org.eclipse.vex.core.internal.cursor.ICursorMove;
 import org.eclipse.vex.core.internal.cursor.ICursorPositionListener;
 import org.eclipse.vex.core.internal.undo.CannotApplyException;
@@ -358,7 +359,7 @@ public class BoxWidget extends Canvas implements ISelectionProvider {
 		}
 	}
 
-	private static IVexSelection createSelectionForCursor(final Cursor cursor) {
+	private static IVexSelection createSelectionForCursor(final ICursor cursor) {
 		return new IVexSelection() {
 			@Override
 			public boolean isEmpty() {
