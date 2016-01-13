@@ -69,10 +69,16 @@ public class CompoundEdit extends AbstractUndoableEdit {
 	}
 
 	public int getOffsetBefore() {
+		if (edits.isEmpty()) {
+			return 0;
+		}
 		return edits.get(0).getOffsetBefore();
 	}
 
 	public int getOffsetAfter() {
+		if (edits.isEmpty()) {
+			return 0;
+		}
 		return edits.get(edits.size() - 1).getOffsetAfter();
 	}
 }
