@@ -32,6 +32,7 @@ import org.eclipse.vex.core.internal.undo.CannotApplyException;
 import org.eclipse.vex.core.provisional.dom.ContentRange;
 import org.eclipse.vex.core.provisional.dom.DocumentValidationException;
 import org.eclipse.vex.core.provisional.dom.IContent;
+import org.eclipse.vex.core.provisional.dom.IDocument;
 import org.eclipse.vex.core.provisional.dom.IDocumentFragment;
 import org.eclipse.vex.core.provisional.dom.IElement;
 import org.eclipse.vex.core.provisional.dom.INode;
@@ -46,42 +47,43 @@ public class L2XmlInsertionTest {
 	private static final QualifiedName PRE = new QualifiedName(null, "pre");
 	private static final QualifiedName EMPHASIS = new QualifiedName(null, "emphasis");
 
-	private BaseVexWidget widget;
+	private IDocumentEditor editor;
 	private IElement para1;
 	private IElement pre;
 
 	@Before
 	public void setUp() throws Exception {
-		widget = new BaseVexWidget(new MockHostComponent());
 		final StyleSheet styleSheet = new StyleSheetReader().read(TestResources.get("test.css"));
-		widget.setDocument(createDocumentWithDTD(TEST_DTD, "section"), styleSheet);
-		widget.setWhitespacePolicy(new CssWhitespacePolicy(styleSheet));
-		para1 = widget.insertElement(PARA);
-		widget.moveBy(1);
-		widget.insertElement(PARA);
-		widget.moveTo(para1.getEndPosition());
-		pre = widget.insertElement(PRE);
+		final IDocument document = createDocumentWithDTD(TEST_DTD, "section");
+		editor = new DocumentEditor(new FakeCursor(document), new CssWhitespacePolicy(styleSheet));
+		editor.setDocument(document);
+
+		para1 = editor.insertElement(PARA);
+		editor.moveBy(1);
+		editor.insertElement(PARA);
+		editor.moveTo(para1.getEndPosition());
+		pre = editor.insertElement(PRE);
 	}
 
 	@Test
 	public void givenNonPreElement_whenInsertingNotAllowedXML_shouldInsertTextOnly() throws Exception {
-		widget.moveTo(para1.getStartPosition().moveBy(1));
-		widget.insertXML(createParaXML());
+		editor.moveTo(para1.getStartPosition().moveBy(1));
+		editor.insertXML(createParaXML());
 
 		assertEquals("beforeinnerafter", para1.getText());
 	}
 
 	@Test(expected = DocumentValidationException.class)
 	public void givenNonPreElement_whenInsertingInvalidXML_shouldThrowDocumentValidationExeption() throws Exception {
-		widget.moveTo(para1.getStartPosition().moveBy(1));
+		editor.moveTo(para1.getStartPosition().moveBy(1));
 
-		widget.insertXML("<emphasis>someText</para>");
+		editor.insertXML("<emphasis>someText</para>");
 	}
 
 	@Test
 	public void givenNonPreElement_whenInsertingValidXML_shouldInsertXml() throws Exception {
-		widget.moveTo(para1.getEndPosition());
-		widget.insertXML(createInlineXML("before", "inner", "after"));
+		editor.moveTo(para1.getEndPosition());
+		editor.insertXML(createInlineXML("before", "inner", "after"));
 
 		final List<? extends INode> children = para1.children().asList();
 		assertTrue("Expecting IParent", children.get(0) instanceof IParent); // the pre element
@@ -95,16 +97,16 @@ public class L2XmlInsertionTest {
 
 	@Test
 	public void givenPreElement_whenInsertingInvalidXML_shouldInsertTextWithWhitespace() throws Exception {
-		widget.moveTo(pre.getStartPosition().moveBy(1));
-		widget.insertXML(createParaXML());
+		editor.moveTo(pre.getStartPosition().moveBy(1));
+		editor.insertXML(createParaXML());
 
 		assertEquals("beforeinnerafter", pre.getText());
 	}
 
 	@Test
 	public void givenPreElement_whenInsertingValidXML_shouldInsertXML() throws Exception {
-		widget.moveTo(pre.getEndPosition());
-		widget.insertXML(createInlineXML("before", "inner", "after"));
+		editor.moveTo(pre.getEndPosition());
+		editor.insertXML(createInlineXML("before", "inner", "after"));
 
 		final List<? extends INode> children = pre.children().asList();
 		assertTrue("Expecting IText", children.get(0) instanceof IText);
@@ -117,8 +119,8 @@ public class L2XmlInsertionTest {
 
 	@Test
 	public void givenPreElement_whenInsertingValidXMLWithWhitespace_shouldKeepWhitespace() throws Exception {
-		widget.moveTo(pre.getEndPosition());
-		widget.insertXML(createInlineXML("line1\nline2   end", "inner", "after"));
+		editor.moveTo(pre.getEndPosition());
+		editor.insertXML(createInlineXML("line1\nline2   end", "inner", "after"));
 
 		final List<? extends INode> children = pre.children().asList();
 		assertTrue("Expecting IText", children.get(0) instanceof IText);
@@ -131,8 +133,8 @@ public class L2XmlInsertionTest {
 
 	@Test
 	public void whenInsertingMixedXMLWithWhitespace_shouldKeepWhitecpaceInPre() throws Exception {
-		widget.moveTo(para1.getEndPosition());
-		widget.insertXML("before<pre>pre1\npre2  end</pre>after   \nend");
+		editor.moveTo(para1.getEndPosition());
+		editor.insertXML("before<pre>pre1\npre2  end</pre>after   \nend");
 
 		final List<? extends INode> children = para1.children().after(pre.getEndPosition().getOffset()).asList();
 		assertEquals("New children count", 3, children.size());
@@ -146,14 +148,14 @@ public class L2XmlInsertionTest {
 
 	@Test(expected = CannotApplyException.class)
 	public void givenNonPreElement_whenInsertingNotAllowedFragment_shouldThrowCannotRedoException() throws Exception {
-		widget.moveTo(para1.getStartPosition().moveBy(1));
-		widget.insertFragment(createParaFragment());
+		editor.moveTo(para1.getStartPosition().moveBy(1));
+		editor.insertFragment(createParaFragment());
 	}
 
 	@Test
 	public void givenNonPreElement_whenInsertingValidFragment_shouldInsertXml() throws Exception {
-		widget.moveTo(para1.getEndPosition());
-		widget.insertFragment(createInlineFragment("before", "inner", "after"));
+		editor.moveTo(para1.getEndPosition());
+		editor.insertFragment(createInlineFragment("before", "inner", "after"));
 
 		final List<? extends INode> children = para1.children().asList();
 		assertTrue("Expecting IParent", children.get(0) instanceof IParent); // the pre element
@@ -167,14 +169,14 @@ public class L2XmlInsertionTest {
 
 	@Test(expected = CannotApplyException.class)
 	public void givenPreElement_whenInsertingInvalidFragment_shouldThrowCannotRedoException() throws Exception {
-		widget.moveTo(pre.getStartPosition().moveBy(1));
-		widget.insertFragment(createParaFragment());
+		editor.moveTo(pre.getStartPosition().moveBy(1));
+		editor.insertFragment(createParaFragment());
 	}
 
 	@Test
 	public void givenPreElement_whenInsertingValidFragment_shouldInsertXML() throws Exception {
-		widget.moveTo(pre.getEndPosition());
-		widget.insertFragment(createInlineFragment("before", "inner", "after"));
+		editor.moveTo(pre.getEndPosition());
+		editor.insertFragment(createInlineFragment("before", "inner", "after"));
 
 		final List<? extends INode> children = pre.children().asList();
 		assertTrue("Expecting IText", children.get(0) instanceof IText);
@@ -187,8 +189,8 @@ public class L2XmlInsertionTest {
 
 	@Test
 	public void givenPreElement_whenInsertingValidFragmentWithWhitespace_shouldKeepWhitespace() throws Exception {
-		widget.moveTo(pre.getEndPosition());
-		widget.insertFragment(createInlineFragment("line1\nline2   end", "inner", "after"));
+		editor.moveTo(pre.getEndPosition());
+		editor.insertFragment(createInlineFragment("line1\nline2   end", "inner", "after"));
 
 		final List<? extends INode> children = pre.children().asList();
 		assertTrue("Expecting IText", children.get(0) instanceof IText);
@@ -201,8 +203,8 @@ public class L2XmlInsertionTest {
 
 	@Test
 	public void whenInsertingMixedFragmentWithWhitespace_shouldKeepWhitecpaceInPre() throws Exception {
-		widget.moveTo(para1.getEndPosition());
-		widget.insertFragment(new XMLFragment("before<pre>pre1\npre2  end</pre>after   \nend").getDocumentFragment());
+		editor.moveTo(para1.getEndPosition());
+		editor.insertFragment(new XMLFragment("before<pre>pre1\npre2  end</pre>after   \nend").getDocumentFragment());
 
 		final List<? extends INode> children = para1.children().after(pre.getEndPosition().getOffset()).asList();
 		assertEquals("New children count", 3, children.size());
