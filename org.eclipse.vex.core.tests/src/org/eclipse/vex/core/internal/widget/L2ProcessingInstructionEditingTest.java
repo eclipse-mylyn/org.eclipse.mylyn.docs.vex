@@ -20,6 +20,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import org.eclipse.vex.core.internal.undo.CannotApplyException;
+import org.eclipse.vex.core.provisional.dom.IDocument;
 import org.eclipse.vex.core.provisional.dom.IDocumentFragment;
 import org.eclipse.vex.core.provisional.dom.INode;
 import org.eclipse.vex.core.provisional.dom.IProcessingInstruction;
@@ -32,8 +33,9 @@ public class L2ProcessingInstructionEditingTest {
 
 	@Before
 	public void setUp() throws Exception {
-		editor = new BaseVexWidget(new MockHostComponent());
-		editor.setDocument(createDocumentWithDTD(TEST_DTD, "section"));
+		final IDocument document = createDocumentWithDTD(TEST_DTD, "section");
+		editor = new DocumentEditor(new FakeCursor(document));
+		editor.setDocument(document);
 	}
 
 	@Test
