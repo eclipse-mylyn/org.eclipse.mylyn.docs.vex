@@ -22,7 +22,6 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.assertTrue;
 
-import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.provisional.dom.IComment;
 import org.eclipse.vex.core.provisional.dom.IDocumentFragment;
 import org.eclipse.vex.core.provisional.dom.IElement;
@@ -35,36 +34,36 @@ import org.junit.Test;
  */
 public class L2CommentEditingTest {
 
-	private IVexWidget widget;
+	private IDocumentEditor editor;
 	private IElement rootElement;
 
 	@Before
 	public void setUp() throws Exception {
-		widget = new BaseVexWidget(new MockHostComponent());
-		widget.setDocument(createDocumentWithDTD(TEST_DTD, "section"), StyleSheet.NULL);
-		rootElement = widget.getDocument().getRootElement();
+		editor = new BaseVexWidget(new MockHostComponent());
+		editor.setDocument(createDocumentWithDTD(TEST_DTD, "section"));
+		rootElement = editor.getDocument().getRootElement();
 	}
 
 	@Test
 	public void givenAnElement_whenInsertingAComment_elementShouldContainComment() throws Exception {
-		final IComment comment = widget.insertComment();
+		final IComment comment = editor.insertComment();
 		assertTrue(rootElement.getRange().contains(comment.getRange()));
 		assertSame(rootElement, comment.getParent());
-		assertEquals(comment.getEndPosition(), widget.getCaretPosition());
+		assertEquals(comment.getEndPosition(), editor.getCaretPosition());
 	}
 
 	@Test
 	public void givenAnElementWithComment_whenInsertingTextWithinComment_shouldAddTextToComment() throws Exception {
-		final IComment comment = widget.insertComment();
-		widget.insertText("Hello World");
+		final IComment comment = editor.insertComment();
+		editor.insertText("Hello World");
 		assertEquals("Hello World", comment.getText());
 	}
 
 	@Test
 	public void givenAnEmptyComment_whenCaretInCommentAndHittingBackspace_shouldDeleteComment() throws Exception {
-		final IElement titleElement = widget.insertElement(TITLE);
-		final IComment comment = widget.insertComment();
-		widget.deletePreviousChar();
+		final IElement titleElement = editor.insertElement(TITLE);
+		final IComment comment = editor.insertComment();
+		editor.deletePreviousChar();
 		assertFalse(titleElement.hasChildren());
 		assertFalse(comment.isAssociated());
 		assertNull(comment.getParent());
@@ -72,9 +71,9 @@ public class L2CommentEditingTest {
 
 	@Test
 	public void givenAnEmptyComment_whenCaretInCommentAndHittingDelete_shouldDeleteComment() throws Exception {
-		final IElement titleElement = widget.insertElement(TITLE);
-		final IComment comment = widget.insertComment();
-		widget.deleteNextChar();
+		final IElement titleElement = editor.insertElement(TITLE);
+		final IComment comment = editor.insertComment();
+		editor.deleteNextChar();
 		assertFalse(titleElement.hasChildren());
 		assertFalse(comment.isAssociated());
 		assertNull(comment.getParent());
@@ -82,57 +81,57 @@ public class L2CommentEditingTest {
 
 	@Test
 	public void givenAComment_whenCaretInComment_shouldNotAllowToInsertAComment() throws Exception {
-		widget.insertComment();
-		assertFalse("can insert comment within comment", widget.canInsertComment());
+		editor.insertComment();
+		assertFalse("can insert comment within comment", editor.canInsertComment());
 	}
 
 	@Test
 	public void undoRemoveCommentTag() throws Exception {
-		widget.insertElement(TITLE);
-		widget.insertText("1text before comment1");
-		widget.insertComment();
-		final INode comment = widget.getDocument().getChildAt(widget.getCaretPosition());
-		widget.insertText("2comment text2");
-		widget.moveBy(1);
-		widget.insertText("3text after comment3");
+		editor.insertElement(TITLE);
+		editor.insertText("1text before comment1");
+		editor.insertComment();
+		final INode comment = editor.getDocument().getChildAt(editor.getCaretPosition());
+		editor.insertText("2comment text2");
+		editor.moveBy(1);
+		editor.insertText("3text after comment3");
 
-		final String expectedContentStructure = getContentStructure(widget.getDocument().getRootElement());
+		final String expectedContentStructure = getContentStructure(editor.getDocument().getRootElement());
 
-		widget.doWork(new Runnable() {
+		editor.doWork(new Runnable() {
 			@Override
 			public void run() {
-				widget.moveTo(comment.getStartPosition().moveBy(1), false);
-				widget.moveTo(comment.getEndPosition().moveBy(-1), true);
-				final IDocumentFragment fragment = widget.getSelectedFragment();
-				widget.deleteSelection();
+				editor.moveTo(comment.getStartPosition().moveBy(1), false);
+				editor.moveTo(comment.getEndPosition().moveBy(-1), true);
+				final IDocumentFragment fragment = editor.getSelectedFragment();
+				editor.deleteSelection();
 
-				widget.moveBy(-1, false);
-				widget.moveBy(1, true);
-				widget.deleteSelection();
+				editor.moveBy(-1, false);
+				editor.moveBy(1, true);
+				editor.deleteSelection();
 
-				widget.insertFragment(fragment);
+				editor.insertFragment(fragment);
 			}
 		});
 
-		widget.undo();
+		editor.undo();
 
-		assertEquals(expectedContentStructure, getContentStructure(widget.getDocument().getRootElement()));
+		assertEquals(expectedContentStructure, getContentStructure(editor.getDocument().getRootElement()));
 	}
 
 	@Test
 	public void undoRedoInsertCommentWithSubsequentDelete() throws Exception {
-		widget.insertElement(PARA);
-		final String expectedXml = getCurrentXML(widget);
+		editor.insertElement(PARA);
+		final String expectedXml = getCurrentXML(editor);
 
-		final IComment comment = widget.insertComment();
-		widget.moveTo(comment.getStartPosition());
-		widget.moveTo(comment.getEndPosition(), true);
-		widget.deleteSelection();
+		final IComment comment = editor.insertComment();
+		editor.moveTo(comment.getStartPosition());
+		editor.moveTo(comment.getEndPosition(), true);
+		editor.deleteSelection();
 
-		widget.undo(); // delete
-		widget.undo(); // insert comment
+		editor.undo(); // delete
+		editor.undo(); // insert comment
 
-		assertEquals(expectedXml, getCurrentXML(widget));
+		assertEquals(expectedXml, getCurrentXML(editor));
 	}
 
 }

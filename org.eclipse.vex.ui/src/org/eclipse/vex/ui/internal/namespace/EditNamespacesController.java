@@ -15,7 +15,7 @@ import java.util.HashSet;
 import java.util.List;
 
 import org.eclipse.core.runtime.Assert;
-import org.eclipse.vex.core.internal.widget.IVexWidget;
+import org.eclipse.vex.core.internal.widget.IDocumentEditor;
 import org.eclipse.vex.core.provisional.dom.IElement;
 
 /**
@@ -23,16 +23,16 @@ import org.eclipse.vex.core.provisional.dom.IElement;
  */
 public class EditNamespacesController {
 
-	private final IVexWidget widget;
+	private final IDocumentEditor editor;
 	private final IElement element;
 
 	private String defaultNamespaceURI;
 
 	private final List<EditableNamespaceDefinition> namespaceDefinitions;
 
-	public EditNamespacesController(final IVexWidget widget) {
-		this.widget = widget;
-		element = widget.getCurrentElement();
+	public EditNamespacesController(final IDocumentEditor editor) {
+		this.editor = editor;
+		element = editor.getCurrentElement();
 		Assert.isNotNull(element, "There is no current element available. Namespaces can only be edited in elements.");
 		defaultNamespaceURI = getDefaultNamespaceURI(element);
 		namespaceDefinitions = getNamespaceDefinitions(element);
@@ -78,20 +78,20 @@ public class EditNamespacesController {
 
 	public void applyToElement() {
 		if (defaultNamespaceURI == null || "".equals(defaultNamespaceURI)) {
-			widget.removeDefaultNamespace();
+			editor.removeDefaultNamespace();
 		} else {
-			widget.declareDefaultNamespace(defaultNamespaceURI);
+			editor.declareDefaultNamespace(defaultNamespaceURI);
 		}
 
 		final HashSet<String> declaredPrefixes = new HashSet<String>();
 		for (final EditableNamespaceDefinition definition : namespaceDefinitions) {
-			widget.declareNamespace(definition.getPrefix(), definition.getUri());
+			editor.declareNamespace(definition.getPrefix(), definition.getUri());
 			declaredPrefixes.add(definition.getPrefix());
 		}
 
 		for (final String prefix : element.getDeclaredNamespacePrefixes()) {
 			if (!declaredPrefixes.contains(prefix)) {
-				widget.removeNamespace(prefix);
+				editor.removeNamespace(prefix);
 			}
 		}
 	}

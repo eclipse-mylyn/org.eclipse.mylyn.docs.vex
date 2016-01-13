@@ -18,7 +18,6 @@ import static org.junit.Assert.assertEquals;
 import java.util.Arrays;
 
 import org.eclipse.core.runtime.QualifiedName;
-import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.dom.Document;
 import org.eclipse.vex.core.internal.io.XMLFragment;
 import org.eclipse.vex.core.internal.validator.WTPVEXValidator;
@@ -39,101 +38,100 @@ public class VexWidgetTest {
 	public static final QualifiedName PARA = new QualifiedName(null, "para");
 	public static final QualifiedName PRE = new QualifiedName(null, "pre");
 
-	private IVexWidget widget;
+	private IDocumentEditor editor;
 
 	@Before
 	public void setUp() throws Exception {
-		widget = new BaseVexWidget(new MockHostComponent());
+		editor = new BaseVexWidget(new MockHostComponent());
 	}
 
 	@Test
 	public void provideOnlyAllowedElementsFromDtd() throws Exception {
-		widget.setDocument(createDocumentWithDTD(TEST_DTD, "section"), StyleSheet.NULL);
-		assertCanInsertOnly(widget, "title", "para");
-		widget.insertElement(new QualifiedName(null, "title"));
-		assertCanInsertOnly(widget);
-		widget.moveBy(1);
-		assertCanInsertOnly(widget, "para");
-		widget.insertElement(new QualifiedName(null, "para"));
-		widget.moveBy(1);
-		assertCanInsertOnly(widget, "para");
+		editor.setDocument(createDocumentWithDTD(TEST_DTD, "section"));
+		assertCanInsertOnly(editor, "title", "para");
+		editor.insertElement(new QualifiedName(null, "title"));
+		assertCanInsertOnly(editor);
+		editor.moveBy(1);
+		assertCanInsertOnly(editor, "para");
+		editor.insertElement(new QualifiedName(null, "para"));
+		editor.moveBy(1);
+		assertCanInsertOnly(editor, "para");
 	}
 
 	@Test
 	public void provideOnlyAllowedElementsFromSimpleSchema() throws Exception {
-		widget.setDocument(createDocument(CONTENT_NS, "p"), StyleSheet.NULL);
-		assertCanInsertOnly(widget, "b", "i");
-		widget.insertElement(new QualifiedName(CONTENT_NS, "b"));
-		assertCanInsertOnly(widget, "b", "i");
-		widget.moveBy(1);
-		assertCanInsertOnly(widget, "b", "i");
+		editor.setDocument(createDocument(CONTENT_NS, "p"));
+		assertCanInsertOnly(editor, "b", "i");
+		editor.insertElement(new QualifiedName(CONTENT_NS, "b"));
+		assertCanInsertOnly(editor, "b", "i");
+		editor.moveBy(1);
+		assertCanInsertOnly(editor, "b", "i");
 	}
 
 	@Test
 	public void provideOnlyAllowedElementFromComplexSchema() throws Exception {
-		widget.setDocument(createDocument(STRUCTURE_NS, "chapter"), StyleSheet.NULL);
-		assertCanInsertOnly(widget, "title", "chapter", "p");
-		widget.insertElement(new QualifiedName(STRUCTURE_NS, "title"));
-		assertCanInsertOnly(widget);
-		widget.moveBy(1);
+		editor.setDocument(createDocument(STRUCTURE_NS, "chapter"));
+		assertCanInsertOnly(editor, "title", "chapter", "p");
+		editor.insertElement(new QualifiedName(STRUCTURE_NS, "title"));
+		assertCanInsertOnly(editor);
+		editor.moveBy(1);
 		//		assertCanInsertOnly(widget, "chapter", "p");
-		widget.insertElement(new QualifiedName(CONTENT_NS, "p"));
-		assertCanInsertOnly(widget, "b", "i");
-		widget.moveBy(1);
+		editor.insertElement(new QualifiedName(CONTENT_NS, "p"));
+		assertCanInsertOnly(editor, "b", "i");
+		editor.moveBy(1);
 		//		assertCanInsertOnly(widget, "p");
 		// FIXME: maybe the schema is still not what I mean
 	}
 
 	@Test
 	public void provideNoAllowedElementsForInsertionInComment() throws Exception {
-		final BaseVexWidget widget = new BaseVexWidget(new MockHostComponent());
 		final IDocument document = createDocument(STRUCTURE_NS, "chapter");
-		widget.setDocument(document, StyleSheet.NULL);
-		widget.insertElement(new QualifiedName(STRUCTURE_NS, "title"));
-		widget.moveBy(1);
-		widget.insertElement(new QualifiedName(CONTENT_NS, "p"));
-		widget.insertComment();
+		editor.setDocument(document);
+		editor.insertElement(new QualifiedName(STRUCTURE_NS, "title"));
+		editor.moveBy(1);
+		editor.insertElement(new QualifiedName(CONTENT_NS, "p"));
+		editor.insertComment();
 
-		assertCannotInsertAnything(widget);
+		assertCannotInsertAnything(editor);
 	}
 
 	@Test
 	public void undoRemoveCommentTag() throws Exception {
-		final BaseVexWidget widget = new BaseVexWidget(new MockHostComponent());
-		widget.setDocument(createDocument(STRUCTURE_NS, "chapter"), StyleSheet.NULL);
-		widget.insertElement(new QualifiedName(CONTENT_NS, "p"));
-		widget.insertText("1text before comment1");
-		final INode comment = widget.insertComment();
-		widget.insertText("2comment text2");
-		widget.moveBy(1);
-		widget.insertText("3text after comment3");
+		editor.setDocument(createDocument(STRUCTURE_NS, "chapter"));
+		editor.insertElement(new QualifiedName(CONTENT_NS, "p"));
+		editor.insertText("1text before comment1");
+		final INode comment = editor.insertComment();
+		editor.insertText("2comment text2");
+		editor.moveBy(1);
+		editor.insertText("3text after comment3");
 
-		final String expectedContentStructure = getContentStructure(widget.getDocument().getRootElement());
+		final String expectedContentStructure = getContentStructure(editor.getDocument().getRootElement());
 
-		widget.doWork(new Runnable() {
+		editor.doWork(new Runnable() {
 			@Override
 			public void run() {
-				widget.selectContentOf(comment);
-				final IDocumentFragment fragment = widget.getSelectedFragment();
-				widget.deleteSelection();
+				editor.selectContentOf(comment);
+				final IDocumentFragment fragment = editor.getSelectedFragment();
+				editor.deleteSelection();
 
-				widget.select(comment);
-				widget.deleteSelection();
+				editor.select(comment);
+				editor.deleteSelection();
 
-				widget.insertFragment(fragment);
+				editor.insertFragment(fragment);
 			}
 		});
 
-		widget.undo();
+		editor.undo();
 
-		assertEquals(expectedContentStructure, getContentStructure(widget.getDocument().getRootElement()));
+		assertEquals(expectedContentStructure, getContentStructure(editor.getDocument().getRootElement()));
 	}
 
 	/* bug 421401 */
 	@Test
 	public void whenClickedRightToLineEnd_shouldSetCursorToLineEnd() throws Exception {
-		final IDocument document = createDocument(STRUCTURE_NS, "chapter");
-		widget.setDocument(document, StyleSheet.NULL);
+		// TODO move to a separate test class that is specific to BaseVexWidget, this here is not editing but mouse handling
+		final BaseVexWidget widget = new BaseVexWidget(new MockHostComponent());
+		widget.setDocument(createDocument(STRUCTURE_NS, "chapter"));
 		widget.insertElement(new QualifiedName(CONTENT_NS, "p"));
 		widget.insertText("Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec a diam lectus. Sed sit amet ipsum mauris.");
 		widget.setLayoutWidth(200); // breaks after "amet, "
@@ -148,13 +146,13 @@ public class VexWidgetTest {
 	@Test
 	public void whenMovingCursorUp_shouldNotGetStuckInHigherLevelElement() throws Exception {
 		final IDocument document = createDocument(STRUCTURE_NS, "chapter");
-		widget.setDocument(document, StyleSheet.NULL);
-		widget.insertElement(new QualifiedName(CONTENT_NS, "p"));
-		widget.insertText("para 1");
-		widget.moveTo(new ContentPosition(document, 1));
+		editor.setDocument(document);
+		editor.insertElement(new QualifiedName(CONTENT_NS, "p"));
+		editor.insertText("para 1");
+		editor.moveTo(new ContentPosition(document, 1));
 
-		widget.moveToNextLine(false);
-		assertEquals(2, widget.getCaretPosition().getOffset());
+		editor.moveToNextLine(false);
+		assertEquals(2, editor.getCaretPosition().getOffset());
 	}
 
 	public static IDocument createDocumentWithDTD(final String dtdIdentifier, final String rootElementName) {
@@ -171,19 +169,19 @@ public class VexWidgetTest {
 		return document;
 	}
 
-	public static void assertCanInsertOnly(final IVexWidget widget, final Object... elementNames) {
+	public static void assertCanInsertOnly(final IDocumentEditor widget, final Object... elementNames) {
 		final String[] expected = sortedCopyOf(elementNames);
 		final String[] actual = sortedCopyOf(widget.getValidInsertElements());
 		assertEquals(Arrays.toString(expected), Arrays.toString(actual));
 	}
 
-	public static void assertCanMorphOnlyTo(final IVexWidget widget, final Object... elementNames) {
+	public static void assertCanMorphOnlyTo(final IDocumentEditor widget, final Object... elementNames) {
 		final String[] expected = sortedCopyOf(elementNames);
 		final String[] actual = sortedCopyOf(widget.getValidMorphElements());
 		assertEquals(Arrays.toString(expected), Arrays.toString(actual));
 	}
 
-	public static void assertCannotInsertAnything(final IVexWidget widget) {
+	public static void assertCannotInsertAnything(final IDocumentEditor widget) {
 		assertCanInsertOnly(widget /* nothing */);
 	}
 
@@ -221,11 +219,11 @@ public class VexWidgetTest {
 		return result.toString();
 	}
 
-	public static String getCurrentXML(final IVexWidget widget) {
+	public static String getCurrentXML(final IDocumentEditor widget) {
 		return new XMLFragment(widget.getDocument().getFragment(widget.getDocument().getRootElement().getRange())).getXML();
 	}
 
-	public static void assertXmlEquals(final String expected, final IVexWidget widget) {
+	public static void assertXmlEquals(final String expected, final IDocumentEditor widget) {
 		assertEquals(expected, getCurrentXML(widget));
 	}
 }

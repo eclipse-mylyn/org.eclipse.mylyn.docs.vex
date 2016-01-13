@@ -18,39 +18,33 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
-import org.eclipse.vex.core.internal.css.CssWhitespacePolicy;
-import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.io.XMLFragment;
 import org.eclipse.vex.core.provisional.dom.IElement;
 import org.eclipse.vex.core.provisional.dom.IIncludeNode;
 import org.junit.Before;
 import org.junit.Test;
 
-/**
- * @author Florian Thienel
- */
 public class L2XIncludeEditingTest {
 
 	private final String includeXml = "<para>12<xi:include xmlns:xi=\"http://www.w3.org/2001/XInclude\" href=\"test\" />34</para>";
 	private final String includeInlineXml = "<para>12<xi:include xmlns:xi=\"http://www.w3.org/2001/XInclude\" href=\"test\" parse=\"text\" />34</para>";
 
-	private IVexWidget widget;
+	private IDocumentEditor editor;
 	private IElement rootElement;
 	private IElement para;
 	private IIncludeNode includeNode;
 
 	@Before
 	public void setUp() throws Exception {
-		widget = new BaseVexWidget(new MockHostComponent());
-		widget.setDocument(createDocumentWithDTD(TEST_DTD, "section"), StyleSheet.NULL);
-		widget.setWhitespacePolicy(new CssWhitespacePolicy(widget.getStyleSheet()));
+		editor = new BaseVexWidget(new MockHostComponent());
+		editor.setDocument(createDocumentWithDTD(TEST_DTD, "section"));
 	}
 
 	@Test
 	public void whenCaretAfterEmptyInclude_BackspaceShouldDeleteInclude() throws Exception {
 		createIncludeElement(includeXml);
-		widget.moveTo(includeNode.getEndPosition().moveBy(1));
-		widget.deletePreviousChar();
+		editor.moveTo(includeNode.getEndPosition().moveBy(1));
+		editor.deletePreviousChar();
 
 		assertTrue(para.children().withoutText().isEmpty());
 		assertFalse(includeNode.isAssociated());
@@ -60,11 +54,11 @@ public class L2XIncludeEditingTest {
 	@Test
 	public void whenIncludeSelected_ShouldDeleteInclude() throws Exception {
 		createIncludeElement(includeXml);
-		widget.moveTo(includeNode.getStartPosition());
-		widget.moveTo(includeNode.getEndPosition(), true);
-		widget.deleteSelection();
+		editor.moveTo(includeNode.getStartPosition());
+		editor.moveTo(includeNode.getEndPosition(), true);
+		editor.deleteSelection();
 
-		final String currentXml = getCurrentXML(widget);
+		final String currentXml = getCurrentXML(editor);
 		assertEquals("<section><para>1234</para></section>", currentXml);
 
 		assertTrue(para.children().withoutText().isEmpty());
@@ -76,11 +70,11 @@ public class L2XIncludeEditingTest {
 	public void deleteInlineIncludeWithSurroundingContent() throws Exception {
 		createIncludeElement(includeInlineXml);
 
-		widget.moveTo(includeNode.getStartPosition());
-		widget.moveTo(para.getEndPosition().moveBy(-1), true);
-		widget.deleteSelection();
+		editor.moveTo(includeNode.getStartPosition());
+		editor.moveTo(para.getEndPosition().moveBy(-1), true);
+		editor.deleteSelection();
 
-		final String currentXml = getCurrentXML(widget);
+		final String currentXml = getCurrentXML(editor);
 		assertEquals("<section><para>124</para></section>", currentXml);
 
 		assertTrue(para.children().withoutText().isEmpty());
@@ -93,12 +87,12 @@ public class L2XIncludeEditingTest {
 		createIncludeElement(includeInlineXml);
 
 		// Yes, the direction of the selection makes a difference
-		widget.moveTo(para.getEndPosition().moveBy(-1));
-		widget.moveTo(includeNode.getStartPosition(), true);
+		editor.moveTo(para.getEndPosition().moveBy(-1));
+		editor.moveTo(includeNode.getStartPosition(), true);
 
-		widget.deleteSelection();
+		editor.deleteSelection();
 
-		final String currentXml = getCurrentXML(widget);
+		final String currentXml = getCurrentXML(editor);
 		assertEquals("<section><para>124</para></section>", currentXml);
 
 		assertTrue(para.children().withoutText().isEmpty());
@@ -109,12 +103,12 @@ public class L2XIncludeEditingTest {
 	@Test
 	public void undoDeleteInclude() throws Exception {
 		createIncludeElement(includeXml);
-		widget.moveTo(includeNode.getStartPosition());
-		widget.moveTo(includeNode.getEndPosition(), true);
-		final String exepctedXml = getCurrentXML(widget);
-		widget.deleteSelection();
-		widget.undo();
-		assertEquals(exepctedXml, getCurrentXML(widget));
+		editor.moveTo(includeNode.getStartPosition());
+		editor.moveTo(includeNode.getEndPosition(), true);
+		final String exepctedXml = getCurrentXML(editor);
+		editor.deleteSelection();
+		editor.undo();
+		assertEquals(exepctedXml, getCurrentXML(editor));
 
 		para = (IElement) rootElement.children().get(0);
 		includeNode = (IIncludeNode) para.children().withoutText().get(0);
@@ -123,8 +117,8 @@ public class L2XIncludeEditingTest {
 	}
 
 	private void createIncludeElement(final String xml) {
-		widget.insertFragment(new XMLFragment(xml).getDocumentFragment());
-		rootElement = widget.getDocument().getRootElement();
+		editor.insertFragment(new XMLFragment(xml).getDocumentFragment());
+		rootElement = editor.getDocument().getRootElement();
 		para = (IElement) rootElement.children().get(0);
 		includeNode = (IIncludeNode) para.children().withoutText().get(0);
 	}

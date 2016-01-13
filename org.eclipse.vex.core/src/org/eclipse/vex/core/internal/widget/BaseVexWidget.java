@@ -1710,6 +1710,11 @@ public class BaseVexWidget implements IVexWidget {
 		this.document.addDocumentListener(documentListener);
 	}
 
+	@Override
+	public void setDocument(final IDocument document) {
+		setDocument(document, StyleSheet.NULL);
+	}
+
 	/**
 	 * Called by the host component when it gains or loses focus.
 	 *

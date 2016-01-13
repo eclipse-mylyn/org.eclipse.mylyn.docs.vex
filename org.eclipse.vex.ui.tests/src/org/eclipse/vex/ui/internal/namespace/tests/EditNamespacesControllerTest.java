@@ -21,10 +21,9 @@ import static org.junit.Assert.fail;
 import java.util.List;
 
 import org.eclipse.core.runtime.QualifiedName;
-import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.dom.Document;
 import org.eclipse.vex.core.internal.widget.BaseVexWidget;
-import org.eclipse.vex.core.internal.widget.IVexWidget;
+import org.eclipse.vex.core.internal.widget.IDocumentEditor;
 import org.eclipse.vex.core.internal.widget.MockHostComponent;
 import org.eclipse.vex.core.provisional.dom.IElement;
 import org.eclipse.vex.ui.internal.namespace.EditNamespacesController;
@@ -37,21 +36,21 @@ import org.junit.Test;
  */
 public class EditNamespacesControllerTest {
 
-	private IVexWidget widget;
+	private IDocumentEditor editor;
 
 	@Before
 	public void setUp() throws Exception {
-		widget = new BaseVexWidget(new MockHostComponent());
-		widget.setDocument(new Document(new QualifiedName(null, "root")), StyleSheet.NULL);
+		editor = new BaseVexWidget(new MockHostComponent());
+		editor.setDocument(new Document(new QualifiedName(null, "root")));
 	}
 
 	@Test
 	public void populateFromElement() throws Exception {
-		final IElement element = widget.insertElement(new QualifiedName("http://namespace/uri/default", "element"));
+		final IElement element = editor.insertElement(new QualifiedName("http://namespace/uri/default", "element"));
 		element.declareDefaultNamespace("http://namespace/uri/default");
 		element.declareNamespace("ns1", "http://namespace/uri/1");
 		element.declareNamespace("ns2", "http://namespace/uri/2");
-		final EditNamespacesController controller = new EditNamespacesController(widget);
+		final EditNamespacesController controller = new EditNamespacesController(editor);
 
 		assertEquals("http://namespace/uri/default", controller.getDefaultNamespaceURI());
 
@@ -63,14 +62,14 @@ public class EditNamespacesControllerTest {
 
 	@Test
 	public void defaultNamespaceNotNull() throws Exception {
-		final EditNamespacesController controller = new EditNamespacesController(widget);
+		final EditNamespacesController controller = new EditNamespacesController(editor);
 		assertNotNull(controller.getDefaultNamespaceURI());
 	}
 
 	@Test
 	public void editDefaultNamespace() throws Exception {
-		final IElement element = widget.insertElement(new QualifiedName(null, "element"));
-		final EditNamespacesController controller = new EditNamespacesController(widget);
+		final IElement element = editor.insertElement(new QualifiedName(null, "element"));
+		final EditNamespacesController controller = new EditNamespacesController(editor);
 		controller.setDefaultNamespaceURI("http://namespace/uri/default");
 		assertEquals("http://namespace/uri/default", controller.getDefaultNamespaceURI());
 		assertNull(element.getDeclaredDefaultNamespaceURI());
@@ -82,9 +81,9 @@ public class EditNamespacesControllerTest {
 
 	@Test
 	public void removeDefaultNamespace() throws Exception {
-		final IElement element = widget.insertElement(new QualifiedName("http://namespace/uri/default", "element"));
+		final IElement element = editor.insertElement(new QualifiedName("http://namespace/uri/default", "element"));
 		element.declareDefaultNamespace("http://namespace/uri/default");
-		final EditNamespacesController controller = new EditNamespacesController(widget);
+		final EditNamespacesController controller = new EditNamespacesController(editor);
 
 		controller.setDefaultNamespaceURI("");
 		controller.applyToElement();
@@ -94,8 +93,8 @@ public class EditNamespacesControllerTest {
 
 	@Test
 	public void addNamespaceDefinition() throws Exception {
-		final IElement element = widget.insertElement(new QualifiedName(null, "element"));
-		final EditNamespacesController controller = new EditNamespacesController(widget);
+		final IElement element = editor.insertElement(new QualifiedName(null, "element"));
+		final EditNamespacesController controller = new EditNamespacesController(editor);
 
 		assertTrue(controller.getNamespaceDefinitions().isEmpty());
 		assertTrue(element.getDeclaredNamespacePrefixes().isEmpty());
@@ -116,9 +115,9 @@ public class EditNamespacesControllerTest {
 
 	@Test
 	public void removeNamespaceDefinition() throws Exception {
-		final IElement element = widget.insertElement(new QualifiedName(null, "element"));
+		final IElement element = editor.insertElement(new QualifiedName(null, "element"));
 		element.declareNamespace("ns1", "http://namespace/uri/1");
-		final EditNamespacesController controller = new EditNamespacesController(widget);
+		final EditNamespacesController controller = new EditNamespacesController(editor);
 
 		controller.removeNamespaceDefinition(controller.getNamespaceDefinitions().get(0));
 
@@ -131,9 +130,9 @@ public class EditNamespacesControllerTest {
 
 	@Test
 	public void editNamespacePrefix() throws Exception {
-		final IElement element = widget.insertElement(new QualifiedName(null, "element"));
+		final IElement element = editor.insertElement(new QualifiedName(null, "element"));
 		element.declareNamespace("ns1", "http://namespace/uri/1");
-		final EditNamespacesController controller = new EditNamespacesController(widget);
+		final EditNamespacesController controller = new EditNamespacesController(editor);
 		final EditableNamespaceDefinition definition = controller.getNamespaceDefinitions().get(0);
 
 		definition.setPrefix("ns2");
@@ -148,9 +147,9 @@ public class EditNamespacesControllerTest {
 
 	@Test
 	public void editNamespaceUri() throws Exception {
-		final IElement element = widget.insertElement(new QualifiedName(null, "element"));
+		final IElement element = editor.insertElement(new QualifiedName(null, "element"));
 		element.declareNamespace("ns1", "http://namespace/uri/1");
-		final EditNamespacesController controller = new EditNamespacesController(widget);
+		final EditNamespacesController controller = new EditNamespacesController(editor);
 		final EditableNamespaceDefinition definition = controller.getNamespaceDefinitions().get(0);
 
 		definition.setUri("http://namespace/uri/2");

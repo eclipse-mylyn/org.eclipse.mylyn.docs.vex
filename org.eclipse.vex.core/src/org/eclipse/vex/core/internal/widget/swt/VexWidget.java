@@ -66,6 +66,7 @@ import org.eclipse.vex.core.internal.css.IWhitespacePolicy;
 import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.io.XMLFragment;
 import org.eclipse.vex.core.internal.widget.BaseVexWidget;
+import org.eclipse.vex.core.internal.widget.IDocumentEditor;
 import org.eclipse.vex.core.internal.widget.IHostComponent;
 import org.eclipse.vex.core.internal.widget.IVexWidget;
 import org.eclipse.vex.core.internal.widget.ReadOnlyException;
@@ -155,9 +156,6 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 		return false;
 	}
 
-	/**
-	 * @see org.eclipse.vex.core.internal.widget.IVexWidget#canPasteText()
-	 */
 	@Override
 	public boolean canPasteText() {
 		// TODO Auto-generated method stub
@@ -562,6 +560,11 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 	}
 
 	@Override
+	public void setDocument(final IDocument document) {
+		impl.setDocument(document);
+	}
+
+	@Override
 	public void setLayoutWidth(final int width) {
 		impl.setLayoutWidth(width);
 	}
@@ -778,7 +781,7 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 			runEx(widget);
 		}
 
-		public abstract void runEx(IVexWidget w) throws ExecutionException;
+		public abstract void runEx(IDocumentEditor editor) throws ExecutionException;
 
 	}
 
@@ -901,83 +904,83 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 		// arrows: (Shift) Up/Down, {-, Shift, Ctrl, Shift+Ctrl} + Left/Right
 		addKey(CHAR_NONE, SWT.ARROW_DOWN, SWT.NONE, new Action() {
 			@Override
-			public void runEx(final IVexWidget w) {
-				w.moveToNextLine(false);
+			public void runEx(final IDocumentEditor editor) {
+				editor.moveToNextLine(false);
 			}
 		});
 		addKey(CHAR_NONE, SWT.ARROW_DOWN, SWT.SHIFT, new Action() {
 			@Override
-			public void runEx(final IVexWidget w) {
-				w.moveToNextLine(true);
+			public void runEx(final IDocumentEditor editor) {
+				editor.moveToNextLine(true);
 			}
 		});
 		addKey(CHAR_NONE, SWT.ARROW_UP, SWT.NONE, new Action() {
 			@Override
-			public void runEx(final IVexWidget w) {
-				w.moveToPreviousLine(false);
+			public void runEx(final IDocumentEditor editor) {
+				editor.moveToPreviousLine(false);
 			}
 		});
 		addKey(CHAR_NONE, SWT.ARROW_UP, SWT.SHIFT, new Action() {
 			@Override
-			public void runEx(final IVexWidget w) {
-				w.moveToPreviousLine(true);
+			public void runEx(final IDocumentEditor editor) {
+				editor.moveToPreviousLine(true);
 			}
 		});
 		addKey(CHAR_NONE, SWT.ARROW_LEFT, SWT.NONE, new Action() {
 			@Override
-			public void runEx(final IVexWidget w) {
-				w.moveBy(-1);
+			public void runEx(final IDocumentEditor editor) {
+				editor.moveBy(-1);
 			}
 		});
 		addKey(CHAR_NONE, SWT.ARROW_LEFT, SWT.SHIFT, new Action() {
 			@Override
-			public void runEx(final IVexWidget w) {
-				w.moveBy(-1, true);
+			public void runEx(final IDocumentEditor editor) {
+				editor.moveBy(-1, true);
 			}
 		});
 		addKey(CHAR_NONE, SWT.ARROW_LEFT, SWT.CONTROL, new Action() {
 			@Override
-			public void runEx(final IVexWidget w) {
-				w.moveToPreviousWord(false);
+			public void runEx(final IDocumentEditor editor) {
+				editor.moveToPreviousWord(false);
 			}
 		});
 		addKey(CHAR_NONE, SWT.ARROW_LEFT, SWT.SHIFT | SWT.CONTROL, new Action() {
 			@Override
-			public void runEx(final IVexWidget w) {
-				w.moveToPreviousWord(true);
+			public void runEx(final IDocumentEditor editor) {
+				editor.moveToPreviousWord(true);
 			}
 		});
 		addKey(CHAR_NONE, SWT.ARROW_RIGHT, SWT.NONE, new Action() {
 			@Override
-			public void runEx(final IVexWidget w) {
-				w.moveBy(+1);
+			public void runEx(final IDocumentEditor editor) {
+				editor.moveBy(+1);
 			}
 		});
 		addKey(CHAR_NONE, SWT.ARROW_RIGHT, SWT.SHIFT, new Action() {
 			@Override
-			public void runEx(final IVexWidget w) {
-				w.moveBy(+1, true);
+			public void runEx(final IDocumentEditor editor) {
+				editor.moveBy(+1, true);
 			}
 		});
 		addKey(CHAR_NONE, SWT.ARROW_RIGHT, SWT.CONTROL, new Action() {
 			@Override
-			public void runEx(final IVexWidget w) {
-				w.moveToNextWord(false);
+			public void runEx(final IDocumentEditor editor) {
+				editor.moveToNextWord(false);
 			}
 		});
 		addKey(CHAR_NONE, SWT.ARROW_RIGHT, SWT.SHIFT | SWT.CONTROL, new Action() {
 			@Override
-			public void runEx(final IVexWidget w) {
-				w.moveToNextWord(true);
+			public void runEx(final IDocumentEditor editor) {
+				editor.moveToNextWord(true);
 			}
 		});
 
 		// Delete/Backspace
 		addKey(SWT.BS, SWT.BS, SWT.NONE, new Action() {
 			@Override
-			public void runEx(final IVexWidget w) throws ExecutionException {
+			public void runEx(final IDocumentEditor editor) throws ExecutionException {
 				try {
-					w.deletePreviousChar();
+					editor.deletePreviousChar();
 				} catch (final DocumentValidationException e) {
 					throw new ExecutionException(e.getMessage(), e);
 				}
@@ -985,9 +988,9 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 		});
 		addKey(SWT.DEL, SWT.DEL, SWT.NONE, new Action() {
 			@Override
-			public void runEx(final IVexWidget w) throws ExecutionException {
+			public void runEx(final IDocumentEditor editor) throws ExecutionException {
 				try {
-					w.deleteNextChar();
+					editor.deleteNextChar();
 				} catch (final DocumentValidationException e) {
 					throw new ExecutionException(e.getMessage(), e);
 				}
@@ -997,76 +1000,76 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 		// {-, Shift, Ctrl, Shift+Ctrl} + Home/End
 		addKey(CHAR_NONE, SWT.END, SWT.NONE, new Action() {
 			@Override
-			public void runEx(final IVexWidget w) {
-				w.moveToLineEnd(false);
+			public void runEx(final IDocumentEditor editor) {
+				editor.moveToLineEnd(false);
 			}
 		});
 		addKey(CHAR_NONE, SWT.END, SWT.SHIFT, new Action() {
 			@Override
-			public void runEx(final IVexWidget w) {
-				w.moveToLineEnd(true);
+			public void runEx(final IDocumentEditor editor) {
+				editor.moveToLineEnd(true);
 			}
 		});
 		addKey(CHAR_NONE, SWT.END, SWT.CONTROL, new Action() {
 			@Override
-			public void runEx(final IVexWidget w) {
-				w.moveTo(w.getDocument().getEndPosition().moveBy(-1));
+			public void runEx(final IDocumentEditor editor) {
+				editor.moveTo(editor.getDocument().getEndPosition().moveBy(-1));
 			}
 		});
 		addKey(CHAR_NONE, SWT.END, SWT.SHIFT | SWT.CONTROL, new Action() {
 			@Override
-			public void runEx(final IVexWidget w) {
-				w.moveTo(w.getDocument().getEndPosition().moveBy(-1));
+			public void runEx(final IDocumentEditor editor) {
+				editor.moveTo(editor.getDocument().getEndPosition().moveBy(-1));
 			}
 		});
 		addKey(CHAR_NONE, SWT.HOME, SWT.NONE, new Action() {
 			@Override
-			public void runEx(final IVexWidget w) {
-				w.moveToLineStart(false);
+			public void runEx(final IDocumentEditor editor) {
+				editor.moveToLineStart(false);
 			}
 		});
 		addKey(CHAR_NONE, SWT.HOME, SWT.SHIFT, new Action() {
 			@Override
-			public void runEx(final IVexWidget w) {
-				w.moveToLineStart(true);
+			public void runEx(final IDocumentEditor editor) {
+				editor.moveToLineStart(true);
 			}
 		});
 		addKey(CHAR_NONE, SWT.HOME, SWT.CONTROL, new Action() {
 			@Override
-			public void runEx(final IVexWidget w) {
-				w.moveTo(w.getDocument().getStartPosition().moveBy(1));
+			public void runEx(final IDocumentEditor editor) {
+				editor.moveTo(editor.getDocument().getStartPosition().moveBy(1));
 			}
 		});
 		addKey(CHAR_NONE, SWT.HOME, SWT.SHIFT | SWT.CONTROL, new Action() {
 			@Override
-			public void runEx(final IVexWidget w) {
-				w.moveTo(w.getDocument().getStartPosition().moveBy(1), true);
+			public void runEx(final IDocumentEditor editor) {
+				editor.moveTo(editor.getDocument().getStartPosition().moveBy(1), true);
 			}
 		});
 
 		// (Shift) Page Up/Down
 		addKey(CHAR_NONE, SWT.PAGE_DOWN, SWT.NONE, new Action() {
 			@Override
-			public void runEx(final IVexWidget w) {
-				w.moveToNextPage(false);
+			public void runEx(final IDocumentEditor editor) {
+				editor.moveToNextPage(false);
 			}
 		});
 		addKey(CHAR_NONE, SWT.PAGE_DOWN, SWT.SHIFT, new Action() {
 			@Override
-			public void runEx(final IVexWidget w) {
-				w.moveToNextPage(true);
+			public void runEx(final IDocumentEditor editor) {
+				editor.moveToNextPage(true);
 			}
 		});
 		addKey(CHAR_NONE, SWT.PAGE_UP, SWT.NONE, new Action() {
 			@Override
-			public void runEx(final IVexWidget w) {
-				w.moveToPreviousPage(false);
+			public void runEx(final IDocumentEditor editor) {
+				editor.moveToPreviousPage(false);
 			}
 		});
 		addKey(CHAR_NONE, SWT.PAGE_UP, SWT.SHIFT, new Action() {
 			@Override
-			public void runEx(final IVexWidget w) {
-				w.moveToPreviousPage(true);
+			public void runEx(final IDocumentEditor editor) {
+				editor.moveToPreviousPage(true);
 			}
 		});
 	}

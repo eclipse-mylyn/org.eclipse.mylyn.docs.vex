@@ -49,62 +49,63 @@ import org.junit.Test;
  */
 public class L2SimpleEditingTest {
 
-	private IVexWidget widget;
+	private IDocumentEditor editor;
 	private IElement rootElement;
 
 	@Before
 	public void setUp() throws Exception {
-		widget = new BaseVexWidget(new MockHostComponent());
-		widget.setDocument(createDocumentWithDTD(TEST_DTD, "section"), readTestStyleSheet());
-		widget.setWhitespacePolicy(new CssWhitespacePolicy(widget.getStyleSheet()));
-		rootElement = widget.getDocument().getRootElement();
+		editor = new BaseVexWidget(new MockHostComponent());
+		editor.setDocument(createDocumentWithDTD(TEST_DTD, "section"));
+		// TODO move dependency to whitespace policy into a BaseVexWidget specific set-up method
+		((BaseVexWidget) editor).setWhitespacePolicy(new CssWhitespacePolicy(readTestStyleSheet()));
+		rootElement = editor.getDocument().getRootElement();
 	}
 
 	@Test
 	public void shouldStartInRootElement() throws Exception {
-		assertSame(rootElement, widget.getCurrentElement());
-		assertEquals(rootElement.getEndPosition(), widget.getCaretPosition());
+		assertSame(rootElement, editor.getCurrentElement());
+		assertEquals(rootElement.getEndPosition(), editor.getCaretPosition());
 	}
 
 	@Test
 	public void shouldMoveCaretIntoInsertedElement() throws Exception {
-		final IElement titleElement = widget.insertElement(TITLE);
-		assertEquals(titleElement.getEndPosition(), widget.getCaretPosition());
+		final IElement titleElement = editor.insertElement(TITLE);
+		assertEquals(titleElement.getEndPosition(), editor.getCaretPosition());
 	}
 
 	@Test
 	public void shouldProvideInsertionElementAsCurrentElement() throws Exception {
-		final IElement titleElement = widget.insertElement(TITLE);
-		widget.moveBy(-1);
-		assertEquals(titleElement.getStartPosition(), widget.getCaretPosition());
-		assertSame(rootElement, widget.getCurrentElement());
+		final IElement titleElement = editor.insertElement(TITLE);
+		editor.moveBy(-1);
+		assertEquals(titleElement.getStartPosition(), editor.getCaretPosition());
+		assertSame(rootElement, editor.getCurrentElement());
 	}
 
 	@Test
 	public void givenAnElementWithText_whenAtEndOfTextAndHittingBackspace_shouldDeleteLastCharacter() throws Exception {
-		final IElement titleElement = widget.insertElement(TITLE);
-		widget.insertText("Hello");
-		widget.deletePreviousChar();
+		final IElement titleElement = editor.insertElement(TITLE);
+		editor.insertText("Hello");
+		editor.deletePreviousChar();
 		assertEquals("Hell", titleElement.getText());
-		assertEquals(titleElement.getEndPosition(), widget.getCaretPosition());
+		assertEquals(titleElement.getEndPosition(), editor.getCaretPosition());
 	}
 
 	@Test
 	public void givenAnElementWithText_whenAtBeginningOfTextAndHittingDelete_shouldDeleteFirstCharacter() throws Exception {
-		final IElement titleElement = widget.insertElement(TITLE);
-		widget.insertText("Hello");
-		widget.moveBy(-5);
-		widget.deleteNextChar();
+		final IElement titleElement = editor.insertElement(TITLE);
+		editor.insertText("Hello");
+		editor.moveBy(-5);
+		editor.deleteNextChar();
 		assertEquals("ello", titleElement.getText());
-		assertEquals(titleElement.getStartPosition().moveBy(1), widget.getCaretPosition());
+		assertEquals(titleElement.getStartPosition().moveBy(1), editor.getCaretPosition());
 	}
 
 	@Test
 	public void givenAnEmptyElement_whenCaretBetweenStartAndEndTagAndHittingBackspace_shouldDeleteEmptyElement() throws Exception {
-		widget.insertElement(TITLE);
-		widget.moveBy(1);
-		final IElement paraElement = widget.insertElement(PARA);
-		widget.deletePreviousChar();
+		editor.insertElement(TITLE);
+		editor.moveBy(1);
+		final IElement paraElement = editor.insertElement(PARA);
+		editor.deletePreviousChar();
 		assertEquals(1, rootElement.children().count());
 		assertNull(paraElement.getParent());
 		assertFalse(paraElement.isAssociated());
@@ -112,10 +113,10 @@ public class L2SimpleEditingTest {
 
 	@Test
 	public void givenAnEmptyElement_whenCaretBetweenStartAndEndTagAndHittingDelete_shouldDeleteEmptyElement() throws Exception {
-		widget.insertElement(TITLE);
-		widget.moveBy(1);
-		final IElement paraElement = widget.insertElement(PARA);
-		widget.deleteNextChar();
+		editor.insertElement(TITLE);
+		editor.moveBy(1);
+		final IElement paraElement = editor.insertElement(PARA);
+		editor.deleteNextChar();
 		assertEquals(1, rootElement.children().count());
 		assertNull(paraElement.getParent());
 		assertFalse(paraElement.isAssociated());
@@ -123,11 +124,11 @@ public class L2SimpleEditingTest {
 
 	@Test
 	public void givenAnEmptyElement_whenCaretAfterEndTagAndHittingDelete_shouldDeleteEmptyElement() throws Exception {
-		widget.insertElement(TITLE);
-		widget.moveBy(1);
-		final IElement paraElement = widget.insertElement(PARA);
-		widget.moveBy(1);
-		widget.deletePreviousChar();
+		editor.insertElement(TITLE);
+		editor.moveBy(1);
+		final IElement paraElement = editor.insertElement(PARA);
+		editor.moveBy(1);
+		editor.deletePreviousChar();
 		assertEquals(1, rootElement.children().count());
 		assertNull(paraElement.getParent());
 		assertFalse(paraElement.isAssociated());
@@ -135,11 +136,11 @@ public class L2SimpleEditingTest {
 
 	@Test
 	public void givenAnEmptyElement_whenCaretBeforeStartTagAndHittingDelete_shouldDeleteEmptyElement() throws Exception {
-		widget.insertElement(TITLE);
-		widget.moveBy(1);
-		final IElement paraElement = widget.insertElement(PARA);
-		widget.moveBy(-1);
-		widget.deleteNextChar();
+		editor.insertElement(TITLE);
+		editor.moveBy(1);
+		final IElement paraElement = editor.insertElement(PARA);
+		editor.moveBy(-1);
+		editor.deleteNextChar();
 		assertEquals(1, rootElement.children().count());
 		assertNull(paraElement.getParent());
 		assertFalse(paraElement.isAssociated());
@@ -147,16 +148,16 @@ public class L2SimpleEditingTest {
 
 	@Test
 	public void givenTwoMatchingElements_whenCaretBetweenEndAndStartTagAndHittingBackspace_shouldJoinElements() throws Exception {
-		widget.insertElement(TITLE);
-		widget.moveBy(1);
-		final IElement para1 = widget.insertElement(PARA);
-		widget.insertText("Hello");
-		widget.moveBy(1);
-		final IElement para2 = widget.insertElement(PARA);
-		widget.insertText("World");
+		editor.insertElement(TITLE);
+		editor.moveBy(1);
+		final IElement para1 = editor.insertElement(PARA);
+		editor.insertText("Hello");
+		editor.moveBy(1);
+		final IElement para2 = editor.insertElement(PARA);
+		editor.insertText("World");
 
-		widget.moveTo(para2.getStartPosition());
-		widget.deletePreviousChar();
+		editor.moveTo(para2.getStartPosition());
+		editor.deletePreviousChar();
 
 		assertEquals(2, rootElement.children().count());
 		assertSame(rootElement, para1.getParent());
@@ -168,16 +169,16 @@ public class L2SimpleEditingTest {
 
 	@Test
 	public void givenTwoMatchingElements_whenCaretBetweenEndAndStartTagAndHittingDelete_shouldJoinElements() throws Exception {
-		widget.insertElement(TITLE);
-		widget.moveBy(1);
-		final IElement para1 = widget.insertElement(PARA);
-		widget.insertText("Hello");
-		widget.moveBy(1);
-		final IElement para2 = widget.insertElement(PARA);
-		widget.insertText("World");
+		editor.insertElement(TITLE);
+		editor.moveBy(1);
+		final IElement para1 = editor.insertElement(PARA);
+		editor.insertText("Hello");
+		editor.moveBy(1);
+		final IElement para2 = editor.insertElement(PARA);
+		editor.insertText("World");
 
-		widget.moveTo(para2.getStartPosition());
-		widget.deleteNextChar();
+		editor.moveTo(para2.getStartPosition());
+		editor.deleteNextChar();
 
 		assertEquals(2, rootElement.children().count());
 		assertSame(rootElement, para1.getParent());
@@ -189,16 +190,16 @@ public class L2SimpleEditingTest {
 
 	@Test
 	public void givenTwoMatchingElements_whenCaretAfterStartTagOfSecondElementAndHittingBackspace_shouldJoinElements() throws Exception {
-		widget.insertElement(TITLE);
-		widget.moveBy(1);
-		final IElement para1 = widget.insertElement(PARA);
-		widget.insertText("Hello");
-		widget.moveBy(1);
-		final IElement para2 = widget.insertElement(PARA);
-		widget.insertText("World");
+		editor.insertElement(TITLE);
+		editor.moveBy(1);
+		final IElement para1 = editor.insertElement(PARA);
+		editor.insertText("Hello");
+		editor.moveBy(1);
+		final IElement para2 = editor.insertElement(PARA);
+		editor.insertText("World");
 
-		widget.moveTo(para2.getStartPosition().moveBy(1));
-		widget.deletePreviousChar();
+		editor.moveTo(para2.getStartPosition().moveBy(1));
+		editor.deletePreviousChar();
 
 		assertEquals(2, rootElement.children().count());
 		assertSame(rootElement, para1.getParent());
@@ -210,16 +211,16 @@ public class L2SimpleEditingTest {
 
 	@Test
 	public void givenTwoMatchingElements_whenCaretBeforeEndTagOfFirstElementAndHittingDelete_shouldJoinElements() throws Exception {
-		widget.insertElement(TITLE);
-		widget.moveBy(1);
-		final IElement para1 = widget.insertElement(PARA);
-		widget.insertText("Hello");
-		widget.moveBy(1);
-		final IElement para2 = widget.insertElement(PARA);
-		widget.insertText("World");
+		editor.insertElement(TITLE);
+		editor.moveBy(1);
+		final IElement para1 = editor.insertElement(PARA);
+		editor.insertText("Hello");
+		editor.moveBy(1);
+		final IElement para2 = editor.insertElement(PARA);
+		editor.insertText("World");
 
-		widget.moveTo(para1.getEndPosition());
-		widget.deleteNextChar();
+		editor.moveTo(para1.getEndPosition());
+		editor.deleteNextChar();
 
 		assertEquals(2, rootElement.children().count());
 		assertSame(rootElement, para1.getParent());
@@ -231,95 +232,95 @@ public class L2SimpleEditingTest {
 
 	@Test
 	public void givenElementWithText_whenAllTextSelectedAndInsertingACharacter_shouldReplaceAllTextWithNewCharacter() throws Exception {
-		final IElement titleElement = widget.insertElement(TITLE);
-		widget.insertText("Hello World");
+		final IElement titleElement = editor.insertElement(TITLE);
+		editor.insertText("Hello World");
 
-		widget.selectContentOf(titleElement);
-		widget.insertChar('A');
+		editor.selectContentOf(titleElement);
+		editor.insertChar('A');
 
 		assertEquals("A", titleElement.getText());
 	}
 
 	@Test(expected = ReadOnlyException.class)
 	public void whenReadOnly_shouldNotInsertText() throws Exception {
-		widget.insertElement(TITLE); // need an element where text would be valid
-		widget.setReadOnly(true);
-		assertFalse(widget.canInsertText());
-		widget.insertText("Hello World");
+		editor.insertElement(TITLE); // need an element where text would be valid
+		editor.setReadOnly(true);
+		assertFalse(editor.canInsertText());
+		editor.insertText("Hello World");
 	}
 
 	@Test(expected = ReadOnlyException.class)
 	public void whenReadOnly_shouldNotInsertChar() throws Exception {
-		widget.insertElement(TITLE); // need an element where text would be valid
-		widget.setReadOnly(true);
-		assertFalse(widget.canInsertText());
-		widget.insertChar('H');
+		editor.insertElement(TITLE); // need an element where text would be valid
+		editor.setReadOnly(true);
+		assertFalse(editor.canInsertText());
+		editor.insertChar('H');
 	}
 
 	@Test(expected = ReadOnlyException.class)
 	public void whenReadOnly_shouldNotInsertElement() throws Exception {
-		widget.setReadOnly(true);
-		assertTrue(widget.getValidInsertElements().length == 0);
-		widget.insertElement(TITLE);
+		editor.setReadOnly(true);
+		assertTrue(editor.getValidInsertElements().length == 0);
+		editor.insertElement(TITLE);
 	}
 
 	@Test(expected = ReadOnlyException.class)
 	public void whenReadOnly_shouldNotInsertComment() throws Exception {
-		widget.setReadOnly(true);
-		assertFalse(widget.canInsertComment());
-		widget.insertComment();
+		editor.setReadOnly(true);
+		assertFalse(editor.canInsertComment());
+		editor.insertComment();
 	}
 
 	@Test(expected = ReadOnlyException.class)
 	public void whenReadOnly_shouldNotInsertFragment() throws Exception {
-		widget.insertElement(TITLE);
-		widget.moveBy(1);
-		final IElement para = widget.insertElement(PARA);
-		final IDocumentFragment fragment = widget.getDocument().getFragment(para.getRange());
-		widget.moveTo(rootElement.getEndPosition());
+		editor.insertElement(TITLE);
+		editor.moveBy(1);
+		final IElement para = editor.insertElement(PARA);
+		final IDocumentFragment fragment = editor.getDocument().getFragment(para.getRange());
+		editor.moveTo(rootElement.getEndPosition());
 
-		widget.setReadOnly(true);
-		assertFalse(widget.canInsertFragment(fragment));
-		widget.insertFragment(fragment);
+		editor.setReadOnly(true);
+		assertFalse(editor.canInsertFragment(fragment));
+		editor.insertFragment(fragment);
 	}
 
 	@Test
 	public void givenNonPreElement_whenInsertingNewline_shouldSplitElement() throws Exception {
-		widget.insertElement(TITLE);
-		widget.moveBy(1);
-		final IElement para1 = widget.insertElement(PARA);
-		widget.insertText("Hello");
-		widget.moveTo(para1.getEndPosition());
-		widget.insertText("\n");
+		editor.insertElement(TITLE);
+		editor.moveBy(1);
+		final IElement para1 = editor.insertElement(PARA);
+		editor.insertText("Hello");
+		editor.moveTo(para1.getEndPosition());
+		editor.insertText("\n");
 		assertEquals("Hello", para1.getText());
 		assertEquals(3, rootElement.children().count());
 	}
 
 	@Test
 	public void givenPreElement_whenInsertingNewline_shouldInsertNewline() throws Exception {
-		final IElement para = widget.insertElement(PARA);
-		final IElement preElement = widget.insertElement(PRE);
-		assertEquals(preElement.getEndPosition(), widget.getCaretPosition());
-		widget.insertText("line1");
-		widget.insertText("\n");
+		final IElement para = editor.insertElement(PARA);
+		final IElement preElement = editor.insertElement(PRE);
+		assertEquals(preElement.getEndPosition(), editor.getCaretPosition());
+		editor.insertText("line1");
+		editor.insertText("\n");
 		assertEquals(1, para.children().count());
 		assertEquals("line1\n", preElement.getText());
 	}
 
 	@Test
 	public void insertingTextAtInvalidPosition_shouldNotAlterDocument() throws Exception {
-		final IElement para1 = widget.insertElement(PARA);
-		widget.moveBy(1);
-		final IElement para2 = widget.insertElement(PARA);
-		widget.moveTo(para1.getEndPosition());
-		widget.insertText("Para1");
-		widget.moveTo(para2.getEndPosition());
-		widget.insertText("Para2");
+		final IElement para1 = editor.insertElement(PARA);
+		editor.moveBy(1);
+		final IElement para2 = editor.insertElement(PARA);
+		editor.moveTo(para1.getEndPosition());
+		editor.insertText("Para1");
+		editor.moveTo(para2.getEndPosition());
+		editor.insertText("Para2");
 
 		// Insert position is invalid
-		widget.moveTo(para1.getEndPosition().moveBy(1));
+		editor.moveTo(para1.getEndPosition().moveBy(1));
 		try {
-			widget.insertText("Test");
+			editor.insertText("Test");
 		} catch (final Exception ex) {
 		} finally {
 			assertEquals("Para1", para1.getText());
@@ -329,18 +330,18 @@ public class L2SimpleEditingTest {
 
 	@Test
 	public void insertingElementAtInvalidPosition_shouldNotAlterDocument() throws Exception {
-		final IElement para1 = widget.insertElement(PARA);
-		widget.moveBy(1);
-		final IElement para2 = widget.insertElement(PARA);
-		widget.moveTo(para1.getEndPosition());
-		widget.insertText("Para1");
-		widget.moveTo(para2.getEndPosition());
-		widget.insertText("Para2");
+		final IElement para1 = editor.insertElement(PARA);
+		editor.moveBy(1);
+		final IElement para2 = editor.insertElement(PARA);
+		editor.moveTo(para1.getEndPosition());
+		editor.insertText("Para1");
+		editor.moveTo(para2.getEndPosition());
+		editor.insertText("Para2");
 
 		// Insert position is invalid
-		widget.moveTo(para1.getEndPosition());
+		editor.moveTo(para1.getEndPosition());
 		try {
-			widget.insertElement(PARA);
+			editor.insertElement(PARA);
 		} catch (final Exception ex) {
 		} finally {
 			assertEquals("Para1", para1.getText());
@@ -350,20 +351,20 @@ public class L2SimpleEditingTest {
 
 	@Test
 	public void givenPreElement_whenInsertingTextWithNewline_shouldInsertNewline() throws Exception {
-		widget.insertElement(PARA);
-		final IElement preElement = widget.insertElement(PRE);
-		assertEquals(preElement.getEndPosition(), widget.getCaretPosition());
-		widget.insertText("line1\nline2");
+		editor.insertElement(PARA);
+		final IElement preElement = editor.insertElement(PRE);
+		assertEquals(preElement.getEndPosition(), editor.getCaretPosition());
+		editor.insertText("line1\nline2");
 		assertEquals("line1\nline2", preElement.getText());
 	}
 
 	@Test
 	public void givenPreElement_whenInsertingText_shouldKeepWhitespace() throws Exception {
-		widget.insertElement(PARA);
-		final IElement preElement = widget.insertElement(PRE);
+		editor.insertElement(PARA);
+		final IElement preElement = editor.insertElement(PRE);
 
-		widget.moveTo(preElement.getEndPosition());
-		widget.insertText("line1\nline2   end");
+		editor.moveTo(preElement.getEndPosition());
+		editor.insertText("line1\nline2   end");
 
 		final List<? extends INode> children = preElement.children().asList();
 		assertTrue("Expecting IText", children.get(0) instanceof IText);
@@ -372,9 +373,9 @@ public class L2SimpleEditingTest {
 
 	@Test
 	public void givenNonPreElement_whenInsertingText_shouldCompressWhitespace() throws Exception {
-		final IElement para = widget.insertElement(PARA);
-		widget.moveTo(para.getEndPosition());
-		widget.insertText("line1\nline2   \t end");
+		final IElement para = editor.insertElement(PARA);
+		editor.moveTo(para.getEndPosition());
+		editor.insertText("line1\nline2   \t end");
 
 		final List<? extends INode> children = rootElement.children().after(para.getStartPosition().getOffset()).asList();
 		assertEquals("two para elements", 2, children.size());
@@ -386,9 +387,9 @@ public class L2SimpleEditingTest {
 
 	@Test
 	public void givenNonPreElement_whenInsertingText_shouldCompressNewlines() throws Exception {
-		final IElement para = widget.insertElement(PARA);
-		widget.moveTo(para.getEndPosition());
-		widget.insertText("line1\n\nline2");
+		final IElement para = editor.insertElement(PARA);
+		editor.moveTo(para.getEndPosition());
+		editor.insertText("line1\n\nline2");
 
 		final List<? extends INode> children = rootElement.children().after(para.getStartPosition().getOffset()).asList();
 		assertEquals("two para elements", 2, children.size());
@@ -400,12 +401,12 @@ public class L2SimpleEditingTest {
 
 	@Test
 	public void givenNonPreElement_whenSplitting_shouldSplitIntoTwoElements() throws Exception {
-		final IElement para = widget.insertElement(PARA);
-		widget.moveTo(para.getEndPosition());
-		widget.insertText("line1line2");
-		widget.moveBy(-5);
+		final IElement para = editor.insertElement(PARA);
+		editor.moveTo(para.getEndPosition());
+		editor.insertText("line1line2");
+		editor.moveBy(-5);
 
-		widget.split();
+		editor.split();
 
 		final List<? extends INode> children = rootElement.children().after(para.getStartPosition().getOffset()).asList();
 		assertEquals("two para elements", 2, children.size());
@@ -419,13 +420,13 @@ public class L2SimpleEditingTest {
 
 	@Test
 	public void givenPreElement_whenSplitting_shouldSplitIntoTwoElements() throws Exception {
-		final IElement para = widget.insertElement(PARA);
-		final IElement preElement = widget.insertElement(PRE);
-		widget.moveTo(preElement.getEndPosition());
-		widget.insertText("line1line2");
-		widget.moveBy(-5);
+		final IElement para = editor.insertElement(PARA);
+		final IElement preElement = editor.insertElement(PRE);
+		editor.moveTo(preElement.getEndPosition());
+		editor.insertText("line1line2");
+		editor.moveBy(-5);
 
-		widget.split();
+		editor.split();
 
 		final List<? extends INode> children = para.children().after(preElement.getStartPosition().getOffset()).asList();
 		assertEquals("two para elements", 2, children.size());
@@ -439,24 +440,24 @@ public class L2SimpleEditingTest {
 
 	@Test
 	public void givenElementWithMultipleOccurrence_canSplitElement() throws Exception {
-		widget.insertElement(PARA);
-		assertTrue(widget.canSplit());
+		editor.insertElement(PARA);
+		assertTrue(editor.canSplit());
 	}
 
 	@Test
 	public void givenElementWithMultipleOccurrence_whenAnythingIsSelected_canSplitElement() throws Exception {
-		widget.insertElement(PARA);
-		widget.insertText("12345");
-		widget.moveBy(-3, true);
-		assertTrue(widget.canSplit());
+		editor.insertElement(PARA);
+		editor.insertText("12345");
+		editor.moveBy(-3, true);
+		assertTrue(editor.canSplit());
 	}
 
 	@Test
 	public void givenElementWithMultipleOccurrence_whenSplittingWithAnythingSelected_shouldDeleteSelectionAndSplit() throws Exception {
-		widget.insertElement(PARA);
-		widget.insertText("12345");
-		widget.moveBy(-3, true);
-		widget.split();
+		editor.insertElement(PARA);
+		editor.insertText("12345");
+		editor.moveBy(-3, true);
+		editor.split();
 
 		final List<? extends INode> children = rootElement.children().asList();
 		assertEquals("two para elements", 2, children.size());
@@ -470,10 +471,10 @@ public class L2SimpleEditingTest {
 
 	@Test
 	public void givenElementWithMultipleOccurrence_whenCaretRightAfterStartIndex_shouldSplit() throws Exception {
-		final IElement para = widget.insertElement(PARA);
-		widget.insertText("12345");
-		widget.moveTo(para.getStartPosition().moveBy(1));
-		widget.split();
+		final IElement para = editor.insertElement(PARA);
+		editor.insertText("12345");
+		editor.moveTo(para.getStartPosition().moveBy(1));
+		editor.split();
 
 		final List<? extends INode> children = rootElement.children().asList();
 		assertEquals("two para elements", 2, children.size());
@@ -487,14 +488,14 @@ public class L2SimpleEditingTest {
 
 	@Test
 	public void givenElementWithMultipleOccurrenceAndInlineElement_whenCaretAtInlineStartOffset_shouldSplit() throws Exception {
-		widget.insertElement(PARA);
-		widget.insertText("12");
-		widget.insertElement(PRE);
-		widget.insertText("34");
-		widget.moveBy(1);
-		widget.insertText("56");
-		widget.moveBy(-6);
-		widget.split();
+		editor.insertElement(PARA);
+		editor.insertText("12");
+		editor.insertElement(PRE);
+		editor.insertText("34");
+		editor.moveBy(1);
+		editor.insertText("56");
+		editor.moveBy(-6);
+		editor.split();
 
 		final List<? extends INode> children = rootElement.children().asList();
 		assertEquals("two para elements", 2, children.size());
@@ -509,628 +510,628 @@ public class L2SimpleEditingTest {
 
 	@Test
 	public void undoSubsequentSplitsOfInlineAndBlock() throws Exception {
-		widget.insertElement(PARA);
-		widget.insertText("12");
-		widget.insertElement(PRE);
-		widget.insertText("34");
-		widget.moveBy(1);
-		widget.insertText("56");
-		final String expectedXml = getCurrentXML(widget);
+		editor.insertElement(PARA);
+		editor.insertText("12");
+		editor.insertElement(PRE);
+		editor.insertText("34");
+		editor.moveBy(1);
+		editor.insertText("56");
+		final String expectedXml = getCurrentXML(editor);
 
-		widget.moveBy(-4);
-		widget.split();
+		editor.moveBy(-4);
+		editor.split();
 
-		widget.moveBy(-1);
-		widget.split();
+		editor.moveBy(-1);
+		editor.split();
 
-		widget.undo();
-		widget.undo();
+		editor.undo();
+		editor.undo();
 
-		assertXmlEquals(expectedXml, widget);
+		assertXmlEquals(expectedXml, editor);
 	}
 
 	@Test
 	public void givenElementWithSingleOccurrence_cannotSplitElement() throws Exception {
-		widget.insertElement(TITLE);
-		assertFalse(widget.canSplit());
+		editor.insertElement(TITLE);
+		assertFalse(editor.canSplit());
 	}
 
 	@Test(expected = CannotApplyException.class)
 	public void givenElementWithSingleOccurrence_whenSplitting_shouldThrowCannotRedoException() throws Exception {
-		widget.insertElement(TITLE);
-		widget.split();
+		editor.insertElement(TITLE);
+		editor.split();
 	}
 
 	@Test
 	public void givenComment_cannotSplit() throws Exception {
-		widget.insertComment();
-		assertFalse(widget.canSplit());
+		editor.insertComment();
+		assertFalse(editor.canSplit());
 	}
 
 	@Test(expected = DocumentValidationException.class)
 	public void givenComment_whenSplitting_shouldThrowDocumentValidationException() throws Exception {
-		widget.insertComment();
-		widget.split();
+		editor.insertComment();
+		editor.split();
 	}
 
 	@Test
 	public void givenBeforeRootElement_cannotSplitElement() throws Exception {
-		widget.moveTo(rootElement.getStartPosition());
-		assertFalse(widget.canSplit());
+		editor.moveTo(rootElement.getStartPosition());
+		assertFalse(editor.canSplit());
 	}
 
 	@Test(expected = DocumentValidationException.class)
 	public void givenBeforeRootElement_whenSplitting_shouldThrowDocumentValidationException() throws Exception {
-		widget.moveTo(rootElement.getStartPosition());
-		widget.split();
+		editor.moveTo(rootElement.getStartPosition());
+		editor.split();
 	}
 
 	@Test
 	public void undoRedoChangeNamespaceWithSubsequentDelete() throws Exception {
-		widget.insertElement(TITLE);
-		widget.moveBy(1);
-		final IElement para = widget.insertElement(PARA);
-		final String expectedXml = getCurrentXML(widget);
+		editor.insertElement(TITLE);
+		editor.moveBy(1);
+		final IElement para = editor.insertElement(PARA);
+		final String expectedXml = getCurrentXML(editor);
 
-		widget.declareNamespace("ns1", "nsuri1");
-		widget.select(para);
-		widget.deleteSelection();
+		editor.declareNamespace("ns1", "nsuri1");
+		editor.select(para);
+		editor.deleteSelection();
 
-		widget.undo(); // delete
-		widget.undo(); // declare namespace
+		editor.undo(); // delete
+		editor.undo(); // declare namespace
 
-		assertXmlEquals(expectedXml, widget);
+		assertXmlEquals(expectedXml, editor);
 	}
 
 	@Test
 	public void undoRedoChangeAttributeWithSubsequentDelete() throws Exception {
-		widget.insertElement(TITLE);
-		widget.moveBy(1);
-		final IElement para = widget.insertElement(PARA);
-		final String expectedXml = getCurrentXML(widget);
+		editor.insertElement(TITLE);
+		editor.moveBy(1);
+		final IElement para = editor.insertElement(PARA);
+		final String expectedXml = getCurrentXML(editor);
 
-		widget.setAttribute("id", "newParaElement");
-		widget.select(para);
-		widget.deleteSelection();
+		editor.setAttribute("id", "newParaElement");
+		editor.select(para);
+		editor.deleteSelection();
 
-		widget.undo(); // delete
-		widget.undo(); // set attribute
+		editor.undo(); // delete
+		editor.undo(); // set attribute
 
-		assertXmlEquals(expectedXml, widget);
+		assertXmlEquals(expectedXml, editor);
 	}
 
 	@Test
 	public void whenReadOnly_cannotMorph() throws Exception {
-		widget.insertElement(TITLE);
-		widget.setReadOnly(true);
-		assertFalse(widget.canMorph(PARA));
+		editor.insertElement(TITLE);
+		editor.setReadOnly(true);
+		assertFalse(editor.canMorph(PARA));
 	}
 
 	@Test(expected = ReadOnlyException.class)
 	public void whenReadOnly_shouldNotMorph() throws Exception {
-		widget.insertElement(TITLE);
-		widget.setReadOnly(true);
-		widget.morph(PARA);
+		editor.insertElement(TITLE);
+		editor.setReadOnly(true);
+		editor.morph(PARA);
 	}
 
 	@Test
 	public void cannotMorphRootElement() throws Exception {
-		assertFalse(widget.canMorph(TITLE));
+		assertFalse(editor.canMorph(TITLE));
 	}
 
 	@Test
 	public void morphEmptyElement() throws Exception {
-		widget.insertElement(TITLE);
+		editor.insertElement(TITLE);
 
-		assertTrue(widget.canMorph(PARA));
-		assertCanMorphOnlyTo(widget, PARA);
-		widget.morph(PARA);
+		assertTrue(editor.canMorph(PARA));
+		assertCanMorphOnlyTo(editor, PARA);
+		editor.morph(PARA);
 	}
 
 	@Test
 	public void givenElementWithText_whenMorphing_shouldPreserveText() throws Exception {
-		widget.insertElement(TITLE);
-		widget.insertText("text");
+		editor.insertElement(TITLE);
+		editor.insertText("text");
 
-		assertTrue(widget.canMorph(PARA));
-		widget.morph(PARA);
+		assertTrue(editor.canMorph(PARA));
+		editor.morph(PARA);
 
-		widget.selectAll();
-		assertXmlEquals("<section><para>text</para></section>", widget);
+		editor.selectAll();
+		assertXmlEquals("<section><para>text</para></section>", editor);
 	}
 
 	@Test
 	public void givenElementWithChildren_whenStructureIsInvalidAfterMorphing_cannotMorph() throws Exception {
-		widget.insertElement(PARA);
-		widget.insertText("before");
-		widget.insertElement(PRE);
-		widget.insertText("within");
-		widget.moveBy(1);
-		widget.insertText("after");
+		editor.insertElement(PARA);
+		editor.insertText("before");
+		editor.insertElement(PRE);
+		editor.insertText("within");
+		editor.moveBy(1);
+		editor.insertText("after");
 
-		assertFalse(widget.canMorph(TITLE));
+		assertFalse(editor.canMorph(TITLE));
 	}
 
 	@Test
 	public void givenElementWithChildren_whenStructureIsInvalidAfterMorphing_shouldNotProvideElementToMorph() throws Exception {
-		widget.insertElement(PARA);
-		widget.insertText("before");
-		widget.insertElement(PRE);
-		widget.insertText("within");
-		widget.moveBy(1);
-		widget.insertText("after");
+		editor.insertElement(PARA);
+		editor.insertText("before");
+		editor.insertElement(PRE);
+		editor.insertText("within");
+		editor.moveBy(1);
+		editor.insertText("after");
 
-		assertCanMorphOnlyTo(widget /* nothing */);
+		assertCanMorphOnlyTo(editor /* nothing */);
 	}
 
 	@Test(expected = CannotApplyException.class)
 	public void givenElementWithChildren_whenStructureIsInvalidAfterMorphing_shouldNotMorph() throws Exception {
-		widget.insertElement(PARA);
-		widget.insertText("before");
-		widget.insertElement(PRE);
-		widget.insertText("within");
-		widget.moveBy(1);
-		widget.insertText("after");
+		editor.insertElement(PARA);
+		editor.insertText("before");
+		editor.insertElement(PRE);
+		editor.insertText("within");
+		editor.moveBy(1);
+		editor.insertText("after");
 
-		widget.morph(TITLE);
+		editor.morph(TITLE);
 	}
 
 	@Test
 	public void givenAlternativeElement_whenElementIsNotAllowedAtCurrentInsertionPosition_cannotMorph() throws Exception {
-		widget.insertElement(PARA);
-		widget.moveBy(1);
-		widget.insertElement(PARA);
+		editor.insertElement(PARA);
+		editor.moveBy(1);
+		editor.insertElement(PARA);
 
-		assertFalse(widget.canMorph(TITLE));
+		assertFalse(editor.canMorph(TITLE));
 	}
 
 	@Test
 	public void givenAlternativeElement_whenElementIsNotAllowedAtCurrentInsertionPosition_shouldNotProvideElementToMorph() throws Exception {
-		widget.insertElement(PARA);
-		widget.moveBy(1);
-		widget.insertElement(PARA);
+		editor.insertElement(PARA);
+		editor.moveBy(1);
+		editor.insertElement(PARA);
 
-		assertCanMorphOnlyTo(widget /* nothing */);
+		assertCanMorphOnlyTo(editor /* nothing */);
 	}
 
 	public void givenElementWithAttributes_whenUndoMorph_shouldPreserveAttributes() throws Exception {
-		widget.insertElement(PARA);
-		widget.setAttribute("id", "idValue");
-		widget.morph(TITLE);
-		widget.undo();
+		editor.insertElement(PARA);
+		editor.setAttribute("id", "idValue");
+		editor.morph(TITLE);
+		editor.undo();
 
-		assertEquals("idValue", widget.getCurrentElement().getAttribute("id").getValue());
+		assertEquals("idValue", editor.getCurrentElement().getAttribute("id").getValue());
 	}
 
 	public void whenReadOnly_cannotUnwrap() throws Exception {
-		widget.insertElement(PARA);
-		widget.insertElement(PRE);
-		widget.insertText("text");
-		widget.setReadOnly(true);
-		assertFalse(widget.canUnwrap());
+		editor.insertElement(PARA);
+		editor.insertElement(PRE);
+		editor.insertText("text");
+		editor.setReadOnly(true);
+		assertFalse(editor.canUnwrap());
 	}
 
 	@Test(expected = ReadOnlyException.class)
 	public void whenReadOnly_shouldNotUnwrap() throws Exception {
-		widget.insertElement(PARA);
-		widget.insertElement(PRE);
-		widget.insertText("text");
-		widget.setReadOnly(true);
-		widget.unwrap();
+		editor.insertElement(PARA);
+		editor.insertElement(PRE);
+		editor.insertText("text");
+		editor.setReadOnly(true);
+		editor.unwrap();
 	}
 
 	@Test
 	public void cannotUnwrapRootElement() throws Exception {
-		assertFalse(widget.canUnwrap());
+		assertFalse(editor.canUnwrap());
 	}
 
 	@Test
 	public void unwrapEmptyElement() throws Exception {
-		widget.insertElement(PARA);
-		widget.unwrap();
+		editor.insertElement(PARA);
+		editor.unwrap();
 
-		widget.selectAll();
-		assertXmlEquals("<section></section>", widget);
+		editor.selectAll();
+		assertXmlEquals("<section></section>", editor);
 	}
 
 	@Test
 	public void givenInlineElementWithText_shouldUnwrapInlineElement() throws Exception {
-		final IElement para = widget.insertElement(PARA);
-		widget.insertElement(PRE);
-		widget.insertText("text");
-		widget.unwrap();
+		final IElement para = editor.insertElement(PARA);
+		editor.insertElement(PRE);
+		editor.insertText("text");
+		editor.unwrap();
 
-		assertSame(para, widget.getCurrentElement());
-		widget.selectAll();
-		assertXmlEquals("<section><para>text</para></section>", widget);
+		assertSame(para, editor.getCurrentElement());
+		editor.selectAll();
+		assertXmlEquals("<section><para>text</para></section>", editor);
 	}
 
 	@Test
 	public void givenElementWithText_whenParentDoesNotAllowText_cannotUnwrap() throws Exception {
-		widget.insertElement(PARA);
-		widget.insertText("text");
+		editor.insertElement(PARA);
+		editor.insertText("text");
 
-		assertFalse(widget.canUnwrap());
+		assertFalse(editor.canUnwrap());
 	}
 
 	@Test(expected = CannotApplyException.class)
 	public void givenElementWithText_whenParentDoesNotAllowText_shouldNotUnwrap() throws Exception {
-		widget.insertElement(PARA);
-		widget.insertText("text");
-		widget.unwrap();
+		editor.insertElement(PARA);
+		editor.insertText("text");
+		editor.unwrap();
 	}
 
 	@Test
 	public void givenElementWithChildren_whenParentDoesNotAllowChildren_cannotUnwrap() throws Exception {
-		widget.insertElement(PARA);
-		widget.insertElement(PRE);
-		widget.moveBy(1);
+		editor.insertElement(PARA);
+		editor.insertElement(PRE);
+		editor.moveBy(1);
 
-		assertFalse(widget.canUnwrap());
+		assertFalse(editor.canUnwrap());
 	}
 
 	@Test(expected = CannotApplyException.class)
 	public void givenElementWithChildren_whenParentDoesNotAllowChildren_shouldNotUnwrap() throws Exception {
-		widget.insertElement(PARA);
-		widget.insertElement(PRE);
-		widget.moveBy(1);
-		widget.unwrap();
+		editor.insertElement(PARA);
+		editor.insertElement(PRE);
+		editor.moveBy(1);
+		editor.unwrap();
 	}
 
 	@Test
 	public void givenElementWithAttributes_whenUndoUnwrap_shouldPreserveAttributes() throws Exception {
-		widget.insertElement(PARA);
-		widget.insertElement(PRE);
-		widget.setAttribute("id", "idValue");
+		editor.insertElement(PARA);
+		editor.insertElement(PRE);
+		editor.setAttribute("id", "idValue");
 
-		widget.unwrap();
-		widget.undo();
+		editor.unwrap();
+		editor.undo();
 
-		assertEquals(PRE, widget.getCurrentElement().getQualifiedName());
-		assertEquals("idValue", widget.getCurrentElement().getAttributeValue("id"));
+		assertEquals(PRE, editor.getCurrentElement().getQualifiedName());
+		assertEquals("idValue", editor.getCurrentElement().getAttributeValue("id"));
 	}
 
 	@Test
 	public void givenMultipleElementsOfSameTypeSelected_canJoin() throws Exception {
-		final IElement firstPara = widget.insertElement(PARA);
-		widget.insertText("1");
-		widget.moveBy(1);
-		widget.insertElement(PARA);
-		widget.insertText("2");
-		widget.moveBy(1);
-		final IElement lastPara = widget.insertElement(PARA);
-		widget.insertText("3");
-		widget.moveBy(1);
+		final IElement firstPara = editor.insertElement(PARA);
+		editor.insertText("1");
+		editor.moveBy(1);
+		editor.insertElement(PARA);
+		editor.insertText("2");
+		editor.moveBy(1);
+		final IElement lastPara = editor.insertElement(PARA);
+		editor.insertText("3");
+		editor.moveBy(1);
 
-		widget.moveTo(firstPara.getStartPosition());
-		widget.moveTo(lastPara.getEndPosition(), true);
+		editor.moveTo(firstPara.getStartPosition());
+		editor.moveTo(lastPara.getEndPosition(), true);
 
-		assertTrue(widget.canJoin());
+		assertTrue(editor.canJoin());
 	}
 
 	@Test
 	public void givenMultipleElementsOfSameTypeSelected_shouldJoin() throws Exception {
-		final IElement firstPara = widget.insertElement(PARA);
-		widget.insertText("1");
-		widget.moveBy(1);
-		widget.insertElement(PARA);
-		widget.insertText("2");
-		widget.moveBy(1);
-		final IElement lastPara = widget.insertElement(PARA);
-		widget.insertText("3");
-		widget.moveBy(1);
+		final IElement firstPara = editor.insertElement(PARA);
+		editor.insertText("1");
+		editor.moveBy(1);
+		editor.insertElement(PARA);
+		editor.insertText("2");
+		editor.moveBy(1);
+		final IElement lastPara = editor.insertElement(PARA);
+		editor.insertText("3");
+		editor.moveBy(1);
 
-		widget.moveTo(firstPara.getStartPosition());
-		widget.moveTo(lastPara.getEndPosition(), true);
+		editor.moveTo(firstPara.getStartPosition());
+		editor.moveTo(lastPara.getEndPosition(), true);
 
-		widget.join();
+		editor.join();
 
-		assertXmlEquals("<section><para>123</para></section>", widget);
+		assertXmlEquals("<section><para>123</para></section>", editor);
 	}
 
 	@Test
 	public void givenMultipleElementsOfSameKindSelected_whenJoining_shouldPreserveAttributesOfFirstElement() throws Exception {
-		final IElement firstPara = widget.insertElement(PARA);
-		widget.insertText("1");
-		widget.moveBy(1);
-		widget.insertElement(PARA);
-		widget.insertText("2");
-		widget.moveBy(1);
-		final IElement lastPara = widget.insertElement(PARA);
-		widget.insertText("3");
+		final IElement firstPara = editor.insertElement(PARA);
+		editor.insertText("1");
+		editor.moveBy(1);
+		editor.insertElement(PARA);
+		editor.insertText("2");
+		editor.moveBy(1);
+		final IElement lastPara = editor.insertElement(PARA);
+		editor.insertText("3");
 		firstPara.setAttribute("id", "para1");
 		lastPara.setAttribute("id", "para3");
 
-		widget.moveTo(firstPara.getStartPosition());
-		widget.moveTo(lastPara.getEndPosition(), true);
+		editor.moveTo(firstPara.getStartPosition());
+		editor.moveTo(lastPara.getEndPosition(), true);
 
-		widget.join();
+		editor.join();
 
-		assertXmlEquals("<section><para id=\"para1\">123</para></section>", widget);
+		assertXmlEquals("<section><para id=\"para1\">123</para></section>", editor);
 	}
 
 	@Test
 	public void givenMultipleElementsOfSameKindSelected_whenJoinUndone_shouldRestoreAttributesOfAllElements() throws Exception {
-		final IElement firstPara = widget.insertElement(PARA);
-		widget.insertText("1");
-		widget.moveBy(1);
-		widget.insertElement(PARA);
-		widget.insertText("2");
-		widget.moveBy(1);
-		final IElement lastPara = widget.insertElement(PARA);
-		widget.insertText("3");
+		final IElement firstPara = editor.insertElement(PARA);
+		editor.insertText("1");
+		editor.moveBy(1);
+		editor.insertElement(PARA);
+		editor.insertText("2");
+		editor.moveBy(1);
+		final IElement lastPara = editor.insertElement(PARA);
+		editor.insertText("3");
 		firstPara.setAttribute("id", "para1");
 		lastPara.setAttribute("id", "para3");
 
-		widget.moveTo(firstPara.getStartPosition());
-		widget.moveTo(lastPara.getEndPosition(), true);
+		editor.moveTo(firstPara.getStartPosition());
+		editor.moveTo(lastPara.getEndPosition(), true);
 
-		widget.join();
-		widget.undo();
+		editor.join();
+		editor.undo();
 
-		assertXmlEquals("<section><para id=\"para1\">1</para><para>2</para><para id=\"para3\">3</para></section>", widget);
+		assertXmlEquals("<section><para id=\"para1\">1</para><para>2</para><para id=\"para3\">3</para></section>", editor);
 	}
 
 	@Test
 	public void givenMultipleElementsOfSameKindSelected_whenStructureAfterJoinWouldBeInvalid_cannotJoin() throws Exception {
-		widget.setDocument(createDocumentWithDTD(TEST_DTD, "one-kind-of-child"), readTestStyleSheet());
-		rootElement = widget.getDocument().getRootElement();
+		editor.setDocument(createDocumentWithDTD(TEST_DTD, "one-kind-of-child"));
+		rootElement = editor.getDocument().getRootElement();
 
-		final IElement firstSection = widget.insertElement(SECTION);
-		widget.insertElement(TITLE);
-		widget.moveBy(2);
-		widget.insertElement(SECTION);
-		widget.insertElement(TITLE);
-		widget.moveBy(2);
-		final IElement lastSection = widget.insertElement(SECTION);
-		widget.insertElement(TITLE);
+		final IElement firstSection = editor.insertElement(SECTION);
+		editor.insertElement(TITLE);
+		editor.moveBy(2);
+		editor.insertElement(SECTION);
+		editor.insertElement(TITLE);
+		editor.moveBy(2);
+		final IElement lastSection = editor.insertElement(SECTION);
+		editor.insertElement(TITLE);
 
-		widget.moveTo(firstSection.getStartPosition());
-		widget.moveTo(lastSection.getEndPosition(), true);
+		editor.moveTo(firstSection.getStartPosition());
+		editor.moveTo(lastSection.getEndPosition(), true);
 
-		assertFalse(widget.canJoin());
+		assertFalse(editor.canJoin());
 	}
 
 	@Test(expected = CannotApplyException.class)
 	public void givenMultipleElementsOfSameKindSelected_whenStructureAfterJoinWouldBeInvalid_shouldJoin() throws Exception {
-		widget.setDocument(createDocumentWithDTD(TEST_DTD, "one-kind-of-child"), readTestStyleSheet());
-		rootElement = widget.getDocument().getRootElement();
+		editor.setDocument(createDocumentWithDTD(TEST_DTD, "one-kind-of-child"));
+		rootElement = editor.getDocument().getRootElement();
 
-		final IElement firstSection = widget.insertElement(SECTION);
-		widget.insertElement(TITLE);
-		widget.moveBy(2);
-		widget.insertElement(SECTION);
-		widget.insertElement(TITLE);
-		widget.moveBy(2);
-		final IElement lastSection = widget.insertElement(SECTION);
-		widget.insertElement(TITLE);
+		final IElement firstSection = editor.insertElement(SECTION);
+		editor.insertElement(TITLE);
+		editor.moveBy(2);
+		editor.insertElement(SECTION);
+		editor.insertElement(TITLE);
+		editor.moveBy(2);
+		final IElement lastSection = editor.insertElement(SECTION);
+		editor.insertElement(TITLE);
 
-		widget.moveTo(firstSection.getStartPosition());
-		widget.moveTo(lastSection.getEndPosition(), true);
+		editor.moveTo(firstSection.getStartPosition());
+		editor.moveTo(lastSection.getEndPosition(), true);
 
-		widget.join();
+		editor.join();
 	}
 
 	@Test
 	public void givenMultipleElementsOfDifferentTypeSelected_cannotJoin() throws Exception {
-		final IElement title = widget.insertElement(TITLE);
-		widget.insertText("1");
-		widget.moveBy(1);
-		widget.insertElement(PARA);
-		widget.insertText("2");
-		widget.moveBy(1);
-		final IElement lastPara = widget.insertElement(PARA);
-		widget.insertText("3");
-		widget.moveBy(1);
+		final IElement title = editor.insertElement(TITLE);
+		editor.insertText("1");
+		editor.moveBy(1);
+		editor.insertElement(PARA);
+		editor.insertText("2");
+		editor.moveBy(1);
+		final IElement lastPara = editor.insertElement(PARA);
+		editor.insertText("3");
+		editor.moveBy(1);
 
-		widget.moveTo(title.getStartPosition());
-		widget.moveTo(lastPara.getEndPosition(), true);
+		editor.moveTo(title.getStartPosition());
+		editor.moveTo(lastPara.getEndPosition(), true);
 
-		assertFalse(widget.canJoin());
+		assertFalse(editor.canJoin());
 	}
 
 	@Test(expected = DocumentValidationException.class)
 	public void givenMultipleElementsOfDifferentTypeSelected_shouldNotJoin() throws Exception {
-		final IElement title = widget.insertElement(TITLE);
-		widget.insertText("1");
-		widget.moveBy(1);
-		widget.insertElement(PARA);
-		widget.insertText("2");
-		widget.moveBy(1);
-		final IElement lastPara = widget.insertElement(PARA);
-		widget.insertText("3");
-		widget.moveBy(1);
+		final IElement title = editor.insertElement(TITLE);
+		editor.insertText("1");
+		editor.moveBy(1);
+		editor.insertElement(PARA);
+		editor.insertText("2");
+		editor.moveBy(1);
+		final IElement lastPara = editor.insertElement(PARA);
+		editor.insertText("3");
+		editor.moveBy(1);
 
-		widget.moveTo(title.getStartPosition());
-		widget.moveTo(lastPara.getEndPosition(), true);
+		editor.moveTo(title.getStartPosition());
+		editor.moveTo(lastPara.getEndPosition(), true);
 
-		widget.join();
+		editor.join();
 	}
 
 	@Test
 	public void givenSelectionIsEmpty_cannotJoin() throws Exception {
-		assertFalse(widget.canJoin());
+		assertFalse(editor.canJoin());
 	}
 
 	@Test
 	public void givenSelectionIsEmpty_whenRequestedToJoin_shouldIgnoreGracefully() throws Exception {
-		final String expectedXml = getCurrentXML(widget);
+		final String expectedXml = getCurrentXML(editor);
 
-		widget.join();
+		editor.join();
 
-		assertXmlEquals(expectedXml, widget);
+		assertXmlEquals(expectedXml, editor);
 	}
 
 	@Test
 	public void givenOnlyTextSelected_cannotJoin() throws Exception {
-		final IElement title = widget.insertElement(TITLE);
-		widget.insertText("title text");
-		widget.moveTo(title.getStartPosition().moveBy(1), true);
+		final IElement title = editor.insertElement(TITLE);
+		editor.insertText("title text");
+		editor.moveTo(title.getStartPosition().moveBy(1), true);
 
-		assertFalse(widget.canJoin());
+		assertFalse(editor.canJoin());
 	}
 
 	@Test
 	public void givenOnlyTextSelected_whenRequestedToJoin_shouldIgnoreGracefully() throws Exception {
-		final IElement title = widget.insertElement(TITLE);
-		widget.insertText("title text");
-		widget.selectContentOf(title);
-		final String expectedXml = getCurrentXML(widget);
+		final IElement title = editor.insertElement(TITLE);
+		editor.insertText("title text");
+		editor.selectContentOf(title);
+		final String expectedXml = getCurrentXML(editor);
 
-		widget.join();
+		editor.join();
 
-		assertXmlEquals(expectedXml, widget);
+		assertXmlEquals(expectedXml, editor);
 	}
 
 	@Test
 	public void givenOnlySingleElementSelected_cannotJoin() throws Exception {
-		final IElement title = widget.insertElement(TITLE);
-		widget.moveTo(title.getStartPosition(), true);
+		final IElement title = editor.insertElement(TITLE);
+		editor.moveTo(title.getStartPosition(), true);
 
-		assertFalse(widget.canJoin());
+		assertFalse(editor.canJoin());
 	}
 
 	@Test
 	public void givenOnlySingleElementSelected_whenRequestedToJoin_shouldIgnoreGracefully() throws Exception {
-		final IElement title = widget.insertElement(TITLE);
-		widget.moveTo(title.getStartPosition(), true);
-		final String expectedXml = getCurrentXML(widget);
+		final IElement title = editor.insertElement(TITLE);
+		editor.moveTo(title.getStartPosition(), true);
+		final String expectedXml = getCurrentXML(editor);
 
-		widget.join();
+		editor.join();
 
-		assertXmlEquals(expectedXml, widget);
+		assertXmlEquals(expectedXml, editor);
 	}
 
 	@Test
 	public void givenMultipleCommentsSelected_canJoin() throws Exception {
-		final IComment firstComment = widget.insertComment();
-		widget.insertText("comment1");
-		widget.moveBy(1);
-		widget.insertComment();
-		widget.insertText("comment2");
-		widget.moveBy(1);
-		final IComment lastComment = widget.insertComment();
-		widget.insertText("comment3");
+		final IComment firstComment = editor.insertComment();
+		editor.insertText("comment1");
+		editor.moveBy(1);
+		editor.insertComment();
+		editor.insertText("comment2");
+		editor.moveBy(1);
+		final IComment lastComment = editor.insertComment();
+		editor.insertText("comment3");
 
-		widget.moveTo(firstComment.getStartPosition());
-		widget.moveTo(lastComment.getEndPosition(), true);
+		editor.moveTo(firstComment.getStartPosition());
+		editor.moveTo(lastComment.getEndPosition(), true);
 
-		assertTrue(widget.canJoin());
+		assertTrue(editor.canJoin());
 	}
 
 	@Test
 	public void givenMultipleCommentsSelected_shouldJoin() throws Exception {
-		final IComment firstComment = widget.insertComment();
-		widget.insertText("comment1");
-		widget.moveBy(1);
-		widget.insertComment();
-		widget.insertText("comment2");
-		widget.moveBy(1);
-		final IComment lastComment = widget.insertComment();
-		widget.insertText("comment3");
+		final IComment firstComment = editor.insertComment();
+		editor.insertText("comment1");
+		editor.moveBy(1);
+		editor.insertComment();
+		editor.insertText("comment2");
+		editor.moveBy(1);
+		final IComment lastComment = editor.insertComment();
+		editor.insertText("comment3");
 
-		widget.moveTo(firstComment.getStartPosition());
-		widget.moveTo(lastComment.getEndPosition(), true);
+		editor.moveTo(firstComment.getStartPosition());
+		editor.moveTo(lastComment.getEndPosition(), true);
 
-		widget.join();
+		editor.join();
 
-		assertXmlEquals("<section><!--comment1comment2comment3--></section>", widget);
+		assertXmlEquals("<section><!--comment1comment2comment3--></section>", editor);
 	}
 
 	@Test
 	public void givenMultipleInlineElementsOfSameKindSelected_whenTextEndsWithSpace_shouldJoin() throws Exception {
-		widget.insertElement(PARA);
-		final IElement firstElement = widget.insertElement(PRE);
-		widget.insertText("1");
-		widget.moveBy(1);
-		final IElement lastElement = widget.insertElement(PRE);
-		widget.insertText("2 ");
+		editor.insertElement(PARA);
+		final IElement firstElement = editor.insertElement(PRE);
+		editor.insertText("1");
+		editor.moveBy(1);
+		final IElement lastElement = editor.insertElement(PRE);
+		editor.insertText("2 ");
 
-		widget.moveTo(firstElement.getStartPosition());
-		widget.moveTo(lastElement.getEndPosition(), true);
+		editor.moveTo(firstElement.getStartPosition());
+		editor.moveTo(lastElement.getEndPosition(), true);
 
-		widget.join();
+		editor.join();
 
-		assertXmlEquals("<section><para><pre>12 </pre></para></section>", widget);
+		assertXmlEquals("<section><para><pre>12 </pre></para></section>", editor);
 	}
 
 	@Test
 	public void givenMultipleInlineElementsOfSameKindSelected_whenTextBetweenElements_cannotJoin() throws Exception {
-		widget.insertElement(PARA);
-		final IElement firstElement = widget.insertElement(PRE);
-		widget.insertText("1");
-		widget.moveBy(1);
-		widget.insertText("text between elements");
-		final IElement lastElement = widget.insertElement(PRE);
-		widget.insertText("2 ");
+		editor.insertElement(PARA);
+		final IElement firstElement = editor.insertElement(PRE);
+		editor.insertText("1");
+		editor.moveBy(1);
+		editor.insertText("text between elements");
+		final IElement lastElement = editor.insertElement(PRE);
+		editor.insertText("2 ");
 
-		widget.moveTo(firstElement.getStartPosition());
-		widget.moveTo(lastElement.getEndPosition(), true);
+		editor.moveTo(firstElement.getStartPosition());
+		editor.moveTo(lastElement.getEndPosition(), true);
 
-		assertFalse(widget.canJoin());
+		assertFalse(editor.canJoin());
 	}
 
 	@Test(expected = DocumentValidationException.class)
 	public void givenMultipleInlineElementsOfSameKindSelected_whenTextBetweenElements_shouldNotJoin() throws Exception {
-		widget.insertElement(PARA);
-		final IElement firstElement = widget.insertElement(PRE);
-		widget.insertText("1");
-		widget.moveBy(1);
-		widget.insertText("text between elements");
-		final IElement lastElement = widget.insertElement(PRE);
-		widget.insertText("2 ");
+		editor.insertElement(PARA);
+		final IElement firstElement = editor.insertElement(PRE);
+		editor.insertText("1");
+		editor.moveBy(1);
+		editor.insertText("text between elements");
+		final IElement lastElement = editor.insertElement(PRE);
+		editor.insertText("2 ");
 
-		widget.moveTo(firstElement.getStartPosition());
-		widget.moveTo(lastElement.getEndPosition(), true);
+		editor.moveTo(firstElement.getStartPosition());
+		editor.moveTo(lastElement.getEndPosition(), true);
 
-		widget.join();
+		editor.join();
 	}
 
 	@Test
 	public void givenDeletedText_whenDeleteUndone_shouldSetCaretToEndOfRecoveredText() throws Exception {
-		final IElement title = widget.insertElement(TITLE);
-		widget.insertText("Hello World");
-		widget.moveTo(title.getStartPosition().moveBy(1));
-		widget.moveBy(5, true);
-		final int expectedCaretPosition = widget.getSelectedRange().getEndOffset() + 1;
+		final IElement title = editor.insertElement(TITLE);
+		editor.insertText("Hello World");
+		editor.moveTo(title.getStartPosition().moveBy(1));
+		editor.moveBy(5, true);
+		final int expectedCaretPosition = editor.getSelectedRange().getEndOffset() + 1;
 
-		widget.deleteSelection();
-		widget.undo();
+		editor.deleteSelection();
+		editor.undo();
 
-		assertEquals(expectedCaretPosition, widget.getCaretPosition().getOffset());
+		assertEquals(expectedCaretPosition, editor.getCaretPosition().getOffset());
 	}
 
 	@Test
 	public void afterDeletingSelection_CaretPositionShouldBeValid() throws Exception {
-		final IElement para = widget.insertElement(PARA);
-		widget.moveTo(para.getEndPosition());
-		final IElement pre = widget.insertElement(PRE);
-		widget.insertText("Hello World");
-		widget.moveTo(pre.getStartPosition());
-		widget.moveTo(pre.getEndPosition().moveBy(-1), true);
+		final IElement para = editor.insertElement(PARA);
+		editor.moveTo(para.getEndPosition());
+		final IElement pre = editor.insertElement(PRE);
+		editor.insertText("Hello World");
+		editor.moveTo(pre.getStartPosition());
+		editor.moveTo(pre.getEndPosition().moveBy(-1), true);
 
-		widget.deleteSelection();
-		assertEquals(para.getEndPosition(), widget.getCaretPosition());
+		editor.deleteSelection();
+		assertEquals(para.getEndPosition(), editor.getCaretPosition());
 	}
 
 	@Test
 	public void undoAndRedoDelete() throws Exception {
-		final IElement para = widget.insertElement(PARA);
-		widget.moveTo(para.getEndPosition());
-		final IElement pre = widget.insertElement(PRE);
-		widget.insertText("Hello World");
-		final String beforeDeleteXml = getCurrentXML(widget);
+		final IElement para = editor.insertElement(PARA);
+		editor.moveTo(para.getEndPosition());
+		final IElement pre = editor.insertElement(PRE);
+		editor.insertText("Hello World");
+		final String beforeDeleteXml = getCurrentXML(editor);
 
-		widget.moveTo(pre.getStartPosition());
-		widget.moveTo(pre.getEndPosition().moveBy(-1), true);
-		widget.deleteSelection();
+		editor.moveTo(pre.getStartPosition());
+		editor.moveTo(pre.getEndPosition().moveBy(-1), true);
+		editor.deleteSelection();
 
-		final String beforeUndoXml = getCurrentXML(widget);
-		widget.undo();
-		assertXmlEquals(beforeDeleteXml, widget);
+		final String beforeUndoXml = getCurrentXML(editor);
+		editor.undo();
+		assertXmlEquals(beforeDeleteXml, editor);
 
-		widget.redo();
-		assertXmlEquals(beforeUndoXml, widget);
+		editor.redo();
+		assertXmlEquals(beforeUndoXml, editor);
 	}
 
 	private static StyleSheet readTestStyleSheet() throws IOException {

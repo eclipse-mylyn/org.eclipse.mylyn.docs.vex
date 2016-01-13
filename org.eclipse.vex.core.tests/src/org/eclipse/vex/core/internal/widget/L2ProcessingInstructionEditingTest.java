@@ -19,7 +19,6 @@ import static org.eclipse.vex.core.tests.TestResources.TEST_DTD;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
-import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.undo.CannotApplyException;
 import org.eclipse.vex.core.provisional.dom.IDocumentFragment;
 import org.eclipse.vex.core.provisional.dom.INode;
@@ -29,22 +28,22 @@ import org.junit.Test;
 
 public class L2ProcessingInstructionEditingTest {
 
-	private IVexWidget widget;
+	private IDocumentEditor editor;
 
 	@Before
 	public void setUp() throws Exception {
-		widget = new BaseVexWidget(new MockHostComponent());
-		widget.setDocument(createDocumentWithDTD(TEST_DTD, "section"), StyleSheet.NULL);
+		editor = new BaseVexWidget(new MockHostComponent());
+		editor.setDocument(createDocumentWithDTD(TEST_DTD, "section"));
 	}
 
 	@Test
 	public void insertProcessingInstruction() throws Exception {
-		widget.insertElement(TITLE);
-		widget.insertProcessingInstruction("target");
-		widget.insertText("data");
+		editor.insertElement(TITLE);
+		editor.insertProcessingInstruction("target");
+		editor.insertText("data");
 
-		widget.moveBy(-1);
-		final INode node = widget.getCurrentNode();
+		editor.moveBy(-1);
+		final INode node = editor.getCurrentNode();
 		assertTrue(node instanceof IProcessingInstruction);
 		final IProcessingInstruction pi = (IProcessingInstruction) node;
 		assertEquals("target", pi.getTarget());
@@ -53,69 +52,69 @@ public class L2ProcessingInstructionEditingTest {
 
 	@Test(expected = CannotApplyException.class)
 	public void shouldNotInsertInvalidProcessingInstruction() throws Exception {
-		widget.insertElement(TITLE);
-		widget.insertProcessingInstruction(" tar get");
+		editor.insertElement(TITLE);
+		editor.insertProcessingInstruction(" tar get");
 	}
 
 	@Test
 	public void undoInsertProcessingInstructionWithSubsequentDelete() throws Exception {
-		widget.insertElement(PARA);
-		final String expectedXml = getCurrentXML(widget);
+		editor.insertElement(PARA);
+		final String expectedXml = getCurrentXML(editor);
 
-		final IProcessingInstruction pi = widget.insertProcessingInstruction("target");
+		final IProcessingInstruction pi = editor.insertProcessingInstruction("target");
 
-		widget.moveTo(pi.getStartPosition());
-		widget.moveTo(pi.getEndPosition(), true);
-		widget.deleteSelection();
+		editor.moveTo(pi.getStartPosition());
+		editor.moveTo(pi.getEndPosition(), true);
+		editor.deleteSelection();
 
-		widget.undo(); // delete
-		widget.undo(); // insert comment
+		editor.undo(); // delete
+		editor.undo(); // insert comment
 
-		assertEquals(expectedXml, getCurrentXML(widget));
+		assertEquals(expectedXml, getCurrentXML(editor));
 	}
 
 	@Test
 	public void undoRemoveProcessingInstruction() throws Exception {
-		widget.insertElement(TITLE);
-		widget.insertText("1text before pi");
-		final INode pi = widget.insertProcessingInstruction("target");
-		widget.insertText("2pi text2");
-		widget.moveBy(1);
-		widget.insertText("3text after pi");
+		editor.insertElement(TITLE);
+		editor.insertText("1text before pi");
+		final INode pi = editor.insertProcessingInstruction("target");
+		editor.insertText("2pi text2");
+		editor.moveBy(1);
+		editor.insertText("3text after pi");
 
-		final String expectedContentStructure = getContentStructure(widget.getDocument().getRootElement());
+		final String expectedContentStructure = getContentStructure(editor.getDocument().getRootElement());
 
-		widget.doWork(new Runnable() {
+		editor.doWork(new Runnable() {
 			@Override
 			public void run() {
-				widget.moveTo(pi.getStartPosition().moveBy(1), false);
-				widget.moveTo(pi.getEndPosition().moveBy(-1), true);
-				final IDocumentFragment fragment = widget.getSelectedFragment();
-				widget.deleteSelection();
+				editor.moveTo(pi.getStartPosition().moveBy(1), false);
+				editor.moveTo(pi.getEndPosition().moveBy(-1), true);
+				final IDocumentFragment fragment = editor.getSelectedFragment();
+				editor.deleteSelection();
 
-				widget.moveBy(-1, false);
-				widget.moveBy(1, true);
-				widget.deleteSelection();
+				editor.moveBy(-1, false);
+				editor.moveBy(1, true);
+				editor.deleteSelection();
 
-				widget.insertFragment(fragment);
+				editor.insertFragment(fragment);
 			}
 		});
 
-		widget.undo();
+		editor.undo();
 
-		assertEquals(expectedContentStructure, getContentStructure(widget.getDocument().getRootElement()));
+		assertEquals(expectedContentStructure, getContentStructure(editor.getDocument().getRootElement()));
 	}
 
 	@Test
 	public void editProcessingInstruction() throws Exception {
-		widget.insertElement(TITLE);
-		widget.insertProcessingInstruction("target");
-		widget.insertText("oldData");
+		editor.insertElement(TITLE);
+		editor.insertProcessingInstruction("target");
+		editor.insertText("oldData");
 
-		widget.moveBy(-1);
-		widget.editProcessingInstruction("new", "newData");
+		editor.moveBy(-1);
+		editor.editProcessingInstruction("new", "newData");
 
-		final INode node = widget.getCurrentNode();
+		final INode node = editor.getCurrentNode();
 		assertTrue(node instanceof IProcessingInstruction);
 		final IProcessingInstruction pi = (IProcessingInstruction) node;
 		assertEquals("new", pi.getTarget());
@@ -124,32 +123,32 @@ public class L2ProcessingInstructionEditingTest {
 
 	@Test
 	public void undoEditProcessingInstruction() throws Exception {
-		widget.insertElement(TITLE);
-		widget.insertText("1text before pi");
-		final IProcessingInstruction pi = widget.insertProcessingInstruction("target");
-		widget.insertText("2data");
-		widget.moveBy(1);
-		widget.insertText("3text after pi");
+		editor.insertElement(TITLE);
+		editor.insertText("1text before pi");
+		final IProcessingInstruction pi = editor.insertProcessingInstruction("target");
+		editor.insertText("2data");
+		editor.moveBy(1);
+		editor.insertText("3text after pi");
 
-		final String expectedContentStructure = getContentStructure(widget.getDocument().getRootElement());
+		final String expectedContentStructure = getContentStructure(editor.getDocument().getRootElement());
 
-		widget.moveTo(pi.getStartPosition().moveBy(1));
-		widget.editProcessingInstruction("new", "data");
-		widget.undo();
+		editor.moveTo(pi.getStartPosition().moveBy(1));
+		editor.editProcessingInstruction("new", "data");
+		editor.undo();
 
-		assertEquals(expectedContentStructure, getContentStructure(widget.getDocument().getRootElement()));
+		assertEquals(expectedContentStructure, getContentStructure(editor.getDocument().getRootElement()));
 	}
 
 	@Test
 	public void editProcessingInstruction_newTargetOnly() throws Exception {
-		widget.insertElement(TITLE);
-		widget.insertProcessingInstruction("target");
-		widget.insertText("oldData");
+		editor.insertElement(TITLE);
+		editor.insertProcessingInstruction("target");
+		editor.insertText("oldData");
 
-		widget.moveBy(-1);
-		widget.editProcessingInstruction("new", null);
+		editor.moveBy(-1);
+		editor.editProcessingInstruction("new", null);
 
-		final INode node = widget.getCurrentNode();
+		final INode node = editor.getCurrentNode();
 		assertTrue(node instanceof IProcessingInstruction);
 		final IProcessingInstruction pi = (IProcessingInstruction) node;
 		assertEquals("new", pi.getTarget());
@@ -158,14 +157,14 @@ public class L2ProcessingInstructionEditingTest {
 
 	@Test
 	public void editProcessingInstruction_newDataOnly() throws Exception {
-		widget.insertElement(TITLE);
-		widget.insertProcessingInstruction("target");
-		widget.insertText("oldData");
+		editor.insertElement(TITLE);
+		editor.insertProcessingInstruction("target");
+		editor.insertText("oldData");
 
-		widget.moveBy(-1);
-		widget.editProcessingInstruction(null, "newData");
+		editor.moveBy(-1);
+		editor.editProcessingInstruction(null, "newData");
 
-		final INode node = widget.getCurrentNode();
+		final INode node = editor.getCurrentNode();
 		assertTrue(node instanceof IProcessingInstruction);
 		final IProcessingInstruction pi = (IProcessingInstruction) node;
 		assertEquals("target", pi.getTarget());
