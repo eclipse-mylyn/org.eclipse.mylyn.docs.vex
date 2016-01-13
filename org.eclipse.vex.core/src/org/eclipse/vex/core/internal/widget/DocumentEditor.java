@@ -11,14 +11,19 @@
 package org.eclipse.vex.core.internal.widget;
 
 import static org.eclipse.vex.core.internal.cursor.CursorMoves.toOffset;
+import static org.eclipse.vex.core.internal.cursor.CursorMoves.toWordEnd;
+import static org.eclipse.vex.core.internal.cursor.CursorMoves.toWordStart;
 
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.vex.core.internal.core.ElementName;
 import org.eclipse.vex.core.internal.cursor.Cursor;
+import org.eclipse.vex.core.internal.cursor.ICursorPositionListener;
 import org.eclipse.vex.core.internal.undo.CannotApplyException;
 import org.eclipse.vex.core.internal.undo.CannotUndoException;
+import org.eclipse.vex.core.internal.undo.DeleteEdit;
 import org.eclipse.vex.core.internal.undo.EditStack;
 import org.eclipse.vex.core.internal.undo.IUndoableEdit;
+import org.eclipse.vex.core.provisional.dom.BaseNodeVisitorWithResult;
 import org.eclipse.vex.core.provisional.dom.ContentPosition;
 import org.eclipse.vex.core.provisional.dom.ContentPositionRange;
 import org.eclipse.vex.core.provisional.dom.ContentRange;
@@ -30,6 +35,7 @@ import org.eclipse.vex.core.provisional.dom.IElement;
 import org.eclipse.vex.core.provisional.dom.INode;
 import org.eclipse.vex.core.provisional.dom.IPosition;
 import org.eclipse.vex.core.provisional.dom.IProcessingInstruction;
+import org.eclipse.vex.core.provisional.dom.IText;
 
 public class DocumentEditor implements IDocumentEditor {
 
@@ -39,9 +45,29 @@ public class DocumentEditor implements IDocumentEditor {
 	private IDocument document;
 	private boolean readOnly;
 
+	private INode currentNode;
+	private ContentPosition caretPosition;
+	private final ICursorPositionListener cursorListener = new ICursorPositionListener() {
+		@Override
+		public void positionChanged(final int offset) {
+			cursorPositionChanged(offset);
+		}
+
+		@Override
+		public void positionAboutToChange() {
+			// ignore
+		}
+	};
+
 	public DocumentEditor(final Cursor cursor) {
 		this.cursor = cursor;
+		cursor.addPositionListener(cursorListener);
+
 		editStack = new EditStack();
+	}
+
+	public void dispose() {
+		cursor.removePositionListener(cursorListener);
 	}
 
 	/*
@@ -195,88 +221,130 @@ public class DocumentEditor implements IDocumentEditor {
 	 * Caret and Selection
 	 */
 
+	private void cursorPositionChanged(final int offset) {
+		currentNode = document.getNodeForInsertionAt(cursor.getOffset());
+		caretPosition = new ContentPosition(currentNode.getDocument(), cursor.getOffset());
+	}
+
 	@Override
 	public ContentPosition getCaretPosition() {
-		// TODO Auto-generated method stub
-		return null;
+		return caretPosition;
 	}
 
 	@Override
 	public IElement getCurrentElement() {
-		// TODO Auto-generated method stub
-		return null;
+		return currentNode.accept(new BaseNodeVisitorWithResult<IElement>(null) {
+			@Override
+			public IElement visit(final IElement element) {
+				return element;
+			}
+
+			@Override
+			public IElement visit(final IComment comment) {
+				return comment.getParent().accept(this);
+			}
+
+			@Override
+			public IElement visit(final IText text) {
+				return text.getParent().accept(this);
+			}
+
+			@Override
+			public IElement visit(final IProcessingInstruction pi) {
+				return pi.getParent().accept(this);
+			}
+		});
 	}
 
 	@Override
 	public INode getCurrentNode() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public ContentRange getSelectedRange() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public ContentPositionRange getSelectedPositionRange() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public IDocumentFragment getSelectedFragment() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public String getSelectedText() {
-		// TODO Auto-generated method stub
-		return null;
+		return currentNode;
 	}
 
 	@Override
 	public boolean hasSelection() {
-		// TODO Auto-generated method stub
-		return false;
+		return cursor.hasSelection();
+	}
+
+	@Override
+	public ContentRange getSelectedRange() {
+		return cursor.getSelectedRange();
+	}
+
+	@Override
+	public ContentPositionRange getSelectedPositionRange() {
+		final ContentRange selectedRange = getSelectedRange();
+		return new ContentPositionRange(new ContentPosition(document, selectedRange.getStartOffset()), new ContentPosition(document, selectedRange.getEndOffset()));
+	}
+
+	@Override
+	public IDocumentFragment getSelectedFragment() {
+		if (hasSelection()) {
+			return document.getFragment(getSelectedRange());
+		} else {
+			return null;
+		}
+	}
+
+	@Override
+	public String getSelectedText() {
+		if (hasSelection()) {
+			return document.getText(getSelectedRange());
+		} else {
+			return "";
+		}
 	}
 
 	@Override
 	public void selectAll() {
-		// TODO Auto-generated method stub
-
+		cursor.move(toOffset(document.getStartOffset()));
+		cursor.select(toOffset(document.getEndOffset()));
 	}
 
 	@Override
 	public void selectWord() {
-		// TODO Auto-generated method stub
-
+		cursor.move(toWordStart());
+		cursor.select(toWordEnd());
 	}
 
 	@Override
 	public void selectContentOf(final INode node) {
-		// TODO Auto-generated method stub
+		if (node.isEmpty()) {
+			cursor.move(toOffset(node.getEndOffset()));
+		}
 
+		cursor.move(toOffset(node.getStartOffset() + 1));
+		cursor.select(toOffset(node.getEndOffset()));
 	}
 
 	@Override
 	public void select(final INode node) {
-		// TODO Auto-generated method stub
-
+		cursor.move(toOffset(node.getStartOffset()));
+		cursor.select(toOffset(node.getEndOffset()));
 	}
 
 	@Override
 	public boolean canDeleteSelection() {
-		// TODO Auto-generated method stub
-		return false;
+		if (isReadOnly()) {
+			return false;
+		}
+		if (!hasSelection()) {
+			return false;
+		}
+		return document.canDelete(getSelectedRange());
 	}
 
 	@Override
 	public void deleteSelection() {
-		// TODO Auto-generated method stub
+		if (isReadOnly()) {
+			throw new ReadOnlyException("Cannot delete, because the editor is read-only.");
+		}
+		if (!hasSelection()) {
+			return;
+		}
 
+		final DeleteEdit deleteEdit = editStack.apply(new DeleteEdit(document, getSelectedRange(), cursor.getOffset()));
+		cursor.move(toOffset(deleteEdit.getOffsetAfter()));
 	}
 
 	/*

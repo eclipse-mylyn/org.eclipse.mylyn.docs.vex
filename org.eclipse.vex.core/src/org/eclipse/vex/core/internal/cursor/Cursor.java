@@ -69,6 +69,17 @@ public class Cursor {
 		return offset;
 	}
 
+	public boolean hasSelection() {
+		return selector.isActive();
+	}
+
+	public ContentRange getSelectedRange() {
+		if (!hasSelection()) {
+			return new ContentRange(offset, offset);
+		}
+		return selector.getRange();
+	}
+
 	public int getDeltaIntoVisibleArea(final int top, final int height) {
 		final Rectangle caretArea = getVisibleArea();
 		if (caretArea.getY() + caretArea.getHeight() > top + height) {
@@ -178,7 +189,7 @@ public class Cursor {
 	}
 
 	private void paintSelection(final Graphics graphics) {
-		if (!selector.isActive()) {
+		if (!hasSelection()) {
 			return;
 		}
 		final ContentRange selectedRange = selector.getRange();

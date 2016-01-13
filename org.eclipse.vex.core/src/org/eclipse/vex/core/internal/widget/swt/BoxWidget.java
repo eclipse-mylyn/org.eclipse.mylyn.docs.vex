@@ -282,7 +282,7 @@ public class BoxWidget extends Canvas implements ISelectionProvider {
 	private void cursorPositionChanged(final int offset) {
 		currentNode = document.getNodeForInsertionAt(cursor.getOffset());
 		caretPosition = new ContentPosition(currentNode.getDocument(), cursor.getOffset());
-		fireSelectionChanged(createSelectionForOffset(offset));
+		fireSelectionChanged(createSelectionForCursor(cursor));
 	}
 
 	public ContentPosition getCaretPosition() {
@@ -319,7 +319,7 @@ public class BoxWidget extends Canvas implements ISelectionProvider {
 
 	@Override
 	public IVexSelection getSelection() {
-		return createSelectionForOffset(cursor.getOffset());
+		return createSelectionForCursor(cursor);
 	}
 
 	@Override
@@ -327,13 +327,19 @@ public class BoxWidget extends Canvas implements ISelectionProvider {
 		Assert.isLegal(selection instanceof IVexSelection, "BoxWidget can only handle instances of IVexSelection");
 		final IVexSelection vexSelection = (IVexSelection) selection;
 
-		cursor.move(toOffset(vexSelection.getCaretOffset()));
+		// TODO use DocumentEditor
+		if (vexSelection.isEmpty()) {
+			cursor.move(toOffset(vexSelection.getCaretOffset()));
+		} else {
+			final ContentRange selectedRange = vexSelection.getSelectedRange();
+			cursor.move(toOffset(selectedRange.getStartOffset()));
+			cursor.select(toOffset(selectedRange.getEndOffset()));
+		}
 	};
 
 	@Override
 	public void addSelectionChangedListener(final ISelectionChangedListener listener) {
 		selectionChangedListeners.add(listener);
-
 	}
 
 	@Override
@@ -352,16 +358,21 @@ public class BoxWidget extends Canvas implements ISelectionProvider {
 		}
 	}
 
-	private IVexSelection createSelectionForOffset(final int offset) {
+	private static IVexSelection createSelectionForCursor(final Cursor cursor) {
 		return new IVexSelection() {
 			@Override
 			public boolean isEmpty() {
-				return true;
+				return cursor.hasSelection();
 			}
 
 			@Override
 			public int getCaretOffset() {
-				return offset;
+				return cursor.getOffset();
+			}
+
+			@Override
+			public ContentRange getSelectedRange() {
+				return cursor.getSelectedRange();
 			}
 		};
 	}

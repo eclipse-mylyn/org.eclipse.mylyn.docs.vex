@@ -11,6 +11,7 @@
 package org.eclipse.vex.core.internal.widget.swt;
 
 import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.vex.core.provisional.dom.ContentRange;
 
 /**
  * @author Florian Thienel
@@ -18,5 +19,7 @@ import org.eclipse.jface.viewers.ISelection;
 public interface IVexSelection extends ISelection {
 
 	int getCaretOffset();
+
+	ContentRange getSelectedRange();
 
 }

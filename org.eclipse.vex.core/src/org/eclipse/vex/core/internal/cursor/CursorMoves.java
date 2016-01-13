@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.cursor;
 
-
 /**
  * @author Florian Thienel
  */
@@ -20,6 +19,8 @@ public class CursorMoves {
 	private static final ICursorMove RIGHT = new MoveRight();
 	private static final ICursorMove UP = new MoveUp();
 	private static final ICursorMove DOWN = new MoveDown();
+	private static final ICursorMove TO_WORD_START = new MoveToWordStart();
+	private static final ICursorMove TO_WORD_END = new MoveToWordEnd();
 
 	public static ICursorMove toOffset(final int offset) {
 		return new MoveToOffset(offset);
@@ -43,5 +44,13 @@ public class CursorMoves {
 
 	public static ICursorMove down() {
 		return DOWN;
+	}
+
+	public static ICursorMove toWordStart() {
+		return TO_WORD_START;
+	}
+
+	public static ICursorMove toWordEnd() {
+		return TO_WORD_END;
 	}
 }
