@@ -14,12 +14,15 @@ import static org.eclipse.vex.core.internal.cursor.CursorMoves.toOffset;
 import static org.eclipse.vex.core.internal.cursor.CursorMoves.toWordEnd;
 import static org.eclipse.vex.core.internal.cursor.CursorMoves.toWordStart;
 
+import java.text.MessageFormat;
+
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.vex.core.internal.core.ElementName;
 import org.eclipse.vex.core.internal.cursor.Cursor;
 import org.eclipse.vex.core.internal.cursor.ICursorPositionListener;
 import org.eclipse.vex.core.internal.undo.CannotApplyException;
 import org.eclipse.vex.core.internal.undo.CannotUndoException;
+import org.eclipse.vex.core.internal.undo.ChangeNamespaceEdit;
 import org.eclipse.vex.core.internal.undo.DeleteEdit;
 import org.eclipse.vex.core.internal.undo.EditStack;
 import org.eclipse.vex.core.internal.undo.IUndoableEdit;
@@ -429,26 +432,66 @@ public class DocumentEditor implements IDocumentEditor {
 
 	@Override
 	public void declareNamespace(final String namespacePrefix, final String namespaceURI) {
-		// TODO Auto-generated method stub
+		if (isReadOnly()) {
+			throw new ReadOnlyException(MessageFormat.format("Cannot declare namespace {0}, because the editor is read-only.", namespacePrefix));
+		}
 
+		final IElement element = getCurrentElement();
+		if (element == null) {
+			// TODO throw IllegalStateException("Not in element");
+			return;
+		}
+		final String currentNamespaceURI = element.getNamespaceURI(namespacePrefix);
+		final ChangeNamespaceEdit changeNamespace = editStack.apply(new ChangeNamespaceEdit(document, cursor.getOffset(), namespacePrefix, currentNamespaceURI, namespaceURI));
+		cursor.move(toOffset(changeNamespace.getOffsetAfter()));
 	}
 
 	@Override
 	public void removeNamespace(final String namespacePrefix) {
-		// TODO Auto-generated method stub
+		if (isReadOnly()) {
+			throw new ReadOnlyException(MessageFormat.format("Cannot remove namespace {0}, because the editor is read-only.", namespacePrefix));
+		}
 
+		final IElement element = getCurrentElement();
+		if (element == null) {
+			// TODO throw IllegalStateException("Not in element");
+			return;
+		}
+		final String currentNamespaceURI = element.getNamespaceURI(namespacePrefix);
+		final ChangeNamespaceEdit changeNamespace = editStack.apply(new ChangeNamespaceEdit(document, cursor.getOffset(), namespacePrefix, currentNamespaceURI, null));
+		cursor.move(toOffset(changeNamespace.getOffsetAfter()));
 	}
 
 	@Override
 	public void declareDefaultNamespace(final String namespaceURI) {
-		// TODO Auto-generated method stub
+		if (isReadOnly()) {
+			throw new ReadOnlyException("Cannot declare default namespace, because the editor is read-only.");
+		}
 
+		final IElement element = getCurrentElement();
+		if (element == null) {
+			// TODO throw IllegalStateException("Not in element");
+			return;
+		}
+		final String currentNamespaceURI = element.getDefaultNamespaceURI();
+		final ChangeNamespaceEdit changeNamespace = editStack.apply(new ChangeNamespaceEdit(document, cursor.getOffset(), null, currentNamespaceURI, namespaceURI));
+		cursor.move(toOffset(changeNamespace.getOffsetAfter()));
 	}
 
 	@Override
 	public void removeDefaultNamespace() {
-		// TODO Auto-generated method stub
+		if (isReadOnly()) {
+			throw new ReadOnlyException("Cannot remove default namespace, because the editor is read-only.");
+		}
 
+		final IElement element = getCurrentElement();
+		if (element == null) {
+			// TODO throw IllegalStateException("Not in element");
+			return;
+		}
+		final String currentNamespaceURI = element.getDefaultNamespaceURI();
+		final ChangeNamespaceEdit changeNamespace = editStack.apply(new ChangeNamespaceEdit(document, cursor.getOffset(), null, currentNamespaceURI, null));
+		cursor.move(toOffset(changeNamespace.getOffsetAfter()));
 	}
 
 	/*
