@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2010, Florian Thienel and others.
+ * Copyright (c) 2010, 2016 Florian Thienel and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -39,15 +39,22 @@ public class VexWidgetTest {
 	public static final QualifiedName PRE = new QualifiedName(null, "pre");
 
 	private IDocumentEditor editor;
+	private FakeCursor cursor;
 
 	@Before
 	public void setUp() throws Exception {
-		editor = new BaseVexWidget(new MockHostComponent());
+		cursor = new FakeCursor(null);
+		editor = new DocumentEditor(cursor);
+	}
+
+	private void useDocument(final IDocument document) {
+		cursor.setDocument(document);
+		editor.setDocument(document);
 	}
 
 	@Test
 	public void provideOnlyAllowedElementsFromDtd() throws Exception {
-		editor.setDocument(createDocumentWithDTD(TEST_DTD, "section"));
+		useDocument(createDocumentWithDTD(TEST_DTD, "section"));
 		assertCanInsertOnly(editor, "title", "para");
 		editor.insertElement(new QualifiedName(null, "title"));
 		assertCanInsertOnly(editor);
@@ -60,7 +67,7 @@ public class VexWidgetTest {
 
 	@Test
 	public void provideOnlyAllowedElementsFromSimpleSchema() throws Exception {
-		editor.setDocument(createDocument(CONTENT_NS, "p"));
+		useDocument(createDocument(CONTENT_NS, "p"));
 		assertCanInsertOnly(editor, "b", "i");
 		editor.insertElement(new QualifiedName(CONTENT_NS, "b"));
 		assertCanInsertOnly(editor, "b", "i");
@@ -70,7 +77,7 @@ public class VexWidgetTest {
 
 	@Test
 	public void provideOnlyAllowedElementFromComplexSchema() throws Exception {
-		editor.setDocument(createDocument(STRUCTURE_NS, "chapter"));
+		useDocument(createDocument(STRUCTURE_NS, "chapter"));
 		assertCanInsertOnly(editor, "title", "chapter", "p");
 		editor.insertElement(new QualifiedName(STRUCTURE_NS, "title"));
 		assertCanInsertOnly(editor);
@@ -85,8 +92,7 @@ public class VexWidgetTest {
 
 	@Test
 	public void provideNoAllowedElementsForInsertionInComment() throws Exception {
-		final IDocument document = createDocument(STRUCTURE_NS, "chapter");
-		editor.setDocument(document);
+		useDocument(createDocument(STRUCTURE_NS, "chapter"));
 		editor.insertElement(new QualifiedName(STRUCTURE_NS, "title"));
 		editor.moveBy(1);
 		editor.insertElement(new QualifiedName(CONTENT_NS, "p"));
@@ -97,7 +103,7 @@ public class VexWidgetTest {
 
 	@Test
 	public void undoRemoveCommentTag() throws Exception {
-		editor.setDocument(createDocument(STRUCTURE_NS, "chapter"));
+		useDocument(createDocument(STRUCTURE_NS, "chapter"));
 		editor.insertElement(new QualifiedName(CONTENT_NS, "p"));
 		editor.insertText("1text before comment1");
 		final INode comment = editor.insertComment();
@@ -141,18 +147,6 @@ public class VexWidgetTest {
 
 		final ContentPosition firstPositionInSecondLine = widget.viewToModel(0, 15);
 		assertEquals("first position", 31, firstPositionInSecondLine.getOffset());
-	}
-
-	@Test
-	public void whenMovingCursorUp_shouldNotGetStuckInHigherLevelElement() throws Exception {
-		final IDocument document = createDocument(STRUCTURE_NS, "chapter");
-		editor.setDocument(document);
-		editor.insertElement(new QualifiedName(CONTENT_NS, "p"));
-		editor.insertText("para 1");
-		editor.moveTo(new ContentPosition(document, 1));
-
-		editor.moveToNextLine(false);
-		assertEquals(2, editor.getCaretPosition().getOffset());
 	}
 
 	public static IDocument createDocumentWithDTD(final String dtdIdentifier, final String rootElementName) {
