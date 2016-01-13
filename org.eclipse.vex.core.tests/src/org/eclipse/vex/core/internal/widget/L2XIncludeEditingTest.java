@@ -44,7 +44,7 @@ public class L2XIncludeEditingTest {
 	public void whenCaretAfterEmptyInclude_BackspaceShouldDeleteInclude() throws Exception {
 		createIncludeElement(includeXml);
 		editor.moveTo(includeNode.getEndPosition().moveBy(1));
-		editor.deletePreviousChar();
+		editor.deleteBackward();
 
 		assertTrue(para.children().withoutText().isEmpty());
 		assertFalse(includeNode.isAssociated());

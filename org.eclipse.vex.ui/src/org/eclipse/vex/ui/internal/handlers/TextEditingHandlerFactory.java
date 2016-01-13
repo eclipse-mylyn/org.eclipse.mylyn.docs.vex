@@ -400,7 +400,7 @@ public class TextEditingHandlerFactory implements IExecutableExtensionFactory, I
 
 		@Override
 		public void execute(final VexWidget widget) throws ExecutionException {
-			widget.deletePreviousChar();
+			widget.deleteBackward();
 		}
 	}
 
@@ -408,7 +408,7 @@ public class TextEditingHandlerFactory implements IExecutableExtensionFactory, I
 
 		@Override
 		public void execute(final VexWidget widget) throws ExecutionException {
-			widget.deleteNextChar();
+			widget.deleteForward();
 		}
 
 	}

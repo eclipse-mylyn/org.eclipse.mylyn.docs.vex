@@ -63,7 +63,7 @@ public class L2CommentEditingTest {
 	public void givenAnEmptyComment_whenCaretInCommentAndHittingBackspace_shouldDeleteComment() throws Exception {
 		final IElement titleElement = editor.insertElement(TITLE);
 		final IComment comment = editor.insertComment();
-		editor.deletePreviousChar();
+		editor.deleteBackward();
 		assertFalse(titleElement.hasChildren());
 		assertFalse(comment.isAssociated());
 		assertNull(comment.getParent());
@@ -73,7 +73,7 @@ public class L2CommentEditingTest {
 	public void givenAnEmptyComment_whenCaretInCommentAndHittingDelete_shouldDeleteComment() throws Exception {
 		final IElement titleElement = editor.insertElement(TITLE);
 		final IComment comment = editor.insertComment();
-		editor.deleteNextChar();
+		editor.deleteForward();
 		assertFalse(titleElement.hasChildren());
 		assertFalse(comment.isAssociated());
 		assertNull(comment.getParent());

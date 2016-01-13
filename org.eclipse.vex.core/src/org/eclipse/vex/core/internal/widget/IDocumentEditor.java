@@ -463,12 +463,12 @@ public interface IDocumentEditor {
 	/**
 	 * Deletes the character to the right of the caret.
 	 */
-	void deleteNextChar() throws DocumentValidationException;
+	void deleteForward() throws DocumentValidationException;
 
 	/**
 	 * Deletes the character to the left of the caret.
 	 */
-	void deletePreviousChar() throws DocumentValidationException;
+	void deleteBackward() throws DocumentValidationException;
 
 	/**
 	 * Inserts the given text at the current caret position. Any selected content is first deleted.
@@ -477,6 +477,15 @@ public interface IDocumentEditor {
 	 *            String to insert.
 	 */
 	void insertText(String text) throws DocumentValidationException;
+
+	/**
+	 * Inserts the given XML fragment at the current caret position. Any selected content is first deleted.
+	 *
+	 * @param xml
+	 *            XML to insert
+	 * @throws DocumentValidationException
+	 */
+	public void insertXML(String xml) throws DocumentValidationException;
 
 	/*
 	 * Structure
@@ -544,15 +553,6 @@ public interface IDocumentEditor {
 	 *            The data to set. May be null to keep the old value.
 	 */
 	void editProcessingInstruction(final String target, final String data) throws CannotApplyException, ReadOnlyException;
-
-	/**
-	 * Inserts the given XML fragment at the current caret position. Any selected content is first deleted.
-	 *
-	 * @param xml
-	 *            XML to insert
-	 * @throws DocumentValidationException
-	 */
-	public void insertXML(String xml) throws DocumentValidationException;
 
 	/**
 	 * Returns true if the given fragment can be inserted at the current caret position.

@@ -395,7 +395,7 @@ public class BaseVexWidget implements IVexWidget {
 	}
 
 	@Override
-	public void deleteNextChar() throws DocumentValidationException, ReadOnlyException {
+	public void deleteForward() throws DocumentValidationException, ReadOnlyException {
 		if (readOnly) {
 			throw new ReadOnlyException("Cannot delete, because the editor is read-only.");
 		}
@@ -429,7 +429,7 @@ public class BaseVexWidget implements IVexWidget {
 	}
 
 	@Override
-	public void deletePreviousChar() throws DocumentValidationException, ReadOnlyException {
+	public void deleteBackward() throws DocumentValidationException, ReadOnlyException {
 		if (readOnly) {
 			throw new ReadOnlyException("Cannot delete, because the editor is read-only.");
 		}

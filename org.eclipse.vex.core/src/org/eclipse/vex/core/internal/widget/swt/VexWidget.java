@@ -212,13 +212,13 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 	}
 
 	@Override
-	public void deleteNextChar() throws DocumentValidationException {
-		impl.deleteNextChar();
+	public void deleteForward() throws DocumentValidationException {
+		impl.deleteForward();
 	}
 
 	@Override
-	public void deletePreviousChar() throws DocumentValidationException {
-		impl.deletePreviousChar();
+	public void deleteBackward() throws DocumentValidationException {
+		impl.deleteBackward();
 	}
 
 	@Override
@@ -980,7 +980,7 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 			@Override
 			public void runEx(final IDocumentEditor editor) throws ExecutionException {
 				try {
-					editor.deletePreviousChar();
+					editor.deleteBackward();
 				} catch (final DocumentValidationException e) {
 					throw new ExecutionException(e.getMessage(), e);
 				}
@@ -990,7 +990,7 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 			@Override
 			public void runEx(final IDocumentEditor editor) throws ExecutionException {
 				try {
-					editor.deleteNextChar();
+					editor.deleteForward();
 				} catch (final DocumentValidationException e) {
 					throw new ExecutionException(e.getMessage(), e);
 				}

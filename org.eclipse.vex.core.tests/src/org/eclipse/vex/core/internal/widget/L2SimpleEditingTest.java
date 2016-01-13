@@ -85,7 +85,7 @@ public class L2SimpleEditingTest {
 	public void givenAnElementWithText_whenAtEndOfTextAndHittingBackspace_shouldDeleteLastCharacter() throws Exception {
 		final IElement titleElement = editor.insertElement(TITLE);
 		editor.insertText("Hello");
-		editor.deletePreviousChar();
+		editor.deleteBackward();
 		assertEquals("Hell", titleElement.getText());
 		assertEquals(titleElement.getEndPosition(), editor.getCaretPosition());
 	}
@@ -95,7 +95,7 @@ public class L2SimpleEditingTest {
 		final IElement titleElement = editor.insertElement(TITLE);
 		editor.insertText("Hello");
 		editor.moveBy(-5);
-		editor.deleteNextChar();
+		editor.deleteForward();
 		assertEquals("ello", titleElement.getText());
 		assertEquals(titleElement.getStartPosition().moveBy(1), editor.getCaretPosition());
 	}
@@ -105,7 +105,7 @@ public class L2SimpleEditingTest {
 		editor.insertElement(TITLE);
 		editor.moveBy(1);
 		final IElement paraElement = editor.insertElement(PARA);
-		editor.deletePreviousChar();
+		editor.deleteBackward();
 		assertEquals(1, rootElement.children().count());
 		assertNull(paraElement.getParent());
 		assertFalse(paraElement.isAssociated());
@@ -116,7 +116,7 @@ public class L2SimpleEditingTest {
 		editor.insertElement(TITLE);
 		editor.moveBy(1);
 		final IElement paraElement = editor.insertElement(PARA);
-		editor.deleteNextChar();
+		editor.deleteForward();
 		assertEquals(1, rootElement.children().count());
 		assertNull(paraElement.getParent());
 		assertFalse(paraElement.isAssociated());
@@ -128,7 +128,7 @@ public class L2SimpleEditingTest {
 		editor.moveBy(1);
 		final IElement paraElement = editor.insertElement(PARA);
 		editor.moveBy(1);
-		editor.deletePreviousChar();
+		editor.deleteBackward();
 		assertEquals(1, rootElement.children().count());
 		assertNull(paraElement.getParent());
 		assertFalse(paraElement.isAssociated());
@@ -140,7 +140,7 @@ public class L2SimpleEditingTest {
 		editor.moveBy(1);
 		final IElement paraElement = editor.insertElement(PARA);
 		editor.moveBy(-1);
-		editor.deleteNextChar();
+		editor.deleteForward();
 		assertEquals(1, rootElement.children().count());
 		assertNull(paraElement.getParent());
 		assertFalse(paraElement.isAssociated());
@@ -157,7 +157,7 @@ public class L2SimpleEditingTest {
 		editor.insertText("World");
 
 		editor.moveTo(para2.getStartPosition());
-		editor.deletePreviousChar();
+		editor.deleteBackward();
 
 		assertEquals(2, rootElement.children().count());
 		assertSame(rootElement, para1.getParent());
@@ -178,7 +178,7 @@ public class L2SimpleEditingTest {
 		editor.insertText("World");
 
 		editor.moveTo(para2.getStartPosition());
-		editor.deleteNextChar();
+		editor.deleteForward();
 
 		assertEquals(2, rootElement.children().count());
 		assertSame(rootElement, para1.getParent());
@@ -199,7 +199,7 @@ public class L2SimpleEditingTest {
 		editor.insertText("World");
 
 		editor.moveTo(para2.getStartPosition().moveBy(1));
-		editor.deletePreviousChar();
+		editor.deleteBackward();
 
 		assertEquals(2, rootElement.children().count());
 		assertSame(rootElement, para1.getParent());
@@ -220,7 +220,7 @@ public class L2SimpleEditingTest {
 		editor.insertText("World");
 
 		editor.moveTo(para1.getEndPosition());
-		editor.deleteNextChar();
+		editor.deleteForward();
 
 		assertEquals(2, rootElement.children().count());
 		assertSame(rootElement, para1.getParent());
