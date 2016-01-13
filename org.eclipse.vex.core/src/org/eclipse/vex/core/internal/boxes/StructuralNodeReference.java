@@ -16,6 +16,7 @@ import org.eclipse.vex.core.internal.core.LineStyle;
 import org.eclipse.vex.core.internal.core.NodeGraphics;
 import org.eclipse.vex.core.internal.core.Rectangle;
 import org.eclipse.vex.core.provisional.dom.ContentRange;
+import org.eclipse.vex.core.provisional.dom.IContent;
 import org.eclipse.vex.core.provisional.dom.INode;
 
 /**
@@ -241,6 +242,11 @@ public class StructuralNodeReference extends BaseBox implements IStructuralBox, 
 
 	public void highlightInside(final Graphics graphics, final Color foreground, final Color background) {
 		fillBackground(graphics, background);
+	}
+
+	@Override
+	public IContent getContent() {
+		return node.getContent();
 	}
 
 	@Override

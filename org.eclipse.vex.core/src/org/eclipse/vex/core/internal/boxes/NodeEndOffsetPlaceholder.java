@@ -16,6 +16,7 @@ import org.eclipse.vex.core.internal.core.FontSpec;
 import org.eclipse.vex.core.internal.core.Graphics;
 import org.eclipse.vex.core.internal.core.Rectangle;
 import org.eclipse.vex.core.provisional.dom.ContentRange;
+import org.eclipse.vex.core.provisional.dom.IContent;
 import org.eclipse.vex.core.provisional.dom.INode;
 
 /**
@@ -211,6 +212,11 @@ public class NodeEndOffsetPlaceholder extends BaseBox implements IInlineBox, ICo
 	@Override
 	public IInlineBox splitTail(final Graphics graphics, final int headWidth, final boolean force) {
 		throw new UnsupportedOperationException("Splitting is not supported for InlineContentPlaceholder.");
+	}
+
+	@Override
+	public IContent getContent() {
+		return node.getContent();
 	}
 
 	@Override

@@ -17,6 +17,7 @@ import org.eclipse.vex.core.internal.core.Color;
 import org.eclipse.vex.core.internal.core.Graphics;
 import org.eclipse.vex.core.internal.core.Rectangle;
 import org.eclipse.vex.core.provisional.dom.ContentRange;
+import org.eclipse.vex.core.provisional.dom.IContent;
 import org.eclipse.vex.core.provisional.dom.INode;
 import org.eclipse.vex.core.provisional.dom.IPosition;
 
@@ -274,6 +275,11 @@ public class InlineNodeReference extends BaseBox implements IInlineBox, IDecorat
 
 	public void highlightInside(final Graphics graphics, final Color foreground, final Color background) {
 		fillBackground(graphics, background);
+	}
+
+	@Override
+	public IContent getContent() {
+		return node.getContent();
 	}
 
 	@Override

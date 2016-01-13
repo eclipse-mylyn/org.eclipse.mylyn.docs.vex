@@ -14,11 +14,14 @@ import org.eclipse.vex.core.internal.core.Color;
 import org.eclipse.vex.core.internal.core.Graphics;
 import org.eclipse.vex.core.internal.core.Rectangle;
 import org.eclipse.vex.core.provisional.dom.ContentRange;
+import org.eclipse.vex.core.provisional.dom.IContent;
 
 /**
  * @author Florian Thienel
  */
 public interface IContentBox extends IChildBox {
+
+	IContent getContent();
 
 	int getStartOffset();
 

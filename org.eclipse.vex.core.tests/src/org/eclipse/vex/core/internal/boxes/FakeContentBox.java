@@ -14,6 +14,7 @@ import org.eclipse.vex.core.internal.core.Color;
 import org.eclipse.vex.core.internal.core.Graphics;
 import org.eclipse.vex.core.internal.core.Rectangle;
 import org.eclipse.vex.core.provisional.dom.ContentRange;
+import org.eclipse.vex.core.provisional.dom.IContent;
 
 /**
  * @author Florian Thienel
@@ -88,6 +89,11 @@ public class FakeContentBox extends BaseBox implements IContentBox {
 	@Override
 	public void paint(final Graphics graphics) {
 		// ignore
+	}
+
+	@Override
+	public IContent getContent() {
+		return null;
 	}
 
 	@Override

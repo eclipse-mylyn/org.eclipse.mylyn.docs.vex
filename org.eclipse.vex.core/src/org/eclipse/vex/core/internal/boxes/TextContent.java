@@ -400,6 +400,11 @@ public class TextContent extends BaseBox implements IInlineBox, IContentBox {
 	}
 
 	@Override
+	public IContent getContent() {
+		return content;
+	}
+
+	@Override
 	public int getStartOffset() {
 		return startPosition.getOffset();
 	}
