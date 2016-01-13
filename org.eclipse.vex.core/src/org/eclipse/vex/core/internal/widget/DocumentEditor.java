@@ -22,6 +22,7 @@ import org.eclipse.vex.core.internal.cursor.Cursor;
 import org.eclipse.vex.core.internal.cursor.ICursorPositionListener;
 import org.eclipse.vex.core.internal.undo.CannotApplyException;
 import org.eclipse.vex.core.internal.undo.CannotUndoException;
+import org.eclipse.vex.core.internal.undo.ChangeAttributeEdit;
 import org.eclipse.vex.core.internal.undo.ChangeNamespaceEdit;
 import org.eclipse.vex.core.internal.undo.DeleteEdit;
 import org.eclipse.vex.core.internal.undo.EditStack;
@@ -500,26 +501,70 @@ public class DocumentEditor implements IDocumentEditor {
 
 	@Override
 	public boolean canSetAttribute(final String attributeName, final String value) {
-		// TODO Auto-generated method stub
-		return false;
+		if (isReadOnly()) {
+			return false;
+		}
+		final IElement element = getCurrentElement();
+		if (element == null) {
+			return false;
+		}
+		final QualifiedName qualifiedAttributeName = element.qualify(attributeName);
+		return element.canSetAttribute(qualifiedAttributeName, value);
 	}
 
 	@Override
 	public void setAttribute(final String attributeName, final String value) {
-		// TODO Auto-generated method stub
+		if (isReadOnly()) {
+			throw new ReadOnlyException(MessageFormat.format("Cannot set attribute {0}, because the editor is read-only.", attributeName));
+		}
 
+		final IElement element = getCurrentElement();
+		if (element == null) {
+			return;
+		}
+
+		final QualifiedName qualifiedAttributeName = element.qualify(attributeName);
+		final String currentAttributeValue = element.getAttributeValue(qualifiedAttributeName);
+		if (value == null) {
+			removeAttribute(attributeName);
+		} else if (!value.equals(currentAttributeValue)) {
+			final ChangeAttributeEdit changeAttribute = editStack.apply(new ChangeAttributeEdit(document, cursor.getOffset(), qualifiedAttributeName, currentAttributeValue, value));
+			cursor.move(toOffset(changeAttribute.getOffsetAfter()));
+		}
 	}
 
 	@Override
 	public boolean canRemoveAttribute(final String attributeName) {
-		// TODO Auto-generated method stub
-		return false;
+		if (isReadOnly()) {
+			return false;
+		}
+
+		final IElement element = getCurrentElement();
+		if (element == null) {
+			return false;
+		}
+
+		final QualifiedName qualifiedAttributeName = element.qualify(attributeName);
+		return element.canRemoveAttribute(qualifiedAttributeName);
 	}
 
 	@Override
 	public void removeAttribute(final String attributeName) {
-		// TODO Auto-generated method stub
+		if (isReadOnly()) {
+			throw new ReadOnlyException(MessageFormat.format("Cannot remove attribute {0}, because the editor is read-only.", attributeName));
+		}
 
+		final IElement element = getCurrentElement();
+		if (element == null) {
+			return;
+		}
+
+		final QualifiedName qualifiedAttributeName = element.qualify(attributeName);
+		final String currentAttributeValue = element.getAttributeValue(qualifiedAttributeName);
+		if (currentAttributeValue != null) {
+			final ChangeAttributeEdit changeAttribute = editStack.apply(new ChangeAttributeEdit(document, cursor.getOffset(), qualifiedAttributeName, currentAttributeValue, null));
+			cursor.move(toOffset(changeAttribute.getOffsetAfter()));
+		}
 	}
 
 	/*
