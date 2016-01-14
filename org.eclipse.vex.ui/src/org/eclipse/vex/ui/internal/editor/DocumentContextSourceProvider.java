@@ -16,6 +16,7 @@ import java.util.Map;
 import org.eclipse.ui.AbstractSourceProvider;
 import org.eclipse.ui.ISources;
 import org.eclipse.vex.core.internal.core.Rectangle;
+import org.eclipse.vex.core.internal.widget.IDocumentEditor;
 import org.eclipse.vex.core.internal.widget.swt.VexWidget;
 import org.eclipse.vex.core.provisional.dom.BaseNodeVisitorWithResult;
 import org.eclipse.vex.core.provisional.dom.IComment;
@@ -110,17 +111,17 @@ public class DocumentContextSourceProvider extends AbstractSourceProvider {
 	/**
 	 * Synchronizes the variable values which will be exposed by this service with the specified {@link VexWidget}.
 	 *
-	 * @param widget
+	 * @param editor
 	 *            the Vex widget containing the actual states
 	 * @param caretArea
 	 *            TODO
 	 */
-	public void fireUpdate(final VexWidget widget, final Rectangle caretArea) {
+	public void fireUpdate(final IDocumentEditor editor, final Rectangle caretArea) {
 		final Map<String, Object> changes = new HashMap<String, Object>();
-		final RowColumnInfo rowColumnInfo = VexHandlerUtil.getRowColumnInfo(widget);
+		final RowColumnInfo rowColumnInfo = VexHandlerUtil.getRowColumnInfo(editor);
 
 		// column
-		final int columnIndex = VexHandlerUtil.getCurrentColumnIndex(widget);
+		final int columnIndex = VexHandlerUtil.getCurrentColumnIndex(editor);
 		final int columnCount = rowColumnInfo == null ? -1 : rowColumnInfo.maxColumnCount;
 		isColumn = update(changes, isColumn, columnIndex != -1, IS_COLUMN);
 		isFirstColumn = update(changes, isFirstColumn, columnIndex == 0, IS_FIRST_COLUMN);
@@ -134,7 +135,7 @@ public class DocumentContextSourceProvider extends AbstractSourceProvider {
 		isLastRow = update(changes, isLastRow, rowIndex == rowCount - 1, IS_LAST_ROW);
 
 		// nodes
-		final INode selectedNode = widget.getCurrentNode();
+		final INode selectedNode = editor.getCurrentNode();
 		if (!selectedNode.equals(currentNode)) {
 			// No need to evaluate if the node has not changed
 			currentNode = selectedNode;

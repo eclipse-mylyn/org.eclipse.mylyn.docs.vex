@@ -101,6 +101,13 @@ public class Cursor implements ICursor {
 		return caret.getVisibleArea();
 	}
 
+	public Rectangle getCaretArea() {
+		if (caret == null) {
+			return Rectangle.NULL;
+		}
+		return caret.getHotArea();
+	}
+
 	@Override
 	public void addPositionListener(final ICursorPositionListener listener) {
 		cursorPositionListeners.add(listener);

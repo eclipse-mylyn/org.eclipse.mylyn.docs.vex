@@ -100,9 +100,10 @@ import org.eclipse.vex.core.internal.dom.DocumentTextPosition;
 import org.eclipse.vex.core.internal.io.DocumentReader;
 import org.eclipse.vex.core.internal.io.DocumentWriter;
 import org.eclipse.vex.core.internal.validator.WTPVEXValidator;
+import org.eclipse.vex.core.internal.visualization.CssBasedBoxModelBuilder;
 import org.eclipse.vex.core.internal.widget.CssTableModel;
 import org.eclipse.vex.core.internal.widget.IDocumentEditor;
-import org.eclipse.vex.core.internal.widget.swt.VexWidget;
+import org.eclipse.vex.core.internal.widget.swt.BoxWidget;
 import org.eclipse.vex.core.provisional.dom.AttributeChangeEvent;
 import org.eclipse.vex.core.provisional.dom.BaseNodeVisitorWithResult;
 import org.eclipse.vex.core.provisional.dom.ContentChangeEvent;
@@ -172,7 +173,7 @@ public class VexEditor extends EditorPart {
 	private IDocument document;
 	private Style style;
 
-	private VexWidget vexWidget;
+	private BoxWidget editorWidget;
 
 	private boolean dirty;
 
@@ -467,8 +468,8 @@ public class VexEditor extends EditorPart {
 				jFaceDoc.removePosition(positionOfCurrentNode);
 			}
 
-			positionOfCurrentNode = createDocumentWriter().write(document, doc, vexWidget.getCurrentNode());
-			positionOfCurrentNode.setOffsetInNode(vexWidget.getCaretPosition().getOffset() - vexWidget.getCurrentNode().getStartPosition().getOffset());
+			positionOfCurrentNode = createDocumentWriter().write(document, doc, editorWidget.getCurrentNode());
+			positionOfCurrentNode.setOffsetInNode(editorWidget.getCaretPosition().getOffset() - editorWidget.getCurrentNode().getStartPosition().getOffset());
 
 			try {
 				jFaceDoc.addPosition(positionOfCurrentNode);
@@ -485,7 +486,7 @@ public class VexEditor extends EditorPart {
 
 	private DocumentWriter createDocumentWriter() {
 		final DocumentWriter result = new DocumentWriter();
-		result.setWhitespacePolicy(vexWidget.getWhitespacePolicy());
+		result.setWhitespacePolicy(editorWidget.getWhitespacePolicy());
 		result.setIndent(preferences.getIndentationPattern());
 		result.setWrapColumn(preferences.getLineWidth());
 		return result;
@@ -529,7 +530,7 @@ public class VexEditor extends EditorPart {
 	 * Returns the VexWidget that implements this editor.
 	 */
 	public IDocumentEditor getVexWidget() {
-		return vexWidget;
+		return editorWidget;
 	}
 
 	public void gotoMarker(final IMarker marker) {
@@ -649,8 +650,8 @@ public class VexEditor extends EditorPart {
 
 	@Override
 	public void setFocus() {
-		if (vexWidget != null) {
-			vexWidget.setFocus();
+		if (editorWidget != null) {
+			editorWidget.setFocus();
 			setStatus(getLocationPath());
 		}
 	}
@@ -704,7 +705,7 @@ public class VexEditor extends EditorPart {
 		VexDocumentContentModel documentContentModel;
 
 		try {
-			if (vexWidget != null) {
+			if (editorWidget != null) {
 				vexEditorListeners.fireEvent("documentUnloaded", new VexEditorEvent(this)); //$NON-NLS-1$
 			}
 			if (document != null) {
@@ -801,16 +802,16 @@ public class VexEditor extends EditorPart {
 
 			document.addDocumentListener(documentListener);
 
-			vexWidget.setDebugging(debugging);
-			vexWidget.setWhitespacePolicy(reader.getWhitespacePolicy());
-			vexWidget.setTableModel(new CssTableModel(style.getStyleSheet()));
-			vexWidget.setDocument(document, style.getStyleSheet());
-			vexWidget.setReadOnly(isEditorInputReadOnly());
+			editorWidget.setBoxModelBuilder(new CssBasedBoxModelBuilder(style.getStyleSheet()));
+			editorWidget.setWhitespacePolicy(reader.getWhitespacePolicy());
+			editorWidget.setTableModel(new CssTableModel(style.getStyleSheet()));
+			editorWidget.setDocument(document);
+			editorWidget.setReadOnly(isEditorInputReadOnly());
 
 			final INode nodeAtCaret = reader.getNodeAtCaret();
 			if (nodeAtCaret != null) {
 				final int offsetInNode = Math.min(nodeAtCaret.getStartOffset() + positionOfCurrentNode.getOffsetInNode(), nodeAtCaret.getEndOffset());
-				vexWidget.moveTo(new ContentPosition(document, offsetInNode));
+				editorWidget.moveTo(new ContentPosition(document, offsetInNode));
 			}
 
 			loaded = true;
@@ -872,8 +873,10 @@ public class VexEditor extends EditorPart {
 	 */
 	public void setStyle(final Style style) {
 		this.style = style;
-		if (vexWidget != null) {
-			vexWidget.setStyleSheet(style.getStyleSheet());
+		if (editorWidget != null) {
+			editorWidget.setBoxModelBuilder(new CssBasedBoxModelBuilder(style.getStyleSheet()));
+			editorWidget.setWhitespacePolicy(new CssWhitespacePolicy(style.getStyleSheet()));
+			editorWidget.setTableModel(new CssTableModel(style.getStyleSheet()));
 			preferences.setPreferredStyleId(doctype, style.getUniqueId());
 		}
 		vexEditorListeners.fireEvent("styleChanged", new VexEditorEvent(this)); //$NON-NLS-1$
@@ -889,9 +892,9 @@ public class VexEditor extends EditorPart {
 	 */
 	private void showLabel(final String message, final Exception ex) {
 		if (loadingLabel == null) {
-			if (vexWidget != null) {
-				vexWidget.dispose();
-				vexWidget = null;
+			if (editorWidget != null) {
+				editorWidget.dispose();
+				editorWidget = null;
 			}
 			final GridLayout layout = new GridLayout();
 			layout.numColumns = 1;
@@ -931,7 +934,7 @@ public class VexEditor extends EditorPart {
 
 	private void showVexWidget() {
 
-		if (vexWidget != null) {
+		if (editorWidget != null) {
 			return;
 		}
 
@@ -969,17 +972,17 @@ public class VexEditor extends EditorPart {
 		gd.horizontalAlignment = GridData.FILL;
 		gd.verticalAlignment = GridData.FILL;
 
-		vexWidget = new VexWidget(parentControl, SWT.V_SCROLL);
+		editorWidget = new BoxWidget(parentControl, SWT.V_SCROLL);
 		gd = new GridData();
 		gd.grabExcessHorizontalSpace = true;
 		gd.grabExcessVerticalSpace = true;
 		gd.horizontalAlignment = GridData.FILL;
 		gd.verticalAlignment = GridData.FILL;
-		vexWidget.setLayoutData(gd);
+		editorWidget.setLayoutData(gd);
 
 		final MenuManager menuManager = new MenuManager();
-		getSite().registerContextMenu("org.eclipse.vex.ui.popup", menuManager, vexWidget);
-		vexWidget.setMenu(menuManager.createContextMenu(vexWidget));
+		getSite().registerContextMenu("org.eclipse.vex.ui.popup", menuManager, editorWidget);
+		editorWidget.setMenu(menuManager.createContextMenu(editorWidget));
 
 		setClean();
 
@@ -987,7 +990,7 @@ public class VexEditor extends EditorPart {
 		final IContextService cs = (IContextService) getSite().getService(IContextService.class);
 		cs.activateContext("org.eclipse.vex.ui.VexEditorContext");
 
-		vexWidget.addSelectionChangedListener(selectionProvider);
+		editorWidget.addSelectionChangedListener(selectionProvider);
 
 		parentControl.layout(true);
 
@@ -1010,7 +1013,9 @@ public class VexEditor extends EditorPart {
 						// Oops, style went bye-bye
 						// Let's just hold on to it in case it comes back later
 					} else {
-						vexWidget.setStyleSheet(newStyle.getStyleSheet());
+						editorWidget.setBoxModelBuilder(new CssBasedBoxModelBuilder(style.getStyleSheet()));
+						editorWidget.setWhitespacePolicy(new CssWhitespacePolicy(style.getStyleSheet()));
+						editorWidget.setTableModel(new CssTableModel(style.getStyleSheet()));
 						style = newStyle;
 					}
 				}
@@ -1046,11 +1051,15 @@ public class VexEditor extends EditorPart {
 			// update context service
 			final ISourceProviderService service = (ISourceProviderService) window.getService(ISourceProviderService.class);
 			final DocumentContextSourceProvider contextProvider = (DocumentContextSourceProvider) service.getSourceProvider(DocumentContextSourceProvider.IS_COLUMN);
-			final Point caretLocation = vexWidget.toDisplay(vexWidget.getLocationForContentAssist());
-			final Rectangle caretArea = new Rectangle(caretLocation.x, caretLocation.y, 1, 1); // TODO get the real caret area form the BoxWidget
-			contextProvider.fireUpdate(vexWidget, caretArea);
+			contextProvider.fireUpdate(editorWidget, getCaretArea());
 		}
 	};
+
+	private Rectangle getCaretArea() {
+		final Rectangle relativeArea = editorWidget.getCaretArea();
+		final Point caretLocation = editorWidget.toDisplay(new Point(relativeArea.getX(), relativeArea.getY()));
+		return new Rectangle(caretLocation.x, caretLocation.y, relativeArea.getWidth(), relativeArea.getHeight());
+	}
 
 	private final IDocumentListener documentListener = new IDocumentListener() {
 
@@ -1115,7 +1124,7 @@ public class VexEditor extends EditorPart {
 
 	private String getLocationPath() {
 		final List<String> path = new ArrayList<String>();
-		INode node = vexWidget.getCurrentNode();
+		INode node = editorWidget.getCurrentNode();
 		while (node != null) {
 			path.add(node.accept(nodePathVisitor));
 			node = node.getParent();
@@ -1146,15 +1155,15 @@ public class VexEditor extends EditorPart {
 				@Override
 				public IPropertySource getPropertySource(final Object object) {
 					if (object instanceof IElement) {
-						final IStructuredSelection selection = (IStructuredSelection) vexWidget.getSelection();
+						final IStructuredSelection selection = (IStructuredSelection) editorWidget.getSelection();
 						final boolean multipleElementsSelected = selection != null && selection.size() > 1;
-						final IValidator validator = vexWidget.getDocument().getValidator();
+						final IValidator validator = editorWidget.getDocument().getValidator();
 						return new ElementPropertySource((IElement) object, validator, multipleElementsSelected);
 					}
 					if (object instanceof IIncludeNode) {
-						final IStructuredSelection selection = (IStructuredSelection) vexWidget.getSelection();
+						final IStructuredSelection selection = (IStructuredSelection) editorWidget.getSelection();
 						final boolean multipleElementsSelected = selection != null && selection.size() > 1;
-						final IValidator validator = vexWidget.getDocument().getValidator();
+						final IValidator validator = editorWidget.getDocument().getValidator();
 						return new ElementPropertySource(((IIncludeNode) object).getReference(), validator, multipleElementsSelected);
 					}
 					if (object instanceof IDocument) {

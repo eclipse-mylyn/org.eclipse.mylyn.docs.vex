@@ -51,6 +51,7 @@ import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.css.StyleSheetReader;
 import org.eclipse.vex.core.internal.io.UniversalTestDocument;
 import org.eclipse.vex.core.internal.visualization.CssBasedBoxModelBuilder;
+import org.eclipse.vex.core.internal.widget.CssTableModel;
 import org.eclipse.vex.core.internal.widget.swt.BoxWidget;
 import org.eclipse.vex.core.internal.widget.swt.IVexSelection;
 import org.eclipse.vex.core.provisional.dom.ContentRange;
@@ -160,6 +161,7 @@ public class BoxDemoView extends ViewPart {
 		final StyleSheet styleSheet = readStyleSheet();
 		boxWidget.setBoxModelBuilder(new CssBasedBoxModelBuilder(styleSheet));
 		boxWidget.setWhitespacePolicy(new CssWhitespacePolicy(styleSheet));
+		boxWidget.setTableModel(new CssTableModel(styleSheet));
 		boxWidgetParent.layout();
 		boxWidget.addSelectionChangedListener(selectionChangedListener);
 

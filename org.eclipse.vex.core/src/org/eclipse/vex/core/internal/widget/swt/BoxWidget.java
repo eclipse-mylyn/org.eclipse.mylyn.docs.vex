@@ -286,6 +286,10 @@ public class BoxWidget extends Canvas implements ISelectionProvider, IDocumentEd
 		controller.refreshAll();
 	}
 
+	public Rectangle getCaretArea() {
+		return cursor.getCaretArea();
+	}
+
 	/*
 	 * ISelectionProvider
 	 */

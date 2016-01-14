@@ -67,6 +67,9 @@ public class DOMVisualization {
 		if (boxModelBuilder == null) {
 			return;
 		}
+		if (document == null) {
+			return;
+		}
 
 		final RootBox rootBox = boxModelBuilder.visualizeRoot(document);
 
