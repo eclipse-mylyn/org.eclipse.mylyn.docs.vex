@@ -38,7 +38,7 @@ import org.eclipse.ui.part.Page;
 import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
 import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.widget.IDocumentEditor;
-import org.eclipse.vex.core.internal.widget.swt.VexWidget;
+import org.eclipse.vex.core.internal.widget.swt.BoxWidget;
 import org.eclipse.vex.core.provisional.dom.AttributeChangeEvent;
 import org.eclipse.vex.core.provisional.dom.ContentChangeEvent;
 import org.eclipse.vex.core.provisional.dom.IAttribute;
@@ -67,7 +67,7 @@ public class DocumentOutlinePage extends Page implements IContentOutlinePage {
 
 	public DocumentOutlinePage(final VexEditor vexEditor) {
 		super();
-		this.editorPart = vexEditor;
+		editorPart = vexEditor;
 	}
 
 	@Override
@@ -271,8 +271,8 @@ public class DocumentOutlinePage extends Page implements IContentOutlinePage {
 
 		@Override
 		public void selectionChanged(final SelectionChangedEvent event) {
-			if (event.getSource() instanceof VexWidget) {
-				final VexWidget vexWidget = (VexWidget) event.getSource();
+			if (event.getSource() instanceof BoxWidget) {
+				final BoxWidget vexWidget = (BoxWidget) event.getSource();
 				if (vexWidget.isFocusControl() && getTreeViewer() != null) {
 					final INode element = vexWidget.getCurrentNode();
 
