@@ -10,13 +10,15 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.widget.swt;
 
-import static org.eclipse.vex.core.internal.cursor.CursorMoves.down;
-import static org.eclipse.vex.core.internal.cursor.CursorMoves.left;
-import static org.eclipse.vex.core.internal.cursor.CursorMoves.right;
 import static org.eclipse.vex.core.internal.cursor.CursorMoves.toAbsoluteCoordinates;
 import static org.eclipse.vex.core.internal.cursor.CursorMoves.toOffset;
-import static org.eclipse.vex.core.internal.cursor.CursorMoves.up;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.eclipse.core.commands.ExecutionEvent;
+import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.ListenerList;
 import org.eclipse.core.runtime.QualifiedName;
@@ -73,9 +75,12 @@ import org.eclipse.vex.core.provisional.dom.IProcessingInstruction;
  */
 public class BoxWidget extends Canvas implements ISelectionProvider, IDocumentEditor {
 
-	private final org.eclipse.swt.graphics.Cursor mouseCursor;
+	private static final char CHAR_NONE = 0;
+	private static final Map<KeyStroke, IVexWidgetHandler> KEY_MAP = buildKeyMap();
 
 	private IDocument document;
+
+	private final org.eclipse.swt.graphics.Cursor mouseCursor;
 
 	private final Cursor cursor;
 	private final BalancingSelector selector;
@@ -201,58 +206,24 @@ public class BoxWidget extends Canvas implements ISelectionProvider, IDocumentEd
 	}
 
 	private void keyPressed(final KeyEvent event) {
-		switch (event.keyCode) {
-		case SWT.ARROW_LEFT:
-			moveOrSelect(event.stateMask, left());
-			break;
-		case SWT.ARROW_RIGHT:
-			moveOrSelect(event.stateMask, right());
-			break;
-		case SWT.ARROW_UP:
-			moveOrSelect(event.stateMask, up());
-			break;
-		case SWT.ARROW_DOWN:
-			moveOrSelect(event.stateMask, down());
-			break;
-		case SWT.HOME:
-			moveOrSelect(event.stateMask, toOffset(0));
-			break;
-		case SWT.CR:
-			if (editor.getWhitespacePolicy().isPre(editor.getCurrentElement())) {
-				insertLineBreak();
-			} else {
-				split();
+		final KeyStroke keyStroke = new KeyStroke(event);
+		final IVexWidgetHandler handler = KEY_MAP.get(keyStroke);
+		if (handler != null) {
+			try {
+				handler.execute(new ExecutionEvent(null, Collections.emptyMap(), event, null), BoxWidget.this);
+			} catch (final ReadOnlyException e) {
+				// TODO give feedback: the editor is read-only
+			} catch (final Exception ex) {
+				ex.printStackTrace();
 			}
-			break;
-		case SWT.DEL:
-			deleteForward();
-			break;
-		case SWT.BS:
-			deleteBackward();
-			break;
-		case 0x79:
-			if ((event.stateMask & SWT.CTRL) == SWT.CTRL) {
-				if (canRedo()) {
-					redo();
-				}
-			} else {
+		} else if (!Character.isISOControl(event.character)) {
+			try {
 				insertChar(event.character);
+			} catch (final DocumentValidationException e) {
+				// TODO give feedback: at this document position no character can be entered
+			} catch (final ReadOnlyException e) {
+				// TODO give feedback: the editor is read-only
 			}
-			break;
-		case 0x7A:
-			if ((event.stateMask & SWT.CTRL) == SWT.CTRL) {
-				if (canUndo()) {
-					undo();
-				}
-			} else {
-				insertChar(event.character);
-			}
-			break;
-		default:
-			if (event.character > 0 && Character.isDefined(event.character)) {
-				insertChar(event.character);
-			}
-			break;
 		}
 	}
 
@@ -684,6 +655,192 @@ public class BoxWidget extends Canvas implements ISelectionProvider, IDocumentEd
 	}
 
 	/*
+	 * Key Map
+	 */
+
+	private static void addKey(final Map<KeyStroke, IVexWidgetHandler> keyMap, final char character, final int keyCode, final int stateMask, final IVexWidgetHandler action) {
+		keyMap.put(new KeyStroke(character, keyCode, stateMask), action);
+	}
+
+	private static Map<KeyStroke, IVexWidgetHandler> buildKeyMap() {
+		final Map<KeyStroke, IVexWidgetHandler> keyMap = new HashMap<KeyStroke, IVexWidgetHandler>();
+
+		// arrows: (Shift) Up/Down, {-, Shift, Ctrl, Shift+Ctrl} + Left/Right
+		addKey(keyMap, CHAR_NONE, SWT.ARROW_DOWN, SWT.NONE, new IVexWidgetHandler() {
+			@Override
+			public void execute(final ExecutionEvent event, final IDocumentEditor editor) throws ExecutionException {
+				editor.moveToNextLine(false);
+			}
+		});
+		addKey(keyMap, CHAR_NONE, SWT.ARROW_DOWN, SWT.SHIFT, new IVexWidgetHandler() {
+			@Override
+			public void execute(final ExecutionEvent event, final IDocumentEditor editor) throws ExecutionException {
+				editor.moveToNextLine(true);
+			}
+		});
+		addKey(keyMap, CHAR_NONE, SWT.ARROW_UP, SWT.NONE, new IVexWidgetHandler() {
+			@Override
+			public void execute(final ExecutionEvent event, final IDocumentEditor editor) throws ExecutionException {
+				editor.moveToPreviousLine(false);
+			}
+		});
+		addKey(keyMap, CHAR_NONE, SWT.ARROW_UP, SWT.SHIFT, new IVexWidgetHandler() {
+			@Override
+			public void execute(final ExecutionEvent event, final IDocumentEditor editor) throws ExecutionException {
+				editor.moveToPreviousLine(true);
+			}
+		});
+		addKey(keyMap, CHAR_NONE, SWT.ARROW_LEFT, SWT.NONE, new IVexWidgetHandler() {
+			@Override
+			public void execute(final ExecutionEvent event, final IDocumentEditor editor) throws ExecutionException {
+				editor.moveBy(-1);
+			}
+		});
+		addKey(keyMap, CHAR_NONE, SWT.ARROW_LEFT, SWT.SHIFT, new IVexWidgetHandler() {
+			@Override
+			public void execute(final ExecutionEvent event, final IDocumentEditor editor) throws ExecutionException {
+				editor.moveBy(-1, true);
+			}
+		});
+		addKey(keyMap, CHAR_NONE, SWT.ARROW_LEFT, SWT.CONTROL, new IVexWidgetHandler() {
+			@Override
+			public void execute(final ExecutionEvent event, final IDocumentEditor editor) throws ExecutionException {
+				editor.moveToPreviousWord(false);
+			}
+		});
+		addKey(keyMap, CHAR_NONE, SWT.ARROW_LEFT, SWT.SHIFT | SWT.CONTROL, new IVexWidgetHandler() {
+			@Override
+			public void execute(final ExecutionEvent event, final IDocumentEditor editor) throws ExecutionException {
+				editor.moveToPreviousWord(true);
+			}
+		});
+		addKey(keyMap, CHAR_NONE, SWT.ARROW_RIGHT, SWT.NONE, new IVexWidgetHandler() {
+			@Override
+			public void execute(final ExecutionEvent event, final IDocumentEditor editor) throws ExecutionException {
+				editor.moveBy(+1);
+			}
+		});
+		addKey(keyMap, CHAR_NONE, SWT.ARROW_RIGHT, SWT.SHIFT, new IVexWidgetHandler() {
+			@Override
+			public void execute(final ExecutionEvent event, final IDocumentEditor editor) throws ExecutionException {
+				editor.moveBy(+1, true);
+			}
+		});
+		addKey(keyMap, CHAR_NONE, SWT.ARROW_RIGHT, SWT.CONTROL, new IVexWidgetHandler() {
+			@Override
+			public void execute(final ExecutionEvent event, final IDocumentEditor editor) throws ExecutionException {
+				editor.moveToNextWord(false);
+			}
+		});
+		addKey(keyMap, CHAR_NONE, SWT.ARROW_RIGHT, SWT.SHIFT | SWT.CONTROL, new IVexWidgetHandler() {
+			@Override
+			public void execute(final ExecutionEvent event, final IDocumentEditor editor) throws ExecutionException {
+				editor.moveToNextWord(true);
+			}
+		});
+
+		// Delete/Backspace
+		addKey(keyMap, SWT.BS, SWT.BS, SWT.NONE, new IVexWidgetHandler() {
+			@Override
+			public void execute(final ExecutionEvent event, final IDocumentEditor editor) throws ExecutionException {
+				try {
+					editor.deleteBackward();
+				} catch (final DocumentValidationException e) {
+					throw new ExecutionException(e.getMessage(), e);
+				}
+			}
+		});
+		addKey(keyMap, SWT.DEL, SWT.DEL, SWT.NONE, new IVexWidgetHandler() {
+			@Override
+			public void execute(final ExecutionEvent event, final IDocumentEditor editor) throws ExecutionException {
+				try {
+					editor.deleteForward();
+				} catch (final DocumentValidationException e) {
+					throw new ExecutionException(e.getMessage(), e);
+				}
+			}
+		});
+
+		// {-, Shift, Ctrl, Shift+Ctrl} + Home/End
+		addKey(keyMap, CHAR_NONE, SWT.END, SWT.NONE, new IVexWidgetHandler() {
+			@Override
+			public void execute(final ExecutionEvent event, final IDocumentEditor editor) throws ExecutionException {
+				editor.moveToLineEnd(false);
+			}
+		});
+		addKey(keyMap, CHAR_NONE, SWT.END, SWT.SHIFT, new IVexWidgetHandler() {
+			@Override
+			public void execute(final ExecutionEvent event, final IDocumentEditor editor) throws ExecutionException {
+				editor.moveToLineEnd(true);
+			}
+		});
+		addKey(keyMap, CHAR_NONE, SWT.END, SWT.CONTROL, new IVexWidgetHandler() {
+			@Override
+			public void execute(final ExecutionEvent event, final IDocumentEditor editor) throws ExecutionException {
+				editor.moveTo(editor.getDocument().getEndPosition().moveBy(-1));
+			}
+		});
+		addKey(keyMap, CHAR_NONE, SWT.END, SWT.SHIFT | SWT.CONTROL, new IVexWidgetHandler() {
+			@Override
+			public void execute(final ExecutionEvent event, final IDocumentEditor editor) throws ExecutionException {
+				editor.moveTo(editor.getDocument().getEndPosition().moveBy(-1));
+			}
+		});
+		addKey(keyMap, CHAR_NONE, SWT.HOME, SWT.NONE, new IVexWidgetHandler() {
+			@Override
+			public void execute(final ExecutionEvent event, final IDocumentEditor editor) throws ExecutionException {
+				editor.moveToLineStart(false);
+			}
+		});
+		addKey(keyMap, CHAR_NONE, SWT.HOME, SWT.SHIFT, new IVexWidgetHandler() {
+			@Override
+			public void execute(final ExecutionEvent event, final IDocumentEditor editor) throws ExecutionException {
+				editor.moveToLineStart(true);
+			}
+		});
+		addKey(keyMap, CHAR_NONE, SWT.HOME, SWT.CONTROL, new IVexWidgetHandler() {
+			@Override
+			public void execute(final ExecutionEvent event, final IDocumentEditor editor) throws ExecutionException {
+				editor.moveTo(editor.getDocument().getStartPosition().moveBy(1));
+			}
+		});
+		addKey(keyMap, CHAR_NONE, SWT.HOME, SWT.SHIFT | SWT.CONTROL, new IVexWidgetHandler() {
+			@Override
+			public void execute(final ExecutionEvent event, final IDocumentEditor editor) throws ExecutionException {
+				editor.moveTo(editor.getDocument().getStartPosition().moveBy(1), true);
+			}
+		});
+
+		// (Shift) Page Up/Down
+		addKey(keyMap, CHAR_NONE, SWT.PAGE_DOWN, SWT.NONE, new IVexWidgetHandler() {
+			@Override
+			public void execute(final ExecutionEvent event, final IDocumentEditor editor) throws ExecutionException {
+				editor.moveToNextPage(false);
+			}
+		});
+		addKey(keyMap, CHAR_NONE, SWT.PAGE_DOWN, SWT.SHIFT, new IVexWidgetHandler() {
+			@Override
+			public void execute(final ExecutionEvent event, final IDocumentEditor editor) throws ExecutionException {
+				editor.moveToNextPage(true);
+			}
+		});
+		addKey(keyMap, CHAR_NONE, SWT.PAGE_UP, SWT.NONE, new IVexWidgetHandler() {
+			@Override
+			public void execute(final ExecutionEvent event, final IDocumentEditor editor) throws ExecutionException {
+				editor.moveToPreviousPage(false);
+			}
+		});
+		addKey(keyMap, CHAR_NONE, SWT.PAGE_UP, SWT.SHIFT, new IVexWidgetHandler() {
+			@Override
+			public void execute(final ExecutionEvent event, final IDocumentEditor editor) throws ExecutionException {
+				editor.moveToPreviousPage(true);
+			}
+		});
+
+		return keyMap;
+	}
+
+	/*
 	 * Inner Classes
 	 */
 
@@ -710,4 +867,5 @@ public class BoxWidget extends Canvas implements ISelectionProvider, IDocumentEd
 			return new Rectangle(0, getVerticalBar().getSelection(), getSize().x, getSize().y);
 		}
 	}
+
 }
