@@ -103,11 +103,11 @@ public class DTDValidatorTest {
 		assertValidItemsAt(doc, 0);
 		assertValidItemsAt(doc, 1);
 		assertValidItemsAt(doc, 2, "title", "para");
-		assertValidItemsAt(doc, 3);
-		assertValidItemsAt(doc, 4);
-		assertValidItemsAt(doc, 5);
+		assertValidItemsAt(doc, 3, "#PCDATA");
+		assertValidItemsAt(doc, 4, "#PCDATA");
+		assertValidItemsAt(doc, 5, "#PCDATA");
 		assertValidItemsAt(doc, 6, "title", "para");
-		assertValidItemsAt(doc, 7, "emphasis", "pre");
+		assertValidItemsAt(doc, 7, "emphasis", "pre", "#PCDATA");
 		assertValidItemsAt(doc, 8, "title", "para");
 	}
 

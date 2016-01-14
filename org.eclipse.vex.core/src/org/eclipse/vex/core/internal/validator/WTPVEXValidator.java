@@ -280,6 +280,9 @@ public class WTPVEXValidator implements IValidator {
 				result.add(createQualifiedElementName(childDeclaration));
 			}
 		}
+		if (elementDeclaration.getContentType() == CMElementDeclaration.PCDATA || elementDeclaration.getContentType() == CMElementDeclaration.MIXED) {
+			result.add(PCDATA);
+		}
 		return result;
 	}
 
