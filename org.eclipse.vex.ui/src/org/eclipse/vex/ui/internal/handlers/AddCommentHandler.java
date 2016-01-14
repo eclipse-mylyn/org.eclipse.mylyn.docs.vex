@@ -10,8 +10,9 @@
  *******************************************************************************/
 package org.eclipse.vex.ui.internal.handlers;
 
+import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.vex.core.internal.widget.swt.VexWidget;
+import org.eclipse.vex.core.internal.widget.IDocumentEditor;
 
 /**
  * @author Florian Thienel
@@ -19,9 +20,9 @@ import org.eclipse.vex.core.internal.widget.swt.VexWidget;
 public class AddCommentHandler extends AbstractVexWidgetHandler {
 
 	@Override
-	public void execute(final VexWidget widget) throws ExecutionException {
-		if (widget.canInsertComment()) {
-			widget.insertComment();
+	public void execute(ExecutionEvent event, final IDocumentEditor editor) throws ExecutionException {
+		if (editor.canInsertComment()) {
+			editor.insertComment();
 		}
 	}
 

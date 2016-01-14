@@ -10,8 +10,9 @@
  *******************************************************************************/
 package org.eclipse.vex.ui.internal.handlers;
 
+import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.vex.core.internal.widget.swt.VexWidget;
+import org.eclipse.vex.core.internal.widget.IDocumentEditor;
 import org.eclipse.vex.core.provisional.dom.ContentPosition;
 import org.eclipse.vex.core.provisional.dom.ContentPositionRange;
 import org.eclipse.vex.ui.internal.handlers.VexHandlerUtil.SelectedRows;
@@ -25,23 +26,23 @@ import org.eclipse.vex.ui.internal.handlers.VexHandlerUtil.SelectedRows;
 public abstract class AbstractMoveRowHandler extends AbstractVexWidgetHandler {
 
 	@Override
-	public void execute(final VexWidget widget) throws ExecutionException {
-		final VexHandlerUtil.SelectedRows selected = VexHandlerUtil.getSelectedTableRows(widget);
+	public void execute(ExecutionEvent event, final IDocumentEditor editor) throws ExecutionException {
+		final VexHandlerUtil.SelectedRows selected = VexHandlerUtil.getSelectedTableRows(editor);
 
 		if (selected.getRows() == null || targetRow(selected) == null) {
 			return;
 		}
 
-		widget.doWork(new Runnable() {
+		editor.doWork(new Runnable() {
 			@Override
 			public void run() {
 				final ContentPositionRange range = VexHandlerUtil.getOuterRange(targetRow(selected));
-				widget.moveTo(range.getStartPosition());
-				widget.moveTo(range.getEndPosition(), true);
-				widget.cutSelection();
+				editor.moveTo(range.getStartPosition());
+				editor.moveTo(range.getEndPosition(), true);
+				editor.cutSelection();
 
-				widget.moveTo(target(selected));
-				widget.paste();
+				editor.moveTo(target(selected));
+				editor.paste();
 			}
 
 		}, true);

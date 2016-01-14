@@ -12,7 +12,7 @@ package org.eclipse.vex.ui.internal.handlers;
 
 import java.util.NoSuchElementException;
 
-import org.eclipse.vex.core.internal.widget.swt.VexWidget;
+import org.eclipse.vex.core.internal.widget.IDocumentEditor;
 import org.eclipse.vex.core.provisional.dom.ContentPosition;
 import org.eclipse.vex.core.provisional.dom.IElement;
 
@@ -24,7 +24,7 @@ import org.eclipse.vex.core.provisional.dom.IElement;
 public class PreviousTableCellHandler extends AbstractNavigateTableCellHandler {
 
 	@Override
-	protected void navigate(final VexWidget widget, final IElement tableRow, final ContentPosition position) {
+	protected void navigate(final IDocumentEditor editor, final IElement tableRow, final ContentPosition position) {
 		IElement siblingCell = null;
 		for (final IElement cell : tableRow.childElements()) {
 			if (cell.getEndPosition().isAfterOrEquals(position)) {
@@ -35,7 +35,7 @@ public class PreviousTableCellHandler extends AbstractNavigateTableCellHandler {
 
 		// in this row
 		if (siblingCell != null) {
-			widget.moveTo(siblingCell.getStartPosition().moveBy(1));
+			editor.moveTo(siblingCell.getStartPosition().moveBy(1));
 			return;
 		}
 
@@ -51,7 +51,7 @@ public class PreviousTableCellHandler extends AbstractNavigateTableCellHandler {
 		if (siblingRow != null) {
 			final IElement lastCell = lastCellOf(siblingRow);
 			if (lastCell != null) {
-				widget.moveTo(lastCell.getStartPosition().moveBy(1));
+				editor.moveTo(lastCell.getStartPosition().moveBy(1));
 			}
 		}
 	}

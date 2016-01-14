@@ -12,8 +12,9 @@
  *******************************************************************************/
 package org.eclipse.vex.ui.internal.handlers;
 
+import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.vex.core.internal.widget.swt.VexWidget;
+import org.eclipse.vex.core.internal.widget.IDocumentEditor;
 import org.eclipse.vex.core.provisional.dom.IElement;
 
 /**
@@ -26,11 +27,11 @@ import org.eclipse.vex.core.provisional.dom.IElement;
 public abstract class AbstractAddRowHandler extends AbstractVexWidgetHandler {
 
 	@Override
-	public void execute(final VexWidget widget) throws ExecutionException {
-		widget.doWork(new Runnable() {
+	public void execute(ExecutionEvent event, final IDocumentEditor editor) throws ExecutionException {
+		editor.doWork(new Runnable() {
 			@Override
 			public void run() {
-				addRow(widget);
+				addRow(editor);
 			}
 		});
 	}
@@ -40,16 +41,16 @@ public abstract class AbstractAddRowHandler extends AbstractVexWidgetHandler {
 	 */
 	protected abstract boolean addAbove();
 
-	private void addRow(final VexWidget widget) {
+	private void addRow(final IDocumentEditor editor) {
 		// Find the parent table row
-		final IElement currentRow = VexHandlerUtil.getCurrentTableRow(widget);
+		final IElement currentRow = VexHandlerUtil.getCurrentTableRow(editor);
 
 		// Do nothing is the caret is not inside a table row
-		if (currentRow == widget.getDocument().getRootElement()) {
+		if (currentRow == editor.getDocument().getRootElement()) {
 			return;
 		}
 
-		VexHandlerUtil.duplicateTableRow(widget, currentRow, addAbove());
+		VexHandlerUtil.duplicateTableRow(editor, currentRow, addAbove());
 
 	}
 }

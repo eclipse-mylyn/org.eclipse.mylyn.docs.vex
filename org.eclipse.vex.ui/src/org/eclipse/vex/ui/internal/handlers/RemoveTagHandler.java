@@ -13,10 +13,11 @@ package org.eclipse.vex.ui.internal.handlers;
 
 import java.util.Map;
 
+import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.ui.commands.IElementUpdater;
 import org.eclipse.ui.menus.UIElement;
-import org.eclipse.vex.core.internal.widget.swt.VexWidget;
+import org.eclipse.vex.core.internal.widget.IDocumentEditor;
 
 /**
  * Removes the current tag: deletes the element but adds its content to the parent element.
@@ -30,9 +31,9 @@ public class RemoveTagHandler extends AbstractVexWidgetHandler implements IEleme
 	private static final String PARTSITE_SCOPE_DYNAMIC_LABEL_ID = "command.removeTag.dynamicName"; //$NON-NLS-1$
 
 	@Override
-	public void execute(final VexWidget widget) throws ExecutionException {
-		if (widget.canUnwrap()) {
-			widget.unwrap();
+	public void execute(ExecutionEvent event, final IDocumentEditor editor) throws ExecutionException {
+		if (editor.canUnwrap()) {
+			editor.unwrap();
 		}
 	}
 

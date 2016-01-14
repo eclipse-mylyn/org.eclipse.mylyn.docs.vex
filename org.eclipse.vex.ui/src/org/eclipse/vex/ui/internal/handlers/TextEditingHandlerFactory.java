@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.vex.ui.internal.handlers;
 
+import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
@@ -17,7 +18,7 @@ import org.eclipse.core.runtime.IExecutableExtension;
 import org.eclipse.core.runtime.IExecutableExtensionFactory;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
-import org.eclipse.vex.core.internal.widget.swt.VexWidget;
+import org.eclipse.vex.core.internal.widget.IDocumentEditor;
 import org.eclipse.vex.core.provisional.dom.ContentPosition;
 import org.eclipse.vex.ui.internal.VexPlugin;
 
@@ -183,8 +184,8 @@ public class TextEditingHandlerFactory implements IExecutableExtensionFactory, I
 	private static class PreviousColumn extends AbstractVexWidgetHandler {
 
 		@Override
-		public void execute(final VexWidget widget) throws ExecutionException {
-			widget.moveBy(-1);
+		public void execute(ExecutionEvent event, final IDocumentEditor editor) throws ExecutionException {
+			editor.moveBy(-1);
 		}
 
 	}
@@ -192,8 +193,8 @@ public class TextEditingHandlerFactory implements IExecutableExtensionFactory, I
 	private static class NextColumn extends AbstractVexWidgetHandler {
 
 		@Override
-		public void execute(final VexWidget widget) throws ExecutionException {
-			widget.moveBy(1);
+		public void execute(ExecutionEvent event, final IDocumentEditor editor) throws ExecutionException {
+			editor.moveBy(1);
 		}
 
 	}
@@ -201,8 +202,8 @@ public class TextEditingHandlerFactory implements IExecutableExtensionFactory, I
 	private static class LineUp extends AbstractVexWidgetHandler {
 
 		@Override
-		public void execute(final VexWidget widget) throws ExecutionException {
-			widget.moveToPreviousLine(false);
+		public void execute(ExecutionEvent event, final IDocumentEditor editor) throws ExecutionException {
+			editor.moveToPreviousLine(false);
 		}
 
 	}
@@ -210,8 +211,8 @@ public class TextEditingHandlerFactory implements IExecutableExtensionFactory, I
 	private static class LineDown extends AbstractVexWidgetHandler {
 
 		@Override
-		public void execute(final VexWidget widget) throws ExecutionException {
-			widget.moveToNextLine(false);
+		public void execute(ExecutionEvent event, final IDocumentEditor editor) throws ExecutionException {
+			editor.moveToNextLine(false);
 		}
 
 	}
@@ -219,8 +220,8 @@ public class TextEditingHandlerFactory implements IExecutableExtensionFactory, I
 	private static class PreviousWord extends AbstractVexWidgetHandler {
 
 		@Override
-		public void execute(final VexWidget widget) throws ExecutionException {
-			widget.moveToPreviousWord(false);
+		public void execute(ExecutionEvent event, final IDocumentEditor editor) throws ExecutionException {
+			editor.moveToPreviousWord(false);
 		}
 
 	}
@@ -228,8 +229,8 @@ public class TextEditingHandlerFactory implements IExecutableExtensionFactory, I
 	private static class NextWord extends AbstractVexWidgetHandler {
 
 		@Override
-		public void execute(final VexWidget widget) throws ExecutionException {
-			widget.moveToNextWord(false);
+		public void execute(ExecutionEvent event, final IDocumentEditor editor) throws ExecutionException {
+			editor.moveToNextWord(false);
 		}
 
 	}
@@ -237,8 +238,8 @@ public class TextEditingHandlerFactory implements IExecutableExtensionFactory, I
 	private static class LineStart extends AbstractVexWidgetHandler {
 
 		@Override
-		public void execute(final VexWidget widget) throws ExecutionException {
-			widget.moveToLineStart(false);
+		public void execute(ExecutionEvent event, final IDocumentEditor editor) throws ExecutionException {
+			editor.moveToLineStart(false);
 		}
 
 	}
@@ -246,8 +247,8 @@ public class TextEditingHandlerFactory implements IExecutableExtensionFactory, I
 	private static class LineEnd extends AbstractVexWidgetHandler {
 
 		@Override
-		public void execute(final VexWidget widget) throws ExecutionException {
-			widget.moveToLineEnd(false);
+		public void execute(ExecutionEvent event, final IDocumentEditor editor) throws ExecutionException {
+			editor.moveToLineEnd(false);
 		}
 
 	}
@@ -255,8 +256,8 @@ public class TextEditingHandlerFactory implements IExecutableExtensionFactory, I
 	private static class PageUp extends AbstractVexWidgetHandler {
 
 		@Override
-		public void execute(final VexWidget widget) throws ExecutionException {
-			widget.moveToPreviousPage(false);
+		public void execute(ExecutionEvent event, final IDocumentEditor editor) throws ExecutionException {
+			editor.moveToPreviousPage(false);
 		}
 
 	}
@@ -264,8 +265,8 @@ public class TextEditingHandlerFactory implements IExecutableExtensionFactory, I
 	private static class PageDown extends AbstractVexWidgetHandler {
 
 		@Override
-		public void execute(final VexWidget widget) throws ExecutionException {
-			widget.moveToNextPage(false);
+		public void execute(ExecutionEvent event, final IDocumentEditor editor) throws ExecutionException {
+			editor.moveToNextPage(false);
 		}
 
 	}
@@ -273,8 +274,8 @@ public class TextEditingHandlerFactory implements IExecutableExtensionFactory, I
 	private static class TextStart extends AbstractVexWidgetHandler {
 
 		@Override
-		public void execute(final VexWidget widget) throws ExecutionException {
-			widget.moveTo(widget.getDocument().getStartPosition());
+		public void execute(ExecutionEvent event, final IDocumentEditor editor) throws ExecutionException {
+			editor.moveTo(editor.getDocument().getStartPosition());
 		}
 
 	}
@@ -282,8 +283,8 @@ public class TextEditingHandlerFactory implements IExecutableExtensionFactory, I
 	private static class TextEnd extends AbstractVexWidgetHandler {
 
 		@Override
-		public void execute(final VexWidget widget) throws ExecutionException {
-			widget.moveTo(widget.getDocument().getEndPosition().moveBy(-1));
+		public void execute(ExecutionEvent event, final IDocumentEditor editor) throws ExecutionException {
+			editor.moveTo(editor.getDocument().getEndPosition().moveBy(-1));
 		}
 
 	}
@@ -291,8 +292,8 @@ public class TextEditingHandlerFactory implements IExecutableExtensionFactory, I
 	private static class SelectPreviousColumn extends AbstractVexWidgetHandler {
 
 		@Override
-		public void execute(final VexWidget widget) throws ExecutionException {
-			widget.moveBy(-1, true);
+		public void execute(ExecutionEvent event, final IDocumentEditor editor) throws ExecutionException {
+			editor.moveBy(-1, true);
 		}
 
 	}
@@ -300,8 +301,8 @@ public class TextEditingHandlerFactory implements IExecutableExtensionFactory, I
 	private static class SelectNextColumn extends AbstractVexWidgetHandler {
 
 		@Override
-		public void execute(final VexWidget widget) throws ExecutionException {
-			widget.moveBy(1, true);
+		public void execute(ExecutionEvent event, final IDocumentEditor editor) throws ExecutionException {
+			editor.moveBy(1, true);
 		}
 
 	}
@@ -309,8 +310,8 @@ public class TextEditingHandlerFactory implements IExecutableExtensionFactory, I
 	private static class SelectLineUp extends AbstractVexWidgetHandler {
 
 		@Override
-		public void execute(final VexWidget widget) throws ExecutionException {
-			widget.moveToPreviousLine(true);
+		public void execute(ExecutionEvent event, final IDocumentEditor editor) throws ExecutionException {
+			editor.moveToPreviousLine(true);
 		}
 
 	}
@@ -318,8 +319,8 @@ public class TextEditingHandlerFactory implements IExecutableExtensionFactory, I
 	private static class SelectLineDown extends AbstractVexWidgetHandler {
 
 		@Override
-		public void execute(final VexWidget widget) throws ExecutionException {
-			widget.moveToNextLine(true);
+		public void execute(ExecutionEvent event, final IDocumentEditor editor) throws ExecutionException {
+			editor.moveToNextLine(true);
 		}
 
 	}
@@ -327,8 +328,8 @@ public class TextEditingHandlerFactory implements IExecutableExtensionFactory, I
 	private static class SelectPreviousWord extends AbstractVexWidgetHandler {
 
 		@Override
-		public void execute(final VexWidget widget) throws ExecutionException {
-			widget.moveToPreviousWord(true);
+		public void execute(ExecutionEvent event, final IDocumentEditor editor) throws ExecutionException {
+			editor.moveToPreviousWord(true);
 		}
 
 	}
@@ -336,8 +337,8 @@ public class TextEditingHandlerFactory implements IExecutableExtensionFactory, I
 	private static class SelectNextWord extends AbstractVexWidgetHandler {
 
 		@Override
-		public void execute(final VexWidget widget) throws ExecutionException {
-			widget.moveToNextWord(true);
+		public void execute(ExecutionEvent event, final IDocumentEditor editor) throws ExecutionException {
+			editor.moveToNextWord(true);
 		}
 
 	}
@@ -345,8 +346,8 @@ public class TextEditingHandlerFactory implements IExecutableExtensionFactory, I
 	private static class SelectLineStart extends AbstractVexWidgetHandler {
 
 		@Override
-		public void execute(final VexWidget widget) throws ExecutionException {
-			widget.moveToLineStart(true);
+		public void execute(ExecutionEvent event, final IDocumentEditor editor) throws ExecutionException {
+			editor.moveToLineStart(true);
 		}
 
 	}
@@ -354,8 +355,8 @@ public class TextEditingHandlerFactory implements IExecutableExtensionFactory, I
 	private static class SelectLineEnd extends AbstractVexWidgetHandler {
 
 		@Override
-		public void execute(final VexWidget widget) throws ExecutionException {
-			widget.moveToLineEnd(true);
+		public void execute(ExecutionEvent event, final IDocumentEditor editor) throws ExecutionException {
+			editor.moveToLineEnd(true);
 		}
 
 	}
@@ -363,8 +364,8 @@ public class TextEditingHandlerFactory implements IExecutableExtensionFactory, I
 	private static class SelectPageUp extends AbstractVexWidgetHandler {
 
 		@Override
-		public void execute(final VexWidget widget) throws ExecutionException {
-			widget.moveToPreviousPage(true);
+		public void execute(ExecutionEvent event, final IDocumentEditor editor) throws ExecutionException {
+			editor.moveToPreviousPage(true);
 		}
 
 	}
@@ -372,8 +373,8 @@ public class TextEditingHandlerFactory implements IExecutableExtensionFactory, I
 	private static class SelectPageDown extends AbstractVexWidgetHandler {
 
 		@Override
-		public void execute(final VexWidget widget) throws ExecutionException {
-			widget.moveToNextPage(true);
+		public void execute(ExecutionEvent event, final IDocumentEditor editor) throws ExecutionException {
+			editor.moveToNextPage(true);
 		}
 
 	}
@@ -381,8 +382,8 @@ public class TextEditingHandlerFactory implements IExecutableExtensionFactory, I
 	private static class SelectTextStart extends AbstractVexWidgetHandler {
 
 		@Override
-		public void execute(final VexWidget widget) throws ExecutionException {
-			widget.moveTo(widget.getDocument().getStartPosition(), true);
+		public void execute(ExecutionEvent event, final IDocumentEditor editor) throws ExecutionException {
+			editor.moveTo(editor.getDocument().getStartPosition(), true);
 		}
 
 	}
@@ -390,8 +391,8 @@ public class TextEditingHandlerFactory implements IExecutableExtensionFactory, I
 	private static class SelectTextEnd extends AbstractVexWidgetHandler {
 
 		@Override
-		public void execute(final VexWidget widget) throws ExecutionException {
-			widget.moveTo(widget.getDocument().getEndPosition().moveBy(-1), true);
+		public void execute(ExecutionEvent event, final IDocumentEditor editor) throws ExecutionException {
+			editor.moveTo(editor.getDocument().getEndPosition().moveBy(-1), true);
 		}
 
 	}
@@ -399,16 +400,16 @@ public class TextEditingHandlerFactory implements IExecutableExtensionFactory, I
 	private static class DeletePrevious extends AbstractVexWidgetHandler {
 
 		@Override
-		public void execute(final VexWidget widget) throws ExecutionException {
-			widget.deleteBackward();
+		public void execute(ExecutionEvent event, final IDocumentEditor editor) throws ExecutionException {
+			editor.deleteBackward();
 		}
 	}
 
 	private static class DeleteNext extends AbstractVexWidgetHandler {
 
 		@Override
-		public void execute(final VexWidget widget) throws ExecutionException {
-			widget.deleteForward();
+		public void execute(ExecutionEvent event, final IDocumentEditor editor) throws ExecutionException {
+			editor.deleteForward();
 		}
 
 	}
@@ -416,9 +417,9 @@ public class TextEditingHandlerFactory implements IExecutableExtensionFactory, I
 	private static class DeletePreviousWord extends AbstractVexWidgetHandler {
 
 		@Override
-		public void execute(final VexWidget widget) throws ExecutionException {
-			widget.moveToPreviousWord(true);
-			widget.deleteSelection();
+		public void execute(ExecutionEvent event, final IDocumentEditor editor) throws ExecutionException {
+			editor.moveToPreviousWord(true);
+			editor.deleteSelection();
 		}
 
 	}
@@ -426,9 +427,9 @@ public class TextEditingHandlerFactory implements IExecutableExtensionFactory, I
 	private static class DeleteNextWord extends AbstractVexWidgetHandler {
 
 		@Override
-		public void execute(final VexWidget widget) throws ExecutionException {
-			widget.moveToNextWord(true);
-			widget.deleteSelection();
+		public void execute(ExecutionEvent event, final IDocumentEditor editor) throws ExecutionException {
+			editor.moveToNextWord(true);
+			editor.deleteSelection();
 		}
 
 	}
@@ -436,9 +437,9 @@ public class TextEditingHandlerFactory implements IExecutableExtensionFactory, I
 	private static class DeleteLine extends AbstractVexWidgetHandler {
 
 		@Override
-		public void execute(final VexWidget widget) throws ExecutionException {
-			selectWholeLines(widget);
-			widget.deleteSelection();
+		public void execute(ExecutionEvent event, final IDocumentEditor editor) throws ExecutionException {
+			selectWholeLines(editor);
+			editor.deleteSelection();
 
 		}
 
@@ -447,15 +448,15 @@ public class TextEditingHandlerFactory implements IExecutableExtensionFactory, I
 	private static class DeleteToBeginningOfLine extends AbstractVexWidgetHandler {
 
 		@Override
-		public void execute(final VexWidget widget) throws ExecutionException {
-			final int selectionLength = widget.getSelectedRange().length();
+		public void execute(ExecutionEvent event, final IDocumentEditor editor) throws ExecutionException {
+			final int selectionLength = editor.getSelectedRange().length();
 			if (selectionLength > 1) {
-				widget.moveTo(widget.getSelectedPositionRange().getStartPosition());
+				editor.moveTo(editor.getSelectedPositionRange().getStartPosition());
 			}
-			widget.moveToLineStart(true);
-			widget.deleteSelection();
+			editor.moveToLineStart(true);
+			editor.deleteSelection();
 			if (selectionLength > 1) {
-				widget.moveBy(selectionLength, true);
+				editor.moveBy(selectionLength, true);
 			}
 		}
 
@@ -464,12 +465,12 @@ public class TextEditingHandlerFactory implements IExecutableExtensionFactory, I
 	private static class DeleteToEndOfLine extends AbstractVexWidgetHandler {
 
 		@Override
-		public void execute(final VexWidget widget) throws ExecutionException {
-			if (widget.hasSelection()) {
-				widget.moveTo(widget.getSelectedPositionRange().getStartPosition());
+		public void execute(ExecutionEvent event, final IDocumentEditor editor) throws ExecutionException {
+			if (editor.hasSelection()) {
+				editor.moveTo(editor.getSelectedPositionRange().getStartPosition());
 			}
-			widget.moveToLineEnd(true);
-			widget.deleteSelection();
+			editor.moveToLineEnd(true);
+			editor.deleteSelection();
 		}
 
 	}
@@ -477,9 +478,9 @@ public class TextEditingHandlerFactory implements IExecutableExtensionFactory, I
 	private static class CutLine extends AbstractVexWidgetHandler {
 
 		@Override
-		public void execute(final VexWidget widget) throws ExecutionException {
-			selectWholeLines(widget);
-			widget.cutSelection();
+		public void execute(ExecutionEvent event, final IDocumentEditor editor) throws ExecutionException {
+			selectWholeLines(editor);
+			editor.cutSelection();
 		}
 
 	}
@@ -487,15 +488,15 @@ public class TextEditingHandlerFactory implements IExecutableExtensionFactory, I
 	private static class CutLineToBeginning extends AbstractVexWidgetHandler {
 
 		@Override
-		public void execute(final VexWidget widget) throws ExecutionException {
-			final int selectionLength = widget.getSelectedRange().length();
+		public void execute(ExecutionEvent event, final IDocumentEditor editor) throws ExecutionException {
+			final int selectionLength = editor.getSelectedRange().length();
 			if (selectionLength > 1) {
-				widget.moveTo(widget.getSelectedPositionRange().getStartPosition());
+				editor.moveTo(editor.getSelectedPositionRange().getStartPosition());
 			}
-			widget.moveToLineStart(true);
-			widget.cutSelection();
+			editor.moveToLineStart(true);
+			editor.cutSelection();
 			if (selectionLength > 1) {
-				widget.moveBy(selectionLength, true);
+				editor.moveBy(selectionLength, true);
 			}
 		}
 
@@ -504,40 +505,40 @@ public class TextEditingHandlerFactory implements IExecutableExtensionFactory, I
 	private static class CutLineToEnd extends AbstractVexWidgetHandler {
 
 		@Override
-		public void execute(final VexWidget widget) throws ExecutionException {
-			if (widget.hasSelection()) {
-				widget.moveTo(widget.getSelectedPositionRange().getStartPosition());
+		public void execute(ExecutionEvent event, final IDocumentEditor editor) throws ExecutionException {
+			if (editor.hasSelection()) {
+				editor.moveTo(editor.getSelectedPositionRange().getStartPosition());
 			}
-			widget.moveToLineEnd(true);
-			widget.cutSelection();
+			editor.moveToLineEnd(true);
+			editor.cutSelection();
 		}
 
 	}
 
-	private static void selectWholeLines(final VexWidget widget) {
+	private static void selectWholeLines(final IDocumentEditor editor) {
 
 		// no selection?
-		if (!widget.hasSelection()) {
-			widget.moveToLineStart(false);
-			widget.moveToLineEnd(true);
+		if (!editor.hasSelection()) {
+			editor.moveToLineStart(false);
+			editor.moveToLineEnd(true);
 			return;
 		}
 
 		// remember start
-		final ContentPosition start = widget.getSelectedPositionRange().getStartPosition();
+		final ContentPosition start = editor.getSelectedPositionRange().getStartPosition();
 
 		// calculate end of deletion
-		ContentPosition end = widget.getSelectedPositionRange().getEndPosition();
-		widget.moveTo(end);
-		widget.moveToLineEnd(false);
-		end = widget.getCaretPosition();
+		ContentPosition end = editor.getSelectedPositionRange().getEndPosition();
+		editor.moveTo(end);
+		editor.moveToLineEnd(false);
+		end = editor.getCaretPosition();
 
 		// go to start of deletion
-		widget.moveTo(start);
-		widget.moveToLineStart(false);
+		editor.moveTo(start);
+		editor.moveToLineStart(false);
 
 		// select and delete
-		widget.moveTo(end, true);
+		editor.moveTo(end, true);
 
 	}
 

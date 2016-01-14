@@ -82,6 +82,7 @@ public class DocumentEditor implements IDocumentEditor {
 
 	private IDocument document;
 	private IWhitespacePolicy whitespacePolicy;
+	private ITableModel tableModel;
 	private boolean readOnly;
 
 	private INode currentNode;
@@ -141,6 +142,16 @@ public class DocumentEditor implements IDocumentEditor {
 		} else {
 			this.whitespacePolicy = whitespacePolicy;
 		}
+	}
+
+	@Override
+	public ITableModel getTableModel() {
+		return tableModel;
+	}
+
+	@Override
+	public void setTableModel(final ITableModel tableModel) {
+		this.tableModel = tableModel;
 	}
 
 	@Override

@@ -15,6 +15,7 @@ import java.util.Map;
 
 import org.eclipse.ui.AbstractSourceProvider;
 import org.eclipse.ui.ISources;
+import org.eclipse.vex.core.internal.core.Rectangle;
 import org.eclipse.vex.core.internal.widget.swt.VexWidget;
 import org.eclipse.vex.core.provisional.dom.BaseNodeVisitorWithResult;
 import org.eclipse.vex.core.provisional.dom.IComment;
@@ -61,6 +62,10 @@ public class DocumentContextSourceProvider extends AbstractSourceProvider {
 	/** Variable ID of the <em>is-processing-instruction</em> flag. */
 	public static final String IS_PROCESSING_INSTRUCTION = "org.eclipse.vex.ui.isProcessingInstruction";
 
+	public static final String CARET_AREA = "org.eclipse.vex.ui.caretArea";
+
+	public static final String CURRENT_NODE = "org.eclipse.vex.ui.currentNode";
+
 	private boolean isColumn;
 	private boolean isFirstColumn;
 	private boolean isLastColumn;
@@ -71,6 +76,7 @@ public class DocumentContextSourceProvider extends AbstractSourceProvider {
 	private boolean isComment;
 	private boolean isProcessingInstruction;
 
+	private Rectangle caretArea;
 	private INode currentNode;
 
 	@Override
@@ -84,8 +90,8 @@ public class DocumentContextSourceProvider extends AbstractSourceProvider {
 	}
 
 	@Override
-	public Map<String, Boolean> getCurrentState() {
-		final Map<String, Boolean> currentState = new HashMap<String, Boolean>(6);
+	public Map<String, Object> getCurrentState() {
+		final Map<String, Object> currentState = new HashMap<String, Object>(20);
 		currentState.put(IS_COLUMN, Boolean.valueOf(isColumn));
 		currentState.put(IS_FIRST_COLUMN, Boolean.valueOf(isFirstColumn));
 		currentState.put(IS_LAST_COLUMN, Boolean.valueOf(isLastColumn));
@@ -95,6 +101,9 @@ public class DocumentContextSourceProvider extends AbstractSourceProvider {
 		currentState.put(IS_ELEMENT, Boolean.valueOf(isElement));
 		currentState.put(IS_COMMENT, Boolean.valueOf(isComment));
 		currentState.put(IS_PROCESSING_INSTRUCTION, Boolean.valueOf(isProcessingInstruction));
+		currentState.put(CARET_AREA, caretArea);
+		currentState.put(CURRENT_NODE, currentNode);
+
 		return currentState;
 	}
 
@@ -103,9 +112,11 @@ public class DocumentContextSourceProvider extends AbstractSourceProvider {
 	 *
 	 * @param widget
 	 *            the Vex widget containing the actual states
+	 * @param caretArea
+	 *            TODO
 	 */
-	public void fireUpdate(final VexWidget widget) {
-		final Map<String, Boolean> changes = new HashMap<String, Boolean>();
+	public void fireUpdate(final VexWidget widget, final Rectangle caretArea) {
+		final Map<String, Object> changes = new HashMap<String, Object>();
 		final RowColumnInfo rowColumnInfo = VexHandlerUtil.getRowColumnInfo(widget);
 
 		// column
@@ -128,6 +139,12 @@ public class DocumentContextSourceProvider extends AbstractSourceProvider {
 			// No need to evaluate if the node has not changed
 			currentNode = selectedNode;
 			changes.putAll(currentNode.accept(nodeTypeVisitor));
+			changes.put(CURRENT_NODE, currentNode);
+		}
+
+		if (!caretArea.equals(this.caretArea)) {
+			this.caretArea = caretArea;
+			changes.put(CARET_AREA, this.caretArea);
 		}
 
 		if (!changes.isEmpty()) {
@@ -135,7 +152,7 @@ public class DocumentContextSourceProvider extends AbstractSourceProvider {
 		}
 	}
 
-	private static boolean update(final Map<String, Boolean> changes, final boolean oldValue, final boolean newValue, final String valueName) {
+	private static boolean update(final Map<String, Object> changes, final boolean oldValue, final boolean newValue, final String valueName) {
 		if (newValue == oldValue) {
 			return oldValue;
 		}
@@ -144,10 +161,10 @@ public class DocumentContextSourceProvider extends AbstractSourceProvider {
 		return newValue;
 	}
 
-	private final INodeVisitorWithResult<Map<String, Boolean>> nodeTypeVisitor = new BaseNodeVisitorWithResult<Map<String, Boolean>>(new HashMap<String, Boolean>()) {
+	private final INodeVisitorWithResult<Map<String, Object>> nodeTypeVisitor = new BaseNodeVisitorWithResult<Map<String, Object>>(new HashMap<String, Object>()) {
 		@Override
-		public Map<String, Boolean> visit(final IElement element) {
-			final Map<String, Boolean> result = new HashMap<String, Boolean>(3);
+		public Map<String, Object> visit(final IElement element) {
+			final Map<String, Object> result = new HashMap<String, Object>(3);
 			result.put(IS_ELEMENT, true);
 			result.put(IS_COMMENT, false);
 			result.put(IS_PROCESSING_INSTRUCTION, false);
@@ -155,8 +172,8 @@ public class DocumentContextSourceProvider extends AbstractSourceProvider {
 		};
 
 		@Override
-		public Map<String, Boolean> visit(final IComment comment) {
-			final Map<String, Boolean> result = new HashMap<String, Boolean>(3);
+		public Map<String, Object> visit(final IComment comment) {
+			final Map<String, Object> result = new HashMap<String, Object>(3);
 			result.put(IS_ELEMENT, false);
 			result.put(IS_COMMENT, true);
 			result.put(IS_PROCESSING_INSTRUCTION, false);
@@ -164,8 +181,8 @@ public class DocumentContextSourceProvider extends AbstractSourceProvider {
 		};
 
 		@Override
-		public Map<String, Boolean> visit(final IProcessingInstruction pi) {
-			final Map<String, Boolean> result = new HashMap<String, Boolean>(3);
+		public Map<String, Object> visit(final IProcessingInstruction pi) {
+			final Map<String, Object> result = new HashMap<String, Object>(3);
 			result.put(IS_ELEMENT, false);
 			result.put(IS_COMMENT, false);
 			result.put(IS_PROCESSING_INSTRUCTION, true);
@@ -173,7 +190,7 @@ public class DocumentContextSourceProvider extends AbstractSourceProvider {
 		};
 
 		@Override
-		public Map<String, Boolean> visit(final IText text) {
+		public Map<String, Object> visit(final IText text) {
 			return text.getParent().accept(this);
 		}
 	};

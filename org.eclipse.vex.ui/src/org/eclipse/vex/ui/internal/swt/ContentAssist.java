@@ -52,9 +52,10 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.vex.core.internal.core.ElementName;
-import org.eclipse.vex.core.internal.widget.swt.VexWidget;
+import org.eclipse.vex.core.internal.widget.IDocumentEditor;
 import org.eclipse.vex.core.provisional.dom.ContentPosition;
 import org.eclipse.vex.core.provisional.dom.IElement;
 import org.eclipse.vex.ui.internal.Icon;
@@ -69,7 +70,7 @@ public class ContentAssist extends PopupDialog {
 
 	private static final String SETTINGS_SECTION = "contentAssistant"; //$NON-NLS-1$
 
-	private final VexWidget vexWidget;
+	private final IDocumentEditor editor;
 	private final AbstractVexAction[] actions;
 	private final boolean autoExecute;
 	private final Point location;
@@ -80,32 +81,36 @@ public class ContentAssist extends PopupDialog {
 	/**
 	 * Constructs a new content assist dialog which can be opened by {@link #open()}.
 	 *
-	 * @param vexWidget
+	 * @param parentShell
+	 *            TODO
+	 * @param editor
 	 *            the vex widget this content assist belongs to
 	 * @param actions
 	 *            list of actions to select from
 	 * @param autoExecute
 	 *            if {@code true} and if there is only one action then {@link #open()} does not show dialog but executes
 	 *            the only action
+	 * @param location
+	 *            TODO
 	 */
-	private ContentAssist(final VexWidget vexWidget, final AbstractVexAction[] actions, final boolean autoExecute) {
-		super(vexWidget.getShell(), SWT.RESIZE, true, // take focus on open
+	private ContentAssist(final Shell parentShell, final IDocumentEditor editor, final AbstractVexAction[] actions, final boolean autoExecute, final Point location) {
+		super(parentShell, SWT.RESIZE, true, // take focus on open
 				false, // persist size
 				false, // persist location
 				false, // show dialog menu
 				false, // show persist actions
 				null, // title
 				null); // footer line
-		this.vexWidget = vexWidget;
+		this.editor = editor;
 		this.actions = actions;
 		this.autoExecute = autoExecute;
-		location = vexWidget.toDisplay(vexWidget.getLocationForContentAssist());
+		this.location = location;
 	}
 
 	@Override
 	public int open() {
 		if (autoExecute && actions.length == 1) {
-			actions[0].execute(vexWidget);
+			actions[0].execute(editor);
 			return Window.OK;
 		}
 		return super.open();
@@ -212,7 +217,7 @@ public class ContentAssist extends PopupDialog {
 		if (selection instanceof StructuredSelection) {
 			final Object first = ((StructuredSelection) selection).getFirstElement();
 			if (first instanceof AbstractVexAction) {
-				((AbstractVexAction) first).execute(vexWidget);
+				((AbstractVexAction) first).execute(editor);
 			}
 		}
 		close();
@@ -283,22 +288,22 @@ public class ContentAssist extends PopupDialog {
 
 	private static abstract class AbstractVexAction {
 
-		private final VexWidget widget;
+		private final IDocumentEditor editor;
 		private final ElementName elementName;
 		private final String text;
 		private final Icon image;
 
-		public AbstractVexAction(final VexWidget widget, final ElementName elementName, final String text, final Icon image) {
-			this.widget = widget;
+		public AbstractVexAction(final IDocumentEditor editor, final ElementName elementName, final String text, final Icon image) {
+			this.editor = editor;
 			this.elementName = elementName;
 			this.text = text;
 			this.image = image;
 		}
 
-		abstract void execute(VexWidget vexWidget);
+		abstract void execute(IDocumentEditor editor);
 
-		public VexWidget getWidget() {
-			return widget;
+		public IDocumentEditor getEditor() {
+			return editor;
 		}
 
 		public ElementName getElementName() {
@@ -318,57 +323,65 @@ public class ContentAssist extends PopupDialog {
 	/**
 	 * Shows the content assist to add a new element.
 	 *
-	 * @param widget
+	 * @param parentShell
+	 *            TODO
+	 * @param editor
 	 *            the VexWidget which hosts the content assist
+	 * @param location
+	 *            TODO
 	 */
-	public static void openAddElementsContentAssist(final VexWidget widget) {
-		final AbstractVexAction[] addActions = computeAddElementsActions(widget);
-		final ContentAssist assist = new ContentAssist(widget, addActions, true);
+	public static void openAddElementsContentAssist(final Shell parentShell, final IDocumentEditor editor, final Point location) {
+		final AbstractVexAction[] addActions = computeAddElementsActions(editor);
+		final ContentAssist assist = new ContentAssist(parentShell, editor, addActions, true, location);
 		assist.open();
 	}
 
 	/**
 	 * Shows the content assist to convert current element.
-	 *
-	 * @param widget
+	 * 
+	 * @param parentShell
+	 *            TODO
+	 * @param editor
 	 *            the VexWidget which hosts the content assist
+	 * @param location
+	 *            TODO
 	 */
-	public static void openQuickFixContentAssist(final VexWidget widget) {
-		final AbstractVexAction[] quickFixActions = computeQuickFixActions(widget);
-		final ContentAssist assist = new ContentAssist(widget, quickFixActions, true);
+	public static void openQuickFixContentAssist(final Shell parentShell, final IDocumentEditor editor, final Point location) {
+		final AbstractVexAction[] quickFixActions = computeQuickFixActions(editor);
+		final ContentAssist assist = new ContentAssist(parentShell, editor, quickFixActions, true, location);
 		assist.open();
 	}
 
-	private static AbstractVexAction[] computeAddElementsActions(final VexWidget widget) {
-		final ElementName[] names = widget.getValidInsertElements();
+	private static AbstractVexAction[] computeAddElementsActions(final IDocumentEditor editor) {
+		final ElementName[] names = editor.getValidInsertElements();
 		final AbstractVexAction[] actions = new AbstractVexAction[names.length];
 		for (int i = 0; i < names.length; i++) {
 			final QualifiedName qualifiedName = names[i].getQualifiedName();
-			actions[i] = new AbstractVexAction(widget, names[i], names[i].toString(), Icon.ELEMENT) {
+			actions[i] = new AbstractVexAction(editor, names[i], names[i].toString(), Icon.ELEMENT) {
 				@Override
-				public void execute(final VexWidget vexWidget) {
-					getWidget().insertElement(qualifiedName);
+				public void execute(final IDocumentEditor editor) {
+					getEditor().insertElement(qualifiedName);
 				}
 			};
 		}
 		return actions;
 	}
 
-	private static AbstractVexAction[] computeQuickFixActions(final VexWidget widget) {
-		final ElementName[] names = widget.getValidMorphElements();
+	private static AbstractVexAction[] computeQuickFixActions(final IDocumentEditor editor) {
+		final ElementName[] names = editor.getValidMorphElements();
 		final AbstractVexAction[] actions = new AbstractVexAction[names.length];
-		final ContentPosition caretPosition = widget.getCaretPosition();
-		final IElement element = widget.getDocument().getElementForInsertionAt(caretPosition.getOffset());
+		final ContentPosition caretPosition = editor.getCaretPosition();
+		final IElement element = editor.getDocument().getElementForInsertionAt(caretPosition.getOffset());
 		final String sourceName = element.getPrefixedName();
 		for (int i = 0; i < names.length; i++) {
 			final QualifiedName qualifiedName = names[i].getQualifiedName();
 			final String message = Messages.getString("command.convertElement.dynamicCommandName"); //$NON-NLS-1$
 			final String text = MessageFormat.format(message, sourceName, names[i]);
 			final Icon icon = Icon.CONVERT;
-			actions[i] = new AbstractVexAction(widget, names[i], text, icon) {
+			actions[i] = new AbstractVexAction(editor, names[i], text, icon) {
 				@Override
-				public void execute(final VexWidget vexWidget) {
-					getWidget().morph(qualifiedName);
+				public void execute(final IDocumentEditor editor) {
+					getEditor().morph(qualifiedName);
 				}
 			};
 		}

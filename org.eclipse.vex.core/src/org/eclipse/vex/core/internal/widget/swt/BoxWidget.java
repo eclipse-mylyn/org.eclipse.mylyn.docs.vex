@@ -51,6 +51,7 @@ import org.eclipse.vex.core.internal.visualization.IBoxModelBuilder;
 import org.eclipse.vex.core.internal.widget.BalancingSelector;
 import org.eclipse.vex.core.internal.widget.DocumentEditor;
 import org.eclipse.vex.core.internal.widget.IDocumentEditor;
+import org.eclipse.vex.core.internal.widget.ITableModel;
 import org.eclipse.vex.core.internal.widget.IViewPort;
 import org.eclipse.vex.core.internal.widget.ReadOnlyException;
 import org.eclipse.vex.core.internal.widget.VisualizationController;
@@ -361,6 +362,16 @@ public class BoxWidget extends Canvas implements ISelectionProvider, IDocumentEd
 	@Override
 	public void setWhitespacePolicy(final IWhitespacePolicy policy) {
 		editor.setWhitespacePolicy(policy);
+	}
+
+	@Override
+	public ITableModel getTableModel() {
+		return editor.getTableModel();
+	}
+
+	@Override
+	public void setTableModel(final ITableModel tableModel) {
+		editor.setTableModel(tableModel);
 	}
 
 	public boolean isReadOnly() {

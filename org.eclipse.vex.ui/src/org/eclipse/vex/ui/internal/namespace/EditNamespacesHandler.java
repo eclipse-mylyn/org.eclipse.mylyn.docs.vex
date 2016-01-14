@@ -10,9 +10,12 @@
  *******************************************************************************/
 package org.eclipse.vex.ui.internal.namespace;
 
+import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.jface.window.Window;
-import org.eclipse.vex.core.internal.widget.swt.VexWidget;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.handlers.HandlerUtil;
+import org.eclipse.vex.core.internal.widget.IDocumentEditor;
 import org.eclipse.vex.ui.internal.handlers.AbstractVexWidgetHandler;
 
 /**
@@ -21,11 +24,12 @@ import org.eclipse.vex.ui.internal.handlers.AbstractVexWidgetHandler;
 public class EditNamespacesHandler extends AbstractVexWidgetHandler {
 
 	@Override
-	public void execute(final VexWidget widget) throws ExecutionException {
-		final EditNamespacesController controller = new EditNamespacesController(widget);
-		final EditNamespacesDialog dialog = new EditNamespacesDialog(widget.getShell(), controller);
+	public void execute(final ExecutionEvent event, final IDocumentEditor editor) throws ExecutionException {
+		final Shell shell = HandlerUtil.getActiveShell(event);
+		final EditNamespacesController controller = new EditNamespacesController(editor);
+		final EditNamespacesDialog dialog = new EditNamespacesDialog(shell, controller);
 		if (dialog.open() == Window.OK) {
-			widget.doWork(new Runnable() {
+			editor.doWork(new Runnable() {
 				@Override
 				public void run() {
 					controller.applyToElement();

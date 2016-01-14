@@ -12,7 +12,7 @@ package org.eclipse.vex.ui.internal.handlers;
 
 import java.util.List;
 
-import org.eclipse.vex.core.internal.widget.swt.VexWidget;
+import org.eclipse.vex.core.internal.widget.IDocumentEditor;
 
 /**
  * Deletes selected row(s).
@@ -20,8 +20,8 @@ import org.eclipse.vex.core.internal.widget.swt.VexWidget;
 public class RemoveRowHandler extends AbstractRemoveTableCellsHandler {
 
 	@Override
-	protected List<Object> collectCellsToDelete(final VexWidget widget, final VexHandlerUtil.RowColumnInfo rcInfo) {
-		return VexHandlerUtil.getSelectedTableRows(widget).getRows();
+	protected List<Object> collectCellsToDelete(final IDocumentEditor editor, final VexHandlerUtil.RowColumnInfo rcInfo) {
+		return VexHandlerUtil.getSelectedTableRows(editor).getRows();
 	}
 
 }

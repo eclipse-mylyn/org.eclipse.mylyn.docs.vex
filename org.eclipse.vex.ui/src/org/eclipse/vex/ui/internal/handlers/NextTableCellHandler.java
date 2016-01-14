@@ -13,7 +13,7 @@ package org.eclipse.vex.ui.internal.handlers;
 
 import java.util.NoSuchElementException;
 
-import org.eclipse.vex.core.internal.widget.swt.VexWidget;
+import org.eclipse.vex.core.internal.widget.IDocumentEditor;
 import org.eclipse.vex.core.provisional.dom.ContentPosition;
 import org.eclipse.vex.core.provisional.dom.IElement;
 
@@ -25,11 +25,11 @@ import org.eclipse.vex.core.provisional.dom.IElement;
 public class NextTableCellHandler extends AbstractNavigateTableCellHandler {
 
 	@Override
-	protected void navigate(final VexWidget widget, final IElement tableRow, final ContentPosition position) {
+	protected void navigate(final IDocumentEditor editor, final IElement tableRow, final ContentPosition position) {
 		// in this row
 		for (final IElement cell : tableRow.childElements()) {
 			if (cell.getStartPosition().isAfter(position)) {
-				widget.moveTo(cell.getStartPosition().moveBy(1));
+				editor.moveTo(cell.getStartPosition().moveBy(1));
 				return;
 			}
 		}
@@ -40,7 +40,7 @@ public class NextTableCellHandler extends AbstractNavigateTableCellHandler {
 				final IElement firstCell = firstCellOf(siblingRow);
 
 				if (firstCell != null) {
-					widget.moveTo(firstCell.getStartPosition().moveBy(1));
+					editor.moveTo(firstCell.getStartPosition().moveBy(1));
 				} else {
 					System.out.println("TODO - dup row into new empty row");
 				}
@@ -49,7 +49,7 @@ public class NextTableCellHandler extends AbstractNavigateTableCellHandler {
 		}
 
 		// We didn't find a "next row", so let's dup the current one
-		VexHandlerUtil.duplicateTableRow(widget, tableRow, false);
+		VexHandlerUtil.duplicateTableRow(editor, tableRow, false);
 	}
 
 	private static IElement firstCellOf(final IElement tableRow) {

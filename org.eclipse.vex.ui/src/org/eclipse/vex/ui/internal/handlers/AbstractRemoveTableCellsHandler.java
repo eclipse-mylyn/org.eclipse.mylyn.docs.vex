@@ -12,13 +12,14 @@ package org.eclipse.vex.ui.internal.handlers;
 
 import java.util.List;
 
+import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.vex.core.internal.widget.swt.VexWidget;
+import org.eclipse.vex.core.internal.widget.IDocumentEditor;
 import org.eclipse.vex.core.provisional.dom.ContentPositionRange;
 
 /**
  * Deletes a given list of table cells (see
- * {@link #collectCellsToDelete(VexWidget, org.eclipse.vex.ui.internal.handlers.VexHandlerUtil.RowColumnInfo)} ).
+ * {@link #collectCellsToDelete(IDocumentEditor, org.eclipse.vex.ui.internal.handlers.VexHandlerUtil.RowColumnInfo)} ).
  *
  * @see RemoveColumnHandler
  * @see RemoveRowHandler
@@ -26,41 +27,41 @@ import org.eclipse.vex.core.provisional.dom.ContentPositionRange;
 public abstract class AbstractRemoveTableCellsHandler extends AbstractVexWidgetHandler {
 
 	@Override
-	public void execute(final VexWidget widget) throws ExecutionException {
-		widget.doWork(new Runnable() {
+	public void execute(ExecutionEvent event, final IDocumentEditor editor) throws ExecutionException {
+		editor.doWork(new Runnable() {
 			@Override
 			public void run() {
 
-				final VexHandlerUtil.RowColumnInfo rcInfo = VexHandlerUtil.getRowColumnInfo(widget);
+				final VexHandlerUtil.RowColumnInfo rcInfo = VexHandlerUtil.getRowColumnInfo(editor);
 
 				if (rcInfo == null) {
 					return;
 				}
 
-				deleteCells(widget, collectCellsToDelete(widget, rcInfo));
+				deleteCells(editor, collectCellsToDelete(editor, rcInfo));
 			}
 
 		});
 	}
 
 	/**
-	 * @param widget
+	 * @param editor
 	 *            the Vex widget
 	 * @param rcInfo
 	 *            row/column info of the current table cell
 	 * @return list of elements to delete
 	 */
-	protected abstract List<Object> collectCellsToDelete(VexWidget widget, VexHandlerUtil.RowColumnInfo rcInfo);
+	protected abstract List<Object> collectCellsToDelete(IDocumentEditor editor, VexHandlerUtil.RowColumnInfo rcInfo);
 
-	private void deleteCells(final VexWidget widget, final List<Object> cellsToDelete) {
+	private void deleteCells(final IDocumentEditor editor, final List<Object> cellsToDelete) {
 		// Iterate the deletions in reverse, so that we don't mess up offsets
 		// that are in anonymous cells, which are not stored as Positions.
 		for (int i = cellsToDelete.size() - 1; i >= 0; i--) {
 			final Object cell = cellsToDelete.get(i);
 			final ContentPositionRange range = VexHandlerUtil.getOuterRange(cell);
-			widget.moveTo(range.getStartPosition());
-			widget.moveTo(range.getEndPosition(), true);
-			widget.deleteSelection();
+			editor.moveTo(range.getStartPosition());
+			editor.moveTo(range.getEndPosition(), true);
+			editor.deleteSelection();
 		}
 	}
 }

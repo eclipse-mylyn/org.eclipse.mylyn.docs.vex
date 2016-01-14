@@ -22,13 +22,14 @@ import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.handlers.HandlerUtil;
+import org.eclipse.vex.core.internal.core.Rectangle;
 import org.eclipse.vex.core.internal.css.CSS;
 import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.layout.ElementOrPositionRangeCallback;
 import org.eclipse.vex.core.internal.layout.ElementOrRangeCallback;
 import org.eclipse.vex.core.internal.layout.LayoutUtils;
 import org.eclipse.vex.core.internal.layout.LayoutUtils.ElementOrRange;
-import org.eclipse.vex.core.internal.widget.IVexWidget;
+import org.eclipse.vex.core.internal.widget.IDocumentEditor;
 import org.eclipse.vex.core.internal.widget.swt.VexWidget;
 import org.eclipse.vex.core.provisional.dom.BaseNodeVisitor;
 import org.eclipse.vex.core.provisional.dom.ContentPosition;
@@ -41,6 +42,7 @@ import org.eclipse.vex.core.provisional.dom.IElement;
 import org.eclipse.vex.core.provisional.dom.INode;
 import org.eclipse.vex.core.provisional.dom.IParent;
 import org.eclipse.vex.core.provisional.dom.IProcessingInstruction;
+import org.eclipse.vex.ui.internal.editor.DocumentContextSourceProvider;
 import org.eclipse.vex.ui.internal.editor.VexEditor;
 
 /**
@@ -49,15 +51,12 @@ import org.eclipse.vex.ui.internal.editor.VexEditor;
 public final class VexHandlerUtil {
 
 	public static VexWidget computeWidget(final ExecutionEvent event) throws ExecutionException {
-
 		final IEditorPart activeEditor = HandlerUtil.getActiveEditor(event);
-		assertNotNull(activeEditor);
-
 		VexWidget widget = null;
 		if (activeEditor instanceof VexEditor) {
 			widget = ((VexEditor) activeEditor).getVexWidget();
 		}
-		assertNotNull(widget);
+		assertNotNull(widget, "Can not compute VexWidget.");
 		return widget;
 	}
 
@@ -67,6 +66,15 @@ public final class VexHandlerUtil {
 			return null;
 		}
 		return editor.getVexWidget();
+	}
+
+	public static VexEditor computeVexEditor(final ExecutionEvent event) throws ExecutionException {
+		final IEditorPart activeEditor = HandlerUtil.getActiveEditor(event);
+
+		if (activeEditor instanceof VexEditor) {
+			return (VexEditor) activeEditor;
+		}
+		return null;
 	}
 
 	public static VexEditor computeVexEditor(final IWorkbenchWindow window) {
@@ -81,9 +89,22 @@ public final class VexHandlerUtil {
 		return null;
 	}
 
-	private static void assertNotNull(final Object object) throws ExecutionException {
+	public static Rectangle getCaretArea(final ExecutionEvent event) throws ExecutionException {
+		return getVariable(event, DocumentContextSourceProvider.CARET_AREA);
+	}
+
+	public static INode getCurrentNode(final ExecutionEvent event) throws ExecutionException {
+		return getVariable(event, DocumentContextSourceProvider.CURRENT_NODE);
+	}
+
+	@SuppressWarnings("unchecked")
+	private static <T> T getVariable(final ExecutionEvent event, final String name) {
+		return (T) HandlerUtil.getVariable(event, DocumentContextSourceProvider.CARET_AREA);
+	}
+
+	private static void assertNotNull(final Object object, final String message) throws ExecutionException {
 		if (object == null) {
-			throw new ExecutionException("Can not compute VexWidget.");
+			throw new ExecutionException(message);
 		}
 	}
 
@@ -101,27 +122,27 @@ public final class VexHandlerUtil {
 	 * Duplicate the given table row, inserting a new empty one aove or below it. The new row contains empty children
 	 * corresponding to the given row's children.
 	 *
-	 * @param vexWidget
+	 * @param editor
 	 *            IVexWidget with which we're working
 	 * @param tableRow
 	 *            TableRowBox to be duplicated.
 	 * @param addAbove
 	 *            <code>true</code> to add the new row above the current one
 	 */
-	public static void duplicateTableRow(final IVexWidget vexWidget, final IElement tableRow, final boolean addAbove) {
-		final StyleSheet styleSheet = vexWidget.getStyleSheet();
+	public static void duplicateTableRow(final IDocumentEditor editor, final IElement tableRow, final boolean addAbove) {
+		final StyleSheet styleSheet = editor.getTableModel().getStyleSheet();
 		if (!styleSheet.getStyles(tableRow).getDisplay().equals(CSS.TABLE_ROW)) {
 			return;
 		}
 
 		if (addAbove) {
-			vexWidget.moveTo(tableRow.getStartPosition());
+			editor.moveTo(tableRow.getStartPosition());
 		} else {
-			vexWidget.moveTo(tableRow.getEndPosition().moveBy(1));
+			editor.moveTo(tableRow.getEndPosition().moveBy(1));
 		}
 
 		// Create a new table row
-		final IElement newRow = vexWidget.insertElement(tableRow.getQualifiedName());
+		final IElement newRow = editor.insertElement(tableRow.getQualifiedName());
 
 		// Iterate all direct children and add them to the new row
 		final Iterator<? extends INode> childIterator = tableRow.children().withoutText().iterator();
@@ -129,49 +150,49 @@ public final class VexHandlerUtil {
 			childIterator.next().accept(new BaseNodeVisitor() {
 				@Override
 				public void visit(final IElement element) {
-					final IElement newElement = vexWidget.insertElement(element.getQualifiedName());
+					final IElement newElement = editor.insertElement(element.getQualifiedName());
 					for (final IAttribute attr : element.getAttributes()) {
 						newElement.setAttribute(attr.getQualifiedName(), attr.getValue());
 					}
-					vexWidget.moveBy(1);
+					editor.moveBy(1);
 				}
 
 				@Override
 				public void visit(final IComment comment) {
 					// Comments are copied with content
-					vexWidget.insertComment();
-					vexWidget.insertText(comment.getText());
-					vexWidget.moveBy(1);
+					editor.insertComment();
+					editor.insertText(comment.getText());
+					editor.moveBy(1);
 				}
 
 				@Override
 				public void visit(final IProcessingInstruction pi) {
 					// Processing instructions are copied with target and  content
-					vexWidget.insertProcessingInstruction(pi.getTarget());
-					vexWidget.insertText(pi.getText());
-					vexWidget.moveBy(1);
+					editor.insertProcessingInstruction(pi.getTarget());
+					editor.insertText(pi.getText());
+					editor.moveBy(1);
 				}
 			});
 		}
 		try {
 			final INode firstTextChild = newRow.childElements().first();
-			vexWidget.moveTo(firstTextChild.getStartPosition());
+			editor.moveTo(firstTextChild.getStartPosition());
 		} catch (final NoSuchElementException ex) {
-			vexWidget.moveTo(newRow.getStartPosition().moveBy(1));
+			editor.moveTo(newRow.getStartPosition().moveBy(1));
 		}
 	}
 
 	/**
 	 * Returns true if the given element or range is at least partially selected.
 	 *
-	 * @param widget
+	 * @param editor
 	 *            IVexWidget being tested.
 	 * @param elementOrRange
 	 *            Element or IntRange being tested.
 	 */
-	public static boolean elementOrRangeIsPartiallySelected(final IVexWidget widget, final Object elementOrRange) {
+	public static boolean elementOrRangeIsPartiallySelected(final IDocumentEditor editor, final Object elementOrRange) {
 		final ContentRange elementContentRange = getInnerRange(elementOrRange);
-		final ContentRange selectedRange = widget.getSelectedRange();
+		final ContentRange selectedRange = editor.getSelectedRange();
 		return elementContentRange.intersects(selectedRange);
 	}
 
@@ -179,17 +200,17 @@ public final class VexHandlerUtil {
 	 * Returns the zero-based index of the table column containing the current offset. Returns -1 if we are not inside a
 	 * table.
 	 */
-	public static int getCurrentColumnIndex(final IVexWidget vexWidget) {
+	public static int getCurrentColumnIndex(final IDocumentEditor editor) {
 
-		final IElement row = getCurrentTableRow(vexWidget);
+		final IElement row = getCurrentTableRow(editor);
 
 		if (row == null) {
 			return -1;
 		}
 
-		final ContentPosition offset = vexWidget.getCaretPosition();
+		final ContentPosition offset = editor.getCaretPosition();
 		final int[] column = new int[] { -1 };
-		LayoutUtils.iterateTableCells(vexWidget.getStyleSheet(), row, new ElementOrRangeCallback() {
+		LayoutUtils.iterateTableCells(editor.getTableModel().getStyleSheet(), row, new ElementOrRangeCallback() {
 			private int i = 0;
 
 			@Override
@@ -212,12 +233,12 @@ public final class VexHandlerUtil {
 	/**
 	 * Returns the innermost Element with style table-row containing the caret, or null if no such element exists.
 	 *
-	 * @param vexWidget
+	 * @param editor
 	 *            IVexWidget to use.
 	 */
-	public static IElement getCurrentTableRow(final IVexWidget vexWidget) {
-		final StyleSheet styleSheet = vexWidget.getStyleSheet();
-		IElement element = vexWidget.getCurrentElement();
+	public static IElement getCurrentTableRow(final IDocumentEditor editor) {
+		final StyleSheet styleSheet = editor.getTableModel().getStyleSheet();
+		IElement element = editor.getCurrentElement();
 
 		while (element != null) {
 			if (styleSheet.getStyles(element).getDisplay().equals(CSS.TABLE_ROW)) {
@@ -233,16 +254,16 @@ public final class VexHandlerUtil {
 	 * Returns the currently selected table rows, or the current row if ther is no selection. If no row can be found,
 	 * returns an empty array.
 	 *
-	 * @param vexWidget
+	 * @param editor
 	 *            IVexWidget to use.
 	 */
-	public static SelectedRows getSelectedTableRows(final IVexWidget vexWidget) {
+	public static SelectedRows getSelectedTableRows(final IDocumentEditor editor) {
 		final SelectedRows selected = new SelectedRows();
 
-		VexHandlerUtil.iterateTableCells(vexWidget, new TableCellCallbackAdapter() {
+		VexHandlerUtil.iterateTableCells(editor, new TableCellCallbackAdapter() {
 			@Override
 			public void startRow(final Object row, final int rowIndex) {
-				if (VexHandlerUtil.elementOrRangeIsPartiallySelected(vexWidget, row)) {
+				if (VexHandlerUtil.elementOrRangeIsPartiallySelected(editor, row)) {
 					if (selected.rows == null) {
 						selected.rows = new ArrayList<Object>();
 					}
@@ -262,11 +283,11 @@ public final class VexHandlerUtil {
 		return selected;
 	}
 
-	public static void iterateTableCells(final IVexWidget vexWidget, final ITableCellCallback callback) {
+	public static void iterateTableCells(final IDocumentEditor editor, final ITableCellCallback callback) {
 
-		final StyleSheet ss = vexWidget.getStyleSheet();
+		final StyleSheet ss = editor.getTableModel().getStyleSheet();
 
-		iterateTableRows(vexWidget, new ElementOrPositionRangeCallback() {
+		iterateTableRows(editor, new ElementOrPositionRangeCallback() {
 
 			final private int[] rowIndex = { 0 };
 
@@ -331,19 +352,19 @@ public final class VexHandlerUtil {
 	 * Returns a RowColumnInfo structure containing information about the table containing the caret. Returns null if
 	 * the caret is not currently inside a table.
 	 *
-	 * @param vexWidget
+	 * @param editor
 	 *            IVexWidget to inspect.
 	 */
-	public static RowColumnInfo getRowColumnInfo(final IVexWidget vexWidget) {
+	public static RowColumnInfo getRowColumnInfo(final IDocumentEditor editor) {
 
 		final boolean[] found = new boolean[1];
 		final RowColumnInfo[] rcInfo = new RowColumnInfo[] { new RowColumnInfo() };
-		final ContentPosition position = vexWidget.getCaretPosition();
+		final ContentPosition position = editor.getCaretPosition();
 
 		rcInfo[0].cellIndex = -1;
 		rcInfo[0].rowIndex = -1;
 
-		iterateTableCells(vexWidget, new ITableCellCallback() {
+		iterateTableCells(editor, new ITableCellCallback() {
 
 			private int rowColumnCount;
 
@@ -386,16 +407,16 @@ public final class VexHandlerUtil {
 	/**
 	 * Iterate over all rows in the table containing the caret.
 	 *
-	 * @param vexWidget
+	 * @param editor
 	 *            IVexWidget to iterate over.
 	 * @param callback
 	 *            Caller-provided callback that this method calls for each row in the current table.
 	 */
-	public static void iterateTableRows(final IVexWidget vexWidget, final ElementOrPositionRangeCallback callback) {
+	public static void iterateTableRows(final IDocumentEditor editor, final ElementOrPositionRangeCallback callback) {
 
-		final StyleSheet ss = vexWidget.getStyleSheet();
-		final IDocument doc = vexWidget.getDocument();
-		final ContentPosition position = vexWidget.getCaretPosition();
+		final StyleSheet ss = editor.getTableModel().getStyleSheet();
+		final IDocument doc = editor.getDocument();
+		final ContentPosition position = editor.getCaretPosition();
 
 		// This may or may not be a table
 		// In any case, it's the element that contains the top-level table

@@ -10,10 +10,11 @@
  *******************************************************************************/
 package org.eclipse.vex.ui.internal.handlers;
 
+import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.vex.core.IFilter;
 import org.eclipse.vex.core.internal.css.IWhitespacePolicy;
-import org.eclipse.vex.core.internal.widget.swt.VexWidget;
+import org.eclipse.vex.core.internal.widget.IDocumentEditor;
 import org.eclipse.vex.core.provisional.dom.ContentRange;
 import org.eclipse.vex.core.provisional.dom.IAxis;
 import org.eclipse.vex.core.provisional.dom.INode;
@@ -27,17 +28,17 @@ import org.eclipse.vex.core.provisional.dom.IParent;
 public class MoveSelectionUpHandler extends AbstractVexWidgetHandler {
 
 	@Override
-	public void execute(final VexWidget widget) throws ExecutionException {
-		final ContentRange selectedRange = widget.getSelectedRange();
-		final IAxis<? extends IParent> parentsContainingSelection = widget.getCurrentElement().ancestors().matching(containingRange(selectedRange));
+	public void execute(ExecutionEvent event, final IDocumentEditor editor) throws ExecutionException {
+		final ContentRange selectedRange = editor.getSelectedRange();
+		final IAxis<? extends IParent> parentsContainingSelection = editor.getCurrentElement().ancestors().matching(containingRange(selectedRange));
 
 		// expand the selection until a parent has other block-children
-		final IWhitespacePolicy policy = widget.getWhitespacePolicy();
+		final IWhitespacePolicy policy = editor.getWhitespacePolicy();
 		for (final IParent parent : parentsContainingSelection) {
 			final IAxis<? extends INode> blockChildren = parent.children().matching(displayedAsBlock(policy));
 			if (blockChildren.isEmpty()) {
-				widget.moveTo(parent.getStartPosition(), false);
-				widget.moveTo(parent.getEndPosition(), true);
+				editor.moveTo(parent.getStartPosition(), false);
+				editor.moveTo(parent.getEndPosition(), true);
 			} else {
 				break;
 			}

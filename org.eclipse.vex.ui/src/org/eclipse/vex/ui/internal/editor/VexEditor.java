@@ -93,6 +93,7 @@ import org.eclipse.ui.views.properties.IPropertySource;
 import org.eclipse.ui.views.properties.IPropertySourceProvider;
 import org.eclipse.ui.views.properties.PropertySheetPage;
 import org.eclipse.vex.core.internal.core.ListenerList;
+import org.eclipse.vex.core.internal.core.Rectangle;
 import org.eclipse.vex.core.internal.css.CssWhitespacePolicy;
 import org.eclipse.vex.core.internal.dom.DocumentTextPosition;
 import org.eclipse.vex.core.internal.io.DocumentReader;
@@ -1041,7 +1042,8 @@ public class VexEditor extends EditorPart {
 			// update context service
 			final ISourceProviderService service = (ISourceProviderService) window.getService(ISourceProviderService.class);
 			final DocumentContextSourceProvider contextProvider = (DocumentContextSourceProvider) service.getSourceProvider(DocumentContextSourceProvider.IS_COLUMN);
-			contextProvider.fireUpdate(vexWidget);
+			final Rectangle caretArea = Rectangle.NULL; // TODO get the real caret area form the BoxWidget
+			contextProvider.fireUpdate(vexWidget, caretArea);
 		}
 	};
 

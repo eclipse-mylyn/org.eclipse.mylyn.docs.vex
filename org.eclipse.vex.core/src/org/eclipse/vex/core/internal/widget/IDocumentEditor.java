@@ -49,6 +49,10 @@ public interface IDocumentEditor {
 
 	void setWhitespacePolicy(IWhitespacePolicy policy);
 
+	ITableModel getTableModel();
+
+	void setTableModel(ITableModel tableModel);
+
 	/**
 	 * @return true if this editor is read-only
 	 */

@@ -10,10 +10,11 @@
  *******************************************************************************/
 package org.eclipse.vex.ui.internal.handlers;
 
+import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.vex.core.internal.widget.swt.VexWidget;
+import org.eclipse.vex.core.internal.widget.IDocumentEditor;
 import org.eclipse.vex.core.provisional.dom.DocumentValidationException;
 import org.eclipse.vex.ui.internal.VexPlugin;
 import org.eclipse.vex.ui.internal.swt.ProcessingInstrDialog;
@@ -21,15 +22,15 @@ import org.eclipse.vex.ui.internal.swt.ProcessingInstrDialog;
 public class AddProcessingInstructionHandler extends AbstractVexWidgetHandler {
 
 	@Override
-	public void execute(final VexWidget widget) throws ExecutionException {
-		if (widget.canInsertProcessingInstruction()) {
+	public void execute(ExecutionEvent event, final IDocumentEditor editor) throws ExecutionException {
+		if (editor.canInsertProcessingInstruction()) {
 			final Shell shell = VexPlugin.getDefault().getWorkbench().getActiveWorkbenchWindow().getShell();
 			final ProcessingInstrDialog dialog = new ProcessingInstrDialog(shell, "");
 			dialog.create();
 
-			if (dialog.open() == Window.OK && widget.canInsertProcessingInstruction()) {
+			if (dialog.open() == Window.OK && editor.canInsertProcessingInstruction()) {
 				try {
-					widget.insertProcessingInstruction(dialog.getTarget());
+					editor.insertProcessingInstruction(dialog.getTarget());
 				} catch (final DocumentValidationException e) {
 
 				}

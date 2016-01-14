@@ -16,6 +16,7 @@ package org.eclipse.vex.core.internal.widget.swt;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,6 +24,7 @@ import java.util.Map;
 import javax.swing.undo.CannotRedoException;
 import javax.swing.undo.CannotUndoException;
 
+import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.jface.viewers.ISelection;
@@ -68,6 +70,7 @@ import org.eclipse.vex.core.internal.io.XMLFragment;
 import org.eclipse.vex.core.internal.widget.BaseVexWidget;
 import org.eclipse.vex.core.internal.widget.IDocumentEditor;
 import org.eclipse.vex.core.internal.widget.IHostComponent;
+import org.eclipse.vex.core.internal.widget.ITableModel;
 import org.eclipse.vex.core.internal.widget.IVexWidget;
 import org.eclipse.vex.core.internal.widget.ReadOnlyException;
 import org.eclipse.vex.core.provisional.dom.ContentPosition;
@@ -584,6 +587,16 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 	}
 
 	@Override
+	public void setTableModel(final ITableModel tableModel) {
+		impl.setTableModel(tableModel);
+	}
+
+	@Override
+	public ITableModel getTableModel() {
+		return impl.getTableModel();
+	}
+
+	@Override
 	public boolean canSplit() {
 		return impl.canSplit();
 	}
@@ -772,8 +785,8 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 	private static abstract class Action implements IVexWidgetHandler {
 
 		@Override
-		public void execute(final VexWidget widget) throws ExecutionException {
-			runEx(widget);
+		public void execute(final ExecutionEvent event, final IDocumentEditor editor) throws ExecutionException {
+			runEx(editor);
 		}
 
 		public abstract void runEx(IDocumentEditor editor) throws ExecutionException;
@@ -788,7 +801,7 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 			final IVexWidgetHandler handler = keyMap.get(keyStroke);
 			if (handler != null) {
 				try {
-					handler.execute(VexWidget.this);
+					handler.execute(new ExecutionEvent(null, Collections.emptyMap(), event, null), VexWidget.this);
 				} catch (final ReadOnlyException e) {
 					// TODO give feedback: the editor is read-only
 				} catch (final Exception ex) {

@@ -122,6 +122,7 @@ public class BaseVexWidget implements IVexWidget {
 	private IDocument document;
 	private StyleSheet styleSheet;
 	private IWhitespacePolicy whitespacePolicy = DEFAULT_POLICY;
+	private ITableModel tableModel;
 
 	private final BoxFactory boxFactory = new CssBoxFactory();
 
@@ -1776,6 +1777,16 @@ public class BaseVexWidget implements IVexWidget {
 	@Override
 	public IWhitespacePolicy getWhitespacePolicy() {
 		return whitespacePolicy;
+	}
+
+	@Override
+	public ITableModel getTableModel() {
+		return tableModel;
+	}
+
+	@Override
+	public void setTableModel(final ITableModel tableModel) {
+		this.tableModel = tableModel;
 	}
 
 	@Override

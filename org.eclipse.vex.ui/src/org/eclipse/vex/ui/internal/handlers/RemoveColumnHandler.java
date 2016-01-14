@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.vex.core.internal.layout.LayoutUtils.ElementOrRange;
-import org.eclipse.vex.core.internal.widget.swt.VexWidget;
+import org.eclipse.vex.core.internal.widget.IDocumentEditor;
 
 /**
  * Deletes current column.
@@ -22,9 +22,9 @@ import org.eclipse.vex.core.internal.widget.swt.VexWidget;
 public class RemoveColumnHandler extends AbstractRemoveTableCellsHandler {
 
 	@Override
-	protected List<Object> collectCellsToDelete(final VexWidget widget, final VexHandlerUtil.RowColumnInfo rcInfo) {
+	protected List<Object> collectCellsToDelete(final IDocumentEditor editor, final VexHandlerUtil.RowColumnInfo rcInfo) {
 		final List<Object> cellsToDelete = new ArrayList<Object>();
-		VexHandlerUtil.iterateTableCells(widget, new TableCellCallbackAdapter() {
+		VexHandlerUtil.iterateTableCells(editor, new TableCellCallbackAdapter() {
 			@Override
 			public void onCell(final ElementOrRange row, final ElementOrRange cell, final int rowIndex, final int cellIndex) {
 				if (cellIndex == rcInfo.cellIndex) {

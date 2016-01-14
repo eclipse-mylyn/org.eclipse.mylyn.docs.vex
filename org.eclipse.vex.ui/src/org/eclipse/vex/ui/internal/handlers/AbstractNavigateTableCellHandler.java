@@ -12,11 +12,12 @@ package org.eclipse.vex.ui.internal.handlers;
 
 import java.util.NoSuchElementException;
 
+import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.vex.core.IFilter;
 import org.eclipse.vex.core.internal.css.CSS;
 import org.eclipse.vex.core.internal.css.StyleSheet;
-import org.eclipse.vex.core.internal.widget.swt.VexWidget;
+import org.eclipse.vex.core.internal.widget.IDocumentEditor;
 import org.eclipse.vex.core.provisional.dom.ContentPosition;
 import org.eclipse.vex.core.provisional.dom.IAxis;
 import org.eclipse.vex.core.provisional.dom.IElement;
@@ -31,8 +32,8 @@ import org.eclipse.vex.core.provisional.dom.IParent;
 public abstract class AbstractNavigateTableCellHandler extends AbstractVexWidgetHandler {
 
 	@Override
-	public void execute(final VexWidget widget) throws ExecutionException {
-		final IAxis<? extends IParent> parentTableRows = widget.getCurrentElement().ancestors().matching(displayedAsTableRow(widget.getStyleSheet()));
+	public void execute(ExecutionEvent event, final IDocumentEditor editor) throws ExecutionException {
+		final IAxis<? extends IParent> parentTableRows = editor.getCurrentElement().ancestors().matching(displayedAsTableRow(editor.getTableModel().getStyleSheet()));
 		final IElement tableRow;
 		try {
 			tableRow = (IElement) parentTableRows.first();
@@ -40,21 +41,21 @@ public abstract class AbstractNavigateTableCellHandler extends AbstractVexWidget
 			return;
 		}
 
-		final ContentPosition position = widget.getCaretPosition();
-		navigate(widget, tableRow, position);
+		final ContentPosition position = editor.getCaretPosition();
+		navigate(editor, tableRow, position);
 	}
 
 	/**
 	 * Navigates either to the next or previous table cell.
 	 *
-	 * @param widget
+	 * @param editor
 	 *            the Vex widget containing the document
 	 * @param tableRow
 	 *            the current row
 	 * @param offset
 	 *            the current offset
 	 */
-	protected abstract void navigate(VexWidget widget, IElement tableRow, ContentPosition position);
+	protected abstract void navigate(IDocumentEditor editor, IElement tableRow, ContentPosition position);
 
 	private static IFilter<INode> displayedAsTableRow(final StyleSheet stylesheet) {
 		return new IFilter<INode>() {

@@ -10,7 +10,9 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.widget.swt;
 
+import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.vex.core.internal.widget.IDocumentEditor;
 
 /**
  * Interface implemented by handler objects that can act on a {@link VexWidget}.
@@ -19,12 +21,13 @@ public interface IVexWidgetHandler {
 
 	/**
 	 * Executes handler at the specified {@link VexWidget}.
-	 *
+	 * @param event TODO
 	 * @param event
 	 *            the {@link VexWidget} at which to execute handler
+	 *
 	 * @throws ExecutionException
 	 *             if an exception occurred during execution
 	 */
-	void execute(VexWidget widget) throws ExecutionException;
+	void execute(ExecutionEvent event, IDocumentEditor editor) throws ExecutionException;
 
 }

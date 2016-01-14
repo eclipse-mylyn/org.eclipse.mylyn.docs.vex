@@ -10,8 +10,9 @@
  *******************************************************************************/
 package org.eclipse.vex.ui.internal.handlers;
 
+import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.vex.core.internal.widget.swt.VexWidget;
+import org.eclipse.vex.core.internal.widget.IDocumentEditor;
 import org.eclipse.vex.core.provisional.dom.ContentPosition;
 import org.eclipse.vex.core.provisional.dom.INode;
 
@@ -21,29 +22,29 @@ import org.eclipse.vex.core.provisional.dom.INode;
 public class DuplicateSelectionHandler extends AbstractVexWidgetHandler {
 
 	@Override
-	public void execute(final VexWidget widget) throws ExecutionException {
-		widget.doWork(new Runnable() {
+	public void execute(ExecutionEvent event, final IDocumentEditor editor) throws ExecutionException {
+		editor.doWork(new Runnable() {
 			@Override
 			public void run() {
-				if (!widget.hasSelection()) {
-					final INode node = widget.getCurrentNode();
+				if (!editor.hasSelection()) {
+					final INode node = editor.getCurrentNode();
 
 					// Can't duplicate the document
 					if (node.getParent() == null) {
 						return;
 					}
 
-					widget.moveTo(node.getStartPosition());
-					widget.moveTo(node.getEndPosition().moveBy(+1), true);
+					editor.moveTo(node.getStartPosition());
+					editor.moveTo(node.getEndPosition().moveBy(+1), true);
 				}
 
-				widget.copySelection();
-				final ContentPosition startPosition = widget.getSelectedPositionRange().getEndPosition().moveBy(1);
-				widget.moveTo(startPosition);
-				widget.paste();
-				final ContentPosition endPosition = widget.getCaretPosition();
-				widget.moveTo(startPosition);
-				widget.moveTo(endPosition, true);
+				editor.copySelection();
+				final ContentPosition startPosition = editor.getSelectedPositionRange().getEndPosition().moveBy(1);
+				editor.moveTo(startPosition);
+				editor.paste();
+				final ContentPosition endPosition = editor.getCaretPosition();
+				editor.moveTo(startPosition);
+				editor.moveTo(endPosition, true);
 			}
 		});
 	}

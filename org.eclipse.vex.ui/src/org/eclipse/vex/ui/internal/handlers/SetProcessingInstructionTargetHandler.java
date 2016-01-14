@@ -10,10 +10,11 @@
  *******************************************************************************/
 package org.eclipse.vex.ui.internal.handlers;
 
+import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.widgets.Shell;
-import org.eclipse.vex.core.internal.widget.swt.VexWidget;
+import org.eclipse.vex.core.internal.widget.IDocumentEditor;
 import org.eclipse.vex.core.provisional.dom.DocumentValidationException;
 import org.eclipse.vex.core.provisional.dom.IProcessingInstruction;
 import org.eclipse.vex.ui.internal.VexPlugin;
@@ -22,16 +23,16 @@ import org.eclipse.vex.ui.internal.swt.ProcessingInstrDialog;
 public class SetProcessingInstructionTargetHandler extends AbstractVexWidgetHandler {
 
 	@Override
-	public void execute(final VexWidget widget) throws ExecutionException {
-		if (widget.getCurrentNode() instanceof IProcessingInstruction) {
-			final IProcessingInstruction pi = (IProcessingInstruction) widget.getCurrentNode();
+	public void execute(ExecutionEvent event, final IDocumentEditor editor) throws ExecutionException {
+		if (editor.getCurrentNode() instanceof IProcessingInstruction) {
+			final IProcessingInstruction pi = (IProcessingInstruction) editor.getCurrentNode();
 			final Shell shell = VexPlugin.getDefault().getWorkbench().getActiveWorkbenchWindow().getShell();
 			final ProcessingInstrDialog dialog = new ProcessingInstrDialog(shell, pi.getTarget());
 			dialog.create();
 
 			if (dialog.open() == Window.OK) {
 				try {
-					widget.editProcessingInstruction(dialog.getTarget(), null);
+					editor.editProcessingInstruction(dialog.getTarget(), null);
 				} catch (final DocumentValidationException e) {
 
 				}

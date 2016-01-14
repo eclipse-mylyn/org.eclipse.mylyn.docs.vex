@@ -19,6 +19,7 @@ import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.menus.UIElement;
 import org.eclipse.ui.services.IServiceScopes;
+import org.eclipse.vex.core.internal.widget.IDocumentEditor;
 import org.eclipse.vex.core.internal.widget.swt.IVexWidgetHandler;
 import org.eclipse.vex.core.internal.widget.swt.VexWidget;
 import org.eclipse.vex.core.provisional.dom.IElement;
@@ -33,12 +34,12 @@ public abstract class AbstractVexWidgetHandler extends AbstractHandler implement
 
 	@Override
 	public Object execute(final ExecutionEvent event) throws ExecutionException {
-		execute(VexHandlerUtil.computeWidget(event));
+		execute(event, VexHandlerUtil.computeWidget(event));
 		return null;
 	}
 
 	@Override
-	public abstract void execute(VexWidget widget) throws ExecutionException;
+	public abstract void execute(ExecutionEvent event, IDocumentEditor editor) throws ExecutionException;
 
 	/**
 	 * Helper method to implement {@link org.eclipse.ui.commands.IElementUpdater}: Updates the name of the UI element

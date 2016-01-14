@@ -12,11 +12,12 @@ package org.eclipse.vex.ui.internal.handlers;
 
 import java.util.NoSuchElementException;
 
+import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.vex.core.IFilter;
 import org.eclipse.vex.core.internal.css.CSS;
 import org.eclipse.vex.core.internal.css.StyleSheet;
-import org.eclipse.vex.core.internal.widget.swt.VexWidget;
+import org.eclipse.vex.core.internal.widget.IDocumentEditor;
 import org.eclipse.vex.core.provisional.dom.IAxis;
 import org.eclipse.vex.core.provisional.dom.INode;
 import org.eclipse.vex.core.provisional.dom.IParent;
@@ -30,9 +31,9 @@ import org.eclipse.vex.core.provisional.dom.IParent;
 public class SplitItemHandler extends SplitBlockElementHandler {
 
 	@Override
-	public void execute(final VexWidget widget) throws ExecutionException {
-		final StyleSheet stylesheet = widget.getStyleSheet();
-		final IAxis<? extends IParent> parentTableRowOrListItems = widget.getCurrentElement().ancestors().matching(displayedAsTableRowOrListItem(stylesheet));
+	public void execute(ExecutionEvent event, final IDocumentEditor editor) throws ExecutionException {
+		final StyleSheet stylesheet = editor.getTableModel().getStyleSheet();
+		final IAxis<? extends IParent> parentTableRowOrListItems = editor.getCurrentElement().ancestors().matching(displayedAsTableRowOrListItem(stylesheet));
 
 		final IParent firstTableRowOrListItem;
 		try {
@@ -43,9 +44,9 @@ public class SplitItemHandler extends SplitBlockElementHandler {
 
 		final String displayStyle = stylesheet.getStyles(firstTableRowOrListItem).getDisplay();
 		if (displayStyle.equals(CSS.TABLE_ROW)) {
-			new AddRowBelowHandler().execute(widget);
+			new AddRowBelowHandler().execute(event, editor);
 		} else if (displayStyle.equals(CSS.LIST_ITEM)) {
-			splitElement(widget, firstTableRowOrListItem);
+			splitElement(editor, firstTableRowOrListItem);
 		}
 	}
 

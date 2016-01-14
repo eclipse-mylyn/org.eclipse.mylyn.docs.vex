@@ -12,10 +12,15 @@ package org.eclipse.vex.ui.internal.handlers;
 
 import java.util.Map;
 
+import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
+import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.commands.IElementUpdater;
+import org.eclipse.ui.handlers.HandlerUtil;
 import org.eclipse.ui.menus.UIElement;
-import org.eclipse.vex.core.internal.widget.swt.VexWidget;
+import org.eclipse.vex.core.internal.core.Rectangle;
+import org.eclipse.vex.core.internal.widget.IDocumentEditor;
 import org.eclipse.vex.ui.internal.swt.ContentAssist;
 
 /**
@@ -29,8 +34,11 @@ public class ConvertElementHandler extends AbstractVexWidgetHandler implements I
 	private static final String LABEL_ID = "command.convertElement.dynamicName"; //$NON-NLS-1$
 
 	@Override
-	public void execute(final VexWidget widget) throws ExecutionException {
-		ContentAssist.openQuickFixContentAssist(widget);
+	public void execute(final ExecutionEvent event, final IDocumentEditor editor) throws ExecutionException {
+		final Shell shell = HandlerUtil.getActiveShell(event);
+		final Rectangle caretArea = VexHandlerUtil.getCaretArea(event);
+		final Point location = new Point(caretArea.getX(), caretArea.getY());
+		ContentAssist.openQuickFixContentAssist(shell, editor, location);
 	}
 
 	@Override

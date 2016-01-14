@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2013 Florian Thienel and others.
+ * Copyright (c) 2016 Florian Thienel and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -8,22 +8,19 @@
  * Contributors:
  * 		Florian Thienel - initial API and implementation
  *******************************************************************************/
-package org.eclipse.vex.ui.internal.handlers;
+package org.eclipse.vex.core.internal.widget;
 
-import org.eclipse.core.commands.ExecutionEvent;
-import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.vex.core.internal.widget.IDocumentEditor;
+import org.eclipse.vex.core.internal.css.StyleSheet;
 
 /**
+ * TODO This is only an intermediate solution to provide the stylesheet to all table-related functions. We need an
+ * abstraction of the table model in order to remove the direct dependency to CSS.
+ *
  * @author Florian Thienel
  */
-public class JoinHandler extends AbstractVexWidgetHandler {
+public interface ITableModel {
 
-	@Override
-	public void execute(ExecutionEvent event, final IDocumentEditor editor) throws ExecutionException {
-		if (editor.canJoin()) {
-			editor.join();
-		}
-	}
+	@Deprecated
+	StyleSheet getStyleSheet();
 
 }

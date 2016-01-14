@@ -11,9 +11,13 @@
  *******************************************************************************/
 package org.eclipse.vex.ui.internal.handlers;
 
+import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
-import org.eclipse.vex.core.internal.widget.IVexWidget;
-import org.eclipse.vex.core.internal.widget.swt.VexWidget;
+import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.handlers.HandlerUtil;
+import org.eclipse.vex.core.internal.core.Rectangle;
+import org.eclipse.vex.core.internal.widget.IDocumentEditor;
 import org.eclipse.vex.core.provisional.dom.ContentPosition;
 import org.eclipse.vex.core.provisional.dom.INode;
 import org.eclipse.vex.ui.internal.swt.ContentAssist;
@@ -27,19 +31,22 @@ import org.eclipse.vex.ui.internal.swt.ContentAssist;
 public class SplitBlockElementHandler extends AbstractVexWidgetHandler {
 
 	@Override
-	public void execute(final VexWidget widget) throws ExecutionException {
-		if (widget.isReadOnly()) {
+	public void execute(final ExecutionEvent event, final IDocumentEditor editor) throws ExecutionException {
+		if (editor.isReadOnly()) {
 			return;
 		}
 
-		final INode currentNode = widget.getCurrentNode();
-		if (widget.canSplit()) {
-			splitElement(widget, currentNode);
+		final INode currentNode = editor.getCurrentNode();
+		if (editor.canSplit()) {
+			splitElement(editor, currentNode);
 		} else {
 			final ContentPosition targetPosition = currentNode.getEndPosition().moveBy(1);
-			if (widget.getDocument().getRootElement().containsPosition(targetPosition)) {
-				widget.moveTo(targetPosition);
-				ContentAssist.openAddElementsContentAssist(widget);
+			if (editor.getDocument().getRootElement().containsPosition(targetPosition)) {
+				editor.moveTo(targetPosition);
+				final Shell shell = HandlerUtil.getActiveShell(event);
+				final Rectangle caretArea = VexHandlerUtil.getCaretArea(event);
+				final Point location = new Point(caretArea.getX(), caretArea.getY());
+				ContentAssist.openAddElementsContentAssist(shell, editor, location);
 			}
 		}
 	}
@@ -47,20 +54,20 @@ public class SplitBlockElementHandler extends AbstractVexWidgetHandler {
 	/**
 	 * Splits the given element.
 	 *
-	 * @param vexWidget
+	 * @param editor
 	 *            IVexWidget containing the document.
 	 * @param node
 	 *            Node to be split.
 	 */
-	protected void splitElement(final IVexWidget vexWidget, final INode node) {
-		vexWidget.doWork(new Runnable() {
+	protected void splitElement(final IDocumentEditor editor, final INode node) {
+		editor.doWork(new Runnable() {
 			@Override
 			public void run() {
-				final boolean isPreformatted = vexWidget.getWhitespacePolicy().isPre(node);
+				final boolean isPreformatted = editor.getWhitespacePolicy().isPre(node);
 				if (isPreformatted) {
-					vexWidget.insertText("\n");
+					editor.insertText("\n");
 				} else {
-					vexWidget.split();
+					editor.split();
 				}
 			}
 		});
