@@ -761,6 +761,18 @@ public class BoxWidget extends Canvas implements ISelectionProvider, IDocumentEd
 			}
 		});
 
+		// Tab
+		addKey(keyMap, SWT.TAB, SWT.TAB, SWT.NONE, new IVexWidgetHandler() {
+			@Override
+			public void execute(final ExecutionEvent event, final IDocumentEditor editor) throws ExecutionException {
+				try {
+					editor.insertChar('\t');
+				} catch (final DocumentValidationException e) {
+					throw new ExecutionException(e.getMessage(), e);
+				}
+			}
+		});
+
 		// {-, Shift, Ctrl, Shift+Ctrl} + Home/End
 		addKey(keyMap, CHAR_NONE, SWT.END, SWT.NONE, new IVexWidgetHandler() {
 			@Override
