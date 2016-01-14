@@ -22,6 +22,7 @@ import org.eclipse.vex.core.internal.css.StyleSheetReader;
 import org.eclipse.vex.core.internal.dom.Document;
 import org.eclipse.vex.core.internal.io.XMLFragment;
 import org.eclipse.vex.core.internal.widget.BaseVexWidget;
+import org.eclipse.vex.core.internal.widget.CssTableModel;
 import org.eclipse.vex.core.internal.widget.IVexWidget;
 import org.eclipse.vex.core.internal.widget.MockHostComponent;
 import org.eclipse.vex.core.provisional.dom.IElement;
@@ -40,6 +41,7 @@ public class HandlerUtilTest {
 		widget = new BaseVexWidget(new MockHostComponent());
 		final URL url = this.getClass().getResource("/tests/resources/tableTest.css");
 		final StyleSheet styleSheet = new StyleSheetReader().read(url);
+		widget.setTableModel(new CssTableModel(styleSheet));
 		widget.setDocument(new Document(new QualifiedName(null, "root")), styleSheet);
 		widget.insertElement(new QualifiedName(null, "root"));
 		table = widget.insertElement(new QualifiedName(null, "table"));

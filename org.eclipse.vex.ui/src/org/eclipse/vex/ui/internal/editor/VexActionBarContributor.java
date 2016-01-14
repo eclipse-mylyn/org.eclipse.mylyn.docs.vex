@@ -26,7 +26,7 @@ import org.eclipse.ui.texteditor.FindNextAction;
 import org.eclipse.ui.texteditor.FindReplaceAction;
 import org.eclipse.ui.texteditor.ITextEditorActionConstants;
 import org.eclipse.ui.texteditor.IWorkbenchActionDefinitionIds;
-import org.eclipse.vex.core.internal.widget.swt.VexWidget;
+import org.eclipse.vex.core.internal.widget.IDocumentEditor;
 import org.eclipse.vex.core.provisional.dom.DocumentValidationException;
 import org.eclipse.wst.xml.ui.internal.tabletree.XMLMultiPageEditorActionBarContributor;
 
@@ -45,7 +45,7 @@ public class VexActionBarContributor extends XMLMultiPageEditorActionBarContribu
 		return (VexEditor) activeEditor;
 	}
 
-	public VexWidget getVexWidget() {
+	public IDocumentEditor getDocumentEditor() {
 		if (activeEditor != null) {
 			return ((VexEditor) activeEditor).getVexWidget();
 		} else {
@@ -116,12 +116,12 @@ public class VexActionBarContributor extends XMLMultiPageEditorActionBarContribu
 	private final IAction undoAction = new UndoAction();
 
 	private void enableActions() {
-		final VexWidget widget = getVexWidget();
-		copyAction.setEnabled(widget != null && widget.hasSelection());
-		cutAction.setEnabled(widget != null && widget.hasSelection());
-		deleteAction.setEnabled(widget != null && widget.hasSelection());
-		redoAction.setEnabled(widget != null && widget.canRedo());
-		undoAction.setEnabled(widget != null && widget.canUndo());
+		final IDocumentEditor editor = getDocumentEditor();
+		copyAction.setEnabled(editor != null && editor.hasSelection());
+		cutAction.setEnabled(editor != null && editor.hasSelection());
+		deleteAction.setEnabled(editor != null && editor.hasSelection());
+		redoAction.setEnabled(editor != null && editor.canRedo());
+		undoAction.setEnabled(editor != null && editor.canUndo());
 	}
 
 	private final ISelectionListener selectionListener = new ISelectionListener() {
@@ -134,21 +134,21 @@ public class VexActionBarContributor extends XMLMultiPageEditorActionBarContribu
 	private class CopyAction extends Action {
 		@Override
 		public void run() {
-			getVexWidget().copySelection();
+			getDocumentEditor().copySelection();
 		}
 	};
 
 	private class CutAction extends Action {
 		@Override
 		public void run() {
-			getVexWidget().cutSelection();
+			getDocumentEditor().cutSelection();
 		}
 	}
 
 	private class DeleteAction extends Action {
 		@Override
 		public void run() {
-			getVexWidget().deleteSelection();
+			getDocumentEditor().deleteSelection();
 		}
 	};
 
@@ -156,7 +156,7 @@ public class VexActionBarContributor extends XMLMultiPageEditorActionBarContribu
 		@Override
 		public void run() {
 			try {
-				getVexWidget().paste();
+				getDocumentEditor().paste();
 			} catch (final DocumentValidationException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -167,15 +167,15 @@ public class VexActionBarContributor extends XMLMultiPageEditorActionBarContribu
 	private class SelectAllAction extends Action {
 		@Override
 		public void run() {
-			getVexWidget().selectAll();
+			getDocumentEditor().selectAll();
 		}
 	};
 
 	private class RedoAction extends Action {
 		@Override
 		public void run() {
-			if (getVexWidget().canRedo()) {
-				getVexWidget().redo();
+			if (getDocumentEditor().canRedo()) {
+				getDocumentEditor().redo();
 			}
 		}
 	};
@@ -183,8 +183,8 @@ public class VexActionBarContributor extends XMLMultiPageEditorActionBarContribu
 	private class UndoAction extends Action {
 		@Override
 		public void run() {
-			if (getVexWidget().canUndo()) {
-				getVexWidget().undo();
+			if (getDocumentEditor().canUndo()) {
+				getDocumentEditor().undo();
 			}
 		}
 	}

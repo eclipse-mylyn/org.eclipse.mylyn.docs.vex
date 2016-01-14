@@ -19,7 +19,7 @@ import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.vex.core.internal.dom.CopyOfElement;
 import org.eclipse.vex.core.internal.layout.LayoutUtils.ElementOrRange;
-import org.eclipse.vex.core.internal.widget.swt.VexWidget;
+import org.eclipse.vex.core.internal.widget.IDocumentEditor;
 import org.eclipse.vex.core.provisional.dom.ContentPosition;
 import org.eclipse.vex.core.provisional.dom.IElement;
 
@@ -33,12 +33,12 @@ public abstract class AbstractAddColumnHandler extends AbstractHandler {
 
 	@Override
 	public Object execute(final ExecutionEvent event) throws ExecutionException {
-		final VexWidget widget = VexHandlerUtil.computeWidget(event);
-		widget.doWork(new Runnable() {
+		final IDocumentEditor editor = VexHandlerUtil.getDocumentEditor(event);
+		editor.doWork(new Runnable() {
 			@Override
 			public void run() {
 				try {
-					addColumn(widget);
+					addColumn(editor);
 				} catch (final ExecutionException e) {
 					throw new RuntimeException(e);
 				}
@@ -47,8 +47,8 @@ public abstract class AbstractAddColumnHandler extends AbstractHandler {
 		return null;
 	}
 
-	private void addColumn(final VexWidget widget) throws ExecutionException {
-		final int indexToDup = VexHandlerUtil.getCurrentColumnIndex(widget);
+	private void addColumn(final IDocumentEditor editor) throws ExecutionException {
+		final int indexToDup = VexHandlerUtil.getCurrentColumnIndex(editor);
 
 		// adding possible?
 		if (indexToDup == -1) {
@@ -56,7 +56,7 @@ public abstract class AbstractAddColumnHandler extends AbstractHandler {
 		}
 
 		final List<IElement> cellsToDup = new ArrayList<IElement>();
-		VexHandlerUtil.iterateTableCells(widget, new TableCellCallbackAdapter() {
+		VexHandlerUtil.iterateTableCells(editor, new TableCellCallbackAdapter() {
 			@Override
 			public void onCell(final ElementOrRange row, final ElementOrRange cell, final int rowIndex, final int cellIndex) {
 				if (cellIndex == indexToDup && cell instanceof IElement) {
@@ -66,14 +66,14 @@ public abstract class AbstractAddColumnHandler extends AbstractHandler {
 		});
 
 		for (final IElement element : cellsToDup) {
-			widget.moveTo(addBefore() ? element.getStartPosition() : element.getEndPosition().moveBy(1));
-			widget.insertElement(element.getQualifiedName()).accept(new CopyOfElement(element));
+			editor.moveTo(addBefore() ? element.getStartPosition() : element.getEndPosition().moveBy(1));
+			editor.insertElement(element.getQualifiedName()).accept(new CopyOfElement(element));
 		}
 
 		// Place caret in first new cell
 		final IElement firstCell = cellsToDup.get(0);
 		final ContentPosition position = new ContentPosition(firstCell, firstCell.getStartOffset() + 1);
-		widget.moveTo(position);
+		editor.moveTo(position);
 	}
 
 	/**

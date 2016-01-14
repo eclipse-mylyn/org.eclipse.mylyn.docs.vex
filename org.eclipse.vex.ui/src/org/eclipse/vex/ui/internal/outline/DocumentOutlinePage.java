@@ -37,6 +37,7 @@ import org.eclipse.ui.part.IPageSite;
 import org.eclipse.ui.part.Page;
 import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
 import org.eclipse.vex.core.internal.css.StyleSheet;
+import org.eclipse.vex.core.internal.widget.IDocumentEditor;
 import org.eclipse.vex.core.internal.widget.swt.VexWidget;
 import org.eclipse.vex.core.provisional.dom.AttributeChangeEvent;
 import org.eclipse.vex.core.provisional.dom.ContentChangeEvent;
@@ -66,7 +67,7 @@ public class DocumentOutlinePage extends Page implements IContentOutlinePage {
 
 	public DocumentOutlinePage(final VexEditor vexEditor) {
 		super();
-		this.vexEditor = vexEditor;
+		this.editorPart = vexEditor;
 	}
 
 	@Override
@@ -75,10 +76,10 @@ public class DocumentOutlinePage extends Page implements IContentOutlinePage {
 		composite = new Composite(parent, SWT.NONE);
 		composite.setLayout(new FillLayout());
 
-		vexEditor.addVexEditorListener(vexEditorListener);
-		vexEditor.getEditorSite().getSelectionProvider().addSelectionChangedListener(selectionListener);
+		editorPart.addVexEditorListener(vexEditorListener);
+		editorPart.getEditorSite().getSelectionProvider().addSelectionChangedListener(selectionListener);
 		initToolbarActions();
-		if (vexEditor.isLoaded()) {
+		if (editorPart.isLoaded()) {
 			showTreeViewer();
 		} else {
 			showLabel(Messages.getString("DocumentOutlinePage.loading")); //$NON-NLS-1$
@@ -88,8 +89,8 @@ public class DocumentOutlinePage extends Page implements IContentOutlinePage {
 
 	@Override
 	public void dispose() {
-		vexEditor.removeVexEditorListener(vexEditorListener);
-		vexEditor.getEditorSite().getSelectionProvider().removeSelectionChangedListener(selectionListener);
+		editorPart.removeVexEditorListener(vexEditorListener);
+		editorPart.getEditorSite().getSelectionProvider().removeSelectionChangedListener(selectionListener);
 		if (filterActionGroup != null) {
 			filterActionGroup.dispose();
 		}
@@ -170,7 +171,7 @@ public class DocumentOutlinePage extends Page implements IContentOutlinePage {
 	private TreeViewer treeViewer;
 	private OutlineFilterActionGroup filterActionGroup;
 
-	private final VexEditor vexEditor;
+	private final VexEditor editorPart;
 
 	private IOutlineProvider outlineProvider;
 
@@ -209,7 +210,7 @@ public class DocumentOutlinePage extends Page implements IContentOutlinePage {
 
 		composite.layout();
 
-		final DocumentType doctype = vexEditor.getDocumentType();
+		final DocumentType doctype = editorPart.getDocumentType();
 
 		if (doctype == null) {
 			return;
@@ -238,7 +239,7 @@ public class DocumentOutlinePage extends Page implements IContentOutlinePage {
 			((IToolBarContributor) outlineProvider).registerToolBarActions(this, getSite().getActionBars());
 		}
 
-		outlineProvider.init(vexEditor);
+		outlineProvider.init(editorPart);
 
 		treeViewer.setContentProvider(outlineProvider.getContentProvider());
 		treeViewer.setLabelProvider(outlineProvider.getLabelProvider());
@@ -247,7 +248,7 @@ public class DocumentOutlinePage extends Page implements IContentOutlinePage {
 		filterActionGroup.setViewer(treeViewer);
 
 		treeViewer.setUseHashlookup(true);
-		final IDocument document = vexEditor.getVexWidget().getDocument();
+		final IDocument document = editorPart.getVexWidget().getDocument();
 		treeViewer.setInput(document);
 		document.addDocumentListener(documentListener);
 
@@ -321,13 +322,13 @@ public class DocumentOutlinePage extends Page implements IContentOutlinePage {
 						lastExpandedElements = null;
 						final INode node = (INode) selected[0].getData();
 						selectedTreeNode = node;
-						final VexWidget vexWidget = vexEditor.getVexWidget();
+						final IDocumentEditor documentEditor = editorPart.getVexWidget();
 
 						// Moving to the end of the element first is a cheap
 						// way to make sure we end up with the
 						// caret at the top of the viewport
-						vexWidget.moveTo(node.getEndPosition());
-						vexWidget.moveTo(node.getStartPosition().moveBy(1), true);
+						documentEditor.moveTo(node.getEndPosition());
+						documentEditor.moveTo(node.getStartPosition().moveBy(1), true);
 					}
 				}
 			}
@@ -346,9 +347,9 @@ public class DocumentOutlinePage extends Page implements IContentOutlinePage {
 				final TreeItem[] selected = treeViewer.getTree().getSelection();
 				if (selected.length > 0) {
 					final INode node = (INode) selected[0].getData();
-					final VexWidget vexWidget = vexEditor.getVexWidget();
-					vexWidget.moveTo(node.getStartPosition().moveBy(1));
-					vexWidget.setFocus();
+					final IDocumentEditor documentEditor = editorPart.getVexWidget();
+					documentEditor.moveTo(node.getStartPosition().moveBy(1));
+					editorPart.setFocus();
 				}
 			}
 		}
@@ -381,7 +382,7 @@ public class DocumentOutlinePage extends Page implements IContentOutlinePage {
 			// This cast is save because this event is only fired due to the attribute changes of elements.
 			final IElement parent = (IElement) event.getParent();
 			final IAttribute attr = parent.getAttribute(event.getAttributeName());
-			if (vexEditor.getStyle().getStyleSheet().getStyles(parent).getOutlineContent() == attr) {
+			if (editorPart.getStyle().getStyleSheet().getStyles(parent).getOutlineContent() == attr) {
 				// Parent has to be refreshed, since it uses this attribute as outline content
 				getTreeViewer().refresh(outlineProvider.getOutlineElement(parent));
 			}
@@ -417,7 +418,7 @@ public class DocumentOutlinePage extends Page implements IContentOutlinePage {
 			} else if (outlineElement instanceof IElement) {
 				// This SHOULD always be the case
 				final IElement parent = ((IElement) outlineElement).getParentElement();
-				if (parent != null && vexEditor.getStyle().getStyleSheet().getStyles(parent).getOutlineContent() == outlineElement) {
+				if (parent != null && editorPart.getStyle().getStyleSheet().getStyles(parent).getOutlineContent() == outlineElement) {
 					// Parent has to be refreshed, since it uses this element as content
 					getTreeViewer().refresh(outlineProvider.getOutlineElement(parent));
 				} else {
@@ -429,7 +430,7 @@ public class DocumentOutlinePage extends Page implements IContentOutlinePage {
 
 	private void initToolbarActions() {
 
-		final Style style = vexEditor.getStyle();
+		final Style style = editorPart.getStyle();
 		if (style != null) {
 			filterActionGroup = new OutlineFilterActionGroup(style.getStyleSheet());
 		} else {

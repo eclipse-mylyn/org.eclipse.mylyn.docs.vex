@@ -33,7 +33,7 @@ public class StyleMenu extends ContributionItem {
 	public void fill(final Menu menu, final int index) {
 		final IWorkbench workbench = PlatformUI.getWorkbench();
 		final IWorkbenchWindow window = workbench.getActiveWorkbenchWindow();
-		final VexEditor editor = VexHandlerUtil.computeVexEditor(window);
+		final VexEditor editor = VexHandlerUtil.getActiveVexEditor(window);
 		if (editor == null) {
 			return;
 		}

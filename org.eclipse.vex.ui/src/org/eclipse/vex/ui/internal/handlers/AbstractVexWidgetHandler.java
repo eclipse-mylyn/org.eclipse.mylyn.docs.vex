@@ -34,7 +34,7 @@ public abstract class AbstractVexWidgetHandler extends AbstractHandler implement
 
 	@Override
 	public Object execute(final ExecutionEvent event) throws ExecutionException {
-		execute(event, VexHandlerUtil.computeWidget(event));
+		execute(event, VexHandlerUtil.getDocumentEditor(event));
 		return null;
 	}
 
@@ -59,12 +59,12 @@ public abstract class AbstractVexWidgetHandler extends AbstractHandler implement
 		}
 
 		final IWorkbenchWindow window = (IWorkbenchWindow) windowObject;
-		final VexWidget widget = VexHandlerUtil.computeWidget(window);
-		if (widget == null) {
+		final IDocumentEditor editor = VexHandlerUtil.getDocumentEditor(window);
+		if (editor == null) {
 			return;
 		}
 
-		final IElement currentElement = widget.getCurrentElement();
+		final IElement currentElement = editor.getCurrentElement();
 		final String name;
 		if (currentElement != null) {
 			name = currentElement.getPrefixedName();

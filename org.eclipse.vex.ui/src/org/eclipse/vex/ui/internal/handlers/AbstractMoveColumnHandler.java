@@ -17,7 +17,7 @@ import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.vex.core.internal.layout.LayoutUtils.ElementOrRange;
-import org.eclipse.vex.core.internal.widget.swt.VexWidget;
+import org.eclipse.vex.core.internal.widget.IDocumentEditor;
 import org.eclipse.vex.core.provisional.dom.ContentPositionRange;
 
 /**
@@ -30,20 +30,20 @@ public abstract class AbstractMoveColumnHandler extends AbstractHandler {
 
 	@Override
 	public Object execute(final ExecutionEvent event) throws ExecutionException {
-		final VexWidget widget = VexHandlerUtil.computeWidget(event);
-		final VexHandlerUtil.RowColumnInfo rcInfo = VexHandlerUtil.getRowColumnInfo(widget);
+		final IDocumentEditor editor = VexHandlerUtil.getDocumentEditor(event);
+		final VexHandlerUtil.RowColumnInfo rcInfo = VexHandlerUtil.getRowColumnInfo(editor);
 
 		if (rcInfo == null || !movingPossible(rcInfo)) {
 			return null;
 		}
 
-		widget.doWork(new Runnable() {
+		editor.doWork(new Runnable() {
 			@Override
 			public void run() {
 				final List<Object> sourceCells = new ArrayList<Object>();
 				final List<Object> targetCells = new ArrayList<Object>();
-				computeCells(widget, rcInfo, sourceCells, targetCells);
-				swapCells(widget, sourceCells, targetCells);
+				computeCells(editor, rcInfo, sourceCells, targetCells);
+				swapCells(editor, sourceCells, targetCells);
 			}
 		}, true);
 		return null;
@@ -54,9 +54,9 @@ public abstract class AbstractMoveColumnHandler extends AbstractHandler {
 	 */
 	protected abstract boolean moveRight();
 
-	private void computeCells(final VexWidget widget, final VexHandlerUtil.RowColumnInfo rcInfo, final List<Object> sourceCells, final List<Object> targetCells) {
+	private void computeCells(final IDocumentEditor editor, final VexHandlerUtil.RowColumnInfo rcInfo, final List<Object> sourceCells, final List<Object> targetCells) {
 
-		VexHandlerUtil.iterateTableCells(widget, new TableCellCallbackAdapter() {
+		VexHandlerUtil.iterateTableCells(editor, new TableCellCallbackAdapter() {
 
 			private Object leftCell;
 
@@ -73,7 +73,7 @@ public abstract class AbstractMoveColumnHandler extends AbstractHandler {
 		});
 	}
 
-	private void swapCells(final VexWidget widget, final List<Object> sourceCells, final List<Object> targetCells) {
+	private void swapCells(final IDocumentEditor editor, final List<Object> sourceCells, final List<Object> targetCells) {
 
 		// Iterate the deletions in reverse, so that we don't mess up offsets
 		// that are in anonymous cells, which are not stored as positions.
@@ -86,16 +86,16 @@ public abstract class AbstractMoveColumnHandler extends AbstractHandler {
 			final Object target = targetCells.get(i);
 			final ContentPositionRange sourceRange = VexHandlerUtil.getOuterRange(source);
 			final ContentPositionRange targetRange = VexHandlerUtil.getOuterRange(target);
-			widget.moveTo(moveRight() ? targetRange.getStartPosition() : targetRange.getEndPosition());
-			widget.savePosition(new Runnable() {
+			editor.moveTo(moveRight() ? targetRange.getStartPosition() : targetRange.getEndPosition());
+			editor.savePosition(new Runnable() {
 				@Override
 				public void run() {
-					widget.moveTo(sourceRange.getStartPosition());
-					widget.moveTo(sourceRange.getEndPosition(), true);
-					widget.cutSelection();
+					editor.moveTo(sourceRange.getStartPosition());
+					editor.moveTo(sourceRange.getEndPosition(), true);
+					editor.cutSelection();
 				}
 			});
-			widget.paste();
+			editor.paste();
 
 		}
 	}

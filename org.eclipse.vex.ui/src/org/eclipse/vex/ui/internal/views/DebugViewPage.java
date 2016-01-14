@@ -11,8 +11,6 @@
 package org.eclipse.vex.ui.internal.views;
 
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 
 import org.eclipse.jface.layout.GridDataFactory;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
@@ -39,13 +37,9 @@ import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.part.IPageBookViewPage;
 import org.eclipse.ui.part.IPageSite;
-import org.eclipse.vex.core.internal.core.Caret;
 import org.eclipse.vex.core.internal.core.Rectangle;
 import org.eclipse.vex.core.internal.layout.Box;
-import org.eclipse.vex.core.internal.widget.BaseVexWidget;
-import org.eclipse.vex.core.internal.widget.IBoxFilter;
-import org.eclipse.vex.core.internal.widget.IHostComponent;
-import org.eclipse.vex.core.internal.widget.swt.VexWidget;
+import org.eclipse.vex.core.internal.widget.IDocumentEditor;
 import org.eclipse.vex.core.provisional.dom.ContentPosition;
 import org.eclipse.vex.core.provisional.dom.ContentRange;
 import org.eclipse.vex.core.provisional.dom.IDocument;
@@ -57,7 +51,7 @@ import org.eclipse.vex.ui.internal.editor.VexEditor;
 class DebugViewPage implements IPageBookViewPage {
 
 	public DebugViewPage(final VexEditor vexEditor) {
-		this.vexEditor = vexEditor;
+		editorPart = vexEditor;
 	}
 
 	@Override
@@ -66,22 +60,23 @@ class DebugViewPage implements IPageBookViewPage {
 		composite = new Composite(parent, SWT.NONE);
 		composite.setLayout(new FillLayout());
 
-		if (vexEditor.isLoaded()) {
+		if (editorPart.isLoaded()) {
 			createDebugPanel();
 		} else {
 			loadingLabel = new Label(composite, SWT.NONE);
 			loadingLabel.setText("Loading...");
 		}
 
-		vexEditor.getEditorSite().getSelectionProvider().addSelectionChangedListener(selectionListener);
+		editorPart.getEditorSite().getSelectionProvider().addSelectionChangedListener(selectionListener);
 	}
 
 	@Override
 	public void dispose() {
-		if (vexWidget != null && !vexWidget.isDisposed()) {
-			vexWidget.removeMouseMoveListener(mouseMoveListener);
-		}
-		vexEditor.getEditorSite().getSelectionProvider().removeSelectionChangedListener(selectionListener);
+		// TODO find this information elsewhere
+		//		if (documentEditor != null && !documentEditor.isDisposed()) {
+		//			documentEditor.removeMouseMoveListener(mouseMoveListener);
+		//		}
+		editorPart.getEditorSite().getSelectionProvider().removeSelectionChangedListener(selectionListener);
 	}
 
 	@Override
@@ -114,34 +109,34 @@ class DebugViewPage implements IPageBookViewPage {
 	private static final int WIDTH = 3;
 	private static final int HEIGHT = 4;
 
-	private static Field implField;
-	private static Field rootBoxField;
-	private static Field caretField;
-	private static Field hostComponentField;
-	private static Method findInnermostBoxMethod;
-
-	static {
-		try {
-			implField = VexWidget.class.getDeclaredField("impl");
-			implField.setAccessible(true);
-			rootBoxField = BaseVexWidget.class.getDeclaredField("rootBox");
-			rootBoxField.setAccessible(true);
-			caretField = BaseVexWidget.class.getDeclaredField("caret");
-			caretField.setAccessible(true);
-			hostComponentField = BaseVexWidget.class.getDeclaredField("hostComponent");
-			hostComponentField.setAccessible(true);
-			findInnermostBoxMethod = BaseVexWidget.class.getDeclaredMethod("findInnermostBox", IBoxFilter.class);
-			findInnermostBoxMethod.setAccessible(true);
-		} catch (final Exception e) {
-			e.printStackTrace();
-			// TODO: handle exception
-		}
-	}
+	// TODO find this information elsewhere
+	//	private static Field implField;
+	//	private static Field rootBoxField;
+	//	private static Field caretField;
+	//	private static Field hostComponentField;
+	//	private static Method findInnermostBoxMethod;
+	//
+	//	static {
+	//		try {
+	//			implField = VexWidget.class.getDeclaredField("impl");
+	//			implField.setAccessible(true);
+	//			rootBoxField = BaseVexWidget.class.getDeclaredField("rootBox");
+	//			rootBoxField.setAccessible(true);
+	//			caretField = BaseVexWidget.class.getDeclaredField("caret");
+	//			caretField.setAccessible(true);
+	//			hostComponentField = BaseVexWidget.class.getDeclaredField("hostComponent");
+	//			hostComponentField.setAccessible(true);
+	//			findInnermostBoxMethod = BaseVexWidget.class.getDeclaredMethod("findInnermostBox", IBoxFilter.class);
+	//			findInnermostBoxMethod.setAccessible(true);
+	//		} catch (final Exception e) {
+	//			e.printStackTrace();
+	//			// TODO: handle exception
+	//		}
+	//	}
 
 	private IPageSite site;
-	private final VexEditor vexEditor;
-	private VexWidget vexWidget;
-	private BaseVexWidget impl;
+	private final VexEditor editorPart;
+	private IDocumentEditor documentEditor;
 	private Composite composite;
 
 	private Label loadingLabel;
@@ -166,16 +161,16 @@ class DebugViewPage implements IPageBookViewPage {
 			loadingLabel = null;
 		}
 
-		vexWidget = vexEditor.getVexWidget();
-		try {
-			impl = (BaseVexWidget) implField.get(vexWidget);
-		} catch (final IllegalArgumentException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (final IllegalAccessException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		documentEditor = editorPart.getVexWidget();
+		//		try {
+		//			impl = (BaseVexWidget) implField.get(vexWidget);
+		//		} catch (final IllegalArgumentException e) {
+		//			// TODO Auto-generated catch block
+		//			e.printStackTrace();
+		//		} catch (final IllegalAccessException e) {
+		//			// TODO Auto-generated catch block
+		//			e.printStackTrace();
+		//		}
 
 		final GridLayout layout = new GridLayout();
 		layout.numColumns = 1;
@@ -266,7 +261,8 @@ class DebugViewPage implements IPageBookViewPage {
 
 		composite.layout();
 
-		vexWidget.addMouseMoveListener(mouseMoveListener);
+		// TODO find this information elsewhere
+		//		documentEditor.addMouseMoveListener(mouseMoveListener);
 
 		repopulate();
 	}
@@ -274,7 +270,7 @@ class DebugViewPage implements IPageBookViewPage {
 	private final ISelectionChangedListener selectionListener = new ISelectionChangedListener() {
 		@Override
 		public void selectionChanged(final SelectionChangedEvent event) {
-			if (vexWidget == null) {
+			if (documentEditor == null) {
 				createDebugPanel();
 			}
 			repopulate();
@@ -307,7 +303,6 @@ class DebugViewPage implements IPageBookViewPage {
 	}
 
 	private final MouseMoveListener mouseMoveListener = new MouseMoveListener() {
-
 		@Override
 		public void mouseMove(final MouseEvent e) {
 			final Rectangle rect = new Rectangle(e.x, e.y, 0, 0);
@@ -315,22 +310,27 @@ class DebugViewPage implements IPageBookViewPage {
 			setItemFromRect(mouseAbsItem, rect);
 			setItemRel(mouseRelItem, viewport, rect);
 		}
-
 	};
 
 	private Rectangle getCaretBounds() {
-		final Caret caret = (Caret) getFieldValue(caretField, impl);
-		return caret.getBounds();
+		// TODO find this information elsewhere
+		//		final Caret caret = (Caret) getFieldValue(caretField, impl);
+		//		return caret.getBounds();
+		return Rectangle.NULL;
 	}
 
 	private Rectangle getRootBoxBounds() {
-		final Box rootBox = (Box) getFieldValue(rootBoxField, impl);
-		return new Rectangle(rootBox.getX(), rootBox.getY(), rootBox.getWidth(), rootBox.getHeight());
+		// TODO find this information elsewhere
+		//		final Box rootBox = (Box) getFieldValue(rootBoxField, impl);
+		//		return new Rectangle(rootBox.getX(), rootBox.getY(), rootBox.getWidth(), rootBox.getHeight());
+		return Rectangle.NULL;
 	}
 
 	private Rectangle getViewport() {
-		final IHostComponent hc = (IHostComponent) getFieldValue(hostComponentField, impl);
-		return hc.getViewport();
+		// TODO find this information elsewhere
+		//		final IHostComponent hc = (IHostComponent) getFieldValue(hostComponentField, impl);
+		//		return hc.getViewport();
+		return Rectangle.NULL;
 	}
 
 	private Object getFieldValue(final Field field, final Object o) {
@@ -345,7 +345,7 @@ class DebugViewPage implements IPageBookViewPage {
 		setItemFromRect(documentItem, getRootBoxBounds());
 		setFromInnermostBox(boxItem, getInnermostBox());
 		final Rectangle viewport = getViewport();
-		caretOffsetItem.setText(1, impl.getCaretPosition().toString());
+		caretOffsetItem.setText(1, documentEditor.getCaretPosition().toString());
 		caretOffsetContentItem.setText(1, getContent());
 		setItemFromRect(viewportItem, viewport);
 		setItemFromRect(caretAbsItem, getCaretBounds());
@@ -362,20 +362,22 @@ class DebugViewPage implements IPageBookViewPage {
 	}
 
 	private Box getInnermostBox() {
-		try {
-			return (Box) findInnermostBoxMethod.invoke(impl, IBoxFilter.TRUE);
-		} catch (final IllegalArgumentException e) {
-			return null;
-		} catch (final IllegalAccessException e) {
-			return null;
-		} catch (final InvocationTargetException e) {
-			return null;
-		}
+		// TODO find this information elsewhere
+		//		try {
+		//			return (Box) findInnermostBoxMethod.invoke(impl, IBoxFilter.TRUE);
+		//		} catch (final IllegalArgumentException e) {
+		//			return null;
+		//		} catch (final IllegalAccessException e) {
+		//			return null;
+		//		} catch (final InvocationTargetException e) {
+		//			return null;
+		//		}
+		return null;
 	}
 
 	private String getContent() {
-		final ContentPosition offset = impl.getCaretPosition();
-		final IDocument doc = impl.getDocument();
+		final ContentPosition offset = documentEditor.getCaretPosition();
+		final IDocument doc = documentEditor.getDocument();
 		final int len = 8;
 
 		final StringBuilder result = new StringBuilder();

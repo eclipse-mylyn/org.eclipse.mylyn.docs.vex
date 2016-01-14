@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2013 John Krasnay and others.
+ * Copyright (c) 2004, 2016 John Krasnay and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -9,6 +9,7 @@
  *     John Krasnay - initial API and implementation
  *     Igor Jacy Lino Campista - Java 5 warnings fixed (bug 311325)
  *     Carsten Hiesserich - use a visitor to create a new table row
+ *     Florian Thienel - introduce IDocumentEditor
  *******************************************************************************/
 package org.eclipse.vex.ui.internal.handlers;
 
@@ -30,7 +31,6 @@ import org.eclipse.vex.core.internal.layout.ElementOrRangeCallback;
 import org.eclipse.vex.core.internal.layout.LayoutUtils;
 import org.eclipse.vex.core.internal.layout.LayoutUtils.ElementOrRange;
 import org.eclipse.vex.core.internal.widget.IDocumentEditor;
-import org.eclipse.vex.core.internal.widget.swt.VexWidget;
 import org.eclipse.vex.core.provisional.dom.BaseNodeVisitor;
 import org.eclipse.vex.core.provisional.dom.ContentPosition;
 import org.eclipse.vex.core.provisional.dom.ContentPositionRange;
@@ -50,25 +50,25 @@ import org.eclipse.vex.ui.internal.editor.VexEditor;
  */
 public final class VexHandlerUtil {
 
-	public static VexWidget computeWidget(final ExecutionEvent event) throws ExecutionException {
+	public static IDocumentEditor getDocumentEditor(final ExecutionEvent event) throws ExecutionException {
 		final IEditorPart activeEditor = HandlerUtil.getActiveEditor(event);
-		VexWidget widget = null;
+		IDocumentEditor documentEditor = null;
 		if (activeEditor instanceof VexEditor) {
-			widget = ((VexEditor) activeEditor).getVexWidget();
+			documentEditor = ((VexEditor) activeEditor).getVexWidget();
 		}
-		assertNotNull(widget, "Can not compute VexWidget.");
-		return widget;
+		assertNotNull(documentEditor, "Can not compute document editor.");
+		return documentEditor;
 	}
 
-	public static VexWidget computeWidget(final IWorkbenchWindow window) {
-		final VexEditor editor = computeVexEditor(window);
+	public static IDocumentEditor getDocumentEditor(final IWorkbenchWindow window) {
+		final VexEditor editor = getActiveVexEditor(window);
 		if (editor == null) {
 			return null;
 		}
 		return editor.getVexWidget();
 	}
 
-	public static VexEditor computeVexEditor(final ExecutionEvent event) throws ExecutionException {
+	public static VexEditor getActiveVexEditor(final ExecutionEvent event) throws ExecutionException {
 		final IEditorPart activeEditor = HandlerUtil.getActiveEditor(event);
 
 		if (activeEditor instanceof VexEditor) {
@@ -77,7 +77,7 @@ public final class VexHandlerUtil {
 		return null;
 	}
 
-	public static VexEditor computeVexEditor(final IWorkbenchWindow window) {
+	public static VexEditor getActiveVexEditor(final IWorkbenchWindow window) {
 		final IEditorPart activeEditor = window.getActivePage().getActiveEditor();
 		if (activeEditor == null) {
 			return null;

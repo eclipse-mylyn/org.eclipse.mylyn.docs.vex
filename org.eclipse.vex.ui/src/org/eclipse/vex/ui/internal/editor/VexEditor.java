@@ -52,6 +52,7 @@ import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
@@ -99,6 +100,8 @@ import org.eclipse.vex.core.internal.dom.DocumentTextPosition;
 import org.eclipse.vex.core.internal.io.DocumentReader;
 import org.eclipse.vex.core.internal.io.DocumentWriter;
 import org.eclipse.vex.core.internal.validator.WTPVEXValidator;
+import org.eclipse.vex.core.internal.widget.CssTableModel;
+import org.eclipse.vex.core.internal.widget.IDocumentEditor;
 import org.eclipse.vex.core.internal.widget.swt.VexWidget;
 import org.eclipse.vex.core.provisional.dom.AttributeChangeEvent;
 import org.eclipse.vex.core.provisional.dom.BaseNodeVisitorWithResult;
@@ -525,7 +528,7 @@ public class VexEditor extends EditorPart {
 	/**
 	 * Returns the VexWidget that implements this editor.
 	 */
-	public VexWidget getVexWidget() {
+	public IDocumentEditor getVexWidget() {
 		return vexWidget;
 	}
 
@@ -800,6 +803,7 @@ public class VexEditor extends EditorPart {
 
 			vexWidget.setDebugging(debugging);
 			vexWidget.setWhitespacePolicy(reader.getWhitespacePolicy());
+			vexWidget.setTableModel(new CssTableModel(style.getStyleSheet()));
 			vexWidget.setDocument(document, style.getStyleSheet());
 			vexWidget.setReadOnly(isEditorInputReadOnly());
 
@@ -1042,7 +1046,8 @@ public class VexEditor extends EditorPart {
 			// update context service
 			final ISourceProviderService service = (ISourceProviderService) window.getService(ISourceProviderService.class);
 			final DocumentContextSourceProvider contextProvider = (DocumentContextSourceProvider) service.getSourceProvider(DocumentContextSourceProvider.IS_COLUMN);
-			final Rectangle caretArea = Rectangle.NULL; // TODO get the real caret area form the BoxWidget
+			final Point caretLocation = vexWidget.toDisplay(vexWidget.getLocationForContentAssist());
+			final Rectangle caretArea = new Rectangle(caretLocation.x, caretLocation.y, 1, 1); // TODO get the real caret area form the BoxWidget
 			contextProvider.fireUpdate(vexWidget, caretArea);
 		}
 	};
@@ -1185,14 +1190,14 @@ public class VexEditor extends EditorPart {
 
 				@Override
 				protected void inDocumentReplaceSelection(final CharSequence text) {
-					final VexWidget vexWidget = getVexWidget();
+					final IDocumentEditor documentEditor = getVexWidget();
 
 					// because of Undo this action must be atomic
-					vexWidget.doWork(new Runnable() {
+					documentEditor.doWork(new Runnable() {
 						@Override
 						public void run() {
-							vexWidget.deleteSelection();
-							vexWidget.insertText(text.toString());
+							documentEditor.deleteSelection();
+							documentEditor.insertText(text.toString());
 						}
 					});
 				}
