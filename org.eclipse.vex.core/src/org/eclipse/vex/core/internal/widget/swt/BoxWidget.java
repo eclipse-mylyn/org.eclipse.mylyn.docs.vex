@@ -189,7 +189,6 @@ public class BoxWidget extends Canvas implements ISelectionProvider, IDocumentEd
 
 	private void widgetDisposed() {
 		controller.dispose();
-		editor.dispose();
 		mouseCursor.dispose();
 	}
 

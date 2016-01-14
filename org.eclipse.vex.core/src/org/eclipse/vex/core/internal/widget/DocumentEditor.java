@@ -34,7 +34,6 @@ import org.eclipse.vex.core.internal.core.ElementName;
 import org.eclipse.vex.core.internal.core.QualifiedNameComparator;
 import org.eclipse.vex.core.internal.css.IWhitespacePolicy;
 import org.eclipse.vex.core.internal.cursor.ICursor;
-import org.eclipse.vex.core.internal.cursor.ICursorPositionListener;
 import org.eclipse.vex.core.internal.dom.Node;
 import org.eclipse.vex.core.internal.io.XMLFragment;
 import org.eclipse.vex.core.internal.undo.CannotApplyException;
@@ -85,34 +84,15 @@ public class DocumentEditor implements IDocumentEditor {
 	private ITableModel tableModel;
 	private boolean readOnly;
 
-	private INode currentNode;
-	private ContentPosition caretPosition;
-	private final ICursorPositionListener cursorListener = new ICursorPositionListener() {
-		@Override
-		public void positionChanged(final int offset) {
-			cursorPositionChanged(offset);
-		}
-
-		@Override
-		public void positionAboutToChange() {
-			// ignore
-		}
-	};
-
 	public DocumentEditor(final ICursor cursor) {
 		this(cursor, IWhitespacePolicy.NULL);
 	}
 
 	public DocumentEditor(final ICursor cursor, final IWhitespacePolicy whitespacePolicy) {
 		this.cursor = cursor;
-		cursor.addPositionListener(cursorListener);
 		this.whitespacePolicy = whitespacePolicy;
 
 		editStack = new EditStack();
-	}
-
-	public void dispose() {
-		cursor.removePositionListener(cursorListener);
 	}
 
 	/*
@@ -288,19 +268,14 @@ public class DocumentEditor implements IDocumentEditor {
 	 * Caret and Selection
 	 */
 
-	private void cursorPositionChanged(final int offset) {
-		currentNode = document.getNodeForInsertionAt(cursor.getOffset());
-		caretPosition = new ContentPosition(currentNode, cursor.getOffset());
-	}
-
 	@Override
 	public ContentPosition getCaretPosition() {
-		return caretPosition;
+		return new ContentPosition(getCurrentNode(), cursor.getOffset());
 	}
 
 	@Override
 	public IElement getCurrentElement() {
-		return currentNode.accept(new BaseNodeVisitorWithResult<IElement>(null) {
+		return getCurrentNode().accept(new BaseNodeVisitorWithResult<IElement>(null) {
 			@Override
 			public IElement visit(final IElement element) {
 				return element;
@@ -325,7 +300,7 @@ public class DocumentEditor implements IDocumentEditor {
 
 	@Override
 	public INode getCurrentNode() {
-		return currentNode;
+		return document.getNodeForInsertionAt(cursor.getOffset());
 	}
 
 	@Override
@@ -1392,6 +1367,7 @@ public class DocumentEditor implements IDocumentEditor {
 			return true;
 		}
 
+		final INode currentNode = getCurrentNode();
 		if (!Filters.elements().matches(currentNode)) {
 			return false;
 		}
@@ -1418,6 +1394,7 @@ public class DocumentEditor implements IDocumentEditor {
 			throw new ReadOnlyException("Cannot split, because the editor is read-only.");
 		}
 
+		final INode currentNode = getCurrentNode();
 		if (!Filters.elements().matches(currentNode)) {
 			throw new DocumentValidationException("Can only split elements.");
 		}
