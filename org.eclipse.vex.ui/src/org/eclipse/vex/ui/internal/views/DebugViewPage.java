@@ -39,7 +39,7 @@ import org.eclipse.ui.part.IPageBookViewPage;
 import org.eclipse.ui.part.IPageSite;
 import org.eclipse.vex.core.internal.core.Rectangle;
 import org.eclipse.vex.core.internal.layout.Box;
-import org.eclipse.vex.core.internal.widget.IDocumentEditor;
+import org.eclipse.vex.core.internal.widget.swt.BoxWidget;
 import org.eclipse.vex.core.provisional.dom.ContentPosition;
 import org.eclipse.vex.core.provisional.dom.ContentRange;
 import org.eclipse.vex.core.provisional.dom.IDocument;
@@ -72,10 +72,9 @@ class DebugViewPage implements IPageBookViewPage {
 
 	@Override
 	public void dispose() {
-		// TODO find this information elsewhere
-		//		if (documentEditor != null && !documentEditor.isDisposed()) {
-		//			documentEditor.removeMouseMoveListener(mouseMoveListener);
-		//		}
+		if (documentEditor != null && !documentEditor.isDisposed()) {
+			documentEditor.removeMouseMoveListener(mouseMoveListener);
+		}
 		editorPart.getEditorSite().getSelectionProvider().removeSelectionChangedListener(selectionListener);
 	}
 
@@ -136,7 +135,7 @@ class DebugViewPage implements IPageBookViewPage {
 
 	private IPageSite site;
 	private final VexEditor editorPart;
-	private IDocumentEditor documentEditor;
+	private BoxWidget documentEditor;
 	private Composite composite;
 
 	private Label loadingLabel;
@@ -161,16 +160,7 @@ class DebugViewPage implements IPageBookViewPage {
 			loadingLabel = null;
 		}
 
-		documentEditor = editorPart.getVexWidget();
-		//		try {
-		//			impl = (BaseVexWidget) implField.get(vexWidget);
-		//		} catch (final IllegalArgumentException e) {
-		//			// TODO Auto-generated catch block
-		//			e.printStackTrace();
-		//		} catch (final IllegalAccessException e) {
-		//			// TODO Auto-generated catch block
-		//			e.printStackTrace();
-		//		}
+		documentEditor = (BoxWidget) editorPart.getVexWidget();
 
 		final GridLayout layout = new GridLayout();
 		layout.numColumns = 1;
@@ -261,8 +251,7 @@ class DebugViewPage implements IPageBookViewPage {
 
 		composite.layout();
 
-		// TODO find this information elsewhere
-		//		documentEditor.addMouseMoveListener(mouseMoveListener);
+		documentEditor.addMouseMoveListener(mouseMoveListener);
 
 		repopulate();
 	}
