@@ -468,14 +468,17 @@ public class VexEditor extends EditorPart {
 				jFaceDoc.removePosition(positionOfCurrentNode);
 			}
 
-			positionOfCurrentNode = createDocumentWriter().write(document, doc, editorWidget.getCurrentNode());
-			positionOfCurrentNode.setOffsetInNode(editorWidget.getCaretPosition().getOffset() - editorWidget.getCurrentNode().getStartPosition().getOffset());
+			final INode currentNode = editorWidget.getCurrentNode();
+			if (currentNode != null) {
+				positionOfCurrentNode = createDocumentWriter().write(document, doc, currentNode);
+				positionOfCurrentNode.setOffsetInNode(editorWidget.getCaretPosition().getOffset() - currentNode.getStartPosition().getOffset());
 
-			try {
-				jFaceDoc.addPosition(positionOfCurrentNode);
-			} catch (final BadLocationException e) {
-				// That should not happen
-				e.printStackTrace();
+				try {
+					jFaceDoc.addPosition(positionOfCurrentNode);
+				} catch (final BadLocationException e) {
+					// That should not happen
+					e.printStackTrace();
+				}
 			}
 		} finally {
 			provider.changed(getEditorInput());

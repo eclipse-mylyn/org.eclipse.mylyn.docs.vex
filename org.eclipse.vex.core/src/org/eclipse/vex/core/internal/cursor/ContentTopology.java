@@ -17,8 +17,8 @@ import org.eclipse.vex.core.internal.boxes.BaseBoxVisitorWithResult;
 import org.eclipse.vex.core.internal.boxes.DepthFirstBoxTraversal;
 import org.eclipse.vex.core.internal.boxes.IBox;
 import org.eclipse.vex.core.internal.boxes.IContentBox;
-import org.eclipse.vex.core.internal.boxes.NodeEndOffsetPlaceholder;
 import org.eclipse.vex.core.internal.boxes.InlineNodeReference;
+import org.eclipse.vex.core.internal.boxes.NodeEndOffsetPlaceholder;
 import org.eclipse.vex.core.internal.boxes.ParentTraversal;
 import org.eclipse.vex.core.internal.boxes.RootBox;
 import org.eclipse.vex.core.internal.boxes.StructuralNodeReference;
@@ -80,8 +80,12 @@ public class ContentTopology {
 
 	public IContentBox findBoxForPosition(final int offset, final IBox startBox) {
 		if (startBox == null) {
+			if (rootBox == null) {
+				return null;
+			}
 			return findBoxForPosition(offset, rootBox);
 		}
+
 		return startBox.accept(new DepthFirstBoxTraversal<IContentBox>() {
 			@Override
 			public IContentBox visit(final StructuralNodeReference box) {

@@ -101,7 +101,7 @@ public class DoubleBufferedRenderer implements IRenderer {
 	}
 
 	private Image createImage(final Rectangle viewPort) {
-		return new Image(control.getDisplay(), viewPort.getWidth(), viewPort.getHeight());
+		return new Image(control.getDisplay(), Math.max(1, viewPort.getWidth()), Math.max(1, viewPort.getHeight()));
 	}
 
 	private void moveOriginToViewPort(final Rectangle viewPort, final Graphics graphics) {

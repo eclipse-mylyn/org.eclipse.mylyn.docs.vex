@@ -275,7 +275,11 @@ public class DocumentEditor implements IDocumentEditor {
 
 	@Override
 	public IElement getCurrentElement() {
-		return getCurrentNode().accept(new BaseNodeVisitorWithResult<IElement>(null) {
+		final INode currentNode = getCurrentNode();
+		if (currentNode == null) {
+			return null;
+		}
+		return currentNode.accept(new BaseNodeVisitorWithResult<IElement>(null) {
 			@Override
 			public IElement visit(final IElement element) {
 				return element;
