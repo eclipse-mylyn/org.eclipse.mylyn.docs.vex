@@ -18,6 +18,11 @@ public class InMemoryClipboard implements IClipboard {
 	private IDocumentFragment content;
 
 	@Override
+	public void dispose() {
+		content = null;
+	}
+
+	@Override
 	public void cutSelection(final IDocumentEditor editor) {
 		copySelection(editor);
 		editor.deleteSelection();

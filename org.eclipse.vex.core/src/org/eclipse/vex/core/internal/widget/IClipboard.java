@@ -14,6 +14,8 @@ import org.eclipse.vex.core.provisional.dom.DocumentValidationException;
 
 public interface IClipboard {
 
+	void dispose();
+
 	/**
 	 * Cuts the current selection to the clipboard.
 	 *

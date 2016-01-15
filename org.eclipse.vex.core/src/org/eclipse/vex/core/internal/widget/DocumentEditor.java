@@ -331,7 +331,7 @@ public class DocumentEditor implements IDocumentEditor {
 	@Override
 	public IDocumentFragment getSelectedFragment() {
 		if (hasSelection()) {
-			return document.getFragment(getSelectedRange());
+			return document.getFragment(getSelectedRange().resizeBy(0, -1));
 		} else {
 			return null;
 		}

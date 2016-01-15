@@ -11,12 +11,15 @@
 package org.eclipse.vex.core.internal.widget;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotSame;
 import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
 
 import org.eclipse.vex.core.internal.io.UniversalTestDocument;
 import org.eclipse.vex.core.provisional.dom.IElement;
 import org.eclipse.vex.core.provisional.dom.INode;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -36,12 +39,17 @@ public abstract class BaseClipboardTest {
 		clipboard = createClipboard();
 	}
 
+	@After
+	public void disposeClipboard() {
+		clipboard.dispose();
+	}
+
 	@Test
 	public void givenFirstParagraphSelected_cutSelection_shouldRemoveFirstParagraphFromDocument() throws Exception {
 		final IElement section = document.getSection(0);
 		final INode firstParagraph = section.children().first();
 
-		select(firstParagraph);
+		editor.select(firstParagraph);
 		clipboard.cutSelection(editor);
 
 		assertNotSame(firstParagraph, section.children().first());
@@ -55,7 +63,7 @@ public abstract class BaseClipboardTest {
 		final INode secondParagraph = section.children().last();
 		final String firstParagraphContent = firstParagraph.getText();
 
-		select(firstParagraph);
+		editor.select(firstParagraph);
 		clipboard.cutSelection(editor);
 		editor.moveTo(secondParagraph.getEndPosition().moveBy(1));
 		clipboard.paste(editor);
@@ -71,7 +79,7 @@ public abstract class BaseClipboardTest {
 		final INode secondParagraph = section.children().last();
 		final String firstParagraphContent = firstParagraph.getText();
 
-		select(firstParagraph);
+		editor.select(firstParagraph);
 		clipboard.copySelection(editor);
 		editor.moveTo(secondParagraph.getEndPosition().moveBy(1));
 		clipboard.paste(editor);
@@ -87,7 +95,7 @@ public abstract class BaseClipboardTest {
 		final INode secondParagraph = section.children().last();
 		final String firstParagraphContent = firstParagraph.getText();
 
-		select(firstParagraph);
+		editor.select(firstParagraph);
 		clipboard.copySelection(editor);
 		editor.moveTo(secondParagraph.getEndPosition().moveBy(1));
 		clipboard.cutSelection(editor);
@@ -104,7 +112,7 @@ public abstract class BaseClipboardTest {
 		final INode secondParagraph = section.children().last();
 		final String firstParagraphContent = firstParagraph.getText();
 
-		select(firstParagraph);
+		editor.select(firstParagraph);
 		clipboard.copySelection(editor);
 		editor.moveTo(secondParagraph.getEndPosition().moveBy(1));
 		clipboard.copySelection(editor);
@@ -121,7 +129,7 @@ public abstract class BaseClipboardTest {
 		final INode secondParagraph = section.children().last();
 		final String firstParagraphContent = firstParagraph.getText();
 
-		select(firstParagraph);
+		editor.select(firstParagraph);
 		clipboard.copySelection(editor);
 		editor.moveTo(secondParagraph.getEndPosition());
 		clipboard.pasteText(editor);
@@ -130,8 +138,39 @@ public abstract class BaseClipboardTest {
 		assertEquals(2, section.children().count());
 	}
 
-	private void select(final INode node) {
-		editor.moveTo(node.getStartPosition());
-		editor.moveBy(1, true);
+	@Test
+	public void givenFirstParagraphSelected_copySelection_shouldIndicateContentAndTextContentAvailable() throws Exception {
+		final IElement section = document.getSection(0);
+		final INode firstParagraph = section.children().first();
+
+		editor.select(firstParagraph);
+		clipboard.copySelection(editor);
+
+		assertTrue("hasContent", clipboard.hasContent());
+		assertTrue("hasTextContent", clipboard.hasTextContent());
+	}
+
+	@Test
+	public void givenContentOfFirstParagraphSelected_copySelection_shouldIndicateContentAndTextContentAvailable() throws Exception {
+		final IElement section = document.getSection(0);
+		final INode firstParagraph = section.children().first();
+
+		editor.selectContentOf(firstParagraph);
+		clipboard.copySelection(editor);
+
+		assertTrue("hasContent", clipboard.hasContent());
+		assertTrue("hasTextContent", clipboard.hasTextContent());
+	}
+
+	@Test
+	public void givenSecondParagraphSelected_copySelection_shouldIndicateContentButNotTextContentAvailable() throws Exception {
+		final IElement section = document.getSection(0);
+		final INode secondParagraph = section.children().last();
+
+		editor.select(secondParagraph);
+		clipboard.copySelection(editor);
+
+		assertTrue("hasContent", clipboard.hasContent());
+		assertFalse("hasTextContent", clipboard.hasTextContent());
 	}
 }
