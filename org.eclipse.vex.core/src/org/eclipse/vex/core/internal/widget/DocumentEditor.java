@@ -90,11 +90,15 @@ public class DocumentEditor implements IDocumentEditor {
 	}
 
 	public DocumentEditor(final ICursor cursor, final IWhitespacePolicy whitespacePolicy) {
+		this(cursor, whitespacePolicy, new InMemoryClipboard());
+	}
+
+	public DocumentEditor(final ICursor cursor, final IWhitespacePolicy whitespacePolicy, final IClipboard clipboard) {
 		this.cursor = cursor;
 		this.whitespacePolicy = whitespacePolicy;
+		this.clipboard = clipboard;
 
 		editStack = new EditStack();
-		clipboard = new InMemoryClipboard();
 	}
 
 	/*

@@ -85,10 +85,10 @@ public class BoxWidget extends Canvas implements ISelectionProvider, IDocumentEd
 	private final Cursor cursor;
 	private final BalancingSelector selector;
 	private final VisualizationController controller;
+	private final SwtClipboard clipboard;
+	private final DocumentEditor editor;
 
 	private final ListenerList selectionChangedListeners = new ListenerList();
-
-	private final DocumentEditor editor;
 
 	public BoxWidget(final Composite parent, final int style) {
 		super(parent, style | SWT.NO_BACKGROUND);
@@ -109,7 +109,8 @@ public class BoxWidget extends Canvas implements ISelectionProvider, IDocumentEd
 		connectCursor();
 
 		controller = new VisualizationController(new DoubleBufferedRenderer(this), new ViewPort(), cursor);
-		editor = new DocumentEditor(cursor);
+		clipboard = new SwtClipboard(parent.getDisplay());
+		editor = new DocumentEditor(cursor, IWhitespacePolicy.NULL, clipboard);
 	}
 
 	public void setDocument(final IDocument document) {
@@ -195,6 +196,7 @@ public class BoxWidget extends Canvas implements ISelectionProvider, IDocumentEd
 	private void widgetDisposed() {
 		controller.dispose();
 		mouseCursor.dispose();
+		clipboard.dispose();
 	}
 
 	private void resize(final ControlEvent event) {
