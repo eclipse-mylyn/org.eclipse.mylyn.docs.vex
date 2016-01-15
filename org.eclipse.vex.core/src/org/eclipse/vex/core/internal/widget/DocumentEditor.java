@@ -78,6 +78,7 @@ public class DocumentEditor implements IDocumentEditor {
 
 	private final ICursor cursor;
 	private final EditStack editStack;
+	private final IClipboard clipboard;
 
 	private IDocument document;
 	private IWhitespacePolicy whitespacePolicy;
@@ -93,6 +94,7 @@ public class DocumentEditor implements IDocumentEditor {
 		this.whitespacePolicy = whitespacePolicy;
 
 		editStack = new EditStack();
+		clipboard = new InMemoryClipboard();
 	}
 
 	/*
@@ -230,38 +232,41 @@ public class DocumentEditor implements IDocumentEditor {
 
 	@Override
 	public void cutSelection() {
-		// TODO Auto-generated method stub
-
+		if (isReadOnly()) {
+			throw new ReadOnlyException("Cannot cut selection, because the editor is read-only.");
+		}
+		clipboard.cutSelection(this);
 	}
 
 	@Override
 	public void copySelection() {
-		// TODO Auto-generated method stub
-
+		clipboard.copySelection(this);
 	}
 
 	@Override
 	public boolean canPaste() {
-		// TODO Auto-generated method stub
-		return false;
+		return clipboard.hasContent();
 	}
 
 	@Override
 	public void paste() throws DocumentValidationException {
-		// TODO Auto-generated method stub
-
+		if (isReadOnly()) {
+			throw new ReadOnlyException("Cannot paste, because the editor is read-only.");
+		}
+		clipboard.paste(this);
 	}
 
 	@Override
 	public boolean canPasteText() {
-		// TODO Auto-generated method stub
-		return false;
+		return clipboard.hasTextContent();
 	}
 
 	@Override
 	public void pasteText() throws DocumentValidationException {
-		// TODO Auto-generated method stub
-
+		if (isReadOnly()) {
+			throw new ReadOnlyException("Cannot paste text, because the editor is read-only.");
+		}
+		clipboard.pasteText(this);
 	}
 
 	/*
