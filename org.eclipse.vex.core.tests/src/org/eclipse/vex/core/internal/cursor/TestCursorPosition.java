@@ -36,6 +36,7 @@ import org.eclipse.vex.core.internal.visualization.ParagraphVisualization;
 import org.eclipse.vex.core.internal.visualization.StructureElementVisualization;
 import org.eclipse.vex.core.internal.visualization.TextVisualization;
 import org.eclipse.vex.core.internal.visualization.VisualizationChain;
+import org.eclipse.vex.core.internal.widget.FakeViewPort;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -53,7 +54,7 @@ public class TestCursorPosition {
 	public void setUp() throws Exception {
 		graphics = new FakeGraphics();
 		document = new UniversalTestDocument(2);
-		cursor = new Cursor(new FakeSelector());
+		cursor = new Cursor(new FakeSelector(), new FakeViewPort());
 
 		visualizeDocument();
 	}

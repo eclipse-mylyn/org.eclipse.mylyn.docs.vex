@@ -1,3 +1,13 @@
+/*******************************************************************************
+ * Copyright (c) 2016 Florian Thienel and others.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ *
+ * Contributors:
+ * 		Florian Thienel - initial API and implementation
+ *******************************************************************************/
 package org.eclipse.vex.core.internal.widget;
 
 import java.util.LinkedList;
@@ -17,6 +27,7 @@ public class FakeCursor implements ICursor {
 	private final Graphics graphics = new FakeGraphics();
 	private final ContentTopology contentTopology;
 	private final BalancingSelector selector;
+	private final IViewPort viewPort = new FakeViewPort();
 
 	private IDocument document;
 
@@ -81,14 +92,14 @@ public class FakeCursor implements ICursor {
 	@Override
 	public void move(final ICursorMove move) {
 		firePositionAboutToChange();
-		selector.setMark(move.calculateNewOffset(graphics, contentTopology, selector.getCaretOffset(), null, null, 0));
+		selector.setMark(move.calculateNewOffset(graphics, viewPort, contentTopology, selector.getCaretOffset(), null, null, 0));
 		firePositionChanged(selector.getCaretOffset());
 	}
 
 	@Override
 	public void select(final ICursorMove move) {
 		firePositionAboutToChange();
-		final int newOffset = move.calculateNewOffset(graphics, contentTopology, selector.getCaretOffset(), null, null, 0);
+		final int newOffset = move.calculateNewOffset(graphics, viewPort, contentTopology, selector.getCaretOffset(), null, null, 0);
 		if (move.isAbsolute()) {
 			selector.setEndAbsoluteTo(newOffset);
 		} else {

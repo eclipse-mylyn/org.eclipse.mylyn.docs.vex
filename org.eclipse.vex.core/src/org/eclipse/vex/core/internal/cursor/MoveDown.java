@@ -26,6 +26,7 @@ import org.eclipse.vex.core.internal.boxes.StructuralNodeReference;
 import org.eclipse.vex.core.internal.boxes.TextContent;
 import org.eclipse.vex.core.internal.core.Graphics;
 import org.eclipse.vex.core.internal.core.Rectangle;
+import org.eclipse.vex.core.internal.widget.IViewPort;
 
 /**
  * @author Florian Thienel
@@ -43,7 +44,7 @@ public class MoveDown implements ICursorMove {
 	}
 
 	@Override
-	public int calculateNewOffset(final Graphics graphics, final ContentTopology contentTopology, final int currentOffset, final IContentBox currentBox, final Rectangle hotArea, final int preferredX) {
+	public int calculateNewOffset(final Graphics graphics, IViewPort viewPort, final ContentTopology contentTopology, final int currentOffset, final IContentBox currentBox, final Rectangle hotArea, final int preferredX) {
 		if (isAtStartOfEmptyBox(currentOffset, currentBox)) {
 			return currentBox.getEndOffset();
 		}

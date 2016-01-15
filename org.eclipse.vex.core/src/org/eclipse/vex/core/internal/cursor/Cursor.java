@@ -30,6 +30,7 @@ import org.eclipse.vex.core.internal.core.FontSpec;
 import org.eclipse.vex.core.internal.core.Graphics;
 import org.eclipse.vex.core.internal.core.NodeGraphics;
 import org.eclipse.vex.core.internal.core.Rectangle;
+import org.eclipse.vex.core.internal.widget.IViewPort;
 import org.eclipse.vex.core.provisional.dom.ContentRange;
 import org.eclipse.vex.core.provisional.dom.INode;
 
@@ -46,6 +47,8 @@ public class Cursor implements ICursor {
 
 	private final ContentTopology contentTopology = new ContentTopology();
 	private final IContentSelector selector;
+	private final IViewPort viewPort;
+
 	private final LinkedList<MoveWithSelection> moves = new LinkedList<MoveWithSelection>();
 
 	private int offset;
@@ -56,8 +59,9 @@ public class Cursor implements ICursor {
 
 	private final LinkedList<ICursorPositionListener> cursorPositionListeners = new LinkedList<ICursorPositionListener>();
 
-	public Cursor(final IContentSelector selector) {
+	public Cursor(final IContentSelector selector, final IViewPort viewPort) {
 		this.selector = selector;
+		this.viewPort = viewPort;
 	}
 
 	public void setRootBox(final RootBox rootBox) {
@@ -159,7 +163,7 @@ public class Cursor implements ICursor {
 	public void applyMoves(final Graphics graphics) {
 		for (MoveWithSelection move = moves.poll(); move != null; move = moves.poll()) {
 			final int oldOffset = offset;
-			offset = move.move.calculateNewOffset(graphics, contentTopology, offset, box, getHotArea(), preferredX);
+			offset = move.move.calculateNewOffset(graphics, viewPort, contentTopology, offset, box, getHotArea(), preferredX);
 			if (move.select) {
 				if (move.move.isAbsolute()) {
 					selector.setEndAbsoluteTo(offset);

@@ -104,11 +104,13 @@ public class BoxWidget extends Canvas implements ISelectionProvider, IDocumentEd
 		connectKeyboard();
 		connectMouse();
 
+		final ViewPort viewPort = new ViewPort();
+
 		selector = new BalancingSelector();
-		cursor = new Cursor(selector);
+		cursor = new Cursor(selector, viewPort);
 		connectCursor();
 
-		controller = new VisualizationController(new DoubleBufferedRenderer(this), new ViewPort(), cursor);
+		controller = new VisualizationController(new DoubleBufferedRenderer(this), viewPort, cursor);
 		clipboard = new SwtClipboard(parent.getDisplay());
 		editor = new DocumentEditor(cursor, IWhitespacePolicy.NULL, clipboard);
 	}

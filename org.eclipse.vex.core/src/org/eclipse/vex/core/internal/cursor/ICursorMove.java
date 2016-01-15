@@ -13,13 +13,14 @@ package org.eclipse.vex.core.internal.cursor;
 import org.eclipse.vex.core.internal.boxes.IContentBox;
 import org.eclipse.vex.core.internal.core.Graphics;
 import org.eclipse.vex.core.internal.core.Rectangle;
+import org.eclipse.vex.core.internal.widget.IViewPort;
 
 /**
  * @author Florian Thienel
  */
 public interface ICursorMove {
 
-	int calculateNewOffset(final Graphics graphics, final ContentTopology contentTopology, final int currentOffset, final IContentBox currentBox, final Rectangle hotArea, int preferredX);
+	int calculateNewOffset(final Graphics graphics, IViewPort viewPort, final ContentTopology contentTopology, final int currentOffset, final IContentBox currentBox, final Rectangle hotArea, int preferredX);
 
 	boolean preferX();
 
