@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2015 Florian Thienel and others.
+ * Copyright (c) 2016 Florian Thienel and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -17,31 +17,18 @@ import org.eclipse.vex.core.internal.core.Graphics;
 import org.eclipse.vex.core.internal.core.Rectangle;
 import org.eclipse.vex.core.internal.widget.IViewPort;
 
-/**
- * @author Florian Thienel
- */
-public class MoveToAbsoluteCoordinates implements ICursorMove {
-
-	private final int x;
-	private final int y;
-
-	public MoveToAbsoluteCoordinates(final int x, final int y) {
-		this.x = x;
-		this.y = y;
-	}
-
-	@Override
-	public boolean preferX() {
-		return true;
-	}
-
-	@Override
-	public boolean isAbsolute() {
-		return true;
-	}
+public class MoveToNextPage implements ICursorMove {
 
 	@Override
 	public int calculateNewOffset(final Graphics graphics, final IViewPort viewPort, final ContentTopology contentTopology, final int currentOffset, final IContentBox currentBox, final Rectangle hotArea, final int preferredX) {
+		final int x = preferredX;
+		final int y = viewPort.getVisibleArea().getY() + Math.round(viewPort.getVisibleArea().getHeight() * 1.9f);
+
+		final IContentBox outmostContentBox = contentTopology.getOutmostContentBox();
+		if (y > outmostContentBox.getAbsoluteTop() + outmostContentBox.getHeight()) {
+			return outmostContentBox.getEndOffset();
+		}
+
 		final IContentBox box = contentTopology.findClosestBoxByCoordinates(x, y);
 		if (box == null) {
 			return currentOffset;
@@ -67,6 +54,16 @@ public class MoveToAbsoluteCoordinates implements ICursorMove {
 			return true;
 		}
 		return enclosedBox.getEndOffset() == parent.getEndOffset() - 1;
+	}
+
+	@Override
+	public boolean preferX() {
+		return false;
+	}
+
+	@Override
+	public boolean isAbsolute() {
+		return true;
 	}
 
 }

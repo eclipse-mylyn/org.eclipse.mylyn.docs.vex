@@ -12,8 +12,10 @@ package org.eclipse.vex.core.internal.widget;
 
 import static org.eclipse.vex.core.internal.cursor.CursorMoves.by;
 import static org.eclipse.vex.core.internal.cursor.CursorMoves.down;
+import static org.eclipse.vex.core.internal.cursor.CursorMoves.toNextPage;
 import static org.eclipse.vex.core.internal.cursor.CursorMoves.toNextWord;
 import static org.eclipse.vex.core.internal.cursor.CursorMoves.toOffset;
+import static org.eclipse.vex.core.internal.cursor.CursorMoves.toPreviousPage;
 import static org.eclipse.vex.core.internal.cursor.CursorMoves.toPreviousWord;
 import static org.eclipse.vex.core.internal.cursor.CursorMoves.toWordEnd;
 import static org.eclipse.vex.core.internal.cursor.CursorMoves.toWordStart;
@@ -457,6 +459,11 @@ public class DocumentEditor implements IDocumentEditor {
 
 	@Override
 	public void moveToNextPage(final boolean select) {
+		if (select) {
+			cursor.select(toNextPage());
+		} else {
+			cursor.move(toNextPage());
+		}
 	}
 
 	@Override
@@ -479,8 +486,11 @@ public class DocumentEditor implements IDocumentEditor {
 
 	@Override
 	public void moveToPreviousPage(final boolean select) {
-		// TODO Auto-generated method stub
-
+		if (select) {
+			cursor.select(toPreviousPage());
+		} else {
+			cursor.move(toPreviousPage());
+		}
 	}
 
 	@Override

@@ -19,6 +19,8 @@ public class CursorMoves {
 	private static final ICursorMove RIGHT = new MoveRight();
 	private static final ICursorMove UP = new MoveUp();
 	private static final ICursorMove DOWN = new MoveDown();
+	private static final ICursorMove TO_PREVIOUS_PAGE = new MoveToPreviousPage();
+	private static final ICursorMove TO_NEXT_PAGE = new MoveToNextPage();
 	private static final ICursorMove TO_WORD_START = new MoveToWordStart();
 	private static final ICursorMove TO_WORD_END = new MoveToWordEnd();
 	private static final ICursorMove TO_NEXT_WORD = new MoveToNextWord();
@@ -50,6 +52,14 @@ public class CursorMoves {
 
 	public static ICursorMove down() {
 		return DOWN;
+	}
+
+	public static ICursorMove toPreviousPage() {
+		return TO_PREVIOUS_PAGE;
+	}
+
+	public static ICursorMove toNextPage() {
+		return TO_NEXT_PAGE;
 	}
 
 	public static ICursorMove toWordStart() {

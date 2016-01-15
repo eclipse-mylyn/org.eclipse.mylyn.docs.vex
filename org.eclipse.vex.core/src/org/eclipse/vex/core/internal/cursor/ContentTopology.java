@@ -273,6 +273,47 @@ public class ContentTopology {
 		});
 	}
 
+	public IContentBox findClosestBoxByCoordinates(final int x, final int y) {
+		final IContentBox deepestContainer = findBoxForCoordinates(x, y);
+		if (deepestContainer == null) {
+			return null;
+		}
+		return findClosestBoxInContainer(deepestContainer, x, y);
+	}
+
+	private static IContentBox findClosestBoxInContainer(final IContentBox container, final int x, final int y) {
+		final LinkedList<IContentBox> candidates = new LinkedList<IContentBox>();
+		container.accept(new DepthFirstBoxTraversal<Object>() {
+			@Override
+			public Object visit(final TextContent box) {
+				if (box.containsY(y)) {
+					candidates.add(box);
+				}
+				return null;
+			}
+
+			@Override
+			public Object visit(final NodeEndOffsetPlaceholder box) {
+				if (box.containsY(y)) {
+					candidates.add(box);
+				}
+				return null;
+			}
+		});
+
+		int minHorizontalDistance = Integer.MAX_VALUE;
+		IContentBox closestBox = container;
+		for (final IContentBox candidate : candidates) {
+			final int horizontalDistance = horizontalDistance(candidate, x);
+			if (horizontalDistance < minHorizontalDistance) {
+				minHorizontalDistance = horizontalDistance;
+				closestBox = candidate;
+			}
+		}
+
+		return closestBox;
+	}
+
 	public static IContentBox getParentContentBox(final IContentBox childBox) {
 		return childBox.accept(new ParentTraversal<IContentBox>() {
 			@Override
