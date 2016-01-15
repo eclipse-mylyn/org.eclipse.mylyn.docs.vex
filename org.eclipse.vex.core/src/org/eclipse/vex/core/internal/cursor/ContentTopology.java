@@ -314,7 +314,7 @@ public class ContentTopology {
 		return closestBox;
 	}
 
-	public static IContentBox getParentContentBox(final IContentBox childBox) {
+	public static IContentBox getParentContentBox(final IBox childBox) {
 		return childBox.accept(new ParentTraversal<IContentBox>() {
 			@Override
 			public IContentBox visit(final StructuralNodeReference box) {

@@ -12,6 +12,8 @@ package org.eclipse.vex.core.internal.widget;
 
 import static org.eclipse.vex.core.internal.cursor.CursorMoves.by;
 import static org.eclipse.vex.core.internal.cursor.CursorMoves.down;
+import static org.eclipse.vex.core.internal.cursor.CursorMoves.toLineEnd;
+import static org.eclipse.vex.core.internal.cursor.CursorMoves.toLineStart;
 import static org.eclipse.vex.core.internal.cursor.CursorMoves.toNextPage;
 import static org.eclipse.vex.core.internal.cursor.CursorMoves.toNextWord;
 import static org.eclipse.vex.core.internal.cursor.CursorMoves.toOffset;
@@ -438,14 +440,20 @@ public class DocumentEditor implements IDocumentEditor {
 
 	@Override
 	public void moveToLineEnd(final boolean select) {
-		// TODO Auto-generated method stub
-
+		if (select) {
+			cursor.select(toLineEnd());
+		} else {
+			cursor.move(toLineEnd());
+		}
 	}
 
 	@Override
 	public void moveToLineStart(final boolean select) {
-		// TODO Auto-generated method stub
-
+		if (select) {
+			cursor.select(toLineStart());
+		} else {
+			cursor.move(toLineStart());
+		}
 	}
 
 	@Override
