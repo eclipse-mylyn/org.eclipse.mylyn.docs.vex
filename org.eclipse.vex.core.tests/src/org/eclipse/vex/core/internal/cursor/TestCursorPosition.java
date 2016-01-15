@@ -417,7 +417,7 @@ public class TestCursorPosition {
 	public void moveToPreviousWord() throws Exception {
 		cursorAt(endOfFirstText() - 1); // consectur|.
 		moveCursor(toPreviousWord());
-		assertCursorAt(endOfFirstText() - 13); //lacinia| consectur.
+		assertCursorAt(endOfFirstText() - 12); //lacinia |consectur.
 	}
 
 	/*
