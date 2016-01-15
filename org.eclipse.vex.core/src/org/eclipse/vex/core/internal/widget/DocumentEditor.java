@@ -279,16 +279,13 @@ public class DocumentEditor implements IDocumentEditor {
 
 	@Override
 	public ContentPosition getCaretPosition() {
-		return new ContentPosition(getCurrentNode(), cursor.getOffset());
+		final INode currentNode = getCurrentNode();
+		return new ContentPosition(currentNode, cursor.getOffset());
 	}
 
 	@Override
 	public IElement getCurrentElement() {
-		final INode currentNode = getCurrentNode();
-		if (currentNode == null) {
-			return null;
-		}
-		return currentNode.accept(new BaseNodeVisitorWithResult<IElement>(null) {
+		return getCurrentNode().accept(new BaseNodeVisitorWithResult<IElement>(null) {
 			@Override
 			public IElement visit(final IElement element) {
 				return element;
@@ -313,7 +310,11 @@ public class DocumentEditor implements IDocumentEditor {
 
 	@Override
 	public INode getCurrentNode() {
-		return document.getNodeForInsertionAt(cursor.getOffset());
+		final INode currentNode = document.getNodeForInsertionAt(cursor.getOffset());
+		if (currentNode == null) {
+			return document;
+		}
+		return currentNode;
 	}
 
 	@Override
