@@ -44,7 +44,6 @@ import org.eclipse.vex.core.internal.core.ElementName;
 import org.eclipse.vex.core.internal.core.Rectangle;
 import org.eclipse.vex.core.internal.css.IWhitespacePolicy;
 import org.eclipse.vex.core.internal.cursor.Cursor;
-import org.eclipse.vex.core.internal.cursor.ICursor;
 import org.eclipse.vex.core.internal.cursor.ICursorMove;
 import org.eclipse.vex.core.internal.cursor.ICursorPositionListener;
 import org.eclipse.vex.core.internal.undo.CannotApplyException;
@@ -266,7 +265,7 @@ public class BoxWidget extends Canvas implements ISelectionProvider, IDocumentEd
 	}
 
 	private void cursorPositionChanged(final int offset) {
-		fireSelectionChanged(createSelectionForCursor(cursor));
+		fireSelectionChanged(new VexSelection(editor));
 	}
 
 	public void refresh() {
@@ -283,7 +282,7 @@ public class BoxWidget extends Canvas implements ISelectionProvider, IDocumentEd
 
 	@Override
 	public IVexSelection getSelection() {
-		return createSelectionForCursor(cursor);
+		return new VexSelection(editor);
 	}
 
 	@Override
@@ -320,25 +319,6 @@ public class BoxWidget extends Canvas implements ISelectionProvider, IDocumentEd
 				// TODO remove listener?
 			}
 		}
-	}
-
-	private static IVexSelection createSelectionForCursor(final ICursor cursor) {
-		return new IVexSelection() {
-			@Override
-			public boolean isEmpty() {
-				return cursor.hasSelection();
-			}
-
-			@Override
-			public int getCaretOffset() {
-				return cursor.getOffset();
-			}
-
-			@Override
-			public ContentRange getSelectedRange() {
-				return cursor.getSelectedRange();
-			}
-		};
 	}
 
 	/*

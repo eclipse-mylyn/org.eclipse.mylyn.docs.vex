@@ -10,13 +10,13 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.widget.swt;
 
-import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.vex.core.provisional.dom.ContentRange;
 
 /**
  * @author Florian Thienel
  */
-public interface IVexSelection extends ISelection {
+public interface IVexSelection extends IStructuredSelection {
 
 	int getCaretOffset();
 
