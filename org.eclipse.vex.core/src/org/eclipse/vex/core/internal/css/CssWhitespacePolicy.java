@@ -48,6 +48,9 @@ public class CssWhitespacePolicy implements IWhitespacePolicy {
 
 	@Override
 	public boolean isBlock(final INode node) {
+		if (node == null) {
+			return true;
+		}
 		return node.accept(new BaseNodeVisitorWithResult<Boolean>(true) {
 			@Override
 			public Boolean visit(final IElement element) {
