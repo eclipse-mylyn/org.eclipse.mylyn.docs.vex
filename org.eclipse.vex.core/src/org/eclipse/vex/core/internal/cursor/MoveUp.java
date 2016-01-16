@@ -48,7 +48,7 @@ public class MoveUp implements ICursorMove {
 	}
 
 	@Override
-	public int calculateNewOffset(final Graphics graphics, IViewPort viewPort, final ContentTopology contentTopology, final int currentOffset, final IContentBox currentBox, final Rectangle hotArea, final int preferredX) {
+	public int calculateNewOffset(final Graphics graphics, final IViewPort viewPort, final ContentTopology contentTopology, final int currentOffset, final IContentBox currentBox, final Rectangle hotArea, final int preferredX) {
 		if (isAtEndOfEmptyBox(currentOffset, currentBox)) {
 			return currentBox.getStartOffset();
 		}
@@ -59,14 +59,14 @@ public class MoveUp implements ICursorMove {
 			final IContentBox lastChild = getLastContentBoxChild(currentBox);
 			if (lastChild != null) {
 				if (canContainText(lastChild)) {
-					return findOffsetInNextBoxAbove(graphics, lastChild, hotArea, preferredX);
+					return findOffsetInNextBoxAbove(graphics, currentOffset, lastChild, hotArea, preferredX);
 				} else {
 					return lastChild.getEndOffset();
 				}
 			}
 		}
 
-		return findOffsetInNextBoxAbove(graphics, currentBox, hotArea, preferredX);
+		return findOffsetInNextBoxAbove(graphics, currentOffset, currentBox, hotArea, preferredX);
 	}
 
 	private static boolean isAtEndOfEmptyBox(final int offset, final IContentBox box) {
@@ -162,11 +162,44 @@ public class MoveUp implements ICursorMove {
 		});
 	}
 
-	private int findOffsetInNextBoxAbove(final Graphics graphics, final IContentBox currentBox, final Rectangle hotArea, final int preferredX) {
+	private int findOffsetInNextBoxAbove(final Graphics graphics, final int currentOffset, final IContentBox currentBox, final Rectangle hotArea, final int preferredX) {
 		final int x = preferredX;
 		final int y = hotArea.getY();
-		final IContentBox box = findNextContentBoxAbove(currentBox, x, y);
-		return box.getOffsetForCoordinates(graphics, x - box.getAbsoluteLeft(), y - box.getAbsoluteTop());
+		final IContentBox nextBoxAbove = findNextContentBoxAbove(currentBox, x, y);
+		return findOffsetInBox(graphics, currentOffset, x, y, nextBoxAbove);
+	}
+
+	private static int findOffsetInBox(final Graphics graphics, final int currentOffset, final int hotX, final int hotY, final IContentBox box) {
+		if (box.isEmpty()) {
+			return box.getStartOffset();
+		}
+		return box.accept(new BaseBoxVisitorWithResult<Integer>() {
+			@Override
+			public Integer visit(final StructuralNodeReference box) {
+				if (currentOffset <= box.getEndOffset()) {
+					return box.getStartOffset();
+				}
+				return box.getEndOffset();
+			}
+
+			@Override
+			public Integer visit(final InlineNodeReference box) {
+				if (currentOffset <= box.getEndOffset()) {
+					return box.getStartOffset();
+				}
+				return box.getEndOffset();
+			}
+
+			@Override
+			public Integer visit(final TextContent box) {
+				return box.getOffsetForCoordinates(graphics, hotX - box.getAbsoluteLeft(), hotY - box.getAbsoluteTop());
+			}
+
+			@Override
+			public Integer visit(final NodeEndOffsetPlaceholder box) {
+				return box.getOffsetForCoordinates(graphics, hotX - box.getAbsoluteLeft(), hotY - box.getAbsoluteTop());
+			}
+		});
 	}
 
 	private static IContentBox findNextContentBoxAbove(final IContentBox currentBox, final int x, final int y) {
