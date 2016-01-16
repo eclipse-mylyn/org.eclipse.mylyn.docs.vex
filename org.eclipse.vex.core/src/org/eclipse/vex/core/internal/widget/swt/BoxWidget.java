@@ -169,6 +169,11 @@ public class BoxWidget extends Canvas implements ISelectionProvider, IDocumentEd
 	private void connectMouse() {
 		addMouseListener(new MouseAdapter() {
 			@Override
+			public void mouseDoubleClick(final MouseEvent e) {
+				BoxWidget.this.mouseDoubleClick(e);
+			}
+
+			@Override
 			public void mouseDown(final MouseEvent e) {
 				BoxWidget.this.mouseDown(e);
 			}
@@ -239,9 +244,17 @@ public class BoxWidget extends Canvas implements ISelectionProvider, IDocumentEd
 		}
 	}
 
+	private void mouseDoubleClick(final MouseEvent event) {
+		if (event.button == 1) {
+			selectWord();
+		}
+	}
+
 	private void mouseDown(final MouseEvent event) {
-		final int absoluteY = event.y + getVerticalBar().getSelection();
-		moveOrSelect(event.stateMask, toAbsoluteCoordinates(event.x, absoluteY));
+		if (event.button == 1) {
+			final int absoluteY = event.y + getVerticalBar().getSelection();
+			moveOrSelect(event.stateMask, toAbsoluteCoordinates(event.x, absoluteY));
+		}
 	}
 
 	private void mouseMove(final MouseEvent event) {
