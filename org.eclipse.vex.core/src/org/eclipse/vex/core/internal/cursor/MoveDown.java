@@ -20,8 +20,8 @@ import java.util.LinkedList;
 import org.eclipse.vex.core.internal.boxes.BaseBoxVisitorWithResult;
 import org.eclipse.vex.core.internal.boxes.DepthFirstBoxTraversal;
 import org.eclipse.vex.core.internal.boxes.IContentBox;
-import org.eclipse.vex.core.internal.boxes.NodeEndOffsetPlaceholder;
 import org.eclipse.vex.core.internal.boxes.InlineNodeReference;
+import org.eclipse.vex.core.internal.boxes.NodeEndOffsetPlaceholder;
 import org.eclipse.vex.core.internal.boxes.StructuralNodeReference;
 import org.eclipse.vex.core.internal.boxes.TextContent;
 import org.eclipse.vex.core.internal.core.Graphics;
@@ -44,7 +44,7 @@ public class MoveDown implements ICursorMove {
 	}
 
 	@Override
-	public int calculateNewOffset(final Graphics graphics, IViewPort viewPort, final ContentTopology contentTopology, final int currentOffset, final IContentBox currentBox, final Rectangle hotArea, final int preferredX) {
+	public int calculateNewOffset(final Graphics graphics, final IViewPort viewPort, final ContentTopology contentTopology, final int currentOffset, final IContentBox currentBox, final Rectangle hotArea, final int preferredX) {
 		if (isAtStartOfEmptyBox(currentOffset, currentBox)) {
 			return currentBox.getEndOffset();
 		}
@@ -52,14 +52,14 @@ public class MoveDown implements ICursorMove {
 			final IContentBox firstChild = getFirstContentBoxChild(currentBox);
 			if (firstChild != null) {
 				if (canContainText(firstChild)) {
-					return findOffsetInNextBoxBelow(graphics, currentOffset, firstChild, hotArea, preferredX);
+					return findOffsetInNextBoxBelow(graphics, currentOffset, firstChild, preferredX, currentBox.getAbsoluteTop() - 1);
 				} else {
 					return firstChild.getStartOffset();
 				}
 			}
 		}
 
-		return findOffsetInNextBoxBelow(graphics, currentOffset, currentBox, hotArea, preferredX);
+		return findOffsetInNextBoxBelow(graphics, currentOffset, currentBox, preferredX, hotArea.getY() + hotArea.getHeight() - 1);
 	}
 
 	private static boolean isAtStartOfEmptyBox(final int offset, final IContentBox box) {
@@ -164,9 +164,7 @@ public class MoveDown implements ICursorMove {
 		});
 	}
 
-	private int findOffsetInNextBoxBelow(final Graphics graphics, final int currentOffset, final IContentBox currentBox, final Rectangle hotArea, final int preferredX) {
-		final int x = preferredX;
-		final int y = hotArea.getY() + hotArea.getHeight() - 1;
+	private int findOffsetInNextBoxBelow(final Graphics graphics, final int currentOffset, final IContentBox currentBox, final int x, final int y) {
 		final IContentBox nextBoxBelow = findNextContentBoxBelow(currentBox, x, y);
 		return findOffsetInBox(graphics, currentOffset, x, y, nextBoxBelow);
 	}

@@ -59,14 +59,14 @@ public class MoveUp implements ICursorMove {
 			final IContentBox lastChild = getLastContentBoxChild(currentBox);
 			if (lastChild != null) {
 				if (canContainText(lastChild)) {
-					return findOffsetInNextBoxAbove(graphics, currentOffset, lastChild, hotArea, preferredX);
+					return findOffsetInNextBoxAbove(graphics, currentOffset, lastChild, preferredX, currentBox.getAbsoluteTop() + currentBox.getHeight());
 				} else {
 					return lastChild.getEndOffset();
 				}
 			}
 		}
 
-		return findOffsetInNextBoxAbove(graphics, currentOffset, currentBox, hotArea, preferredX);
+		return findOffsetInNextBoxAbove(graphics, currentOffset, currentBox, preferredX, hotArea.getY());
 	}
 
 	private static boolean isAtEndOfEmptyBox(final int offset, final IContentBox box) {
@@ -162,9 +162,7 @@ public class MoveUp implements ICursorMove {
 		});
 	}
 
-	private int findOffsetInNextBoxAbove(final Graphics graphics, final int currentOffset, final IContentBox currentBox, final Rectangle hotArea, final int preferredX) {
-		final int x = preferredX;
-		final int y = hotArea.getY();
+	private int findOffsetInNextBoxAbove(final Graphics graphics, final int currentOffset, final IContentBox currentBox, final int x, final int y) {
 		final IContentBox nextBoxAbove = findNextContentBoxAbove(currentBox, x, y);
 		return findOffsetInBox(graphics, currentOffset, x, y, nextBoxAbove);
 	}
