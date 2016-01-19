@@ -74,6 +74,7 @@ import org.eclipse.vex.core.provisional.dom.IProcessingInstruction;
  */
 public class BoxWidget extends Canvas implements ISelectionProvider, IDocumentEditor {
 
+	private static final int SELECTION_CHANGE_NOTIFICATION_DELAY = 100;
 	private static final char CHAR_NONE = 0;
 	private static final Map<KeyStroke, IVexWidgetHandler> KEY_MAP = buildKeyMap();
 
@@ -88,6 +89,7 @@ public class BoxWidget extends Canvas implements ISelectionProvider, IDocumentEd
 	private final DocumentEditor editor;
 
 	private final ListenerList selectionChangedListeners = new ListenerList();
+	private Runnable lastSelectionChangeNotification = null;
 
 	public BoxWidget(final Composite parent, final int style) {
 		super(parent, style | SWT.NO_BACKGROUND);
@@ -311,14 +313,24 @@ public class BoxWidget extends Canvas implements ISelectionProvider, IDocumentEd
 	}
 
 	private void fireSelectionChanged(final IVexSelection selection) {
-		for (final Object listener : selectionChangedListeners.getListeners()) {
-			try {
-				((ISelectionChangedListener) listener).selectionChanged(new SelectionChangedEvent(this, selection));
-			} catch (final Throwable t) {
-				t.printStackTrace();
-				// TODO remove listener?
+		lastSelectionChangeNotification = new Runnable() {
+			@Override
+			public void run() {
+				if (lastSelectionChangeNotification != this) {
+					return;
+				}
+
+				for (final Object listener : selectionChangedListeners.getListeners()) {
+					try {
+						((ISelectionChangedListener) listener).selectionChanged(new SelectionChangedEvent(BoxWidget.this, selection));
+					} catch (final Throwable t) {
+						t.printStackTrace();
+						// TODO remove listener?
+					}
+				}
 			}
-		}
+		};
+		getDisplay().timerExec(SELECTION_CHANGE_NOTIFICATION_DELAY, lastSelectionChangeNotification);
 	}
 
 	/*
