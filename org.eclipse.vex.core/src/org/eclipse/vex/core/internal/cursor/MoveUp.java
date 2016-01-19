@@ -58,9 +58,9 @@ public class MoveUp implements ICursorMove {
 		if (isAtEndOfBoxWithChildren(currentOffset, currentBox)) {
 			final IContentBox lastChild = getLastContentBoxChild(currentBox);
 			if (lastChild != null) {
-				if (canContainText(currentBox)) {
+				if (containsInlineContent(currentBox)) {
 					return findOffsetInNextBoxAbove(graphics, currentOffset, lastChild, preferredX, hotArea.getY());
-				} else if (canContainText(lastChild)) {
+				} else if (containsInlineContent(lastChild)) {
 					return findOffsetInNextBoxAbove(graphics, currentOffset, lastChild, preferredX, currentBox.getAbsoluteTop() + currentBox.getHeight());
 				} else {
 					return lastChild.getEndOffset();
@@ -106,16 +106,16 @@ public class MoveUp implements ICursorMove {
 		});
 	}
 
-	private static boolean canContainText(final IContentBox box) {
+	private static boolean containsInlineContent(final IContentBox box) {
 		return box.accept(new BaseBoxVisitorWithResult<Boolean>(false) {
 			@Override
 			public Boolean visit(final StructuralNodeReference box) {
-				return box.canContainText();
+				return box.containsInlineContent();
 			}
 
 			@Override
 			public Boolean visit(final InlineNodeReference box) {
-				return box.canContainText();
+				return true;
 			}
 
 			@Override

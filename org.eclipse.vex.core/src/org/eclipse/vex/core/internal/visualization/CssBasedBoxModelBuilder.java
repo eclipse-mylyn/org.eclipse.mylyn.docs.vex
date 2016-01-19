@@ -12,6 +12,7 @@ package org.eclipse.vex.core.internal.visualization;
 
 import static org.eclipse.vex.core.internal.boxes.BoxFactory.inlineContainer;
 import static org.eclipse.vex.core.internal.boxes.BoxFactory.nodeReference;
+import static org.eclipse.vex.core.internal.boxes.BoxFactory.nodeReferenceWithInlineContent;
 import static org.eclipse.vex.core.internal.boxes.BoxFactory.nodeReferenceWithText;
 import static org.eclipse.vex.core.internal.boxes.BoxFactory.rootBox;
 import static org.eclipse.vex.core.internal.boxes.BoxFactory.verticalBlock;
@@ -199,17 +200,23 @@ public class CssBasedBoxModelBuilder implements IBoxModelBuilder {
 			@Override
 			public IStructuralBox visit(final IElement element) {
 				final boolean mayContainText = mayContainText(element);
+				final boolean containsInlineContent = containsInlineContent(childrenResults);
+
 				final IStructuralBox content;
 				if (isEmptyElement(element)) {
 					content = visualizeEmptyElement(styles, element);
-				} else if (mayContainText || containsInlineContent(childrenResults)) {
-					content = visualizeInlineNodeContent(element, styles, childrenResults, paragraph(styles));
 				} else {
-					content = visualizeChildrenAsStructure(childrenResults, verticalBlock());
+					if (mayContainText || containsInlineContent) {
+						content = visualizeInlineNodeContent(element, styles, childrenResults, paragraph(styles));
+					} else {
+						content = visualizeChildrenAsStructure(childrenResults, verticalBlock());
+					}
 				}
 
 				if (mayContainText) {
 					return nodeReferenceWithText(element, surroundWithPseudoElements(frame(content, styles), element, styles));
+				} else if (containsInlineContent) {
+					return nodeReferenceWithInlineContent(element, surroundWithPseudoElements(frame(content, styles), element, styles));
 				} else {
 					return nodeReference(element, surroundWithPseudoElements(frame(content, styles), element, styles));
 				}

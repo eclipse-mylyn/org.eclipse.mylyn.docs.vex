@@ -37,6 +37,7 @@ public class StructuralNodeReference extends BaseBox implements IStructuralBox, 
 
 	private INode node;
 	private boolean canContainText;
+	private boolean containsInlineContent;
 
 	@Override
 	public void setParent(final IBox parent) {
@@ -135,6 +136,14 @@ public class StructuralNodeReference extends BaseBox implements IStructuralBox, 
 
 	public boolean canContainText() {
 		return canContainText;
+	}
+
+	public void setContainsInlineContent(final boolean containsInlineContent) {
+		this.containsInlineContent = containsInlineContent;
+	}
+
+	public boolean containsInlineContent() {
+		return containsInlineContent;
 	}
 
 	@Override

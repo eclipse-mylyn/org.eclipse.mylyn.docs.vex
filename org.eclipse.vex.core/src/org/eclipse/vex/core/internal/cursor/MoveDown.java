@@ -51,9 +51,9 @@ public class MoveDown implements ICursorMove {
 		if (isAtStartOfBoxWithChildren(currentOffset, currentBox)) {
 			final IContentBox firstChild = getFirstContentBoxChild(currentBox);
 			if (firstChild != null) {
-				if (canContainText(currentBox)) {
+				if (containsInlineContent(currentBox)) {
 					return findOffsetInNextBoxBelow(graphics, currentOffset, firstChild, preferredX, hotArea.getY() + hotArea.getHeight() - 1);
-				} else if (canContainText(firstChild)) {
+				} else if (containsInlineContent(firstChild)) {
 					return findOffsetInNextBoxBelow(graphics, currentOffset, firstChild, preferredX, currentBox.getAbsoluteTop() - 1);
 				} else {
 					return firstChild.getStartOffset();
@@ -86,16 +86,16 @@ public class MoveDown implements ICursorMove {
 		});
 	}
 
-	private static boolean canContainText(final IContentBox box) {
+	private static boolean containsInlineContent(final IContentBox box) {
 		return box.accept(new BaseBoxVisitorWithResult<Boolean>(false) {
 			@Override
 			public Boolean visit(final StructuralNodeReference box) {
-				return box.canContainText();
+				return box.containsInlineContent();
 			}
 
 			@Override
 			public Boolean visit(final InlineNodeReference box) {
-				return box.canContainText();
+				return true;
 			}
 
 			@Override
@@ -212,7 +212,7 @@ public class MoveDown implements ICursorMove {
 
 		final IContentBox childBelow = findClosestContentBoxChildBelow(parent, x, y);
 		if (childBelow == null) {
-			if (canContainText(parent)) {
+			if (containsInlineContent(parent)) {
 				return findNextContentBoxBelow(parent, x, y);
 			}
 			return parent;

@@ -80,10 +80,19 @@ public class BoxFactory {
 		return structuralNodeReference;
 	}
 
+	public static StructuralNodeReference nodeReferenceWithInlineContent(final INode node, final IStructuralBox component) {
+		final StructuralNodeReference structuralNodeReference = new StructuralNodeReference();
+		structuralNodeReference.setNode(node);
+		structuralNodeReference.setContainsInlineContent(true);
+		structuralNodeReference.setComponent(component);
+		return structuralNodeReference;
+	}
+
 	public static StructuralNodeReference nodeReferenceWithText(final INode node, final IStructuralBox component) {
 		final StructuralNodeReference structuralNodeReference = new StructuralNodeReference();
 		structuralNodeReference.setNode(node);
 		structuralNodeReference.setCanContainText(true);
+		structuralNodeReference.setContainsInlineContent(true);
 		structuralNodeReference.setComponent(component);
 		return structuralNodeReference;
 	}
