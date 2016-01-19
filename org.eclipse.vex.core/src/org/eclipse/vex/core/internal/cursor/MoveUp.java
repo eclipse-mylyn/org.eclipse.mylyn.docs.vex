@@ -58,7 +58,9 @@ public class MoveUp implements ICursorMove {
 		if (isAtEndOfBoxWithChildren(currentOffset, currentBox)) {
 			final IContentBox lastChild = getLastContentBoxChild(currentBox);
 			if (lastChild != null) {
-				if (canContainText(lastChild)) {
+				if (canContainText(currentBox)) {
+					return findOffsetInNextBoxAbove(graphics, currentOffset, lastChild, preferredX, hotArea.getY());
+				} else if (canContainText(lastChild)) {
 					return findOffsetInNextBoxAbove(graphics, currentOffset, lastChild, preferredX, currentBox.getAbsoluteTop() + currentBox.getHeight());
 				} else {
 					return lastChild.getEndOffset();
@@ -168,7 +170,7 @@ public class MoveUp implements ICursorMove {
 	}
 
 	private static int findOffsetInBox(final Graphics graphics, final int currentOffset, final int hotX, final int hotY, final IContentBox box) {
-		if (box.isEmpty()) {
+		if (box.isEmpty() && currentOffset == box.getEndOffset()) {
 			return box.getStartOffset();
 		}
 		return box.accept(new BaseBoxVisitorWithResult<Integer>() {
