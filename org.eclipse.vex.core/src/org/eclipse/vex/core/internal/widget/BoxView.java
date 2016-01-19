@@ -23,6 +23,8 @@ import org.eclipse.vex.core.internal.widget.IRenderer.IRenderStep;
  */
 public class BoxView {
 
+	private final int SCROLL_PADDING = Cursor.CARET_BUFFER * 2;
+
 	private final IRenderer renderer;
 	private final IViewPort viewPort;
 	private final Cursor cursor;
@@ -144,6 +146,7 @@ public class BoxView {
 
 	private void moveViewPortToCursor(final Graphics graphics) {
 		final int delta = getDeltaIntoVisibleArea(viewPort.getVisibleArea());
+		System.out.println("DELTA:" + delta);
 		graphics.moveOrigin(0, -delta);
 		viewPort.moveRelative(delta);
 	}
@@ -151,7 +154,14 @@ public class BoxView {
 	private int getDeltaIntoVisibleArea(final Rectangle visibleArea) {
 		final int top = visibleArea.getY();
 		final int height = visibleArea.getHeight();
-		return cursor.getDeltaIntoVisibleArea(top, height);
+		final int delta = cursor.getDeltaIntoVisibleArea(top, height);
+		if (delta < 0) {
+			return delta - Math.min(SCROLL_PADDING, top + delta);
+		} else if (delta > 0) {
+			return delta + Math.min(SCROLL_PADDING, rootBox.getHeight() + Cursor.CARET_BUFFER - top - height - delta);
+		} else {
+			return delta;
+		}
 	}
 
 }
