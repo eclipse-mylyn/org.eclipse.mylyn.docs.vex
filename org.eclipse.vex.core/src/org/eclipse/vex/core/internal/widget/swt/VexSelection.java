@@ -38,7 +38,7 @@ public class VexSelection implements IVexSelection {
 
 	@Override
 	public boolean isEmpty() {
-		return true;
+		return false;
 	}
 
 	@Override
@@ -52,21 +52,25 @@ public class VexSelection implements IVexSelection {
 	}
 
 	public INode getFirstElement() {
-		if (selectedFragment == null) {
+		if (!isStructureSelected()) {
 			return currentNode;
 		}
 		return selectedFragment.children().first();
 	}
 
+	private boolean isStructureSelected() {
+		return selectedFragment != null && !selectedFragment.children().withoutText().isEmpty();
+	}
+
 	public Iterator<INode> iterator() {
-		if (selectedFragment == null) {
+		if (!isStructureSelected()) {
 			return Collections.singletonList(currentNode).iterator();
 		}
 		return selectedFragment.children().iterator();
 	}
 
 	public int size() {
-		if (selectedFragment == null) {
+		if (!isStructureSelected()) {
 			return 1;
 		}
 		return selectedFragment.children().count();
@@ -77,7 +81,7 @@ public class VexSelection implements IVexSelection {
 	}
 
 	public List<INode> toList() {
-		if (selectedFragment == null) {
+		if (!isStructureSelected()) {
 			return Collections.singletonList(currentNode);
 		}
 		return selectedFragment.children().asList();
