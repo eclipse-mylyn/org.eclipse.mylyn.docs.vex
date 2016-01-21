@@ -292,7 +292,6 @@ public class BoxWidget extends Canvas implements ISelectionProvider, IDocumentEd
 		Assert.isLegal(selection instanceof IVexSelection, "BoxWidget can only handle instances of IVexSelection");
 		final IVexSelection vexSelection = (IVexSelection) selection;
 
-		// TODO use DocumentEditor
 		if (vexSelection.isEmpty()) {
 			cursor.move(toOffset(vexSelection.getCaretOffset()));
 		} else {

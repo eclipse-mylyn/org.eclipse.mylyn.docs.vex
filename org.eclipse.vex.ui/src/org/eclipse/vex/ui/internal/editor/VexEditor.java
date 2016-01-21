@@ -48,7 +48,6 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DocumentEvent;
 import org.eclipse.jface.text.IFindReplaceTarget;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
-import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.window.Window;
 import org.eclipse.swt.SWT;
@@ -104,6 +103,7 @@ import org.eclipse.vex.core.internal.visualization.CssBasedBoxModelBuilder;
 import org.eclipse.vex.core.internal.widget.CssTableModel;
 import org.eclipse.vex.core.internal.widget.IDocumentEditor;
 import org.eclipse.vex.core.internal.widget.swt.BoxWidget;
+import org.eclipse.vex.core.internal.widget.swt.IVexSelection;
 import org.eclipse.vex.core.provisional.dom.AttributeChangeEvent;
 import org.eclipse.vex.core.provisional.dom.BaseNodeVisitorWithResult;
 import org.eclipse.vex.core.provisional.dom.ContentChangeEvent;
@@ -1158,13 +1158,13 @@ public class VexEditor extends EditorPart {
 				@Override
 				public IPropertySource getPropertySource(final Object object) {
 					if (object instanceof IElement) {
-						final IStructuredSelection selection = (IStructuredSelection) editorWidget.getSelection();
+						final IVexSelection selection = editorWidget.getSelection();
 						final boolean multipleElementsSelected = selection != null && selection.size() > 1;
 						final IValidator validator = editorWidget.getDocument().getValidator();
 						return new ElementPropertySource((IElement) object, validator, multipleElementsSelected);
 					}
 					if (object instanceof IIncludeNode) {
-						final IStructuredSelection selection = (IStructuredSelection) editorWidget.getSelection();
+						final IVexSelection selection = editorWidget.getSelection();
 						final boolean multipleElementsSelected = selection != null && selection.size() > 1;
 						final IValidator validator = editorWidget.getDocument().getValidator();
 						return new ElementPropertySource(((IIncludeNode) object).getReference(), validator, multipleElementsSelected);
