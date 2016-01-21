@@ -360,7 +360,8 @@ public class CssBasedBoxModelBuilder implements IBoxModelBuilder {
 			@Override
 			public IInlineBox visit(final IElement element) {
 				if (isElementWithNoContentAllowed(element)) {
-					return nodeReference(element, frame(visualizeEmptyInlineElementWithNoContentAllowed(element, styles), styles));
+					return nodeReference(element,
+							frame(surroundWithInlinePseudoElements(inlineContainer(visualizeEmptyInlineElementWithNoContentAllowed(element, styles)), element, styles), styles));
 				}
 
 				final InlineContainer inlineElementContent = surroundWithInlineMarkers(element, styles,
