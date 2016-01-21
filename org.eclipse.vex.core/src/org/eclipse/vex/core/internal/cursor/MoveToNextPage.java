@@ -10,9 +10,15 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.cursor;
 
+import static org.eclipse.vex.core.internal.cursor.ContentTopology.findClosestContentBoxChildBelow;
 import static org.eclipse.vex.core.internal.cursor.ContentTopology.getParentContentBox;
 
+import org.eclipse.vex.core.internal.boxes.BaseBoxVisitorWithResult;
 import org.eclipse.vex.core.internal.boxes.IContentBox;
+import org.eclipse.vex.core.internal.boxes.InlineNodeReference;
+import org.eclipse.vex.core.internal.boxes.NodeEndOffsetPlaceholder;
+import org.eclipse.vex.core.internal.boxes.StructuralNodeReference;
+import org.eclipse.vex.core.internal.boxes.TextContent;
 import org.eclipse.vex.core.internal.core.Graphics;
 import org.eclipse.vex.core.internal.core.Rectangle;
 import org.eclipse.vex.core.internal.widget.IViewPort;
@@ -32,9 +38,8 @@ public class MoveToNextPage implements ICursorMove {
 		final IContentBox box = contentTopology.findClosestBoxByCoordinates(x, y);
 		if (box == null) {
 			return currentOffset;
-		}
-		if (box.containsCoordinates(x, y)) {
-			return box.getOffsetForCoordinates(graphics, x - box.getAbsoluteLeft(), y - box.getAbsoluteTop());
+		} else if (box.containsCoordinates(x, y)) {
+			return findBestOffsetWithin(graphics, box, x, y);
 		} else if (box.isLeftOf(x)) {
 			if (isLastEnclosedBox(box)) {
 				return box.getEndOffset() + 1;
@@ -46,6 +51,34 @@ public class MoveToNextPage implements ICursorMove {
 		} else {
 			return currentOffset;
 		}
+	}
+
+	private static int findBestOffsetWithin(final Graphics graphics, final IContentBox closestBoxByCoordinates, final int x, final int y) {
+		return closestBoxByCoordinates.accept(new BaseBoxVisitorWithResult<Integer>() {
+			@Override
+			public Integer visit(final StructuralNodeReference box) {
+				final IContentBox closestChild = findClosestContentBoxChildBelow(box, x, y);
+				if (closestChild == null) {
+					return box.getEndOffset();
+				}
+				return closestChild.accept(this);
+			}
+
+			@Override
+			public Integer visit(final InlineNodeReference box) {
+				return box.getOffsetForCoordinates(graphics, x - box.getAbsoluteLeft(), y - box.getAbsoluteTop());
+			}
+
+			@Override
+			public Integer visit(final NodeEndOffsetPlaceholder box) {
+				return box.getOffsetForCoordinates(graphics, x - box.getAbsoluteLeft(), y - box.getAbsoluteTop());
+			}
+
+			@Override
+			public Integer visit(final TextContent box) {
+				return box.getOffsetForCoordinates(graphics, x - box.getAbsoluteLeft(), y - box.getAbsoluteTop());
+			}
+		});
 	}
 
 	private static boolean isLastEnclosedBox(final IContentBox enclosedBox) {

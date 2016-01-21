@@ -10,13 +10,14 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.cursor;
 
+import static org.eclipse.vex.core.internal.cursor.ContentTopology.findClosestContentBoxChildAbove;
 import static org.eclipse.vex.core.internal.cursor.ContentTopology.findHorizontallyClosestContentBox;
 import static org.eclipse.vex.core.internal.cursor.ContentTopology.getParentContentBox;
 import static org.eclipse.vex.core.internal.cursor.ContentTopology.horizontalDistance;
+import static org.eclipse.vex.core.internal.cursor.ContentTopology.removeVerticallyDistantBoxes;
 import static org.eclipse.vex.core.internal.cursor.ContentTopology.verticalDistance;
 
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -208,7 +209,7 @@ public class MoveUp implements ICursorMove {
 			return currentBox;
 		}
 
-		final IContentBox childAbove = findClosestContentBoxChildAbove(parent, x, y);
+		final IContentBox childAbove = handleSpecialCaseMovingIntoLastLineOfParagraph(findClosestContentBoxChildAbove(parent, x, y), x, y);
 		if (childAbove == null) {
 			return parent.accept(new BaseBoxVisitorWithResult<IContentBox>() {
 				@Override
@@ -234,61 +235,6 @@ public class MoveUp implements ICursorMove {
 		}
 
 		return childAbove;
-	}
-
-	private static IContentBox findClosestContentBoxChildAbove(final IContentBox parent, final int x, final int y) {
-		final Iterable<IContentBox> candidates = findVerticallyClosestContentBoxChildrenAbove(parent, y);
-		final IContentBox finalCandidate = findHorizontallyClosestContentBox(candidates, x);
-		return handleSpecialCaseMovingIntoLastLineOfParagraph(finalCandidate, x, y);
-	}
-
-	private static Iterable<IContentBox> findVerticallyClosestContentBoxChildrenAbove(final IContentBox parent, final int y) {
-		final LinkedList<IContentBox> candidates = new LinkedList<IContentBox>();
-		final int[] minVerticalDistance = new int[1];
-		minVerticalDistance[0] = Integer.MAX_VALUE;
-		parent.accept(new DepthFirstBoxTraversal<Object>() {
-			@Override
-			public Object visit(final StructuralNodeReference box) {
-				final int distance = verticalDistance(box, y);
-				if (box != parent && !box.isAbove(y)) {
-					return box;
-				}
-
-				if (box == parent) {
-					super.visit(box);
-				}
-
-				if (box != parent) {
-					candidates.add(box);
-					minVerticalDistance[0] = Math.min(distance, minVerticalDistance[0]);
-				}
-
-				return null;
-			}
-
-			@Override
-			public Object visit(final TextContent box) {
-				final int distance = verticalDistance(box, y);
-				if (box.isAbove(y) && distance <= minVerticalDistance[0]) {
-					candidates.add(box);
-					minVerticalDistance[0] = Math.min(distance, minVerticalDistance[0]);
-				}
-				return null;
-			}
-
-			@Override
-			public Object visit(final NodeEndOffsetPlaceholder box) {
-				final int distance = verticalDistance(box, y);
-				if (box.isAbove(y) && distance <= minVerticalDistance[0]) {
-					candidates.add(box);
-					minVerticalDistance[0] = Math.min(distance, minVerticalDistance[0]);
-				}
-				return null;
-			}
-		});
-
-		removeVerticallyDistantBoxes(candidates, y, minVerticalDistance[0]);
-		return candidates;
 	}
 
 	private static IContentBox handleSpecialCaseMovingIntoLastLineOfParagraph(final IContentBox candidate, final int x, final int y) {
@@ -358,12 +304,4 @@ public class MoveUp implements ICursorMove {
 		return candidates;
 	}
 
-	private static void removeVerticallyDistantBoxes(final List<? extends IContentBox> boxes, final int y, final int minVerticalDistance) {
-		for (final Iterator<? extends IContentBox> iter = boxes.iterator(); iter.hasNext();) {
-			final IContentBox candidate = iter.next();
-			if (verticalDistance(candidate, y) > minVerticalDistance) {
-				iter.remove();
-			}
-		}
-	}
 }

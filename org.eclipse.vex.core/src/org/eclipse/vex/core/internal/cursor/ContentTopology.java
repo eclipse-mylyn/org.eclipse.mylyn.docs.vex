@@ -11,7 +11,9 @@
 package org.eclipse.vex.core.internal.cursor;
 
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 
 import org.eclipse.vex.core.internal.boxes.BaseBoxVisitorWithResult;
 import org.eclipse.vex.core.internal.boxes.DepthFirstBoxTraversal;
@@ -332,6 +334,118 @@ public class ContentTopology {
 				return box;
 			}
 		});
+	}
+
+	public static IContentBox findClosestContentBoxChildBelow(final IContentBox parent, final int x, final int y) {
+		final Iterable<IContentBox> candidates = findVerticallyClosestContentBoxChildrenBelow(parent, y);
+		return findHorizontallyClosestContentBox(candidates, x);
+	}
+
+	public static Iterable<IContentBox> findVerticallyClosestContentBoxChildrenBelow(final IContentBox parent, final int y) {
+		final LinkedList<IContentBox> candidates = new LinkedList<IContentBox>();
+		final int[] minVerticalDistance = new int[1];
+		minVerticalDistance[0] = Integer.MAX_VALUE;
+		parent.accept(new DepthFirstBoxTraversal<Object>() {
+			@Override
+			public Object visit(final StructuralNodeReference box) {
+				if (box == parent) {
+					super.visit(box);
+				} else {
+					final int distance = verticalDistance(box, y);
+					if (box.isBelow(y)) {
+						candidates.add(box);
+						minVerticalDistance[0] = Math.min(distance, minVerticalDistance[0]);
+					}
+				}
+				return null;
+			}
+
+			@Override
+			public Object visit(final TextContent box) {
+				final int distance = verticalDistance(box, y);
+				if (box.isBelow(y)) {
+					candidates.add(box);
+					minVerticalDistance[0] = Math.min(distance, minVerticalDistance[0]);
+				}
+				return null;
+			}
+
+			@Override
+			public Object visit(final NodeEndOffsetPlaceholder box) {
+				final int distance = verticalDistance(box, y);
+				if (box.isBelow(y)) {
+					candidates.add(box);
+					minVerticalDistance[0] = Math.min(distance, minVerticalDistance[0]);
+				}
+				return null;
+			}
+		});
+
+		removeVerticallyDistantBoxes(candidates, y, minVerticalDistance[0]);
+		return candidates;
+	}
+
+	public static IContentBox findClosestContentBoxChildAbove(final IContentBox parent, final int x, final int y) {
+		final Iterable<IContentBox> candidates = findVerticallyClosestContentBoxChildrenAbove(parent, y);
+		return findHorizontallyClosestContentBox(candidates, x);
+	}
+
+	public static Iterable<IContentBox> findVerticallyClosestContentBoxChildrenAbove(final IContentBox parent, final int y) {
+		final LinkedList<IContentBox> candidates = new LinkedList<IContentBox>();
+		final int[] minVerticalDistance = new int[1];
+		minVerticalDistance[0] = Integer.MAX_VALUE;
+		parent.accept(new DepthFirstBoxTraversal<Object>() {
+			@Override
+			public Object visit(final StructuralNodeReference box) {
+				final int distance = verticalDistance(box, y);
+				if (box != parent && !box.isAbove(y)) {
+					return box;
+				}
+
+				if (box == parent) {
+					super.visit(box);
+				}
+
+				if (box != parent) {
+					candidates.add(box);
+					minVerticalDistance[0] = Math.min(distance, minVerticalDistance[0]);
+				}
+
+				return null;
+			}
+
+			@Override
+			public Object visit(final TextContent box) {
+				final int distance = verticalDistance(box, y);
+				if (box.isAbove(y) && distance <= minVerticalDistance[0]) {
+					candidates.add(box);
+					minVerticalDistance[0] = Math.min(distance, minVerticalDistance[0]);
+				}
+				return null;
+			}
+
+			@Override
+			public Object visit(final NodeEndOffsetPlaceholder box) {
+				final int distance = verticalDistance(box, y);
+				if (box.isAbove(y) && distance <= minVerticalDistance[0]) {
+					candidates.add(box);
+					minVerticalDistance[0] = Math.min(distance, minVerticalDistance[0]);
+				}
+				return null;
+			}
+		});
+
+		removeVerticallyDistantBoxes(candidates, y, minVerticalDistance[0]);
+		return candidates;
+	}
+
+	public static void removeVerticallyDistantBoxes(final List<? extends IContentBox> boxes, final int y, final int minVerticalDistance) {
+		for (final Iterator<? extends IContentBox> iter = boxes.iterator(); iter.hasNext();) {
+			final IContentBox candidate = iter.next();
+			if (verticalDistance(candidate, y) > minVerticalDistance) {
+				iter.remove();
+			}
+		}
 	}
 
 	public static int verticalDistance(final IContentBox box, final int y) {

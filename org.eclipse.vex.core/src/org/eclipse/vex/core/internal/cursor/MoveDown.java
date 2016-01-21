@@ -10,12 +10,8 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.cursor;
 
-import static org.eclipse.vex.core.internal.cursor.ContentTopology.findHorizontallyClosestContentBox;
+import static org.eclipse.vex.core.internal.cursor.ContentTopology.findClosestContentBoxChildBelow;
 import static org.eclipse.vex.core.internal.cursor.ContentTopology.getParentContentBox;
-import static org.eclipse.vex.core.internal.cursor.ContentTopology.verticalDistance;
-
-import java.util.Iterator;
-import java.util.LinkedList;
 
 import org.eclipse.vex.core.internal.boxes.BaseBoxVisitorWithResult;
 import org.eclipse.vex.core.internal.boxes.DepthFirstBoxTraversal;
@@ -210,7 +206,7 @@ public class MoveDown implements ICursorMove {
 			return currentBox;
 		}
 
-		final IContentBox childBelow = findClosestContentBoxChildBelow(parent, x, y);
+		final IContentBox childBelow = handleSpecialCaseMovingIntoLastLineOfParagraph(findClosestContentBoxChildBelow(parent, x, y), x, y);
 		if (childBelow == null) {
 			if (containsInlineContent(parent)) {
 				return findNextContentBoxBelow(parent, x, y);
@@ -219,62 +215,6 @@ public class MoveDown implements ICursorMove {
 		}
 
 		return childBelow;
-	}
-
-	private static IContentBox findClosestContentBoxChildBelow(final IContentBox parent, final int x, final int y) {
-		final Iterable<IContentBox> candidates = findVerticallyClosestContentBoxChildrenBelow(parent, y);
-		final IContentBox finalCandidate = findHorizontallyClosestContentBox(candidates, x);
-		final IContentBox realFinalCandidate = handleSpecialCaseMovingIntoLastLineOfParagraph(finalCandidate, x, y);
-		return realFinalCandidate;
-	}
-
-	private static Iterable<IContentBox> findVerticallyClosestContentBoxChildrenBelow(final IContentBox parent, final int y) {
-		final LinkedList<IContentBox> candidates = new LinkedList<IContentBox>();
-		final int[] minVerticalDistance = new int[1];
-		minVerticalDistance[0] = Integer.MAX_VALUE;
-		parent.accept(new DepthFirstBoxTraversal<Object>() {
-			@Override
-			public Object visit(final StructuralNodeReference box) {
-				if (box == parent) {
-					super.visit(box);
-				} else {
-					final int distance = verticalDistance(box, y);
-					if (box.isBelow(y)) {
-						candidates.add(box);
-						minVerticalDistance[0] = Math.min(distance, minVerticalDistance[0]);
-					}
-				}
-				return null;
-			}
-
-			@Override
-			public Object visit(final TextContent box) {
-				final int distance = verticalDistance(box, y);
-				if (box.isBelow(y)) {
-					candidates.add(box);
-					minVerticalDistance[0] = Math.min(distance, minVerticalDistance[0]);
-				}
-				return null;
-			}
-
-			@Override
-			public Object visit(final NodeEndOffsetPlaceholder box) {
-				final int distance = verticalDistance(box, y);
-				if (box.isBelow(y)) {
-					candidates.add(box);
-					minVerticalDistance[0] = Math.min(distance, minVerticalDistance[0]);
-				}
-				return null;
-			}
-		});
-
-		for (final Iterator<IContentBox> iter = candidates.iterator(); iter.hasNext();) {
-			final IContentBox candidate = iter.next();
-			if (verticalDistance(candidate, y) > minVerticalDistance[0]) {
-				iter.remove();
-			}
-		}
-		return candidates;
 	}
 
 	private static IContentBox handleSpecialCaseMovingIntoLastLineOfParagraph(final IContentBox candidate, final int x, final int y) {
