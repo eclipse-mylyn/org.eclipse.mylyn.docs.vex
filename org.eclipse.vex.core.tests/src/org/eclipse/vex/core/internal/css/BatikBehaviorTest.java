@@ -50,7 +50,7 @@ public class BatikBehaviorTest {
 		final Element element = new Element("plan");
 		final IElement before = styleSheet.getPseudoElementBefore(element);
 		final Styles beforeStyles = styleSheet.getStyles(before);
-		assertEquals("test", beforeStyles.getContent(element).get(0));
+		assertEquals("test", beforeStyles.getTextualContent(element).get(0));
 		assertEquals(123.0f, beforeStyles.getFontSize(), 0.0f);
 	}
 
@@ -63,7 +63,7 @@ public class BatikBehaviorTest {
 		assertEquals(123.0f, styles.getFontSize(), 0.0f);
 		final IElement before = styleSheet.getPseudoElementBefore(element);
 		final Styles beforeStyles = styleSheet.getStyles(before);
-		assertEquals("test", beforeStyles.getContent(element).get(0));
+		assertEquals("test", beforeStyles.getTextualContent(element).get(0));
 		assertEquals(123.0f, beforeStyles.getFontSize(), 0.0f);
 	}
 
@@ -76,9 +76,9 @@ public class BatikBehaviorTest {
 		final Element nochild = new Element("child");
 		child.setParent(element);
 		final Styles styles = styleSheet.getStyles(child);
-		assertEquals(1, styles.getContent(element).size());
-		assertEquals("child", styles.getContent(element).get(0));
+		assertEquals(1, styles.getTextualContent(element).size());
+		assertEquals("child", styles.getTextualContent(element).get(0));
 		final Styles nochildStyles = styleSheet.getStyles(nochild);
-		assertEquals("nochild", nochildStyles.getContent(element).get(0));
+		assertEquals("nochild", nochildStyles.getTextualContent(element).get(0));
 	}
 }

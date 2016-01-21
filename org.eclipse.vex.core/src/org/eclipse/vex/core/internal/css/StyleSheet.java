@@ -263,6 +263,10 @@ public class StyleSheet {
 				// content: attr(attributeName)
 				content.add(lexicalUnit);
 				break;
+			case LexicalUnit.SAC_URI:
+				// content: url("<some URI of an image>")
+				content.add(lexicalUnit);
+				break;
 			}
 			lexicalUnit = lexicalUnit.getNextLexicalUnit();
 		}

@@ -41,6 +41,7 @@ import org.eclipse.vex.core.internal.boxes.Paragraph;
 import org.eclipse.vex.core.internal.boxes.RootBox;
 import org.eclipse.vex.core.internal.boxes.TextContent;
 import org.eclipse.vex.core.internal.css.CSS;
+import org.eclipse.vex.core.internal.css.IPropertyContent;
 import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.css.Styles;
 import org.eclipse.vex.core.internal.css.Styles.PseudoElement;
@@ -287,7 +288,7 @@ public class CssBasedBoxModelBuilder implements IBoxModelBuilder {
 		}
 
 		final StringBuilder content = new StringBuilder();
-		for (final String part : pseudoElementStyles.getContent(node)) {
+		for (final IPropertyContent part : pseudoElementStyles.getAllContent(node)) {
 			content.append(part);
 		}
 		return frame(paragraph(pseudoElementStyles, staticText(content.toString(), pseudoElementStyles)), pseudoElementStyles);
@@ -440,7 +441,7 @@ public class CssBasedBoxModelBuilder implements IBoxModelBuilder {
 		}
 
 		final StringBuilder content = new StringBuilder();
-		for (final String part : pseudoElementStyles.getContent(node)) {
+		for (final IPropertyContent part : pseudoElementStyles.getAllContent(node)) {
 			content.append(part);
 		}
 		return frame(inlineContainer(staticText(content.toString(), pseudoElementStyles)), pseudoElementStyles);
