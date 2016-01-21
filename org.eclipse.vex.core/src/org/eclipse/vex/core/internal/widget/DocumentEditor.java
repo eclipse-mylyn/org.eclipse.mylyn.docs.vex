@@ -707,8 +707,14 @@ public class DocumentEditor implements IDocumentEditor {
 			throw new ReadOnlyException("Cannot delete, because the editor is read-only.");
 		}
 
+		if (hasSelection()) {
+			deleteSelection();
+			return;
+		}
+
 		final IUndoableEdit edit;
 		final int offset = cursor.getOffset();
+
 		if (offset == document.getLength()) {
 			// ignore
 			edit = null;
@@ -739,6 +745,11 @@ public class DocumentEditor implements IDocumentEditor {
 	public void deleteBackward() throws DocumentValidationException {
 		if (isReadOnly()) {
 			throw new ReadOnlyException("Cannot delete, because the editor is read-only.");
+		}
+
+		if (hasSelection()) {
+			deleteSelection();
+			return;
 		}
 
 		final IUndoableEdit edit;
