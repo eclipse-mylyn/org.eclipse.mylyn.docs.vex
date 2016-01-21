@@ -199,8 +199,10 @@ public class CssBasedBoxModelBuilder implements IBoxModelBuilder {
 				final boolean containsInlineContent = containsInlineContent(childrenResults);
 
 				final IStructuralBox content;
-				if (isEmptyElement(element)) {
-					content = visualizeEmptyElement(styles, element);
+				if (isElementWithNoContentAllowed(element)) {
+					content = visualizeStructuralElementWithNoContentAllowed(styles, element);
+				} else if (element.isEmpty()) {
+					content = placeholderForEmptyNode(node, styles, paragraph(styles));
 				} else {
 					content = visualizeChildrenAsStructure(element, styles, childrenResults, verticalBlock());
 				}
@@ -240,7 +242,7 @@ public class CssBasedBoxModelBuilder implements IBoxModelBuilder {
 		});
 	}
 
-	private IStructuralBox visualizeEmptyElement(final Styles styles, final IElement element) {
+	private IStructuralBox visualizeStructuralElementWithNoContentAllowed(final Styles styles, final IElement element) {
 		return paragraph(styles, nodeTag(element, styles));
 	}
 
@@ -305,7 +307,7 @@ public class CssBasedBoxModelBuilder implements IBoxModelBuilder {
 		return validItems.contains(IValidator.PCDATA);
 	}
 
-	private static boolean isEmptyElement(final IElement element) {
+	private static boolean isElementWithNoContentAllowed(final IElement element) {
 		final Set<QualifiedName> validItems = element.getDocument().getValidator().getValidItems(element);
 		return validItems.isEmpty() && !element.hasChildren();
 	}
@@ -320,8 +322,8 @@ public class CssBasedBoxModelBuilder implements IBoxModelBuilder {
 		return node.accept(new BaseNodeVisitorWithResult<IInlineBox>() {
 			@Override
 			public IInlineBox visit(final IElement element) {
-				if (isEmptyElement(element)) {
-					return nodeReference(element, frame(visualizeEmptyElementInline(element, styles), styles));
+				if (isElementWithNoContentAllowed(element)) {
+					return nodeReference(element, frame(visualizeEmptyInlineElementWithNoContentAllowed(element, styles), styles));
 				}
 
 				final InlineContainer inlineElementContent = surroundWithInlineMarkers(element, styles,
@@ -383,7 +385,7 @@ public class CssBasedBoxModelBuilder implements IBoxModelBuilder {
 		}
 	}
 
-	private static IInlineBox visualizeEmptyElementInline(final INode node, final Styles styles) {
+	private static IInlineBox visualizeEmptyInlineElementWithNoContentAllowed(final INode node, final Styles styles) {
 		return nodeTag(node, styles);
 	}
 
