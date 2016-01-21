@@ -48,7 +48,7 @@ public class MoveDown implements ICursorMove {
 			final IContentBox firstChild = getFirstContentBoxChild(currentBox);
 			if (firstChild != null) {
 				if (containsInlineContent(currentBox)) {
-					return findOffsetInNextBoxBelow(graphics, currentOffset, firstChild, preferredX, hotArea.getY() + hotArea.getHeight() - 1);
+					return findOffsetInNextBoxBelow(graphics, currentOffset, firstChild, preferredX, hotArea.getY() - 1);
 				} else if (containsInlineContent(firstChild)) {
 					return findOffsetInNextBoxBelow(graphics, currentOffset, firstChild, preferredX, currentBox.getAbsoluteTop() - 1);
 				} else {
