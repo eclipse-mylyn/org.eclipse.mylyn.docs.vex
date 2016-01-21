@@ -146,7 +146,6 @@ public class BoxView {
 
 	private void moveViewPortToCursor(final Graphics graphics) {
 		final int delta = getDeltaIntoVisibleArea(viewPort.getVisibleArea());
-		System.out.println("DELTA:" + delta);
 		graphics.moveOrigin(0, -delta);
 		viewPort.moveRelative(delta);
 	}
