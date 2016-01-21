@@ -197,7 +197,7 @@ public class Styles {
 	 */
 	public List<String> getTextualContent(final INode node) {
 		final List<String> content = new ArrayList<String>();
-		for (LexicalUnit lexicalUnit : contentLexicalUnits) {
+		for (final LexicalUnit lexicalUnit : contentLexicalUnits) {
 			switch (lexicalUnit.getLexicalUnitType()) {
 			case LexicalUnit.SAC_STRING_VALUE:
 				// content: "A String"
@@ -224,19 +224,17 @@ public class Styles {
 				});
 				break;
 			}
-			lexicalUnit = lexicalUnit.getNextLexicalUnit();
 		}
 		return content;
 	}
 
 	public List<IPropertyContent> getAllContent(final INode node) {
 		final List<IPropertyContent> allContent = new ArrayList<IPropertyContent>();
-		for (LexicalUnit lexicalUnit : contentLexicalUnits) {
+		for (final LexicalUnit lexicalUnit : contentLexicalUnits) {
 			final IPropertyContent content = getContent(lexicalUnit, node);
 			if (content != null) {
 				allContent.add(content);
 			}
-			lexicalUnit = lexicalUnit.getNextLexicalUnit();
 		}
 		return allContent;
 	}

@@ -58,6 +58,7 @@ import org.eclipse.vex.core.internal.widget.swt.IVexSelection;
 import org.eclipse.vex.core.provisional.dom.ContentRange;
 import org.eclipse.vex.core.provisional.dom.IContent;
 import org.eclipse.vex.core.provisional.dom.IDocument;
+import org.eclipse.vex.core.provisional.dom.IElement;
 import org.w3c.css.sac.CSSException;
 import org.w3c.css.sac.InputSource;
 
@@ -247,7 +248,8 @@ public class BoxDemoView extends ViewPart {
 	}
 
 	public void insertAnchor() {
-		boxWidget.insertElement(ANCHOR);
+		final IElement anchor = boxWidget.insertElement(ANCHOR);
+		anchor.setAttribute("id", Double.toHexString(Math.random()));
 	}
 
 	public void insertComment() {

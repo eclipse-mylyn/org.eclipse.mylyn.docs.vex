@@ -248,7 +248,7 @@ public class CssBasedBoxModelBuilder implements IBoxModelBuilder {
 	}
 
 	private IStructuralBox visualizeStructuralElementWithNoContentAllowed(final Styles styles, final IElement element) {
-		return paragraph(styles, nodeTag(element, styles));
+		return paragraph(styles, visualizeInlineElementWithNoContentAllowed(element, styles));
 	}
 
 	private <P extends IParentBox<IStructuralBox>> P visualizeChildrenAsStructure(final INode node, final Styles styles, final Iterable<VisualizeResult> childrenResults, final P parentBox) {
@@ -361,7 +361,7 @@ public class CssBasedBoxModelBuilder implements IBoxModelBuilder {
 			public IInlineBox visit(final IElement element) {
 				if (isElementWithNoContentAllowed(element)) {
 					return nodeReference(element,
-							frame(surroundWithInlinePseudoElements(inlineContainer(visualizeEmptyInlineElementWithNoContentAllowed(element, styles)), element, styles), styles));
+							frame(surroundWithInlinePseudoElements(inlineContainer(visualizeInlineElementWithNoContentAllowed(element, styles)), element, styles), styles));
 				}
 
 				final InlineContainer inlineElementContent = surroundWithInlineMarkers(element, styles,
@@ -423,8 +423,11 @@ public class CssBasedBoxModelBuilder implements IBoxModelBuilder {
 		}
 	}
 
-	private static IInlineBox visualizeEmptyInlineElementWithNoContentAllowed(final INode node, final Styles styles) {
-		return nodeTag(node, styles);
+	private static IInlineBox visualizeInlineElementWithNoContentAllowed(final INode node, final Styles styles) {
+		if (!styles.isContentDefined()) {
+			return nodeTag(node, styles);
+		}
+		return visualizeContentProperty(node, styles, inlineContainer());
 	}
 
 	private static IInlineBox visualizeText(final IContent content, final ContentRange textRange, final INode parentNode, final Styles styles) {
