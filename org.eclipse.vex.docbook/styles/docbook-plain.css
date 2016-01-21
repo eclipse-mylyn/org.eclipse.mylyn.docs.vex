@@ -987,15 +987,15 @@ productname {
 }
 productname[class="registered"]:after {
 	display: inline;
-	content: '®';
+	content: 'Â®';
 }
 productname[class="trade"]:after {
 	display: inline;
-	content: '™';
+	content: 'â„¢';
 }
 productname[class="copyright"]:before {
 	display: inline;
-	content: '©';
+	content: 'Â©';
 }
 
 productnumber {
