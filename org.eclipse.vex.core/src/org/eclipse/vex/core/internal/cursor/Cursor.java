@@ -17,6 +17,7 @@ import org.eclipse.vex.core.internal.boxes.DepthFirstBoxTraversal;
 import org.eclipse.vex.core.internal.boxes.IBox;
 import org.eclipse.vex.core.internal.boxes.IContentBox;
 import org.eclipse.vex.core.internal.boxes.IInlineBox;
+import org.eclipse.vex.core.internal.boxes.Image;
 import org.eclipse.vex.core.internal.boxes.InlineNodeReference;
 import org.eclipse.vex.core.internal.boxes.NodeEndOffsetPlaceholder;
 import org.eclipse.vex.core.internal.boxes.NodeTag;
@@ -369,6 +370,12 @@ public class Cursor implements ICursor {
 
 			@Override
 			public IBox visit(final StaticText box) {
+				deepestLastChildBox[0] = box;
+				return null;
+			}
+
+			@Override
+			public IBox visit(final Image box) {
 				deepestLastChildBox[0] = box;
 				return null;
 			}

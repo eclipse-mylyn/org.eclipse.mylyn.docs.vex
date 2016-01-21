@@ -76,6 +76,11 @@ public class BaseBoxVisitorWithResult<T> implements IBoxVisitorWithResult<T> {
 	}
 
 	@Override
+	public T visit(final Image box) {
+		return defaultValue;
+	}
+
+	@Override
 	public T visit(final TextContent box) {
 		return defaultValue;
 	}

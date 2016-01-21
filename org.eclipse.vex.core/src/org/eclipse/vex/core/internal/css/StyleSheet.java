@@ -23,6 +23,8 @@
 package org.eclipse.vex.core.internal.css;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -49,7 +51,7 @@ import org.w3c.css.sac.Selector;
  */
 public class StyleSheet {
 
-	public static final StyleSheet NULL = new StyleSheet(Collections.<Rule> emptyList());
+	public static final StyleSheet NULL = new StyleSheet(Collections.<Rule> emptyList(), null);
 
 	private static final Comparator<PropertyDecl> PROPERTY_CASCADE_ORDERING = new Comparator<PropertyDecl>() {
 		@Override
@@ -86,10 +88,8 @@ public class StyleSheet {
 			new BorderWidthProperty(CSS.BORDER_TOP_WIDTH, CSS.BORDER_TOP_STYLE, IProperty.Axis.VERTICAL), new BorderSpacingProperty(), new LengthProperty(CSS.HEIGHT, IProperty.Axis.VERTICAL),
 			new LengthProperty(CSS.WIDTH, IProperty.Axis.HORIZONTAL), new BackgroundImageProperty(), new OutlineContentProperty(), new InlineMarkerProperty() };
 
-	/**
-	 * The rules that comprise the stylesheet.
-	 */
 	private final List<Rule> rules;
+	private final URL baseUrl;
 
 	/**
 	 * The VEX core styles
@@ -122,8 +122,26 @@ public class StyleSheet {
 	 * @param rules
 	 *            Rules that constitute the style sheet.
 	 */
-	public StyleSheet(final Collection<Rule> rules) {
+	public StyleSheet(final Collection<Rule> rules, final URL baseUrl) {
 		this.rules = new ArrayList<Rule>(rules);
+		this.baseUrl = baseUrl;
+	}
+
+	public URL getBaseUrl() {
+		return baseUrl;
+	}
+
+	public URL resolveUrl(final String urlSpecification) {
+		try {
+			if (baseUrl == null) {
+				return new URL(urlSpecification);
+			} else {
+				return new URL(baseUrl, urlSpecification);
+			}
+		} catch (final MalformedURLException e) {
+			e.printStackTrace(); // TODO log
+			return null;
+		}
 	}
 
 	/**
@@ -247,6 +265,8 @@ public class StyleSheet {
 
 	private Styles calculateNodeStyles(final INode node, final Map<String, LexicalUnit> decls, final Styles parentStyles) {
 		final Styles styles = new Styles();
+
+		styles.setBaseUrl(baseUrl);
 
 		LexicalUnit lexicalUnit;
 		lexicalUnit = decls.get(CSS.CONTENT);

@@ -35,6 +35,8 @@ public interface IBoxVisitorWithResult<T> {
 
 	T visit(StaticText box);
 
+	T visit(Image box);
+
 	T visit(TextContent box);
 
 	T visit(NodeEndOffsetPlaceholder box);

@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
+import java.net.URL;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResourceChangeEvent;
@@ -208,16 +209,19 @@ public class BoxDemoView extends ViewPart {
 
 	private StyleSheet readStyleSheet() {
 		try {
+			final URL styleSheetURL;
 			final InputStream styleSheetInputStream;
 			final IFile file = ResourcesPlugin.getWorkspace().getRoot().getFile(CSS_WORKSPACE_FILE);
 			if (file.exists()) {
+				styleSheetURL = file.getLocationURI().toURL();
 				styleSheetInputStream = file.getContents();
 			} else {
-				styleSheetInputStream = getClass().getResourceAsStream("box-demo.css");
+				styleSheetURL = getClass().getResource("box-demo.css");
+				styleSheetInputStream = styleSheetURL.openStream();
 			}
 
 			final InputSource inputSource = new InputSource(new InputStreamReader(styleSheetInputStream, "utf-8"));
-			return new StyleSheetReader().read(inputSource, null);
+			return new StyleSheetReader().read(inputSource, styleSheetURL);
 		} catch (final UnsupportedEncodingException e) {
 			e.printStackTrace();
 		} catch (final CSSException e) {

@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.boxes;
 
+import java.net.URL;
+
 import org.eclipse.vex.core.internal.boxes.NodeTag.Kind;
 import org.eclipse.vex.core.internal.core.Color;
 import org.eclipse.vex.core.internal.core.FontSpec;
@@ -171,6 +173,12 @@ public class BoxFactory {
 		staticText.setFont(font);
 		staticText.setColor(color);
 		return staticText;
+	}
+
+	public static Image image(final URL imageUrl) {
+		final Image image = new Image();
+		image.setImageUrl(imageUrl);
+		return image;
 	}
 
 	public static Square square(final int size, final Color color) {

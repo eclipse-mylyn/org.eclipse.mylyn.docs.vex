@@ -175,7 +175,7 @@ public class StyleSheetReader {
 	 */
 	public StyleSheet read(final InputSource inputSource, final URL url) throws CSSException, IOException {
 		final List<Rule> rules = readRules(inputSource, url);
-		return new StyleSheet(rules);
+		return new StyleSheet(rules, url);
 	}
 
 	/**

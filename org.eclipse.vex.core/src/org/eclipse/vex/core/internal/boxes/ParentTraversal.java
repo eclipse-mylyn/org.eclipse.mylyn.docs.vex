@@ -76,6 +76,11 @@ public class ParentTraversal<T> implements IBoxVisitorWithResult<T> {
 	}
 
 	@Override
+	public T visit(final Image box) {
+		return box.getParent().accept(this);
+	}
+
+	@Override
 	public T visit(final TextContent box) {
 		return box.getParent().accept(this);
 	}

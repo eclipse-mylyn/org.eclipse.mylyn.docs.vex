@@ -10,10 +10,13 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.visualization;
 
+import java.net.URL;
+
 import org.eclipse.vex.core.internal.boxes.Border;
 import org.eclipse.vex.core.internal.boxes.BorderLine;
 import org.eclipse.vex.core.internal.boxes.IInlineBox;
 import org.eclipse.vex.core.internal.boxes.IStructuralBox;
+import org.eclipse.vex.core.internal.boxes.Image;
 import org.eclipse.vex.core.internal.boxes.InlineFrame;
 import org.eclipse.vex.core.internal.boxes.LineWrappingRule;
 import org.eclipse.vex.core.internal.boxes.Margin;
@@ -98,6 +101,12 @@ public class CssBoxFactory {
 		final StaticText staticText = staticText(text, styles);
 		staticText.setLineWrappingAtEnd(LineWrappingRule.REQUIRED);
 		return staticText;
+	}
+
+	public static Image image(final URL imageUrl, final Styles styles) {
+		final Image image = new Image();
+		image.setImageUrl(imageUrl);
+		return image;
 	}
 
 	public static Square square(final int size, final Styles styles) {

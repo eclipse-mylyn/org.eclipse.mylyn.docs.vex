@@ -35,6 +35,7 @@ import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.vex.core.internal.boxes.IInlineBox;
 import org.eclipse.vex.core.internal.boxes.IParentBox;
 import org.eclipse.vex.core.internal.boxes.IStructuralBox;
+import org.eclipse.vex.core.internal.boxes.Image;
 import org.eclipse.vex.core.internal.boxes.InlineContainer;
 import org.eclipse.vex.core.internal.boxes.LineWrappingRule;
 import org.eclipse.vex.core.internal.boxes.Paragraph;
@@ -42,9 +43,12 @@ import org.eclipse.vex.core.internal.boxes.RootBox;
 import org.eclipse.vex.core.internal.boxes.TextContent;
 import org.eclipse.vex.core.internal.css.CSS;
 import org.eclipse.vex.core.internal.css.IPropertyContent;
+import org.eclipse.vex.core.internal.css.IPropertyContentVisitor;
 import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.css.Styles;
 import org.eclipse.vex.core.internal.css.Styles.PseudoElement;
+import org.eclipse.vex.core.internal.css.TextualContent;
+import org.eclipse.vex.core.internal.css.URIContent;
 import org.eclipse.vex.core.internal.dom.CollectingNodeTraversal;
 import org.eclipse.vex.core.provisional.dom.BaseNodeVisitorWithResult;
 import org.eclipse.vex.core.provisional.dom.ContentRange;
@@ -304,11 +308,25 @@ public class CssBasedBoxModelBuilder implements IBoxModelBuilder {
 	}
 
 	private static <P extends IParentBox<IInlineBox>> P visualizeContentProperty(final INode node, final Styles styles, final P parent) {
-		final StringBuilder content = new StringBuilder();
 		for (final IPropertyContent part : styles.getAllContent(node)) {
-			content.append(part);
+			final IInlineBox box = part.accept(new IPropertyContentVisitor<IInlineBox>() {
+				@Override
+				public IInlineBox visit(final TextualContent content) {
+					return staticText(content.toString(), styles);
+				}
+
+				@Override
+				public IInlineBox visit(final URIContent content) {
+					final String imageUri = content.uri.toString();
+					final Image image = new Image();
+					image.setImageUrl(styles.resolveUrl(imageUri));
+					return image;
+				}
+			});
+			if (box != null) {
+				parent.appendChild(box);
+			}
 		}
-		parent.appendChild(staticText(content.toString(), styles));
 		return parent;
 	}
 

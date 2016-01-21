@@ -66,6 +66,11 @@ public class BaseBoxVisitor implements IBoxVisitor {
 	}
 
 	@Override
+	public void visit(final Image box) {
+		// ignore
+	}
+
+	@Override
 	public void visit(final TextContent box) {
 		// ignore
 	}

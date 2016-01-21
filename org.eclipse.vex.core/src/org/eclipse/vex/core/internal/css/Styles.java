@@ -13,8 +13,10 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.css;
 
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -67,6 +69,28 @@ public class Styles {
 
 	private List<LexicalUnit> contentLexicalUnits;
 	private FontSpec font;
+	private URL baseUrl;
+
+	public URL getBaseUrl() {
+		return baseUrl;
+	}
+
+	public void setBaseUrl(final URL baseUrl) {
+		this.baseUrl = baseUrl;
+	}
+
+	public URL resolveUrl(final String urlSpecification) {
+		try {
+			if (baseUrl == null) {
+				return new URL(urlSpecification);
+			} else {
+				return new URL(baseUrl, urlSpecification);
+			}
+		} catch (final MalformedURLException e) {
+			e.printStackTrace(); // TODO log
+			return null;
+		}
+	}
 
 	/**
 	 * Returns the value of the given property, or null if the property does not have a value.

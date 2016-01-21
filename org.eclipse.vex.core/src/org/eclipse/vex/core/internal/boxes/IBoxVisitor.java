@@ -35,6 +35,8 @@ public interface IBoxVisitor {
 
 	void visit(StaticText box);
 
+	void visit(Image box);
+
 	void visit(TextContent box);
 
 	void visit(NodeEndOffsetPlaceholder box);
