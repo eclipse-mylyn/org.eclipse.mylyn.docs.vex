@@ -24,7 +24,7 @@ public class MoveBy implements ICursorMove {
 	}
 
 	@Override
-	public int calculateNewOffset(final Graphics graphics, IViewPort viewPort, final ContentTopology contentTopology, final int currentOffset, final IContentBox currentBox, final Rectangle hotArea, final int preferredX) {
+	public int calculateNewOffset(final Graphics graphics, final IViewPort viewPort, final ContentTopology contentTopology, final int currentOffset, final IContentBox currentBox, final Rectangle hotArea, final int preferredX) {
 		return Math.max(0, Math.min(currentOffset + distance, contentTopology.getLastOffset()));
 	}
 
@@ -35,6 +35,6 @@ public class MoveBy implements ICursorMove {
 
 	@Override
 	public boolean isAbsolute() {
-		return true;
+		return false;
 	}
 }

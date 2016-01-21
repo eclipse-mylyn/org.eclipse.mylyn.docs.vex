@@ -19,7 +19,7 @@ import org.eclipse.vex.core.provisional.dom.IContent;
 public class MoveToWordStart implements ICursorMove {
 
 	@Override
-	public int calculateNewOffset(final Graphics graphics, IViewPort viewPort, final ContentTopology contentTopology, final int currentOffset, final IContentBox currentBox, final Rectangle hotArea, final int preferredX) {
+	public int calculateNewOffset(final Graphics graphics, final IViewPort viewPort, final ContentTopology contentTopology, final int currentOffset, final IContentBox currentBox, final Rectangle hotArea, final int preferredX) {
 		final IContent content = currentBox.getContent();
 		int offset = currentOffset;
 		while (offset > 1 && Character.isLetterOrDigit(content.charAt(offset - 1))) {
@@ -35,7 +35,7 @@ public class MoveToWordStart implements ICursorMove {
 
 	@Override
 	public boolean isAbsolute() {
-		return true;
+		return false;
 	}
 
 }

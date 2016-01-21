@@ -29,7 +29,7 @@ public class MoveToPreviousWord implements ICursorMove {
 
 	@Override
 	public boolean isAbsolute() {
-		return true;
+		return false;
 	}
 
 }
