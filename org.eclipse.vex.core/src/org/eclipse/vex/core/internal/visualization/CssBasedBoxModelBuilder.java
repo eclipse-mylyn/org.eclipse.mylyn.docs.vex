@@ -287,11 +287,29 @@ public class CssBasedBoxModelBuilder implements IBoxModelBuilder {
 			return null;
 		}
 
+		return frame(visualizeContentProperty(node, pseudoElementStyles, paragraph(pseudoElementStyles)), pseudoElementStyles);
+	}
+
+	private static IInlineBox visualizePseudoElementInline(final Styles styles, final INode node, final PseudoElement pseudoElement) {
+		if (!styles.hasPseudoElement(pseudoElement)) {
+			return null;
+		}
+
+		final Styles pseudoElementStyles = styles.getPseudoElementStyles(pseudoElement);
+		if (!isDisplayedInline(pseudoElementStyles)) {
+			return null;
+		}
+
+		return frame(visualizeContentProperty(node, pseudoElementStyles, inlineContainer()), pseudoElementStyles);
+	}
+
+	private static <P extends IParentBox<IInlineBox>> P visualizeContentProperty(final INode node, final Styles styles, final P parent) {
 		final StringBuilder content = new StringBuilder();
-		for (final IPropertyContent part : pseudoElementStyles.getAllContent(node)) {
+		for (final IPropertyContent part : styles.getAllContent(node)) {
 			content.append(part);
 		}
-		return frame(paragraph(pseudoElementStyles, staticText(content.toString(), pseudoElementStyles)), pseudoElementStyles);
+		parent.appendChild(staticText(content.toString(), styles));
+		return parent;
 	}
 
 	private static boolean containsInlineContent(final Collection<VisualizeResult> visualizeResults) {
@@ -428,23 +446,6 @@ public class CssBasedBoxModelBuilder implements IBoxModelBuilder {
 		}
 
 		return parent;
-	}
-
-	private static IInlineBox visualizePseudoElementInline(final Styles styles, final INode node, final PseudoElement pseudoElement) {
-		if (!styles.hasPseudoElement(pseudoElement)) {
-			return null;
-		}
-
-		final Styles pseudoElementStyles = styles.getPseudoElementStyles(pseudoElement);
-		if (!isDisplayedInline(pseudoElementStyles)) {
-			return null;
-		}
-
-		final StringBuilder content = new StringBuilder();
-		for (final IPropertyContent part : pseudoElementStyles.getAllContent(node)) {
-			content.append(part);
-		}
-		return frame(inlineContainer(staticText(content.toString(), pseudoElementStyles)), pseudoElementStyles);
 	}
 
 	private static <P extends IParentBox<IInlineBox>> P placeholderForEmptyNode(final INode node, final Styles styles, final P parent) {
