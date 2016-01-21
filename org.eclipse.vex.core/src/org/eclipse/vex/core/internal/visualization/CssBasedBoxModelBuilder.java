@@ -27,6 +27,7 @@ import static org.eclipse.vex.core.internal.visualization.CssBoxFactory.textCont
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
@@ -79,13 +80,6 @@ public class CssBasedBoxModelBuilder implements IBoxModelBuilder {
 		return asStructuralBox(visualize(node));
 	}
 
-	private <P extends IParentBox<IStructuralBox>> P visualizeChildrenAsStructure(final Iterable<VisualizeResult> childrenResults, final P parentBox) {
-		for (final VisualizeResult visualizeResult : childrenResults) {
-			parentBox.appendChild(asStructuralBox(visualizeResult));
-		}
-		return parentBox;
-	}
-
 	private IStructuralBox asStructuralBox(final VisualizeResult visualizeResult) {
 		if (visualizeResult.inline) {
 			return visualizeAsBlock(visualizeResult.node, visualizeResult.childrenResults);
@@ -119,17 +113,19 @@ public class CssBasedBoxModelBuilder implements IBoxModelBuilder {
 	 */
 
 	private VisualizeResult visualize(final INode node) {
+		final Styles styles = styleSheet.getStyles(node);
 		return node.accept(new CollectingNodeTraversal<VisualizeResult>() {
 			@Override
 			public VisualizeResult visit(final IDocument document) {
 				final Collection<VisualizeResult> childrenResults = traverseChildren(document);
-				return new VisualizeResult(document, childrenResults, nodeReference(document, visualizeChildrenAsStructure(childrenResults, verticalBlock())));
+				return new VisualizeResult(document, childrenResults, nodeReference(document, visualizeChildrenAsStructure(document, styles, childrenResults, verticalBlock())));
 			}
 
 			@Override
 			public VisualizeResult visit(final IDocumentFragment documentFragment) {
 				final Collection<VisualizeResult> childrenResults = traverseChildren(documentFragment);
-				return new VisualizeResult(documentFragment, childrenResults, nodeReference(documentFragment, visualizeChildrenAsStructure(childrenResults, verticalBlock())));
+				return new VisualizeResult(documentFragment, childrenResults,
+						nodeReference(documentFragment, visualizeChildrenAsStructure(documentFragment, styles, childrenResults, verticalBlock())));
 			}
 
 			@Override
@@ -206,11 +202,7 @@ public class CssBasedBoxModelBuilder implements IBoxModelBuilder {
 				if (isEmptyElement(element)) {
 					content = visualizeEmptyElement(styles, element);
 				} else {
-					if (mayContainText || containsInlineContent) {
-						content = visualizeInlineNodeContent(element, styles, childrenResults, paragraph(styles));
-					} else {
-						content = visualizeChildrenAsStructure(childrenResults, verticalBlock());
-					}
+					content = visualizeChildrenAsStructure(element, styles, childrenResults, verticalBlock());
 				}
 
 				if (mayContainText) {
@@ -250,6 +242,25 @@ public class CssBasedBoxModelBuilder implements IBoxModelBuilder {
 
 	private IStructuralBox visualizeEmptyElement(final Styles styles, final IElement element) {
 		return paragraph(styles, nodeTag(element, styles));
+	}
+
+	private <P extends IParentBox<IStructuralBox>> P visualizeChildrenAsStructure(final INode node, final Styles styles, final Iterable<VisualizeResult> childrenResults, final P parentBox) {
+		final LinkedList<VisualizeResult> pendingInline = new LinkedList<VisualizeResult>();
+		for (final VisualizeResult visualizeResult : childrenResults) {
+			if (visualizeResult.inline) {
+				pendingInline.add(visualizeResult);
+			} else {
+				if (!pendingInline.isEmpty()) {
+					parentBox.appendChild(visualizeInlineNodeContent(node, styles, pendingInline, paragraph(styles)));
+				}
+				pendingInline.clear();
+				parentBox.appendChild(asStructuralBox(visualizeResult));
+			}
+		}
+		if (!pendingInline.isEmpty()) {
+			parentBox.appendChild(visualizeInlineNodeContent(node, styles, pendingInline, paragraph(styles)));
+		}
+		return parentBox;
 	}
 
 	private static IStructuralBox surroundWithPseudoElements(final IStructuralBox content, final INode node, final Styles styles) {
