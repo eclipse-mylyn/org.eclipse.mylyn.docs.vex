@@ -380,6 +380,14 @@ public class BoxWidget extends Canvas implements ISelectionProvider, IDocumentEd
 		editor.undo();
 	}
 
+	public boolean isDirty() {
+		return editor.isDirty();
+	}
+
+	public void markClean() {
+		editor.markClean();
+	}
+
 	public void doWork(final Runnable runnable) throws CannotApplyException {
 		editor.doWork(runnable);
 	}

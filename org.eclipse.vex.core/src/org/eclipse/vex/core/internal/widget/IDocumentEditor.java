@@ -96,6 +96,10 @@ public interface IDocumentEditor {
 	 */
 	void undo() throws CannotUndoException;
 
+	boolean isDirty();
+
+	void markClean();
+
 	/*
 	 * Transaction Handling
 	 */

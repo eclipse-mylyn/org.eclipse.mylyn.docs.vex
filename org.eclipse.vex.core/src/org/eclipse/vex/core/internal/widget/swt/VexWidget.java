@@ -612,6 +612,16 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 	}
 
 	@Override
+	public boolean isDirty() {
+		return impl.isDirty();
+	}
+
+	@Override
+	public void markClean() {
+		impl.markClean();
+	}
+
+	@Override
 	public ContentPosition viewToModel(final int x, final int y) {
 		return impl.viewToModel(x, y);
 	}

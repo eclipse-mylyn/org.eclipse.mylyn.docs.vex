@@ -1901,6 +1901,16 @@ public class BaseVexWidget implements IVexWidget {
 	}
 
 	@Override
+	public boolean isDirty() {
+		return false;
+	}
+
+	@Override
+	public void markClean() {
+		// ignore
+	}
+
+	@Override
 	public ContentPosition viewToModel(final int x, final int y) {
 		final Graphics g = hostComponent.createDefaultGraphics();
 		final LayoutContext context = createLayoutContext(g);

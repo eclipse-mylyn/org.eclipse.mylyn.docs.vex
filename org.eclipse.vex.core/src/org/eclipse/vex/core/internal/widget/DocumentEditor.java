@@ -186,6 +186,14 @@ public class DocumentEditor implements IDocumentEditor {
 		return result;
 	}
 
+	public boolean isDirty() {
+		return editStack.isDirty();
+	}
+
+	public void markClean() {
+		editStack.markClean();
+	}
+
 	/*
 	 * Transaction Handling
 	 */

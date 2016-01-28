@@ -22,6 +22,8 @@ public class EditStack {
 
 	private final LinkedList<CompoundEdit> pendingEdits = new LinkedList<CompoundEdit>();
 
+	private IUndoableEdit cleanMarker = null;
+
 	public <T extends IUndoableEdit> T apply(final T edit) throws CannotApplyException {
 		edit.redo();
 
@@ -95,5 +97,13 @@ public class EditStack {
 
 	public boolean inTransaction() {
 		return !pendingEdits.isEmpty();
+	}
+
+	public boolean isDirty() {
+		return doneEdits.peek() != cleanMarker;
+	}
+
+	public void markClean() {
+		cleanMarker = doneEdits.peek();
 	}
 }
