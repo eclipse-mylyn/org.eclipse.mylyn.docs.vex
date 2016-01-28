@@ -195,7 +195,7 @@ public class Image extends BaseBox implements IInlineBox {
 	}
 
 	private Point calculateActualDimensions() {
-		final int width = preferredWidth == null ? 0 : preferredWidth.get(image.getWidth());
+		final int width = preferredWidth == null ? 0 : preferredWidth.get(maxWidth);
 		final int height = preferredHeight == null ? 0 : preferredHeight.get(image.getHeight());
 		if (width != 0 && height != 0) {
 			return new Point(width, height);
