@@ -21,6 +21,7 @@ public class InlineFrame extends BaseBox implements IInlineBox, IDecoratorBox<II
 	private int left;
 	private int width;
 	private int height;
+	private int maxWidth;
 
 	private Margin margin = Margin.NULL;
 	private Border border = Border.NULL;
@@ -87,6 +88,16 @@ public class InlineFrame extends BaseBox implements IInlineBox, IDecoratorBox<II
 			return 0;
 		}
 		return component.getTop() + component.getBaseline();
+	}
+
+	@Override
+	public int getMaxWidth() {
+		return maxWidth;
+	}
+
+	@Override
+	public void setMaxWidth(final int maxWidth) {
+		this.maxWidth = maxWidth;
 	}
 
 	@Override
@@ -210,6 +221,7 @@ public class InlineFrame extends BaseBox implements IInlineBox, IDecoratorBox<II
 	}
 
 	private void layoutComponent(final Graphics graphics) {
+		component.setMaxWidth(maxWidth);
 		component.layout(graphics);
 		component.setPosition(topFrame(component.getHeight()), leftFrame(component.getWidth()));
 	}

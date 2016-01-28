@@ -30,6 +30,7 @@ public class NodeEndOffsetPlaceholder extends BaseBox implements IInlineBox, ICo
 	private final int width = 1;
 	private int height;
 	private int baseline;
+	private int maxWidth;
 	private LineWrappingRule lineWrappingAtStart;
 	private LineWrappingRule lineWrappingAtEnd;
 
@@ -99,6 +100,16 @@ public class NodeEndOffsetPlaceholder extends BaseBox implements IInlineBox, ICo
 	@Override
 	public int getBaseline() {
 		return baseline;
+	}
+
+	@Override
+	public int getMaxWidth() {
+		return maxWidth;
+	}
+
+	@Override
+	public void setMaxWidth(final int maxWidth) {
+		this.maxWidth = maxWidth;
 	}
 
 	@Override

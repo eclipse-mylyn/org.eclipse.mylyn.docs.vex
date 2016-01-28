@@ -21,6 +21,7 @@ public abstract class SimpleInlineBox extends BaseBox implements IInlineBox {
 	private IBox parent;
 	private int top;
 	private int left;
+	private int maxWidth;
 
 	private LineWrappingRule lineWrappingAtStart = LineWrappingRule.ALLOWED;
 	private LineWrappingRule lineWrappingAtEnd = LineWrappingRule.ALLOWED;
@@ -70,6 +71,16 @@ public abstract class SimpleInlineBox extends BaseBox implements IInlineBox {
 	@Override
 	public Rectangle getBounds() {
 		return new Rectangle(left, top, getWidth(), getHeight());
+	}
+
+	@Override
+	public int getMaxWidth() {
+		return maxWidth;
+	}
+
+	@Override
+	public void setMaxWidth(final int maxWidth) {
+		this.maxWidth = maxWidth;
 	}
 
 	@Override

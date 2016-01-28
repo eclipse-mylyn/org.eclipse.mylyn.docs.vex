@@ -24,6 +24,10 @@ public interface IInlineBox extends IChildBox {
 	 */
 	int getBaseline();
 
+	int getMaxWidth();
+
+	void setMaxWidth(int width);
+
 	int getInvisibleGapAtStart(Graphics graphics);
 
 	int getInvisibleGapAtEnd(Graphics graphics);

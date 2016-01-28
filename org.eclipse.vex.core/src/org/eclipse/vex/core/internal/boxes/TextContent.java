@@ -35,6 +35,7 @@ public class TextContent extends BaseBox implements IInlineBox, IContentBox {
 	private int width;
 	private int height;
 	private int baseline;
+	private int maxWidth;
 	private LineWrappingRule lineWrappingAtStart;
 	private LineWrappingRule lineWrappingAtEnd;
 
@@ -111,6 +112,16 @@ public class TextContent extends BaseBox implements IInlineBox, IContentBox {
 	@Override
 	public int getBaseline() {
 		return baseline;
+	}
+
+	@Override
+	public int getMaxWidth() {
+		return maxWidth;
+	}
+
+	@Override
+	public void setMaxWidth(final int maxWidth) {
+		this.maxWidth = maxWidth;
 	}
 
 	public String getText() {

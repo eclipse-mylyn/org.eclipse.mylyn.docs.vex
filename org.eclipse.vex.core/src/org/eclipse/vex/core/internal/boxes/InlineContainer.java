@@ -25,6 +25,7 @@ public class InlineContainer extends BaseBox implements IInlineBox, IParentBox<I
 	private int width;
 	private int height;
 	private int baseline;
+	private int maxWidth;
 	private boolean containsChildThatRequiresLineWrapping;
 
 	private final LinkedList<IInlineBox> children = new LinkedList<IInlineBox>();
@@ -86,6 +87,16 @@ public class InlineContainer extends BaseBox implements IInlineBox, IParentBox<I
 	@Override
 	public int getBaseline() {
 		return baseline;
+	}
+
+	@Override
+	public int getMaxWidth() {
+		return maxWidth;
+	}
+
+	@Override
+	public void setMaxWidth(final int maxWidth) {
+		this.maxWidth = maxWidth;
 	}
 
 	@Override
@@ -216,6 +227,7 @@ public class InlineContainer extends BaseBox implements IInlineBox, IParentBox<I
 
 	private void layoutChildren(final Graphics graphics) {
 		for (final IInlineBox child : children) {
+			child.setMaxWidth(maxWidth);
 			child.layout(graphics);
 			containsChildThatRequiresLineWrapping |= child.requiresSplitForLineWrapping();
 		}

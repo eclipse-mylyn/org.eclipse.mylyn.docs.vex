@@ -24,6 +24,7 @@ public class Image extends BaseBox implements IInlineBox {
 	private int left;
 	private int width;
 	private int height;
+	private int maxWidth;
 	private LineWrappingRule lineWrappingAtStart;
 	private LineWrappingRule lineWrappingAtEnd;
 
@@ -95,6 +96,17 @@ public class Image extends BaseBox implements IInlineBox {
 	@Override
 	public int getBaseline() {
 		return height;
+	}
+
+	@Override
+	public int getMaxWidth() {
+		return maxWidth;
+	}
+
+	@Override
+	public void setMaxWidth(final int maxWidth) {
+		this.maxWidth = maxWidth;
+		layoutValid = false;
 	}
 
 	@Override
@@ -194,7 +206,14 @@ public class Image extends BaseBox implements IInlineBox {
 		if (width != 0 && height == 0) {
 			return new Point(width, scale(image.getHeight(), image.getWidth(), width));
 		}
-		return new Point(image.getWidth(), image.getHeight());
+		return ensureMaxWidthNotExceeded(new Point(image.getWidth(), image.getHeight()));
+	}
+
+	private Point ensureMaxWidthNotExceeded(final Point dimensions) {
+		if (maxWidth > 0 && dimensions.getX() > maxWidth) {
+			return new Point(maxWidth, scale(dimensions.getY(), dimensions.getX(), maxWidth));
+		}
+		return dimensions;
 	}
 
 	private static int scale(final int opposite, final int current, final int scaled) {

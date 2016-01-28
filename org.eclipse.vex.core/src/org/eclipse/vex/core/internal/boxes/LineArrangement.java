@@ -34,6 +34,7 @@ public class LineArrangement {
 
 		while (boxIterator.hasNext()) {
 			final IInlineBox box = boxIterator.next();
+			box.setMaxWidth(width);
 			box.layout(graphics);
 			appendBox(graphics, box);
 		}

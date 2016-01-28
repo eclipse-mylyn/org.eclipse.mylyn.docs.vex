@@ -32,6 +32,7 @@ public class InlineNodeReference extends BaseBox implements IInlineBox, IDecorat
 	private int width;
 	private int height;
 	private int baseline;
+	private int maxWidth;
 
 	private IInlineBox component;
 
@@ -95,6 +96,16 @@ public class InlineNodeReference extends BaseBox implements IInlineBox, IDecorat
 	@Override
 	public int getBaseline() {
 		return baseline;
+	}
+
+	@Override
+	public int getMaxWidth() {
+		return maxWidth;
+	}
+
+	@Override
+	public void setMaxWidth(final int maxWidth) {
+		this.maxWidth = maxWidth;
 	}
 
 	@Override
@@ -191,6 +202,7 @@ public class InlineNodeReference extends BaseBox implements IInlineBox, IDecorat
 			return;
 		}
 		component.setPosition(0, 0);
+		component.setMaxWidth(maxWidth);
 		component.layout(graphics);
 		width = component.getWidth();
 		height = component.getHeight();

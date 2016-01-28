@@ -31,6 +31,7 @@ public class StaticText extends BaseBox implements IInlineBox {
 	private int width;
 	private int height;
 	private int baseline;
+	private int maxWidth;
 
 	private String text;
 	private FontSpec fontSpec;
@@ -102,6 +103,16 @@ public class StaticText extends BaseBox implements IInlineBox {
 	@Override
 	public int getBaseline() {
 		return baseline;
+	}
+
+	@Override
+	public int getMaxWidth() {
+		return maxWidth;
+	}
+
+	@Override
+	public void setMaxWidth(final int maxWidth) {
+		this.maxWidth = maxWidth;
 	}
 
 	public int getInvisibleGapAtStart(final Graphics graphics) {
