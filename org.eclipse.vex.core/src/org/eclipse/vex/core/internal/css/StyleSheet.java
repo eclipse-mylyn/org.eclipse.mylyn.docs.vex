@@ -86,7 +86,9 @@ public class StyleSheet {
 			new BorderWidthProperty(CSS.BORDER_LEFT_WIDTH, CSS.BORDER_LEFT_STYLE, IProperty.Axis.HORIZONTAL),
 			new BorderWidthProperty(CSS.BORDER_RIGHT_WIDTH, CSS.BORDER_RIGHT_STYLE, IProperty.Axis.HORIZONTAL),
 			new BorderWidthProperty(CSS.BORDER_TOP_WIDTH, CSS.BORDER_TOP_STYLE, IProperty.Axis.VERTICAL), new BorderSpacingProperty(), new LengthProperty(CSS.HEIGHT, IProperty.Axis.VERTICAL),
-			new LengthProperty(CSS.WIDTH, IProperty.Axis.HORIZONTAL), new BackgroundImageProperty(), new OutlineContentProperty(), new InlineMarkerProperty() };
+			new LengthProperty(CSS.WIDTH, IProperty.Axis.HORIZONTAL), new BackgroundImageProperty(), new OutlineContentProperty(), new InlineMarkerProperty(),
+			new ContentProperty()
+	};
 
 	private final List<Rule> rules;
 	private final URL baseUrl;
@@ -268,32 +270,8 @@ public class StyleSheet {
 
 		styles.setBaseUrl(baseUrl);
 
-		LexicalUnit lexicalUnit;
-		lexicalUnit = decls.get(CSS.CONTENT);
-		// Content needs special handling, since the value of attr(xxx) may change while editing
-		// We pass all valid LexicalUnits to Styles and evaluate there on every access
-		final List<LexicalUnit> content = new ArrayList<LexicalUnit>();
-		while (lexicalUnit != null) {
-			switch (lexicalUnit.getLexicalUnitType()) {
-			case LexicalUnit.SAC_STRING_VALUE:
-				// content: "A String"
-				content.add(lexicalUnit);
-				break;
-			case LexicalUnit.SAC_ATTR:
-				// content: attr(attributeName)
-				content.add(lexicalUnit);
-				break;
-			case LexicalUnit.SAC_URI:
-				// content: url("<some URI of an image>")
-				content.add(lexicalUnit);
-				break;
-			}
-			lexicalUnit = lexicalUnit.getNextLexicalUnit();
-		}
-		styles.setContent(content);
-
 		for (final IProperty property : CSS_PROPERTIES) {
-			lexicalUnit = decls.get(property.getName());
+			final LexicalUnit lexicalUnit = decls.get(property.getName());
 			final Object value = property.calculate(lexicalUnit, parentStyles, styles, node);
 			styles.put(property.getName(), value);
 		}

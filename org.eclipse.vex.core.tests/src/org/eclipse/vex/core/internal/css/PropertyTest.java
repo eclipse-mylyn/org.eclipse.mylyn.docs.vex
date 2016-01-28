@@ -16,11 +16,13 @@ import static org.junit.Assert.assertNull;
 
 import java.io.StringReader;
 import java.util.Iterator;
+import java.util.List;
 
 import org.eclipse.vex.core.internal.core.DisplayDevice;
 import org.eclipse.vex.core.internal.io.DocumentReader;
 import org.eclipse.vex.core.provisional.dom.IDocument;
 import org.eclipse.vex.core.provisional.dom.IElement;
+import org.eclipse.vex.core.provisional.dom.IProcessingInstruction;
 import org.junit.Test;
 import org.w3c.css.sac.InputSource;
 import org.w3c.css.sac.LexicalUnit;
@@ -143,11 +145,63 @@ public class PropertyTest {
 		final IElement parent = document.getRootElement().childElements().first();
 		final IElement child = parent.childElements().first();
 		final OutlineContentProperty property = new OutlineContentProperty();
-		final MockLU lu = (MockLU) MockLU.createIdent("child");
+		final MockLU lu = MockLU.createIdent("child");
 		lu.setNextLexicalUnit(MockLU.createIdent("none"));
 
 		assertEquals(child, property.calculate(lu, styles, null, parent));
 		assertEquals(null, property.calculate(lu, styles, null, child));
+	}
+
+	@Test
+	public void contentProperty_textualContent() throws Exception {
+		final ContentProperty property = new ContentProperty();
+		final LexicalUnit lu = MockLU.createString("textual content");
+		final List<IPropertyContent> propertyContent = property.calculate(lu, null, null, null);
+		assertEquals(1, propertyContent.size());
+		assertEquals("textual content", propertyContent.get(0).toString());
+	}
+
+	@Test
+	public void contentProperty_attributeDependendContent() throws Exception {
+		final IDocument document = new DocumentReader().read("<root><elem textAttr=\"textual content from attribute\"/></root>");
+		final IElement element = document.getRootElement().childElements().first();
+		final LexicalUnit lu = MockLU.createAttr("textAttr");
+		final List<IPropertyContent> propertyContent = new ContentProperty().calculate(lu, null, null, element);
+		assertEquals(1, propertyContent.size());
+		final IPropertyContent firstContent = propertyContent.get(0);
+		assertEquals("textual content from attribute", firstContent.toString());
+
+		element.setAttribute("textAttr", "changed textual content");
+		assertEquals("changed textual content", firstContent.toString());
+	}
+
+	@Test
+	public void contentProperty_processingInstructionTarget() throws Exception {
+		final IDocument document = new DocumentReader().read("<root><?piTarget?></root>");
+		final IProcessingInstruction pi = (IProcessingInstruction) document.getRootElement().children().first();
+		final LexicalUnit lu = MockLU.createAttr("target");
+		final List<IPropertyContent> propertyContent = new ContentProperty().calculate(lu, null, null, pi);
+		assertEquals(1, propertyContent.size());
+		final IPropertyContent firstContent = propertyContent.get(0);
+		assertEquals("piTarget", firstContent.toString());
+
+		pi.setTarget("anotherTarget");
+		assertEquals("anotherTarget", firstContent.toString());
+	}
+
+	@Test
+	public void contentProperty_image_attributeValue() throws Exception {
+		final IDocument document = new DocumentReader().read("<root><image src=\"image.jpg\"/></root>");
+		final IElement imageElement = document.getRootElement().childElements().first();
+		imageElement.setBaseURI("https://www.eclipse.org");
+		final LexicalUnit lu = MockLU.createImage(MockLU.createAttr("src"));
+		final List<IPropertyContent> propertyContent = new ContentProperty().calculate(lu, null, null, imageElement);
+		assertEquals(1, propertyContent.size());
+		final IPropertyContent firstContent = propertyContent.get(0);
+		assertEquals("https://www.eclipse.org/image.jpg", ((ImageContent) firstContent).getResolvedImageURL().toString());
+
+		imageElement.setAttribute("src", "anotherImage.jpg");
+		assertEquals("https://www.eclipse.org/anotherImage.jpg", ((ImageContent) firstContent).getResolvedImageURL().toString());
 	}
 
 	private static class DummyDisplayDevice extends DisplayDevice {

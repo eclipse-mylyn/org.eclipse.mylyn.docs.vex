@@ -10,15 +10,17 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.css;
 
-import java.net.URI;
-import java.net.URISyntaxException;
+import org.eclipse.core.runtime.QualifiedName;
+import org.eclipse.vex.core.provisional.dom.IElement;
 
-public class URIContent implements IPropertyContent {
+public class AttributeDependendContent implements IPropertyContent {
 
-	public final String uri;
+	public final IElement element;
+	public final QualifiedName attributeName;
 
-	public URIContent(final String uri) {
-		this.uri = uri;
+	public AttributeDependendContent(final IElement element, final QualifiedName attributeName) {
+		this.element = element;
+		this.attributeName = attributeName;
 	}
 
 	@Override
@@ -28,10 +30,11 @@ public class URIContent implements IPropertyContent {
 
 	@Override
 	public String toString() {
-		return uri.toString();
+		final String attributeValue = element.getAttributeValue(attributeName);
+		if (attributeValue != null) {
+			return attributeValue;
+		}
+		return "";
 	}
 
-	public URI uriValue() throws URISyntaxException {
-		return new URI(uri);
-	}
 }

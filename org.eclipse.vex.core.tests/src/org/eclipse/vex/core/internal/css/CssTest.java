@@ -579,9 +579,9 @@ public class CssTest {
 
 		final Styles styles = ss.getStyles(element);
 
-		assertEquals("Before", styles.getTextualContent(element).get(0));
+		assertEquals("Before", styles.getTextualContent());
 		element.setAttribute("attribute", "After");
-		assertEquals("After", styles.getTextualContent(element).get(0));
+		assertEquals("After", styles.getTextualContent());
 	}
 
 	@Test

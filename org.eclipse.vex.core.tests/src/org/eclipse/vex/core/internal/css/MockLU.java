@@ -21,29 +21,54 @@ public class MockLU implements LexicalUnit {
 		lexicalUnitType = type;
 	}
 
-	public static LexicalUnit INHERIT = new MockLU(LexicalUnit.SAC_INHERIT);
+	public static final MockLU INHERIT = new MockLU(LexicalUnit.SAC_INHERIT);
 
-	public static LexicalUnit createFloat(final short units, final float value) {
+	public static MockLU createFloat(final short units, final float value) {
 		final MockLU lu = new MockLU(units);
 		lu.setFloatValue(value);
 		return lu;
 	}
 
-	public static LexicalUnit createIdent(final String s) {
+	public static MockLU createIdent(final String s) {
 		final MockLU lu = new MockLU(LexicalUnit.SAC_IDENT);
 		lu.setStringValue(s);
 		return lu;
 	}
 
-	public static LexicalUnit createString(final String s) {
+	public static MockLU createString(final String s) {
 		final MockLU lu = new MockLU(LexicalUnit.SAC_STRING_VALUE);
 		lu.setStringValue(s);
 		return lu;
 	}
 
-	public static LexicalUnit createAttr(final String attributeName) {
+	public static MockLU createAttr(final String attributeName) {
 		final MockLU result = new MockLU(LexicalUnit.SAC_ATTR);
 		result.setStringValue(attributeName);
+		return result;
+	}
+
+	public static MockLU createUri(final String uri) {
+		final MockLU result = new MockLU(LexicalUnit.SAC_URI);
+		result.setStringValue(uri);
+		return result;
+	}
+
+	public static MockLU createImage(final MockLU... parameters) {
+		final MockLU result = new MockLU(LexicalUnit.SAC_FUNCTION);
+		result.setFunctionName(CSS.IMAGE_FUNCTION);
+		MockLU firstParameter = null;
+		MockLU lastParameter = null;
+		for (final MockLU parameter : parameters) {
+			if (firstParameter == null) {
+				firstParameter = parameter;
+			}
+			if (lastParameter != null) {
+				lastParameter.setNextLexicalUnit(parameter);
+				parameter.setPreviousLexicalUnit(lastParameter);
+			}
+			lastParameter = parameter;
+		}
+		result.setParameters(firstParameter);
 		return result;
 	}
 

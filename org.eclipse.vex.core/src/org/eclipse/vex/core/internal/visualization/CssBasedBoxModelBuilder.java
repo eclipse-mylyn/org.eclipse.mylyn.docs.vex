@@ -25,6 +25,7 @@ import static org.eclipse.vex.core.internal.visualization.CssBoxFactory.startTag
 import static org.eclipse.vex.core.internal.visualization.CssBoxFactory.staticText;
 import static org.eclipse.vex.core.internal.visualization.CssBoxFactory.textContent;
 
+import java.net.MalformedURLException;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -41,9 +42,12 @@ import org.eclipse.vex.core.internal.boxes.LineWrappingRule;
 import org.eclipse.vex.core.internal.boxes.Paragraph;
 import org.eclipse.vex.core.internal.boxes.RootBox;
 import org.eclipse.vex.core.internal.boxes.TextContent;
+import org.eclipse.vex.core.internal.css.AttributeDependendContent;
 import org.eclipse.vex.core.internal.css.CSS;
 import org.eclipse.vex.core.internal.css.IPropertyContent;
 import org.eclipse.vex.core.internal.css.IPropertyContentVisitor;
+import org.eclipse.vex.core.internal.css.ImageContent;
+import org.eclipse.vex.core.internal.css.ProcessingInstructionTargetContent;
 import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.css.Styles;
 import org.eclipse.vex.core.internal.css.Styles.PseudoElement;
@@ -308,10 +312,20 @@ public class CssBasedBoxModelBuilder implements IBoxModelBuilder {
 	}
 
 	private static <P extends IParentBox<IInlineBox>> P visualizeContentProperty(final INode node, final Styles styles, final P parent) {
-		for (final IPropertyContent part : styles.getAllContent(node)) {
+		for (final IPropertyContent part : styles.getContent()) {
 			final IInlineBox box = part.accept(new IPropertyContentVisitor<IInlineBox>() {
 				@Override
 				public IInlineBox visit(final TextualContent content) {
+					return staticText(content.toString(), styles);
+				}
+
+				@Override
+				public IInlineBox visit(final AttributeDependendContent content) {
+					return staticText(content.toString(), styles);
+				}
+
+				@Override
+				public IInlineBox visit(final ProcessingInstructionTargetContent content) {
 					return staticText(content.toString(), styles);
 				}
 
@@ -320,6 +334,18 @@ public class CssBasedBoxModelBuilder implements IBoxModelBuilder {
 					final String imageUri = content.uri.toString();
 					final Image image = new Image();
 					image.setImageUrl(styles.resolveUrl(imageUri));
+					return image;
+				}
+
+				@Override
+				public IInlineBox visit(final ImageContent content) {
+					final Image image = new Image();
+					try {
+						image.setImageUrl(content.getResolvedImageURL());
+					} catch (final MalformedURLException e) {
+						// TODO log error, render error information
+						e.printStackTrace();
+					}
 					return image;
 				}
 			});

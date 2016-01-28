@@ -14,6 +14,12 @@ public interface IPropertyContentVisitor<T> {
 
 	T visit(TextualContent content);
 
+	T visit(AttributeDependendContent content);
+
+	T visit(ProcessingInstructionTargetContent content);
+
 	T visit(URIContent content);
+
+	T visit(ImageContent content);
 
 }

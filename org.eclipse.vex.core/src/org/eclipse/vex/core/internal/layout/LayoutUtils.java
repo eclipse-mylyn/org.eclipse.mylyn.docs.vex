@@ -77,12 +77,7 @@ public class LayoutUtils {
 	 *            The node passed to Styles#getContent (to get attr values from)
 	 */
 	public static String getGeneratedContent(final LayoutContext context, final Styles styles, final INode node) {
-		final List<String> content = styles.getTextualContent(node);
-		final StringBuffer sb = new StringBuffer();
-		for (final String string : content) {
-			sb.append(string); // TODO: change to ContentPart
-		}
-		return sb.toString();
+		return styles.getTextualContent();
 	}
 
 	/**

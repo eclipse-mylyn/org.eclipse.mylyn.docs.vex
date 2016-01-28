@@ -240,6 +240,10 @@ public class SwtGraphics implements Graphics {
 	}
 
 	private static ImageData[] loadImageData(final URL url) {
+		if (url == null) {
+			return null;
+		}
+
 		final ImageLoader imageLoader = new ImageLoader();
 		try {
 			final InputStream in = url.openStream();

@@ -135,6 +135,9 @@ public interface CSS {
 	public static final String OUTLINE_CONTENT = "_vex-outline-content";
 	public static final String INLINE_MARKER = "_vex-inline-marker";
 
+	// VEX specific functions
+	public static final String IMAGE_FUNCTION = "image";
+
 	// suffixes to BORDER_XXX
 	public static final String COLOR_SUFFIX = "-color";
 	public static final String STYLE_SUFFIX = "-style";

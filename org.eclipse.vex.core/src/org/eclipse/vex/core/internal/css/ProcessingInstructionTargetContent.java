@@ -10,15 +10,14 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.css;
 
-import java.net.URI;
-import java.net.URISyntaxException;
+import org.eclipse.vex.core.provisional.dom.IProcessingInstruction;
 
-public class URIContent implements IPropertyContent {
+public class ProcessingInstructionTargetContent implements IPropertyContent {
 
-	public final String uri;
+	public final IProcessingInstruction processingInstruction;
 
-	public URIContent(final String uri) {
-		this.uri = uri;
+	public ProcessingInstructionTargetContent(final IProcessingInstruction processingInstruction) {
+		this.processingInstruction = processingInstruction;
 	}
 
 	@Override
@@ -28,10 +27,7 @@ public class URIContent implements IPropertyContent {
 
 	@Override
 	public String toString() {
-		return uri.toString();
+		return processingInstruction.getTarget();
 	}
 
-	public URI uriValue() throws URISyntaxException {
-		return new URI(uri);
-	}
 }

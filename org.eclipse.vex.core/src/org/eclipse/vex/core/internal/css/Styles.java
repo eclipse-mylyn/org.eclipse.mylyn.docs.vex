@@ -14,10 +14,7 @@
 package org.eclipse.vex.core.internal.css;
 
 import java.net.MalformedURLException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,12 +22,6 @@ import java.util.Map;
 import org.eclipse.vex.core.internal.core.Color;
 import org.eclipse.vex.core.internal.core.FontSpec;
 import org.eclipse.vex.core.internal.core.Length;
-import org.eclipse.vex.core.provisional.dom.BaseNodeVisitor;
-import org.eclipse.vex.core.provisional.dom.BaseNodeVisitorWithResult;
-import org.eclipse.vex.core.provisional.dom.IElement;
-import org.eclipse.vex.core.provisional.dom.INode;
-import org.eclipse.vex.core.provisional.dom.IProcessingInstruction;
-import org.w3c.css.sac.LexicalUnit;
 
 /**
  * Represents the computed style properties for a particular element.
@@ -67,7 +58,6 @@ public class Styles {
 	 */
 	private final Map<String, Styles> pseudoElementStyles = new HashMap<String, Styles>();
 
-	private List<LexicalUnit> contentLexicalUnits;
 	private FontSpec font;
 	private URL baseUrl;
 
@@ -183,7 +173,10 @@ public class Styles {
 	 * @return <code>true</code> if the stylesheet defined content for this element.
 	 */
 	public boolean isContentDefined() {
-		return contentLexicalUnits.size() > 0;
+		if (!values.containsKey(CSS.CONTENT)) {
+			return false;
+		}
+		return !getContent().isEmpty();
 	}
 
 	/**
@@ -195,87 +188,17 @@ public class Styles {
 	 * @param node
 	 *            The INode to get attr(...) values from
 	 */
-	public List<String> getTextualContent(final INode node) {
-		final List<String> content = new ArrayList<String>();
-		for (final LexicalUnit lexicalUnit : contentLexicalUnits) {
-			switch (lexicalUnit.getLexicalUnitType()) {
-			case LexicalUnit.SAC_STRING_VALUE:
-				// content: "A String"
-				content.add(lexicalUnit.getStringValue());
-				break;
-			case LexicalUnit.SAC_ATTR:
-				// content: attr(attributeName)
-				final LexicalUnit currentLexicalUnit = lexicalUnit;
-				node.accept(new BaseNodeVisitor() {
-					@Override
-					public void visit(final IElement element) {
-						final String attributeValue = element.getAttributeValue(currentLexicalUnit.getStringValue());
-						if (attributeValue != null) {
-							content.add(attributeValue);
-						}
-					}
-
-					@Override
-					public void visit(final IProcessingInstruction pi) {
-						if (currentLexicalUnit.getStringValue().equalsIgnoreCase(CSS.PSEUDO_TARGET)) {
-							content.add(pi.getTarget());
-						}
-					}
-				});
-				break;
-			}
+	public String getTextualContent() {
+		final StringBuilder string = new StringBuilder();
+		for (final IPropertyContent content : getContent()) {
+			string.append(content.toString());
 		}
-		return content;
+		return string.toString();
 	}
 
-	public List<IPropertyContent> getAllContent(final INode node) {
-		final List<IPropertyContent> allContent = new ArrayList<IPropertyContent>();
-		for (final LexicalUnit lexicalUnit : contentLexicalUnits) {
-			final IPropertyContent content = getContent(lexicalUnit, node);
-			if (content != null) {
-				allContent.add(content);
-			}
-		}
-		return allContent;
-	}
-
-	private IPropertyContent getContent(final LexicalUnit lexicalUnit, final INode node) {
-		switch (lexicalUnit.getLexicalUnitType()) {
-		case LexicalUnit.SAC_STRING_VALUE:
-			// content: "A String"
-			return new TextualContent(lexicalUnit.getStringValue());
-		case LexicalUnit.SAC_ATTR:
-			// content: attr(attributeName)
-			final LexicalUnit currentLexicalUnit = lexicalUnit;
-			return node.accept(new BaseNodeVisitorWithResult<IPropertyContent>() {
-				@Override
-				public IPropertyContent visit(final IElement element) {
-					final String attributeValue = element.getAttributeValue(currentLexicalUnit.getStringValue());
-					if (attributeValue != null) {
-						return new TextualContent(attributeValue);
-					}
-					return null;
-				}
-
-				@Override
-				public IPropertyContent visit(final IProcessingInstruction pi) {
-					if (currentLexicalUnit.getStringValue().equalsIgnoreCase(CSS.PSEUDO_TARGET)) {
-						return new TextualContent(pi.getTarget());
-					}
-					return null;
-				}
-			});
-		case LexicalUnit.SAC_URI:
-			// content: url("<some URI of an image>")
-			try {
-				return new URIContent(new URI(lexicalUnit.getStringValue()));
-			} catch (final URISyntaxException e) {
-				e.printStackTrace();
-				return null;
-			}
-		default:
-			return null;
-		}
+	@SuppressWarnings("unchecked")
+	public List<IPropertyContent> getContent() {
+		return (List<IPropertyContent>) values.get(CSS.CONTENT);
 	}
 
 	/**
@@ -402,16 +325,6 @@ public class Styles {
 	 */
 	public boolean hasPseudoElement(final PseudoElement pseudoElement) {
 		return pseudoElementStyles.containsKey(pseudoElement.key());
-	}
-
-	/**
-	 * Sets the LexicalUnits of the <code>content</code> property.
-	 *
-	 * @param content
-	 *            <code>List</code> of <code>LexicalUnits</code> objects defining the content.
-	 */
-	public void setContent(final List<LexicalUnit> content) {
-		contentLexicalUnits = content;
 	}
 
 	/**
