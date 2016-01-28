@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2008 John Krasnay and others.
+ * Copyright (c) 2004, 2016 John Krasnay and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -7,6 +7,7 @@
  *
  * Contributors:
  *     John Krasnay - initial API and implementation
+ *     Florian Thienel - add support for attribute dependend values
  *******************************************************************************/
 package org.eclipse.vex.core.internal.css;
 
@@ -40,25 +41,38 @@ public class LengthProperty extends AbstractProperty {
 
 	@Override
 	public Object calculate(final LexicalUnit lu, final Styles parentStyles, final Styles styles, final INode node) {
-		final int ppi = getPpi();
 		if (isAttr(lu)) {
 			return node.accept(new BaseNodeVisitorWithResult<Object>(Length.absolute(0)) {
 				@Override
 				public Object visit(final IElement element) {
-					return calculate(parseAttribute(lu, element), parentStyles, styles, element);
+					return new Length() {
+						@Override
+						public int get(final int referenceLength) {
+							return parseLength(parseAttribute(lu, element), parentStyles, styles).get(referenceLength);
+						}
+
+						@Override
+						public int getBaseValue() {
+							return parseLength(parseAttribute(lu, element), parentStyles, styles).getBaseValue();
+						}
+					};
 				}
 			});
 		}
+		return parseLength(lu, parentStyles, styles);
+	}
+
+	private Length parseLength(final LexicalUnit lu, final Styles parentStyles, final Styles styles) {
 		if (isLength(lu)) {
-			final int length = getIntLength(lu, styles.getFontSize(), ppi);
+			final int length = getIntLength(lu, styles.getFontSize(), getPpi());
 			return Length.absolute(length);
 		} else if (isPercentage(lu)) {
 			return Length.relative(lu.getFloatValue() / 100);
 		} else if (isInherit(lu) && parentStyles != null) {
-			return parentStyles.get(getName());
+			return (Length) parentStyles.get(getName());
 		} else {
 			// not specified, "auto", or other unknown value
-			return Length.absolute(0);
+			return Length.ZERO;
 		}
 	}
 
@@ -86,7 +100,10 @@ public class LengthProperty extends AbstractProperty {
 
 	private int getPpi() {
 		final DisplayDevice device = DisplayDevice.getCurrent();
-		final int ppi = axis == Axis.HORIZONTAL ? device.getHorizontalPPI() : device.getVerticalPPI();
-		return ppi;
+		if (axis == Axis.HORIZONTAL) {
+			return device.getHorizontalPPI();
+		} else {
+			return device.getVerticalPPI();
+		}
 	}
 }

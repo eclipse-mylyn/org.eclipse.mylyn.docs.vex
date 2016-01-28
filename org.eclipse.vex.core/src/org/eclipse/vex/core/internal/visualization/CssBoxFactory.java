@@ -106,6 +106,8 @@ public class CssBoxFactory {
 	public static Image image(final URL imageUrl, final Styles styles) {
 		final Image image = new Image();
 		image.setImageUrl(imageUrl);
+		image.setPreferredWidth(styles.getElementWidth());
+		image.setPreferredHeight(styles.getElementHeight());
 		return image;
 	}
 

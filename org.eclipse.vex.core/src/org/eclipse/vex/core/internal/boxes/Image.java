@@ -13,6 +13,8 @@ package org.eclipse.vex.core.internal.boxes;
 import java.net.URL;
 
 import org.eclipse.vex.core.internal.core.Graphics;
+import org.eclipse.vex.core.internal.core.Length;
+import org.eclipse.vex.core.internal.core.Point;
 import org.eclipse.vex.core.internal.core.Rectangle;
 
 public class Image extends BaseBox implements IInlineBox {
@@ -26,7 +28,10 @@ public class Image extends BaseBox implements IInlineBox {
 	private LineWrappingRule lineWrappingAtEnd;
 
 	private URL imageUrl;
-	private org.eclipse.vex.core.internal.core.Image image;
+	private Length preferredWidth;
+	private Length preferredHeight;
+
+	private org.eclipse.vex.core.internal.core.Image image; // TODO use a cache for the actual image data
 
 	private boolean layoutValid;
 
@@ -134,6 +139,24 @@ public class Image extends BaseBox implements IInlineBox {
 		layoutValid = false;
 	}
 
+	public Length getPreferredWidth() {
+		return preferredWidth;
+	}
+
+	public void setPreferredWidth(final Length preferredWidth) {
+		this.preferredWidth = preferredWidth;
+		layoutValid = false;
+	}
+
+	public Length getPreferredHeight() {
+		return preferredHeight;
+	}
+
+	public void setPreferredHeight(final Length preferredHeight) {
+		this.preferredHeight = preferredHeight;
+		layoutValid = false;
+	}
+
 	@Override
 	public void accept(final IBoxVisitor visitor) {
 		visitor.visit(this);
@@ -151,10 +174,31 @@ public class Image extends BaseBox implements IInlineBox {
 		}
 
 		image = graphics.getImage(imageUrl);
-		width = image.getWidth();
-		height = image.getHeight();
+		final Point dimensions = calculateActualDimensions();
+
+		width = dimensions.getX();
+		height = dimensions.getY();
 
 		layoutValid = true;
+	}
+
+	private Point calculateActualDimensions() {
+		final int width = preferredWidth == null ? 0 : preferredWidth.get(image.getWidth());
+		final int height = preferredHeight == null ? 0 : preferredHeight.get(image.getHeight());
+		if (width != 0 && height != 0) {
+			return new Point(width, height);
+		}
+		if (width == 0 && height != 0) {
+			return new Point(scale(image.getWidth(), image.getHeight(), height), height);
+		}
+		if (width != 0 && height == 0) {
+			return new Point(width, scale(image.getHeight(), image.getWidth(), width));
+		}
+		return new Point(image.getWidth(), image.getHeight());
+	}
+
+	private static int scale(final int opposite, final int current, final int scaled) {
+		return Math.round(1f * scaled / current * opposite);
 	}
 
 	@Override

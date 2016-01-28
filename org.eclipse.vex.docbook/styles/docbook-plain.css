@@ -623,13 +623,15 @@ honorific {
 	display: inline;
 }
 
-inlinemediaobject>imageobject>imagedata {
-	display: inline;
+info {
+	display: block;
 }
 
 imagedata {
 	display: inline;
 	content: image(attr(fileref));
+	width: attr(width);
+	height: attr(depth);
 }
 
 imageobject {

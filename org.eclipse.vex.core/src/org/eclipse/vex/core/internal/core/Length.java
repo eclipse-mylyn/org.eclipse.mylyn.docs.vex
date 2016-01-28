@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2004, 2015 John Krasnay and others.
+ * Copyright (c) 2004, 2016 John Krasnay and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -14,36 +14,52 @@ package org.eclipse.vex.core.internal.core;
 /**
  * A length that may be expressed as an absolute or relative value.
  */
-public class Length {
+public abstract class Length {
 
-	private static final Length ZERO = new Length(0, 0, true);
+	public static final Length ZERO = new Length() {
+		@Override
+		public int get(final int referenceLength) {
+			return 0;
+		}
 
-	private final float percentageValue;
-	private final int absoluteValue;
-	private final boolean absolute;
-
-	private Length(final float percentage, final int absolute, final boolean isAbsolute) {
-		percentageValue = percentage;
-		absoluteValue = absolute;
-		this.absolute = isAbsolute;
-	}
+		@Override
+		public int getBaseValue() {
+			return 0;
+		}
+	};
 
 	/**
 	 * @return a length representing an absolute value.
 	 */
 	public static Length absolute(final int value) {
-		if (value == 0) {
-			return ZERO;
-		} else {
-			return new Length(0, value, true);
-		}
+		return new Length() {
+			@Override
+			public int get(final int referenceLength) {
+				return value;
+			}
+
+			@Override
+			public int getBaseValue() {
+				return value;
+			}
+		};
 	}
 
 	/**
 	 * @return a length representing a relative value.
 	 */
 	public static Length relative(final float percentage) {
-		return new Length(percentage, 0, false);
+		return new Length() {
+			@Override
+			public int get(final int referenceLength) {
+				return Math.round(percentage * referenceLength);
+			}
+
+			@Override
+			public int getBaseValue() {
+				return Float.floatToIntBits(percentage);
+			}
+		};
 	}
 
 	/**
@@ -55,21 +71,15 @@ public class Length {
 	 *            reference length by which percentage lengths will by multiplied.
 	 * @return the actual value
 	 */
-	public int get(final int referenceLength) {
-		if (absolute) {
-			return absoluteValue;
-		} else {
-			return Math.round(percentageValue * referenceLength);
-		}
-	}
+	public abstract int get(final int referenceLength);
+
+	public abstract int getBaseValue();
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + (absolute ? 1231 : 1237);
-		result = prime * result + absoluteValue;
-		result = prime * result + Float.floatToIntBits(percentageValue);
+		result = prime * result + getBaseValue();
 		return result;
 	}
 
@@ -85,13 +95,7 @@ public class Length {
 			return false;
 		}
 		final Length other = (Length) obj;
-		if (absolute != other.absolute) {
-			return false;
-		}
-		if (absoluteValue != other.absoluteValue) {
-			return false;
-		}
-		if (Float.floatToIntBits(percentageValue) != Float.floatToIntBits(other.percentageValue)) {
+		if (getBaseValue() != other.getBaseValue()) {
 			return false;
 		}
 		return true;
@@ -99,7 +103,7 @@ public class Length {
 
 	@Override
 	public String toString() {
-		return "Length [percentageValue=" + percentageValue + ", absoluteValue=" + absoluteValue + ", absolute=" + absolute + "]";
+		return "Length [baseValue=" + getBaseValue() + "]";
 	}
 
 }

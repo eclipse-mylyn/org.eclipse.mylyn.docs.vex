@@ -19,6 +19,7 @@ import static org.eclipse.vex.core.internal.boxes.BoxFactory.verticalBlock;
 import static org.eclipse.vex.core.internal.visualization.CssBoxFactory.endOffsetPlaceholder;
 import static org.eclipse.vex.core.internal.visualization.CssBoxFactory.endTag;
 import static org.eclipse.vex.core.internal.visualization.CssBoxFactory.frame;
+import static org.eclipse.vex.core.internal.visualization.CssBoxFactory.image;
 import static org.eclipse.vex.core.internal.visualization.CssBoxFactory.nodeTag;
 import static org.eclipse.vex.core.internal.visualization.CssBoxFactory.paragraph;
 import static org.eclipse.vex.core.internal.visualization.CssBoxFactory.startTag;
@@ -339,14 +340,13 @@ public class CssBasedBoxModelBuilder implements IBoxModelBuilder {
 
 				@Override
 				public IInlineBox visit(final ImageContent content) {
-					final Image image = new Image();
 					try {
-						image.setImageUrl(content.getResolvedImageURL());
+						return image(content.getResolvedImageURL(), styles);
 					} catch (final MalformedURLException e) {
 						// TODO log error, render error information
 						e.printStackTrace();
+						return staticText(e.getMessage(), styles);
 					}
-					return image;
 				}
 			});
 			if (box != null) {
