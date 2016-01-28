@@ -361,6 +361,20 @@ public class ContentTopology {
 			}
 
 			@Override
+			public Object visit(final InlineNodeReference box) {
+				if (box == parent) {
+					super.visit(box);
+				} else {
+					final int distance = verticalDistance(box, y);
+					if (box.isBelow(y)) {
+						candidates.add(box);
+						minVerticalDistance[0] = Math.min(distance, minVerticalDistance[0]);
+					}
+				}
+				return null;
+			}
+
+			@Override
 			public Object visit(final TextContent box) {
 				final int distance = verticalDistance(box, y);
 				if (box.isBelow(y)) {
