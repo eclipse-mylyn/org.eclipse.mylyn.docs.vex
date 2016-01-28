@@ -201,8 +201,7 @@ public class DocumentEditor implements IDocumentEditor {
 		editStack.beginWork();
 		try {
 			runnable.run();
-			final IUndoableEdit work = editStack.commitWork();
-			//			cursor.move(toOffset(work.getOffsetAfter()));
+			editStack.commitWork();
 		} catch (final CannotApplyException e) {
 			final IUndoableEdit work = editStack.rollbackWork();
 			if (work.getOffsetBefore() > 0) {
