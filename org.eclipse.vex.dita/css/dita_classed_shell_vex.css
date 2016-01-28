@@ -26,7 +26,7 @@ entry {
 }
 
 *[class~="topic\/image"] {
-	background-image: attr(href);
+	content: image(attr(href));
 }
 
 *[class~="topic\/image"][placement="break"] {

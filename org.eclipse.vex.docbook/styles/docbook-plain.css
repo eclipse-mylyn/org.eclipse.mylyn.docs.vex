@@ -48,7 +48,7 @@ application {
 }
 
 arg {
-	display: inline;	
+	display: inline;
 }
 
 article,book,chapter,colophon {
@@ -340,7 +340,7 @@ computeroutput {
 
 constant {
 	display: inline;
-	font-family: "Courier New", monospace; 
+	font-family: "Courier New", monospace;
 }
 
 copyright {
@@ -495,7 +495,7 @@ foreignphrase {
 }
 
 formalpara {
-	display: block;	
+	display: block;
 }
 
 formalpara > title {
@@ -576,7 +576,7 @@ glossentry>glossterm {
 
 graphic {
 	display: block;
-	background-image: attr(fileref);
+	content: image(attr(fileref));
 }
 
 group {
@@ -628,8 +628,8 @@ inlinemediaobject>imageobject>imagedata {
 }
 
 imagedata {
-	display: block;
-	background-image: attr(fileref);
+	display: inline;
+	content: image(attr(fileref));
 }
 
 imageobject {
@@ -668,7 +668,7 @@ inlineequation {
 
 inlinegraphic {
 	display: inline;
-	background-image: attr(fileref);
+	content: image(attr(fileref));
 }
 
 inlinemediaobject {
@@ -722,7 +722,7 @@ keycap {
 
 keycode {
 	display: inline;
-	font-family: "Courier New", monospace; 
+	font-family: "Courier New", monospace;
 }
 
 keycombo {
@@ -1166,7 +1166,7 @@ screenco {
 
 screenshot {
 	display: block;
-	white-space: pre;	
+	white-space: pre;
 }
 
 secondary {
@@ -1247,7 +1247,7 @@ state {
 
 step {
 	display: list-item;
-	list-style-type: decimal; 
+	list-style-type: decimal;
 }
 
 stepalternatives {
@@ -1260,7 +1260,7 @@ street {
 
 substeps {
 	display: list-item;
-	list-style-type: lower-alpha; 
+	list-style-type: lower-alpha;
 }
 
 subtitle {
@@ -1285,7 +1285,7 @@ superscript {
 }
 
 symbolt {
-	display: inline;	
+	display: inline;
 }
 
 synopsis {
@@ -1300,13 +1300,13 @@ systemitem {
 }
 
 tag {
-	display: inline;	
+	display: inline;
 }
 tag:before {
-	content: '<';	
+	content: '<';
 }
 tag:after {
-	content: '>';	
+	content: '>';
 }
 
 table {
@@ -1362,7 +1362,7 @@ textdata {
 	/* TODO display referenced text */
 	display: inline;
 	font-size: smaller;
-	background-color: #B0B0B0;	
+	background-color: #B0B0B0;
 }
 
 tip {
@@ -1562,13 +1562,13 @@ warning:before {
 
 wordasword {
 	display: inline;
-	font-style: italic;		
+	font-style: italic;
 }
 
 xref {
 	display: inline;
 	color: blue;
-	font-style: italic;	
+	font-style: italic;
 }
 
 xref:before {

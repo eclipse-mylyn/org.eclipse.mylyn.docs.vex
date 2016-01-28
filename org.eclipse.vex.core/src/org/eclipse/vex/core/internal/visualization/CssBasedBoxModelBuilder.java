@@ -443,9 +443,9 @@ public class CssBasedBoxModelBuilder implements IBoxModelBuilder {
 
 	private <P extends IParentBox<IInlineBox>> P visualizeInlineNodeContent(final INode node, final Styles styles, final Collection<VisualizeResult> childrenResults, final P parent) {
 		if (!childrenResults.isEmpty()) {
-			return surroundWithInlinePseudoElements(visualizeChildrenInline(childrenResults, parent), node, styles);
+			return surroundWithInlinePseudoElements(visualizeChildrenInline(childrenResults, visualizeContentProperty(node, styles, parent)), node, styles);
 		} else {
-			return surroundWithInlinePseudoElements(placeholderForEmptyNode(node, styles, parent), node, styles);
+			return surroundWithInlinePseudoElements(placeholderForEmptyNode(node, styles, visualizeContentProperty(node, styles, parent)), node, styles);
 		}
 	}
 
