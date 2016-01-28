@@ -422,10 +422,10 @@ public class InlineNodeReference extends BaseBox implements IInlineBox, IDecorat
 		}
 
 		final int offsetOfFirstChildInTail = findStartOffset(tail.getComponent());
-		final int splitPosition;
+		int splitPosition;
 		if (offsetOfFirstChildInTail == -1) {
 			splitPosition = endPosition.getOffset();
-		} else if (offsetOfFirstChildInTail == oldOffsetOfFirstChild && width == 0) {
+		} else if (offsetOfFirstChildInTail == oldOffsetOfFirstChild && (width == 0 || offsetOfFirstChildInTail > endPosition.getOffset())) {
 			splitPosition = startPosition.getOffset();
 		} else {
 			splitPosition = offsetOfFirstChildInTail;
