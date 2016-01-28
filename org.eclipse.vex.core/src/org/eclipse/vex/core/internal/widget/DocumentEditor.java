@@ -1051,15 +1051,21 @@ public class DocumentEditor implements IDocumentEditor {
 		doWork(new Runnable() {
 			@Override
 			public void run() {
+				final int offsetForInsertion;
 				if (hasSelection()) {
-					editStack.apply(new DeleteEdit(document, selectedRange, cursor.getOffset()));
+					offsetForInsertion = selectedRange.getStartOffset();
+					editStack.apply(new DeleteEdit(document, selectedRange.resizeBy(0, -1), cursor.getOffset()));
+				} else {
+					offsetForInsertion = cursor.getOffset();
 				}
 
-				result[0] = apply(new InsertElementEdit(document, cursor.getOffset(), elementName)).getElement();
+				result[0] = editStack.apply(new InsertElementEdit(document, offsetForInsertion, elementName)).getElement();
 
 				if (selectedFragment != null) {
-					insertFragment(selectedFragment);
+					editStack.apply(new InsertFragmentEdit(document, result[0].getEndOffset(), selectedFragment));
 				}
+
+				apply(new DefineOffsetEdit(result[0].getEndOffset(), result[0].getEndOffset()));
 			}
 		});
 
