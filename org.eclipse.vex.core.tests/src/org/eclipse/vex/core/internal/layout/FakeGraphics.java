@@ -70,6 +70,9 @@ public class FakeGraphics implements Graphics {
 		}
 	};
 
+	public void resetOrigin() {
+	}
+
 	public void moveOrigin(final int offsetX, final int offsetY) {
 	}
 

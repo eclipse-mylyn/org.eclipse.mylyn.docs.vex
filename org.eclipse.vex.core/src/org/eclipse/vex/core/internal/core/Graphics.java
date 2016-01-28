@@ -28,6 +28,8 @@ public interface Graphics {
 
 	public void dispose();
 
+	public void resetOrigin();
+
 	public void moveOrigin(int offsetX, int offsetY);
 
 	public int asAbsoluteX(int relativeX);

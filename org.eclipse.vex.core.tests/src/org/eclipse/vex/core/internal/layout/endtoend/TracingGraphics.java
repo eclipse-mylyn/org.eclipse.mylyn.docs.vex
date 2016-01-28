@@ -67,6 +67,11 @@ public class TracingGraphics implements Graphics {
 	}
 
 	@Override
+	public void resetOrigin() {
+		tracer.trace("Graphics.resetOrigin()");
+	}
+
+	@Override
 	public void moveOrigin(final int offsetX, final int offsetY) {
 		tracer.trace("Graphics.moveOrigin({0}, {1})", offsetX, offsetY);
 	}

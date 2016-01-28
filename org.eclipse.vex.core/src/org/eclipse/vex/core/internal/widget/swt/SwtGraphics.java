@@ -17,6 +17,7 @@ import java.io.InputStream;
 import java.net.URL;
 import java.text.MessageFormat;
 import java.util.HashMap;
+import java.util.Map;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.core.runtime.IStatus;
@@ -45,11 +46,14 @@ import org.eclipse.vex.core.internal.core.Rectangle;
 public class SwtGraphics implements Graphics {
 
 	private final GC gc;
+	private final Map<URL, SwtImage> imageCache;
+
 	private int offsetX;
 	private int offsetY;
 
 	private final HashMap<FontSpec, FontResource> fonts = new HashMap<FontSpec, FontResource>();
 	private final HashMap<Color, ColorResource> colors = new HashMap<Color, ColorResource>();
+	private final HashMap<URL, org.eclipse.swt.graphics.Image> images = new HashMap<URL, org.eclipse.swt.graphics.Image>();
 
 	private SwtFont currentFont;
 	private SwtFontMetrics currentFontMetrics;
@@ -59,8 +63,19 @@ public class SwtGraphics implements Graphics {
 	 * @param gc
 	 *            SWT GC to which we are drawing.
 	 */
+	@Deprecated
 	public SwtGraphics(final GC gc) {
+		this(gc, new HashMap<URL, SwtImage>());
+	}
+
+	/**
+	 * @param gc
+	 *            SWT GC to which we are drawing.
+	 */
+	public SwtGraphics(final GC gc, final Map<URL, SwtImage> imageCache) {
 		this.gc = gc;
+		this.imageCache = imageCache;
+
 		currentFont = new SwtFont(gc.getFont());
 	}
 
@@ -74,9 +89,19 @@ public class SwtGraphics implements Graphics {
 			color.dispose();
 		}
 		colors.clear();
+		for (final org.eclipse.swt.graphics.Image image : images.values()) {
+			image.dispose();
+		}
+		images.clear();
 
 		// TODO should not dispose something that comes from outside!
 		gc.dispose();
+	}
+
+	@Override
+	public void resetOrigin() {
+		offsetX = 0;
+		offsetY = 0;
 	}
 
 	@Override
@@ -155,12 +180,18 @@ public class SwtGraphics implements Graphics {
 	@Override
 	public void drawImage(final Image image, final int x, final int y, final int width, final int height) {
 		Assert.isTrue(image instanceof SwtImage);
-		final org.eclipse.swt.graphics.Image swtImage = new org.eclipse.swt.graphics.Image(gc.getDevice(), ((SwtImage) image).imageData);
-		try {
-			gc.drawImage(swtImage, 0, 0, image.getWidth(), image.getHeight(), x + offsetX, y + offsetY, width, height);
-		} finally {
-			swtImage.dispose();
+		final org.eclipse.swt.graphics.Image swtImage = toSWT((SwtImage) image);
+		gc.drawImage(swtImage, 0, 0, image.getWidth(), image.getHeight(), x + offsetX, y + offsetY, width, height);
+	}
+
+	private org.eclipse.swt.graphics.Image toSWT(final SwtImage image) {
+		final org.eclipse.swt.graphics.Image cachedImage = images.get(image.url);
+		if (cachedImage != null) {
+			return cachedImage;
 		}
+		final org.eclipse.swt.graphics.Image newImage = new org.eclipse.swt.graphics.Image(gc.getDevice(), image.imageData);
+		images.put(image.url, newImage);
+		return newImage;
 	}
 
 	/**
@@ -232,11 +263,19 @@ public class SwtGraphics implements Graphics {
 
 	@Override
 	public Image getImage(final URL url) {
+		final SwtImage cachedImage = imageCache.get(url);
+		if (cachedImage != null) {
+			return cachedImage;
+		}
+
 		final ImageData[] imageData = loadImageData(url);
 		if (imageData != null && imageData.length > 0) {
-			return new SwtImage(imageData[0]);
+			final SwtImage loadedImage = new SwtImage(url, imageData[0]);
+			imageCache.put(url, loadedImage);
+			return loadedImage;
 		}
-		return new SwtImage(Display.getDefault().getSystemImage(SWT.ICON_ERROR).getImageData());
+
+		return new SwtImage(url, Display.getDefault().getSystemImage(SWT.ICON_ERROR).getImageData());
 	}
 
 	private static ImageData[] loadImageData(final URL url) {
