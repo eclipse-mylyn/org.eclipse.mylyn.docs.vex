@@ -233,6 +233,10 @@ public class VexEditor extends EditorPart {
 			document.removeDocumentListener(documentListener);
 		}
 
+		if (style != null) {
+			style.getStyleSheet().flushAllStyles(document);
+		}
+
 		getEditorSite().getSelectionProvider().removeSelectionChangedListener(selectionChangedListener);
 
 		if (parentControl != null) {
