@@ -219,6 +219,9 @@ public class Cursor implements ICursor {
 		}
 		final ContentRange selectedRange = selector.getRange();
 		final IBox selectionRootBox = contentTopology.findBoxForRange(selectedRange);
+		if (selectionRootBox == null) {
+			return; // The selection is invalid/unbalanced
+		}
 		selectionRootBox.accept(new DepthFirstBoxTraversal<Object>() {
 			@Override
 			public Object visit(final StructuralNodeReference box) {

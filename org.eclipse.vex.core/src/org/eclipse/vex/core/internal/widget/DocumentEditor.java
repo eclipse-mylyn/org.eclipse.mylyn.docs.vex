@@ -202,7 +202,7 @@ public class DocumentEditor implements IDocumentEditor {
 		try {
 			runnable.run();
 			final IUndoableEdit work = editStack.commitWork();
-			cursor.move(toOffset(work.getOffsetAfter()));
+			//			cursor.move(toOffset(work.getOffsetAfter()));
 		} catch (final CannotApplyException e) {
 			final IUndoableEdit work = editStack.rollbackWork();
 			if (work.getOffsetBefore() > 0) {
@@ -1052,7 +1052,7 @@ public class DocumentEditor implements IDocumentEditor {
 			@Override
 			public void run() {
 				if (hasSelection()) {
-					apply(new DeleteEdit(document, selectedRange, cursor.getOffset()));
+					editStack.apply(new DeleteEdit(document, selectedRange, cursor.getOffset()));
 				}
 
 				result[0] = apply(new InsertElementEdit(document, cursor.getOffset(), elementName)).getElement();
@@ -1154,7 +1154,7 @@ public class DocumentEditor implements IDocumentEditor {
 
 				applyWhitespacePolicy(surroundingElement);
 
-				editStack.apply(new DefineOffsetEdit(insertFragment.getOffsetAfter(), finalOffset.getOffset()));
+				apply(new DefineOffsetEdit(insertFragment.getOffsetAfter(), finalOffset.getOffset()));
 				document.removePosition(finalOffset);
 			}
 		});
@@ -1186,7 +1186,7 @@ public class DocumentEditor implements IDocumentEditor {
 					final CompoundEdit compoundEdit = new CompoundEdit();
 					compoundEdit.addEdit(new DeleteEdit(document, originalTextRange, originalTextRange.getStartOffset()));
 					compoundEdit.addEdit(new InsertTextEdit(document, originalTextRange.getStartOffset(), compressedContent));
-					editStack.apply(compoundEdit);
+					apply(compoundEdit);
 				}
 			}
 		});
@@ -1241,10 +1241,12 @@ public class DocumentEditor implements IDocumentEditor {
 		doWork(new Runnable() {
 			@Override
 			public void run() {
-				editStack.apply(new DeleteEdit(document, currentElement.getRange(), cursor.getOffset()));
+				int offsetAfter;
+				offsetAfter = editStack.apply(new DeleteEdit(document, currentElement.getRange(), cursor.getOffset())).getOffsetAfter();
 				if (elementContent != null) {
-					editStack.apply(new InsertFragmentEdit(document, elementRange.getStartOffset(), elementContent));
+					offsetAfter = editStack.apply(new InsertFragmentEdit(document, elementRange.getStartOffset(), elementContent)).getOffsetAfter();
 				}
+				apply(new DefineOffsetEdit(offsetAfter, offsetAfter));
 			}
 		});
 	}
@@ -1296,6 +1298,7 @@ public class DocumentEditor implements IDocumentEditor {
 				if (elementContent != null) {
 					editStack.apply(new InsertFragmentEdit(document, insertElement.getElement().getEndOffset(), elementContent));
 				}
+				apply(new DefineOffsetEdit(insertElement.getElement().getEndOffset(), insertElement.getElement().getEndOffset()));
 			}
 		});
 	}
@@ -1392,6 +1395,7 @@ public class DocumentEditor implements IDocumentEditor {
 				for (final IDocumentFragment contentPart : contentToJoin) {
 					editStack.apply(new InsertFragmentEdit(document, firstNode.getEndOffset(), contentPart));
 				}
+				apply(new DefineOffsetEdit(deletePreservedContent.getOffsetBefore(), firstNode.getEndOffset()));
 			}
 		});
 	}
@@ -1468,7 +1472,7 @@ public class DocumentEditor implements IDocumentEditor {
 				if (!splitAtEnd) {
 					editStack.apply(new InsertFragmentEdit(document, newElement.getEndOffset(), splittedFragment));
 				}
-				editStack.apply(new DefineOffsetEdit(cursor.getOffset(), newElement.getStartOffset() + 1));
+				apply(new DefineOffsetEdit(cursor.getOffset(), newElement.getStartOffset() + 1));
 			}
 		});
 	}

@@ -22,7 +22,7 @@ import org.eclipse.vex.core.provisional.dom.INode;
 public class DuplicateSelectionHandler extends AbstractVexWidgetHandler {
 
 	@Override
-	public void execute(ExecutionEvent event, final IDocumentEditor editor) throws ExecutionException {
+	public void execute(final ExecutionEvent event, final IDocumentEditor editor) throws ExecutionException {
 		editor.doWork(new Runnable() {
 			@Override
 			public void run() {
@@ -39,7 +39,7 @@ public class DuplicateSelectionHandler extends AbstractVexWidgetHandler {
 				}
 
 				editor.copySelection();
-				final ContentPosition startPosition = editor.getSelectedPositionRange().getEndPosition().moveBy(1);
+				final ContentPosition startPosition = editor.getSelectedPositionRange().getEndPosition();
 				editor.moveTo(startPosition);
 				editor.paste();
 				final ContentPosition endPosition = editor.getCaretPosition();
