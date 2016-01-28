@@ -233,9 +233,13 @@ public class VexEditor extends EditorPart {
 			document.removeDocumentListener(documentListener);
 		}
 
-		if (style != null) {
+		if (style != null && document != null) {
 			style.getStyleSheet().flushAllStyles(document);
 		}
+
+		final ISourceProviderService service = (ISourceProviderService) getEditorSite().getWorkbenchWindow().getService(ISourceProviderService.class);
+		final DocumentContextSourceProvider contextProvider = (DocumentContextSourceProvider) service.getSourceProvider(DocumentContextSourceProvider.IS_COLUMN);
+		contextProvider.resetContext();
 
 		getEditorSite().getSelectionProvider().removeSelectionChangedListener(selectionChangedListener);
 

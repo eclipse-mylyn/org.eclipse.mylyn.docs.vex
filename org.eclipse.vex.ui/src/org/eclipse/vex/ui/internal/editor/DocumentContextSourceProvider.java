@@ -108,6 +108,16 @@ public class DocumentContextSourceProvider extends AbstractSourceProvider {
 		return currentState;
 	}
 
+	public void resetContext() {
+		currentNode = null;
+		caretArea = null;
+
+		final Map<String, Object> changes = new HashMap<String, Object>();
+		changes.put(CURRENT_NODE, currentNode);
+		changes.put(CARET_AREA, caretArea);
+		fireSourceChanged(ISources.WORKBENCH, changes);
+	}
+
 	/**
 	 * Synchronizes the variable values which will be exposed by this service with the specified {@link VexWidget}.
 	 *
