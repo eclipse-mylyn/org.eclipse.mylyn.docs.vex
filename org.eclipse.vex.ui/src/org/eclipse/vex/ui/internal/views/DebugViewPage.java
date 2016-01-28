@@ -374,10 +374,13 @@ class DebugViewPage implements IPageBookViewPage {
 		final String content = doc.getContent().getRawText(range);
 
 		final int caretIndex = offset.getOffset() - range.getStartOffset();
-
-		result.append(content.substring(0, caretIndex).replace("\0", "#"));
+		if (caretIndex >= 0) {
+			result.append(content.substring(0, caretIndex).replace("\0", "#"));
+		}
 		result.append("|");
-		result.append(content.substring(caretIndex, content.length()).replace("\0", "#"));
+		if (caretIndex < content.length()) {
+			result.append(content.substring(Math.max(0, caretIndex), content.length()).replace("\0", "#"));
+		}
 		return result.toString();
 	}
 
