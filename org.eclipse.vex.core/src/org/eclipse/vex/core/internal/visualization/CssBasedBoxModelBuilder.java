@@ -92,7 +92,7 @@ public class CssBasedBoxModelBuilder implements IBoxModelBuilder {
 
 	private IStructuralBox asStructuralBox(final VisualizeResult visualizeResult) {
 		if (visualizeResult.inline) {
-			return visualizeAsBlock(visualizeResult.node, visualizeResult.childrenResults);
+			return visualizeAsBlock(visualizeResult.node, visualizeResult.styles, visualizeResult.childrenResults);
 		} else {
 			return visualizeResult.structuralBox;
 		}
@@ -103,18 +103,11 @@ public class CssBasedBoxModelBuilder implements IBoxModelBuilder {
 		return asInlineBox(visualize(node));
 	}
 
-	private <P extends IParentBox<IInlineBox>> P visualizeChildrenInline(final Iterable<VisualizeResult> childrenResults, final P parentBox) {
-		for (final VisualizeResult visualizeResult : childrenResults) {
-			parentBox.appendChild(asInlineBox(visualizeResult));
-		}
-		return parentBox;
-	}
-
 	private IInlineBox asInlineBox(final VisualizeResult visualizeResult) {
 		if (visualizeResult.inline) {
 			return visualizeResult.inlineBox;
 		} else {
-			return visualizeInline(visualizeResult.node, visualizeResult.childrenResults);
+			return visualizeInline(visualizeResult.node, visualizeResult.styles, visualizeResult.childrenResults);
 		}
 	}
 
@@ -123,58 +116,59 @@ public class CssBasedBoxModelBuilder implements IBoxModelBuilder {
 	 */
 
 	private VisualizeResult visualize(final INode node) {
-		final Styles styles = styleSheet.getStyles(node);
 		return node.accept(new CollectingNodeTraversal<VisualizeResult>() {
 			@Override
 			public VisualizeResult visit(final IDocument document) {
+				final Styles styles = styleSheet.getStyles(document);
 				final Collection<VisualizeResult> childrenResults = traverseChildren(document);
-				return new VisualizeResult(document, childrenResults, nodeReference(document, visualizeChildrenAsStructure(document, styles, childrenResults, verticalBlock())));
+				return new VisualizeResult(document, styles, childrenResults, nodeReference(document, visualizeAsBlock(document, styles, childrenResults)));
 			}
 
 			@Override
 			public VisualizeResult visit(final IDocumentFragment documentFragment) {
+				final Styles styles = styleSheet.getStyles(documentFragment);
 				final Collection<VisualizeResult> childrenResults = traverseChildren(documentFragment);
-				return new VisualizeResult(documentFragment, childrenResults,
-						nodeReference(documentFragment, visualizeChildrenAsStructure(documentFragment, styles, childrenResults, verticalBlock())));
+				return new VisualizeResult(documentFragment, styles, childrenResults, nodeReference(documentFragment, visualizeAsBlock(documentFragment, styles, childrenResults)));
 			}
 
 			@Override
 			public VisualizeResult visit(final IElement element) {
-				final Collection<VisualizeResult> childrenResults = traverseChildren(element);
 				final Styles styles = styleSheet.getStyles(element);
+				final Collection<VisualizeResult> childrenResults = traverseChildren(element);
 				if (isDisplayedAsBlock(styles)) {
-					return new VisualizeResult(element, childrenResults, visualizeAsBlock(element, childrenResults));
+					return new VisualizeResult(element, styles, childrenResults, visualizeAsBlock(element, styles, childrenResults));
 				} else {
-					return new VisualizeResult(element, childrenResults, visualizeInline(element, childrenResults));
+					return new VisualizeResult(element, styles, childrenResults, visualizeInline(element, styles, childrenResults));
 				}
 			}
 
 			@Override
 			public VisualizeResult visit(final IComment comment) {
-				final List<VisualizeResult> childrenResults = Collections.<VisualizeResult> emptyList();
 				final Styles styles = styleSheet.getStyles(comment);
+				final List<VisualizeResult> childrenResults = Collections.<VisualizeResult> emptyList();
 				if (isDisplayedAsBlock(styles)) {
-					return new VisualizeResult(comment, childrenResults, visualizeAsBlock(comment, childrenResults));
+					return new VisualizeResult(comment, styles, childrenResults, visualizeAsBlock(comment, styles, childrenResults));
 				} else {
-					return new VisualizeResult(comment, childrenResults, visualizeInline(comment, childrenResults));
+					return new VisualizeResult(comment, styles, childrenResults, visualizeInline(comment, styles, childrenResults));
 				}
 			}
 
 			@Override
 			public VisualizeResult visit(final IProcessingInstruction pi) {
-				final List<VisualizeResult> childrenResults = Collections.<VisualizeResult> emptyList();
 				final Styles styles = styleSheet.getStyles(pi);
+				final List<VisualizeResult> childrenResults = Collections.<VisualizeResult> emptyList();
 				if (isDisplayedAsBlock(styles)) {
-					return new VisualizeResult(pi, childrenResults, visualizeAsBlock(pi, childrenResults));
+					return new VisualizeResult(pi, styles, childrenResults, visualizeAsBlock(pi, styles, childrenResults));
 				} else {
-					return new VisualizeResult(pi, childrenResults, visualizeInline(pi, childrenResults));
+					return new VisualizeResult(pi, styles, childrenResults, visualizeInline(pi, styles, childrenResults));
 				}
 			}
 
 			@Override
 			public VisualizeResult visit(final IText text) {
+				final Styles styles = styleSheet.getStyles(text);
 				final List<VisualizeResult> childrenResults = Collections.<VisualizeResult> emptyList();
-				return new VisualizeResult(text, childrenResults, visualizeInline(text, childrenResults));
+				return new VisualizeResult(text, styles, childrenResults, visualizeInline(text, styles, childrenResults));
 			}
 		});
 	}
@@ -200,9 +194,18 @@ public class CssBasedBoxModelBuilder implements IBoxModelBuilder {
 	 * Render as Block
 	 */
 
-	private IStructuralBox visualizeAsBlock(final INode node, final Collection<VisualizeResult> childrenResults) {
-		final Styles styles = styleSheet.getStyles(node);
+	private IStructuralBox visualizeAsBlock(final INode node, final Styles styles, final Collection<VisualizeResult> childrenResults) {
 		return node.accept(new BaseNodeVisitorWithResult<IStructuralBox>() {
+			@Override
+			public IStructuralBox visit(final IDocument document) {
+				return visualizeChildrenAsStructure(document, styles, childrenResults, verticalBlock());
+			}
+
+			@Override
+			public IStructuralBox visit(final IDocumentFragment fragment) {
+				return visualizeChildrenAsStructure(fragment, styles, childrenResults, verticalBlock());
+			}
+
 			@Override
 			public IStructuralBox visit(final IElement element) {
 				final boolean mayContainText = mayContainText(element);
@@ -254,6 +257,13 @@ public class CssBasedBoxModelBuilder implements IBoxModelBuilder {
 
 	private IStructuralBox visualizeStructuralElementWithNoContentAllowed(final Styles styles, final IElement element) {
 		return paragraph(styles, visualizeInlineElementWithNoContentAllowed(element, styles));
+	}
+
+	private static IInlineBox visualizeInlineElementWithNoContentAllowed(final INode node, final Styles styles) {
+		if (!styles.isContentDefined()) {
+			return nodeTag(node, styles);
+		}
+		return visualizeContentProperty(node, styles, inlineContainer());
 	}
 
 	private <P extends IParentBox<IStructuralBox>> P visualizeChildrenAsStructure(final INode node, final Styles styles, final Iterable<VisualizeResult> childrenResults, final P parentBox) {
@@ -379,8 +389,7 @@ public class CssBasedBoxModelBuilder implements IBoxModelBuilder {
 	 * Render inline elements
 	 */
 
-	private IInlineBox visualizeInline(final INode node, final Collection<VisualizeResult> childrenResults) {
-		final Styles styles = styleSheet.getStyles(node);
+	private IInlineBox visualizeInline(final INode node, final Styles styles, final Collection<VisualizeResult> childrenResults) {
 		final IContent content = node.getContent();
 		return node.accept(new BaseNodeVisitorWithResult<IInlineBox>() {
 			@Override
@@ -449,11 +458,11 @@ public class CssBasedBoxModelBuilder implements IBoxModelBuilder {
 		}
 	}
 
-	private static IInlineBox visualizeInlineElementWithNoContentAllowed(final INode node, final Styles styles) {
-		if (!styles.isContentDefined()) {
-			return nodeTag(node, styles);
+	private <P extends IParentBox<IInlineBox>> P visualizeChildrenInline(final Iterable<VisualizeResult> childrenResults, final P parentBox) {
+		for (final VisualizeResult visualizeResult : childrenResults) {
+			parentBox.appendChild(asInlineBox(visualizeResult));
 		}
-		return visualizeContentProperty(node, styles, inlineContainer());
+		return parentBox;
 	}
 
 	private static IInlineBox visualizeText(final IContent content, final ContentRange textRange, final INode parentNode, final Styles styles) {
@@ -506,21 +515,24 @@ public class CssBasedBoxModelBuilder implements IBoxModelBuilder {
 
 	private static class VisualizeResult {
 		public final INode node;
+		public final Styles styles;
 		public final Collection<VisualizeResult> childrenResults;
 		public final boolean inline;
 		public final IInlineBox inlineBox;
 		public final IStructuralBox structuralBox;
 
-		public VisualizeResult(final INode node, final Collection<VisualizeResult> childrenResults, final IStructuralBox box) {
+		public VisualizeResult(final INode node, final Styles styles, final Collection<VisualizeResult> childrenResults, final IStructuralBox box) {
 			this.node = node;
+			this.styles = styles;
 			this.childrenResults = childrenResults;
 			inline = false;
 			inlineBox = null;
 			structuralBox = box;
 		}
 
-		public VisualizeResult(final INode node, final Collection<VisualizeResult> childrenResults, final IInlineBox box) {
+		public VisualizeResult(final INode node, final Styles styles, final Collection<VisualizeResult> childrenResults, final IInlineBox box) {
 			this.node = node;
+			this.styles = styles;
 			this.childrenResults = childrenResults;
 			inline = true;
 			inlineBox = box;
