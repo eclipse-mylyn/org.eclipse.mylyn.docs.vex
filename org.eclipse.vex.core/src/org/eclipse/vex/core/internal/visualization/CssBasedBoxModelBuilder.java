@@ -137,6 +137,8 @@ public class CssBasedBoxModelBuilder implements IBoxModelBuilder {
 				final Collection<VisualizeResult> childrenResults = traverseChildren(element);
 				if (isListRoot(styles)) {
 					return new VisualizeResult(element, styles, childrenResults, visualizeAsList(element, styles, childrenResults));
+				} else if (isListItem(styles)) {
+					return new VisualizeResult(element, styles, childrenResults, visualizeAsListItem(element, styles, childrenResults));
 				} else if (isDisplayedAsBlock(styles)) {
 					return new VisualizeResult(element, styles, childrenResults, visualizeAsBlock(element, styles, childrenResults));
 				} else {
@@ -180,6 +182,10 @@ public class CssBasedBoxModelBuilder implements IBoxModelBuilder {
 		return listStyleType != null && !CSS.NONE.equals(listStyleType);
 	}
 
+	private static boolean isListItem(final Styles styles) {
+		return CSS.LIST_ITEM.equals(styles.getDisplay());
+	}
+
 	private static boolean isDisplayedAsBlock(final Styles styles) {
 		// currently we can only render blocks or inline, hence everything that is not inline must be a block
 		return !isDisplayedInline(styles);
@@ -202,6 +208,14 @@ public class CssBasedBoxModelBuilder implements IBoxModelBuilder {
 	 */
 
 	private IStructuralBox visualizeAsList(final INode node, final Styles styles, final Collection<VisualizeResult> childrenResults) {
+		return visualizeAsBlock(node, styles, childrenResults);
+	}
+
+	/*
+	 * Render as ListItem
+	 */
+
+	private IStructuralBox visualizeAsListItem(final INode node, final Styles styles, final Collection<VisualizeResult> childrenResults) {
 		return visualizeAsBlock(node, styles, childrenResults);
 	}
 
