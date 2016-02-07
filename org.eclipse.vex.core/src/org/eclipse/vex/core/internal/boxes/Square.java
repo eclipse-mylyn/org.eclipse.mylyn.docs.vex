@@ -11,6 +11,8 @@
 package org.eclipse.vex.core.internal.boxes;
 
 import org.eclipse.vex.core.internal.core.Color;
+import org.eclipse.vex.core.internal.core.FontResource;
+import org.eclipse.vex.core.internal.core.FontSpec;
 import org.eclipse.vex.core.internal.core.Graphics;
 
 /**
@@ -18,8 +20,11 @@ import org.eclipse.vex.core.internal.core.Graphics;
  */
 public class Square extends SimpleInlineBox {
 
+	private static final float ASCENT_RATIO = 0.6f;
+
 	private int size;
 	private Color color;
+	private FontSpec fontSpec;
 
 	@Override
 	public int getWidth() {
@@ -44,7 +49,10 @@ public class Square extends SimpleInlineBox {
 		this.color = color;
 	}
 
-	@Override
+	public void setFont(final FontSpec fontSpec) {
+		this.fontSpec = fontSpec;
+	}
+
 	public void accept(final IBoxVisitor visitor) {
 		visitor.visit(this);
 	}
@@ -56,13 +64,26 @@ public class Square extends SimpleInlineBox {
 
 	@Override
 	public void layout(final Graphics graphics) {
-		// ignore, everything is static
+		if (fontSpec == null) {
+			return;
+		}
+
+		applyFont(graphics);
+		size = Math.round(graphics.getFontMetrics().getAscent() * ASCENT_RATIO);
+	}
+
+	private void applyFont(final Graphics graphics) {
+		final FontResource font = graphics.getFont(fontSpec);
+		graphics.setCurrentFont(font);
 	}
 
 	@Override
 	public boolean reconcileLayout(final Graphics graphics) {
-		// ignore, everything is static
-		return false;
+		final int oldSize = size;
+
+		layout(graphics);
+
+		return size != oldSize;
 	}
 
 	@Override

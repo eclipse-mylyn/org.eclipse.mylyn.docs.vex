@@ -127,6 +127,14 @@ public class BoxFactory {
 		return horizontalBar;
 	}
 
+	public static ListItem listItem(final int bulletWidth, final IStructuralBox bullet, final IStructuralBox component) {
+		final ListItem listItem = new ListItem();
+		listItem.setBulletWidth(bulletWidth);
+		listItem.setBullet(bullet);
+		listItem.setComponent(component);
+		return listItem;
+	}
+
 	public static Paragraph paragraph(final IInlineBox... children) {
 		final Paragraph paragraph = new Paragraph();
 		for (final IInlineBox child : children) {

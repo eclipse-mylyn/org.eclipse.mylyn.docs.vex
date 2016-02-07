@@ -11,9 +11,11 @@
 package org.eclipse.vex.core.internal.visualization;
 
 import static org.eclipse.vex.core.internal.boxes.BoxFactory.inlineContainer;
+import static org.eclipse.vex.core.internal.boxes.BoxFactory.listItem;
 import static org.eclipse.vex.core.internal.boxes.BoxFactory.nodeReference;
 import static org.eclipse.vex.core.internal.boxes.BoxFactory.nodeReferenceWithInlineContent;
 import static org.eclipse.vex.core.internal.boxes.BoxFactory.nodeReferenceWithText;
+import static org.eclipse.vex.core.internal.boxes.BoxFactory.paragraph;
 import static org.eclipse.vex.core.internal.boxes.BoxFactory.rootBox;
 import static org.eclipse.vex.core.internal.boxes.BoxFactory.verticalBlock;
 import static org.eclipse.vex.core.internal.visualization.CssBoxFactory.endOffsetPlaceholder;
@@ -22,6 +24,7 @@ import static org.eclipse.vex.core.internal.visualization.CssBoxFactory.frame;
 import static org.eclipse.vex.core.internal.visualization.CssBoxFactory.image;
 import static org.eclipse.vex.core.internal.visualization.CssBoxFactory.nodeTag;
 import static org.eclipse.vex.core.internal.visualization.CssBoxFactory.paragraph;
+import static org.eclipse.vex.core.internal.visualization.CssBoxFactory.square;
 import static org.eclipse.vex.core.internal.visualization.CssBoxFactory.startTag;
 import static org.eclipse.vex.core.internal.visualization.CssBoxFactory.staticText;
 import static org.eclipse.vex.core.internal.visualization.CssBoxFactory.textContent;
@@ -43,7 +46,9 @@ import org.eclipse.vex.core.internal.boxes.LineWrappingRule;
 import org.eclipse.vex.core.internal.boxes.Paragraph;
 import org.eclipse.vex.core.internal.boxes.RootBox;
 import org.eclipse.vex.core.internal.boxes.TextContent;
+import org.eclipse.vex.core.internal.core.TextAlign;
 import org.eclipse.vex.core.internal.css.AttributeDependendContent;
+import org.eclipse.vex.core.internal.css.BulletStyle;
 import org.eclipse.vex.core.internal.css.CSS;
 import org.eclipse.vex.core.internal.css.IPropertyContent;
 import org.eclipse.vex.core.internal.css.IPropertyContentVisitor;
@@ -216,7 +221,18 @@ public class CssBasedBoxModelBuilder implements IBoxModelBuilder {
 	 */
 
 	private IStructuralBox visualizeAsListItem(final INode node, final Styles styles, final Collection<VisualizeResult> childrenResults) {
-		return visualizeAsBlock(node, styles, childrenResults);
+		final BulletStyle bulletStyle = new BulletStyle(BulletStyle.Type.SQUARE, BulletStyle.Position.OUTSIDE, null, '\0');
+		final int bulletWidth = 20;
+		final int itemIndex = 0;
+		final int itemCount = 1;
+
+		final IInlineBox bullet;
+		if (bulletStyle.type.isTextual()) {
+			bullet = staticText(bulletStyle.getBulletAsText(itemIndex, itemCount), styles);
+		} else {
+			bullet = square(styles);
+		}
+		return listItem(bulletWidth, paragraph(TextAlign.RIGHT, bullet), visualizeAsBlock(node, styles, childrenResults));
 	}
 
 	/*

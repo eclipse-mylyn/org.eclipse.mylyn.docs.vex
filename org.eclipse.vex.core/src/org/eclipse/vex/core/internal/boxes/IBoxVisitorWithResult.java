@@ -25,6 +25,8 @@ public interface IBoxVisitorWithResult<T> {
 
 	T visit(HorizontalBar box);
 
+	T visit(ListItem box);
+
 	T visit(Paragraph box);
 
 	T visit(InlineNodeReference box);

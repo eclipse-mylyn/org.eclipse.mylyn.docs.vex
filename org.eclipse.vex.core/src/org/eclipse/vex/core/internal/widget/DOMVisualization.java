@@ -125,6 +125,11 @@ public class DOMVisualization {
 			}
 
 			@Override
+			public void visit(final org.eclipse.vex.core.internal.boxes.ListItem box) {
+				box.setComponent(boxModelBuilder.visualizeStructure(node));
+			}
+
+			@Override
 			public void visit(final Paragraph box) {
 				box.replaceChildren(modifiedBoxes, boxModelBuilder.visualizeInline(node));
 			}

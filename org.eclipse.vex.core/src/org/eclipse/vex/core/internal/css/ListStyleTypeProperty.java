@@ -27,17 +27,11 @@ public class ListStyleTypeProperty extends AbstractProperty {
 		if (isListStyleType(lu)) {
 			return lu.getStringValue();
 		} else {
-			if (parentStyles == null) {
-				return CSS.DISC;
-			} else {
-				return parentStyles.getListStyleType();
-			}
+			return CSS.NONE;
 		}
-
 	}
 
 	private static boolean isListStyleType(final LexicalUnit lu) {
-
 		if (lu == null || lu.getLexicalUnitType() != LexicalUnit.SAC_IDENT) {
 			return false;
 		}

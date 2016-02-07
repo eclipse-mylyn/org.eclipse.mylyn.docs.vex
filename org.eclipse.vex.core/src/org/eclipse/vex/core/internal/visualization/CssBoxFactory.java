@@ -118,6 +118,13 @@ public class CssBoxFactory {
 		return square;
 	}
 
+	public static Square square(final Styles styles) {
+		final Square square = new Square();
+		square.setFont(font(styles));
+		square.setColor(styles.getColor());
+		return square;
+	}
+
 	public static NodeTag nodeTag(final INode node, final Styles styles) {
 		final NodeTag nodeTag = new NodeTag();
 		nodeTag.setKind(NodeTag.Kind.NODE);
