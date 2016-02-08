@@ -15,6 +15,8 @@ import org.eclipse.vex.core.internal.core.Rectangle;
 
 public class ListItem extends BaseBox implements IStructuralBox, IDecoratorBox<IStructuralBox> {
 
+	private static final int BULLET_SPACING = 10;
+
 	private IBox parent;
 	private int top;
 	private int left;
@@ -150,7 +152,7 @@ public class ListItem extends BaseBox implements IStructuralBox, IDecoratorBox<I
 			bullet.setPosition(bulletTop, 0);
 		}
 		if (component != null) {
-			component.setPosition(componentTop, bulletWidth);
+			component.setPosition(componentTop, width - component.getWidth());
 		}
 
 		height = Math.max(getBulletHeight(), getComponentHeight());
@@ -245,7 +247,7 @@ public class ListItem extends BaseBox implements IStructuralBox, IDecoratorBox<I
 		if (bullet == null) {
 			return width;
 		}
-		return width - bullet.getWidth();
+		return width - bullet.getWidth() - BULLET_SPACING;
 	}
 
 	@Override

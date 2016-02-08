@@ -212,15 +212,15 @@ public class CssBasedBoxModelBuilder implements IBoxModelBuilder {
 	 * Render as List
 	 */
 
-	private IStructuralBox visualizeAsList(final INode node, final Styles styles, final Collection<VisualizeResult> childrenResults) {
-		return visualizeAsBlock(node, styles, childrenResults);
+	private IStructuralBox visualizeAsList(final IElement element, final Styles styles, final Collection<VisualizeResult> childrenResults) {
+		return visualizeAsBlock(element, styles, childrenResults);
 	}
 
 	/*
 	 * Render as ListItem
 	 */
 
-	private IStructuralBox visualizeAsListItem(final INode node, final Styles styles, final Collection<VisualizeResult> childrenResults) {
+	private IStructuralBox visualizeAsListItem(final IElement element, final Styles styles, final Collection<VisualizeResult> childrenResults) {
 		final BulletStyle bulletStyle = new BulletStyle(BulletStyle.Type.SQUARE, BulletStyle.Position.OUTSIDE, null, '\0');
 		final int bulletWidth = 20;
 		final int itemIndex = 0;
@@ -232,7 +232,10 @@ public class CssBasedBoxModelBuilder implements IBoxModelBuilder {
 		} else {
 			bullet = square(styles);
 		}
-		return listItem(bulletWidth, paragraph(TextAlign.RIGHT, bullet), visualizeAsBlock(node, styles, childrenResults));
+		final IStructuralBox content = visualizeStructuralElementContent(element, styles, childrenResults);
+
+		final IStructuralBox listItem = listItem(bulletWidth, paragraph(TextAlign.RIGHT, bullet), content);
+		return wrapUpStructuralElementContent(element, styles, childrenResults, listItem);
 	}
 
 	/*
@@ -253,32 +256,15 @@ public class CssBasedBoxModelBuilder implements IBoxModelBuilder {
 
 			@Override
 			public IStructuralBox visit(final IElement element) {
-				final boolean mayContainText = mayContainText(element);
-				final boolean containsInlineContent = containsInlineContent(childrenResults);
-
-				final IStructuralBox content;
-				if (isElementWithNoContentAllowed(element)) {
-					content = visualizeStructuralElementWithNoContentAllowed(styles, element);
-				} else if (element.isEmpty()) {
-					content = placeholderForEmptyNode(node, styles, paragraph(styles));
-				} else {
-					content = visualizeChildrenAsStructure(element, styles, childrenResults, verticalBlock());
-				}
-
-				if (mayContainText) {
-					return nodeReferenceWithText(element, surroundWithPseudoElements(frame(content, styles), element, styles));
-				} else if (containsInlineContent) {
-					return nodeReferenceWithInlineContent(element, surroundWithPseudoElements(frame(content, styles), element, styles));
-				} else {
-					return nodeReference(element, surroundWithPseudoElements(frame(content, styles), element, styles));
-				}
+				final IStructuralBox content = visualizeStructuralElementContent(element, styles, childrenResults);
+				return wrapUpStructuralElementContent(element, styles, childrenResults, content);
 			}
 
 			@Override
 			public IStructuralBox visit(final IComment comment) {
 				final Paragraph inlineElementContent;
 				if (comment.isEmpty()) {
-					inlineElementContent = placeholderForEmptyNode(node, styles, paragraph(styles));
+					inlineElementContent = placeholderForEmptyNode(comment, styles, paragraph(styles));
 				} else {
 					inlineElementContent = paragraph(styles, visualizeText(comment.getContent(), comment.getRange().resizeBy(1, -1), comment, styles));
 				}
@@ -290,7 +276,7 @@ public class CssBasedBoxModelBuilder implements IBoxModelBuilder {
 			public IStructuralBox visit(final IProcessingInstruction pi) {
 				final Paragraph inlineElementContent;
 				if (pi.isEmpty()) {
-					inlineElementContent = placeholderForEmptyNode(node, styles, paragraph(styles));
+					inlineElementContent = placeholderForEmptyNode(pi, styles, paragraph(styles));
 				} else {
 					inlineElementContent = paragraph(styles, visualizeText(pi.getContent(), pi.getRange().resizeBy(1, -1), pi, styles));
 				}
@@ -300,7 +286,19 @@ public class CssBasedBoxModelBuilder implements IBoxModelBuilder {
 		});
 	}
 
-	private IStructuralBox visualizeStructuralElementWithNoContentAllowed(final Styles styles, final IElement element) {
+	private IStructuralBox visualizeStructuralElementContent(final IElement element, final Styles styles, final Collection<VisualizeResult> childrenResults) {
+		final IStructuralBox content;
+		if (isElementWithNoContentAllowed(element)) {
+			content = visualizeStructuralElementWithNoContentAllowed(styles, element);
+		} else if (element.isEmpty()) {
+			content = placeholderForEmptyNode(element, styles, paragraph(styles));
+		} else {
+			content = visualizeChildrenAsStructure(element, styles, childrenResults, verticalBlock());
+		}
+		return content;
+	}
+
+	private static IStructuralBox visualizeStructuralElementWithNoContentAllowed(final Styles styles, final IElement element) {
 		return paragraph(styles, visualizeInlineElementWithNoContentAllowed(element, styles));
 	}
 
@@ -328,6 +326,18 @@ public class CssBasedBoxModelBuilder implements IBoxModelBuilder {
 			parentBox.appendChild(visualizeInlineNodeContent(node, styles, pendingInline, paragraph(styles)));
 		}
 		return parentBox;
+	}
+
+	private static IStructuralBox wrapUpStructuralElementContent(final IElement element, final Styles styles, final Collection<VisualizeResult> childrenResults, final IStructuralBox content) {
+		final boolean mayContainText = mayContainText(element);
+		final boolean containsInlineContent = containsInlineContent(childrenResults);
+		if (mayContainText) {
+			return nodeReferenceWithText(element, surroundWithPseudoElements(frame(content, styles), element, styles));
+		} else if (containsInlineContent) {
+			return nodeReferenceWithInlineContent(element, surroundWithPseudoElements(frame(content, styles), element, styles));
+		} else {
+			return nodeReference(element, surroundWithPseudoElements(frame(content, styles), element, styles));
+		}
 	}
 
 	private static IStructuralBox surroundWithPseudoElements(final IStructuralBox content, final INode node, final Styles styles) {
@@ -435,7 +445,6 @@ public class CssBasedBoxModelBuilder implements IBoxModelBuilder {
 	 */
 
 	private IInlineBox visualizeInline(final INode node, final Styles styles, final Collection<VisualizeResult> childrenResults) {
-		final IContent content = node.getContent();
 		return node.accept(new BaseNodeVisitorWithResult<IInlineBox>() {
 			@Override
 			public IInlineBox visit(final IElement element) {
@@ -459,9 +468,9 @@ public class CssBasedBoxModelBuilder implements IBoxModelBuilder {
 			public IInlineBox visit(final IComment comment) {
 				final InlineContainer inlineElementContent;
 				if (comment.isEmpty()) {
-					inlineElementContent = placeholderForEmptyNode(node, styles, inlineContainer());
+					inlineElementContent = placeholderForEmptyNode(comment, styles, inlineContainer());
 				} else {
-					inlineElementContent = inlineContainer(visualizeText(content, comment.getRange().resizeBy(1, -1), comment, styles));
+					inlineElementContent = inlineContainer(visualizeText(comment.getContent(), comment.getRange().resizeBy(1, -1), comment, styles));
 				}
 
 				return nodeReferenceWithText(comment, frame(surroundWithInlinePseudoElements(inlineElementContent, comment, styles), styles));
@@ -471,9 +480,9 @@ public class CssBasedBoxModelBuilder implements IBoxModelBuilder {
 			public IInlineBox visit(final IProcessingInstruction pi) {
 				final InlineContainer inlineElementContent;
 				if (pi.isEmpty()) {
-					inlineElementContent = placeholderForEmptyNode(node, styles, inlineContainer());
+					inlineElementContent = placeholderForEmptyNode(pi, styles, inlineContainer());
 				} else {
-					inlineElementContent = inlineContainer(visualizeText(content, pi.getRange().resizeBy(1, -1), pi, styles));
+					inlineElementContent = inlineContainer(visualizeText(pi.getContent(), pi.getRange().resizeBy(1, -1), pi, styles));
 				}
 
 				return nodeReferenceWithText(pi, frame(surroundWithInlinePseudoElements(inlineElementContent, pi, styles), styles));
@@ -481,7 +490,7 @@ public class CssBasedBoxModelBuilder implements IBoxModelBuilder {
 
 			@Override
 			public IInlineBox visit(final IText text) {
-				return visualizeText(content, text.getRange(), text.getParent(), styles);
+				return visualizeText(text.getContent(), text.getRange(), text.getParent(), styles);
 			}
 
 		});
