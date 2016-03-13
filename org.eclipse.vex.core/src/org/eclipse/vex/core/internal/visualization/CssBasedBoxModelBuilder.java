@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.visualization;
 
+import static org.eclipse.vex.core.internal.boxes.BoxFactory.frame;
 import static org.eclipse.vex.core.internal.boxes.BoxFactory.inlineContainer;
 import static org.eclipse.vex.core.internal.boxes.BoxFactory.listItem;
 import static org.eclipse.vex.core.internal.boxes.BoxFactory.nodeReference;
@@ -32,17 +33,25 @@ import static org.eclipse.vex.core.internal.visualization.CssBoxFactory.textCont
 import java.net.MalformedURLException;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
 import org.eclipse.core.runtime.QualifiedName;
+import org.eclipse.vex.core.internal.boxes.Border;
+import org.eclipse.vex.core.internal.boxes.DepthFirstBoxTraversal;
 import org.eclipse.vex.core.internal.boxes.IInlineBox;
 import org.eclipse.vex.core.internal.boxes.IParentBox;
 import org.eclipse.vex.core.internal.boxes.IStructuralBox;
+import org.eclipse.vex.core.internal.boxes.IVisualDecorator;
 import org.eclipse.vex.core.internal.boxes.Image;
 import org.eclipse.vex.core.internal.boxes.InlineContainer;
+import org.eclipse.vex.core.internal.boxes.InlineFrame;
 import org.eclipse.vex.core.internal.boxes.LineWrappingRule;
+import org.eclipse.vex.core.internal.boxes.ListItem;
+import org.eclipse.vex.core.internal.boxes.Margin;
+import org.eclipse.vex.core.internal.boxes.Padding;
 import org.eclipse.vex.core.internal.boxes.Paragraph;
 import org.eclipse.vex.core.internal.boxes.RootBox;
 import org.eclipse.vex.core.internal.boxes.TextContent;
@@ -221,7 +230,7 @@ public class CssBasedBoxModelBuilder implements IBoxModelBuilder {
 	 */
 
 	private IStructuralBox visualizeAsListItem(final IElement element, final Styles styles, final Collection<VisualizeResult> childrenResults) {
-		final BulletStyle bulletStyle = new BulletStyle(BulletStyle.Type.SQUARE, BulletStyle.Position.OUTSIDE, null, '\0');
+		final BulletStyle bulletStyle = new BulletStyle(BulletStyle.Type.SQUARE, BulletStyle.Position.INSIDE, null, '\0');
 		final int bulletWidth = 20;
 		final int itemIndex = 0;
 		final int itemCount = 1;
@@ -234,8 +243,56 @@ public class CssBasedBoxModelBuilder implements IBoxModelBuilder {
 		}
 		final IStructuralBox content = visualizeStructuralElementContent(element, styles, childrenResults);
 
-		final IStructuralBox listItem = listItem(bulletWidth, paragraph(TextAlign.RIGHT, bullet), content);
-		return wrapUpStructuralElementContent(element, styles, childrenResults, listItem);
+		switch (bulletStyle.position) {
+		case OUTSIDE:
+			final IStructuralBox listItem = listItem(bulletWidth, paragraph(TextAlign.RIGHT, bullet), content);
+			return wrapUpStructuralElementContent(element, styles, childrenResults, listItem);
+		case INSIDE:
+			content.setVisualDecorator(insertBulletIntoContent(bullet));
+			content.applyVisualDecorator();
+			return wrapUpStructuralElementContent(element, styles, childrenResults, content);
+		default:
+			throw new AssertionError("Unknown BulletStyle.Position " + bulletStyle.position);
+		}
+	}
+
+	private static IVisualDecorator<IStructuralBox> insertBulletIntoContent(final IInlineBox bullet) {
+		return new IVisualDecorator<IStructuralBox>() {
+			@Override
+			public void decorate(final IStructuralBox decoratedBox) {
+				decoratedBox.accept(new DepthFirstBoxTraversal<Object>() {
+					@Override
+					public Object visit(final Paragraph box) {
+						if (!isDecorated(box, bullet)) {
+							box.prependChild(frame(bullet, Margin.NULL, Border.NULL, new Padding(0, 0, 0, ListItem.BULLET_SPACING), null));
+						}
+						return box;
+					}
+
+					private boolean isDecorated(final Paragraph box, final IInlineBox bullet) {
+						final IInlineBox firstChild = getFirstChild(box);
+						if (!(firstChild instanceof InlineFrame)) {
+							return false;
+						}
+						final InlineFrame frame = (InlineFrame) firstChild;
+
+						if (frame.getComponent().getClass().isAssignableFrom(bullet.getClass())) {
+							return true;
+						}
+
+						return false;
+					}
+
+					private IInlineBox getFirstChild(final Paragraph box) {
+						final Iterator<IInlineBox> iterator = box.getChildren().iterator();
+						if (iterator.hasNext()) {
+							return iterator.next();
+						}
+						return null;
+					}
+				});
+			}
+		};
 	}
 
 	/*
@@ -287,15 +344,13 @@ public class CssBasedBoxModelBuilder implements IBoxModelBuilder {
 	}
 
 	private IStructuralBox visualizeStructuralElementContent(final IElement element, final Styles styles, final Collection<VisualizeResult> childrenResults) {
-		final IStructuralBox content;
 		if (isElementWithNoContentAllowed(element)) {
-			content = visualizeStructuralElementWithNoContentAllowed(styles, element);
+			return visualizeStructuralElementWithNoContentAllowed(styles, element);
 		} else if (element.isEmpty()) {
-			content = placeholderForEmptyNode(element, styles, paragraph(styles));
+			return placeholderForEmptyNode(element, styles, paragraph(styles));
 		} else {
-			content = visualizeChildrenAsStructure(element, styles, childrenResults, verticalBlock());
+			return visualizeChildrenAsStructure(element, styles, childrenResults, verticalBlock());
 		}
-		return content;
 	}
 
 	private static IStructuralBox visualizeStructuralElementWithNoContentAllowed(final Styles styles, final IElement element) {

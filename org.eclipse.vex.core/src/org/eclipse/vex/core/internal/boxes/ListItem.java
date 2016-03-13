@@ -15,7 +15,7 @@ import org.eclipse.vex.core.internal.core.Rectangle;
 
 public class ListItem extends BaseBox implements IStructuralBox, IDecoratorBox<IStructuralBox> {
 
-	private static final int BULLET_SPACING = 10;
+	public static final int BULLET_SPACING = 5;
 
 	private IBox parent;
 	private int top;
@@ -26,6 +26,8 @@ public class ListItem extends BaseBox implements IStructuralBox, IDecoratorBox<I
 	private int bulletWidth;
 	private IStructuralBox bullet;
 	private IStructuralBox component;
+
+	private IVisualDecorator<IStructuralBox> visualDecorator;
 
 	@Override
 	public void setParent(final IBox parent) {
@@ -254,5 +256,23 @@ public class ListItem extends BaseBox implements IStructuralBox, IDecoratorBox<I
 	public void paint(final Graphics graphics) {
 		ChildBoxPainter.paint(bullet, graphics);
 		ChildBoxPainter.paint(component, graphics);
+	}
+
+	@Override
+	public void setVisualDecorator(final IVisualDecorator<IStructuralBox> visualDecorator) {
+		this.visualDecorator = visualDecorator;
+
+	}
+
+	@Override
+	public void resetVisualDecorator() {
+		visualDecorator = null;
+	}
+
+	@Override
+	public void applyVisualDecorator() {
+		if (visualDecorator != null) {
+			visualDecorator.decorate(this);
+		}
 	}
 }

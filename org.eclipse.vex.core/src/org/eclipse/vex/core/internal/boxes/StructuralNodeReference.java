@@ -38,6 +38,7 @@ public class StructuralNodeReference extends BaseBox implements IStructuralBox, 
 	private INode node;
 	private boolean canContainText;
 	private boolean containsInlineContent;
+	private IVisualDecorator<IStructuralBox> visualDecorator;
 
 	@Override
 	public void setParent(final IBox parent) {
@@ -318,6 +319,24 @@ public class StructuralNodeReference extends BaseBox implements IStructuralBox, 
 
 	public boolean isAtEnd(final int offset) {
 		return getEndOffset() == offset;
+	}
+
+	@Override
+	public void setVisualDecorator(final IVisualDecorator<IStructuralBox> visualDecorator) {
+		this.visualDecorator = visualDecorator;
+
+	}
+
+	@Override
+	public void resetVisualDecorator() {
+		visualDecorator = null;
+	}
+
+	@Override
+	public void applyVisualDecorator() {
+		if (visualDecorator != null) {
+			visualDecorator.decorate(this);
+		}
 	}
 
 	@Override

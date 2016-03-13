@@ -21,6 +21,7 @@ import org.eclipse.vex.core.internal.boxes.IContentBox;
 import org.eclipse.vex.core.internal.boxes.InlineContainer;
 import org.eclipse.vex.core.internal.boxes.InlineFrame;
 import org.eclipse.vex.core.internal.boxes.InlineNodeReference;
+import org.eclipse.vex.core.internal.boxes.ListItem;
 import org.eclipse.vex.core.internal.boxes.NodeEndOffsetPlaceholder;
 import org.eclipse.vex.core.internal.boxes.Paragraph;
 import org.eclipse.vex.core.internal.boxes.RootBox;
@@ -112,26 +113,31 @@ public class DOMVisualization {
 			@Override
 			public void visit(final VerticalBlock box) {
 				box.replaceChildren(modifiedBoxes, boxModelBuilder.visualizeStructure(node));
+				box.applyVisualDecorator();
 			}
 
 			@Override
 			public void visit(final StructuralFrame box) {
 				box.setComponent(boxModelBuilder.visualizeStructure(node));
+				box.applyVisualDecorator();
 			}
 
 			@Override
 			public void visit(final StructuralNodeReference box) {
 				box.setComponent(boxModelBuilder.visualizeStructure(node));
+				box.applyVisualDecorator();
 			}
 
 			@Override
-			public void visit(final org.eclipse.vex.core.internal.boxes.ListItem box) {
+			public void visit(final ListItem box) {
 				box.setComponent(boxModelBuilder.visualizeStructure(node));
+				box.applyVisualDecorator();
 			}
 
 			@Override
 			public void visit(final Paragraph box) {
 				box.replaceChildren(modifiedBoxes, boxModelBuilder.visualizeInline(node));
+				box.applyVisualDecorator();
 			}
 
 			@Override

@@ -31,6 +31,7 @@ public class VerticalBlock extends BaseBox implements IStructuralBox, IParentBox
 	private int width;
 	private int height;
 	private final ArrayList<IStructuralBox> children = new ArrayList<IStructuralBox>();
+	private IVisualDecorator<IStructuralBox> visualDecorator;
 
 	@Override
 	public void setParent(final IBox parent) {
@@ -167,5 +168,23 @@ public class VerticalBlock extends BaseBox implements IStructuralBox, IParentBox
 	@Override
 	public void paint(final Graphics graphics) {
 		ChildBoxPainter.paint(children, graphics);
+	}
+
+	@Override
+	public void setVisualDecorator(final IVisualDecorator<IStructuralBox> visualDecorator) {
+		this.visualDecorator = visualDecorator;
+
+	}
+
+	@Override
+	public void resetVisualDecorator() {
+		visualDecorator = null;
+	}
+
+	@Override
+	public void applyVisualDecorator() {
+		if (visualDecorator != null) {
+			visualDecorator.decorate(this);
+		}
 	}
 }

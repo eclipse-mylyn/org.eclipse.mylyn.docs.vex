@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2014 Florian Thienel and others.
+ * Copyright (c) 2016 Florian Thienel and others.
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
  * which accompanies this distribution, and is available at
@@ -10,25 +10,6 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.boxes;
 
-import org.eclipse.vex.core.internal.core.Rectangle;
-
-/**
- * @author Florian Thienel
- */
-public interface IStructuralBox extends IChildBox {
-
-	void setPosition(int top, int left);
-
-	void setWidth(int width);
-
-	/**
-	 * The bounds are always relative to the parent box.
-	 */
-	Rectangle getBounds();
-
-	void setVisualDecorator(IVisualDecorator<IStructuralBox> visualDecorator);
-
-	void resetVisualDecorator();
-
-	void applyVisualDecorator();
+public interface IVisualDecorator<T extends IBox> {
+	void decorate(T box);
 }

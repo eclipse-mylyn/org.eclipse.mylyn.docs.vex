@@ -31,6 +31,7 @@ public class StructuralFrame extends BaseBox implements IStructuralBox, IDecorat
 	private Color backgroundColor = null;
 
 	private IStructuralBox component;
+	private IVisualDecorator<IStructuralBox> visualDecorator;
 
 	@Override
 	public void setParent(final IBox parent) {
@@ -229,5 +230,23 @@ public class StructuralFrame extends BaseBox implements IStructuralBox, IDecorat
 
 	private void paintComponent(final Graphics graphics) {
 		ChildBoxPainter.paint(component, graphics);
+	}
+
+	@Override
+	public void setVisualDecorator(final IVisualDecorator<IStructuralBox> visualDecorator) {
+		this.visualDecorator = visualDecorator;
+
+	}
+
+	@Override
+	public void resetVisualDecorator() {
+		visualDecorator = null;
+	}
+
+	@Override
+	public void applyVisualDecorator() {
+		if (visualDecorator != null) {
+			visualDecorator.decorate(this);
+		}
 	}
 }
