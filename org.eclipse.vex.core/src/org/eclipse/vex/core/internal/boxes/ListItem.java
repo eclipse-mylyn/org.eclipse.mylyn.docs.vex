@@ -12,6 +12,7 @@ package org.eclipse.vex.core.internal.boxes;
 
 import org.eclipse.vex.core.internal.core.Graphics;
 import org.eclipse.vex.core.internal.core.Rectangle;
+import org.eclipse.vex.core.internal.core.TextAlign;
 
 public class ListItem extends BaseBox implements IStructuralBox, IDecoratorBox<IStructuralBox> {
 
@@ -23,8 +24,11 @@ public class ListItem extends BaseBox implements IStructuralBox, IDecoratorBox<I
 	private int width;
 	private int height;
 
+	private IInlineBox bullet;
 	private int bulletWidth;
-	private IStructuralBox bullet;
+	private TextAlign bulletAlign = TextAlign.RIGHT;
+
+	private Paragraph bulletContainer;
 	private IStructuralBox component;
 
 	private IVisualDecorator<IStructuralBox> visualDecorator;
@@ -105,12 +109,30 @@ public class ListItem extends BaseBox implements IStructuralBox, IDecoratorBox<I
 		return bulletWidth;
 	}
 
-	public void setBullet(final IStructuralBox bullet) {
-		this.bullet = bullet;
-		bullet.setParent(this);
+	public void setBulletAlign(final TextAlign bulletAlign) {
+		this.bulletAlign = bulletAlign;
+		if (bulletContainer != null) {
+			bulletContainer.setTextAlign(bulletAlign);
+		}
 	}
 
-	public IStructuralBox getBullet() {
+	public TextAlign getBulletAlign() {
+		return bulletAlign;
+	}
+
+	public void setBullet(final IInlineBox bullet) {
+		this.bullet = bullet;
+		if (bullet == null) {
+			bulletContainer = null;
+		} else {
+			bulletContainer = new Paragraph();
+			bulletContainer.setParent(this);
+			bulletContainer.setTextAlign(bulletAlign);
+			bulletContainer.appendChild(bullet);
+		}
+	}
+
+	public IInlineBox getBullet() {
 		return bullet;
 	}
 
@@ -126,9 +148,9 @@ public class ListItem extends BaseBox implements IStructuralBox, IDecoratorBox<I
 
 	@Override
 	public void layout(final Graphics graphics) {
-		if (bullet != null) {
-			bullet.setWidth(bulletWidth);
-			bullet.layout(graphics);
+		if (bulletContainer != null) {
+			bulletContainer.setWidth(bulletWidth);
+			bulletContainer.layout(graphics);
 		}
 
 		if (component != null) {
@@ -136,7 +158,7 @@ public class ListItem extends BaseBox implements IStructuralBox, IDecoratorBox<I
 			component.layout(graphics);
 		}
 
-		final int bulletBaseline = findTopBaselineRelativeToParent(bullet);
+		final int bulletBaseline = findTopBaselineRelativeToParent(bulletContainer);
 		final int componentBaseline = findTopBaselineRelativeToParent(component);
 
 		final int baselineDelta = componentBaseline - bulletBaseline;
@@ -150,8 +172,8 @@ public class ListItem extends BaseBox implements IStructuralBox, IDecoratorBox<I
 			componentTop = -baselineDelta;
 		}
 
-		if (bullet != null) {
-			bullet.setPosition(bulletTop, 0);
+		if (bulletContainer != null) {
+			bulletContainer.setPosition(bulletTop, 0);
 		}
 		if (component != null) {
 			component.setPosition(componentTop, width - component.getWidth());
@@ -246,15 +268,17 @@ public class ListItem extends BaseBox implements IStructuralBox, IDecoratorBox<I
 	}
 
 	private int getWidthForComponent() {
-		if (bullet == null) {
+		if (bulletContainer == null) {
 			return width;
 		}
-		return width - bullet.getWidth() - BULLET_SPACING;
+		return width - bulletWidth - BULLET_SPACING;
 	}
 
 	@Override
 	public void paint(final Graphics graphics) {
-		ChildBoxPainter.paint(bullet, graphics);
+		if (bulletContainer != null) {
+			ChildBoxPainter.paint(bulletContainer, graphics);
+		}
 		ChildBoxPainter.paint(component, graphics);
 	}
 

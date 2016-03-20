@@ -1,5 +1,7 @@
 package org.eclipse.vex.core.internal.boxes;
 
+import java.util.ArrayList;
+
 import org.eclipse.vex.core.internal.core.Graphics;
 import org.eclipse.vex.core.internal.core.Rectangle;
 import org.eclipse.vex.core.internal.css.BulletStyle;
@@ -13,6 +15,7 @@ public class List extends BaseBox implements IStructuralBox, IDecoratorBox<IStru
 	private int height;
 
 	private BulletStyle bulletStyle;
+	private IBulletFactory bulletFactory;
 
 	private IStructuralBox component;
 
@@ -92,6 +95,14 @@ public class List extends BaseBox implements IStructuralBox, IDecoratorBox<IStru
 		return bulletStyle;
 	}
 
+	public void setBulletFactory(final IBulletFactory bulletFactory) {
+		this.bulletFactory = bulletFactory;
+	}
+
+	public IBulletFactory getBulletFactory() {
+		return bulletFactory;
+	}
+
 	@Override
 	public void setComponent(final IStructuralBox component) {
 		this.component = component;
@@ -108,17 +119,68 @@ public class List extends BaseBox implements IStructuralBox, IDecoratorBox<IStru
 		if (component == null) {
 			return;
 		}
+
+		layoutBullets(graphics, collectListItems(this));
+		layoutComponent(graphics);
+
+		height = component.getHeight();
+	}
+
+	private void layoutBullets(final Graphics graphics, final java.util.List<ListItem> listItems) {
+		int bulletWidth = 0;
+		for (int i = 0; i < listItems.size(); i += 1) {
+			final IInlineBox bullet;
+			if (bulletFactory == null) {
+				bullet = null;
+			} else {
+				bullet = bulletFactory.createBullet(bulletStyle, i, listItems.size());
+				bullet.layout(graphics);
+				bulletWidth = Math.max(bulletWidth, bullet.getWidth());
+			}
+
+			listItems.get(i).setBullet(bullet);
+		}
+
+		for (final ListItem listItem : listItems) {
+			listItem.setBulletWidth(bulletWidth);
+		}
+	}
+
+	private static java.util.List<ListItem> collectListItems(final List list) {
+		final ArrayList<ListItem> listItems = new ArrayList<ListItem>();
+		list.accept(new DepthFirstBoxTraversal<Object>() {
+			@Override
+			public Object visit(final List box) {
+				if (box == list) {
+					return super.visit(box);
+				}
+				return null;
+			}
+
+			@Override
+			public Object visit(final ListItem box) {
+				listItems.add(box);
+				return null;
+			}
+		});
+		return listItems;
+	}
+
+	private void layoutComponent(final Graphics graphics) {
 		component.setPosition(0, 0);
 		component.setWidth(width);
 		component.layout(graphics);
-		height = component.getHeight();
 	}
 
 	@Override
 	public boolean reconcileLayout(final Graphics graphics) {
 		final int oldHeight = height;
 		height = component.getHeight();
-		return oldHeight != height;
+		if (oldHeight != height) {
+			layout(graphics);
+			return true;
+		}
+		return false;
 	}
 
 	@Override

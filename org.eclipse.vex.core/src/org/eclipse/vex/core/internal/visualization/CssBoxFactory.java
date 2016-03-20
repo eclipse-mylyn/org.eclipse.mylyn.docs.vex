@@ -14,6 +14,7 @@ import java.net.URL;
 
 import org.eclipse.vex.core.internal.boxes.Border;
 import org.eclipse.vex.core.internal.boxes.BorderLine;
+import org.eclipse.vex.core.internal.boxes.IBulletFactory;
 import org.eclipse.vex.core.internal.boxes.IInlineBox;
 import org.eclipse.vex.core.internal.boxes.IStructuralBox;
 import org.eclipse.vex.core.internal.boxes.Image;
@@ -61,9 +62,10 @@ public class CssBoxFactory {
 		return frame;
 	}
 
-	public static List list(final IStructuralBox component, final Styles styles) {
+	public static List list(final IStructuralBox component, final Styles styles, final IBulletFactory bulletFactory) {
 		final List list = new List();
 		list.setBulletStyle(BulletStyle.fromStyles(styles));
+		list.setBulletFactory(bulletFactory);
 		list.setComponent(component);
 		return list;
 	}

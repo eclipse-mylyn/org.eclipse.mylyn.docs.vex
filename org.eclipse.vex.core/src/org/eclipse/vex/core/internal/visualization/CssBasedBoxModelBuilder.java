@@ -16,7 +16,6 @@ import static org.eclipse.vex.core.internal.boxes.BoxFactory.listItem;
 import static org.eclipse.vex.core.internal.boxes.BoxFactory.nodeReference;
 import static org.eclipse.vex.core.internal.boxes.BoxFactory.nodeReferenceWithInlineContent;
 import static org.eclipse.vex.core.internal.boxes.BoxFactory.nodeReferenceWithText;
-import static org.eclipse.vex.core.internal.boxes.BoxFactory.paragraph;
 import static org.eclipse.vex.core.internal.boxes.BoxFactory.rootBox;
 import static org.eclipse.vex.core.internal.boxes.BoxFactory.verticalBlock;
 import static org.eclipse.vex.core.internal.visualization.CssBoxFactory.endOffsetPlaceholder;
@@ -42,6 +41,7 @@ import java.util.Set;
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.vex.core.internal.boxes.Border;
 import org.eclipse.vex.core.internal.boxes.DepthFirstBoxTraversal;
+import org.eclipse.vex.core.internal.boxes.IBulletFactory;
 import org.eclipse.vex.core.internal.boxes.IInlineBox;
 import org.eclipse.vex.core.internal.boxes.IParentBox;
 import org.eclipse.vex.core.internal.boxes.IStructuralBox;
@@ -56,7 +56,6 @@ import org.eclipse.vex.core.internal.boxes.Padding;
 import org.eclipse.vex.core.internal.boxes.Paragraph;
 import org.eclipse.vex.core.internal.boxes.RootBox;
 import org.eclipse.vex.core.internal.boxes.TextContent;
-import org.eclipse.vex.core.internal.core.TextAlign;
 import org.eclipse.vex.core.internal.css.AttributeDependendContent;
 import org.eclipse.vex.core.internal.css.BulletStyle;
 import org.eclipse.vex.core.internal.css.CSS;
@@ -223,7 +222,7 @@ public class CssBasedBoxModelBuilder implements IBoxModelBuilder {
 	 */
 
 	private IStructuralBox visualizeAsList(final IElement element, final Styles styles, final Collection<VisualizeResult> childrenResults) {
-		return list(visualizeAsBlock(element, styles, childrenResults), styles);
+		return list(visualizeAsBlock(element, styles, childrenResults), styles, visualizeBullet(styles));
 	}
 
 	/*
@@ -232,18 +231,14 @@ public class CssBasedBoxModelBuilder implements IBoxModelBuilder {
 
 	private IStructuralBox visualizeAsListItem(final IElement element, final Styles styles, final Collection<VisualizeResult> childrenResults) {
 		final BulletStyle bulletStyle = BulletStyle.fromStyles(styles);
-		final int bulletWidth = 20;
-		final int itemIndex = 0;
-		final int itemCount = 1;
 
-		final IInlineBox bullet = visualizeBullet(styles, bulletStyle, itemIndex, itemCount);
 		final IStructuralBox content = visualizeStructuralElementContent(element, styles, childrenResults);
 
 		switch (bulletStyle.position) {
 		case OUTSIDE:
-			final IStructuralBox listItem = listItem(bulletWidth, paragraph(TextAlign.RIGHT, bullet), content);
-			return wrapUpStructuralElementContent(element, styles, childrenResults, listItem);
+			return wrapUpStructuralElementContent(element, styles, childrenResults, listItem(content));
 		case INSIDE:
+			final IInlineBox bullet = visualizeBullet(styles).createBullet(bulletStyle, 0, 1);
 			content.setVisualDecorator(insertBulletIntoContent(bullet));
 			content.applyVisualDecorator();
 			return wrapUpStructuralElementContent(element, styles, childrenResults, content);
@@ -252,14 +247,19 @@ public class CssBasedBoxModelBuilder implements IBoxModelBuilder {
 		}
 	}
 
-	private static IInlineBox visualizeBullet(final Styles styles, final BulletStyle bulletStyle, final int itemIndex, final int itemCount) {
-		final IInlineBox bullet;
-		if (bulletStyle.type.isTextual()) {
-			bullet = staticText(bulletStyle.getBulletAsText(itemIndex, itemCount), styles);
-		} else {
-			bullet = square(styles);
-		}
-		return bullet;
+	private static IBulletFactory visualizeBullet(final Styles styles) {
+		return new IBulletFactory() {
+			@Override
+			public IInlineBox createBullet(final BulletStyle bulletStyle, final int itemIndex, final int itemCount) {
+				final IInlineBox bullet;
+				if (bulletStyle.type.isTextual()) {
+					bullet = staticText(bulletStyle.getBulletAsText(itemIndex, itemCount), styles);
+				} else {
+					bullet = square(styles);
+				}
+				return bullet;
+			}
+		};
 	}
 
 	private static IVisualDecorator<IStructuralBox> insertBulletIntoContent(final IInlineBox bullet) {

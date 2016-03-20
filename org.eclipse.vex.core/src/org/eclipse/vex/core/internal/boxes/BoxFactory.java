@@ -128,17 +128,16 @@ public class BoxFactory {
 		return horizontalBar;
 	}
 
-	public static List list(final IStructuralBox component, final BulletStyle bulletStyle) {
+	public static List list(final IStructuralBox component, final BulletStyle bulletStyle, final IBulletFactory bulletFactory) {
 		final List list = new List();
 		list.setBulletStyle(bulletStyle);
+		list.setBulletFactory(bulletFactory);
 		list.setComponent(component);
 		return list;
 	}
 
-	public static ListItem listItem(final int bulletWidth, final IStructuralBox bullet, final IStructuralBox component) {
+	public static ListItem listItem(final IStructuralBox component) {
 		final ListItem listItem = new ListItem();
-		listItem.setBulletWidth(bulletWidth);
-		listItem.setBullet(bullet);
 		listItem.setComponent(component);
 		return listItem;
 	}
