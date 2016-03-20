@@ -142,6 +142,7 @@ public class List extends BaseBox implements IStructuralBox, IDecoratorBox<IStru
 		}
 
 		for (final ListItem listItem : listItems) {
+			listItem.setBulletPosition(bulletStyle.position);
 			listItem.setBulletWidth(bulletWidth);
 		}
 	}

@@ -10,9 +10,14 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.boxes;
 
+import static org.eclipse.vex.core.internal.boxes.BoxFactory.frame;
+
+import java.util.Iterator;
+
 import org.eclipse.vex.core.internal.core.Graphics;
 import org.eclipse.vex.core.internal.core.Rectangle;
 import org.eclipse.vex.core.internal.core.TextAlign;
+import org.eclipse.vex.core.internal.css.BulletStyle;
 
 public class ListItem extends BaseBox implements IStructuralBox, IDecoratorBox<IStructuralBox> {
 
@@ -25,6 +30,8 @@ public class ListItem extends BaseBox implements IStructuralBox, IDecoratorBox<I
 	private int height;
 
 	private IInlineBox bullet;
+
+	private BulletStyle.Position bulletPosition = BulletStyle.Position.OUTSIDE;
 	private int bulletWidth;
 	private TextAlign bulletAlign = TextAlign.RIGHT;
 
@@ -101,6 +108,19 @@ public class ListItem extends BaseBox implements IStructuralBox, IDecoratorBox<I
 		return visitor.visit(this);
 	}
 
+	public void setBulletPosition(final BulletStyle.Position bulletPosition) {
+		if (bulletPosition == this.bulletPosition) {
+			return;
+		}
+
+		this.bulletPosition = bulletPosition;
+		bulletContainer = null;
+	}
+
+	public BulletStyle.Position getBulletPosition() {
+		return bulletPosition;
+	}
+
 	public void setBulletWidth(final int bulletWidth) {
 		this.bulletWidth = bulletWidth;
 	}
@@ -138,7 +158,16 @@ public class ListItem extends BaseBox implements IStructuralBox, IDecoratorBox<I
 
 	@Override
 	public void layout(final Graphics graphics) {
-		layoutWithOutsideBullet(graphics);
+		switch (bulletPosition) {
+		case OUTSIDE:
+			layoutWithOutsideBullet(graphics);
+			break;
+		case INSIDE:
+			layoutWithInsideBullet(graphics);
+			break;
+		default:
+			throw new AssertionError("Unknown BulletStyle.Position " + bulletPosition);
+		}
 
 		height = Math.max(getBulletHeight(), getComponentHeight());
 	}
@@ -245,9 +274,60 @@ public class ListItem extends BaseBox implements IStructuralBox, IDecoratorBox<I
 		return result.intValue();
 	}
 
+	private void layoutWithInsideBullet(final Graphics graphics) {
+		if (component == null) {
+			return;
+		}
+
+		insertBulletIntoComponent();
+
+		component.setWidth(width);
+		component.setPosition(0, 0);
+		component.layout(graphics);
+	}
+
+	private void insertBulletIntoComponent() {
+		component.accept(new DepthFirstBoxTraversal<Object>() {
+			@Override
+			public Object visit(final Paragraph box) {
+				if (!isDecorated(box, bullet)) {
+					box.prependChild(frame(bullet, Margin.NULL, Border.NULL, new Padding(0, 0, 0, BULLET_SPACING), null));
+				}
+				return box;
+			}
+
+			private boolean isDecorated(final Paragraph box, final IInlineBox bullet) {
+				final IInlineBox firstChild = getFirstChild(box);
+				if (!(firstChild instanceof InlineFrame)) {
+					return false;
+				}
+				final InlineFrame frame = (InlineFrame) firstChild;
+
+				if (frame.getComponent().getClass().isAssignableFrom(bullet.getClass())) {
+					return true;
+				}
+
+				return false;
+			}
+
+			private IInlineBox getFirstChild(final Paragraph box) {
+				final Iterator<IInlineBox> iterator = box.getChildren().iterator();
+				if (iterator.hasNext()) {
+					return iterator.next();
+				}
+				return null;
+			}
+		});
+	}
+
 	@Override
 	public boolean reconcileLayout(final Graphics graphics) {
 		final int oldHeight = height;
+
+		if (bulletPosition == BulletStyle.Position.INSIDE && component != null) {
+			insertBulletIntoComponent();
+			component.layout(graphics);
+		}
 
 		height = Math.max(getBulletHeight(), getComponentHeight());
 

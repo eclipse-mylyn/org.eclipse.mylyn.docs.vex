@@ -10,7 +10,6 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.visualization;
 
-import static org.eclipse.vex.core.internal.boxes.BoxFactory.frame;
 import static org.eclipse.vex.core.internal.boxes.BoxFactory.inlineContainer;
 import static org.eclipse.vex.core.internal.boxes.BoxFactory.listItem;
 import static org.eclipse.vex.core.internal.boxes.BoxFactory.nodeReference;
@@ -33,26 +32,18 @@ import static org.eclipse.vex.core.internal.visualization.CssBoxFactory.textCont
 import java.net.MalformedURLException;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
 import org.eclipse.core.runtime.QualifiedName;
-import org.eclipse.vex.core.internal.boxes.Border;
-import org.eclipse.vex.core.internal.boxes.DepthFirstBoxTraversal;
 import org.eclipse.vex.core.internal.boxes.IBulletFactory;
 import org.eclipse.vex.core.internal.boxes.IInlineBox;
 import org.eclipse.vex.core.internal.boxes.IParentBox;
 import org.eclipse.vex.core.internal.boxes.IStructuralBox;
-import org.eclipse.vex.core.internal.boxes.IVisualDecorator;
 import org.eclipse.vex.core.internal.boxes.Image;
 import org.eclipse.vex.core.internal.boxes.InlineContainer;
-import org.eclipse.vex.core.internal.boxes.InlineFrame;
 import org.eclipse.vex.core.internal.boxes.LineWrappingRule;
-import org.eclipse.vex.core.internal.boxes.ListItem;
-import org.eclipse.vex.core.internal.boxes.Margin;
-import org.eclipse.vex.core.internal.boxes.Padding;
 import org.eclipse.vex.core.internal.boxes.Paragraph;
 import org.eclipse.vex.core.internal.boxes.RootBox;
 import org.eclipse.vex.core.internal.boxes.TextContent;
@@ -225,28 +216,6 @@ public class CssBasedBoxModelBuilder implements IBoxModelBuilder {
 		return list(visualizeAsBlock(element, styles, childrenResults), styles, visualizeBullet(styles));
 	}
 
-	/*
-	 * Render as ListItem
-	 */
-
-	private IStructuralBox visualizeAsListItem(final IElement element, final Styles styles, final Collection<VisualizeResult> childrenResults) {
-		final BulletStyle bulletStyle = BulletStyle.fromStyles(styles);
-
-		final IStructuralBox content = visualizeStructuralElementContent(element, styles, childrenResults);
-
-		switch (bulletStyle.position) {
-		case OUTSIDE:
-			return wrapUpStructuralElementContent(element, styles, childrenResults, listItem(content));
-		case INSIDE:
-			final IInlineBox bullet = visualizeBullet(styles).createBullet(bulletStyle, 0, 1);
-			content.setVisualDecorator(insertBulletIntoContent(bullet));
-			content.applyVisualDecorator();
-			return wrapUpStructuralElementContent(element, styles, childrenResults, content);
-		default:
-			throw new AssertionError("Unknown BulletStyle.Position " + bulletStyle.position);
-		}
-	}
-
 	private static IBulletFactory visualizeBullet(final Styles styles) {
 		return new IBulletFactory() {
 			@Override
@@ -262,43 +231,13 @@ public class CssBasedBoxModelBuilder implements IBoxModelBuilder {
 		};
 	}
 
-	private static IVisualDecorator<IStructuralBox> insertBulletIntoContent(final IInlineBox bullet) {
-		return new IVisualDecorator<IStructuralBox>() {
-			@Override
-			public void decorate(final IStructuralBox decoratedBox) {
-				decoratedBox.accept(new DepthFirstBoxTraversal<Object>() {
-					@Override
-					public Object visit(final Paragraph box) {
-						if (!isDecorated(box, bullet)) {
-							box.prependChild(frame(bullet, Margin.NULL, Border.NULL, new Padding(0, 0, 0, ListItem.BULLET_SPACING), null));
-						}
-						return box;
-					}
+	/*
+	 * Render as ListItem
+	 */
 
-					private boolean isDecorated(final Paragraph box, final IInlineBox bullet) {
-						final IInlineBox firstChild = getFirstChild(box);
-						if (!(firstChild instanceof InlineFrame)) {
-							return false;
-						}
-						final InlineFrame frame = (InlineFrame) firstChild;
-
-						if (frame.getComponent().getClass().isAssignableFrom(bullet.getClass())) {
-							return true;
-						}
-
-						return false;
-					}
-
-					private IInlineBox getFirstChild(final Paragraph box) {
-						final Iterator<IInlineBox> iterator = box.getChildren().iterator();
-						if (iterator.hasNext()) {
-							return iterator.next();
-						}
-						return null;
-					}
-				});
-			}
-		};
+	private IStructuralBox visualizeAsListItem(final IElement element, final Styles styles, final Collection<VisualizeResult> childrenResults) {
+		final IStructuralBox content = visualizeStructuralElementContent(element, styles, childrenResults);
+		return wrapUpStructuralElementContent(element, styles, childrenResults, listItem(content));
 	}
 
 	/*
