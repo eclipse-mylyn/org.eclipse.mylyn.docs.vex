@@ -111,9 +111,6 @@ public class ListItem extends BaseBox implements IStructuralBox, IDecoratorBox<I
 
 	public void setBulletAlign(final TextAlign bulletAlign) {
 		this.bulletAlign = bulletAlign;
-		if (bulletContainer != null) {
-			bulletContainer.setTextAlign(bulletAlign);
-		}
 	}
 
 	public TextAlign getBulletAlign() {
@@ -122,14 +119,7 @@ public class ListItem extends BaseBox implements IStructuralBox, IDecoratorBox<I
 
 	public void setBullet(final IInlineBox bullet) {
 		this.bullet = bullet;
-		if (bullet == null) {
-			bulletContainer = null;
-		} else {
-			bulletContainer = new Paragraph();
-			bulletContainer.setParent(this);
-			bulletContainer.setTextAlign(bulletAlign);
-			bulletContainer.appendChild(bullet);
-		}
+		bulletContainer = null;
 	}
 
 	public IInlineBox getBullet() {
@@ -148,6 +138,19 @@ public class ListItem extends BaseBox implements IStructuralBox, IDecoratorBox<I
 
 	@Override
 	public void layout(final Graphics graphics) {
+		layoutWithOutsideBullet(graphics);
+
+		height = Math.max(getBulletHeight(), getComponentHeight());
+	}
+
+	private void layoutWithOutsideBullet(final Graphics graphics) {
+		if (bullet != null && bulletContainer == null) {
+			bulletContainer = new Paragraph();
+			bulletContainer.setParent(this);
+			bulletContainer.setTextAlign(bulletAlign);
+			bulletContainer.appendChild(bullet);
+		}
+
 		if (bulletContainer != null) {
 			bulletContainer.setWidth(bulletWidth);
 			bulletContainer.layout(graphics);
@@ -178,8 +181,6 @@ public class ListItem extends BaseBox implements IStructuralBox, IDecoratorBox<I
 		if (component != null) {
 			component.setPosition(componentTop, width - component.getWidth());
 		}
-
-		height = Math.max(getBulletHeight(), getComponentHeight());
 	}
 
 	private static int findTopBaselineRelativeToParent(final IStructuralBox parent) {
@@ -254,10 +255,10 @@ public class ListItem extends BaseBox implements IStructuralBox, IDecoratorBox<I
 	}
 
 	private int getBulletHeight() {
-		if (bullet == null) {
+		if (bulletContainer == null) {
 			return 0;
 		}
-		return bullet.getHeight();
+		return bulletContainer.getHeight();
 	}
 
 	private int getComponentHeight() {
