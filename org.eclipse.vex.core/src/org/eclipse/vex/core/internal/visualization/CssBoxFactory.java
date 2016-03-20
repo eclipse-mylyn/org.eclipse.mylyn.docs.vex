@@ -19,6 +19,7 @@ import org.eclipse.vex.core.internal.boxes.IStructuralBox;
 import org.eclipse.vex.core.internal.boxes.Image;
 import org.eclipse.vex.core.internal.boxes.InlineFrame;
 import org.eclipse.vex.core.internal.boxes.LineWrappingRule;
+import org.eclipse.vex.core.internal.boxes.List;
 import org.eclipse.vex.core.internal.boxes.Margin;
 import org.eclipse.vex.core.internal.boxes.NodeEndOffsetPlaceholder;
 import org.eclipse.vex.core.internal.boxes.NodeTag;
@@ -31,6 +32,7 @@ import org.eclipse.vex.core.internal.boxes.TextContent;
 import org.eclipse.vex.core.internal.core.FontSpec;
 import org.eclipse.vex.core.internal.core.LineStyle;
 import org.eclipse.vex.core.internal.core.TextAlign;
+import org.eclipse.vex.core.internal.css.BulletStyle;
 import org.eclipse.vex.core.internal.css.CSS;
 import org.eclipse.vex.core.internal.css.Styles;
 import org.eclipse.vex.core.provisional.dom.ContentRange;
@@ -57,6 +59,13 @@ public class CssBoxFactory {
 		frame.setPadding(padding(styles));
 		frame.setBackgroundColor(styles.getBackgroundColor());
 		return frame;
+	}
+
+	public static List list(final IStructuralBox component, final Styles styles) {
+		final List list = new List();
+		list.setBulletStyle(BulletStyle.fromStyles(styles));
+		list.setComponent(component);
+		return list;
 	}
 
 	public static Paragraph paragraph(final Styles styles, final IInlineBox... children) {

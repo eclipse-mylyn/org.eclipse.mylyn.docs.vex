@@ -21,6 +21,7 @@ import org.eclipse.vex.core.internal.boxes.IContentBox;
 import org.eclipse.vex.core.internal.boxes.InlineContainer;
 import org.eclipse.vex.core.internal.boxes.InlineFrame;
 import org.eclipse.vex.core.internal.boxes.InlineNodeReference;
+import org.eclipse.vex.core.internal.boxes.List;
 import org.eclipse.vex.core.internal.boxes.ListItem;
 import org.eclipse.vex.core.internal.boxes.NodeEndOffsetPlaceholder;
 import org.eclipse.vex.core.internal.boxes.Paragraph;
@@ -130,6 +131,12 @@ public class DOMVisualization {
 
 			@Override
 			public void visit(final ListItem box) {
+				box.setComponent(boxModelBuilder.visualizeStructure(node));
+				box.applyVisualDecorator();
+			}
+
+			@Override
+			public void visit(final List box) {
 				box.setComponent(boxModelBuilder.visualizeStructure(node));
 				box.applyVisualDecorator();
 			}

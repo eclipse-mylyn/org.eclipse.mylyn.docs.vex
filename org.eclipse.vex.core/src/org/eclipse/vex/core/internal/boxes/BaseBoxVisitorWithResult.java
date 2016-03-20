@@ -51,6 +51,11 @@ public class BaseBoxVisitorWithResult<T> implements IBoxVisitorWithResult<T> {
 	}
 
 	@Override
+	public T visit(final List box) {
+		return defaultValue;
+	}
+
+	@Override
 	public T visit(final ListItem box) {
 		return defaultValue;
 	}

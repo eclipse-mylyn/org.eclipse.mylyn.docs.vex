@@ -16,6 +16,7 @@ import org.eclipse.vex.core.internal.boxes.NodeTag.Kind;
 import org.eclipse.vex.core.internal.core.Color;
 import org.eclipse.vex.core.internal.core.FontSpec;
 import org.eclipse.vex.core.internal.core.TextAlign;
+import org.eclipse.vex.core.internal.css.BulletStyle;
 import org.eclipse.vex.core.provisional.dom.ContentRange;
 import org.eclipse.vex.core.provisional.dom.IContent;
 import org.eclipse.vex.core.provisional.dom.INode;
@@ -125,6 +126,13 @@ public class BoxFactory {
 		horizontalBar.setHeight(height);
 		horizontalBar.setColor(color);
 		return horizontalBar;
+	}
+
+	public static List list(final IStructuralBox component, final BulletStyle bulletStyle) {
+		final List list = new List();
+		list.setBulletStyle(bulletStyle);
+		list.setComponent(component);
+		return list;
 	}
 
 	public static ListItem listItem(final int bulletWidth, final IStructuralBox bullet, final IStructuralBox component) {

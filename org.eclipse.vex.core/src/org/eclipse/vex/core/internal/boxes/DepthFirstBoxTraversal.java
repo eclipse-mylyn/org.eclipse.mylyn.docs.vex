@@ -40,6 +40,11 @@ public abstract class DepthFirstBoxTraversal<T> extends BaseBoxVisitorWithResult
 	}
 
 	@Override
+	public T visit(final List box) {
+		return box.getComponent().accept(this);
+	}
+
+	@Override
 	public T visit(final ListItem box) {
 		return box.getComponent().accept(this);
 	}

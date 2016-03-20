@@ -25,6 +25,8 @@ public interface IBoxVisitor {
 
 	void visit(HorizontalBar box);
 
+	void visit(List box);
+
 	void visit(ListItem box);
 
 	void visit(Paragraph box);

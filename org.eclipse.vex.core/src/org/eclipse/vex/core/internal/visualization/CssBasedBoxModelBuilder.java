@@ -23,6 +23,7 @@ import static org.eclipse.vex.core.internal.visualization.CssBoxFactory.endOffse
 import static org.eclipse.vex.core.internal.visualization.CssBoxFactory.endTag;
 import static org.eclipse.vex.core.internal.visualization.CssBoxFactory.frame;
 import static org.eclipse.vex.core.internal.visualization.CssBoxFactory.image;
+import static org.eclipse.vex.core.internal.visualization.CssBoxFactory.list;
 import static org.eclipse.vex.core.internal.visualization.CssBoxFactory.nodeTag;
 import static org.eclipse.vex.core.internal.visualization.CssBoxFactory.paragraph;
 import static org.eclipse.vex.core.internal.visualization.CssBoxFactory.square;
@@ -222,7 +223,7 @@ public class CssBasedBoxModelBuilder implements IBoxModelBuilder {
 	 */
 
 	private IStructuralBox visualizeAsList(final IElement element, final Styles styles, final Collection<VisualizeResult> childrenResults) {
-		return visualizeAsBlock(element, styles, childrenResults);
+		return list(visualizeAsBlock(element, styles, childrenResults), styles);
 	}
 
 	/*
@@ -230,17 +231,12 @@ public class CssBasedBoxModelBuilder implements IBoxModelBuilder {
 	 */
 
 	private IStructuralBox visualizeAsListItem(final IElement element, final Styles styles, final Collection<VisualizeResult> childrenResults) {
-		final BulletStyle bulletStyle = new BulletStyle(BulletStyle.Type.SQUARE, BulletStyle.Position.INSIDE, null, '\0');
+		final BulletStyle bulletStyle = BulletStyle.fromStyles(styles);
 		final int bulletWidth = 20;
 		final int itemIndex = 0;
 		final int itemCount = 1;
 
-		final IInlineBox bullet;
-		if (bulletStyle.type.isTextual()) {
-			bullet = staticText(bulletStyle.getBulletAsText(itemIndex, itemCount), styles);
-		} else {
-			bullet = square(styles);
-		}
+		final IInlineBox bullet = visualizeBullet(styles, bulletStyle, itemIndex, itemCount);
 		final IStructuralBox content = visualizeStructuralElementContent(element, styles, childrenResults);
 
 		switch (bulletStyle.position) {
@@ -254,6 +250,16 @@ public class CssBasedBoxModelBuilder implements IBoxModelBuilder {
 		default:
 			throw new AssertionError("Unknown BulletStyle.Position " + bulletStyle.position);
 		}
+	}
+
+	private static IInlineBox visualizeBullet(final Styles styles, final BulletStyle bulletStyle, final int itemIndex, final int itemCount) {
+		final IInlineBox bullet;
+		if (bulletStyle.type.isTextual()) {
+			bullet = staticText(bulletStyle.getBulletAsText(itemIndex, itemCount), styles);
+		} else {
+			bullet = square(styles);
+		}
+		return bullet;
 	}
 
 	private static IVisualDecorator<IStructuralBox> insertBulletIntoContent(final IInlineBox bullet) {
