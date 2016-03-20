@@ -114,37 +114,31 @@ public class DOMVisualization {
 			@Override
 			public void visit(final VerticalBlock box) {
 				box.replaceChildren(modifiedBoxes, boxModelBuilder.visualizeStructure(node));
-				box.applyVisualDecorator();
 			}
 
 			@Override
 			public void visit(final StructuralFrame box) {
 				box.setComponent(boxModelBuilder.visualizeStructure(node));
-				box.applyVisualDecorator();
 			}
 
 			@Override
 			public void visit(final StructuralNodeReference box) {
 				box.setComponent(boxModelBuilder.visualizeStructure(node));
-				box.applyVisualDecorator();
 			}
 
 			@Override
 			public void visit(final ListItem box) {
 				box.setComponent(boxModelBuilder.visualizeStructure(node));
-				box.applyVisualDecorator();
 			}
 
 			@Override
 			public void visit(final List box) {
 				box.setComponent(boxModelBuilder.visualizeStructure(node));
-				box.applyVisualDecorator();
 			}
 
 			@Override
 			public void visit(final Paragraph box) {
 				box.replaceChildren(modifiedBoxes, boxModelBuilder.visualizeInline(node));
-				box.applyVisualDecorator();
 			}
 
 			@Override

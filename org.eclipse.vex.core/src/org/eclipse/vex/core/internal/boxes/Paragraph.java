@@ -32,7 +32,6 @@ public class Paragraph extends BaseBox implements IStructuralBox, IParentBox<IIn
 
 	private final LinkedList<IInlineBox> children = new LinkedList<IInlineBox>();
 	private final LineArrangement lines = new LineArrangement();
-	private IVisualDecorator<IStructuralBox> visualDecorator;
 
 	@Override
 	public void setParent(final IBox parent) {
@@ -206,24 +205,6 @@ public class Paragraph extends BaseBox implements IStructuralBox, IParentBox<IIn
 			 * transparent utility with regards to the box structure, which is used internally by Paragraph.
 			 */
 			line.paint(graphics);
-		}
-	}
-
-	@Override
-	public void setVisualDecorator(final IVisualDecorator<IStructuralBox> visualDecorator) {
-		this.visualDecorator = visualDecorator;
-
-	}
-
-	@Override
-	public void resetVisualDecorator() {
-		visualDecorator = null;
-	}
-
-	@Override
-	public void applyVisualDecorator() {
-		if (visualDecorator != null) {
-			visualDecorator.decorate(this);
 		}
 	}
 }

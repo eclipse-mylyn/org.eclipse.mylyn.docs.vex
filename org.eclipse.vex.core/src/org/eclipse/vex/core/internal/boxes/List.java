@@ -188,19 +188,4 @@ public class List extends BaseBox implements IStructuralBox, IDecoratorBox<IStru
 	public void paint(final Graphics graphics) {
 		ChildBoxPainter.paint(component, graphics);
 	}
-
-	@Override
-	public void setVisualDecorator(final IVisualDecorator<IStructuralBox> visualDecorator) {
-		// ignore, will be removed anyway
-	}
-
-	@Override
-	public void resetVisualDecorator() {
-		// ignore, will be removed anyway
-	}
-
-	@Override
-	public void applyVisualDecorator() {
-		// ignore, will be removed anyway
-	}
 }

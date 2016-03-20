@@ -26,7 +26,6 @@ public class HorizontalBar extends BaseBox implements IStructuralBox {
 	private int width;
 	private int height;
 	private Color color;
-	private IVisualDecorator<IStructuralBox> visualDecorator;
 
 	@Override
 	public void setParent(final IBox parent) {
@@ -127,23 +126,5 @@ public class HorizontalBar extends BaseBox implements IStructuralBox {
 		final ColorResource colorResource = graphics.getColor(color);
 		graphics.setColor(colorResource);
 		graphics.fillRect(0, 0, width, height);
-	}
-
-	@Override
-	public void setVisualDecorator(final IVisualDecorator<IStructuralBox> visualDecorator) {
-		this.visualDecorator = visualDecorator;
-
-	}
-
-	@Override
-	public void resetVisualDecorator() {
-		visualDecorator = null;
-	}
-
-	@Override
-	public void applyVisualDecorator() {
-		if (visualDecorator != null) {
-			visualDecorator.decorate(this);
-		}
 	}
 }

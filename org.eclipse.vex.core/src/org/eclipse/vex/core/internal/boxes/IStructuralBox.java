@@ -25,10 +25,4 @@ public interface IStructuralBox extends IChildBox {
 	 * The bounds are always relative to the parent box.
 	 */
 	Rectangle getBounds();
-
-	void setVisualDecorator(IVisualDecorator<IStructuralBox> visualDecorator);
-
-	void resetVisualDecorator();
-
-	void applyVisualDecorator();
 }
