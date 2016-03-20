@@ -208,7 +208,7 @@ public class MoveDown implements ICursorMove {
 
 		final IContentBox childBelow = handleSpecialCaseMovingIntoLastLineOfParagraph(findClosestContentBoxChildBelow(parent, x, y), x, y);
 		if (childBelow == null) {
-			if (containsInlineContent(parent)) {
+			if (containsInlineContent(parent) || parent.isEmpty()) {
 				return findNextContentBoxBelow(parent, x, y);
 			}
 			return parent;
