@@ -251,6 +251,11 @@ public class ListItem extends BaseBox implements IStructuralBox, IDecoratorBox<I
 			}
 
 			@Override
+			public Integer visit(final GraphicalBullet box) {
+				return getBaselineRelativeToParent(box);
+			}
+
+			@Override
 			public Integer visit(final Square box) {
 				return getBaselineRelativeToParent(box);
 			}

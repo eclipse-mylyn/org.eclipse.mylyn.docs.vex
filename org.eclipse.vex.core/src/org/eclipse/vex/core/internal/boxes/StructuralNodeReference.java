@@ -208,6 +208,12 @@ public class StructuralNodeReference extends BaseBox implements IStructuralBox, 
 			}
 
 			@Override
+			public Object visit(final GraphicalBullet box) {
+				paintBox(graphics, box);
+				return super.visit(box);
+			}
+
+			@Override
 			public Object visit(final Square box) {
 				paintBox(graphics, box);
 				return super.visit(box);

@@ -260,6 +260,12 @@ public class InlineNodeReference extends BaseBox implements IInlineBox, IDecorat
 			}
 
 			@Override
+			public Object visit(final GraphicalBullet box) {
+				paintBox(graphics, box);
+				return super.visit(box);
+			}
+
+			@Override
 			public Object visit(final Square box) {
 				paintBox(graphics, box);
 				return super.visit(box);

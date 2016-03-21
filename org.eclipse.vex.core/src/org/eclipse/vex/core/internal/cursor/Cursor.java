@@ -14,6 +14,7 @@ import java.util.LinkedList;
 
 import org.eclipse.vex.core.internal.boxes.BaseBoxVisitorWithResult;
 import org.eclipse.vex.core.internal.boxes.DepthFirstBoxTraversal;
+import org.eclipse.vex.core.internal.boxes.GraphicalBullet;
 import org.eclipse.vex.core.internal.boxes.IBox;
 import org.eclipse.vex.core.internal.boxes.IContentBox;
 import org.eclipse.vex.core.internal.boxes.IInlineBox;
@@ -391,6 +392,12 @@ public class Cursor implements ICursor {
 
 			@Override
 			public IBox visit(final NodeEndOffsetPlaceholder box) {
+				deepestLastChildBox[0] = box;
+				return null;
+			}
+
+			@Override
+			public IBox visit(final GraphicalBullet box) {
 				deepestLastChildBox[0] = box;
 				return null;
 			}

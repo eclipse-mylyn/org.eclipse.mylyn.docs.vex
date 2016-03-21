@@ -45,6 +45,8 @@ public interface IBoxVisitorWithResult<T> {
 
 	T visit(NodeEndOffsetPlaceholder box);
 
+	T visit(GraphicalBullet box);
+
 	T visit(Square box);
 
 	T visit(NodeTag box);

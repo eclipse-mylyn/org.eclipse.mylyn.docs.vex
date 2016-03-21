@@ -20,11 +20,11 @@ import static org.eclipse.vex.core.internal.boxes.BoxFactory.verticalBlock;
 import static org.eclipse.vex.core.internal.visualization.CssBoxFactory.endOffsetPlaceholder;
 import static org.eclipse.vex.core.internal.visualization.CssBoxFactory.endTag;
 import static org.eclipse.vex.core.internal.visualization.CssBoxFactory.frame;
+import static org.eclipse.vex.core.internal.visualization.CssBoxFactory.graphicalBullet;
 import static org.eclipse.vex.core.internal.visualization.CssBoxFactory.image;
 import static org.eclipse.vex.core.internal.visualization.CssBoxFactory.list;
 import static org.eclipse.vex.core.internal.visualization.CssBoxFactory.nodeTag;
 import static org.eclipse.vex.core.internal.visualization.CssBoxFactory.paragraph;
-import static org.eclipse.vex.core.internal.visualization.CssBoxFactory.square;
 import static org.eclipse.vex.core.internal.visualization.CssBoxFactory.startTag;
 import static org.eclipse.vex.core.internal.visualization.CssBoxFactory.staticText;
 import static org.eclipse.vex.core.internal.visualization.CssBoxFactory.textContent;
@@ -224,7 +224,7 @@ public class CssBasedBoxModelBuilder implements IBoxModelBuilder {
 				if (bulletStyle.type.isTextual()) {
 					bullet = staticText(bulletStyle.getBulletAsText(itemIndex, itemCount), styles);
 				} else {
-					bullet = square(styles);
+					bullet = graphicalBullet(bulletStyle.type, styles);
 				}
 				return bullet;
 			}

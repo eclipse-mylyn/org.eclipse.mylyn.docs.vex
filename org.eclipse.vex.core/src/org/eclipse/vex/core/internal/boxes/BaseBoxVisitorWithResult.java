@@ -101,6 +101,11 @@ public class BaseBoxVisitorWithResult<T> implements IBoxVisitorWithResult<T> {
 	}
 
 	@Override
+	public T visit(final GraphicalBullet box) {
+		return defaultValue;
+	}
+
+	@Override
 	public T visit(final Square box) {
 		return defaultValue;
 	}

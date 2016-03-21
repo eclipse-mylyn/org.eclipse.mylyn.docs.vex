@@ -203,6 +203,14 @@ public class BoxFactory {
 		return square;
 	}
 
+	public static GraphicalBullet graphicalBullet(final BulletStyle.Type type, final FontSpec font, final Color color) {
+		final GraphicalBullet bullet = new GraphicalBullet();
+		bullet.setType(type);
+		bullet.setFont(font);
+		bullet.setColor(color);
+		return bullet;
+	}
+
 	public static NodeTag nodeTag(final Kind kind, final INode node, final Color foreground) {
 		final NodeTag nodeTag = new NodeTag();
 		nodeTag.setKind(kind);

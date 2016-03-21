@@ -14,6 +14,7 @@ import java.net.URL;
 
 import org.eclipse.vex.core.internal.boxes.Border;
 import org.eclipse.vex.core.internal.boxes.BorderLine;
+import org.eclipse.vex.core.internal.boxes.GraphicalBullet;
 import org.eclipse.vex.core.internal.boxes.IBulletFactory;
 import org.eclipse.vex.core.internal.boxes.IInlineBox;
 import org.eclipse.vex.core.internal.boxes.IStructuralBox;
@@ -129,11 +130,12 @@ public class CssBoxFactory {
 		return square;
 	}
 
-	public static Square square(final Styles styles) {
-		final Square square = new Square();
-		square.setFont(font(styles));
-		square.setColor(styles.getColor());
-		return square;
+	public static GraphicalBullet graphicalBullet(final BulletStyle.Type type, final Styles styles) {
+		final GraphicalBullet bullet = new GraphicalBullet();
+		bullet.setType(type);
+		bullet.setFont(font(styles));
+		bullet.setColor(styles.getColor());
+		return bullet;
 	}
 
 	public static NodeTag nodeTag(final INode node, final Styles styles) {

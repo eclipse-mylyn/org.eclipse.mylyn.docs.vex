@@ -91,6 +91,11 @@ public class BaseBoxVisitor implements IBoxVisitor {
 	}
 
 	@Override
+	public void visit(final GraphicalBullet box) {
+		// ignore
+	}
+
+	@Override
 	public void visit(final Square box) {
 		// ignore
 	}

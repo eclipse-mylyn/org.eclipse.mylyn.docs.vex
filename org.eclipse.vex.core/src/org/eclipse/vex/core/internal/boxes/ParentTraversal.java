@@ -101,6 +101,11 @@ public class ParentTraversal<T> implements IBoxVisitorWithResult<T> {
 	}
 
 	@Override
+	public T visit(final GraphicalBullet box) {
+		return box.getParent().accept(this);
+	}
+
+	@Override
 	public T visit(final Square box) {
 		return box.getParent().accept(this);
 	}
