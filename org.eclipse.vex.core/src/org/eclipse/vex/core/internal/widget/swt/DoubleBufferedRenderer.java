@@ -14,6 +14,7 @@ import java.net.URL;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
 import org.eclipse.swt.events.PaintEvent;
@@ -160,6 +161,8 @@ public class DoubleBufferedRenderer implements IRenderer {
 		public RenderBuffer(final Device device, final int width, final int height, final Map<URL, SwtImage> imageCache) {
 			image = new Image(device, Math.max(1, width), Math.max(1, height));
 			gc = new GC(image);
+			gc.setAdvanced(true);
+			gc.setAntialias(SWT.ON);
 			graphics = new SwtGraphics(gc, imageCache);
 		}
 
