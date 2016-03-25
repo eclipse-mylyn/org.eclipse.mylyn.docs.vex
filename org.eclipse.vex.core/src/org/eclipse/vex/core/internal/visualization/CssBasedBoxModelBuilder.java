@@ -271,7 +271,7 @@ public class CssBasedBoxModelBuilder implements IBoxModelBuilder {
 					inlineElementContent = paragraph(styles, visualizeText(comment.getContent(), comment.getRange().resizeBy(1, -1), comment, styles));
 				}
 
-				return nodeReferenceWithText(comment, surroundWithPseudoElements(frame(surroundWithInlinePseudoElements(inlineElementContent, comment, styles), styles), comment, styles));
+				return nodeReferenceWithText(comment, frame(surroundWithPseudoElements(surroundWithInlinePseudoElements(inlineElementContent, comment, styles), comment, styles), styles));
 			}
 
 			@Override
@@ -283,7 +283,7 @@ public class CssBasedBoxModelBuilder implements IBoxModelBuilder {
 					inlineElementContent = paragraph(styles, visualizeText(pi.getContent(), pi.getRange().resizeBy(1, -1), pi, styles));
 				}
 
-				return nodeReferenceWithText(pi, surroundWithPseudoElements(frame(surroundWithInlinePseudoElements(inlineElementContent, pi, styles), styles), pi, styles));
+				return nodeReferenceWithText(pi, frame(surroundWithPseudoElements(surroundWithInlinePseudoElements(inlineElementContent, pi, styles), pi, styles), styles));
 			}
 		});
 	}
@@ -332,11 +332,11 @@ public class CssBasedBoxModelBuilder implements IBoxModelBuilder {
 		final boolean mayContainText = mayContainText(element);
 		final boolean containsInlineContent = containsInlineContent(childrenResults);
 		if (mayContainText) {
-			return nodeReferenceWithText(element, surroundWithPseudoElements(frame(content, styles), element, styles));
+			return nodeReferenceWithText(element, frame(surroundWithPseudoElements(content, element, styles), styles));
 		} else if (containsInlineContent) {
-			return nodeReferenceWithInlineContent(element, surroundWithPseudoElements(frame(content, styles), element, styles));
+			return nodeReferenceWithInlineContent(element, frame(surroundWithPseudoElements(content, element, styles), styles));
 		} else {
-			return nodeReference(element, surroundWithPseudoElements(frame(content, styles), element, styles));
+			return nodeReference(element, frame(surroundWithPseudoElements(content, element, styles), styles));
 		}
 	}
 
