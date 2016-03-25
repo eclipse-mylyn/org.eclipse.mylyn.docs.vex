@@ -38,7 +38,6 @@ import org.eclipse.swt.events.MouseEvent;
 import org.eclipse.swt.events.MouseMoveListener;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.vex.core.internal.core.ElementName;
 import org.eclipse.vex.core.internal.core.Rectangle;
@@ -68,11 +67,11 @@ import org.eclipse.vex.core.provisional.dom.INode;
 import org.eclipse.vex.core.provisional.dom.IProcessingInstruction;
 
 /**
- * A widget to display the new box model.
+ * A widget to display and edit an XML document.
  *
  * @author Florian Thienel
  */
-public class BoxWidget extends Canvas implements ISelectionProvider, IDocumentEditor {
+public class XmlDocumentEditor extends BaseXmlDocumentEditor implements ISelectionProvider, IDocumentEditor {
 
 	private static final int SELECTION_CHANGE_NOTIFICATION_DELAY = 100;
 	private static final char CHAR_NONE = 0;
@@ -91,7 +90,7 @@ public class BoxWidget extends Canvas implements ISelectionProvider, IDocumentEd
 	private final ListenerList selectionChangedListeners = new ListenerList();
 	private Runnable lastSelectionChangeNotification = null;
 
-	public BoxWidget(final Composite parent, final int style) {
+	public XmlDocumentEditor(final Composite parent, final int style) {
 		super(parent, style | SWT.NO_BACKGROUND);
 
 		mouseCursor = new org.eclipse.swt.graphics.Cursor(parent.getDisplay(), SWT.CURSOR_IBEAM);
@@ -127,6 +126,7 @@ public class BoxWidget extends Canvas implements ISelectionProvider, IDocumentEd
 		return document;
 	}
 
+	@Override
 	public void setBoxModelBuilder(final IBoxModelBuilder boxModelBuilder) {
 		controller.setBoxModelBuilder(boxModelBuilder);
 	}
@@ -135,7 +135,7 @@ public class BoxWidget extends Canvas implements ISelectionProvider, IDocumentEd
 		addDisposeListener(new DisposeListener() {
 			@Override
 			public void widgetDisposed(final DisposeEvent e) {
-				BoxWidget.this.widgetDisposed();
+				XmlDocumentEditor.this.widgetDisposed();
 			}
 		});
 	}
@@ -162,7 +162,7 @@ public class BoxWidget extends Canvas implements ISelectionProvider, IDocumentEd
 		addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyPressed(final KeyEvent e) {
-				BoxWidget.this.keyPressed(e);
+				XmlDocumentEditor.this.keyPressed(e);
 			}
 		});
 	}
@@ -171,18 +171,18 @@ public class BoxWidget extends Canvas implements ISelectionProvider, IDocumentEd
 		addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseDoubleClick(final MouseEvent e) {
-				BoxWidget.this.mouseDoubleClick(e);
+				XmlDocumentEditor.this.mouseDoubleClick(e);
 			}
 
 			@Override
 			public void mouseDown(final MouseEvent e) {
-				BoxWidget.this.mouseDown(e);
+				XmlDocumentEditor.this.mouseDown(e);
 			}
 		});
 		addMouseMoveListener(new MouseMoveListener() {
 			@Override
 			public void mouseMove(final MouseEvent e) {
-				BoxWidget.this.mouseMove(e);
+				XmlDocumentEditor.this.mouseMove(e);
 			}
 		});
 	}
@@ -220,7 +220,7 @@ public class BoxWidget extends Canvas implements ISelectionProvider, IDocumentEd
 		final IVexWidgetHandler handler = KEY_MAP.get(keyStroke);
 		if (handler != null) {
 			try {
-				handler.execute(new ExecutionEvent(null, Collections.emptyMap(), event, null), BoxWidget.this);
+				handler.execute(new ExecutionEvent(null, Collections.emptyMap(), event, null), XmlDocumentEditor.this);
 			} catch (final ReadOnlyException e) {
 				// TODO give feedback: the editor is read-only
 			} catch (final Exception ex) {
@@ -274,6 +274,7 @@ public class BoxWidget extends Canvas implements ISelectionProvider, IDocumentEd
 		controller.refreshAll();
 	}
 
+	@Override
 	public Rectangle getCaretArea() {
 		return cursor.getCaretArea();
 	}
@@ -321,7 +322,7 @@ public class BoxWidget extends Canvas implements ISelectionProvider, IDocumentEd
 
 				for (final Object listener : selectionChangedListeners.getListeners()) {
 					try {
-						((ISelectionChangedListener) listener).selectionChanged(new SelectionChangedEvent(BoxWidget.this, selection));
+						((ISelectionChangedListener) listener).selectionChanged(new SelectionChangedEvent(XmlDocumentEditor.this, selection));
 					} catch (final Throwable t) {
 						t.printStackTrace();
 						// TODO remove listener?

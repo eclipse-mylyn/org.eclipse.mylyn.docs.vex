@@ -53,7 +53,7 @@ import org.eclipse.vex.core.internal.css.StyleSheetReader;
 import org.eclipse.vex.core.internal.io.UniversalTestDocument;
 import org.eclipse.vex.core.internal.visualization.CssBasedBoxModelBuilder;
 import org.eclipse.vex.core.internal.widget.CssTableModel;
-import org.eclipse.vex.core.internal.widget.swt.BoxWidget;
+import org.eclipse.vex.core.internal.widget.swt.XmlDocumentEditor;
 import org.eclipse.vex.core.internal.widget.swt.IVexSelection;
 import org.eclipse.vex.core.provisional.dom.ContentRange;
 import org.eclipse.vex.core.provisional.dom.IContent;
@@ -74,7 +74,7 @@ public class BoxDemoView extends ViewPart {
 	private static final IPath CSS_WORKSPACE_FILE = new Path("/test/box-demo.css");
 
 	private Composite boxWidgetParent;
-	private BoxWidget boxWidget;
+	private XmlDocumentEditor boxWidget;
 	private IDocument document;
 
 	private Label offsetLabel;
@@ -156,7 +156,7 @@ public class BoxDemoView extends ViewPart {
 			boxWidget = null;
 			cleanStaleReferenceInShell();
 		}
-		boxWidget = new BoxWidget(boxWidgetParent, SWT.V_SCROLL);
+		boxWidget = new XmlDocumentEditor(boxWidgetParent, SWT.V_SCROLL);
 
 		document = UniversalTestDocument.createTestDocumentWithAllFeatures(SAMPLE_COUNT);
 		boxWidget.setDocument(document);

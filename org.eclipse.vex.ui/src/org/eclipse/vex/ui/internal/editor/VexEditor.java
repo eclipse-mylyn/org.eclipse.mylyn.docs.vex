@@ -102,8 +102,10 @@ import org.eclipse.vex.core.internal.validator.WTPVEXValidator;
 import org.eclipse.vex.core.internal.visualization.CssBasedBoxModelBuilder;
 import org.eclipse.vex.core.internal.widget.CssTableModel;
 import org.eclipse.vex.core.internal.widget.IDocumentEditor;
-import org.eclipse.vex.core.internal.widget.swt.BoxWidget;
+import org.eclipse.vex.core.internal.widget.swt.BaseXmlDocumentEditor;
+import org.eclipse.vex.core.internal.widget.swt.XmlDocumentEditor;
 import org.eclipse.vex.core.internal.widget.swt.IVexSelection;
+import org.eclipse.vex.core.internal.widget.swt.VexWidget;
 import org.eclipse.vex.core.provisional.dom.AttributeChangeEvent;
 import org.eclipse.vex.core.provisional.dom.BaseNodeVisitorWithResult;
 import org.eclipse.vex.core.provisional.dom.ContentChangeEvent;
@@ -161,6 +163,8 @@ public class VexEditor extends EditorPart {
 	 */
 	public static final String ID = "org.eclipse.vex.ui.internal.editor.VexEditor"; //$NON-NLS-1$
 
+	private boolean useNewBoxModel;
+
 	private final boolean debugging;
 	private final ConfigurationRegistry configurationRegistry;
 	private final VexPreferences preferences;
@@ -173,7 +177,7 @@ public class VexEditor extends EditorPart {
 	private IDocument document;
 	private Style style;
 
-	private BoxWidget editorWidget;
+	private BaseXmlDocumentEditor editorWidget;
 
 	private boolean dirty;
 
@@ -814,6 +818,9 @@ public class VexEditor extends EditorPart {
 			document.addDocumentListener(documentListener);
 
 			editorWidget.setBoxModelBuilder(new CssBasedBoxModelBuilder(style.getStyleSheet()));
+			if (!useNewBoxModel) {
+				((VexWidget) editorWidget).setStyleSheet(style.getStyleSheet());
+			}
 			editorWidget.setWhitespacePolicy(reader.getWhitespacePolicy());
 			editorWidget.setTableModel(new CssTableModel(style.getStyleSheet()));
 			editorWidget.setDocument(document);
@@ -886,6 +893,9 @@ public class VexEditor extends EditorPart {
 		this.style = style;
 		if (editorWidget != null) {
 			editorWidget.setBoxModelBuilder(new CssBasedBoxModelBuilder(style.getStyleSheet()));
+			if (!useNewBoxModel) {
+				((VexWidget) editorWidget).setStyleSheet(style.getStyleSheet());
+			}
 			editorWidget.setWhitespacePolicy(new CssWhitespacePolicy(style.getStyleSheet()));
 			editorWidget.setTableModel(new CssTableModel(style.getStyleSheet()));
 			preferences.setPreferredStyleId(doctype, style.getUniqueId());
@@ -983,7 +993,12 @@ public class VexEditor extends EditorPart {
 		gd.horizontalAlignment = GridData.FILL;
 		gd.verticalAlignment = GridData.FILL;
 
-		editorWidget = new BoxWidget(parentControl, SWT.V_SCROLL);
+		useNewBoxModel = preferences.getUseNewBoxModel();
+		if (useNewBoxModel) {
+			editorWidget = new XmlDocumentEditor(parentControl, SWT.V_SCROLL);
+		} else {
+			editorWidget = new VexWidget(parentControl, SWT.V_SCROLL);
+		}
 		gd = new GridData();
 		gd.grabExcessHorizontalSpace = true;
 		gd.grabExcessVerticalSpace = true;
@@ -1025,6 +1040,9 @@ public class VexEditor extends EditorPart {
 						// Let's just hold on to it in case it comes back later
 					} else {
 						editorWidget.setBoxModelBuilder(new CssBasedBoxModelBuilder(style.getStyleSheet()));
+						if (!useNewBoxModel) {
+							((VexWidget) editorWidget).setStyleSheet(style.getStyleSheet());
+						}
 						editorWidget.setWhitespacePolicy(new CssWhitespacePolicy(style.getStyleSheet()));
 						editorWidget.setTableModel(new CssTableModel(style.getStyleSheet()));
 						style = newStyle;

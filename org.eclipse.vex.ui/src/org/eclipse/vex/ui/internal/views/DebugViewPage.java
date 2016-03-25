@@ -39,7 +39,7 @@ import org.eclipse.ui.part.IPageBookViewPage;
 import org.eclipse.ui.part.IPageSite;
 import org.eclipse.vex.core.internal.core.Rectangle;
 import org.eclipse.vex.core.internal.layout.Box;
-import org.eclipse.vex.core.internal.widget.swt.BoxWidget;
+import org.eclipse.vex.core.internal.widget.swt.BaseXmlDocumentEditor;
 import org.eclipse.vex.core.provisional.dom.ContentPosition;
 import org.eclipse.vex.core.provisional.dom.ContentRange;
 import org.eclipse.vex.core.provisional.dom.IDocument;
@@ -135,7 +135,7 @@ class DebugViewPage implements IPageBookViewPage {
 
 	private IPageSite site;
 	private final VexEditor editorPart;
-	private BoxWidget documentEditor;
+	private BaseXmlDocumentEditor documentEditor;
 	private Composite composite;
 
 	private Label loadingLabel;
@@ -160,7 +160,7 @@ class DebugViewPage implements IPageBookViewPage {
 			loadingLabel = null;
 		}
 
-		documentEditor = (BoxWidget) editorPart.getVexWidget();
+		documentEditor = (BaseXmlDocumentEditor) editorPart.getVexWidget();
 
 		final GridLayout layout = new GridLayout();
 		layout.numColumns = 1;

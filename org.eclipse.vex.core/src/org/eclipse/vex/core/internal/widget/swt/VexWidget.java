@@ -31,7 +31,6 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.ISelectionProvider;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
-import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.dnd.Clipboard;
 import org.eclipse.swt.dnd.TextTransfer;
@@ -54,7 +53,6 @@ import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Point;
-import org.eclipse.swt.widgets.Canvas;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.ScrollBar;
 import org.eclipse.vex.core.internal.core.Caret;
@@ -67,6 +65,7 @@ import org.eclipse.vex.core.internal.core.Rectangle;
 import org.eclipse.vex.core.internal.css.IWhitespacePolicy;
 import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.internal.io.XMLFragment;
+import org.eclipse.vex.core.internal.visualization.IBoxModelBuilder;
 import org.eclipse.vex.core.internal.widget.BaseVexWidget;
 import org.eclipse.vex.core.internal.widget.IDocumentEditor;
 import org.eclipse.vex.core.internal.widget.IHostComponent;
@@ -87,7 +86,7 @@ import org.eclipse.vex.core.provisional.dom.IProcessingInstruction;
 /**
  * An implementation of the Vex widget based on SWT.
  */
-public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider {
+public class VexWidget extends BaseXmlDocumentEditor implements IVexWidget, ISelectionProvider {
 
 	public VexWidget(final Composite parent, final int style) {
 		super(parent, style);
@@ -124,7 +123,7 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 	}
 
 	@Override
-	public ISelection getSelection() {
+	public IVexSelection getSelection() {
 		return selection;
 	}
 
@@ -674,7 +673,7 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 	int originY = 0;
 
 	private final List<ISelectionChangedListener> selectionListeners = new ArrayList<ISelectionChangedListener>();
-	private ISelection selection;
+	private IVexSelection selection;
 
 	private final Runnable caretTimerRunnable = new Runnable() {
 		@Override
@@ -734,13 +733,7 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 
 		@Override
 		public void fireSelectionChanged() {
-
-			if (hasSelection()) {
-				final List<? extends INode> nodes = getDocument().getNodes(getSelectedRange());
-				selection = new StructuredSelection(nodes);
-			} else {
-				selection = new StructuredSelection(getCurrentNode());
-			}
+			selection = new VexSelection(VexWidget.this);
 
 			final SelectionChangedEvent e = new SelectionChangedEvent(VexWidget.this, selection);
 			for (final ISelectionChangedListener listener : selectionListeners) {
@@ -1107,6 +1100,18 @@ public class VexWidget extends Canvas implements IVexWidget, ISelectionProvider 
 		scroll(destX, destY, 0, 0, ca.width, ca.height, false);
 		originX = x;
 		originY = y;
+	}
+
+	@Override
+	public void setBoxModelBuilder(final IBoxModelBuilder boxModelBuilder) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public Rectangle getCaretArea() {
+		final Caret caret = impl.getCaret();
+		return new Rectangle(caret.getX(), caret.getY(), 1, 1);
 	}
 
 }

@@ -1,5 +1,6 @@
 package org.eclipse.vex.ui.internal.preferences;
 
+import org.eclipse.jface.preference.BooleanFieldEditor;
 import org.eclipse.jface.preference.FieldEditorPreferencePage;
 import org.eclipse.jface.preference.IntegerFieldEditor;
 import org.eclipse.jface.preference.RadioGroupFieldEditor;
@@ -21,6 +22,7 @@ public class RootPreferencePage extends FieldEditorPreferencePage implements IWo
 		addField(new RadioGroupFieldEditor(VexPreferences.INDENTATION_CHAR_CHOICE, "Indentation", 1, new String[][] { { "Indent using tabs", VexPreferences.INDENTATION_CHAR_TAB },
 				{ "Indent using spaces", VexPreferences.INDENTATION_CHAR_SPACE } }, getFieldEditorParent()));
 		addField(new IntegerFieldEditor(VexPreferences.INDENTATION_SIZE, "Indentation size:", getFieldEditorParent()));
+		addField(new BooleanFieldEditor(VexPreferences.EXPERIMENTAL_USE_NEW_BOX_MODEL, "Use new box model (EXPERIMENTAL)", getFieldEditorParent()));
 	}
 
 	@Override

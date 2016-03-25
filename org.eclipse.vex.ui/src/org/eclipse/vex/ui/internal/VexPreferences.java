@@ -40,6 +40,8 @@ public class VexPreferences implements IStyleSheetProvider {
 
 	public static final String LINE_WIDTH = "lineWidth";
 
+	public static final String EXPERIMENTAL_USE_NEW_BOX_MODEL = "useNewBoxmodel";
+
 	private static final String PREFERRED_STYLE_SUFFIX = ".style";
 
 	private final IPreferenceStore preferenceStore;
@@ -86,6 +88,10 @@ public class VexPreferences implements IStyleSheetProvider {
 
 	public int getLineWidth() {
 		return preferenceStore.getInt(LINE_WIDTH);
+	}
+
+	public boolean getUseNewBoxModel() {
+		return preferenceStore.getBoolean(EXPERIMENTAL_USE_NEW_BOX_MODEL);
 	}
 
 	@Override

@@ -11,7 +11,6 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.widget;
 
-import org.eclipse.vex.core.internal.css.IWhitespacePolicy;
 import org.eclipse.vex.core.internal.css.StyleSheet;
 import org.eclipse.vex.core.provisional.dom.ContentPosition;
 import org.eclipse.vex.core.provisional.dom.IDocument;
@@ -50,10 +49,6 @@ public interface IVexWidget extends IDocumentEditor {
 	 *            the new StyleSheet to use
 	 */
 	void setStyleSheet(StyleSheet styleSheet);
-
-	public void setWhitespacePolicy(IWhitespacePolicy whitespacePolicy);
-
-	public IWhitespacePolicy getWhitespacePolicy();
 
 	/**
 	 * Returns the value of the debugging flag.
