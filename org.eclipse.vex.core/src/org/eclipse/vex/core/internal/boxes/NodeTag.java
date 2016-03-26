@@ -25,6 +25,10 @@ public class NodeTag extends SimpleInlineBox {
 		NODE, START, END;
 	}
 
+	private static final int MARGIN = 2;
+	private static final float SIZE_RATIO = 0.5f;
+	private static final float BASELINE_RATIO = 1.1f;
+
 	private int width;
 	private int height;
 	private int baseline;
@@ -33,6 +37,7 @@ public class NodeTag extends SimpleInlineBox {
 	private INode node;
 	private Color color;
 	private boolean showText;
+	private float fontSize;
 
 	@Override
 	public int getWidth() {
@@ -69,6 +74,14 @@ public class NodeTag extends SimpleInlineBox {
 		this.showText = showText;
 	}
 
+	public void setFontSize(final float fontSize) {
+		this.fontSize = fontSize;
+	}
+
+	public float getFontSize() {
+		return fontSize;
+	}
+
 	@Override
 	public void accept(final IBoxVisitor visitor) {
 		visitor.visit(this);
@@ -82,9 +95,13 @@ public class NodeTag extends SimpleInlineBox {
 	@Override
 	public void layout(final Graphics graphics) {
 		final Point tagSize = getTagSize(graphics);
-		width = tagSize.getX();
+		width = tagSize.getX() + MARGIN;
 		height = tagSize.getY();
-		baseline = NodeGraphics.getTagBaseline(graphics);
+		if (kind == Kind.NODE || showText) {
+			baseline = NodeGraphics.getTagBaseline(graphics);
+		} else {
+			baseline = Math.round(height * BASELINE_RATIO);
+		}
 	}
 
 	private Point getTagSize(final Graphics graphics) {
@@ -92,9 +109,19 @@ public class NodeTag extends SimpleInlineBox {
 		case NODE:
 			return NodeGraphics.getTagSize(graphics, getText());
 		case START:
-			return NodeGraphics.getStartTagSize(graphics, getText());
+			if (showText) {
+				return NodeGraphics.getStartTagSize(graphics, getText());
+			} else {
+				final int size = Math.round(fontSize * SIZE_RATIO);
+				return new Point(size, size);
+			}
 		case END:
-			return NodeGraphics.getEndTagSize(graphics, getText());
+			if (showText) {
+				return NodeGraphics.getEndTagSize(graphics, getText());
+			} else {
+				final int size = Math.round(fontSize * SIZE_RATIO);
+				return new Point(size, size);
+			}
 		default:
 			throw new IllegalStateException("Unknown kind " + kind + " of NodeTag.");
 		}
@@ -117,16 +144,24 @@ public class NodeTag extends SimpleInlineBox {
 
 	@Override
 	public void paint(final Graphics graphics) {
-		graphics.setForeground(graphics.getColor(color));
+		graphics.setColor(graphics.getColor(color));
 		switch (kind) {
 		case NODE:
-			NodeGraphics.drawTag(graphics, getText(), 0, 0, false, false, true);
+			NodeGraphics.drawTag(graphics, getText(), MARGIN / 2, 0, false, false, true);
 			break;
 		case START:
-			NodeGraphics.drawStartTag(graphics, getText(), 0, 0, false, true);
+			if (showText) {
+				NodeGraphics.drawStartTag(graphics, getText(), MARGIN, 0, false, true);
+			} else {
+				NodeGraphics.drawSimpleStartTag(graphics, MARGIN, 0, height, false, true);
+			}
 			break;
 		case END:
-			NodeGraphics.drawEndTag(graphics, getText(), 0, 0, false, true);
+			if (showText) {
+				NodeGraphics.drawEndTag(graphics, getText(), 0, 0, false, true);
+			} else {
+				NodeGraphics.drawSimpleEndTag(graphics, 0, 0, height, false, true);
+			}
 			break;
 		default:
 			throw new IllegalStateException("Unknown kind " + kind + " of NodeTag.");

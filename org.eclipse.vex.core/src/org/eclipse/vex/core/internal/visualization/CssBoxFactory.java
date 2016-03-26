@@ -144,6 +144,7 @@ public class CssBoxFactory {
 		nodeTag.setNode(node);
 		nodeTag.setColor(styles.getColor());
 		nodeTag.setShowText(true);
+		nodeTag.setFontSize(styles.getFontSize());
 		return nodeTag;
 	}
 
@@ -153,6 +154,7 @@ public class CssBoxFactory {
 		nodeTag.setNode(node);
 		nodeTag.setColor(styles.getColor());
 		nodeTag.setShowText(false);
+		nodeTag.setFontSize(styles.getFontSize());
 		return nodeTag;
 	}
 
@@ -162,6 +164,7 @@ public class CssBoxFactory {
 		nodeTag.setNode(node);
 		nodeTag.setColor(styles.getColor());
 		nodeTag.setShowText(false);
+		nodeTag.setFontSize(styles.getFontSize());
 		return nodeTag;
 	}
 

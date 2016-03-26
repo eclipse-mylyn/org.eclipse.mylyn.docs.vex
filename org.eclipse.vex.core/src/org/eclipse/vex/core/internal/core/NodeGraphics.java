@@ -126,6 +126,31 @@ public class NodeGraphics {
 		return new Point(width, height);
 	}
 
+	public static void drawSimpleStartTag(final Graphics graphics, final int x, final int y, final int size, final boolean verticallyCentered, final boolean transparent) {
+		final int effectiveY;
+		if (verticallyCentered) {
+			effectiveY = y - size / 2;
+		} else {
+			effectiveY = y;
+		}
+
+		if (!transparent) {
+			graphics.fillPolygon(simpleArrowRight(x, effectiveY, size));
+		} else {
+			graphics.setLineStyle(LineStyle.SOLID);
+			graphics.setLineWidth(1);
+			graphics.drawPolygon(simpleArrowRight(x, effectiveY, size));
+		}
+	}
+
+	private static int[] simpleArrowRight(final int x, final int y, final int size) {
+		return new int[] {
+				x, y + size,
+				x, y,
+				x + size - 1, y + size / 2
+		};
+	}
+
 	public static void drawEndTag(final Graphics graphics, final INode node, final int x, final int y, final boolean verticallyCentered, final boolean transparent) {
 		drawEndTag(graphics, getNodeName(node), x, y, verticallyCentered, false);
 	}
@@ -174,6 +199,31 @@ public class NodeGraphics {
 		final int height = graphics.getFontMetrics().getHeight() + (TEXT_PADDING + MARGIN) * 2;
 		final int width = graphics.stringWidth(text) + TEXT_PADDING + MARGIN * 2 + height / 2;
 		return new Point(width, height);
+	}
+
+	public static void drawSimpleEndTag(final Graphics graphics, final int x, final int y, final int size, final boolean verticallyCentered, final boolean transparent) {
+		final int effectiveY;
+		if (verticallyCentered) {
+			effectiveY = y - size / 2;
+		} else {
+			effectiveY = y;
+		}
+
+		if (!transparent) {
+			graphics.fillPolygon(simpleArrowLeft(x, effectiveY, size));
+		} else {
+			graphics.setLineStyle(LineStyle.SOLID);
+			graphics.setLineWidth(1);
+			graphics.drawPolygon(simpleArrowLeft(x, effectiveY, size));
+		}
+	}
+
+	private static int[] simpleArrowLeft(final int x, final int y, final int size) {
+		return new int[] {
+				x + size - 1, y + size,
+				x + size - 1, y,
+				x, y + size / 2
+		};
 	}
 
 	public static String getNodeName(final INode node) {

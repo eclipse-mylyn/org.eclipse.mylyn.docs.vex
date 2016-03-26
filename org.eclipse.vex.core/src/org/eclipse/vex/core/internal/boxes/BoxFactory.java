@@ -211,11 +211,13 @@ public class BoxFactory {
 		return bullet;
 	}
 
-	public static NodeTag nodeTag(final Kind kind, final INode node, final Color foreground) {
+	public static NodeTag nodeTag(final Kind kind, final INode node, final Color foreground, final boolean showText, final float fontSize) {
 		final NodeTag nodeTag = new NodeTag();
 		nodeTag.setKind(kind);
 		nodeTag.setNode(node);
 		nodeTag.setColor(foreground);
+		nodeTag.setShowText(showText);
+		nodeTag.setFontSize(fontSize);
 		return nodeTag;
 	}
 }
