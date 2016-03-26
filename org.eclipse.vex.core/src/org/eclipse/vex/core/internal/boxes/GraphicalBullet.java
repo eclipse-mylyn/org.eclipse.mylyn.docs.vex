@@ -21,8 +21,8 @@ import org.eclipse.vex.core.internal.css.BulletStyle;
  */
 public class GraphicalBullet extends SimpleInlineBox {
 
-	private static final float HEIGHT_RATIO = 0.7f;
-	private static final float LIFT_RATIO = 0.15f;
+	private static final float HEIGHT_RATIO = 0.5f;
+	private static final float LIFT_RATIO = 0.1f;
 
 	private int width;
 	private int height;
