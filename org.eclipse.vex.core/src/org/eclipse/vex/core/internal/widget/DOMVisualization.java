@@ -28,6 +28,10 @@ import org.eclipse.vex.core.internal.boxes.Paragraph;
 import org.eclipse.vex.core.internal.boxes.RootBox;
 import org.eclipse.vex.core.internal.boxes.StructuralFrame;
 import org.eclipse.vex.core.internal.boxes.StructuralNodeReference;
+import org.eclipse.vex.core.internal.boxes.Table;
+import org.eclipse.vex.core.internal.boxes.TableCell;
+import org.eclipse.vex.core.internal.boxes.TableRow;
+import org.eclipse.vex.core.internal.boxes.TableRowGroup;
 import org.eclipse.vex.core.internal.boxes.TextContent;
 import org.eclipse.vex.core.internal.boxes.VerticalBlock;
 import org.eclipse.vex.core.internal.cursor.ContentTopology;
@@ -134,6 +138,26 @@ public class DOMVisualization {
 			@Override
 			public void visit(final List box) {
 				box.setComponent(boxModelBuilder.visualizeStructure(node));
+			}
+
+			@Override
+			public void visit(final Table box) {
+				box.replaceChildren(modifiedBoxes, boxModelBuilder.visualizeStructure(node));
+			}
+
+			@Override
+			public void visit(final TableRowGroup box) {
+				box.replaceChildren(modifiedBoxes, boxModelBuilder.visualizeStructure(node));
+			}
+
+			@Override
+			public void visit(final TableRow box) {
+				box.replaceChildren(modifiedBoxes, boxModelBuilder.visualizeStructure(node));
+			}
+
+			@Override
+			public void visit(final TableCell box) {
+				box.replaceChildren(modifiedBoxes, boxModelBuilder.visualizeStructure(node));
 			}
 
 			@Override

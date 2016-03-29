@@ -50,6 +50,26 @@ public abstract class DepthFirstBoxTraversal<T> extends BaseBoxVisitorWithResult
 	}
 
 	@Override
+	public T visit(final Table box) {
+		return traverseChildren(box);
+	}
+
+	@Override
+	public T visit(final TableRowGroup box) {
+		return traverseChildren(box);
+	}
+
+	@Override
+	public T visit(final TableRow box) {
+		return traverseChildren(box);
+	}
+
+	@Override
+	public T visit(final TableCell box) {
+		return traverseChildren(box);
+	}
+
+	@Override
 	public T visit(final Paragraph box) {
 		return traverseChildren(box);
 	}

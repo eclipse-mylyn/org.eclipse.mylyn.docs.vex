@@ -142,6 +142,38 @@ public class BoxFactory {
 		return listItem;
 	}
 
+	public static Table table(final IStructuralBox... children) {
+		final Table table = new Table();
+		for (final IStructuralBox child : children) {
+			table.appendChild(child);
+		}
+		return table;
+	}
+
+	public static TableRowGroup tableRowGroup(final IStructuralBox... children) {
+		final TableRowGroup tableRowGroup = new TableRowGroup();
+		for (final IStructuralBox child : children) {
+			tableRowGroup.appendChild(child);
+		}
+		return tableRowGroup;
+	}
+
+	public static TableRow tableRow(final IStructuralBox... children) {
+		final TableRow tableRow = new TableRow();
+		for (final IStructuralBox child : children) {
+			tableRow.appendChild(child);
+		}
+		return tableRow;
+	}
+
+	public static TableCell tableCell(final IStructuralBox... children) {
+		final TableCell tableCell = new TableCell();
+		for (final IStructuralBox child : children) {
+			tableCell.appendChild(child);
+		}
+		return tableCell;
+	}
+
 	public static Paragraph paragraph(final IInlineBox... children) {
 		final Paragraph paragraph = new Paragraph();
 		for (final IInlineBox child : children) {

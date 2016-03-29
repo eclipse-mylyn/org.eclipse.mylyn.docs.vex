@@ -61,6 +61,26 @@ public class ParentTraversal<T> implements IBoxVisitorWithResult<T> {
 	}
 
 	@Override
+	public T visit(final Table box) {
+		return box.getParent().accept(this);
+	}
+
+	@Override
+	public T visit(final TableRowGroup box) {
+		return box.getParent().accept(this);
+	}
+
+	@Override
+	public T visit(final TableRow box) {
+		return box.getParent().accept(this);
+	}
+
+	@Override
+	public T visit(final TableCell box) {
+		return box.getParent().accept(this);
+	}
+
+	@Override
 	public T visit(final Paragraph box) {
 		return box.getParent().accept(this);
 	}

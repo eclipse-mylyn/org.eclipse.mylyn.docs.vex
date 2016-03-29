@@ -29,6 +29,14 @@ public interface IBoxVisitor {
 
 	void visit(ListItem box);
 
+	void visit(Table box);
+
+	void visit(TableRowGroup box);
+
+	void visit(TableRow box);
+
+	void visit(TableCell box);
+
 	void visit(Paragraph box);
 
 	void visit(InlineNodeReference box);

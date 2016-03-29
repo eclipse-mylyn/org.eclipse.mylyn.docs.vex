@@ -61,6 +61,26 @@ public class BaseBoxVisitorWithResult<T> implements IBoxVisitorWithResult<T> {
 	}
 
 	@Override
+	public T visit(final Table box) {
+		return defaultValue;
+	}
+
+	@Override
+	public T visit(final TableRowGroup box) {
+		return defaultValue;
+	}
+
+	@Override
+	public T visit(final TableRow box) {
+		return defaultValue;
+	}
+
+	@Override
+	public T visit(final TableCell box) {
+		return defaultValue;
+	}
+
+	@Override
 	public T visit(final Paragraph box) {
 		return defaultValue;
 	}
