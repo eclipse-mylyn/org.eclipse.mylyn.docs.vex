@@ -16,6 +16,10 @@ import static org.eclipse.vex.core.internal.boxes.BoxFactory.nodeReference;
 import static org.eclipse.vex.core.internal.boxes.BoxFactory.nodeReferenceWithInlineContent;
 import static org.eclipse.vex.core.internal.boxes.BoxFactory.nodeReferenceWithText;
 import static org.eclipse.vex.core.internal.boxes.BoxFactory.rootBox;
+import static org.eclipse.vex.core.internal.boxes.BoxFactory.table;
+import static org.eclipse.vex.core.internal.boxes.BoxFactory.tableCell;
+import static org.eclipse.vex.core.internal.boxes.BoxFactory.tableRow;
+import static org.eclipse.vex.core.internal.boxes.BoxFactory.tableRowGroup;
 import static org.eclipse.vex.core.internal.boxes.BoxFactory.verticalBlock;
 import static org.eclipse.vex.core.internal.visualization.CssBoxFactory.endOffsetPlaceholder;
 import static org.eclipse.vex.core.internal.visualization.CssBoxFactory.endTag;
@@ -140,7 +144,15 @@ public class CssBasedBoxModelBuilder implements IBoxModelBuilder {
 			public VisualizeResult visit(final IElement element) {
 				final Styles styles = styleSheet.getStyles(element);
 				final Collection<VisualizeResult> childrenResults = traverseChildren(element);
-				if (isListRoot(styles)) {
+				if (isTable(styles)) {
+					return new VisualizeResult(element, styles, childrenResults, visualizeAsTable(element, styles, childrenResults));
+				} else if (isTableRowGroup(styles)) {
+					return new VisualizeResult(element, styles, childrenResults, visualizeAsTableRowGroup(element, styles, childrenResults));
+				} else if (isTableRow(styles)) {
+					return new VisualizeResult(element, styles, childrenResults, visualizeAsTableRow(element, styles, childrenResults));
+				} else if (isTableCell(styles)) {
+					return new VisualizeResult(element, styles, childrenResults, visualizeAsTableCell(element, styles, childrenResults));
+				} else if (isListRoot(styles)) {
 					return new VisualizeResult(element, styles, childrenResults, visualizeAsList(element, styles, childrenResults));
 				} else if (isListItem(styles)) {
 					return new VisualizeResult(element, styles, childrenResults, visualizeAsListItem(element, styles, childrenResults));
@@ -191,6 +203,24 @@ public class CssBasedBoxModelBuilder implements IBoxModelBuilder {
 		return CSS.LIST_ITEM.equals(styles.getDisplay());
 	}
 
+	private static boolean isTable(final Styles styles) {
+		return CSS.TABLE.equals(styles.getDisplay());
+	}
+
+	private static boolean isTableRowGroup(final Styles styles) {
+		return CSS.TABLE_ROW_GROUP.equals(styles.getDisplay())
+				|| CSS.TABLE_HEADER_GROUP.equals(styles.getDisplay())
+				|| CSS.TABLE_FOOTER_GROUP.equals(styles.getDisplay());
+	}
+
+	private static boolean isTableRow(final Styles styles) {
+		return CSS.TABLE_ROW.equals(styles.getDisplay());
+	}
+
+	private static boolean isTableCell(final Styles styles) {
+		return CSS.TABLE_CELL.equals(styles.getDisplay());
+	}
+
 	private static boolean isDisplayedAsBlock(final Styles styles) {
 		// currently we can only render blocks or inline, hence everything that is not inline must be a block
 		return !isDisplayedInline(styles);
@@ -206,6 +236,25 @@ public class CssBasedBoxModelBuilder implements IBoxModelBuilder {
 
 	private static boolean isWrappedInInlineMarkers(final Styles styles) {
 		return CSS.NORMAL.equals(styles.getInlineMarker());
+	}
+
+	/*
+	 * Render as Table
+	 */
+	private IStructuralBox visualizeAsTable(final IElement element, final Styles styles, final Collection<VisualizeResult> childrenResults) {
+		return table(visualizeAsBlock(element, styles, childrenResults));
+	}
+
+	private IStructuralBox visualizeAsTableRowGroup(final IElement element, final Styles styles, final Collection<VisualizeResult> childrenResults) {
+		return tableRowGroup(visualizeAsBlock(element, styles, childrenResults));
+	}
+
+	private IStructuralBox visualizeAsTableRow(final IElement element, final Styles styles, final Collection<VisualizeResult> childrenResults) {
+		return tableRow(visualizeAsBlock(element, styles, childrenResults));
+	}
+
+	private IStructuralBox visualizeAsTableCell(final IElement element, final Styles styles, final Collection<VisualizeResult> childrenResults) {
+		return tableCell(visualizeAsBlock(element, styles, childrenResults));
 	}
 
 	/*
