@@ -140,13 +140,63 @@ public class TableRow extends BaseBox implements IStructuralBox, IParentBox<IStr
 
 	public void layout(final Graphics graphics) {
 		height = 0;
+		int columnIndex = 1;
 		for (int i = 0; i < children.size(); i += 1) {
 			final IStructuralBox child = children.get(i);
-			child.setPosition(height, 0);
-			child.setWidth(width);
+
+			final int startColumn = getStartColumn(child, columnIndex);
+			final int endColumn = getEndColumn(child, startColumn);
+
+			final int childLeft = getColumnWidth(1, startColumn - 1);
+			final int columnWidth = getColumnWidth(startColumn, endColumn);
+
+			child.setPosition(0, childLeft);
+			child.setWidth(columnWidth);
 			child.layout(graphics);
-			height += child.getHeight();
+			height = Math.max(height, child.getHeight());
+			columnIndex = endColumn + 1;
 		}
+	}
+
+	private int getColumnWidth(final int startIndex, final int endIndex) {
+		int columnWidth = 0;
+		for (int i = startIndex; i <= endIndex; i += 1) {
+			columnWidth += getColumnWidth(i);
+		}
+		return columnWidth;
+	}
+
+	private int getColumnWidth(final int index) {
+		if (index < 1 || index > children.size()) {
+			return 0;
+		}
+		return Math.round(width / children.size());
+	}
+
+	private static int getStartColumn(final IStructuralBox box, final int defaultColumn) {
+		final int boxStartColumn = box.accept(new BaseBoxVisitorWithResult<Integer>(0) {
+			@Override
+			public Integer visit(final TableCell box) {
+				return box.getStartColumn();
+			}
+		});
+		if (boxStartColumn > 0) {
+			return boxStartColumn;
+		}
+		return defaultColumn;
+	}
+
+	private static int getEndColumn(final IStructuralBox box, final int defaultColumn) {
+		final int boxEndColumn = box.accept(new BaseBoxVisitorWithResult<Integer>(0) {
+			@Override
+			public Integer visit(final TableCell box) {
+				return box.getEndColumn();
+			}
+		});
+		if (boxEndColumn > 0) {
+			return boxEndColumn;
+		}
+		return defaultColumn;
 	}
 
 	@Override

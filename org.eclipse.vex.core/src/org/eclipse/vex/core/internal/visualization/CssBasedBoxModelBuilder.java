@@ -250,7 +250,8 @@ public class CssBasedBoxModelBuilder implements IBoxModelBuilder {
 	}
 
 	private IStructuralBox visualizeAsTableRow(final IElement element, final Styles styles, final Collection<VisualizeResult> childrenResults) {
-		return tableRow(visualizeAsBlock(element, styles, childrenResults));
+		final IStructuralBox content = visualizeChildrenAsStructure(element, styles, childrenResults, tableRow());
+		return wrapUpStructuralElementContent(element, styles, childrenResults, content);
 	}
 
 	private IStructuralBox visualizeAsTableCell(final IElement element, final Styles styles, final Collection<VisualizeResult> childrenResults) {

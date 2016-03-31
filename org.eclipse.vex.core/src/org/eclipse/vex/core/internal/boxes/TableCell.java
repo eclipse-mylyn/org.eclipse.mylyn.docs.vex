@@ -29,6 +29,9 @@ public class TableCell extends BaseBox implements IStructuralBox, IParentBox<ISt
 	private int height;
 	private final ArrayList<IStructuralBox> children = new ArrayList<IStructuralBox>();
 
+	private int startColumn;
+	private int endColumn;
+
 	@Override
 	public void setParent(final IBox parent) {
 		this.parent = parent;
@@ -136,6 +139,22 @@ public class TableCell extends BaseBox implements IStructuralBox, IParentBox<ISt
 
 	public Iterable<IStructuralBox> getChildren() {
 		return children;
+	}
+
+	public int getStartColumn() {
+		return startColumn;
+	}
+
+	public void setStartColumn(final int startColumn) {
+		this.startColumn = startColumn;
+	}
+
+	public int getEndColumn() {
+		return endColumn;
+	}
+
+	public void setEndColumn(final int endColumn) {
+		this.endColumn = endColumn;
 	}
 
 	public void layout(final Graphics graphics) {
