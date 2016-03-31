@@ -29,6 +29,8 @@ public class TableRowGroup extends BaseBox implements IStructuralBox, IParentBox
 	private int height;
 	private final ArrayList<IStructuralBox> children = new ArrayList<IStructuralBox>();
 
+	private TableColumnLayout columnLayout = new TableColumnLayout();
+
 	@Override
 	public void setParent(final IBox parent) {
 		this.parent = parent;
@@ -136,6 +138,14 @@ public class TableRowGroup extends BaseBox implements IStructuralBox, IParentBox
 
 	public Iterable<IStructuralBox> getChildren() {
 		return children;
+	}
+
+	public TableColumnLayout getColumnLayout() {
+		return columnLayout;
+	}
+
+	public void setColumnLayout(final TableColumnLayout columnLayout) {
+		this.columnLayout = columnLayout;
 	}
 
 	public void layout(final Graphics graphics) {

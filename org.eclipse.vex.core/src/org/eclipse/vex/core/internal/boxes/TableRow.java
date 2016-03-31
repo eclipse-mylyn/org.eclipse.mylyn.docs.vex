@@ -29,6 +29,8 @@ public class TableRow extends BaseBox implements IStructuralBox, IParentBox<IStr
 	private int height;
 	private final ArrayList<IStructuralBox> children = new ArrayList<IStructuralBox>();
 
+	private TableColumnLayout columnLayout = new TableColumnLayout();
+
 	@Override
 	public void setParent(final IBox parent) {
 		this.parent = parent;
@@ -138,6 +140,18 @@ public class TableRow extends BaseBox implements IStructuralBox, IParentBox<IStr
 		return children;
 	}
 
+	public TableColumnLayout getColumnLayout() {
+		return columnLayout;
+	}
+
+	public void setColumnLayout(final TableColumnLayout columnLayout) {
+		if (columnLayout == null) {
+			this.columnLayout = new TableColumnLayout();
+		} else {
+			this.columnLayout = columnLayout;
+		}
+	}
+
 	public void layout(final Graphics graphics) {
 		height = 0;
 		int columnIndex = 1;
@@ -167,10 +181,10 @@ public class TableRow extends BaseBox implements IStructuralBox, IParentBox<IStr
 	}
 
 	private int getColumnWidth(final int index) {
-		if (index < 1 || index > children.size()) {
+		if (index < 1 || index > columnLayout.getLastIndex()) {
 			return 0;
 		}
-		return Math.round(width / children.size());
+		return Math.round(width / columnLayout.getLastIndex());
 	}
 
 	private static int getStartColumn(final IStructuralBox box, final int defaultColumn) {
