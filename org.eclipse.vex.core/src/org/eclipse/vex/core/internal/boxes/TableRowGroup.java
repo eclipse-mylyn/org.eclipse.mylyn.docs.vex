@@ -149,6 +149,18 @@ public class TableRowGroup extends BaseBox implements IStructuralBox, IParentBox
 	}
 
 	public void layout(final Graphics graphics) {
+		layoutColumns(graphics);
+		layoutChildren(graphics);
+	}
+
+	private void layoutColumns(final Graphics graphics) {
+		if (columnLayout.getLastIndex() > 0) {
+			columnLayout = new TableColumnLayout(columnLayout.getParentLayout());
+		}
+		TableColumnLayout.addColumnLayoutInformationForChildren(graphics, this, columnLayout);
+	}
+
+	private void layoutChildren(final Graphics graphics) {
 		height = 0;
 		for (int i = 0; i < children.size(); i += 1) {
 			final IStructuralBox child = children.get(i);

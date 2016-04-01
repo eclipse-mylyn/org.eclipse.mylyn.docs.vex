@@ -30,6 +30,7 @@ import org.eclipse.vex.core.internal.boxes.StructuralFrame;
 import org.eclipse.vex.core.internal.boxes.StructuralNodeReference;
 import org.eclipse.vex.core.internal.boxes.Table;
 import org.eclipse.vex.core.internal.boxes.TableCell;
+import org.eclipse.vex.core.internal.boxes.TableColumnSpec;
 import org.eclipse.vex.core.internal.boxes.TableRow;
 import org.eclipse.vex.core.internal.boxes.TableRowGroup;
 import org.eclipse.vex.core.internal.boxes.TextContent;
@@ -148,6 +149,11 @@ public class DOMVisualization {
 			@Override
 			public void visit(final TableRowGroup box) {
 				box.replaceChildren(modifiedBoxes, boxModelBuilder.visualizeStructure(node));
+			}
+
+			@Override
+			public void visit(final TableColumnSpec box) {
+				box.setComponent(boxModelBuilder.visualizeStructure(node));
 			}
 
 			@Override

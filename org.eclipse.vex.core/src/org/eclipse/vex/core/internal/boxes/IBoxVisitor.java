@@ -33,6 +33,8 @@ public interface IBoxVisitor {
 
 	void visit(TableRowGroup box);
 
+	void visit(TableColumnSpec box);
+
 	void visit(TableRow box);
 
 	void visit(TableCell box);

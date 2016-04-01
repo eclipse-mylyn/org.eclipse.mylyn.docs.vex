@@ -18,6 +18,7 @@ import static org.eclipse.vex.core.internal.boxes.BoxFactory.nodeReferenceWithTe
 import static org.eclipse.vex.core.internal.boxes.BoxFactory.rootBox;
 import static org.eclipse.vex.core.internal.boxes.BoxFactory.table;
 import static org.eclipse.vex.core.internal.boxes.BoxFactory.tableCell;
+import static org.eclipse.vex.core.internal.boxes.BoxFactory.tableColumnSpec;
 import static org.eclipse.vex.core.internal.boxes.BoxFactory.tableRow;
 import static org.eclipse.vex.core.internal.boxes.BoxFactory.tableRowGroup;
 import static org.eclipse.vex.core.internal.boxes.BoxFactory.verticalBlock;
@@ -52,7 +53,7 @@ import org.eclipse.vex.core.internal.boxes.Paragraph;
 import org.eclipse.vex.core.internal.boxes.RootBox;
 import org.eclipse.vex.core.internal.boxes.Table;
 import org.eclipse.vex.core.internal.boxes.TableCell;
-import org.eclipse.vex.core.internal.boxes.TableColumnLayout;
+import org.eclipse.vex.core.internal.boxes.TableColumnSpec;
 import org.eclipse.vex.core.internal.boxes.TableRow;
 import org.eclipse.vex.core.internal.boxes.TableRowGroup;
 import org.eclipse.vex.core.internal.boxes.TextContent;
@@ -132,8 +133,6 @@ public class CssBasedBoxModelBuilder implements IBoxModelBuilder {
 
 	private VisualizeResult visualize(final INode node) {
 		return node.accept(new CollectingNodeTraversal<VisualizeResult>() {
-			private TableColumnLayout currentColumnLayout = null;
-
 			@Override
 			public VisualizeResult visit(final IDocument document) {
 				final Styles styles = styleSheet.getStyles(document);
@@ -151,40 +150,26 @@ public class CssBasedBoxModelBuilder implements IBoxModelBuilder {
 			@Override
 			public VisualizeResult visit(final IElement element) {
 				final Styles styles = styleSheet.getStyles(element);
+				final Collection<VisualizeResult> childrenResults = traverseChildren(element);
 				if (isTable(styles)) {
-					pushColumnLayout();
-					final Collection<VisualizeResult> childrenResults = traverseChildren(element);
-					final Table table = visualizeAsTable(element, styles, childrenResults, currentColumnLayout);
-					popColumnLayout();
-
+					final Table table = visualizeAsTable(element, styles, childrenResults);
 					return new VisualizeResult(element, styles, childrenResults, table);
 				} else if (isTableRowGroup(styles)) {
-					pushColumnLayout();
-					final Collection<VisualizeResult> childrenResults = traverseChildren(element);
-					final TableRowGroup rowGroup = visualizeAsTableRowGroup(element, styles, childrenResults, currentColumnLayout);
-					popColumnLayout();
-
+					final TableRowGroup rowGroup = visualizeAsTableRowGroup(element, styles, childrenResults);
 					return new VisualizeResult(element, styles, childrenResults, rowGroup);
-				} else if (isTableColSpec(styles, element)) {
-					final Collection<VisualizeResult> childrenResults = traverseChildren(element);
-					return new VisualizeResult(element, styles, childrenResults, visualizeAsTableColSpec(element, styles, childrenResults, currentColumnLayout));
+				} else if (isTableColumnSpec(styles, element)) {
+					return new VisualizeResult(element, styles, childrenResults, visualizeAsTableColumnSpec(element, styles, childrenResults));
 				} else if (isTableRow(styles)) {
-					final Collection<VisualizeResult> childrenResults = traverseChildren(element);
-					return new VisualizeResult(element, styles, childrenResults, visualizeAsTableRow(element, styles, childrenResults, currentColumnLayout));
+					return new VisualizeResult(element, styles, childrenResults, visualizeAsTableRow(element, styles, childrenResults));
 				} else if (isTableCell(styles)) {
-					final Collection<VisualizeResult> childrenResults = traverseChildren(element);
-					return new VisualizeResult(element, styles, childrenResults, visualizeAsTableCell(element, styles, childrenResults, currentColumnLayout));
+					return new VisualizeResult(element, styles, childrenResults, visualizeAsTableCell(element, styles, childrenResults));
 				} else if (isListRoot(styles)) {
-					final Collection<VisualizeResult> childrenResults = traverseChildren(element);
 					return new VisualizeResult(element, styles, childrenResults, visualizeAsList(element, styles, childrenResults));
 				} else if (isListItem(styles)) {
-					final Collection<VisualizeResult> childrenResults = traverseChildren(element);
 					return new VisualizeResult(element, styles, childrenResults, visualizeAsListItem(element, styles, childrenResults));
 				} else if (isDisplayedAsBlock(styles)) {
-					final Collection<VisualizeResult> childrenResults = traverseChildren(element);
 					return new VisualizeResult(element, styles, childrenResults, visualizeAsBlock(element, styles, childrenResults));
 				} else {
-					final Collection<VisualizeResult> childrenResults = traverseChildren(element);
 					return new VisualizeResult(element, styles, childrenResults, visualizeInline(element, styles, childrenResults));
 				}
 			}
@@ -217,18 +202,6 @@ public class CssBasedBoxModelBuilder implements IBoxModelBuilder {
 				final List<VisualizeResult> childrenResults = Collections.<VisualizeResult> emptyList();
 				return new VisualizeResult(text, styles, childrenResults, visualizeInline(text, styles, childrenResults));
 			}
-
-			private void pushColumnLayout() {
-				currentColumnLayout = new TableColumnLayout(currentColumnLayout);
-			}
-
-			private TableColumnLayout popColumnLayout() {
-				final TableColumnLayout columnLayout = currentColumnLayout;
-				if (currentColumnLayout != null) {
-					currentColumnLayout = currentColumnLayout.getParentLayout();
-				}
-				return columnLayout;
-			}
 		});
 	}
 
@@ -259,7 +232,7 @@ public class CssBasedBoxModelBuilder implements IBoxModelBuilder {
 		return CSS.TABLE_CELL.equals(styles.getDisplay());
 	}
 
-	private static boolean isTableColSpec(final Styles styles, final IElement element) {
+	private static boolean isTableColumnSpec(final Styles styles, final IElement element) {
 		return CSS.TABLE_COLUMN.equals(styles.getDisplay())
 				|| "colspec".equals(element.getLocalName())
 				|| "spanspec".equals(element.getLocalName())
@@ -286,51 +259,73 @@ public class CssBasedBoxModelBuilder implements IBoxModelBuilder {
 	/*
 	 * Render as Table
 	 */
-	private Table visualizeAsTable(final IElement element, final Styles styles, final Collection<VisualizeResult> childrenResults, final TableColumnLayout columnLayout) {
-		return table(columnLayout, visualizeAsBlock(element, styles, childrenResults));
+	private Table visualizeAsTable(final IElement element, final Styles styles, final Collection<VisualizeResult> childrenResults) {
+		return table(visualizeAsBlock(element, styles, childrenResults));
 	}
 
-	private TableRowGroup visualizeAsTableRowGroup(final IElement element, final Styles styles, final Collection<VisualizeResult> childrenResults, final TableColumnLayout columnLayout) {
-		return tableRowGroup(columnLayout, visualizeAsBlock(element, styles, childrenResults));
+	private TableRowGroup visualizeAsTableRowGroup(final IElement element, final Styles styles, final Collection<VisualizeResult> childrenResults) {
+		return tableRowGroup(visualizeAsBlock(element, styles, childrenResults));
 	}
 
-	private IStructuralBox visualizeAsTableColSpec(final IElement element, final Styles styles, final Collection<VisualizeResult> childrenResults, final TableColumnLayout columnLayout) {
+	private TableColumnSpec visualizeAsTableColumnSpec(final IElement element, final Styles styles, final Collection<VisualizeResult> childrenResults) {
+		final String name;
+		final int startIndex;
+		final int endIndex;
+		final String startName;
+		final String endName;
+
 		if ("colspec".equals(element.getLocalName())) {
-			final int index = toInt(element.getAttribute("colnum"));
-			final String name = toString(element.getAttribute("colname"));
-			columnLayout.addColumn(index, name, null);
+			name = toString(element.getAttribute("colname"));
+			startIndex = toInt(element.getAttribute("colnum"));
+			endIndex = startIndex;
+			startName = null;
+			endName = null;
 		} else if ("spanspec".equals(element.getLocalName())) {
-			// TODO CALS span
+			name = toString(element.getAttribute("spanname"));
+			startIndex = 0;
+			endIndex = 0;
+			startName = toString(element.getAttribute("namest"));
+			endName = toString(element.getAttribute("nameend"));
 		} else if ("col".equals(element.getLocalName())) {
 			// TODO HTML table
+			name = null;
+			startIndex = 0;
+			endIndex = 0;
+			startName = null;
+			endName = null;
+		} else {
+			name = null;
+			startIndex = 0;
+			endIndex = 0;
+			startName = null;
+			endName = null;
 		}
 
-		return visualizeAsBlock(element, styles, childrenResults);
+		return tableColumnSpec(name, startIndex, endIndex, startName, endName, visualizeAsBlock(element, styles, childrenResults));
 	}
 
-	private IStructuralBox visualizeAsTableRow(final IElement element, final Styles styles, final Collection<VisualizeResult> childrenResults, final TableColumnLayout columnLayout) {
-		final TableRow row = visualizeChildrenAsStructure(element, styles, childrenResults, tableRow(columnLayout));
+	private IStructuralBox visualizeAsTableRow(final IElement element, final Styles styles, final Collection<VisualizeResult> childrenResults) {
+		final TableRow row = visualizeChildrenAsStructure(element, styles, childrenResults, tableRow());
 		return wrapUpStructuralElementContent(element, styles, childrenResults, row);
 	}
 
-	private TableCell visualizeAsTableCell(final IElement element, final Styles styles, final Collection<VisualizeResult> childrenResults, final TableColumnLayout columnLayout) {
+	private TableCell visualizeAsTableCell(final IElement element, final Styles styles, final Collection<VisualizeResult> childrenResults) {
 		final TableCell cell = tableCell(visualizeAsBlock(element, styles, childrenResults));
 
 		if ("entry".equals(element.getLocalName())) {
 			final IAttribute colName = element.getAttribute("colname");
 			final IAttribute spanName = element.getAttribute("spanname");
+			if (colName != null) {
+				cell.setColumnName(colName.getValue());
+			} else if (spanName != null) {
+				cell.setColumnName(spanName.getValue());
+			}
+
 			final IAttribute nameStart = element.getAttribute("namest");
 			final IAttribute nameEnd = element.getAttribute("nameend");
-			if (colName != null) {
-				final int columnIndex = columnLayout.getIndex(colName.getValue());
-				cell.setStartColumn(columnIndex);
-				cell.setEndColumn(columnIndex);
-			} else if (spanName != null) {
-				cell.setStartColumn(columnLayout.getStartIndex(spanName.getValue()));
-				cell.setEndColumn(columnLayout.getEndIndex(spanName.getValue()));
-			} else if (nameStart != null && nameEnd != null) {
-				cell.setStartColumn(columnLayout.getStartIndex(nameStart.getValue()));
-				cell.setEndColumn(columnLayout.getEndIndex(nameEnd.getValue()));
+			if (nameStart != null && nameEnd != null) {
+				cell.setStartColumnName(nameStart.getValue());
+				cell.setEndColumnName(nameEnd.getValue());
 			}
 		} else if ("th".equals(element.getLocalName()) || "td".equals(element.getLocalName())) {
 			// TODO HTML table

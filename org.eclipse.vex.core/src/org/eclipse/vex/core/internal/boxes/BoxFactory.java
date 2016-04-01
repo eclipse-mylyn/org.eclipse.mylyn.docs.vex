@@ -142,27 +142,35 @@ public class BoxFactory {
 		return listItem;
 	}
 
-	public static Table table(final TableColumnLayout columnLayout, final IStructuralBox... children) {
+	public static Table table(final IStructuralBox... children) {
 		final Table table = new Table();
-		table.setColumnLayout(columnLayout);
 		for (final IStructuralBox child : children) {
 			table.appendChild(child);
 		}
 		return table;
 	}
 
-	public static TableRowGroup tableRowGroup(final TableColumnLayout columnLayout, final IStructuralBox... children) {
+	public static TableRowGroup tableRowGroup(final IStructuralBox... children) {
 		final TableRowGroup tableRowGroup = new TableRowGroup();
-		tableRowGroup.setColumnLayout(columnLayout);
 		for (final IStructuralBox child : children) {
 			tableRowGroup.appendChild(child);
 		}
 		return tableRowGroup;
 	}
 
-	public static TableRow tableRow(final TableColumnLayout columnLayout, final IStructuralBox... children) {
+	public static TableColumnSpec tableColumnSpec(final String name, final int startIndex, final int endIndex, final String startName, final String endName, final IStructuralBox component) {
+		final TableColumnSpec tableColumnSpec = new TableColumnSpec();
+		tableColumnSpec.setName(name);
+		tableColumnSpec.setStartIndex(startIndex);
+		tableColumnSpec.setEndIndex(endIndex);
+		tableColumnSpec.setStartName(startName);
+		tableColumnSpec.setEndName(endName);
+		tableColumnSpec.setComponent(component);
+		return tableColumnSpec;
+	}
+
+	public static TableRow tableRow(final IStructuralBox... children) {
 		final TableRow tableRow = new TableRow();
-		tableRow.setColumnLayout(columnLayout);
 		for (final IStructuralBox child : children) {
 			tableRow.appendChild(child);
 		}

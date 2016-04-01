@@ -71,6 +71,11 @@ public class BaseBoxVisitorWithResult<T> implements IBoxVisitorWithResult<T> {
 	}
 
 	@Override
+	public T visit(final TableColumnSpec box) {
+		return defaultValue;
+	}
+
+	@Override
 	public T visit(final TableRow box) {
 		return defaultValue;
 	}

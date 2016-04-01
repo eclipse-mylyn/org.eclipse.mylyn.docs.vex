@@ -29,8 +29,11 @@ public class TableCell extends BaseBox implements IStructuralBox, IParentBox<ISt
 	private int height;
 	private final ArrayList<IStructuralBox> children = new ArrayList<IStructuralBox>();
 
-	private int startColumn;
-	private int endColumn;
+	private int startColumnIndex;
+	private int endColumnIndex;
+	private String columnName;
+	private String startColumnName;
+	private String endColumnName;
 
 	@Override
 	public void setParent(final IBox parent) {
@@ -141,20 +144,44 @@ public class TableCell extends BaseBox implements IStructuralBox, IParentBox<ISt
 		return children;
 	}
 
-	public int getStartColumn() {
-		return startColumn;
+	public int getStartColumnIndex() {
+		return startColumnIndex;
 	}
 
-	public void setStartColumn(final int startColumn) {
-		this.startColumn = startColumn;
+	public void setStartColumnIndex(final int startColumnIndex) {
+		this.startColumnIndex = startColumnIndex;
 	}
 
-	public int getEndColumn() {
-		return endColumn;
+	public int getEndColumnIndex() {
+		return endColumnIndex;
 	}
 
-	public void setEndColumn(final int endColumn) {
-		this.endColumn = endColumn;
+	public void setEndColumnIndex(final int endColumnIndex) {
+		this.endColumnIndex = endColumnIndex;
+	}
+
+	public String getColumnName() {
+		return columnName;
+	}
+
+	public void setColumnName(final String columnName) {
+		this.columnName = columnName;
+	}
+
+	public String getStartColumnName() {
+		return startColumnName;
+	}
+
+	public void setStartColumnName(final String startColumnName) {
+		this.startColumnName = startColumnName;
+	}
+
+	public String getEndColumnName() {
+		return endColumnName;
+	}
+
+	public void setEndColumnName(final String endColumnName) {
+		this.endColumnName = endColumnName;
 	}
 
 	public void layout(final Graphics graphics) {

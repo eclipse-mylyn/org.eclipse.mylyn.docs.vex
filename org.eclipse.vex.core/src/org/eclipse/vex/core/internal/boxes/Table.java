@@ -140,15 +140,24 @@ public class Table extends BaseBox implements IStructuralBox, IParentBox<IStruct
 		return children;
 	}
 
+	public void setColumnLayout(final TableColumnLayout columnLayout) {
+		if (columnLayout == null) {
+			this.columnLayout = new TableColumnLayout();
+		} else {
+			this.columnLayout = columnLayout;
+		}
+	}
+
 	public TableColumnLayout getColumnLayout() {
 		return columnLayout;
 	}
 
-	public void setColumnLayout(final TableColumnLayout columnLayout) {
-		this.columnLayout = columnLayout;
+	public void layout(final Graphics graphics) {
+		layoutColumns(graphics);
+		layoutChildren(graphics);
 	}
 
-	public void layout(final Graphics graphics) {
+	private void layoutChildren(final Graphics graphics) {
 		height = 0;
 		for (int i = 0; i < children.size(); i += 1) {
 			final IStructuralBox child = children.get(i);
@@ -157,6 +166,13 @@ public class Table extends BaseBox implements IStructuralBox, IParentBox<IStruct
 			child.layout(graphics);
 			height += child.getHeight();
 		}
+	}
+
+	private void layoutColumns(final Graphics graphics) {
+		if (columnLayout.getLastIndex() > 0) {
+			columnLayout = new TableColumnLayout(columnLayout.getParentLayout());
+		}
+		TableColumnLayout.addColumnLayoutInformationForChildren(graphics, this, columnLayout);
 	}
 
 	@Override

@@ -153,6 +153,7 @@ public class TableRow extends BaseBox implements IStructuralBox, IParentBox<IStr
 	}
 
 	public void layout(final Graphics graphics) {
+		TableColumnLayout.addColumnLayoutInformationForChildren(graphics, this, columnLayout);
 		height = 0;
 		int columnIndex = 1;
 		for (int i = 0; i < children.size(); i += 1) {
@@ -191,7 +192,7 @@ public class TableRow extends BaseBox implements IStructuralBox, IParentBox<IStr
 		final int boxStartColumn = box.accept(new BaseBoxVisitorWithResult<Integer>(0) {
 			@Override
 			public Integer visit(final TableCell box) {
-				return box.getStartColumn();
+				return box.getStartColumnIndex();
 			}
 		});
 		if (boxStartColumn > 0) {
@@ -204,7 +205,7 @@ public class TableRow extends BaseBox implements IStructuralBox, IParentBox<IStr
 		final int boxEndColumn = box.accept(new BaseBoxVisitorWithResult<Integer>(0) {
 			@Override
 			public Integer visit(final TableCell box) {
-				return box.getEndColumn();
+				return box.getEndColumnIndex();
 			}
 		});
 		if (boxEndColumn > 0) {

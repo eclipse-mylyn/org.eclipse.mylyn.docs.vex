@@ -61,6 +61,11 @@ public class BaseBoxVisitor implements IBoxVisitor {
 	}
 
 	@Override
+	public void visit(final TableColumnSpec box) {
+		// ignore
+	}
+
+	@Override
 	public void visit(final TableRow box) {
 		// ignore
 	}

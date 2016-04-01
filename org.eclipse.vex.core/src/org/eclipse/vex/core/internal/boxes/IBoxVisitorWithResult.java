@@ -33,6 +33,8 @@ public interface IBoxVisitorWithResult<T> {
 
 	T visit(TableRowGroup box);
 
+	T visit(TableColumnSpec box);
+
 	T visit(TableRow box);
 
 	T visit(TableCell box);

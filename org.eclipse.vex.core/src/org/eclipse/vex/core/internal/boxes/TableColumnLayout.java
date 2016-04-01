@@ -12,6 +12,8 @@ package org.eclipse.vex.core.internal.boxes;
 
 import java.util.HashMap;
 
+import org.eclipse.vex.core.internal.core.Graphics;
+
 /**
  * @author Florian Thienel
  */
@@ -22,6 +24,68 @@ public class TableColumnLayout {
 
 	private int lastIndex;
 	private final HashMap<String, Span> indexByName = new HashMap<String, Span>();
+
+	public static void addColumnLayoutInformationForChildren(final Graphics graphics, final IStructuralBox parent, final TableColumnLayout parentColumnLayout) {
+		parent.accept(new DepthFirstBoxTraversal<Object>() {
+			@Override
+			public Object visit(final Table box) {
+				if (box == parent) {
+					traverseChildren(box);
+				} else {
+					box.setColumnLayout(new TableColumnLayout(parentColumnLayout));
+				}
+				return null;
+			}
+
+			@Override
+			public Object visit(final TableRowGroup box) {
+				if (box == parent) {
+					traverseChildren(box);
+				} else {
+					box.setColumnLayout(new TableColumnLayout(parentColumnLayout));
+				}
+				return null;
+			}
+
+			@Override
+			public Object visit(final TableColumnSpec box) {
+				if (box.getStartName() != null) {
+					box.setStartIndex(parentColumnLayout.getIndex(box.getStartName()));
+				}
+				if (box.getEndName() != null) {
+					box.setEndIndex(parentColumnLayout.getIndex(box.getEndName()));
+				}
+				if (box.getStartIndex() == box.getEndIndex()) {
+					parentColumnLayout.addColumn(box.getStartIndex(), box.getName(), box.getWidthExpression());
+				} else {
+					parentColumnLayout.addSpan(box.getStartIndex(), box.getEndIndex(), box.getName());
+				}
+				return null;
+			}
+
+			@Override
+			public Object visit(final TableRow box) {
+				if (box == parent) {
+					traverseChildren(box);
+				} else {
+					box.setColumnLayout(parentColumnLayout);
+				}
+				return null;
+			}
+
+			@Override
+			public Object visit(final TableCell box) {
+				if (box.getColumnName() != null) {
+					box.setStartColumnIndex(parentColumnLayout.getStartIndex(box.getColumnName()));
+					box.setEndColumnIndex(parentColumnLayout.getEndIndex(box.getColumnName()));
+				} else if (box.getStartColumnName() != null && box.getEndColumnName() != null) {
+					box.setStartColumnIndex(parentColumnLayout.getIndex(box.getStartColumnName()));
+					box.setEndColumnIndex(parentColumnLayout.getIndex(box.getEndColumnName()));
+				}
+				return null;
+			}
+		});
+	}
 
 	public TableColumnLayout() {
 		this(null);
