@@ -305,7 +305,12 @@ public class CssBasedBoxModelBuilder implements IBoxModelBuilder {
 	}
 
 	private IStructuralBox visualizeAsTableRow(final IElement element, final Styles styles, final Collection<VisualizeResult> childrenResults) {
-		final TableRow row = visualizeChildrenAsStructure(element, styles, childrenResults, tableRow());
+		final TableRow row;
+		if (element.isEmpty()) {
+			row = tableRow(placeholderForEmptyNode(element, styles, paragraph(styles)));
+		} else {
+			row = visualizeChildrenAsStructure(element, styles, childrenResults, tableRow());
+		}
 		return wrapUpStructuralElementContent(element, styles, childrenResults, row);
 	}
 
