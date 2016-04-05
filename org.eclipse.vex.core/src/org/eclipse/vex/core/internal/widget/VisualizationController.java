@@ -31,7 +31,7 @@ public class VisualizationController {
 	private final IDocumentListener documentListener = new IDocumentListener() {
 		@Override
 		public void attributeChanged(final AttributeChangeEvent event) {
-			visualization.rebuildContentRange(event.getParent(), event.getParent().getRange());
+			visualization.rebuildStructure(event.getParent().getParent());
 		}
 
 		@Override
