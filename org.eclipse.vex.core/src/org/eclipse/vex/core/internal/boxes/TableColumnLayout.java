@@ -128,7 +128,7 @@ public class TableColumnLayout {
 
 	public int getLastIndex() {
 		if (parentLayout != null) {
-			return Math.max(lastIndex, parentLayout.lastIndex);
+			return Math.max(lastIndex, parentLayout.getLastIndex());
 		}
 		return lastIndex;
 	}

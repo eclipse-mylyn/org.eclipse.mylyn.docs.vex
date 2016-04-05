@@ -177,14 +177,8 @@ public class Table extends BaseBox implements IStructuralBox, IParentBox<IStruct
 
 	@Override
 	public boolean reconcileLayout(final Graphics graphics) {
-		final int oldHeight = height;
-		height = 0;
-		for (int i = 0; i < children.size(); i += 1) {
-			final IStructuralBox child = children.get(i);
-			child.setPosition(height, 0);
-			height += child.getHeight();
-		}
-		return oldHeight != height;
+		layout(graphics);
+		return true;
 	}
 
 	@Override
