@@ -314,8 +314,8 @@ public class CssBasedBoxModelBuilder implements IBoxModelBuilder {
 		return wrapUpStructuralElementContent(element, styles, childrenResults, row);
 	}
 
-	private TableCell visualizeAsTableCell(final IElement element, final Styles styles, final Collection<VisualizeResult> childrenResults) {
-		final TableCell cell = tableCell(visualizeAsBlock(element, styles, childrenResults));
+	private IStructuralBox visualizeAsTableCell(final IElement element, final Styles styles, final Collection<VisualizeResult> childrenResults) {
+		final TableCell cell = tableCell(visualizeStructuralElementContent(element, styles, childrenResults));
 
 		if ("entry".equals(element.getLocalName())) {
 			final IAttribute colName = element.getAttribute("colname");
@@ -336,7 +336,7 @@ public class CssBasedBoxModelBuilder implements IBoxModelBuilder {
 			// TODO HTML table
 		}
 
-		return cell;
+		return wrapUpStructuralElementContent(element, styles, childrenResults, cell);
 	}
 
 	private static int toInt(final IAttribute attribute) {

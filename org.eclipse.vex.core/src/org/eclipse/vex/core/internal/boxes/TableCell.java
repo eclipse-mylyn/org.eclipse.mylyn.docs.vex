@@ -35,6 +35,8 @@ public class TableCell extends BaseBox implements IStructuralBox, IParentBox<ISt
 	private String startColumnName;
 	private String endColumnName;
 
+	private int naturalHeight;
+
 	@Override
 	public void setParent(final IBox parent) {
 		this.parent = parent;
@@ -86,6 +88,14 @@ public class TableCell extends BaseBox implements IStructuralBox, IParentBox<ISt
 	@Override
 	public int getHeight() {
 		return height;
+	}
+
+	public void setHeight(final int height) {
+		this.height = height;
+	}
+
+	public int getNaturalHeight() {
+		return naturalHeight;
 	}
 
 	@Override
@@ -184,27 +194,47 @@ public class TableCell extends BaseBox implements IStructuralBox, IParentBox<ISt
 		this.endColumnName = endColumnName;
 	}
 
-	public void layout(final Graphics graphics) {
-		height = 0;
+	public int calculateNaturalHeight(final Graphics graphics, final int width) {
+		naturalHeight = 0;
 		for (int i = 0; i < children.size(); i += 1) {
 			final IStructuralBox child = children.get(i);
-			child.setPosition(height, 0);
 			child.setWidth(width);
 			child.layout(graphics);
-			height += child.getHeight();
+			naturalHeight += child.getHeight();
+		}
+		height = naturalHeight;
+
+		return naturalHeight;
+	}
+
+	public void layout(final Graphics graphics) {
+		if (naturalHeight == 0) {
+			naturalHeight = calculateNaturalHeight(graphics, width);
+		}
+
+		positionChildren();
+	}
+
+	private void positionChildren() {
+		int childTop = 0;
+		for (int i = 0; i < children.size(); i += 1) {
+			final IStructuralBox child = children.get(i);
+			child.setPosition(childTop, 0);
+			childTop += child.getHeight();
 		}
 	}
 
 	@Override
 	public boolean reconcileLayout(final Graphics graphics) {
-		final int oldHeight = height;
-		height = 0;
-		for (int i = 0; i < children.size(); i += 1) {
-			final IStructuralBox child = children.get(i);
-			child.setPosition(height, 0);
-			height += child.getHeight();
+		final int oldHeight = naturalHeight;
+		naturalHeight = calculateNaturalHeight(graphics, width);
+
+		if (oldHeight == naturalHeight) {
+			return false;
 		}
-		return oldHeight != height;
+
+		positionChildren();
+		return true;
 	}
 
 	@Override

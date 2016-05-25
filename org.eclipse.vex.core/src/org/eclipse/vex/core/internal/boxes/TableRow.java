@@ -154,22 +154,35 @@ public class TableRow extends BaseBox implements IStructuralBox, IParentBox<IStr
 
 	public void layout(final Graphics graphics) {
 		TableColumnLayout.addColumnLayoutInformationForChildren(graphics, this, columnLayout);
-		height = 0;
+		int cellHeight = 0;
 		int columnIndex = 1;
 		for (int i = 0; i < children.size(); i += 1) {
 			final IStructuralBox child = children.get(i);
+			final TableCell cell = getContainedTableCell(child);
+			if (cell != null) {
+				final int startColumn = getStartColumn(cell, columnIndex);
+				final int endColumn = getEndColumn(cell, startColumn);
 
-			final int startColumn = getStartColumn(child, columnIndex);
-			final int endColumn = getEndColumn(child, startColumn);
+				final int childLeft = getColumnWidth(1, startColumn - 1);
+				final int columnWidth = getColumnWidth(startColumn, endColumn);
 
-			final int childLeft = getColumnWidth(1, startColumn - 1);
-			final int columnWidth = getColumnWidth(startColumn, endColumn);
+				child.setWidth(columnWidth);
+				child.setPosition(0, childLeft);
 
-			child.setPosition(0, childLeft);
-			child.setWidth(columnWidth);
-			child.layout(graphics);
-			height = Math.max(height, child.getHeight());
-			columnIndex = endColumn + 1;
+				cellHeight = Math.max(cellHeight, cell.calculateNaturalHeight(graphics, columnWidth));
+				columnIndex = endColumn + 1;
+			}
+		}
+
+		height = 0;
+		for (int i = 0; i < children.size(); i += 1) {
+			final IStructuralBox child = children.get(i);
+			final TableCell cell = getContainedTableCell(child);
+			if (cell != null) {
+				cell.setHeight(cellHeight);
+				child.layout(graphics);
+				height = Math.max(height, child.getHeight());
+			}
 		}
 	}
 
@@ -188,41 +201,33 @@ public class TableRow extends BaseBox implements IStructuralBox, IParentBox<IStr
 		return Math.round(width / columnLayout.getLastIndex());
 	}
 
-	private static int getStartColumn(final IStructuralBox box, final int defaultColumn) {
-		final int boxStartColumn = box.accept(new BaseBoxVisitorWithResult<Integer>(0) {
+	private static TableCell getContainedTableCell(final IStructuralBox parent) {
+		return parent.accept(new TableCellVisitor<TableCell>() {
 			@Override
-			public Integer visit(final TableCell box) {
-				return box.getStartColumnIndex();
+			public TableCell visit(final TableCell box) {
+				return box;
 			}
 		});
-		if (boxStartColumn > 0) {
-			return boxStartColumn;
-		}
-		return defaultColumn;
 	}
 
-	private static int getEndColumn(final IStructuralBox box, final int defaultColumn) {
-		final int boxEndColumn = box.accept(new BaseBoxVisitorWithResult<Integer>(0) {
-			@Override
-			public Integer visit(final TableCell box) {
-				return box.getEndColumnIndex();
-			}
-		});
-		if (boxEndColumn > 0) {
-			return boxEndColumn;
+	private static int getStartColumn(final TableCell cell, final int defaultColumn) {
+		if (cell == null || cell.getStartColumnIndex() <= defaultColumn) {
+			return defaultColumn;
 		}
-		return defaultColumn;
+		return cell.getStartColumnIndex();
+	}
+
+	private static int getEndColumn(final TableCell cell, final int defaultColumn) {
+		if (cell == null || cell.getEndColumnIndex() <= defaultColumn) {
+			return defaultColumn;
+		}
+		return cell.getEndColumnIndex();
 	}
 
 	@Override
 	public boolean reconcileLayout(final Graphics graphics) {
 		final int oldHeight = height;
-		height = 0;
-		for (int i = 0; i < children.size(); i += 1) {
-			final IStructuralBox child = children.get(i);
-			child.setPosition(height, 0);
-			height += child.getHeight();
-		}
+		layout(graphics);
 		return oldHeight != height;
 	}
 
@@ -230,4 +235,21 @@ public class TableRow extends BaseBox implements IStructuralBox, IParentBox<IStr
 	public void paint(final Graphics graphics) {
 		ChildBoxPainter.paint(children, graphics);
 	}
+
+	private static class TableCellVisitor<T> extends DepthFirstBoxTraversal<T> {
+		@Override
+		public final T visit(final Table box) {
+			return null;
+		}
+
+		@Override
+		public final T visit(final TableRowGroup box) {
+			return null;
+		}
+
+		@Override
+		public final T visit(final TableRow box) {
+			return null;
+		}
+	};
 }
