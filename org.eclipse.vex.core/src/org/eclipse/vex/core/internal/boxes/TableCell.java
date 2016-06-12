@@ -26,7 +26,6 @@ public class TableCell extends BaseBox implements IStructuralBox, IParentBox<ISt
 	private int top;
 	private int left;
 	private int width;
-	private int height;
 	private final ArrayList<IStructuralBox> children = new ArrayList<IStructuralBox>();
 
 	private int startColumnIndex;
@@ -39,6 +38,7 @@ public class TableCell extends BaseBox implements IStructuralBox, IParentBox<ISt
 	private GridArea gridArea;
 
 	private int naturalHeight;
+	private int usedHeight;
 
 	@Override
 	public void setParent(final IBox parent) {
@@ -90,11 +90,11 @@ public class TableCell extends BaseBox implements IStructuralBox, IParentBox<ISt
 
 	@Override
 	public int getHeight() {
-		return height;
+		return usedHeight;
 	}
 
-	public void setHeight(final int height) {
-		this.height = height;
+	public void useHeight(final int height) {
+		usedHeight += height;
 	}
 
 	public int getNaturalHeight() {
@@ -103,7 +103,7 @@ public class TableCell extends BaseBox implements IStructuralBox, IParentBox<ISt
 
 	@Override
 	public Rectangle getBounds() {
-		return new Rectangle(left, top, width, height);
+		return new Rectangle(left, top, width, usedHeight);
 	}
 
 	@Override
@@ -221,7 +221,7 @@ public class TableCell extends BaseBox implements IStructuralBox, IParentBox<ISt
 			child.layout(graphics);
 			naturalHeight += child.getHeight();
 		}
-		height = naturalHeight;
+		usedHeight = 0;
 
 		return naturalHeight;
 	}

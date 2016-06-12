@@ -56,7 +56,7 @@ public class TableLayoutGrid {
 			@Override
 			public Object visit(final TableRow box) {
 				if (box == parent) {
-					layoutGrid.addNextRow();
+					layoutGrid.addNextRow(box);
 					traverseChildren(box);
 				} else {
 					box.setLayoutGrid(layoutGrid);
@@ -84,8 +84,9 @@ public class TableLayoutGrid {
 		return maxColumn;
 	}
 
-	public int addNextRow() {
+	public int addNextRow(final TableRow row) {
 		currentRow += 1;
+		row.setRowIndex(currentRow);
 		nextColumn = 1;
 		return currentRow;
 	}
@@ -149,7 +150,7 @@ public class TableLayoutGrid {
 		return grid.get(position);
 	}
 
-	public IStructuralBox getRowChild(final GridPosition position, final TableRow parentRow) {
+	public IStructuralBox getRowChild(final GridPosition position) {
 		final TableCell cell = grid.get(position);
 		if (cell == null) {
 			return null;
@@ -217,7 +218,7 @@ public class TableLayoutGrid {
 			}
 
 			private IStructuralBox visitStructuralBox(final IStructuralBox box) {
-				if (box.getParent() == parentRow) {
+				if (box.getParent() instanceof TableRow) {
 					return box;
 				}
 				return box.getParent().accept(this);

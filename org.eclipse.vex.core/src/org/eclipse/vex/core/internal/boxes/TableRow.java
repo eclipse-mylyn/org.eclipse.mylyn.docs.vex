@@ -29,6 +29,8 @@ public class TableRow extends BaseBox implements IStructuralBox, IParentBox<IStr
 	private int height;
 	private final ArrayList<IStructuralBox> children = new ArrayList<IStructuralBox>();
 
+	private int rowIndex;
+
 	private TableColumnLayout columnLayout = new TableColumnLayout();
 	private TableLayoutGrid layoutGrid = new TableLayoutGrid();
 
@@ -141,6 +143,14 @@ public class TableRow extends BaseBox implements IStructuralBox, IParentBox<IStr
 		return children;
 	}
 
+	public int getRowIndex() {
+		return rowIndex;
+	}
+
+	public void setRowIndex(final int rowIndex) {
+		this.rowIndex = rowIndex;
+	}
+
 	public TableColumnLayout getColumnLayout() {
 		return columnLayout;
 	}
@@ -169,33 +179,50 @@ public class TableRow extends BaseBox implements IStructuralBox, IParentBox<IStr
 		TableColumnLayout.addColumnLayoutInformationForChildren(graphics, this, columnLayout);
 		TableLayoutGrid.setupLayoutGrid(graphics, this, layoutGrid);
 		int cellHeight = 0;
-		int columnIndex = 1;
-		for (int i = 0; i < children.size(); i += 1) {
-			final IStructuralBox child = children.get(i);
-			final TableCell cell = getContainedTableCell(child);
+
+		for (int column = 1; column <= layoutGrid.getColumns(); column += 1) {
+			final GridPosition position = new GridPosition(rowIndex, column);
+			final TableCell cell = layoutGrid.getCell(position);
+			final IStructuralBox child = layoutGrid.getRowChild(position);
 			if (cell != null) {
-				final int startColumn = getStartColumn(cell, columnIndex);
-				final int endColumn = getEndColumn(cell, startColumn);
+				final GridArea area = cell.getGridArea();
 
-				final int childLeft = getColumnWidth(1, startColumn - 1);
-				final int columnWidth = getColumnWidth(startColumn, endColumn);
+				final int childLeft = getColumnWidth(1, area.startColumn - 1);
+				final int columnWidth = getColumnWidth(area.startColumn, area.endColumn);
 
-				child.setWidth(columnWidth);
-				child.setPosition(0, childLeft);
+				if (column == area.startColumn) {
+					if (rowIndex == area.startRow) {
+						cell.calculateNaturalHeight(graphics, columnWidth);
+					}
+					if (rowIndex == area.endRow) {
+						cellHeight = Math.max(cellHeight, cell.getNaturalHeight() - cell.getHeight());
+					}
+				}
 
-				cellHeight = Math.max(cellHeight, cell.calculateNaturalHeight(graphics, columnWidth));
-				columnIndex = endColumn + 1;
+				if (child != null && child.getParent() == this) {
+					child.setPosition(0, childLeft);
+					child.setWidth(columnWidth);
+				}
 			}
 		}
 
 		height = 0;
-		for (int i = 0; i < children.size(); i += 1) {
-			final IStructuralBox child = children.get(i);
-			final TableCell cell = getContainedTableCell(child);
-			if (cell != null) {
-				cell.setHeight(cellHeight);
-				child.layout(graphics);
-				height = Math.max(height, child.getHeight());
+		for (int column = 1; column <= layoutGrid.getColumns(); column += 1) {
+			final GridPosition position = new GridPosition(rowIndex, column);
+			final TableCell cell = layoutGrid.getCell(position);
+			final IStructuralBox child = layoutGrid.getRowChild(position);
+			if (cell != null && child != null) {
+				final GridArea area = cell.getGridArea();
+				if (column == area.startColumn) {
+					cell.useHeight(cellHeight);
+
+					if (rowIndex == area.endRow) {
+						child.layout(graphics);
+						if (rowIndex == area.startRow) {
+							height = Math.max(height, child.getHeight());
+						}
+					}
+				}
 			}
 		}
 	}
@@ -215,29 +242,6 @@ public class TableRow extends BaseBox implements IStructuralBox, IParentBox<IStr
 		return Math.round(width / columnLayout.getLastIndex());
 	}
 
-	private static TableCell getContainedTableCell(final IStructuralBox parent) {
-		return parent.accept(new TableCellVisitor<TableCell>() {
-			@Override
-			public TableCell visit(final TableCell box) {
-				return box;
-			}
-		});
-	}
-
-	private static int getStartColumn(final TableCell cell, final int defaultColumn) {
-		if (cell == null || cell.getStartColumnIndex() <= defaultColumn) {
-			return defaultColumn;
-		}
-		return cell.getStartColumnIndex();
-	}
-
-	private static int getEndColumn(final TableCell cell, final int defaultColumn) {
-		if (cell == null || cell.getEndColumnIndex() <= defaultColumn) {
-			return defaultColumn;
-		}
-		return cell.getEndColumnIndex();
-	}
-
 	@Override
 	public boolean reconcileLayout(final Graphics graphics) {
 		final int oldHeight = height;
@@ -249,21 +253,4 @@ public class TableRow extends BaseBox implements IStructuralBox, IParentBox<IStr
 	public void paint(final Graphics graphics) {
 		ChildBoxPainter.paint(children, graphics);
 	}
-
-	private static class TableCellVisitor<T> extends DepthFirstBoxTraversal<T> {
-		@Override
-		public final T visit(final Table box) {
-			return null;
-		}
-
-		@Override
-		public final T visit(final TableRowGroup box) {
-			return null;
-		}
-
-		@Override
-		public final T visit(final TableRow box) {
-			return null;
-		}
-	};
 }
