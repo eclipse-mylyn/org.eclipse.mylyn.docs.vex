@@ -332,6 +332,9 @@ public class CssBasedBoxModelBuilder implements IBoxModelBuilder {
 				cell.setStartColumnName(nameStart.getValue());
 				cell.setEndColumnName(nameEnd.getValue());
 			}
+
+			final IAttribute moreRows = element.getAttribute("morerows");
+			cell.setVerticalSpan(1 + toInt(moreRows));
 		} else if ("th".equals(element.getLocalName()) || "td".equals(element.getLocalName())) {
 			// TODO HTML table
 		}

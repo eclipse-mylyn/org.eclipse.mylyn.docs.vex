@@ -34,6 +34,9 @@ public class TableCell extends BaseBox implements IStructuralBox, IParentBox<ISt
 	private String columnName;
 	private String startColumnName;
 	private String endColumnName;
+	private int verticalSpan = 1;
+
+	private GridArea gridArea;
 
 	private int naturalHeight;
 
@@ -192,6 +195,22 @@ public class TableCell extends BaseBox implements IStructuralBox, IParentBox<ISt
 
 	public void setEndColumnName(final String endColumnName) {
 		this.endColumnName = endColumnName;
+	}
+
+	public int getVerticalSpan() {
+		return verticalSpan;
+	}
+
+	public void setVerticalSpan(final int verticalSpan) {
+		this.verticalSpan = verticalSpan;
+	}
+
+	public GridArea getGridArea() {
+		return gridArea;
+	}
+
+	public void setGridArea(final GridArea gridArea) {
+		this.gridArea = gridArea;
 	}
 
 	public int calculateNaturalHeight(final Graphics graphics, final int width) {
