@@ -85,6 +85,10 @@ public class StructuralFrame extends BaseBox implements IStructuralBox, IDecorat
 		return height;
 	}
 
+	public void setHeight(final int height) {
+		this.height = height;
+	}
+
 	@Override
 	public Rectangle getBounds() {
 		return new Rectangle(left, top, width, height);

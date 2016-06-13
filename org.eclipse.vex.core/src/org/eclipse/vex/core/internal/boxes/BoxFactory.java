@@ -177,11 +177,9 @@ public class BoxFactory {
 		return tableRow;
 	}
 
-	public static TableCell tableCell(final IStructuralBox... children) {
+	public static TableCell tableCell(final IStructuralBox component) {
 		final TableCell tableCell = new TableCell();
-		for (final IStructuralBox child : children) {
-			tableCell.appendChild(child);
-		}
+		tableCell.setComponent(component);
 		return tableCell;
 	}
 

@@ -163,7 +163,7 @@ public class DOMVisualization {
 
 			@Override
 			public void visit(final TableCell box) {
-				box.replaceChildren(modifiedBoxes, boxModelBuilder.visualizeStructure(node));
+				box.setComponent(boxModelBuilder.visualizeStructure(node));
 			}
 
 			@Override

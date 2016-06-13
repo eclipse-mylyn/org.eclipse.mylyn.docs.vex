@@ -10,23 +10,20 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.boxes;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.ListIterator;
-
 import org.eclipse.vex.core.internal.core.Graphics;
 import org.eclipse.vex.core.internal.core.Rectangle;
 
 /**
  * @author Florian Thienel
  */
-public class TableCell extends BaseBox implements IStructuralBox, IParentBox<IStructuralBox> {
+public class TableCell extends BaseBox implements IStructuralBox, IDecoratorBox<IStructuralBox> {
 
 	private IBox parent;
 	private int top;
 	private int left;
 	private int width;
-	private final ArrayList<IStructuralBox> children = new ArrayList<IStructuralBox>();
+
+	private IStructuralBox component;
 
 	private int startColumnIndex;
 	private int endColumnIndex;
@@ -116,45 +113,14 @@ public class TableCell extends BaseBox implements IStructuralBox, IParentBox<ISt
 		return visitor.visit(this);
 	}
 
-	public boolean hasChildren() {
-		return !children.isEmpty();
-	}
-
-	public void prependChild(final IStructuralBox child) {
-		if (child == null) {
-			return;
-		}
-		child.setParent(this);
-		children.add(0, child);
-	}
-
-	public void appendChild(final IStructuralBox child) {
-		if (child == null) {
-			return;
-		}
-		child.setParent(this);
-		children.add(child);
+	public void setComponent(final IStructuralBox component) {
+		this.component = component;
+		component.setParent(this);
 	}
 
 	@Override
-	public void replaceChildren(final Collection<? extends IBox> oldChildren, final IStructuralBox newChild) {
-		boolean newChildInserted = false;
-
-		for (final ListIterator<IStructuralBox> iter = children.listIterator(); iter.hasNext();) {
-			final IStructuralBox child = iter.next();
-			if (oldChildren.contains(child)) {
-				iter.remove();
-				if (!newChildInserted) {
-					iter.add(newChild);
-					newChild.setParent(this);
-					newChildInserted = true;
-				}
-			}
-		}
-	}
-
-	public Iterable<IStructuralBox> getChildren() {
-		return children;
+	public IStructuralBox getComponent() {
+		return component;
 	}
 
 	public int getStartColumnIndex() {
@@ -215,12 +181,13 @@ public class TableCell extends BaseBox implements IStructuralBox, IParentBox<ISt
 
 	public int calculateNaturalHeight(final Graphics graphics, final int width) {
 		naturalHeight = 0;
-		for (int i = 0; i < children.size(); i += 1) {
-			final IStructuralBox child = children.get(i);
-			child.setWidth(width);
-			child.layout(graphics);
-			naturalHeight += child.getHeight();
+		if (component == null) {
+			return 0;
 		}
+
+		component.setWidth(width);
+		component.layout(graphics);
+		naturalHeight = component.getHeight();
 		usedHeight = 0;
 
 		return naturalHeight;
@@ -231,16 +198,22 @@ public class TableCell extends BaseBox implements IStructuralBox, IParentBox<ISt
 			naturalHeight = calculateNaturalHeight(graphics, width);
 		}
 
-		positionChildren();
+		component.setPosition(0, 0);
+		adjustFrameHeight();
 	}
 
-	private void positionChildren() {
-		int childTop = 0;
-		for (int i = 0; i < children.size(); i += 1) {
-			final IStructuralBox child = children.get(i);
-			child.setPosition(childTop, 0);
-			childTop += child.getHeight();
+	private void adjustFrameHeight() {
+		final StructuralFrame frame = accept(new DepthFirstBoxTraversal<StructuralFrame>() {
+			@Override
+			public StructuralFrame visit(final StructuralFrame box) {
+				return box;
+			}
+		});
+		if (frame == null) {
+			return;
 		}
+
+		frame.setHeight(usedHeight);
 	}
 
 	@Override
@@ -252,12 +225,13 @@ public class TableCell extends BaseBox implements IStructuralBox, IParentBox<ISt
 			return false;
 		}
 
-		positionChildren();
+		component.setPosition(0, 0);
+		adjustFrameHeight();
 		return true;
 	}
 
 	@Override
 	public void paint(final Graphics graphics) {
-		ChildBoxPainter.paint(children, graphics);
+		ChildBoxPainter.paint(component, graphics);
 	}
 }

@@ -71,7 +71,7 @@ public abstract class DepthFirstBoxTraversal<T> extends BaseBoxVisitorWithResult
 
 	@Override
 	public T visit(final TableCell box) {
-		return traverseChildren(box);
+		return box.getComponent().accept(this);
 	}
 
 	@Override
