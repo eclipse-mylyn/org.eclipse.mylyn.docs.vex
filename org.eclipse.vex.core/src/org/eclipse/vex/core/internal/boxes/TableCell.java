@@ -16,14 +16,14 @@ import org.eclipse.vex.core.internal.core.Rectangle;
 /**
  * @author Florian Thienel
  */
-public class TableCell extends BaseBox implements IStructuralBox, IDecoratorBox<IStructuralBox> {
+public class TableCell extends BaseBox implements IStructuralBox, IDecoratorBox<IHeightAdjustableBox> {
 
 	private IBox parent;
 	private int top;
 	private int left;
 	private int width;
 
-	private IStructuralBox component;
+	private IHeightAdjustableBox component;
 
 	private int startColumnIndex;
 	private int endColumnIndex;
@@ -113,13 +113,13 @@ public class TableCell extends BaseBox implements IStructuralBox, IDecoratorBox<
 		return visitor.visit(this);
 	}
 
-	public void setComponent(final IStructuralBox component) {
+	public void setComponent(final IHeightAdjustableBox component) {
 		this.component = component;
 		component.setParent(this);
 	}
 
 	@Override
-	public IStructuralBox getComponent() {
+	public IHeightAdjustableBox getComponent() {
 		return component;
 	}
 
@@ -199,21 +199,11 @@ public class TableCell extends BaseBox implements IStructuralBox, IDecoratorBox<
 		}
 
 		component.setPosition(0, 0);
-		adjustFrameHeight();
+		adjustComponentHeight();
 	}
 
-	private void adjustFrameHeight() {
-		final StructuralFrame frame = accept(new DepthFirstBoxTraversal<StructuralFrame>() {
-			@Override
-			public StructuralFrame visit(final StructuralFrame box) {
-				return box;
-			}
-		});
-		if (frame == null) {
-			return;
-		}
-
-		frame.setHeight(usedHeight);
+	private void adjustComponentHeight() {
+		component.setHeight(usedHeight);
 	}
 
 	@Override
@@ -226,7 +216,7 @@ public class TableCell extends BaseBox implements IStructuralBox, IDecoratorBox<
 		}
 
 		component.setPosition(0, 0);
-		adjustFrameHeight();
+		adjustComponentHeight();
 		return true;
 	}
 

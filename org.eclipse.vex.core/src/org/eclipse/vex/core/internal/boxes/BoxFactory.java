@@ -177,7 +177,7 @@ public class BoxFactory {
 		return tableRow;
 	}
 
-	public static TableCell tableCell(final IStructuralBox component) {
+	public static TableCell tableCell(final IHeightAdjustableBox component) {
 		final TableCell tableCell = new TableCell();
 		tableCell.setComponent(component);
 		return tableCell;

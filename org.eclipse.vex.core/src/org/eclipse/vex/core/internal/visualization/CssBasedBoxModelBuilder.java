@@ -51,6 +51,7 @@ import org.eclipse.vex.core.internal.boxes.InlineContainer;
 import org.eclipse.vex.core.internal.boxes.LineWrappingRule;
 import org.eclipse.vex.core.internal.boxes.Paragraph;
 import org.eclipse.vex.core.internal.boxes.RootBox;
+import org.eclipse.vex.core.internal.boxes.StructuralFrame;
 import org.eclipse.vex.core.internal.boxes.Table;
 import org.eclipse.vex.core.internal.boxes.TableCell;
 import org.eclipse.vex.core.internal.boxes.TableColumnSpec;
@@ -315,7 +316,8 @@ public class CssBasedBoxModelBuilder implements IBoxModelBuilder {
 	}
 
 	private IStructuralBox visualizeAsTableCell(final IElement element, final Styles styles, final Collection<VisualizeResult> childrenResults) {
-		final TableCell cell = tableCell(wrapUpStructuralElementContent(element, styles, childrenResults, visualizeStructuralElementContent(element, styles, childrenResults)));
+		final IStructuralBox cellContent = visualizeStructuralElementContent(element, styles, childrenResults);
+		final TableCell cell = tableCell(frame(surroundWithPseudoElements(cellContent, element, styles), styles));
 
 		if ("entry".equals(element.getLocalName())) {
 			final IAttribute colName = element.getAttribute("colname");
@@ -339,7 +341,7 @@ public class CssBasedBoxModelBuilder implements IBoxModelBuilder {
 			// TODO HTML table
 		}
 
-		return cell;
+		return wrapWithNodeReference(element, childrenResults, cell);
 	}
 
 	private static int toInt(final IAttribute attribute) {
@@ -481,14 +483,19 @@ public class CssBasedBoxModelBuilder implements IBoxModelBuilder {
 	}
 
 	private static IStructuralBox wrapUpStructuralElementContent(final IElement element, final Styles styles, final Collection<VisualizeResult> childrenResults, final IStructuralBox content) {
+		final StructuralFrame frame = frame(surroundWithPseudoElements(content, element, styles), styles);
+		return wrapWithNodeReference(element, childrenResults, frame);
+	}
+
+	private static IStructuralBox wrapWithNodeReference(final IElement element, final Collection<VisualizeResult> childrenResults, final IStructuralBox content) {
 		final boolean mayContainText = mayContainText(element);
 		final boolean containsInlineContent = containsInlineContent(childrenResults);
 		if (mayContainText) {
-			return nodeReferenceWithText(element, frame(surroundWithPseudoElements(content, element, styles), styles));
+			return nodeReferenceWithText(element, content);
 		} else if (containsInlineContent) {
-			return nodeReferenceWithInlineContent(element, frame(surroundWithPseudoElements(content, element, styles), styles));
+			return nodeReferenceWithInlineContent(element, content);
 		} else {
-			return nodeReference(element, frame(surroundWithPseudoElements(content, element, styles), styles));
+			return nodeReference(element, content);
 		}
 	}
 

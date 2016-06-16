@@ -17,7 +17,7 @@ import org.eclipse.vex.core.internal.core.Rectangle;
 /**
  * @author Florian Thienel
  */
-public class StructuralFrame extends BaseBox implements IStructuralBox, IDecoratorBox<IStructuralBox> {
+public class StructuralFrame extends BaseBox implements IHeightAdjustableBox, IDecoratorBox<IStructuralBox> {
 
 	private IBox parent;
 	private int top;
@@ -85,6 +85,7 @@ public class StructuralFrame extends BaseBox implements IStructuralBox, IDecorat
 		return height;
 	}
 
+	@Override
 	public void setHeight(final int height) {
 		this.height = height;
 	}

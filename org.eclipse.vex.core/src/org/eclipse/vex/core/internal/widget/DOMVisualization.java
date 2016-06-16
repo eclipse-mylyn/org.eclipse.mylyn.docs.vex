@@ -18,6 +18,8 @@ import org.eclipse.core.runtime.Assert;
 import org.eclipse.vex.core.internal.boxes.BaseBoxVisitor;
 import org.eclipse.vex.core.internal.boxes.IBox;
 import org.eclipse.vex.core.internal.boxes.IContentBox;
+import org.eclipse.vex.core.internal.boxes.IHeightAdjustableBox;
+import org.eclipse.vex.core.internal.boxes.IStructuralBox;
 import org.eclipse.vex.core.internal.boxes.InlineContainer;
 import org.eclipse.vex.core.internal.boxes.InlineFrame;
 import org.eclipse.vex.core.internal.boxes.InlineNodeReference;
@@ -163,7 +165,9 @@ public class DOMVisualization {
 
 			@Override
 			public void visit(final TableCell box) {
-				box.setComponent(boxModelBuilder.visualizeStructure(node));
+				final IStructuralBox component = boxModelBuilder.visualizeStructure(node);
+				Assert.isTrue(component instanceof IHeightAdjustableBox);
+				box.setComponent((IHeightAdjustableBox) component);
 			}
 
 			@Override
