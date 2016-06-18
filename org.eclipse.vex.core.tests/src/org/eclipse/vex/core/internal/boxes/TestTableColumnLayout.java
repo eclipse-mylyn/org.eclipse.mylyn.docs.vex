@@ -19,11 +19,11 @@ import org.junit.Test;
 
 public class TestTableColumnLayout {
 
-	private TableColumnLayout layout;
+	private TableColumnDefinitions layout;
 
 	@Before
 	public void initLayout() {
-		layout = new TableColumnLayout();
+		layout = new TableColumnDefinitions();
 	}
 
 	@Test
@@ -76,6 +76,6 @@ public class TestTableColumnLayout {
 	@Test
 	public void givenChildLayout_whenColumnIsOnlyDefinedInParent_shouldProvideIndexFromParent() throws Exception {
 		layout.addColumn(1, "columnInParent", null);
-		assertThat(new TableColumnLayout(layout).getIndex("columnInParent"), is(equalTo(1)));
+		assertThat(new TableColumnDefinitions(layout).getIndex("columnInParent"), is(equalTo(1)));
 	}
 }

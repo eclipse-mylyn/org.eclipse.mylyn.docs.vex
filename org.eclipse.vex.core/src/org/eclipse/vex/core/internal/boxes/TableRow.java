@@ -31,7 +31,6 @@ public class TableRow extends BaseBox implements IStructuralBox, IParentBox<IStr
 
 	private int rowIndex;
 
-	private TableColumnLayout columnLayout = new TableColumnLayout();
 	private TableLayoutGrid layoutGrid = new TableLayoutGrid();
 
 	@Override
@@ -151,18 +150,6 @@ public class TableRow extends BaseBox implements IStructuralBox, IParentBox<IStr
 		this.rowIndex = rowIndex;
 	}
 
-	public TableColumnLayout getColumnLayout() {
-		return columnLayout;
-	}
-
-	public void setColumnLayout(final TableColumnLayout columnLayout) {
-		if (columnLayout == null) {
-			this.columnLayout = new TableColumnLayout();
-		} else {
-			this.columnLayout = columnLayout;
-		}
-	}
-
 	public TableLayoutGrid getLayoutGrid() {
 		return layoutGrid;
 	}
@@ -176,7 +163,6 @@ public class TableRow extends BaseBox implements IStructuralBox, IParentBox<IStr
 	}
 
 	public void layout(final Graphics graphics) {
-		TableColumnLayout.addColumnLayoutInformationForChildren(graphics, this, columnLayout);
 		TableLayoutGrid.setupLayoutGrid(graphics, this, layoutGrid);
 		int cellHeight = 0;
 
@@ -236,10 +222,10 @@ public class TableRow extends BaseBox implements IStructuralBox, IParentBox<IStr
 	}
 
 	private int getColumnWidth(final int index) {
-		if (index < 1 || index > columnLayout.getLastIndex()) {
+		if (index < 1 || index > layoutGrid.getColumns()) {
 			return 0;
 		}
-		return Math.round(width / columnLayout.getLastIndex());
+		return Math.round(width / layoutGrid.getColumns());
 	}
 
 	@Override

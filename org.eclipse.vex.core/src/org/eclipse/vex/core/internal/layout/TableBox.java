@@ -243,7 +243,6 @@ public class TableBox extends AbstractBlockBox {
 		int totalColumnWidth = horizonalSpacing;
 		final int columnWidth = (availableWidth - horizonalSpacing * (columnCount + 1)) / columnCount;
 		for (int i = 0; i < columnWidths.length - 1; i++) {
-			System.err.print(" " + columnWidth);
 			columnWidths[i] = columnWidth;
 			totalColumnWidth += columnWidth + horizonalSpacing;
 		}

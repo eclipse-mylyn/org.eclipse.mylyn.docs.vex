@@ -29,7 +29,6 @@ public class TableRowGroup extends BaseBox implements IStructuralBox, IParentBox
 	private int height;
 	private final ArrayList<IStructuralBox> children = new ArrayList<IStructuralBox>();
 
-	private TableColumnLayout columnLayout = new TableColumnLayout();
 	private TableLayoutGrid layoutGrid = new TableLayoutGrid();
 
 	@Override
@@ -141,14 +140,6 @@ public class TableRowGroup extends BaseBox implements IStructuralBox, IParentBox
 		return children;
 	}
 
-	public TableColumnLayout getColumnLayout() {
-		return columnLayout;
-	}
-
-	public void setColumnLayout(final TableColumnLayout columnLayout) {
-		this.columnLayout = columnLayout;
-	}
-
 	public TableLayoutGrid getLayoutGrid() {
 		return layoutGrid;
 	}
@@ -167,10 +158,6 @@ public class TableRowGroup extends BaseBox implements IStructuralBox, IParentBox
 	}
 
 	private void layoutColumns(final Graphics graphics) {
-		if (columnLayout.getLastIndex() > 0) {
-			columnLayout = new TableColumnLayout(columnLayout.getParentLayout());
-		}
-		TableColumnLayout.addColumnLayoutInformationForChildren(graphics, this, columnLayout);
 		TableLayoutGrid.setupLayoutGrid(graphics, this, layoutGrid);
 	}
 

@@ -25,8 +25,6 @@ public class TableCell extends BaseBox implements IStructuralBox, IDecoratorBox<
 
 	private IHeightAdjustableBox component;
 
-	private int startColumnIndex;
-	private int endColumnIndex;
 	private String columnName;
 	private String startColumnName;
 	private String endColumnName;
@@ -121,22 +119,6 @@ public class TableCell extends BaseBox implements IStructuralBox, IDecoratorBox<
 	@Override
 	public IHeightAdjustableBox getComponent() {
 		return component;
-	}
-
-	public int getStartColumnIndex() {
-		return startColumnIndex;
-	}
-
-	public void setStartColumnIndex(final int startColumnIndex) {
-		this.startColumnIndex = startColumnIndex;
-	}
-
-	public int getEndColumnIndex() {
-		return endColumnIndex;
-	}
-
-	public void setEndColumnIndex(final int endColumnIndex) {
-		this.endColumnIndex = endColumnIndex;
 	}
 
 	public String getColumnName() {

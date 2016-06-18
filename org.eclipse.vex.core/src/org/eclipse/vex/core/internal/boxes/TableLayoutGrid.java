@@ -19,6 +19,9 @@ import org.eclipse.vex.core.internal.core.Graphics;
  */
 public class TableLayoutGrid {
 
+	private final TableLayoutGrid parentGrid;
+	private final TableColumnDefinitions columnDefinitions;
+
 	private final HashMap<GridPosition, TableCell> grid = new HashMap<GridPosition, TableCell>();
 	private int currentRow = 0;
 	private int nextColumn = 1;
@@ -32,7 +35,7 @@ public class TableLayoutGrid {
 				if (box == parent) {
 					traverseChildren(box);
 				} else {
-					box.setLayoutGrid(layoutGrid);
+					box.setLayoutGrid(new TableLayoutGrid(layoutGrid));
 				}
 				return null;
 			}
@@ -42,15 +45,25 @@ public class TableLayoutGrid {
 				if (box == parent) {
 					traverseChildren(box);
 				} else {
-					box.setLayoutGrid(layoutGrid);
+					box.setLayoutGrid(new TableLayoutGrid(layoutGrid));
 				}
 				return null;
 			}
 
 			@Override
 			public Object visit(final TableColumnSpec box) {
-				// TODO Auto-generated method stub
-				return super.visit(box);
+				if (box.getStartName() != null) {
+					box.setStartIndex(layoutGrid.getColumnIndex(box.getStartName()));
+				}
+				if (box.getEndName() != null) {
+					box.setEndIndex(layoutGrid.getColumnIndex(box.getEndName()));
+				}
+				if (box.getStartIndex() == box.getEndIndex()) {
+					layoutGrid.addColumnDefinition(box.getStartIndex(), box.getName(), box.getWidthExpression());
+				} else {
+					layoutGrid.addSpanDefinition(box.getStartIndex(), box.getEndIndex(), box.getName());
+				}
+				return null;
 			}
 
 			@Override
@@ -66,14 +79,37 @@ public class TableLayoutGrid {
 
 			@Override
 			public Object visit(final TableCell box) {
-				if (box.getStartColumnIndex() > 0 && box.getEndColumnIndex() > 0) {
-					layoutGrid.addCellOnCurrentRow(box, box.getStartColumnIndex(), box.getEndColumnIndex());
+				int startIndex;
+				int endIndex;
+				if (box.getColumnName() != null) {
+					startIndex = layoutGrid.getColumnStartIndex(box.getColumnName());
+					endIndex = layoutGrid.getColumnEndIndex(box.getColumnName());
+				} else if (box.getStartColumnName() != null && box.getEndColumnName() != null) {
+					startIndex = layoutGrid.getColumnIndex(box.getStartColumnName());
+					endIndex = layoutGrid.getColumnIndex(box.getEndColumnName());
+				} else {
+					startIndex = 0;
+					endIndex = 0;
+				}
+
+				if (startIndex > 0 && endIndex > 0) {
+					layoutGrid.addCellOnCurrentRow(box, startIndex, endIndex);
 				} else {
 					layoutGrid.addNextCellOnCurrentRow(box);
 				}
 				return null;
 			}
 		});
+	}
+
+	public TableLayoutGrid() {
+		this(null);
+	}
+
+	public TableLayoutGrid(final TableLayoutGrid parentGrid) {
+		this.parentGrid = parentGrid;
+		final TableColumnDefinitions parentColumnDefinitions = parentGrid == null ? null : parentGrid.columnDefinitions;
+		columnDefinitions = new TableColumnDefinitions(parentColumnDefinitions);
 	}
 
 	public int getRows() {
@@ -84,25 +120,14 @@ public class TableLayoutGrid {
 		return maxColumn;
 	}
 
-	public int addNextRow(final TableRow row) {
+	private int addNextRow(final TableRow row) {
 		currentRow += 1;
 		row.setRowIndex(currentRow);
 		nextColumn = 1;
 		return currentRow;
 	}
 
-	public boolean addCellOnCurrentRow(final TableCell cell, final int column) {
-		final GridArea area = new GridArea(currentRow, column, currentRow + cell.getVerticalSpan() - 1, column);
-		if (isOccupied(area)) {
-			return false;
-		}
-		occupy(area, cell);
-		cell.setGridArea(area);
-		updateNextColumn();
-		return true;
-	}
-
-	public boolean addCellOnCurrentRow(final TableCell cell, final int startColumn, final int endColumn) {
+	private boolean addCellOnCurrentRow(final TableCell cell, final int startColumn, final int endColumn) {
 		final GridArea area = new GridArea(currentRow, startColumn, currentRow + cell.getVerticalSpan() - 1, endColumn);
 		if (isOccupied(area)) {
 			return false;
@@ -113,7 +138,7 @@ public class TableLayoutGrid {
 		return true;
 	}
 
-	public void addNextCellOnCurrentRow(final TableCell cell) {
+	private void addNextCellOnCurrentRow(final TableCell cell) {
 		final GridArea area = new GridArea(currentRow, nextColumn, currentRow + cell.getVerticalSpan() - 1, nextColumn);
 		occupy(area, cell);
 		cell.setGridArea(area);
@@ -224,6 +249,34 @@ public class TableLayoutGrid {
 				return box.getParent().accept(this);
 			}
 		});
+	}
+
+	private void addColumnDefinition(final int index, final String name, final String width) {
+		columnDefinitions.addColumn(index, name, width);
+	}
+
+	private void addSpanDefinition(final int startIndex, final int endIndex, final String name) {
+		columnDefinitions.addSpan(startIndex, endIndex, name);
+	}
+
+	private int getColumnStartIndex(final String name) {
+		return columnDefinitions.getStartIndex(name);
+	}
+
+	private int getColumnEndIndex(final String name) {
+		return columnDefinitions.getEndIndex(name);
+	}
+
+	private int getColumnIndex(final String name) {
+		return columnDefinitions.getIndex(name);
+	}
+
+	public int getColumnWidth(final int startIndex, final int endIndex) {
+		return columnDefinitions.getWidth(startIndex, endIndex);
+	}
+
+	public int getColumnWidth(final int index) {
+		return columnDefinitions.getWidth(index);
 	}
 
 	@Override
