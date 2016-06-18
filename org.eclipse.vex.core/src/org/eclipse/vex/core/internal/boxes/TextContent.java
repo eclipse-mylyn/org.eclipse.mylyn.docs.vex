@@ -125,6 +125,9 @@ public class TextContent extends BaseBox implements IInlineBox, IContentBox {
 	}
 
 	public String getText() {
+		if (startPosition.getOffset() > endPosition.getOffset()) {
+			return "";
+		}
 		return content.getText(new ContentRange(startPosition.getOffset(), endPosition.getOffset()));
 	}
 
