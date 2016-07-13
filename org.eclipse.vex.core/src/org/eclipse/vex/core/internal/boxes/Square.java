@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.boxes;
 
+import java.util.Collection;
+
 import org.eclipse.vex.core.internal.core.Color;
 import org.eclipse.vex.core.internal.core.Graphics;
 
@@ -59,8 +61,8 @@ public class Square extends SimpleInlineBox {
 	}
 
 	@Override
-	public boolean reconcileLayout(final Graphics graphics) {
-		return false; // static size
+	public Collection<IBox> reconcileLayout(final Graphics graphics) {
+		return NOTHING_INVALIDATED; // static size
 	}
 
 	@Override

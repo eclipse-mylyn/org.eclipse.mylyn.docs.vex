@@ -13,6 +13,9 @@ package org.eclipse.vex.core.internal.boxes;
 import static org.eclipse.vex.core.internal.core.TextUtils.countWhitespaceAtEnd;
 import static org.eclipse.vex.core.internal.core.TextUtils.countWhitespaceAtStart;
 
+import java.util.Collection;
+import java.util.Collections;
+
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.vex.core.internal.core.Color;
 import org.eclipse.vex.core.internal.core.FontMetrics;
@@ -236,14 +239,18 @@ public class TextContent extends BaseBox implements IInlineBox, IContentBox {
 	}
 
 	@Override
-	public boolean reconcileLayout(final Graphics graphics) {
+	public Collection<IBox> reconcileLayout(final Graphics graphics) {
 		final int oldHeight = height;
 		final int oldWidth = width;
 		final int oldBaseline = baseline;
 
 		layout(graphics);
 
-		return oldHeight != height || oldWidth != width || oldBaseline != baseline;
+		if (oldHeight != height || oldWidth != width || oldBaseline != baseline) {
+			return Collections.singleton(getParent());
+		} else {
+			return NOTHING_INVALIDATED;
+		}
 	}
 
 	@Override

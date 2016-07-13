@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.boxes;
 
+import java.util.Collection;
+
 import org.eclipse.vex.core.internal.core.Color;
 import org.eclipse.vex.core.internal.core.Graphics;
 import org.eclipse.vex.core.internal.core.Rectangle;
@@ -82,8 +84,8 @@ public class FakeContentBox extends BaseBox implements IContentBox {
 	}
 
 	@Override
-	public boolean reconcileLayout(final Graphics graphics) {
-		return false;
+	public Collection<IBox> reconcileLayout(final Graphics graphics) {
+		return NOTHING_INVALIDATED;
 	}
 
 	@Override

@@ -12,6 +12,7 @@ package org.eclipse.vex.core.internal.boxes;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.ListIterator;
 
 import org.eclipse.vex.core.internal.core.Graphics;
@@ -173,9 +174,9 @@ public class Table extends BaseBox implements IStructuralBox, IParentBox<IStruct
 	}
 
 	@Override
-	public boolean reconcileLayout(final Graphics graphics) {
+	public Collection<IBox> reconcileLayout(final Graphics graphics) {
 		layout(graphics);
-		return true;
+		return Collections.singleton(getParent());
 	}
 
 	@Override

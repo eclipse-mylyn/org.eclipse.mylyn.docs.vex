@@ -10,6 +10,9 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.boxes;
 
+import java.util.Collection;
+import java.util.Collections;
+
 import org.eclipse.vex.core.internal.core.Color;
 import org.eclipse.vex.core.internal.core.FontResource;
 import org.eclipse.vex.core.internal.core.FontSpec;
@@ -86,12 +89,16 @@ public class GraphicalBullet extends SimpleInlineBox {
 	}
 
 	@Override
-	public boolean reconcileLayout(final Graphics graphics) {
+	public Collection<IBox> reconcileLayout(final Graphics graphics) {
 		final int oldHeight = height;
 
 		layout(graphics);
 
-		return height != oldHeight;
+		if (height != oldHeight) {
+			return Collections.singleton(getParent());
+		} else {
+			return NOTHING_INVALIDATED;
+		}
 	}
 
 	@Override

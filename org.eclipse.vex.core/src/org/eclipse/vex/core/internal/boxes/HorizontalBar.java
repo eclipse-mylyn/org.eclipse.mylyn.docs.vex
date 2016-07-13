@@ -10,6 +10,8 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.boxes;
 
+import java.util.Collection;
+
 import org.eclipse.vex.core.internal.core.Color;
 import org.eclipse.vex.core.internal.core.ColorResource;
 import org.eclipse.vex.core.internal.core.Graphics;
@@ -116,9 +118,9 @@ public class HorizontalBar extends BaseBox implements IStructuralBox {
 	}
 
 	@Override
-	public boolean reconcileLayout(final Graphics graphics) {
+	public Collection<IBox> reconcileLayout(final Graphics graphics) {
 		// ignore, everything is static
-		return false;
+		return NOTHING_INVALIDATED;
 	}
 
 	@Override

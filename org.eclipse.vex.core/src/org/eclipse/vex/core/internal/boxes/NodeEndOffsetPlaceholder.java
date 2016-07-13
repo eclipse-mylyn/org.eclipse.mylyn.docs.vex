@@ -10,6 +10,9 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.boxes;
 
+import java.util.Collection;
+import java.util.Collections;
+
 import org.eclipse.vex.core.internal.core.Color;
 import org.eclipse.vex.core.internal.core.FontMetrics;
 import org.eclipse.vex.core.internal.core.FontSpec;
@@ -187,12 +190,12 @@ public class NodeEndOffsetPlaceholder extends BaseBox implements IInlineBox, ICo
 	}
 
 	@Override
-	public boolean reconcileLayout(final Graphics graphics) {
+	public Collection<IBox> reconcileLayout(final Graphics graphics) {
 		if (layoutValid) {
-			return false;
+			return NOTHING_INVALIDATED;
 		}
 		layout(graphics);
-		return true;
+		return Collections.singleton(getParent());
 	}
 
 	@Override

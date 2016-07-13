@@ -10,6 +10,9 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.boxes;
 
+import java.util.Collection;
+import java.util.Collections;
+
 import org.eclipse.vex.core.internal.core.Color;
 import org.eclipse.vex.core.internal.core.Graphics;
 import org.eclipse.vex.core.internal.core.NodeGraphics;
@@ -135,11 +138,16 @@ public class NodeTag extends SimpleInlineBox {
 	}
 
 	@Override
-	public boolean reconcileLayout(final Graphics graphics) {
+	public Collection<IBox> reconcileLayout(final Graphics graphics) {
 		final int oldWidth = width;
 		final int oldHeight = height;
 		layout(graphics);
-		return oldWidth != width || oldHeight != height;
+
+		if (oldWidth != width || oldHeight != height) {
+			return Collections.singleton(getParent());
+		} else {
+			return NOTHING_INVALIDATED;
+		}
 	}
 
 	@Override

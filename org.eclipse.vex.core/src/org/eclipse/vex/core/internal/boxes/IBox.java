@@ -10,6 +10,9 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.boxes;
 
+import java.util.Collection;
+import java.util.Collections;
+
 import org.eclipse.vex.core.internal.core.Graphics;
 import org.eclipse.vex.core.internal.core.Rectangle;
 
@@ -17,6 +20,8 @@ import org.eclipse.vex.core.internal.core.Rectangle;
  * @author Florian Thienel
  */
 public interface IBox {
+
+	Collection<IBox> NOTHING_INVALIDATED = Collections.emptyList();
 
 	int getAbsoluteTop();
 
@@ -38,7 +43,7 @@ public interface IBox {
 
 	void layout(Graphics graphics);
 
-	boolean reconcileLayout(Graphics graphics);
+	Collection<IBox> reconcileLayout(Graphics graphics);
 
 	void paint(Graphics graphics);
 

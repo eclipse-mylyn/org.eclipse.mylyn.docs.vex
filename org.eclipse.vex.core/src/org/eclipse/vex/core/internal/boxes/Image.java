@@ -11,6 +11,8 @@
 package org.eclipse.vex.core.internal.boxes;
 
 import java.net.URL;
+import java.util.Collection;
+import java.util.Collections;
 
 import org.eclipse.vex.core.internal.core.Graphics;
 import org.eclipse.vex.core.internal.core.Length;
@@ -221,13 +223,17 @@ public class Image extends BaseBox implements IInlineBox {
 	}
 
 	@Override
-	public boolean reconcileLayout(final Graphics graphics) {
+	public Collection<IBox> reconcileLayout(final Graphics graphics) {
 		final int oldHeight = height;
 		final int oldWidth = width;
 
 		layout(graphics);
 
-		return oldHeight != height || oldWidth != width;
+		if (oldHeight != height || oldWidth != width) {
+			return Collections.singleton(getParent());
+		} else {
+			return NOTHING_INVALIDATED;
+		}
 	}
 
 	@Override

@@ -10,6 +10,9 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.boxes;
 
+import java.util.Collection;
+import java.util.Collections;
+
 import org.eclipse.vex.core.internal.core.Graphics;
 import org.eclipse.vex.core.internal.core.Rectangle;
 
@@ -189,17 +192,17 @@ public class TableCell extends BaseBox implements IStructuralBox, IDecoratorBox<
 	}
 
 	@Override
-	public boolean reconcileLayout(final Graphics graphics) {
+	public Collection<IBox> reconcileLayout(final Graphics graphics) {
 		final int oldHeight = naturalHeight;
 		naturalHeight = calculateNaturalHeight(graphics, width);
 
 		if (oldHeight == naturalHeight) {
-			return false;
+			return NOTHING_INVALIDATED;
 		}
 
 		component.setPosition(0, 0);
 		adjustComponentHeight();
-		return true;
+		return Collections.singleton(getParent());
 	}
 
 	@Override

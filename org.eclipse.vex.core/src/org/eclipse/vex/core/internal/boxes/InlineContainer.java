@@ -11,6 +11,7 @@
 package org.eclipse.vex.core.internal.boxes;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.ListIterator;
 
@@ -263,12 +264,17 @@ public class InlineContainer extends BaseBox implements IInlineBox, IParentBox<I
 	}
 
 	@Override
-	public boolean reconcileLayout(final Graphics graphics) {
+	public Collection<IBox> reconcileLayout(final Graphics graphics) {
 		final int oldWidth = width;
 		final int oldHeight = height;
 		final int oldBaseline = baseline;
 		calculateBoundsAndBaseline();
-		return oldWidth != width || oldHeight != height || oldBaseline != baseline;
+
+		if (oldWidth != width || oldHeight != height || oldBaseline != baseline) {
+			return Collections.singleton(getParent());
+		} else {
+			return NOTHING_INVALIDATED;
+		}
 	}
 
 	@Override

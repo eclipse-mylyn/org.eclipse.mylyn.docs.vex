@@ -12,6 +12,7 @@ package org.eclipse.vex.core.internal.boxes;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.ListIterator;
 
 import org.eclipse.vex.core.internal.core.Graphics;
@@ -173,7 +174,7 @@ public class TableRowGroup extends BaseBox implements IStructuralBox, IParentBox
 	}
 
 	@Override
-	public boolean reconcileLayout(final Graphics graphics) {
+	public Collection<IBox> reconcileLayout(final Graphics graphics) {
 		final int oldHeight = height;
 		height = 0;
 		for (int i = 0; i < children.size(); i += 1) {
@@ -181,7 +182,12 @@ public class TableRowGroup extends BaseBox implements IStructuralBox, IParentBox
 			child.setPosition(height, 0);
 			height += child.getHeight();
 		}
-		return oldHeight != height;
+
+		if (oldHeight != height) {
+			return Collections.singleton(getParent());
+		} else {
+			return NOTHING_INVALIDATED;
+		}
 	}
 
 	@Override

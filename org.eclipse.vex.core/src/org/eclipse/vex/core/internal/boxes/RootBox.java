@@ -128,15 +128,14 @@ public class RootBox extends BaseBox implements IParentBox<IStructuralBox> {
 	}
 
 	@Override
-	public boolean reconcileLayout(final Graphics graphics) {
-		final int oldHeight = height;
+	public Collection<IBox> reconcileLayout(final Graphics graphics) {
 		height = 0;
 		for (int i = 0; i < children.size(); i += 1) {
 			final IStructuralBox child = children.get(i);
 			child.setPosition(height, 0);
 			height += child.getHeight();
 		}
-		return oldHeight != height;
+		return NOTHING_INVALIDATED;
 	}
 
 	@Override

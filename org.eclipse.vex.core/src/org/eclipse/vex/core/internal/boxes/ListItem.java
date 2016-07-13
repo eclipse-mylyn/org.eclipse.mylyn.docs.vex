@@ -12,6 +12,8 @@ package org.eclipse.vex.core.internal.boxes;
 
 import static org.eclipse.vex.core.internal.boxes.BoxFactory.frame;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 
 import org.eclipse.vex.core.internal.core.Graphics;
@@ -324,7 +326,7 @@ public class ListItem extends BaseBox implements IStructuralBox, IDecoratorBox<I
 	}
 
 	@Override
-	public boolean reconcileLayout(final Graphics graphics) {
+	public Collection<IBox> reconcileLayout(final Graphics graphics) {
 		final int oldHeight = height;
 
 		if (bulletPosition == BulletStyle.Position.INSIDE && component != null) {
@@ -334,7 +336,11 @@ public class ListItem extends BaseBox implements IStructuralBox, IDecoratorBox<I
 
 		height = Math.max(getBulletHeight(), getComponentHeight());
 
-		return oldHeight != height;
+		if (oldHeight != height) {
+			return Collections.singleton(getParent());
+		} else {
+			return NOTHING_INVALIDATED;
+		}
 	}
 
 	private int getBulletHeight() {

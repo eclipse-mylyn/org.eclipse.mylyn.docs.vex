@@ -10,8 +10,10 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.widget;
 
+import java.util.Collection;
+import java.util.LinkedList;
+
 import org.eclipse.vex.core.internal.boxes.IBox;
-import org.eclipse.vex.core.internal.boxes.IChildBox;
 import org.eclipse.vex.core.internal.boxes.RootBox;
 import org.eclipse.vex.core.internal.core.Graphics;
 import org.eclipse.vex.core.internal.core.Rectangle;
@@ -109,8 +111,17 @@ public class BoxView {
 		return new IRenderStep() {
 			@Override
 			public void render(final Graphics graphics) {
-				box.layout(graphics);
-				reconcileParentsLayout(box, graphics);
+				final LinkedList<IBox> invalidatedBoxes = new LinkedList<IBox>();
+				invalidatedBoxes.add(box);
+
+				while (!invalidatedBoxes.isEmpty()) {
+					final IBox invalidatedBox = invalidatedBoxes.pollFirst();
+					final Collection<IBox> nextBoxes = invalidatedBox.reconcileLayout(graphics);
+
+					invalidatedBoxes.addAll(nextBoxes); // TODO add only required boxes
+					// TODO remove unneccessary boxes
+				}
+
 				reconcileViewPort();
 			}
 		};
@@ -118,20 +129,6 @@ public class BoxView {
 
 	private void reconcileViewPort() {
 		viewPort.reconcile(rootBox.getHeight() + Cursor.CARET_BUFFER);
-	}
-
-	private void reconcileParentsLayout(final IBox box, final Graphics graphics) {
-		IBox parentBox = getParentBox(box);
-		while (parentBox != null && parentBox.reconcileLayout(graphics)) {
-			parentBox = getParentBox(parentBox);
-		}
-	}
-
-	private IBox getParentBox(final IBox box) {
-		if (box instanceof IChildBox) {
-			return ((IChildBox) box).getParent();
-		}
-		return null;
 	}
 
 	private IRenderStep renderCursorMovement() {

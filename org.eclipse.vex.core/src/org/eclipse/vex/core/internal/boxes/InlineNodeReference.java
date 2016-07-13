@@ -11,6 +11,8 @@
 package org.eclipse.vex.core.internal.boxes;
 
 import java.text.MessageFormat;
+import java.util.Collection;
+import java.util.Collections;
 
 import org.eclipse.core.runtime.Assert;
 import org.eclipse.vex.core.internal.core.Color;
@@ -210,7 +212,7 @@ public class InlineNodeReference extends BaseBox implements IInlineBox, IDecorat
 	}
 
 	@Override
-	public boolean reconcileLayout(final Graphics graphics) {
+	public Collection<IBox> reconcileLayout(final Graphics graphics) {
 		final int oldWidth = width;
 		final int oldHeight = height;
 		final int oldBaseline = baseline;
@@ -220,7 +222,11 @@ public class InlineNodeReference extends BaseBox implements IInlineBox, IDecorat
 
 		layout(graphics);
 
-		return oldWidth != width || oldHeight != height || oldBaseline != baseline;
+		if (oldWidth != width || oldHeight != height || oldBaseline != baseline) {
+			return Collections.singleton(getParent());
+		} else {
+			return NOTHING_INVALIDATED;
+		}
 	}
 
 	@Override
