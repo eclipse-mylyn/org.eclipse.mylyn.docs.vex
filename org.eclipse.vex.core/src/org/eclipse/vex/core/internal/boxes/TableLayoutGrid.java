@@ -10,6 +10,7 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.boxes;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.eclipse.vex.core.internal.core.Graphics;
@@ -19,16 +20,16 @@ import org.eclipse.vex.core.internal.core.Graphics;
  */
 public class TableLayoutGrid {
 
-	private final TableLayoutGrid parentGrid;
 	private final TableColumnDefinitions columnDefinitions;
 
+	private final ArrayList<TableRow> rows = new ArrayList<TableRow>();
 	private final HashMap<GridPosition, TableCell> grid = new HashMap<GridPosition, TableCell>();
+
 	private int currentRow = 0;
 	private int nextColumn = 1;
 	private int maxColumn = 0;
 
 	public static void setupLayoutGrid(final Graphics graphics, final IStructuralBox parent, final TableLayoutGrid layoutGrid) {
-		// TODO merge with TableColumnLayout
 		parent.accept(new DepthFirstBoxTraversal<Object>() {
 			@Override
 			public Object visit(final Table box) {
@@ -107,7 +108,6 @@ public class TableLayoutGrid {
 	}
 
 	public TableLayoutGrid(final TableLayoutGrid parentGrid) {
-		this.parentGrid = parentGrid;
 		final TableColumnDefinitions parentColumnDefinitions = parentGrid == null ? null : parentGrid.columnDefinitions;
 		columnDefinitions = new TableColumnDefinitions(parentColumnDefinitions);
 	}
@@ -121,7 +121,8 @@ public class TableLayoutGrid {
 	}
 
 	private int addNextRow(final TableRow row) {
-		currentRow += 1;
+		rows.add(row);
+		currentRow = rows.size();
 		row.setRowIndex(currentRow);
 		nextColumn = 1;
 		return currentRow;
@@ -169,6 +170,10 @@ public class TableLayoutGrid {
 
 	private boolean isOccupied(final GridPosition position) {
 		return grid.containsKey(position);
+	}
+
+	public TableRow getRow(final int index) {
+		return rows.get(index - 1);
 	}
 
 	public TableCell getCell(final GridPosition position) {
