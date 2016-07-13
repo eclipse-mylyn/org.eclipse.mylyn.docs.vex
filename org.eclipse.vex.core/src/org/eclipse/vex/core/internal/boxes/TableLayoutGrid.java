@@ -135,6 +135,7 @@ public class TableLayoutGrid {
 		}
 		occupy(area, cell);
 		cell.setGridArea(area);
+		cell.setLayoutGrid(this);
 		updateNextColumn();
 		return true;
 	}
@@ -143,6 +144,7 @@ public class TableLayoutGrid {
 		final GridArea area = new GridArea(currentRow, nextColumn, currentRow + cell.getVerticalSpan() - 1, nextColumn);
 		occupy(area, cell);
 		cell.setGridArea(area);
+		cell.setLayoutGrid(this);
 		updateNextColumn();
 	}
 

@@ -10,8 +10,8 @@
  *******************************************************************************/
 package org.eclipse.vex.core.internal.boxes;
 
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 
 import org.eclipse.vex.core.internal.core.Graphics;
 import org.eclipse.vex.core.internal.core.Rectangle;
@@ -34,6 +34,7 @@ public class TableCell extends BaseBox implements IStructuralBox, IDecoratorBox<
 	private int verticalSpan = 1;
 
 	private GridArea gridArea;
+	private TableLayoutGrid layoutGrid;
 
 	private int naturalHeight;
 	private int usedHeight;
@@ -164,6 +165,14 @@ public class TableCell extends BaseBox implements IStructuralBox, IDecoratorBox<
 		this.gridArea = gridArea;
 	}
 
+	public TableLayoutGrid getLayoutGrid() {
+		return layoutGrid;
+	}
+
+	public void setLayoutGrid(final TableLayoutGrid layoutGrid) {
+		this.layoutGrid = layoutGrid;
+	}
+
 	public int calculateNaturalHeight(final Graphics graphics, final int width) {
 		naturalHeight = 0;
 		if (component == null) {
@@ -202,7 +211,13 @@ public class TableCell extends BaseBox implements IStructuralBox, IDecoratorBox<
 
 		component.setPosition(0, 0);
 		adjustComponentHeight();
-		return Collections.singleton(getParent());
+
+		final ArrayList<IBox> invalidatedRows = new ArrayList<IBox>();
+		for (int row = gridArea.startRow; row <= gridArea.endRow; row += 1) {
+			invalidatedRows.add(layoutGrid.getRow(row));
+		}
+
+		return invalidatedRows;
 	}
 
 	@Override
