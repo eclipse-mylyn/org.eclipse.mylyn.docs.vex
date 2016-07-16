@@ -12,8 +12,10 @@ package org.eclipse.vex.core.internal.widget;
 
 import java.util.Collection;
 import java.util.LinkedList;
+import java.util.ListIterator;
 
 import org.eclipse.vex.core.internal.boxes.IBox;
+import org.eclipse.vex.core.internal.boxes.IChildBox;
 import org.eclipse.vex.core.internal.boxes.RootBox;
 import org.eclipse.vex.core.internal.core.Graphics;
 import org.eclipse.vex.core.internal.core.Rectangle;
@@ -111,20 +113,62 @@ public class BoxView {
 		return new IRenderStep() {
 			@Override
 			public void render(final Graphics graphics) {
-				final LinkedList<IBox> invalidatedBoxes = new LinkedList<IBox>();
-				invalidatedBoxes.add(box);
-
-				while (!invalidatedBoxes.isEmpty()) {
-					final IBox invalidatedBox = invalidatedBoxes.pollFirst();
-					final Collection<IBox> nextBoxes = invalidatedBox.reconcileLayout(graphics);
-
-					invalidatedBoxes.addAll(nextBoxes); // TODO add only required boxes
-					// TODO remove unneccessary boxes
-				}
-
+				reconcileBoxLayout(graphics, box);
 				reconcileViewPort();
 			}
 		};
+	}
+
+	private static void reconcileBoxLayout(final Graphics graphics, final IBox box) {
+		final LinkedList<IBox> invalidatedBoxes = new LinkedList<IBox>();
+		invalidatedBoxes.add(box);
+
+		while (!invalidatedBoxes.isEmpty()) {
+			final IBox invalidatedBox = invalidatedBoxes.pollFirst();
+			final Collection<IBox> nextBoxes = invalidatedBox.reconcileLayout(graphics);
+			cover(invalidatedBoxes, nextBoxes);
+		}
+	}
+
+	private static void cover(final LinkedList<IBox> queue, final Collection<IBox> newBoxes) {
+		for (final IBox box : newBoxes) {
+			cover(queue, box);
+		}
+	}
+
+	private static void cover(final LinkedList<IBox> queue, final IBox box) {
+		final ListIterator<IBox> iterator = queue.listIterator();
+		while (iterator.hasNext()) {
+			final IBox queuedBox = iterator.next();
+			if (isCovered(queuedBox, box)) {
+				iterator.set(box);
+				return;
+			} else if (isCovered(box, queuedBox)) {
+				return;
+			}
+		}
+		queue.add(box);
+	}
+
+	private static boolean isCovered(final IBox box, final IBox cover) {
+		return isAncestor(box, cover);
+	}
+
+	private static boolean isAncestor(final IBox box, final IBox ancestor) {
+		if (ancestor == null) {
+			return false;
+		}
+		if (box == ancestor) {
+			return true;
+		}
+		return isAncestor(box, getParent(ancestor));
+	}
+
+	private static IBox getParent(final IBox box) {
+		if (box instanceof IChildBox) {
+			return ((IChildBox) box).getParent();
+		}
+		return null;
 	}
 
 	private void reconcileViewPort() {
