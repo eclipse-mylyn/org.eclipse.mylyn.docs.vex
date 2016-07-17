@@ -27,6 +27,7 @@ import org.eclipse.vex.core.internal.boxes.List;
 import org.eclipse.vex.core.internal.boxes.ListItem;
 import org.eclipse.vex.core.internal.boxes.NodeEndOffsetPlaceholder;
 import org.eclipse.vex.core.internal.boxes.Paragraph;
+import org.eclipse.vex.core.internal.boxes.ParentTraversal;
 import org.eclipse.vex.core.internal.boxes.RootBox;
 import org.eclipse.vex.core.internal.boxes.StructuralFrame;
 import org.eclipse.vex.core.internal.boxes.StructuralNodeReference;
@@ -193,7 +194,7 @@ public class DOMVisualization {
 	}
 
 	public void rebuildContentRange(final INode node, final ContentRange modifiedRange) {
-		final IContentBox modifiedBox = contentTopology.findBoxForRange(modifiedRange);
+		final IContentBox modifiedBox = findModifiedBox(modifiedRange);
 		Assert.isNotNull(modifiedBox, "No box found for range " + modifiedRange);
 
 		modifiedBox.accept(new BaseBoxVisitor() {
@@ -219,6 +220,50 @@ public class DOMVisualization {
 			@Override
 			public void visit(final NodeEndOffsetPlaceholder box) {
 				view.invalidateLayout(modifiedBox);
+			}
+		});
+	}
+
+	private IContentBox findModifiedBox(final ContentRange modifiedRange) {
+		final IContentBox modifiedBox = contentTopology.findBoxForRange(new ContentRange(modifiedRange.getStartOffset(), modifiedRange.getStartOffset()));
+		if (modifiedBox.getEndOffset() >= modifiedRange.getEndOffset()) {
+			return modifiedBox;
+		}
+		return surroundingContentBox(modifiedBox);
+	}
+
+	private static IContentBox surroundingContentBox(final IContentBox contentBox) {
+		return contentBox.accept(new ParentTraversal<IContentBox>() {
+			@Override
+			public IContentBox visit(final StructuralNodeReference box) {
+				if (box == contentBox) {
+					return super.visit(box);
+				}
+				return box;
+			}
+
+			@Override
+			public IContentBox visit(final InlineNodeReference box) {
+				if (box == contentBox) {
+					return super.visit(box);
+				}
+				return box;
+			}
+
+			@Override
+			public IContentBox visit(final TextContent box) {
+				if (box == contentBox) {
+					return super.visit(box);
+				}
+				return box;
+			}
+
+			@Override
+			public IContentBox visit(final NodeEndOffsetPlaceholder box) {
+				if (box == contentBox) {
+					return super.visit(box);
+				}
+				return box;
 			}
 		});
 	}
