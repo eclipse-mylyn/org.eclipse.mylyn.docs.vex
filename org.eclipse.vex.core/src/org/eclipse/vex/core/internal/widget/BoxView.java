@@ -106,7 +106,6 @@ public class BoxView {
 				cursor.reconcile(graphics);
 				reconcileViewPort();
 			}
-
 		};
 	}
 
@@ -121,8 +120,10 @@ public class BoxView {
 	}
 
 	private static void reconcileBoxLayout(final Graphics graphics, final IBox box) {
+		box.layout(graphics);
+
 		final LinkedList<IBox> invalidatedBoxes = new LinkedList<IBox>();
-		invalidatedBoxes.add(box);
+		invalidatedBoxes.add(getParent(box));
 
 		while (!invalidatedBoxes.isEmpty()) {
 			final IBox invalidatedBox = invalidatedBoxes.pollFirst();
