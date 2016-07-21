@@ -77,6 +77,7 @@ public class BoxView {
 			@Override
 			public void render(final Graphics graphics) {
 				rootBox.setWidth(width);
+				moveViewPortToCursor(graphics);
 			}
 		};
 
