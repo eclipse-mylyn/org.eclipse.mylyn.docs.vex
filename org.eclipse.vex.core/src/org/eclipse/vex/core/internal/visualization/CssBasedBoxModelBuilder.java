@@ -152,7 +152,9 @@ public class CssBasedBoxModelBuilder implements IBoxModelBuilder {
 			public VisualizeResult visit(final IElement element) {
 				final Styles styles = styleSheet.getStyles(element);
 				final Collection<VisualizeResult> childrenResults = traverseChildren(element);
-				if (isTable(styles)) {
+				if (isNestedTable(styles, element)) {
+					return new VisualizeResult(element, styles, childrenResults, visualizeAsNestedTable(element, styles, childrenResults));
+				} else if (isTable(styles)) {
 					final Table table = visualizeAsTable(element, styles, childrenResults);
 					return new VisualizeResult(element, styles, childrenResults, table);
 				} else if (isTableRowGroup(styles)) {
@@ -219,6 +221,10 @@ public class CssBasedBoxModelBuilder implements IBoxModelBuilder {
 		return CSS.TABLE.equals(styles.getDisplay());
 	}
 
+	private static boolean isNestedTable(final Styles styles, final IElement element) {
+		return "entrytbl".equals(element.getLocalName()) && isTable(styles);
+	}
+
 	private static boolean isTableRowGroup(final Styles styles) {
 		return CSS.TABLE_ROW_GROUP.equals(styles.getDisplay())
 				|| CSS.TABLE_HEADER_GROUP.equals(styles.getDisplay())
@@ -241,7 +247,6 @@ public class CssBasedBoxModelBuilder implements IBoxModelBuilder {
 	}
 
 	private static boolean isDisplayedAsBlock(final Styles styles) {
-		// currently we can only render blocks or inline, hence everything that is not inline must be a block
 		return !isDisplayedInline(styles);
 	}
 
@@ -315,33 +320,48 @@ public class CssBasedBoxModelBuilder implements IBoxModelBuilder {
 		return wrapUpStructuralElementContent(element, styles, childrenResults, row);
 	}
 
+	private IStructuralBox visualizeAsNestedTable(final IElement element, final Styles styles, final Collection<VisualizeResult> childrenResults) {
+		final IStructuralBox cellContent = table(visualizeStructuralElementContent(element, styles, childrenResults));
+		final TableCell cell = tableCell(frame(surroundWithPseudoElements(cellContent, element, styles), styles));
+
+		if ("entrytbl".equals(element.getLocalName())) {
+			configureCALSCell(element, cell);
+		}
+
+		return wrapWithNodeReference(element, childrenResults, cell);
+	}
+
 	private IStructuralBox visualizeAsTableCell(final IElement element, final Styles styles, final Collection<VisualizeResult> childrenResults) {
 		final IStructuralBox cellContent = visualizeStructuralElementContent(element, styles, childrenResults);
 		final TableCell cell = tableCell(frame(surroundWithPseudoElements(cellContent, element, styles), styles));
 
 		if ("entry".equals(element.getLocalName())) {
-			final IAttribute colName = element.getAttribute("colname");
-			final IAttribute spanName = element.getAttribute("spanname");
-			if (colName != null) {
-				cell.setColumnName(colName.getValue());
-			} else if (spanName != null) {
-				cell.setColumnName(spanName.getValue());
-			}
-
-			final IAttribute nameStart = element.getAttribute("namest");
-			final IAttribute nameEnd = element.getAttribute("nameend");
-			if (nameStart != null && nameEnd != null) {
-				cell.setStartColumnName(nameStart.getValue());
-				cell.setEndColumnName(nameEnd.getValue());
-			}
-
-			final IAttribute moreRows = element.getAttribute("morerows");
-			cell.setVerticalSpan(1 + toInt(moreRows));
+			configureCALSCell(element, cell);
 		} else if ("th".equals(element.getLocalName()) || "td".equals(element.getLocalName())) {
 			// TODO HTML table
 		}
 
 		return wrapWithNodeReference(element, childrenResults, cell);
+	}
+
+	private static void configureCALSCell(final IElement element, final TableCell cell) {
+		final IAttribute colName = element.getAttribute("colname");
+		final IAttribute spanName = element.getAttribute("spanname");
+		if (colName != null) {
+			cell.setColumnName(colName.getValue());
+		} else if (spanName != null) {
+			cell.setColumnName(spanName.getValue());
+		}
+
+		final IAttribute nameStart = element.getAttribute("namest");
+		final IAttribute nameEnd = element.getAttribute("nameend");
+		if (nameStart != null && nameEnd != null) {
+			cell.setStartColumnName(nameStart.getValue());
+			cell.setEndColumnName(nameEnd.getValue());
+		}
+
+		final IAttribute moreRows = element.getAttribute("morerows");
+		cell.setVerticalSpan(1 + toInt(moreRows));
 	}
 
 	private static int toInt(final IAttribute attribute) {
