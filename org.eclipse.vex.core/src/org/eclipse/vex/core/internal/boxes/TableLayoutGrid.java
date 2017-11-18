@@ -125,6 +125,7 @@ public class TableLayoutGrid {
 		currentRow = rows.size();
 		row.setRowIndex(currentRow);
 		nextColumn = 1;
+		updateNextColumn();
 		return currentRow;
 	}
 
@@ -141,7 +142,7 @@ public class TableLayoutGrid {
 	}
 
 	private void addNextCellOnCurrentRow(final TableCell cell) {
-		final GridArea area = new GridArea(currentRow, nextColumn, currentRow + cell.getVerticalSpan() - 1, nextColumn);
+		final GridArea area = new GridArea(currentRow, nextColumn, currentRow + cell.getVerticalSpan() - 1, nextColumn + cell.getHorizontalSpan() - 1);
 		occupy(area, cell);
 		cell.setGridArea(area);
 		cell.setLayoutGrid(this);

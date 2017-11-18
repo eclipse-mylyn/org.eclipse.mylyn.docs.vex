@@ -31,6 +31,7 @@ public class TableCell extends BaseBox implements IStructuralBox, IDecoratorBox<
 	private String columnName;
 	private String startColumnName;
 	private String endColumnName;
+	private int horizontalSpan = 1;
 	private int verticalSpan = 1;
 
 	private GridArea gridArea;
@@ -147,6 +148,14 @@ public class TableCell extends BaseBox implements IStructuralBox, IDecoratorBox<
 
 	public void setEndColumnName(final String endColumnName) {
 		this.endColumnName = endColumnName;
+	}
+
+	public int getHorizontalSpan() {
+		return horizontalSpan;
+	}
+
+	public void setHorizontalSpan(final int horizontalSpan) {
+		this.horizontalSpan = horizontalSpan;
 	}
 
 	public int getVerticalSpan() {

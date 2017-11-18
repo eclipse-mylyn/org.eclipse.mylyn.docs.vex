@@ -282,7 +282,7 @@ public class CssBasedBoxModelBuilder implements IBoxModelBuilder {
 
 		if ("colspec".equals(element.getLocalName())) {
 			name = toString(element.getAttribute("colname"));
-			startIndex = toInt(element.getAttribute("colnum"));
+			startIndex = toInt(element.getAttribute("colnum"), 0);
 			endIndex = startIndex;
 			startName = null;
 			endName = null;
@@ -338,7 +338,7 @@ public class CssBasedBoxModelBuilder implements IBoxModelBuilder {
 		if ("entry".equals(element.getLocalName())) {
 			configureCALSCell(element, cell);
 		} else if ("th".equals(element.getLocalName()) || "td".equals(element.getLocalName())) {
-			// TODO HTML table
+			configureHTMLCell(element, cell);
 		}
 
 		return wrapWithNodeReference(element, childrenResults, cell);
@@ -361,17 +361,25 @@ public class CssBasedBoxModelBuilder implements IBoxModelBuilder {
 		}
 
 		final IAttribute moreRows = element.getAttribute("morerows");
-		cell.setVerticalSpan(1 + toInt(moreRows));
+		cell.setVerticalSpan(1 + toInt(moreRows, 0));
 	}
 
-	private static int toInt(final IAttribute attribute) {
+	private static void configureHTMLCell(final IElement element, final TableCell cell) {
+		final IAttribute colSpan = element.getAttribute("colspan");
+		cell.setHorizontalSpan(toInt(colSpan, 1));
+
+		final IAttribute rowSpan = element.getAttribute("rowspan");
+		cell.setVerticalSpan(toInt(rowSpan, 1));
+	}
+
+	private static int toInt(final IAttribute attribute, final int defaultValue) {
 		if (attribute == null) {
-			return 0;
+			return defaultValue;
 		}
 		try {
 			return Integer.parseInt(attribute.getValue());
 		} catch (final NumberFormatException e) {
-			return 0;
+			return defaultValue;
 		}
 	}
 
